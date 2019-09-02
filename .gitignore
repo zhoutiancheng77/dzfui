@@ -1,2 +1,16 @@
-# Created by .ignore support plugin (hsz.mobi)
+*.class
+
+*.log
+
+classes/
+/build
+target/
+
+# IDEA
 .idea
+*.iml
+
+# Eclipse
+.settings
+.classpath
+.project
