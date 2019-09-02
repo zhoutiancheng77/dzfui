@@ -17,6 +17,7 @@
 
     <modules>
         <module>zxkj-gateway</module>
+        <module>zxkj-modules</module>
     </modules>
 
     <name>dzf-zxkj</name>
