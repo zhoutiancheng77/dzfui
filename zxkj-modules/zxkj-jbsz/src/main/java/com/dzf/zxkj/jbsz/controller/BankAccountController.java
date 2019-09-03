@@ -17,7 +17,7 @@ import java.util.List;
  */
 @RestController
 @Slf4j
-@RequestMapping("/gl/gl_yhzhact")
+@RequestMapping("/yhzh")
 public class BankAccountController {
 
     @Autowired
