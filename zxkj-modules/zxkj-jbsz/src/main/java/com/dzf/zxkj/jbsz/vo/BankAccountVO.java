@@ -1,9 +1,6 @@
 package com.dzf.zxkj.jbsz.vo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.jbsz.handler.mybatis.DZFDateTimeHandler;
@@ -71,6 +68,7 @@ public class BankAccountVO implements Serializable {
     private DZFDateTime modifydatetime;//修改时间
 
     @JsonProperty("dr")
+    @TableLogic
     private int dr;
 
     @JsonProperty("ts")

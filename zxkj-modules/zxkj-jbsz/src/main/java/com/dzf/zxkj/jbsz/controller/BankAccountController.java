@@ -23,7 +23,7 @@ public class BankAccountController {
     @Autowired
     private IBankAccountService bankAccountService;
 
-    @PostMapping("list")
+    @GetMapping("list")
     public ReturnData<List<BankAccountVO>> list(@RequestParam("pk_corp") String pk_corp, @RequestParam("isnhsty") String isnhsty, @RequestParam(required = false, defaultValue = "1") Integer pageNum, @RequestParam(required = false, defaultValue = "10") Integer pageSize){
         Page page = new Page(pageNum, pageSize);
         return ReturnData.ok().data(bankAccountService.query(page, pk_corp, isnhsty));
