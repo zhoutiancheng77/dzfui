@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.common.utils.IDGenerate;
 import com.dzf.zxkj.jbsz.mapper.BankAccountMapper;
 import com.dzf.zxkj.jbsz.service.IBankAccountService;
 import com.dzf.zxkj.jbsz.vo.BankAccountVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.List;
 
@@ -28,12 +30,13 @@ public class BankAccountServiceImpl implements IBankAccountService {
     @Override
     public BankAccountVO save(BankAccountVO vo) throws DZFWarpException {
         checkExist(vo);
+        vo.setPk_bankaccount(IDGenerate.getInstance().getNextID(vo.getPk_corp()));
         int i = bankAccountMapper.insert(vo);
         return i == 0 ? null : vo;
     }
 
     @Override
-    public void update(BankAccountVO vo, String[] fileds) throws DZFWarpException {
+    public void update(BankAccountVO vo) throws DZFWarpException {
         checkExist(vo);
         bankAccountMapper.updateById(vo);
     }
@@ -51,14 +54,13 @@ public class BankAccountServiceImpl implements IBankAccountService {
     @Override
     public BankAccountVO queryById(String id) throws DZFWarpException {
         BankAccountVO bankAccountVO = bankAccountMapper.selectById(id);
-        bankAccountVO.setPk_bankaccount(id);
         return bankAccountVO;
     }
 
     @Override
     public void delete(BankAccountVO vo) throws DZFWarpException {
         beforeDel(vo);
-        bankAccountMapper.deleteById(vo.getBankaccount());
+        bankAccountMapper.deleteById(vo.getPk_bankaccount());
     }
 
     private void beforeDel(BankAccountVO vo) {
@@ -83,10 +85,10 @@ public class BankAccountServiceImpl implements IBankAccountService {
      * @return
      */
     private boolean checkIsRef(BankAccountVO vo) {
-        QueryWrapper<BankAccountVO> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("pk_corp", vo.getPk_corp());
-        queryWrapper.eq("pk_bankaccount", vo.getBankaccount());
-        return bankAccountMapper.selectCount(queryWrapper) >= 1;
+
+        int i = bankAccountMapper.existsInBankstatement(vo.getPk_corp(), vo.getBankaccount());
+
+        return  i >= 1;
     }
 
     @Override
@@ -100,9 +102,11 @@ public class BankAccountServiceImpl implements IBankAccountService {
     }
 
     private void checkExist(BankAccountVO vo) throws DZFWarpException {
-        if (StringUtils.isEmpty(vo.getBankcode())
-                && StringUtils.isEmpty(vo.getBankname()))
-            return;
+        Assert.notNull(vo.getBankcode(), "银行账户编码不能为空！");
+        Assert.notNull(vo.getBankname(), "银行账户名称不能为空！");
+        Assert.notNull(vo.getBankcode(),"银行账号不能为空");
+        Assert.notNull(vo.getRelatedsubj(),"关联会计科目不能为空！");
+
         QueryWrapper<BankAccountVO> queryWrapper = new QueryWrapper<>();
 
         if (!StringUtils.isEmpty(vo.getPk_bankaccount())) {

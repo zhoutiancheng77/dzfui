@@ -24,10 +24,9 @@ public interface IBankAccountService {
     /**
      * 更新
      * @param vo
-     * @param fileds
      * @throws DZFWarpException
      */
-    void update(BankAccountVO vo, String[] fileds) throws DZFWarpException;
+    void update(BankAccountVO vo) throws DZFWarpException;
 
     /**
      * 查询

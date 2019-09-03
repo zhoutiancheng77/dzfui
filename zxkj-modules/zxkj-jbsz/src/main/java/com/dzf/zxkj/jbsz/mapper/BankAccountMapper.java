@@ -19,4 +19,6 @@ public interface BankAccountMapper extends BaseMapper<BankAccountVO> {
     List<BankAccountVO> query(String pk_corp, String isnhsty);
 
     IPage<BankAccountVO> query(Page page, String pk_corp, String isnhsty);
+
+    int existsInBankstatement(String pk_corp, String bankaccount);
 }

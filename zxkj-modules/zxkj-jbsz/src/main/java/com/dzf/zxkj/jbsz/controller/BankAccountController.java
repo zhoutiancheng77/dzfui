@@ -38,4 +38,15 @@ public class BankAccountController {
     public ReturnData<BankAccountVO> save(@RequestBody BankAccountVO bankAccountVO){
         return ReturnData.ok().message("保存成功").data(bankAccountService.save(bankAccountVO));
     }
+
+    @PostMapping("update")
+    public ReturnData update(@RequestBody BankAccountVO bankAccountVO){
+        bankAccountService.update(bankAccountVO);
+        return ReturnData.ok().message("更新成功");
+    }
+    @PostMapping("delete")
+    public ReturnData delete(@RequestBody BankAccountVO bankAccountVO){
+        bankAccountService.delete(bankAccountVO);
+        return ReturnData.ok().message("删除成功");
+    }
 }

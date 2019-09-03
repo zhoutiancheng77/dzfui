@@ -17,4 +17,7 @@
             </if>
             AND y.pk_corp = #{pk_corp}
     </select>
+    <select id="existsInBankstatement" resultType="java.lang.Integer">
+        select count(1) from ynt_bankstatement where nvl(dr, 0) = 0 and pk_corp = #{pk_corp} and pk_bankaccount = #{bankaccount}
+    </select>
 </mapper>
