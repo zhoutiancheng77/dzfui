@@ -18,6 +18,8 @@
     <modules>
         <module>zxkj-gateway</module>
         <module>zxkj-modules</module>
+        <module>zxkj-common</module>
+        <module>zxkj-tools</module>
     </modules>
 
     <name>dzf-zxkj</name>
