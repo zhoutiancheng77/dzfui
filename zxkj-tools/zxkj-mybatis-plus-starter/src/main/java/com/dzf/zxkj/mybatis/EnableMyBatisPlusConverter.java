@@ -17,6 +17,6 @@ import java.lang.annotation.*;
 @EnableScheduling
 @Documented
 @Inherited
-public @interface EnableMyBatisPlus {
+public @interface EnableMyBatisPlusConverter {
 
 }
