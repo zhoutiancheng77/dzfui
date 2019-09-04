@@ -1,4 +1,4 @@
-package com.dzf.zxkj.common.lang;
+package com.dzf.zxkj.mybatis.lang;
 
 import java.util.Calendar;
 import java.util.Date;

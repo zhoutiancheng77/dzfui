@@ -13,4 +13,7 @@
     <packaging>pom</packaging>
 
     <name>zxkj-tools</name>
+    <modules>
+        <module>zxkj-mybatis-plus-starter</module>
+    </modules>
 </project>
