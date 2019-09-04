@@ -3,8 +3,6 @@ package com.dzf.zxkj.jbsz.vo;
 import com.baomidou.mybatisplus.annotation.*;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
-import com.dzf.zxkj.jbsz.handler.mybatis.DZFDateTimeHandler;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.apache.ibatis.type.JdbcType;
