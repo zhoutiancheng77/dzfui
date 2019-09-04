@@ -20,7 +20,7 @@ public class BankAccountVO implements Serializable {
     private static final long serialVersionUID = 2579496229640721886L;
 
     @JsonProperty("id")
-    @TableId(value = "pk_bankaccount")
+    @TableId(value = "pk_bankaccount", type = IdType.ID_WORKER_STR)
     private String  pk_bankaccount;//主键
 
     @JsonProperty("cid")

@@ -32,7 +32,6 @@ public class BankAccountServiceImpl implements IBankAccountService {
     @Override
     public BankAccountVO save(BankAccountVO vo) throws DZFWarpException {
         checkExist(vo);
-        vo.setPk_bankaccount(IDGenerate.getInstance().getNextID(vo.getPk_corp()));
         int i = bankAccountMapper.insert(vo);
         return i == 0 ? null : vo;
     }
