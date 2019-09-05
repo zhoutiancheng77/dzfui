@@ -1,6 +1,7 @@
 package com.dzf.zxkj.jbsz.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.jbsz.service.IBankAccountService;
 import com.dzf.zxkj.jbsz.vo.BankAccountVO;
@@ -22,6 +23,9 @@ public class BankAccountController {
 
     @Autowired
     private IBankAccountService bankAccountService;
+
+    @Autowired
+    private SingleObjectBO singleObjectBO;
 
     @GetMapping("list")
     public ReturnData<List<BankAccountVO>> list(@RequestParam("pk_corp") String pk_corp, @RequestParam("isnhsty") String isnhsty, @RequestParam(required = false, defaultValue = "1") Integer pageNum, @RequestParam(required = false, defaultValue = "10") Integer pageSize){
@@ -46,6 +50,7 @@ public class BankAccountController {
     }
     @PostMapping("delete")
     public ReturnData delete(@RequestBody BankAccountVO bankAccountVO){
+        log.info("1111");
         bankAccountService.delete(bankAccountVO);
         return ReturnData.ok().message("删除成功");
     }

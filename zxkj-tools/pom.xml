@@ -15,5 +15,6 @@
     <name>zxkj-tools</name>
     <modules>
         <module>zxkj-mybatis-plus-starter</module>
+        <module>zxkj-persistent-framework-starter</module>
     </modules>
 </project>

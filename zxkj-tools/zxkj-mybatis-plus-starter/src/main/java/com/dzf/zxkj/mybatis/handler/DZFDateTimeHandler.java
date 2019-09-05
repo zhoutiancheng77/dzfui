@@ -1,6 +1,6 @@
 package com.dzf.zxkj.mybatis.handler;
 
-import com.dzf.zxkj.mybatis.lang.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFDateTime;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
@@ -23,9 +23,9 @@ public class DZFDateTimeHandler extends BaseTypeHandler<DZFDateTime> {
 
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, DZFDateTime parameter, JdbcType jdbcType) throws SQLException {
-        if(jdbcType != null && jdbcType.equals(JdbcType.TIMESTAMP)){
+        if (jdbcType != null && jdbcType.equals(JdbcType.TIMESTAMP)) {
             ps.setTimestamp(i, new Timestamp(parameter.getMillis()));
-        }else{
+        } else {
             ps.setString(i, parameter.toString());
         }
     }
@@ -35,9 +35,9 @@ public class DZFDateTimeHandler extends BaseTypeHandler<DZFDateTime> {
 
         String value = rs.getString(columnName);
 
-        if(StringUtils.isNotEmpty(value)){
-            if(value.length() > 19){
-                value = value.substring(0,19);
+        if (StringUtils.isNotEmpty(value)) {
+            if (value.length() > 19) {
+                value = value.substring(0, 19);
             }
             return new DZFDateTime(value);
         }
@@ -49,7 +49,7 @@ public class DZFDateTimeHandler extends BaseTypeHandler<DZFDateTime> {
 
         String value = rs.getString(columnIndex);
 
-        if(StringUtils.isNotEmpty(value)){
+        if (StringUtils.isNotEmpty(value)) {
             return new DZFDateTime(value);
         }
 
@@ -61,7 +61,7 @@ public class DZFDateTimeHandler extends BaseTypeHandler<DZFDateTime> {
 
         String value = cs.getString(columnIndex);
 
-        if(StringUtils.isNotEmpty(value)){
+        if (StringUtils.isNotEmpty(value)) {
             return new DZFDateTime(value);
         }
 

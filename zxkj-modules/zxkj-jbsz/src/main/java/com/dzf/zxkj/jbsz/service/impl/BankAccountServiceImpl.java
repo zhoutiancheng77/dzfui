@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.exception.DZFWarpException;
-import com.dzf.zxkj.common.utils.IDGenerate;
 import com.dzf.zxkj.jbsz.mapper.BankAccountMapper;
 import com.dzf.zxkj.jbsz.service.IBankAccountService;
 import com.dzf.zxkj.jbsz.vo.BankAccountVO;
