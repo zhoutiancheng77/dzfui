@@ -2,6 +2,7 @@ package com.dzf.zxkj.base.model;
 
 import com.dzf.zxkj.base.utils.BeanHelper;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
@@ -117,6 +118,7 @@ public abstract class SuperVO<T extends SuperVO<T>> extends CircularlyAccessible
         return vo;
     }
 
+    @JsonIgnore
     public String getPrimaryKey() {
         String pkName = getPKFieldName();
         if (pkName == null) {
@@ -167,7 +169,7 @@ public abstract class SuperVO<T extends SuperVO<T>> extends CircularlyAccessible
         return;
 
     }
-
+    @JsonIgnore
     public String[] getAttributeNames() {
         rwl.readLock().lock();
         try {
@@ -182,6 +184,7 @@ public abstract class SuperVO<T extends SuperVO<T>> extends CircularlyAccessible
     }
 
 
+    @JsonIgnore
     private String[] getAttributeAryNoMetaData() {
         String[] arys = (String[]) map.get(getClass());
         if (arys == null) {
@@ -276,9 +279,12 @@ public abstract class SuperVO<T extends SuperVO<T>> extends CircularlyAccessible
         this.updatets = updatets;
     }
 
+    @JsonIgnore
     public abstract String getParentPKFieldName();
 
+    @JsonIgnore
     public abstract String getPKFieldName();
 
+    @JsonIgnore
     public abstract String getTableName();
 }
