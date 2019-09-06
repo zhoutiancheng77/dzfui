@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.am.zcgl.AssetCardVO;
 import com.dzf.zxkj.platform.model.am.zcgl.AssetCleanVO;
+import com.dzf.zxkj.platform.model.am.zcgl.AssetDepTemplate;
 import com.dzf.zxkj.platform.model.am.zcgl.BdAssetCategoryVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -19,7 +20,9 @@ import com.dzf.zxkj.platform.vo.am.zcgl.AssetCleanQueryVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dandelion
@@ -113,12 +116,114 @@ public class AssetCleanServiceImpl implements IAssetCleanService {
                 .queryByPrimaryKey(BdAssetCategoryVO.class,
                         assetcardVO.getAssetcategory());
 
+        AssetDepTemplate[] vos = getClearVoucherTemplet(corpvo, assetcardVO, accountvos, categoryVO);
+
         return null;
+    }
+
+    private AssetDepTemplate[] getClearVoucherTemplet(CorpVO corpvo, AssetCardVO assetcardVO, YntCpaccountVO[] accountvos, BdAssetCategoryVO categoryVO) {
+        String zy = "固定资产清理";
+        if(categoryVO!= null){
+            if(categoryVO.getAssetproperty()!=null){
+                if(categoryVO.getAssetproperty().intValue() ==1){
+                    zy = "无形资产清理";
+                }else if(categoryVO.getAssetproperty().intValue() ==3){
+                    zy = "待摊费用清理";
+                }
+            }
+        }
+        AssetDepTemplate[] vos = null;
+        if(categoryVO.getAssetproperty().intValue() ==3){//待摊费用
+            vos = new AssetDepTemplate[2];
+            //累计折旧
+            vos[0]= new AssetDepTemplate();
+            vos[0].setPk_account(assetcardVO.getPk_zjfykm());//借，费用科目
+            vos[0].setAccountkind(1);
+            vos[0].setDirect(0);
+            vos[0].setAbstracts(zy);
+            //固定资产(0)
+            vos[1] = new AssetDepTemplate();
+            vos[1].setPk_account(assetcardVO.getPk_jtzjkm());//贷，折旧科目
+            vos[1].setAccountkind(1);
+            vos[1].setDirect(1);
+            vos[1].setAbstracts(zy);
+        }else{
+            vos = new AssetDepTemplate[3];
+            //累计折旧
+            vos[0]= new AssetDepTemplate();
+            vos[0].setPk_account(assetcardVO.getPk_jtzjkm());
+            vos[0].setAccountkind(2);
+            vos[0].setDirect(0);
+            vos[0].setAbstracts(zy);
+            //资产清理科目
+            vos[1] = new AssetDepTemplate();
+            vos[1].setPk_account(getAssetClearAccountId(corpvo,accountvos,categoryVO));
+            vos[1].setAccountkind(1);
+            vos[1].setDirect(0);
+            vos[1].setAbstracts(zy);
+            //固定资产(0)
+            vos[2] = new AssetDepTemplate();
+            vos[2].setPk_account(assetcardVO.getPk_zckm());//资产科目
+            vos[2].setAccountkind(0);
+            vos[2].setDirect(1);
+            vos[2].setAbstracts(zy);
+        }
+        return vos;
+    }
+
+    private String getAssetClearAccountId(CorpVO corpvo, YntCpaccountVO[] accountvos, BdAssetCategoryVO categoryVO) {
+        Map<String, YntCpaccountVO> code_map = new HashMap<String, YntCpaccountVO>();
+        for(YntCpaccountVO vo:accountvos){
+            code_map.put(vo.getAccountcode(), vo);
+        }
+        Integer corpschema = yntBoPubUtil.getAccountSchema(corpvo.getPk_corp());
+        String accountcode = "";
+
+        String queryAccountRule = gl_cpacckmserv.queryAccountRule(corpvo.getPk_corp());
+
+        if (corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {// 2013会计准则 小企业会计准则
+            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+                accountcode = gl_accountcoderule.getNewRuleCode("571101", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
+            }else{//固定资产
+                accountcode = "1606";
+            }
+        } else if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {//2007会计准则 企业会计准则
+            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+                accountcode = gl_accountcoderule.getNewRuleCode("6115", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
+            }else{//固定资产
+                accountcode = "1606";
+            }
+        } else if (corpschema == DzfUtil.POPULARSCHEMA.intValue()) {// 民间
+            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+                accountcode = "5401";
+            }else{//固定资产
+                accountcode = "1509";
+            }
+        } else if (corpschema == DzfUtil.CAUSESCHEMA.intValue()) {// 事业
+            accountcode = "1701";
+        }else if(corpschema ==  DzfUtil.COMPANYACCOUNTSYSTEM.intValue() ){//企业会计制度
+            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+                accountcode = gl_accountcoderule.getNewRuleCode("560101", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
+            }else{//固定资产
+                accountcode = "1701";
+            }
+        } else {
+            throw new BusinessException("该制度资产清理,敬请期待!");
+        }
+        YntCpaccountVO resvo = code_map.get(accountcode);
+        if(resvo == null){
+            throw new BusinessException("清理科目不存在，请进行科目升级");
+        }
+        return resvo.getPk_corp_account();
     }
 
     private void checkBeforeToGl(String loginDate, CorpVO corpvo, AssetCleanVO assetCleanVO) {
         AssetCleanVO oldVO = (AssetCleanVO) singleObjectBO.queryByPrimaryKey(
                 AssetCleanVO.class, assetCleanVO.getPrimaryKey());
+        if(corpvo == null){
+            throw new BusinessException("公司信息为空");
+        }
+
         if (oldVO == null) {
             throw new BusinessException("该数据已经被他人删除，请刷新界面");
         }
