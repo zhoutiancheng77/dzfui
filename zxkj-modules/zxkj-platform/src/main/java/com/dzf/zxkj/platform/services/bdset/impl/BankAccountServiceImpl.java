@@ -36,7 +36,6 @@ public class BankAccountServiceImpl implements IBankAccountService {
     public void update(BankAccountVO vo, String[] fields) throws DZFWarpException {
         checkExist(vo);
         singleObjectBO.update(vo, fields);
-
     }
 
     private void checkExist(BankAccountVO vo) throws DZFWarpException {
@@ -103,7 +102,6 @@ public class BankAccountServiceImpl implements IBankAccountService {
     @Override
     public void delete(BankAccountVO vo) throws DZFWarpException {
         beforeDel(vo);
-
         singleObjectBO.deleteObject(vo);
     }
 
