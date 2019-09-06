@@ -3,15 +3,15 @@ package com.dzf.zxkj.platform.services.bdset.impl;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.services.bdset.IYntCpaccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Auther: dandelion
@@ -63,5 +63,105 @@ public class YntCpaccountServiceImpl implements IYntCpaccountService {
             m.put(yvo[i].getPrimaryKey(), yvo[i]);
         }
         return m;
+    }
+
+    @Override
+    public String getNewVoucherNo(String pk_corp, DZFDate doperatedate) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getCorpAccountPkByTradeAccountPk(String pk_trade_account, String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getCorpAccountPkByTradeAccountPkWithMsg(String pk_trade_account, String pk_corp, String msg) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getCorpAccountByTradeAccountPk(String pk_trade_account, String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getCNYPk() throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public DZFDouble getThisPeriodOccurMny(String pk_corp, String period, String pk_accsubj) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public boolean is2007AccountSchema(String pk_corp) throws DZFWarpException {
+        return false;
+    }
+
+    @Override
+    public String getCurrentCorpAccountSchema(String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public DZFDouble getQmMny(String pk_corp, String period, String pk_accsubj) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getSqlStrByList(List sqhList, int splitNum, String columnName) {
+        return null;
+    }
+
+    @Override
+    public String getSqlStrByArrays(String[] sqhArrays, int splitNum, String columnName) {
+        return null;
+    }
+
+    @Override
+    public Map<String, YntCpaccountVO> querykm(String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public ExrateVO[] getRateBypk(String pk_currency, String pk_corp) throws DZFWarpException {
+        return new ExrateVO[0];
+    }
+
+    @Override
+    public String createRulecodebyCorp(String bzaccountcode, String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getFZHsCode(String pk_corp, String pk_auacount_h) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getInventoryCode(String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getMeasureCode(String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getInvclCode(String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public String getYhzhCode(String pk_corp) throws DZFWarpException {
+        return null;
+    }
+
+    @Override
+    public Integer getAccountSchema(String pk_corp) throws DZFWarpException {
+        return null;
     }
 }

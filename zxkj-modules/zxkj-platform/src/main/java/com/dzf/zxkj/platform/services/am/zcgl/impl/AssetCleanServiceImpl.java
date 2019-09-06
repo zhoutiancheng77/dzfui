@@ -172,49 +172,50 @@ public class AssetCleanServiceImpl implements IAssetCleanService {
     }
 
     private String getAssetClearAccountId(CorpVO corpvo, YntCpaccountVO[] accountvos, BdAssetCategoryVO categoryVO) {
-        Map<String, YntCpaccountVO> code_map = new HashMap<String, YntCpaccountVO>();
-        for(YntCpaccountVO vo:accountvos){
-            code_map.put(vo.getAccountcode(), vo);
-        }
-        Integer corpschema = yntBoPubUtil.getAccountSchema(corpvo.getPk_corp());
-        String accountcode = "";
-
-        String queryAccountRule = gl_cpacckmserv.queryAccountRule(corpvo.getPk_corp());
-
-        if (corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {// 2013会计准则 小企业会计准则
-            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
-                accountcode = gl_accountcoderule.getNewRuleCode("571101", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
-            }else{//固定资产
-                accountcode = "1606";
-            }
-        } else if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {//2007会计准则 企业会计准则
-            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
-                accountcode = gl_accountcoderule.getNewRuleCode("6115", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
-            }else{//固定资产
-                accountcode = "1606";
-            }
-        } else if (corpschema == DzfUtil.POPULARSCHEMA.intValue()) {// 民间
-            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
-                accountcode = "5401";
-            }else{//固定资产
-                accountcode = "1509";
-            }
-        } else if (corpschema == DzfUtil.CAUSESCHEMA.intValue()) {// 事业
-            accountcode = "1701";
-        }else if(corpschema ==  DzfUtil.COMPANYACCOUNTSYSTEM.intValue() ){//企业会计制度
-            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
-                accountcode = gl_accountcoderule.getNewRuleCode("560101", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
-            }else{//固定资产
-                accountcode = "1701";
-            }
-        } else {
-            throw new BusinessException("该制度资产清理,敬请期待!");
-        }
-        YntCpaccountVO resvo = code_map.get(accountcode);
-        if(resvo == null){
-            throw new BusinessException("清理科目不存在，请进行科目升级");
-        }
-        return resvo.getPk_corp_account();
+//        Map<String, YntCpaccountVO> code_map = new HashMap<String, YntCpaccountVO>();
+//        for(YntCpaccountVO vo:accountvos){
+//            code_map.put(vo.getAccountcode(), vo);
+//        }
+//        Integer corpschema = yntBoPubUtil.getAccountSchema(corpvo.getPk_corp());
+//        String accountcode = "";
+//
+//        String queryAccountRule = gl_cpacckmserv.queryAccountRule(corpvo.getPk_corp());
+//
+//        if (corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {// 2013会计准则 小企业会计准则
+//            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+//                accountcode = gl_accountcoderule.getNewRuleCode("571101", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
+//            }else{//固定资产
+//                accountcode = "1606";
+//            }
+//        } else if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {//2007会计准则 企业会计准则
+//            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+//                accountcode = gl_accountcoderule.getNewRuleCode("6115", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
+//            }else{//固定资产
+//                accountcode = "1606";
+//            }
+//        } else if (corpschema == DzfUtil.POPULARSCHEMA.intValue()) {// 民间
+//            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+//                accountcode = "5401";
+//            }else{//固定资产
+//                accountcode = "1509";
+//            }
+//        } else if (corpschema == DzfUtil.CAUSESCHEMA.intValue()) {// 事业
+//            accountcode = "1701";
+//        }else if(corpschema ==  DzfUtil.COMPANYACCOUNTSYSTEM.intValue() ){//企业会计制度
+//            if(categoryVO.getAssetproperty().intValue() ==1){//无形资产
+//                accountcode = gl_accountcoderule.getNewRuleCode("560101", DZFConstant.ACCOUNTCODERULE, queryAccountRule);
+//            }else{//固定资产
+//                accountcode = "1701";
+//            }
+//        } else {
+//            throw new BusinessException("该制度资产清理,敬请期待!");
+//        }
+//        YntCpaccountVO resvo = code_map.get(accountcode);
+//        if(resvo == null){
+//            throw new BusinessException("清理科目不存在，请进行科目升级");
+//        }
+//        return resvo.getPk_corp_account();
+        return null;
     }
 
     private void checkBeforeToGl(String loginDate, CorpVO corpvo, AssetCleanVO assetCleanVO) {

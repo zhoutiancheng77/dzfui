@@ -11,7 +11,6 @@ import javax.persistence.Entity;
 
 /**
  * 公司成本结转模板
- * 
  */
 @Entity
 public class CpcosttransVO extends SuperVO implements ITradeInfo {
