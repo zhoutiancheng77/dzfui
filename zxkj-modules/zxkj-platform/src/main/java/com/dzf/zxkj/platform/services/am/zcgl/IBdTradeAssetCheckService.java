@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface IBdTradeAssetCheckService {
     List<BdTradeAssetCheckVO> queryDefaultFromZclb(String pk_corp, String pk_zclb) throws DZFWarpException;
+
     BdTradeAssetCheckVO[] getAssetcheckVOs(String corpType, String pk_corp) throws DZFWarpException;
 }

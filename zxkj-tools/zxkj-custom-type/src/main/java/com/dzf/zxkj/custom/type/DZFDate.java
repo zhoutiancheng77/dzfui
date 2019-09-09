@@ -1,4 +1,4 @@
-package com.dzf.zxkj.common.lang;
+package com.dzf.zxkj.custom.type;
 
 import java.util.Calendar;
 import java.util.Date;

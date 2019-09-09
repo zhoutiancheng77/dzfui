@@ -34,23 +34,23 @@ public class TestBankAccountService {
     private IBankAccountService bankAccountService;
 
     @Before
-    public void before(){
+    public void before() {
         log.info("******************************测试银行账户开始********************************");
     }
 
     @After
-    public void after(){
+    public void after() {
         log.info("******************************测试银行账户结束********************************");
     }
 
     @Test
-    public void TestQueryById(){
+    public void TestQueryById() {
         BankAccountVO bankAccountVO = bankAccountService.queryById("003Vgz00000001gUs9h70002");
         Assert.assertNotNull(bankAccountVO);
     }
 
     @Test
-    public void TestSave(){
+    public void TestSave() {
         BankAccountVO bankAccountVO = new BankAccountVO();
         bankAccountVO.setPk_corp(pk_corp);
         bankAccountVO.setCoperatorid("002MPP00000001ZPu9oq000H");

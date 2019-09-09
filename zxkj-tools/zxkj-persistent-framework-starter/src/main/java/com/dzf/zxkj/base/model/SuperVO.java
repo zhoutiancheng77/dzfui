@@ -1,7 +1,7 @@
 package com.dzf.zxkj.base.model;
 
 import com.dzf.zxkj.base.utils.BeanHelper;
-import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.custom.type.DZFDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.io.Serializable;
@@ -169,6 +169,7 @@ public abstract class SuperVO<T extends SuperVO<T>> extends CircularlyAccessible
         return;
 
     }
+
     @JsonIgnore
     public String[] getAttributeNames() {
         rwl.readLock().lock();

@@ -1,10 +1,10 @@
 package com.dzf.zxkj.platform.model.sys;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.common.lang.DZFBoolean;
-import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.lang.DZFDateTime;
-import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.custom.type.DZFBoolean;
+import com.dzf.zxkj.custom.type.DZFDate;
+import com.dzf.zxkj.custom.type.DZFDateTime;
+import com.dzf.zxkj.custom.type.DZFDouble;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CorpVO<T extends SuperVO<T>> extends SuperVO {
@@ -66,7 +66,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     @JsonProperty("d18")
     public String def18;// -----------最后修改人[贺智鹏]
-    
+
     public String editusname;// -----------最后修改人名称---不存库
 
     @JsonProperty("d19")
@@ -231,7 +231,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     @JsonProperty("uname")
     public String unitname;// 公司名称
-    
+
     @JsonProperty("rcuname")
     private String rcunitname;//公司名称--简易加密，用于模糊查询
 
@@ -292,10 +292,14 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     @JsonProperty("establishtime")
     private String establishtime;// 成立时间
 
-    /** 公司属性 : (add by liuxing) */
+    /**
+     * 公司属性 : (add by liuxing)
+     */
     @JsonProperty("companyproperty")
     public Integer companyproperty;//会计工厂使用
-    /** 会计公司ID */
+    /**
+     * 会计公司ID
+     */
     @JsonProperty("accountfactoryid")
     public String accountfactoryid;//会计工厂使用
     /**
@@ -313,7 +317,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     public DZFDate dlicexpdate;// 执照到期日(营业期限至)
     @JsonProperty("countopen")
     public String vaccountopen;// 开户许可证
-//    @JsonProperty("mpcode")
+    //    @JsonProperty("mpcode")
 //    public String vcompcode;// 计算机代码
     @JsonProperty("mpdate")
     public DZFDate dcompdate;// 代码到期日
@@ -331,7 +335,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     public String vbankpos;// 银行位置
     @JsonProperty("sitype")
     public String vbusitype;// 业务类型
-//    @JsonProperty("lecode")
+    //    @JsonProperty("lecode")
 //    public String vfilecode;// 档案号
     @JsonProperty("ovince")
     public Integer vprovince;// 省--------------------业务性质上面的行政区域上面的省。报税地区已经在CorpTaxVo中的这个字段   tax_area 报税地区
@@ -351,7 +355,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     public String vresptel;// 负责会计电话--字段可能未启用
     @JsonProperty("stothertel")
     public String vcustothertel;// 客户其他联系方式
-//    @JsonProperty("atetaxplace")
+    //    @JsonProperty("atetaxplace")
 //    public String vstatetaxplace;// 国税主管所
 //    @JsonProperty("atetaxaddr")
 //    public String vstatetaxaddr;// 国税位置
@@ -361,7 +365,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 //    public String vstatetaxpertel;// 国税专管员电话
     @JsonProperty("atetaxpwd")
     public String vstatetaxpwd;// 密码（国税密码），存纳税信息表
-//    @JsonProperty("atetaxdate")
+    //    @JsonProperty("atetaxdate")
 //    public DZFDate dstatetaxdate;// 有效期至
 //    @JsonProperty("caltaxcode")
 //    public String vlocaltaxcode;// 地税登记号
@@ -397,7 +401,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     public String vwqaccount;// 外勤会计主键
     @JsonProperty("dcldate")
     public DZFDate destablishdate;// 成立日期
-//    @JsonProperty("ukey")
+    //    @JsonProperty("ukey")
 //    public DZFBoolean isukey;// 地税有无UKEY
 //    @JsonProperty("dudate")
 //    private DZFDate dukeydate;// UKEY到期日
@@ -500,11 +504,11 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     private T[] corpDocVos;// 附件信息
 
     private T[] corpTaxInfoVos;// 税率信息
-    
+
     private T[] corpSholderVos;// 股东信息
-    
+
     private T[] corpChangeVos;//变更记录
-    
+
     private T[] corpDisRecordVos;//派工记录
 
 //    @JsonProperty("taxercode")
@@ -544,69 +548,69 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     //private DZFDateTime approve_time;//审批时间---字段已弃用（数据库字段计划删除）
 
     @JsonProperty("isfactory")
-	public DZFBoolean isfactory;//是否会计工厂
-    
+    public DZFBoolean isfactory;//是否会计工厂
+
     @JsonProperty("copid")
     private String coperatorid; // 录入人
-    
+
     @JsonProperty("statusnm")
     private String statusname;//客户状态---不存库   @加盟商 待建账-D
-    
+
     private Integer custtype;//客户类型
-    
+
     private String accountProgressDate;//彬杰，默认登录日期 调整 默认做账进度年月---不存库
-    
+
     @JsonProperty("jdate")
     private DZFDate djoindate;//加盟商加盟日期
-    
+
     @JsonProperty("vsuname")
     private String vstateuname;//用户名（国税用户名），存纳税信息表
 //    @JsonProperty("vltype")
 //    private String vllogintype;//地税登录方式
 //    @JsonProperty("vluname")
 //    private String vlocaluname;//地税用户名
-    
+
     private Integer invtype;//发票类型  0: 专用发票、 1:普通发票 、2: 电子普通发票
-    
+
     private Integer isweixin;//微信设置节点是否显示:0开通 1和null未开通 2开通并使用微信支付
-    
+
     @JsonProperty("isncust")
     private DZFBoolean isncust;// 是否存量客户（Y是存量客户）
-    
+
     @JsonProperty("chtype")
     private Integer channeltype;//加盟类型   1-普通加盟商；2-金牌加盟商
-    
+
     @JsonProperty("dreldate")
     private DZFDate drelievedate;//解约日期
-    
+
     @JsonProperty("ideluse")
     private Integer idelayuse;//延后使用方案；1--延后使用两个月、  2--使用到合同到期
-    
+
 //    @JsonProperty("ukpwd")
 //    private String ukeypwd;//UKey 密码
-    
+
     private String deptname;//部门--不存库
-    
+
     private String contaudit;//加盟商合同是否审批通过--不存库；
-    
+
     private Integer tax_area;// 报税地区---------------不存库。在CorpTaxVo里面。查询时拼接vo使用。
-    
+
     @JsonProperty("birthday")
     private DZFDate dbirthday; //老板生日
-    
+
     @JsonProperty("vmday")
     private String vmonthday;//老板生日月-日
-    
+
     @JsonProperty("coachbdate")
     private DZFDate dcoachbdate;//辅导期开始 ---存纳税信息表
-    
+
     @JsonProperty("coachedate")
     private DZFDate dcoachedate;//辅导期结束---存纳税信息表
-    
+
     //报税VO
     private CorpTaxVo corptaxvo;
-    
-	public DZFDate getDcoachbdate() {
+
+    public DZFDate getDcoachbdate() {
         return dcoachbdate;
     }
 
@@ -727,12 +731,12 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     }
 
     public Integer getIsweixin() {
-		return isweixin;
-	}
+        return isweixin;
+    }
 
-	public void setIsweixin(Integer isweixin) {
-		this.isweixin = isweixin;
-	}
+    public void setIsweixin(Integer isweixin) {
+        this.isweixin = isweixin;
+    }
 
 //	public String getVllogintype() {
 //        return vllogintype;
@@ -775,14 +779,14 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     }
 
     public Integer getCusttype() {
-		return custtype;
-	}
+        return custtype;
+    }
 
-	public void setCusttype(Integer custtype) {
-		this.custtype = custtype;
-	}
+    public void setCusttype(Integer custtype) {
+        this.custtype = custtype;
+    }
 
-	public String getCoperatorid() {
+    public String getCoperatorid() {
         return coperatorid;
     }
 
@@ -799,13 +803,13 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     }
 
     public DZFBoolean getIsfactory() {
-		return isfactory;
-	}
+        return isfactory;
+    }
 
-	public void setIsfactory(DZFBoolean isfactory) {
-		this.isfactory = isfactory;
-	}
-	
+    public void setIsfactory(DZFBoolean isfactory) {
+        this.isfactory = isfactory;
+    }
+
     public DZFBoolean getIschannel() {
         return ischannel;
     }
@@ -928,7 +932,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 使用主键字段进行初始化的构造子。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
      */
     public CorpVO() {
@@ -1012,11 +1016,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 使用主键进行初始化的构造子。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param ??fieldNameForMethod??
-     *            主键值
+     *
+     * @param ??fieldNameForMethod?? 主键值
      */
     public CorpVO(String newPk_corp) {
 
@@ -1027,20 +1030,20 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
+     *
      * @return DZFDate
      */
     public DZFDate getBegindate() {
@@ -1049,7 +1052,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
+     *
      * @return String
      */
     public String getBriefintro() {
@@ -1058,20 +1061,20 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
+     *
      * @return String
      */
     public String getChargedeptcode() {
@@ -1080,20 +1083,20 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
+     *
      * @return String
      */
     public String getChargedeptname() {
@@ -1102,7 +1105,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
+     *
      * @return String
      */
     public String getCitycounty() {
@@ -1111,7 +1114,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2003-5-20 14:11:57)
-     * 
+     *
      * @return String
      */
     public String getCorptype() {
@@ -1120,7 +1123,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
+     *
      * @return String
      */
     public String getCountryarea() {
@@ -1129,7 +1132,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-4-18 16:05:35)
-     * 
+     *
      * @return DZFDate
      */
     public DZFDate getCreatedate() {
@@ -1147,9 +1150,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def1的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef1() {
@@ -1158,9 +1161,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def10的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef10() {
@@ -1169,9 +1172,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def11的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef11() {
@@ -1180,9 +1183,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def12的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef12() {
@@ -1191,9 +1194,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def13的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef13() {
@@ -1202,9 +1205,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def14的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef14() {
@@ -1213,9 +1216,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def15的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef15() {
@@ -1224,9 +1227,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def16的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef16() {
@@ -1235,9 +1238,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def17的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef17() {
@@ -1246,9 +1249,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def18的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef18() {
@@ -1257,9 +1260,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def19的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef19() {
@@ -1268,9 +1271,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def2的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef2() {
@@ -1279,9 +1282,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def20的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef20() {
@@ -1290,9 +1293,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def3的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef3() {
@@ -1301,9 +1304,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def4的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef4() {
@@ -1312,9 +1315,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def5的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef5() {
@@ -1323,9 +1326,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def6的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef6() {
@@ -1334,9 +1337,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def7的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef7() {
@@ -1345,9 +1348,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def8的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef8() {
@@ -1356,9 +1359,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def9的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getDef9() {
@@ -1368,55 +1371,54 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     /**
      * 获得vo里第index个自定义项的值。 典型实现: switch(index){ case 1: return getDef1(); case
      * 2: return getDef2(); case 3: return getDef3(); ... } return null;
-     * 
+     * <p>
      * 创建日期：(01-5-14 10:41:57)
-     * 
+     *
+     * @param index int
      * @return String
-     * @param index
-     *            int
      */
     public String getDefValue(int index) {
         switch (index) {
-        case 1:
-            return getDef1();
-        case 2:
-            return getDef2();
-        case 3:
-            return getDef3();
-        case 4:
-            return getDef4();
-        case 5:
-            return getDef5();
-        case 6:
-            return getDef6();
-        case 7:
-            return getDef7();
-        case 8:
-            return getDef8();
-        case 9:
-            return getDef9();
-        case 10:
-            return getDef10();
-        case 11:
-            return getDef11();
-        case 12:
-            return getDef12();
-        case 13:
-            return getDef13();
-        case 14:
-            return getDef14();
-        case 15:
-            return getDef15();
-        case 16:
-            return getDef16();
-        case 17:
-            return getDef17();
-        case 18:
-            return getDef18();
-        case 19:
-            return getDef19();
-        case 20:
-            return getDef20();
+            case 1:
+                return getDef1();
+            case 2:
+                return getDef2();
+            case 3:
+                return getDef3();
+            case 4:
+                return getDef4();
+            case 5:
+                return getDef5();
+            case 6:
+                return getDef6();
+            case 7:
+                return getDef7();
+            case 8:
+                return getDef8();
+            case 9:
+                return getDef9();
+            case 10:
+                return getDef10();
+            case 11:
+                return getDef11();
+            case 12:
+                return getDef12();
+            case 13:
+                return getDef13();
+            case 14:
+                return getDef14();
+            case 15:
+                return getDef15();
+            case 16:
+                return getDef16();
+            case 17:
+                return getDef17();
+            case 18:
+                return getDef18();
+            case 19:
+                return getDef19();
+            case 20:
+                return getDef20();
         }
 
         return null;
@@ -1424,9 +1426,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性ecotype的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return Integer
      */
     public String getEcotype() {
@@ -1435,9 +1437,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性email1的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getEmail1() {
@@ -1446,9 +1448,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性email2的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getEmail2() {
@@ -1457,9 +1459,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性email3的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getEmail3() {
@@ -1468,20 +1470,20 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
+     *
      * @return DZFDate
      */
     public DZFDate getEnddate() {
@@ -1490,9 +1492,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 返回数值对象的显示名称。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String 返回数值对象的显示名称。
      */
     public String getEntityName() {
@@ -1502,9 +1504,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性fathercorp的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getFathercorp() {
@@ -1513,9 +1515,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性fax1的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getFax1() {
@@ -1524,9 +1526,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性fax2的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getFax2() {
@@ -1535,9 +1537,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性foreignname的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getForeignname() {
@@ -1546,9 +1548,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性holdflag的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return DZFBoolean
      */
     public DZFBoolean getHoldflag() {
@@ -1557,20 +1559,20 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     *
+     *
      * 输入：
-     * 
+     *
      * 输出：
-     * 
+     *
      * 异常：
-     * 
+     *
      * 补充：
-     * 
-     * 
+     *
+     *
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
+     *
      * @return String
      */
 //    public String getIdnumber() {
@@ -1579,9 +1581,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性industry的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getIndustry() {
@@ -1590,7 +1592,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-12-12 15:24:21)
-     * 
+     *
      * @return String
      */
     public String getInnercode() {
@@ -1599,9 +1601,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性ishasaccount 的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-8-23)
-     * 
+     *
      * @return DZFBoolean
      */
     public DZFBoolean getIshasaccount() {
@@ -1610,9 +1612,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性isseal的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-8-23)
-     * 
+     *
      * @return DZFBoolean
      */
     public DZFBoolean getIsseal() {
@@ -1621,9 +1623,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性isworkingunit的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-8-23)
-     * 
+     *
      * @return DZFBoolean
      */
     public DZFBoolean getIsworkingunit() {
@@ -1632,9 +1634,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性legalbodycode的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getLegalbodycode() {
@@ -1643,9 +1645,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性linkman1的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getLinkman1() {
@@ -1654,9 +1656,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性linkman2的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getLinkman2() {
@@ -1665,9 +1667,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性linkman3的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getLinkman3() {
@@ -1676,7 +1678,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-12-12 15:24:42)
-     * 
+     *
      * @return String
      */
     public String getMaxinnercode() {
@@ -1685,9 +1687,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性memo的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getMemo() {
@@ -1696,9 +1698,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性ownersharerate的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return DZFDouble
      */
     public DZFDouble getOwnersharerate() {
@@ -1709,7 +1711,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2004-4-26 13:52:51)
-     * 
+     *
      * @return String
      */
     public String getParentPKFieldName() {
@@ -1718,9 +1720,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性phone1的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getPhone1() {
@@ -1729,9 +1731,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性phone2的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getPhone2() {
@@ -1740,9 +1742,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性phone3的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getPhone3() {
@@ -1751,9 +1753,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性pk_corp的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getPk_corp() {
@@ -1762,7 +1764,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-12-13 10:50:11)
-     * 
+     *
      * @return String
      */
     public String getPk_corpkind() {
@@ -1771,20 +1773,20 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
+     *
      * @return String
      */
     public String getPk_currency() {
@@ -1793,7 +1795,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2004-4-26 13:53:19)
-     * 
+     *
      * @return String
      */
     public String getPKFieldName() {
@@ -1802,9 +1804,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性postaddr的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getPostaddr() {
@@ -1813,9 +1815,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 返回对象标识，用来唯一定位对象。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getPrimaryKey() {
@@ -1825,7 +1827,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
+     *
      * @return String
      */
     public String getProvince() {
@@ -1834,7 +1836,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
+     *
      * @return DZFDouble
      */
     public DZFDouble getRegcapital() {
@@ -1843,7 +1845,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-6-18 11:53:28)
-     * 
+     *
      * @return String
      */
     public String getRegion() {
@@ -1852,9 +1854,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性saleaddr的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getSaleaddr() {
@@ -1863,7 +1865,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2003-5-20 14:11:57)
-     * 
+     *
      * @return DZFDate
      */
     public DZFDate getSealeddate() {
@@ -1872,7 +1874,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2004-4-26 13:53:52)
-     * 
+     *
      * @return String
      */
     public String getTableName() {
@@ -1889,9 +1891,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性unitcode的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getUnitcode() {
@@ -1900,7 +1902,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2004-4-26 11:36:28)
-     * 
+     *
      * @return Integer
      */
     public String getUnitdistinction() {
@@ -1909,9 +1911,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性unitname的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getUnitname() {
@@ -1920,9 +1922,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性unitshortname的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getUnitshortname() {
@@ -1931,9 +1933,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性url的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getUrl() {
@@ -1942,9 +1944,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性zipcode的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
+     *
      * @return String
      */
     public String getZipcode() {
@@ -1953,9 +1955,9 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性showorder的Getter方法。
-     * 
+     * <p>
      * 创建日期：(2008-7-29)
-     * 
+     *
      * @return int
      */
     public Integer getShoworder() {
@@ -1964,7 +1966,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * accountproject的getter方法
-     * 
+     *
      * @return
      */
     // public String getAccountproject() {
@@ -1973,7 +1975,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2003-5-20 16:39:25)
-     * 
+     *
      * @return boolean
      */
     public boolean isBackup() {
@@ -1982,7 +1984,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 判断是否是结算中心。 创建日期：(2004-3-12 12:49:52)
-     * 
+     *
      * @return boolean
      */
     public boolean isSettleCenter() {
@@ -1994,9 +1996,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2003-5-20 16:39:25)
-     * 
-     * @param newM_isbackup
-     *            boolean
+     *
+     * @param newM_isbackup boolean
      */
     public void setBackup(boolean newM_isbackup) {
         m_isbackup = newM_isbackup;
@@ -2004,22 +2005,21 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
-     * @param newBegindate
-     *            DZFDate
+     *
+     * @param newBegindate DZFDate
      */
     public void setBegindate(DZFDate newBegindate) {
         begindate = newBegindate;
@@ -2027,9 +2027,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
-     * @param newBriefintro
-     *            String
+     *
+     * @param newBriefintro String
      */
     public void setBriefintro(String newBriefintro) {
         briefintro = newBriefintro;
@@ -2037,22 +2036,21 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
-     * @param newChargedeptcode
-     *            String
+     *
+     * @param newChargedeptcode String
      */
     public void setChargedeptcode(String newChargedeptcode) {
         chargedeptcode = newChargedeptcode;
@@ -2060,22 +2058,21 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
-     * @param newChargedeptname
-     *            String
+     *
+     * @param newChargedeptname String
      */
     public void setChargedeptname(String newChargedeptname) {
         chargedeptname = newChargedeptname;
@@ -2083,9 +2080,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
-     * @param newCitycounty
-     *            String
+     *
+     * @param newCitycounty String
      */
     public void setCitycounty(String newCitycounty) {
         citycounty = newCitycounty;
@@ -2093,9 +2089,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2003-5-20 14:11:57)
-     * 
-     * @param newcorptype
-     *            String
+     *
+     * @param newcorptype String
      */
     public void setCorptype(String newcorptype) {
         corptype = newcorptype;
@@ -2103,9 +2098,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
-     * @param newCountryarea
-     *            String
+     *
+     * @param newCountryarea String
      */
     public void setCountryarea(String newCountryarea) {
         countryarea = newCountryarea;
@@ -2113,9 +2107,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-4-18 16:05:35)
-     * 
-     * @param newCreatedate
-     *            DZFDate
+     *
+     * @param newCreatedate DZFDate
      */
     public void setCreatedate(DZFDate newCreatedate) {
         createdate = newCreatedate;
@@ -2123,11 +2116,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def1的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef1
-     *            String
+     *
+     * @param newDef1 String
      */
     public void setDef1(String newDef1) {
 
@@ -2136,11 +2128,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def10的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef10
-     *            String
+     *
+     * @param newDef10 String
      */
     public void setDef10(String newDef10) {
 
@@ -2149,11 +2140,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def11的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef11
-     *            String
+     *
+     * @param newDef11 String
      */
     public void setDef11(String newDef11) {
 
@@ -2162,11 +2152,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def12的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef12
-     *            String
+     *
+     * @param newDef12 String
      */
     public void setDef12(String newDef12) {
 
@@ -2175,11 +2164,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def13的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef13
-     *            String
+     *
+     * @param newDef13 String
      */
     public void setDef13(String newDef13) {
 
@@ -2188,11 +2176,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def14的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef14
-     *            String
+     *
+     * @param newDef14 String
      */
     public void setDef14(String newDef14) {
 
@@ -2201,11 +2188,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def15的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef15
-     *            String
+     *
+     * @param newDef15 String
      */
     public void setDef15(String newDef15) {
 
@@ -2214,11 +2200,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def16的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef16
-     *            String
+     *
+     * @param newDef16 String
      */
     public void setDef16(String newDef16) {
 
@@ -2227,11 +2212,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def17的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef17
-     *            String
+     *
+     * @param newDef17 String
      */
     public void setDef17(String newDef17) {
 
@@ -2240,11 +2224,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def18的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef18
-     *            String
+     *
+     * @param newDef18 String
      */
     public void setDef18(String newDef18) {
 
@@ -2253,11 +2236,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def19的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef19
-     *            String
+     *
+     * @param newDef19 String
      */
     public void setDef19(String newDef19) {
 
@@ -2266,11 +2248,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def2的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef2
-     *            String
+     *
+     * @param newDef2 String
      */
     public void setDef2(String newDef2) {
 
@@ -2279,11 +2260,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def20的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef20
-     *            String
+     *
+     * @param newDef20 String
      */
     public void setDef20(String newDef20) {
 
@@ -2292,11 +2272,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def3的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef3
-     *            String
+     *
+     * @param newDef3 String
      */
     public void setDef3(String newDef3) {
 
@@ -2305,11 +2284,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def4的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef4
-     *            String
+     *
+     * @param newDef4 String
      */
     public void setDef4(String newDef4) {
 
@@ -2318,11 +2296,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def5的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef5
-     *            String
+     *
+     * @param newDef5 String
      */
     public void setDef5(String newDef5) {
 
@@ -2331,11 +2308,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def6的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef6
-     *            String
+     *
+     * @param newDef6 String
      */
     public void setDef6(String newDef6) {
 
@@ -2344,11 +2320,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def7的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef7
-     *            String
+     *
+     * @param newDef7 String
      */
     public void setDef7(String newDef7) {
 
@@ -2357,11 +2332,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def8的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef8
-     *            String
+     *
+     * @param newDef8 String
      */
     public void setDef8(String newDef8) {
 
@@ -2370,11 +2344,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性def9的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newDef9
-     *            String
+     *
+     * @param newDef9 String
      */
     public void setDef9(String newDef9) {
 
@@ -2384,87 +2357,84 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     /**
      * 向vo里第index个自定义项设置值。 典型实现: switch(index){ case 1: setDef1(value);break;
      * case 2: setDef2(value);break; case 3: setDef3(value);break; ... }
-     * 
+     * <p>
      * 。 创建日期：(01-5-14 10:42:17)
-     * 
-     * @param value
-     *            String
-     * @param index
-     *            int
+     *
+     * @param value String
+     * @param index int
      */
     public void setDefValue(String value, int index) {
         switch (index) {
-        case 1:
-            setDef1(value);
-            break;
-        case 2:
-            setDef2(value);
-            break;
-        case 3:
-            setDef3(value);
-            break;
-        case 4:
-            setDef4(value);
-            break;
-        case 5:
-            setDef5(value);
-            break;
-        case 6:
-            setDef6(value);
-            break;
-        case 7:
-            setDef7(value);
-            break;
-        case 8:
-            setDef8(value);
-            break;
-        case 9:
-            setDef9(value);
-            break;
-        case 10:
-            setDef10(value);
-            break;
-        case 11:
-            setDef11(value);
-            break;
-        case 12:
-            setDef12(value);
-            break;
-        case 13:
-            setDef13(value);
-            break;
-        case 14:
-            setDef14(value);
-            break;
-        case 15:
-            setDef15(value);
-            break;
-        case 16:
-            setDef16(value);
-            break;
-        case 17:
-            setDef17(value);
-            break;
-        case 18:
-            setDef18(value);
-            break;
-        case 19:
-            setDef19(value);
-            break;
-        case 20:
-            setDef20(value);
-            break;
+            case 1:
+                setDef1(value);
+                break;
+            case 2:
+                setDef2(value);
+                break;
+            case 3:
+                setDef3(value);
+                break;
+            case 4:
+                setDef4(value);
+                break;
+            case 5:
+                setDef5(value);
+                break;
+            case 6:
+                setDef6(value);
+                break;
+            case 7:
+                setDef7(value);
+                break;
+            case 8:
+                setDef8(value);
+                break;
+            case 9:
+                setDef9(value);
+                break;
+            case 10:
+                setDef10(value);
+                break;
+            case 11:
+                setDef11(value);
+                break;
+            case 12:
+                setDef12(value);
+                break;
+            case 13:
+                setDef13(value);
+                break;
+            case 14:
+                setDef14(value);
+                break;
+            case 15:
+                setDef15(value);
+                break;
+            case 16:
+                setDef16(value);
+                break;
+            case 17:
+                setDef17(value);
+                break;
+            case 18:
+                setDef18(value);
+                break;
+            case 19:
+                setDef19(value);
+                break;
+            case 20:
+                setDef20(value);
+                break;
 
         }
     }
 
     /**
      * 属性ecotype的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newEcotype
-     *            Integer
+     *
+     * @param newEcotype Integer
      */
     public void setEcotype(String newEcotype) {
 
@@ -2473,11 +2443,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性email1的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newEmail1
-     *            String
+     *
+     * @param newEmail1 String
      */
     public void setEmail1(String newEmail1) {
 
@@ -2486,11 +2455,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性email2的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newEmail2
-     *            String
+     *
+     * @param newEmail2 String
      */
     public void setEmail2(String newEmail2) {
 
@@ -2499,11 +2467,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性email3的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newEmail3
-     *            String
+     *
+     * @param newEmail3 String
      */
     public void setEmail3(String newEmail3) {
 
@@ -2512,22 +2479,21 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
-     * @param newEnddate
-     *            DZFDate
+     *
+     * @param newEnddate DZFDate
      */
     public void setEnddate(DZFDate newEnddate) {
         enddate = newEnddate;
@@ -2535,11 +2501,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性fathercorp的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newFathercorp
-     *            String
+     *
+     * @param newFathercorp String
      */
     public void setFathercorp(String newFathercorp) {
 
@@ -2548,11 +2513,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性fax1的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newFax1
-     *            String
+     *
+     * @param newFax1 String
      */
     public void setFax1(String newFax1) {
 
@@ -2561,11 +2525,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性fax2的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newFax2
-     *            String
+     *
+     * @param newFax2 String
      */
     public void setFax2(String newFax2) {
 
@@ -2574,11 +2537,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性foreignname的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newForeignname
-     *            String
+     *
+     * @param newForeignname String
      */
     public void setForeignname(String newForeignname) {
 
@@ -2587,11 +2549,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性holdflag的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newHoldflag
-     *            DZFBoolean
+     *
+     * @param newHoldflag DZFBoolean
      */
     public void setHoldflag(DZFBoolean newHoldflag) {
 
@@ -2600,20 +2561,20 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     *
+     *
      * 输入：
-     * 
+     *
      * 输出：
-     * 
+     *
      * 异常：
-     * 
+     *
      * 补充：
-     * 
-     * 
+     *
+     *
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
+     *
      * @param newIdnumber
      *            String
      */
@@ -2623,11 +2584,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性industry的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newIndustry
-     *            String
+     *
+     * @param newIndustry String
      */
     public void setIndustry(String newIndustry) {
 
@@ -2636,9 +2596,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-12-12 15:24:21)
-     * 
-     * @param newInnercode
-     *            String
+     *
+     * @param newInnercode String
      */
     public void setInnercode(String newInnercode) {
         innercode = newInnercode;
@@ -2646,11 +2605,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性ishasaccount 的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-8-23)
-     * 
-     * @param newIshasaccount
-     *            DZFBoolean
+     *
+     * @param newIshasaccount DZFBoolean
      */
     public void setIshasaccount(DZFBoolean newIshasaccount) {
 
@@ -2659,11 +2617,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性isseal的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-8-23)
-     * 
-     * @param newIsseal
-     *            DZFBoolean
+     *
+     * @param newIsseal DZFBoolean
      */
     public void setIsseal(DZFBoolean newIsseal) {
 
@@ -2672,11 +2629,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性isworkingunit的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-8-23)
-     * 
-     * @param newIsworkingunit
-     *            DZFBoolean
+     *
+     * @param newIsworkingunit DZFBoolean
      */
     public void setIsworkingunit(DZFBoolean newIsworkingunit) {
 
@@ -2694,11 +2650,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性legalbodycode的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newLegalbodycode
-     *            String
+     *
+     * @param newLegalbodycode String
      */
     public void setLegalbodycode(String newLegalbodycode) {
 
@@ -2707,11 +2662,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性linkman1的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newLinkman1
-     *            String
+     *
+     * @param newLinkman1 String
      */
     public void setLinkman1(String newLinkman1) {
 
@@ -2720,11 +2674,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性linkman2的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newLinkman2
-     *            String
+     *
+     * @param newLinkman2 String
      */
     public void setLinkman2(String newLinkman2) {
 
@@ -2733,11 +2686,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性linkman3的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newLinkman3
-     *            String
+     *
+     * @param newLinkman3 String
      */
     public void setLinkman3(String newLinkman3) {
 
@@ -2746,9 +2698,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-12-12 15:24:42)
-     * 
-     * @param newMaxinnercode
-     *            String
+     *
+     * @param newMaxinnercode String
      */
     public void setMaxinnercode(String newMaxinnercode) {
         maxinnercode = newMaxinnercode;
@@ -2756,11 +2707,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性memo的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newMemo
-     *            String
+     *
+     * @param newMemo String
      */
     public void setMemo(String newMemo) {
 
@@ -2769,11 +2719,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性ownersharerate的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newOwnersharerate
-     *            DZFDouble
+     *
+     * @param newOwnersharerate DZFDouble
      */
     public void setOwnersharerate(DZFDouble newOwnersharerate) {
 
@@ -2782,11 +2731,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性phone1的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newPhone1
-     *            String
+     *
+     * @param newPhone1 String
      */
     public void setPhone1(String newPhone1) {
 
@@ -2795,11 +2743,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性phone2的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newPhone2
-     *            String
+     *
+     * @param newPhone2 String
      */
     public void setPhone2(String newPhone2) {
 
@@ -2808,11 +2755,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性phone3的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newPhone3
-     *            String
+     *
+     * @param newPhone3 String
      */
     public void setPhone3(String newPhone3) {
 
@@ -2821,11 +2767,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性pk_corp的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newPk_corp
-     *            String
+     *
+     * @param newPk_corp String
      */
     public void setPk_corp(String newPk_corp) {
 
@@ -2834,9 +2779,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-12-13 10:50:11)
-     * 
-     * @param newPk_corpkind
-     *            String
+     *
+     * @param newPk_corpkind String
      */
     public void setPk_corpkind(String newPk_corpkind) {
         pk_corpkind = newPk_corpkind;
@@ -2844,22 +2788,21 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * -------------------------------------------------- 功能：
-     * 
-     * 
+     * <p>
+     * <p>
      * 输入：
-     * 
+     * <p>
      * 输出：
-     * 
+     * <p>
      * 异常：
-     * 
+     * <p>
      * 补充：
-     * 
-     * 
+     * <p>
+     * <p>
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
-     * 
-     * @param newPk_currency
-     *            String
+     *
+     * @param newPk_currency String
      */
     public void setPk_currency(String newPk_currency) {
         pk_currency = newPk_currency;
@@ -2867,11 +2810,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性postaddr的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newPostaddr
-     *            String
+     *
+     * @param newPostaddr String
      */
     public void setPostaddr(String newPostaddr) {
 
@@ -2880,11 +2822,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 设置对象标识，用来唯一定位对象。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newPk_corp
-     *            String
+     *
+     * @param newPk_corp String
      */
     public void setPrimaryKey(String newPk_corp) {
 
@@ -2893,9 +2834,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
-     * @param newProvince
-     *            String
+     *
+     * @param newProvince String
      */
     public void setProvince(String newProvince) {
         province = newProvince;
@@ -2903,9 +2843,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(02-5-23 13:51:19)
-     * 
-     * @param newRegcapital
-     *            DZFDouble
+     *
+     * @param newRegcapital DZFDouble
      */
     public void setRegcapital(DZFDouble newRegcapital) {
         regcapital = newRegcapital;
@@ -2913,9 +2852,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法描述。 创建日期：(2004-6-18 11:53:54)
-     * 
-     * @param newRegion
-     *            String
+     *
+     * @param newRegion String
      */
     public void setRegion(String newRegion) {
 
@@ -2924,11 +2862,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性saleaddr的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newSaleaddr
-     *            String
+     *
+     * @param newSaleaddr String
      */
     public void setSaleaddr(String newSaleaddr) {
 
@@ -2937,9 +2874,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2003-5-20 14:11:57)
-     * 
-     * @param newsealeddate
-     *            DZFDate
+     *
+     * @param newsealeddate DZFDate
      */
     public void setSealeddate(DZFDate newsealeddate) {
         sealeddate = newsealeddate;
@@ -2955,11 +2891,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性unitcode的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newUnitcode
-     *            String
+     *
+     * @param newUnitcode String
      */
     public void setUnitcode(String newUnitcode) {
 
@@ -2968,9 +2903,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 此处插入方法说明。 创建日期：(2004-4-26 11:36:59)
-     * 
-     * @param newUnitdistinction
-     *            Integer
+     *
+     * @param newUnitdistinction Integer
      */
     public void setUnitdistinction(String newUnitdistinction) {
         unitdistinction = newUnitdistinction;
@@ -2978,11 +2912,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性unitname的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newUnitname
-     *            String
+     *
+     * @param newUnitname String
      */
     public void setUnitname(String newUnitname) {
 
@@ -2991,11 +2924,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性unitshortname的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newUnitshortname
-     *            String
+     *
+     * @param newUnitshortname String
      */
     public void setUnitshortname(String newUnitshortname) {
 
@@ -3004,11 +2936,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性url的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newUrl
-     *            String
+     *
+     * @param newUrl String
      */
     public void setUrl(String newUrl) {
 
@@ -3017,11 +2948,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性zipcode的setter方法。
-     * 
+     * <p>
      * 创建日期：(2001-5-16)
-     * 
-     * @param newZipcode
-     *            String
+     *
+     * @param newZipcode String
      */
     public void setZipcode(String newZipcode) {
 
@@ -3030,11 +2960,10 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 属性showorder_id的setter方法。
-     * 
+     * <p>
      * 创建日期：(2008-7-29)
-     * 
-     * @param showorder
-     *            int
+     *
+     * @param showorder int
      */
     public void setShoworder(Integer showorder) {
 
@@ -3043,7 +2972,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * accountproject的setter方法
-     * 
+     *
      * @return
      */
     // public void setAccountproject(String accountproject) {
@@ -3052,7 +2981,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 
     /**
      * 返回公司名称。 创建日期：(2001-8-28 16:20:40)
-     * 
+     *
      * @return String
      */
     public String toString() {
@@ -3383,7 +3312,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
 //        return vstatetaxper;
 //    }
 
-//    public void setVstatetaxper(String vstatetaxper) {
+    //    public void setVstatetaxper(String vstatetaxper) {
 //        this.vstatetaxper = vstatetaxper;
 //    }
 //
@@ -3871,7 +3800,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
         this.corpSholderVos = corpSholderVos;
     }
 
-	public T[] getCorpChangeVos() {
+    public T[] getCorpChangeVos() {
         return corpChangeVos;
     }
 
@@ -3880,27 +3809,27 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     }
 
     public String getAccountProgressDate() {
-		return accountProgressDate;
-	}
+        return accountProgressDate;
+    }
 
-	public void setAccountProgressDate(String accountProgressDate) {
-		this.accountProgressDate = accountProgressDate;
-	}
+    public void setAccountProgressDate(String accountProgressDate) {
+        this.accountProgressDate = accountProgressDate;
+    }
 
-	public Integer getTax_area() {
-		return tax_area;
-	}
+    public Integer getTax_area() {
+        return tax_area;
+    }
 
-	public void setTax_area(Integer tax_area) {
-		this.tax_area = tax_area;
-	}
+    public void setTax_area(Integer tax_area) {
+        this.tax_area = tax_area;
+    }
 
-	public CorpTaxVo getCorptaxvo() {
-		return corptaxvo;
-	}
+    public CorpTaxVo getCorptaxvo() {
+        return corptaxvo;
+    }
 
-	public void setCorptaxvo(CorpTaxVo corptaxvo) {
-		this.corptaxvo = corptaxvo;
-	}
-	
+    public void setCorptaxvo(CorpTaxVo corptaxvo) {
+        this.corptaxvo = corptaxvo;
+    }
+
 }

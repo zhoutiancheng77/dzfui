@@ -1,7 +1,7 @@
 package com.dzf.zxkj.base.framework;
 
-import com.dzf.zxkj.common.lang.*;
 import com.dzf.zxkj.base.framework.type.SQLTypeFactory;
+import com.dzf.zxkj.custom.type.*;
 
 import java.io.InputStream;
 import java.io.Reader;

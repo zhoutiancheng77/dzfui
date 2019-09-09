@@ -13,6 +13,8 @@ import java.util.List;
  */
 public interface IWorkloadManagementService {
     List<WorkloadManagementVO> queryWorkloadManagement(WorkloadManagementQueryVo workloadManagementQueryVo) throws DZFWarpException;
-    List<WorkloadManagementVO> queryBypk_assetcard(WorkloadManagementQueryVo workloadManagementQueryVo)throws DZFWarpException;
-    void save(WorkloadManagementVO data)throws DZFWarpException;
+
+    List<WorkloadManagementVO> queryBypk_assetcard(WorkloadManagementQueryVo workloadManagementQueryVo) throws DZFWarpException;
+
+    void save(WorkloadManagementVO data) throws DZFWarpException;
 }

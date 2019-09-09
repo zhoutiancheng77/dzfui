@@ -5,9 +5,9 @@ package com.dzf.zxkj.common.exception;
  * @Date: 2019-09-02
  * @Description:
  */
+
 /**
  * 正常的业务提示信息提示到前台
- *
  */
 
 public class BusinessException extends DZFWarpException {
@@ -30,7 +30,7 @@ public class BusinessException extends DZFWarpException {
     }
 
 
-    public BusinessException(String s,String errorCode) {
+    public BusinessException(String s, String errorCode) {
         super(s);
         setErrorCodeString(errorCode);
     }

@@ -17,5 +17,6 @@
         <module>zxkj-mybatis-plus-starter</module>
         <module>zxkj-persistent-framework-starter</module>
         <module>zxkj-jackson-serialize</module>
+        <module>zxkj-custom-type</module>
     </modules>
 </project>

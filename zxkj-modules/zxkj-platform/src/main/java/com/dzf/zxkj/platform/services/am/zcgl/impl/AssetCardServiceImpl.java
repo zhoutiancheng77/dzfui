@@ -1,8 +1,8 @@
 package com.dzf.zxkj.platform.services.am.zcgl.impl;
 
 import com.dzf.zxkj.common.exception.DZFWarpException;
-import com.dzf.zxkj.common.lang.DZFBoolean;
-import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.custom.type.DZFBoolean;
+import com.dzf.zxkj.custom.type.DZFDate;
 import com.dzf.zxkj.platform.model.am.zcgl.AssetCardVO;
 import com.dzf.zxkj.platform.model.am.zcgl.ValuemodifyVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;

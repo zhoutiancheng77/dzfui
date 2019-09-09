@@ -1,8 +1,8 @@
 package com.dzf.zxkj.jbsz.vo;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.custom.type.DZFDate;
+import com.dzf.zxkj.custom.type.DZFDateTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.apache.ibatis.type.JdbcType;
@@ -21,39 +21,39 @@ public class BankAccountVO implements Serializable {
 
     @JsonProperty("id")
     @TableId(value = "pk_bankaccount", type = IdType.ID_WORKER_STR)
-    private String  pk_bankaccount;//主键
+    private String pk_bankaccount;//主键
 
     @JsonProperty("cid")
-    private String  coperatorid;//操作人
+    private String coperatorid;//操作人
 
     @JsonProperty("ddate")
     private DZFDate doperatedate;//操作时间
 
     @JsonProperty("corpid")
-    private String  pk_corp;
+    private String pk_corp;
 
     @JsonProperty("serialnum")
     private int serialnum;//序号
 
     @JsonProperty("bkcode")
-    private String  bankcode;//编码
+    private String bankcode;//编码
 
     @JsonProperty("bkname")
-    private String  bankname;//银行账户名称
+    private String bankname;//银行账户名称
 
     @JsonProperty("bkaccout")
-    private String  bankaccount;//银行账号
+    private String bankaccount;//银行账号
 
     @JsonProperty("accname_id")
-    private String  relatedsubj;//关联会计科目
+    private String relatedsubj;//关联会计科目
 
     @JsonProperty("accode")
     @TableField(exist = false)
-    private String  accountcode;
+    private String accountcode;
 
     @TableField(exist = false)
     @JsonProperty("accname")
-    private String  accountname;
+    private String accountname;
 
     @JsonProperty("bkstatus")
     private int state;//银行账户状态

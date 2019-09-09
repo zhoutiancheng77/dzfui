@@ -63,7 +63,7 @@ public class ReturnData<T> implements Serializable {
         this.data = data;
     }
 
-    public static ReturnData error(int status){
+    public static ReturnData error(int status) {
         return new ReturnData(status);
     }
 

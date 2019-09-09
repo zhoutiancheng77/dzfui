@@ -15,10 +15,16 @@ import java.util.List;
  */
 public interface IAssetCleanService {
     List<AssetCleanVO> query(AssetCleanQueryVO assetCleanQueryVO) throws DZFWarpException;
+
     void delete(AssetCleanVO vo) throws DZFWarpException;
+
     void insertToGL(String loginDate, CorpVO corpvo, AssetCleanVO vo) throws DZFWarpException;
+
     AssetCleanVO queryById(String id) throws DZFWarpException;
-    AssetCleanVO refresh(String pk_acs)throws DZFWarpException;
+
+    AssetCleanVO refresh(String pk_acs) throws DZFWarpException;
+
     void processAssetClears(String loginDate, CorpVO corpvo, SuperVO[] assetcardVOs, String loginuserid) throws DZFWarpException;
+
     void updateACToGLState(String pk_assetclear, boolean istogl, String pk_voucher) throws DZFWarpException;
 }

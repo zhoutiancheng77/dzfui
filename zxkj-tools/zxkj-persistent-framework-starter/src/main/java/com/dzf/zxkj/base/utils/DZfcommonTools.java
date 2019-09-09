@@ -2,7 +2,7 @@ package com.dzf.zxkj.base.utils;
 
 import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.custom.type.DZFDouble;
 
 import java.lang.reflect.Array;
 import java.text.DecimalFormat;

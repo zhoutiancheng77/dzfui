@@ -1,8 +1,8 @@
 package com.dzf.zxkj.platform.model.bdset;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.common.lang.DZFDateTime;
-import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.custom.type.DZFDateTime;
+import com.dzf.zxkj.custom.type.DZFDouble;
 
 public class SurtaxTemplateVO extends SuperVO {
     private String pk_jtsjtemplate;

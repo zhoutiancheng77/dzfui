@@ -1,7 +1,7 @@
-package com.dzf.zxkj.common.lang;
+package com.dzf.zxkj.custom.type;
 
 
-import com.dzf.zxkj.common.utils.Common;
+import com.dzf.zxkj.custom.utils.Common;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

@@ -1,8 +1,8 @@
 package com.dzf.zxkj.platform.services.bdset;
 
 import com.dzf.zxkj.common.exception.DZFWarpException;
-import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.custom.type.DZFDate;
+import com.dzf.zxkj.custom.type.DZFDouble;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 

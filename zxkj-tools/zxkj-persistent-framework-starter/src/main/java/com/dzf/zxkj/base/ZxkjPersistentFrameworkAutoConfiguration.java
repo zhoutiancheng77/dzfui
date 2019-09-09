@@ -20,7 +20,7 @@ import javax.sql.DataSource;
 @ComponentScan
 public class ZxkjPersistentFrameworkAutoConfiguration {
     @Bean
-    public SingleObjectBO singleObjectBO(){
+    public SingleObjectBO singleObjectBO() {
         return new SingleObjectBO();
     }
 }

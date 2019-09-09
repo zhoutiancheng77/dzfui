@@ -12,5 +12,6 @@ import java.util.List;
  */
 public interface IAssetCardDisplayColumnService {
     List<AssetCardDisplayColumnVO> qryDisplayColumns(String pk_corp) throws DZFWarpException;
+
     void saveDisplayColumn(AssetCardDisplayColumnVO displayvo, String pk_corp) throws DZFWarpException;
 }

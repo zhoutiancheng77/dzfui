@@ -88,7 +88,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
         int i = bankAccountMapper.existsInBankstatement(vo.getPk_corp(), vo.getBankaccount());
 
-        return  i >= 1;
+        return i >= 1;
     }
 
     @Override
@@ -104,8 +104,8 @@ public class BankAccountServiceImpl implements IBankAccountService {
     private void checkExist(BankAccountVO vo) throws DZFWarpException {
         Assert.notNull(vo.getBankcode(), "银行账户编码不能为空！");
         Assert.notNull(vo.getBankname(), "银行账户名称不能为空！");
-        Assert.notNull(vo.getBankcode(),"银行账号不能为空");
-        Assert.notNull(vo.getRelatedsubj(),"关联会计科目不能为空！");
+        Assert.notNull(vo.getBankcode(), "银行账号不能为空");
+        Assert.notNull(vo.getRelatedsubj(), "关联会计科目不能为空！");
 
         QueryWrapper<BankAccountVO> queryWrapper = new QueryWrapper<>();
 

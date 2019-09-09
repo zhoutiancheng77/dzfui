@@ -18,6 +18,6 @@ public abstract class DZFWarpException extends DataAccessException {
     }
 
     public DZFWarpException(Throwable cause) {
-        super("dzf异常",cause);
+        super("dzf异常", cause);
     }
 }

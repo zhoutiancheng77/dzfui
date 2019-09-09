@@ -3,8 +3,8 @@ package com.dzf.zxkj.platform.services.bdset.impl;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.common.exception.DZFWarpException;
-import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.custom.type.DZFDate;
+import com.dzf.zxkj.custom.type.DZFDouble;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.services.bdset.IYntCpaccountService;
@@ -29,12 +29,12 @@ public class YntCpaccountServiceImpl implements IYntCpaccountService {
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_corp);
         sp.addParam(kind);
-        YntCpaccountVO[] cpvos = (YntCpaccountVO[])singleObjectBO.queryByCondition(YntCpaccountVO.class, " pk_corp = ? and accountkind = ? and nvl(dr,0) = 0 ", sp);
+        YntCpaccountVO[] cpvos = (YntCpaccountVO[]) singleObjectBO.queryByCondition(YntCpaccountVO.class, " pk_corp = ? and accountkind = ? and nvl(dr,0) = 0 ", sp);
         return sort(cpvos);
     }
 
-    private YntCpaccountVO[] sort(YntCpaccountVO[] yntCpaccountVOS){
-        if(yntCpaccountVOS == null){
+    private YntCpaccountVO[] sort(YntCpaccountVO[] yntCpaccountVOS) {
+        if (yntCpaccountVOS == null) {
             return new YntCpaccountVO[0];
         }
         Arrays.sort(yntCpaccountVOS, new Comparator<YntCpaccountVO>() {
@@ -50,7 +50,7 @@ public class YntCpaccountServiceImpl implements IYntCpaccountService {
     public YntCpaccountVO[] get(String pk_corp) throws DZFWarpException {
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_corp);
-        YntCpaccountVO[] cpvos = (YntCpaccountVO[])singleObjectBO.queryByCondition(YntCpaccountVO.class, " pk_corp = ? and nvl(dr,0) = 0 ", sp);
+        YntCpaccountVO[] cpvos = (YntCpaccountVO[]) singleObjectBO.queryByCondition(YntCpaccountVO.class, " pk_corp = ? and nvl(dr,0) = 0 ", sp);
         return sort(cpvos);
     }
 

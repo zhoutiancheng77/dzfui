@@ -12,7 +12,7 @@ import com.dzf.zxkj.base.framework.util.DBUtil;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.model.SuperVO;
 import com.dzf.zxkj.base.utils.StringUtil;
-import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.custom.type.DZFDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;

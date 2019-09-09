@@ -15,6 +15,7 @@ import java.util.List;
 public interface IBankAccountService {
     /**
      * 保存
+     *
      * @param vo
      * @return
      * @throws DZFWarpException
@@ -23,6 +24,7 @@ public interface IBankAccountService {
 
     /**
      * 更新
+     *
      * @param vo
      * @throws DZFWarpException
      */
@@ -30,15 +32,19 @@ public interface IBankAccountService {
 
     /**
      * 查询
+     *
      * @param pk_corp
      * @param isnhsty
      * @return
      * @throws DZFWarpException
      */
     List<BankAccountVO> query(String pk_corp, String isnhsty) throws DZFWarpException;
+
     IPage<BankAccountVO> query(Page<BankAccountVO> page, String pk_corp, String isnhsty) throws DZFWarpException;
+
     /**
      * 查询
+     *
      * @param id
      * @return
      * @throws DZFWarpException
@@ -47,6 +53,7 @@ public interface IBankAccountService {
 
     /**
      * 删除
+     *
      * @param vo
      * @throws DZFWarpException
      */

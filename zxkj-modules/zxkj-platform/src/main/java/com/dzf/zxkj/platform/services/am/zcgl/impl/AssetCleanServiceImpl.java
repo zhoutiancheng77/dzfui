@@ -102,13 +102,13 @@ public class AssetCleanServiceImpl implements IAssetCleanService {
     private String createVoucher(String loginDate, CorpVO corpvo, AssetCleanVO assetCleanVO) {
         AssetCardVO assetcardVO = (AssetCardVO) singleObjectBO
                 .queryByPrimaryKey(AssetCardVO.class, assetCleanVO.getPk_assetcard());
-        if(assetcardVO == null){
+        if (assetcardVO == null) {
             throw new BusinessException("资产不存在！");
         }
 
         YntCpaccountVO[] accountvos = yntCpaccountService.get(corpvo.getPk_corp());
 
-        if(accountvos == null || accountvos.length ==0){
+        if (accountvos == null || accountvos.length == 0) {
             throw new BusinessException("该公司科目不存在");
         }
 
@@ -123,20 +123,20 @@ public class AssetCleanServiceImpl implements IAssetCleanService {
 
     private AssetDepTemplate[] getClearVoucherTemplet(CorpVO corpvo, AssetCardVO assetcardVO, YntCpaccountVO[] accountvos, BdAssetCategoryVO categoryVO) {
         String zy = "固定资产清理";
-        if(categoryVO!= null){
-            if(categoryVO.getAssetproperty()!=null){
-                if(categoryVO.getAssetproperty().intValue() ==1){
+        if (categoryVO != null) {
+            if (categoryVO.getAssetproperty() != null) {
+                if (categoryVO.getAssetproperty().intValue() == 1) {
                     zy = "无形资产清理";
-                }else if(categoryVO.getAssetproperty().intValue() ==3){
+                } else if (categoryVO.getAssetproperty().intValue() == 3) {
                     zy = "待摊费用清理";
                 }
             }
         }
         AssetDepTemplate[] vos = null;
-        if(categoryVO.getAssetproperty().intValue() ==3){//待摊费用
+        if (categoryVO.getAssetproperty().intValue() == 3) {//待摊费用
             vos = new AssetDepTemplate[2];
             //累计折旧
-            vos[0]= new AssetDepTemplate();
+            vos[0] = new AssetDepTemplate();
             vos[0].setPk_account(assetcardVO.getPk_zjfykm());//借，费用科目
             vos[0].setAccountkind(1);
             vos[0].setDirect(0);
@@ -147,17 +147,17 @@ public class AssetCleanServiceImpl implements IAssetCleanService {
             vos[1].setAccountkind(1);
             vos[1].setDirect(1);
             vos[1].setAbstracts(zy);
-        }else{
+        } else {
             vos = new AssetDepTemplate[3];
             //累计折旧
-            vos[0]= new AssetDepTemplate();
+            vos[0] = new AssetDepTemplate();
             vos[0].setPk_account(assetcardVO.getPk_jtzjkm());
             vos[0].setAccountkind(2);
             vos[0].setDirect(0);
             vos[0].setAbstracts(zy);
             //资产清理科目
             vos[1] = new AssetDepTemplate();
-            vos[1].setPk_account(getAssetClearAccountId(corpvo,accountvos,categoryVO));
+            vos[1].setPk_account(getAssetClearAccountId(corpvo, accountvos, categoryVO));
             vos[1].setAccountkind(1);
             vos[1].setDirect(0);
             vos[1].setAbstracts(zy);
@@ -221,19 +221,19 @@ public class AssetCleanServiceImpl implements IAssetCleanService {
     private void checkBeforeToGl(String loginDate, CorpVO corpvo, AssetCleanVO assetCleanVO) {
         AssetCleanVO oldVO = (AssetCleanVO) singleObjectBO.queryByPrimaryKey(
                 AssetCleanVO.class, assetCleanVO.getPrimaryKey());
-        if(corpvo == null){
+        if (corpvo == null) {
             throw new BusinessException("公司信息为空");
         }
 
         if (oldVO == null) {
             throw new BusinessException("该数据已经被他人删除，请刷新界面");
         }
-        if (assetCleanVO.getIstogl() != null && assetCleanVO.getIstogl().booleanValue()){
+        if (assetCleanVO.getIstogl() != null && assetCleanVO.getIstogl().booleanValue()) {
             throw new BusinessException(String.format("资产清理单%s已经转总账，不允许重复转总账",
                     assetCleanVO.getVbillno()));
         }
 
-        if (assetCleanVO.getIssettle() != null && assetCleanVO.getIssettle().booleanValue()){
+        if (assetCleanVO.getIssettle() != null && assetCleanVO.getIssettle().booleanValue()) {
             throw new BusinessException(String.format("资产清理单%s已经结账，不允许转总账",
                     assetCleanVO.getVbillno()));
         }

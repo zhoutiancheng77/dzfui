@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.vo.am.zcgl;
 
-import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.custom.type.DZFDate;
 import lombok.Data;
 
 /**

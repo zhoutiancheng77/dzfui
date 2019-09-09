@@ -13,7 +13,10 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
  */
 public interface IAssetDepreciaTionService {
     void updateDepToGLState(String pk_assetdep, boolean istogl, String pk_voucher) throws DZFWarpException;
+
     void deleteAssetDepreciation(AssetDepreciaTionVO assetdepVO) throws DZFWarpException;
+
     void clearProcessDep(CorpVO corpvo, String loginDate, AssetCardVO[] assetCardVOS) throws BusinessException;
-    void processAssetDepToGL(CorpVO corpvo, AssetDepreciaTionVO assetdepVO, AssetCardVO assetcardVO) throws BusinessException ;
+
+    void processAssetDepToGL(CorpVO corpvo, AssetDepreciaTionVO assetdepVO, AssetCardVO assetcardVO) throws BusinessException;
 }

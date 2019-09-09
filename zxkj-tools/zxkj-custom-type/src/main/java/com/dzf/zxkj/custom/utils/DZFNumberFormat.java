@@ -1,5 +1,7 @@
-package com.dzf.zxkj.common.lang;
+package com.dzf.zxkj.custom.utils;
 
+
+import com.dzf.zxkj.custom.type.DZFDouble;
 
 public class DZFNumberFormat {
     public static final int NUMBERSTYLE = 0;

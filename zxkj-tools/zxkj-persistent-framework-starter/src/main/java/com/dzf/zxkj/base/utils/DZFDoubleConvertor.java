@@ -1,7 +1,7 @@
 package com.dzf.zxkj.base.utils;
 
 
-import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.custom.type.DZFDouble;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;

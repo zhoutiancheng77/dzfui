@@ -4,18 +4,18 @@
 
     <select id="query" resultType="com.dzf.zxkj.jbsz.vo.BankAccountVO">
         SELECT
-            y.*,
-            cp.accountcode,
-            cp.accountname
+        y.*,
+        cp.accountcode,
+        cp.accountname
         FROM
-            ynt_bankaccount y
-            LEFT JOIN ynt_cpaccount cp ON y.relatedsubj = cp.pk_corp_account
+        ynt_bankaccount y
+        LEFT JOIN ynt_cpaccount cp ON y.relatedsubj = cp.pk_corp_account
         WHERE
-            nvl( y.dr, 0 ) = 0
-            <if test="isnhsty != null and isnhsty != ''">
-                AND state != 1
-            </if>
-            AND y.pk_corp = #{pk_corp}
+        nvl( y.dr, 0 ) = 0
+        <if test="isnhsty != null and isnhsty != ''">
+            AND state != 1
+        </if>
+        AND y.pk_corp = #{pk_corp}
         order by y.ts
     </select>
     <select id="existsInBankstatement" resultType="java.lang.Integer">

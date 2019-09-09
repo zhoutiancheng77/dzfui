@@ -27,7 +27,7 @@ public class KpglController {
     private SingleObjectBO singleObjectBO;
 
     @GetMapping("list")
-    public ReturnData<List<AssetcardVO>> list(@RequestParam("pk_corp") String pk_corp){
+    public ReturnData<List<AssetcardVO>> list(@RequestParam("pk_corp") String pk_corp) {
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_corp);
         List<AssetcardVO> listVo = (List<AssetcardVO>) singleObjectBO

@@ -1,4 +1,4 @@
-package com.dzf.zxkj.common.lang;
+package com.dzf.zxkj.custom.type;
 
 
 public final class DZFBoolean implements java.io.Serializable, Comparable {

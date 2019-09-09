@@ -1,10 +1,10 @@
 package com.dzf.zxkj.base.framework.util;
 
-import com.dzf.zxkj.common.lang.*;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.type.BlobParamType;
 import com.dzf.zxkj.base.framework.type.ClobParamType;
 import com.dzf.zxkj.base.framework.type.NullParamType;
+import com.dzf.zxkj.custom.type.*;
 
 import java.math.BigDecimal;
 import java.sql.*;

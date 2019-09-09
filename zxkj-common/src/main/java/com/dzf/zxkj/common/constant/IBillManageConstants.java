@@ -37,9 +37,9 @@ public interface IBillManageConstants {
 
     /****************合并制单的表单********************/
     String HEBING_YHDZF = "1";//银行对账单
-    String HEBING_XXFP  = "2";//销项清单
-    String HEBING_JXFP  = "3";//进项清单
-    String HEBING_ZNPZ  = "4";//智能凭证
+    String HEBING_XXFP = "2";//销项清单
+    String HEBING_JXFP = "3";//进项清单
+    String HEBING_ZNPZ = "4";//智能凭证
     /****************合并制单的规则********************/
 //	public static final int HEBING_GZ_01 = 1;//相同往来单位合并一张
 //	public static final int HEBING_GZ_02 = 2;//相同日期合并一张

@@ -1,6 +1,6 @@
-package com.dzf.zxkj.jackson.converter;
+package com.dzf.zxkj.jackson.serializer;
 
-import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.custom.type.DZFDateTime;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -12,8 +12,8 @@ import java.io.IOException;
  * @Date: 2019-09-03
  * @Description:
  */
-public class DZFDateTimeConverter extends StdSerializer<DZFDateTime> {
-    public DZFDateTimeConverter() {
+public class DZFDateTimeSerializer extends StdSerializer<DZFDateTime> {
+    public DZFDateTimeSerializer() {
         super(DZFDateTime.class);
     }
 

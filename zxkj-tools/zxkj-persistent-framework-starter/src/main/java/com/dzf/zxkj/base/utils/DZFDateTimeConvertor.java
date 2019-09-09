@@ -6,7 +6,7 @@
  */
 package com.dzf.zxkj.base.utils;
 
-import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.custom.type.DZFDateTime;
 import oracle.sql.TIMESTAMP;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
