@@ -8,3 +8,7 @@ spring:
         file-extension: yaml
         group: dzf-zxkj
         namespace: bddf255f-a744-4702-9aea-6e6b7016eb75
+    zookeeper:
+      enabled: false
+    consul:
+      enabled: false

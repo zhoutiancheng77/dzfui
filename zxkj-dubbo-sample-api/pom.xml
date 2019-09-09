@@ -9,15 +9,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zxkj-tools</artifactId>
+    <artifactId>zxkj-dubbo-sample-api</artifactId>
     <packaging>pom</packaging>
 
-    <name>zxkj-tools</name>
+    <name>zxkj-dubbo-sample-api</name>
+
     <modules>
-        <module>zxkj-mybatis-plus-starter</module>
-        <module>zxkj-persistent-framework-starter</module>
-        <module>zxkj-jackson-serialize</module>
-        <module>zxkj-custom-type</module>
-        <module>zxkj-log</module>
+        <module>zxkj-platform-dubbo-api</module>
     </modules>
 </project>

@@ -1,25 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.dzf</groupId>
     <artifactId>dzf-zxkj</artifactId>
     <packaging>pom</packaging>
     <version>1.0</version>
-
     <parent>
         <groupId>com.dzf</groupId>
         <artifactId>dzf-parent</artifactId>
         <version>1.0.1</version>
     </parent>
-
     <modules>
         <module>zxkj-gateway</module>
         <module>zxkj-modules</module>
         <module>zxkj-common</module>
         <module>zxkj-tools</module>
+        <module>zxkj-dubbo-sample-api</module>
     </modules>
 
     <name>dzf-zxkj</name>

@@ -32,6 +32,15 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-dubbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-platform-dubbo-api</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
 
