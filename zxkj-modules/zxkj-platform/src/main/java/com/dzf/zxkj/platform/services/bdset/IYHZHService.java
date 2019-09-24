@@ -5,12 +5,8 @@ import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
 
 import java.util.List;
 
-/**
- * @Auther: dandelion
- * @Date: 2019-09-06
- * @Description:
- */
-public interface IBankAccountService {
+public interface IYHZHService {
+
     /**
      * 保存
      *
