@@ -64,10 +64,16 @@ public interface IAuxiliaryAccountService {
 
     AuxiliaryAccountBVO queryBByCode(String pk_corp, String code, String hid) throws DZFWarpException;
 
+//	public AuxiliaryAccountBVO[] queryBParam(String pk_auacount_h, String param, String pk_corp)throws DZFWarpException;
+
     QueryPageVO queryBParamBypage(String pk_auacount_h, String param, String pk_corp, int page, int rows, String type) throws DZFWarpException;
+
+//	public AuxiliaryAccountBVO[] queryBInvBycondition(String pk_auacount_h, String code,String name,String spec, String qchukukmid, String qkmclassify, String pk_corp)
+//			throws DZFWarpException;
 
     QueryPageVO queryBInvByconditionBypage(String pk_auacount_h, String code, String name, String spec, String qchukukmid, String qkmclassify, String pk_corp, int page, int rows)
             throws DZFWarpException;
+
 
     AuxiliaryAccountHVO saveH(AuxiliaryAccountHVO hvo) throws DZFWarpException;
 
@@ -133,6 +139,7 @@ public interface IAuxiliaryAccountService {
      * 检查名称编码是否重复
      *
      * @param bvo
+     * @param type
      * @throws DZFWarpException
      */
     boolean checkRepeat(AuxiliaryAccountBVO bvo) throws DZFWarpException;
