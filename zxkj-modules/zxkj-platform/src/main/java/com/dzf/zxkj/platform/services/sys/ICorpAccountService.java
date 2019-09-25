@@ -59,11 +59,7 @@ public interface ICorpAccountService {
      * @throws DZFWarpException
      */
     public DatatruansVO queryBuyRecords(String pk_corp) throws DZFWarpException;
-
-    public Long lockCorpAccount(String pk_corp, Integer totalNums) throws DZFWarpException;
-
-    public void unLockCorpAccount(String pk_corp, Integer totalNums) throws DZFWarpException;
-    /**
+     /**
      * 缓存递减
      * @param pk_corp
      */
