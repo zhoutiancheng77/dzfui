@@ -1,7 +1,7 @@
-package com.dzf.zxkj.platform.services.bdset;
+package com.dzf.zxkj.platform.services.sys;
 
 import com.dzf.zxkj.common.exception.DZFWarpException;
-import com.dzf.zxkj.platform.model.bdset.BDabstractsVO;
+import com.dzf.zxkj.platform.model.sys.BDabstractsVO;
 
 public interface IBDabstractsService {
 
