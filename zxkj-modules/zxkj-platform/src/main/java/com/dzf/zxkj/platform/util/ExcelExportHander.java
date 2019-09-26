@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.util;
 
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;

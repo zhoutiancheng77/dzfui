@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.vo.sys;
 
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.sys.UserVO;

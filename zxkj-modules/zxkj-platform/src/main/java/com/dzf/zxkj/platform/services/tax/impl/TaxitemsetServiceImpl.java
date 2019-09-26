@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.services.tax.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.tree.BDTreeCreator;
+import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.base.exception.DZFWarpException;

@@ -8,7 +8,7 @@ package com.dzf.zxkj.base.framework;
 
 import com.dzf.zxkj.base.framework.exception.DbException;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import org.springframework.jdbc.core.ConnectionCallback;
 
 import javax.sql.DataSource;

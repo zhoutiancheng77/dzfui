@@ -6,7 +6,7 @@ import com.dzf.zxkj.base.framework.processor.ArrayListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.base.tree.BDTreeCreator;
+import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.DZFConstant;

@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.services.st.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.enums.CellTypeEnum;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -11,9 +11,6 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
-import com.dzf.zxkj.platform.model.st.CallInfoContext;
-import com.dzf.zxkj.platform.model.st.CallInfoVO;
-import com.dzf.zxkj.platform.model.st.NssbReportUtil;
 import com.dzf.zxkj.platform.services.report.IFsYeReport;
 import com.dzf.zxkj.platform.util.Formula;
 import com.dzf.zxkj.platform.vo.sys.QueryParamVO;

@@ -1,9 +1,9 @@
 package com.dzf.zxkj.platform.services.st;
 
 
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.platform.model.st.CallInfoVO;
+import com.dzf.zxkj.platform.services.st.impl.CallInfoVO;
 
 import java.util.List;
 import java.util.Map;

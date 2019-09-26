@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.util;
 
 
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.CodeUtils1;
 import lombok.extern.slf4j.Slf4j;
 

@@ -13,6 +13,9 @@
     <packaging>pom</packaging>
 
     <name>zxkj-platform-api</name>
+    <modules>
+        <module>zxkj-platform-auth-api</module>
+    </modules>
 
     <dependencies>
         <dependency>

@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.services.common;
 
 
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.services.common;
 
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.platform.model.report.CwbbType;
 import org.apache.poi.ss.usermodel.Workbook;
 

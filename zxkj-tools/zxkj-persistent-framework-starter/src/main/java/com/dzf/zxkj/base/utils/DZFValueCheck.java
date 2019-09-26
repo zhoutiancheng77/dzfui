@@ -1,7 +1,7 @@
 package com.dzf.zxkj.base.utils;
 
-import com.dzf.zxkj.base.model.CircularlyAccessibleValueObject;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.CircularlyAccessibleValueObject;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.*;
 import com.dzf.zxkj.common.tool.MapList;
 import com.dzf.zxkj.common.utils.DZFArrayUtil;

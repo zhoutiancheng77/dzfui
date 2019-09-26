@@ -1,6 +1,6 @@
 package com.dzf.zxkj.base.vo;
 
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 
 public class QueryPageVO {
 

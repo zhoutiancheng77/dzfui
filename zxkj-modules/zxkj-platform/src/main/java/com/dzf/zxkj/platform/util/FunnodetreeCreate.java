@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.util;
 
-import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.base.tree.AccTreeCreateStrategyByID;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.tree.AccTreeCreateStrategyByID;
 import com.dzf.zxkj.platform.model.sys.SysFunNodeVO;
 
 public class FunnodetreeCreate extends AccTreeCreateStrategyByID {

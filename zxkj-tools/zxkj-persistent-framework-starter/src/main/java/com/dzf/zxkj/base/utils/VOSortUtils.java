@@ -1,6 +1,6 @@
 package com.dzf.zxkj.base.utils;
 
-import com.dzf.zxkj.base.model.CircularlyAccessibleValueObject;
+import com.dzf.zxkj.common.model.CircularlyAccessibleValueObject;
 
 import java.io.Serializable;
 import java.util.Arrays;

@@ -5,7 +5,7 @@ import com.dzf.zxkj.base.framework.exception.ExceptionFactory;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.DBConsts;
 import com.dzf.zxkj.base.framework.util.DBUtil;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.*;
 

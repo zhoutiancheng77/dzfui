@@ -1,7 +1,7 @@
 package com.dzf.zxkj.base.utils;
 
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.BeanHelper;
 

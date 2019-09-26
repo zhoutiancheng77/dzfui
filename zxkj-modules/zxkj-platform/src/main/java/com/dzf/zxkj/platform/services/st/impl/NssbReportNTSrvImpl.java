@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.services.st.impl;
 
 
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.enums.AccountEnum;
 import com.dzf.zxkj.common.enums.CellTypeEnum;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -10,8 +10,6 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
-import com.dzf.zxkj.platform.model.st.CallInfoVO;
-import com.dzf.zxkj.platform.model.st.NssbReportUtil;
 import com.dzf.zxkj.platform.model.st.ReportTabClassMapping;
 import com.dzf.zxkj.platform.model.st.StNssbInfoVO;
 import com.dzf.zxkj.platform.services.st.INssbNTReportSrv;

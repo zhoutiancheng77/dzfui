@@ -1,7 +1,7 @@
 package com.dzf.zxkj.base.framework.processor;
 
 import com.dzf.zxkj.base.framework.util.InOutUtil;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.BeanConvertor;
 import com.dzf.zxkj.common.utils.BeanHelper;
 import lombok.extern.slf4j.Slf4j;

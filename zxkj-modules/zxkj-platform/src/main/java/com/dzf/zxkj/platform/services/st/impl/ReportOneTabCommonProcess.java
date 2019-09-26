@@ -2,13 +2,10 @@ package com.dzf.zxkj.platform.services.st.impl;
 
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDateTime;
-import com.dzf.zxkj.platform.model.st.CallInfoContext;
-import com.dzf.zxkj.platform.model.st.CallInfoVO;
-import com.dzf.zxkj.platform.model.st.NssbReportUtil;
 import com.dzf.zxkj.platform.model.st.StNssbInfoVO;
 import com.dzf.zxkj.platform.services.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.services.bdset.ICpaccountService;

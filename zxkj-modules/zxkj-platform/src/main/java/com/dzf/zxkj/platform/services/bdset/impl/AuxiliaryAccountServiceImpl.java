@@ -69,6 +69,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("all")
 @Service("gl_fzhsserv")
 @Slf4j
 public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {

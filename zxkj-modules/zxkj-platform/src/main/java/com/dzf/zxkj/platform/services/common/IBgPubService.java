@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.services.common;
 
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.entity.ConditionVO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
