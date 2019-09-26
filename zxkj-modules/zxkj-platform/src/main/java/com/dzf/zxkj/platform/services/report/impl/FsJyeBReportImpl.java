@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 @Service("gl_rep_fsyebserv")
 @SuppressWarnings("all")
 public class FsJyeBReportImpl implements IFsYeReport {
-	
 	@Autowired
 	private SingleObjectBO singleObjectBO = null;
 
