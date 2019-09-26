@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.services.qcset;
 
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;

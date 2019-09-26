@@ -1,6 +1,6 @@
 package com.dzf.zxkj.base.utils;
 
-import com.dzf.zxkj.custom.type.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
 

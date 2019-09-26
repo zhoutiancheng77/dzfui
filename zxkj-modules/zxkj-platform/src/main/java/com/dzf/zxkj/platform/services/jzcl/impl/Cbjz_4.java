@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IcConst;
 import com.dzf.zxkj.common.constant.IcCostStyle;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.icset.IctradeinVO;
@@ -103,7 +103,7 @@ public class Cbjz_4 {
 	/**
 	 * 完工产品入库单
 	 */
-	public void saveWGrkbill(CorpVO corpVo,TzpzHVO billvo,QmclVO vo){
+	public void saveWGrkbill(CorpVO corpVo, TzpzHVO billvo, QmclVO vo){
 		if(IcCostStyle.IC_ON.equals(corpVo.getBbuildic()) &&//启用库存
 				corpVo.getIbuildicstyle()!=null && 
 				corpVo.getIbuildicstyle() ==1){//库存新模式

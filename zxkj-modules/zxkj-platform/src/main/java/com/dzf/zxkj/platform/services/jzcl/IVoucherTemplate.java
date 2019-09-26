@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.services.jzcl;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 
 /**
  * 凭证模板

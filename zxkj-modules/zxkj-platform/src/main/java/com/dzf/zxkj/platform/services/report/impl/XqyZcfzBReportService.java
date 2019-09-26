@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.services.report.impl;
 
 import com.dzf.zxkj.common.constant.DZFConstant;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;

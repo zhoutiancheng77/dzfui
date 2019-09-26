@@ -7,7 +7,7 @@ import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IParameterConstants;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;

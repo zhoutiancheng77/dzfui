@@ -1,7 +1,6 @@
 package com.dzf.zxkj.mybatis.config;
 
 import com.dzf.zxkj.mybatis.converter.DZFDateTimeConverter;
-import com.dzf.zxkj.custom.type.DZFDateTime;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;

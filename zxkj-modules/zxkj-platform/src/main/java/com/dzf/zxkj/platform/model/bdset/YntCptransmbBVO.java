@@ -1,8 +1,8 @@
 package com.dzf.zxkj.platform.model.bdset;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.custom.type.DZFDate;
-import com.dzf.zxkj.custom.type.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -189,7 +189,7 @@ public class YntCptransmbBVO extends SuperVO {
      * 属性pk_trade_transtemplate_b的Setter方法.
      * 创建日期:2014-09-15 17:31:07
      *
-     * @param newPk_corp_transtemplate_b String
+     * @param newPk_trade_transtemplate_b String
      */
     public void setPk_corp_transtemplate_b(String newPk_corp_transtemplate_b) {
         this.pk_corp_transtemplate_b = newPk_corp_transtemplate_b;
@@ -289,7 +289,7 @@ public class YntCptransmbBVO extends SuperVO {
      * 属性pk_trade_transtemplate_h的Setter方法.
      * 创建日期:2014-09-15 17:31:07
      *
-     * @param newPk_corp_transtemplate_h String
+     * @param newPk_trade_transtemplate_h String
      */
     public void setPk_corp_transtemplate_h(String newPk_corp_transtemplate_h) {
         this.pk_corp_transtemplate_h = newPk_corp_transtemplate_h;

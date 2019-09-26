@@ -2,8 +2,9 @@ package com.dzf.zxkj.platform.services.zcgl.impl;
 
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -24,7 +25,6 @@ import com.dzf.zxkj.platform.services.zcgl.IAssetCard;
 import com.dzf.zxkj.platform.services.zcgl.IAssetDepreciation;
 import com.dzf.zxkj.platform.services.zcgl.IAssetTemplet;
 import com.dzf.zxkj.platform.services.zcgl.IZcCommonService;
-import com.dzf.zxkj.platform.util.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

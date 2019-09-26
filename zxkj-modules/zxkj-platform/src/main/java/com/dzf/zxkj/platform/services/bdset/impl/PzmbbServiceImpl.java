@@ -2,8 +2,8 @@ package com.dzf.zxkj.platform.services.bdset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.common.exception.DAOException;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DAOException;
 import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
 import com.dzf.zxkj.platform.services.bdset.IPzmbbService;
 import org.springframework.beans.factory.annotation.Autowired;

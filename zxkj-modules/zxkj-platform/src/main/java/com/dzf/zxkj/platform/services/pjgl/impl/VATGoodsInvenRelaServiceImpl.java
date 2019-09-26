@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.services.pjgl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.platform.services.pjgl.IVATGoodsInvenRelaService;
 import org.springframework.beans.factory.annotation.Autowired;

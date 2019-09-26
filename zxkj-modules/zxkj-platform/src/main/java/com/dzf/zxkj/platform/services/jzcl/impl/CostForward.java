@@ -5,7 +5,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IQmclConstant;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -107,7 +107,7 @@ public class CostForward {
 	/**
 	 * 行业的成本结转模板
 	 */
-	public void doCostTradeForward(CorpVO corpVo,QmclVO vo,SingleObjectBO bo,String pk_corp,String userid) throws BusinessException{
+	public void doCostTradeForward(CorpVO corpVo, QmclVO vo, SingleObjectBO bo, String pk_corp, String userid) throws BusinessException{
 		try{
 			String where = " pk_trade_accountschema in (select corptype from bd_corp where pk_corp='"+vo.getPk_corp()+"' and nvl(dr,0)=0 )  and nvl(dr,0)=0 ";
 			BdTradeCostTransferVO[] hymbVOs = (BdTradeCostTransferVO[])bo.queryByCondition(BdTradeCostTransferVO.class, where,new SQLParameter()) ;

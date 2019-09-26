@@ -2,9 +2,10 @@ package com.dzf.zxkj.platform.services.jzcl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IIncomeWarningConstants;
-import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -24,7 +25,6 @@ import com.dzf.zxkj.platform.services.bdset.impl.IncomeWarningServiceImpl;
 import com.dzf.zxkj.platform.services.report.ILrbQuarterlyReport;
 import com.dzf.zxkj.platform.services.report.ILrbReport;
 import com.dzf.zxkj.platform.services.sys.IBDCorpTaxService;
-import com.dzf.zxkj.platform.util.SpringUtils;
 import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
 
 import java.util.List;

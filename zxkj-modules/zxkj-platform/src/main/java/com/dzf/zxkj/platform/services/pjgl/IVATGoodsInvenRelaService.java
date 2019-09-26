@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.services.pjgl;
 
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 
 public interface IVATGoodsInvenRelaService {
 

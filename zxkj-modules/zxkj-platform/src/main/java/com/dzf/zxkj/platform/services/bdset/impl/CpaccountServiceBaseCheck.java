@@ -5,11 +5,11 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.services.bdset.ICpaccountService;
-import com.dzf.zxkj.platform.util.SpringUtils;
+import com.dzf.zxkj.base.utils.SpringUtils;
 
 import java.util.Collection;
 import java.util.List;

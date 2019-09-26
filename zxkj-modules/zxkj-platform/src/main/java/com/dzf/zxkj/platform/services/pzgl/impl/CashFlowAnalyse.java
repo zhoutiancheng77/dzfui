@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.services.pzgl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -16,7 +17,6 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.report.XjllVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.services.report.IYntBoPubUtil;
-import com.dzf.zxkj.platform.util.SpringUtils;
 
 import java.util.*;
 

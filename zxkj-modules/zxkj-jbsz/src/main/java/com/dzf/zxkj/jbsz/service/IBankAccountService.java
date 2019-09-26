@@ -2,7 +2,7 @@ package com.dzf.zxkj.jbsz.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.jbsz.vo.BankAccountVO;
 
 import java.util.List;

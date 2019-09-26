@@ -1,9 +1,10 @@
 package com.dzf.zxkj.platform.model.bdset;
 
+
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.custom.type.DZFBoolean;
-import com.dzf.zxkj.custom.type.DZFDate;
-import com.dzf.zxkj.custom.type.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigInteger;
@@ -537,7 +538,7 @@ public class BdTradeAccountVO extends SuperVO {
      * 属性accountcode的Setter方法.
      * 创建日期:2014-09-15 17:28:23
      *
-     * @param accountcode String
+     * @param newAccountcode String
      */
     public void setAccountcode(String accountcode) {
         this.accountcode = accountcode;

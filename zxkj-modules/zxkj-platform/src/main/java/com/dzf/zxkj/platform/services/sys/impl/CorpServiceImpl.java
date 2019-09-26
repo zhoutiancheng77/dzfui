@@ -1,8 +1,8 @@
 package com.dzf.zxkj.platform.services.sys.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.common.exception.DZFWarpException;
-import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.CodeUtils1;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.services.sys.ICorpService;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ public class CorpServiceImpl implements ICorpService {
 
     @Override
     public CorpVO queryByPk(String pk_corp) throws DZFWarpException {
-        CorpVO	cvo=	(CorpVO) singleObjectBO.queryVOByID(pk_corp, CorpVO.class);
+        CorpVO cvo=	(CorpVO) singleObjectBO.queryVOByID(pk_corp, CorpVO.class);
         if (cvo != null) {
             try {
                 cvo.setUnitname(CodeUtils1.deCode(cvo.getUnitname()));

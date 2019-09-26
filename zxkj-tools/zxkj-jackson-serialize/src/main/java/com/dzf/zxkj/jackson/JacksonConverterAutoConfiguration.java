@@ -1,8 +1,8 @@
 package com.dzf.zxkj.jackson;
 
-import com.dzf.zxkj.custom.type.DZFBoolean;
-import com.dzf.zxkj.custom.type.DZFDate;
-import com.dzf.zxkj.custom.type.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.jackson.serializer.DZFBooleanSerializer;
 import com.dzf.zxkj.jackson.serializer.DZFDateSerializer;
 import com.dzf.zxkj.jackson.serializer.DZFDateTimeSerializer;

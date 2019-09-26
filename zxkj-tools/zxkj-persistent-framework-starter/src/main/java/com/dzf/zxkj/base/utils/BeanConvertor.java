@@ -6,7 +6,7 @@
  */
 package com.dzf.zxkj.base.utils;
 
-import com.dzf.zxkj.custom.type.*;
+import com.dzf.zxkj.common.lang.*;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.*;
 

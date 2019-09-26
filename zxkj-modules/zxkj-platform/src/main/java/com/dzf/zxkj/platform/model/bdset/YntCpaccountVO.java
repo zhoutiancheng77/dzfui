@@ -1,10 +1,9 @@
 package com.dzf.zxkj.platform.model.bdset;
 
-
 import com.dzf.zxkj.base.model.SuperVO;
 import com.dzf.zxkj.base.utils.StringUtil;
-import com.dzf.zxkj.custom.type.DZFBoolean;
-import com.dzf.zxkj.custom.type.DZFDouble;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Column;
@@ -76,7 +75,12 @@ public class YntCpaccountVO extends SuperVO {
 
     //是否启用辅助核算，改为char(10)，用0和1的位置表示指定段是否启用
     @JsonProperty("isfzhs")
+    //@FieldValidate("辅助核算超出范围:isfzhs in ('Y','N');")
     private String isfzhs; //DZFBoolean
+    //@JsonProperty("fzhsbm")
+    //private String fzhsbm;
+    //@JsonProperty("fzhsmc")
+    //private String fzhsmc;
 
     @JsonProperty("jldw")
     private String measurename;
@@ -88,6 +92,8 @@ public class YntCpaccountVO extends SuperVO {
     private DZFDouble shuilv;
     @JsonProperty("codefullname")
     public String codefullname;
+
+//	private DZFBoolean allow_empty_num;// 允许数量为空
 
     public String getMeasurename() {
         return measurename;
@@ -148,6 +154,7 @@ public class YntCpaccountVO extends SuperVO {
     //是否凭证显示。
     private DZFBoolean shuimushowpz;//是否显示在凭证上.
 
+
     //是否启用辅助核算，改为char(10)，用0和1的位置表示指定段是否启用
     public String getIsfzhs() {
         return isfzhs;
@@ -156,6 +163,23 @@ public class YntCpaccountVO extends SuperVO {
     public void setIsfzhs(String isfzhs) {
         this.isfzhs = isfzhs;
     }
+	/*
+	public String getFzhsbm() {
+		return fzhsbm;
+	}
+
+	public void setFzhsbm(String fzhsbm) {
+		this.fzhsbm = fzhsbm;
+	}
+
+	public String getFzhsmc() {
+		return fzhsmc;
+	}
+
+	public void setFzhsmc(String fzhsmc) {
+		this.fzhsmc = fzhsmc;
+	}
+	*/
 
     public void setExc_cur_array(List<BdCurrencyVO> exc_cur_array) {
         this.exc_cur_array = exc_cur_array;
@@ -184,6 +208,7 @@ public class YntCpaccountVO extends SuperVO {
     public void setPk_corp_accountschema(String pk_corp_accountschema) {
         this.pk_corp_accountschema = pk_corp_accountschema;
     }
+    // Constructors
 
     public DZFBoolean getIswhhs() {
         return iswhhs;

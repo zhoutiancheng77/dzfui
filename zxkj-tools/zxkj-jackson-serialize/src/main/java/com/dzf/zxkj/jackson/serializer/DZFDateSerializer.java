@@ -1,6 +1,6 @@
 package com.dzf.zxkj.jackson.serializer;
 
-import com.dzf.zxkj.custom.type.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;

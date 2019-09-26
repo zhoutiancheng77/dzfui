@@ -1,9 +1,9 @@
 package com.dzf.zxkj.base.model;
 
 
-import com.dzf.zxkj.custom.type.DZFBoolean;
-import com.dzf.zxkj.custom.type.DZFDate;
-import com.dzf.zxkj.custom.type.DZFDouble;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDouble;
 
 import java.io.Serializable;
 

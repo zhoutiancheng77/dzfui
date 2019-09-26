@@ -1,10 +1,10 @@
 package com.dzf.zxkj.platform.model.sys;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.custom.type.DZFBoolean;
-import com.dzf.zxkj.custom.type.DZFDate;
-import com.dzf.zxkj.custom.type.DZFDateTime;
-import com.dzf.zxkj.custom.type.DZFDouble;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CorpVO<T extends SuperVO<T>> extends SuperVO {
@@ -2050,7 +2050,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
      * 创建日期：(2003-10-31 8:57:13)
      * --------------------------------------------------
      *
-     * @param newChargedeptcode String
+     * @param newChargeDeptCode String
      */
     public void setChargedeptcode(String newChargedeptcode) {
         chargedeptcode = newChargedeptcode;
@@ -2608,7 +2608,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
      * <p>
      * 创建日期：(2001-8-23)
      *
-     * @param newIshasaccount DZFBoolean
+     * @param newishasaccount DZFBoolean
      */
     public void setIshasaccount(DZFBoolean newIshasaccount) {
 
@@ -2620,7 +2620,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
      * <p>
      * 创建日期：(2001-8-23)
      *
-     * @param newIsseal DZFBoolean
+     * @param newisseal DZFBoolean
      */
     public void setIsseal(DZFBoolean newIsseal) {
 
@@ -2632,7 +2632,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
      * <p>
      * 创建日期：(2001-8-23)
      *
-     * @param newIsworkingunit DZFBoolean
+     * @param newisworkingunit DZFBoolean
      */
     public void setIsworkingunit(DZFBoolean newIsworkingunit) {
 
@@ -2825,7 +2825,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
      * <p>
      * 创建日期：(2001-5-16)
      *
-     * @param newPk_corp String
+     * @param pk_corp String
      */
     public void setPrimaryKey(String newPk_corp) {
 

@@ -19,11 +19,6 @@
             <artifactId>spring-orm</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.dzf</groupId>
-            <artifactId>zxkj-custom-type</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -61,6 +56,11 @@
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.javax.persistence</groupId>
+            <artifactId>hibernate-jpa-2.1-api</artifactId>
+            <version>1.0.2</version>
         </dependency>
     </dependencies>
 </project>

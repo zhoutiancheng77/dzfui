@@ -4,8 +4,9 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.DZFConstant;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.RemittanceVO;
@@ -19,7 +20,6 @@ import com.dzf.zxkj.platform.services.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.services.jzcl.IVoucherTemplate;
 import com.dzf.zxkj.platform.services.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.services.sys.ICorpService;
-import com.dzf.zxkj.platform.util.SpringUtils;
 
 import java.util.List;
 

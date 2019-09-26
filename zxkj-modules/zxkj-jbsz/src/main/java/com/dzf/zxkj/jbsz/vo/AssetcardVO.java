@@ -1,10 +1,6 @@
 package com.dzf.zxkj.jbsz.vo;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.custom.type.DZFBoolean;
-import com.dzf.zxkj.custom.type.DZFDate;
-import com.dzf.zxkj.custom.type.DZFDateTime;
-import com.dzf.zxkj.custom.type.DZFDouble;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**

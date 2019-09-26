@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.services.report;
 
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.report.LrbRptSetVo;
 import com.dzf.zxkj.platform.model.report.ZcfzRptSetVo;
 

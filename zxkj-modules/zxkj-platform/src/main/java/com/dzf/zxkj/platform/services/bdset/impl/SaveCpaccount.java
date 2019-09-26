@@ -3,7 +3,7 @@ package com.dzf.zxkj.platform.services.bdset.impl;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.CodeName;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -65,8 +65,8 @@ public class SaveCpaccount {
 	}
 	
 	//记录pk与辅助的关系
-	private void saveAcctoFZ(Map<String,InventoryVO> map,CorpVO cpvo,
-			CodeName fzcodename,YntCpaccountVO vo,String userid,String measurename){
+	private void saveAcctoFZ(Map<String,InventoryVO> map, CorpVO cpvo,
+							 CodeName fzcodename, YntCpaccountVO vo, String userid, String measurename){
 		String pk_corp = cpvo.getPk_corp();
 		//新增辅助
 		insertInvinfo(map,pk_corp);

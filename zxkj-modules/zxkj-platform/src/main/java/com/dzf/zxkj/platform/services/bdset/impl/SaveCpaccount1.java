@@ -8,7 +8,7 @@ import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.constant.InventoryConstant;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.CodeName;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;

@@ -16,7 +16,7 @@
         <module>zxkj-modules</module>
         <module>zxkj-common</module>
         <module>zxkj-tools</module>
-        <module>zxkj-dubbo-sample-api</module>
+        <module>zxkj-platform-api</module>
     </modules>
 
     <name>dzf-zxkj</name>

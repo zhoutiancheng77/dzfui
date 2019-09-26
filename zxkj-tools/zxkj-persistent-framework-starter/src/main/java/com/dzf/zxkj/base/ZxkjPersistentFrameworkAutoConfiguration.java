@@ -1,9 +1,7 @@
 package com.dzf.zxkj.base;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +15,7 @@ import javax.sql.DataSource;
  */
 @ConditionalOnBean(DataSource.class)
 @Configuration
-@ComponentScan
+@ComponentScan("com.dzf.zxkj.base")
 public class ZxkjPersistentFrameworkAutoConfiguration {
     @Bean
     public SingleObjectBO singleObjectBO() {

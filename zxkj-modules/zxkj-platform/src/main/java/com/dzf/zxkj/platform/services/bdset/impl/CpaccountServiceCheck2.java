@@ -2,11 +2,11 @@ package com.dzf.zxkj.platform.services.bdset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.services.bdset.ICpaccountService;
-import com.dzf.zxkj.platform.util.SpringUtils;
+import com.dzf.zxkj.base.utils.SpringUtils;
 
 /**
  * 科目校验类----更新

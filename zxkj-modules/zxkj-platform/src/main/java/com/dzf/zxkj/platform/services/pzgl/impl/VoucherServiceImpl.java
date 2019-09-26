@@ -3,6 +3,9 @@ package com.dzf.zxkj.platform.services.pzgl.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -11,14 +14,13 @@ import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.model.CircularlyAccessibleValueObject;
 import com.dzf.zxkj.base.model.SuperVO;
+import com.dzf.zxkj.base.utils.CodeUtils1;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.vo.QueryPageVO;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.StateEnum;
-import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.common.exception.DZFWarpException;
-import com.dzf.zxkj.common.exception.WiseRunException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
@@ -35,7 +37,10 @@ import com.dzf.zxkj.platform.model.image.*;
 import com.dzf.zxkj.platform.model.jzcl.QmJzVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
-import com.dzf.zxkj.platform.model.pzgl.*;
+import com.dzf.zxkj.platform.model.pzgl.PzSourceRelationVO;
+import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
+import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.report.XjllVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -46,10 +51,10 @@ import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.yscs.DzfpscReqBVO;
 import com.dzf.zxkj.platform.services.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.services.bdset.IPersonalSetService;
-import com.dzf.zxkj.platform.services.icset.ICbillcodeCreate;
 import com.dzf.zxkj.platform.services.icset.IInventoryAccSetService;
 import com.dzf.zxkj.platform.services.icset.IPurchInService;
 import com.dzf.zxkj.platform.services.icset.ISaleoutService;
+import com.dzf.zxkj.platform.services.icset.impl.ICbillcodeCreate;
 import com.dzf.zxkj.platform.services.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.services.jzcl.IQmclService;
 import com.dzf.zxkj.platform.services.jzcl.IQmgzService;
@@ -70,7 +75,6 @@ import com.dzf.zxkj.platform.services.zcgl.IZczjmxReport;
 import com.dzf.zxkj.platform.services.zncs.IBillcategory;
 import com.dzf.zxkj.platform.services.zncs.IZncsVoucher;
 import com.dzf.zxkj.platform.util.Kmschema;
-import com.dzf.zxkj.platform.util.SpringUtils;
 import com.dzf.zxkj.platform.util.VoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +93,6 @@ import java.util.*;
  */
 @Service("gl_tzpzserv")
 @Slf4j
-@SuppressWarnings("all")
 public class VoucherServiceImpl implements IVoucherService {
 	@Autowired
 	private SingleObjectBO singleObjectBO;
@@ -120,7 +123,7 @@ public class VoucherServiceImpl implements IVoucherService {
 	
 	@Autowired
 	private ISMcbftService gl_smcbftserv;
-	@Autowired
+	@Autowired(required = false)
 	private IZncsVoucher iZncsVoucher;//智能财税
 	
 	@Autowired
@@ -130,7 +133,7 @@ public class VoucherServiceImpl implements IVoucherService {
 	@Autowired
 	private IUserService userServiceImpl;
 	
-	@Autowired
+	@Autowired(required = false)
 	private IBillcategory iBillcategory;
 
 	@Autowired

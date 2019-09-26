@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.services.sys;
 
 
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 import com.dzf.zxkj.platform.model.image.ImageTurnMsgVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;

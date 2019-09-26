@@ -1,8 +1,8 @@
 package com.dzf.zxkj.platform.services.common;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.common.exception.DAOException;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DAOException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 
 public interface ISecurityService {
 

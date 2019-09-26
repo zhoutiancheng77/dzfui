@@ -2,8 +2,8 @@ package com.dzf.zxkj.jbsz.handler.exception;
 
 import com.dzf.zxkj.common.constant.HttpStatus;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;

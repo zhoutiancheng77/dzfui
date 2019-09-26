@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.services.icset;
 
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.icset.AggIcTradeVO;
 import com.dzf.zxkj.platform.model.icset.IctradeinVO;

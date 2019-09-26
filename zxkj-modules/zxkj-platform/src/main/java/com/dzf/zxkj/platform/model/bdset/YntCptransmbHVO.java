@@ -1,16 +1,19 @@
 package com.dzf.zxkj.platform.model.bdset;
 
+
 import com.dzf.zxkj.base.model.SuperVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 
-
 /**
+ * YntCptransmbVO entity. @author MyEclipse Persistence Tools
+ * <p>
  * 公司期间损益
  */
 
 public class YntCptransmbHVO extends SuperVO {
+
 
     @JsonProperty("mainid")
     private String pk_corp_transtemplate_h;

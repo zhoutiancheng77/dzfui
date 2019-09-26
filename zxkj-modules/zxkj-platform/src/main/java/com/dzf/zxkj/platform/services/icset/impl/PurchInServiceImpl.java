@@ -8,15 +8,16 @@ import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.base.service.IReferenceCheck;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.IcBillTypeEnum;
 import com.dzf.zxkj.common.enums.IcPayWayEnum;
-import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -36,6 +37,7 @@ import com.dzf.zxkj.platform.services.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.services.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.services.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.services.bdset.IYHZHService;
+import com.dzf.zxkj.platform.services.common.IReferenceCheck;
 import com.dzf.zxkj.platform.services.icset.*;
 import com.dzf.zxkj.platform.services.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.services.pjgl.IImageGroupService;
@@ -46,7 +48,6 @@ import com.dzf.zxkj.platform.services.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.services.sys.IAccountService;
 import com.dzf.zxkj.platform.services.sys.ICorpService;
 import com.dzf.zxkj.platform.services.sys.IParameterSetService;
-import com.dzf.zxkj.platform.util.SpringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -71,7 +72,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-@SuppressWarnings("all")
 @Service("ic_purchinserv")
 public class PurchInServiceImpl implements IPurchInService {
 
@@ -99,7 +99,7 @@ public class PurchInServiceImpl implements IPurchInService {
 	private IYHZHService gl_yhzhserv;
 	@Autowired
 	IAuxiliaryAccountService gl_fzhsserv;
-	@Autowired
+	@Autowired(required = false)
 	private IVATInComInvoiceService vatincomserv;
 	@Autowired
 	IReferenceCheck refcheck;

@@ -2,8 +2,8 @@ package com.dzf.zxkj.platform.services.report.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -522,7 +522,7 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 		if (hasyes == null || hasyes.length != 5 || !"Y".equals(hasyes[0])){
 			hasyes = new String[]{"N","N","N","N","N"};
 		}
-		CorpVO cpvo = CorpCache.getInstance().get("", pk_corp);
+		CorpVO cpvo = corpService.queryByPk(pk_corp);
 		int year = new DZFDate(period + "-01").getYear();
 		QueryParamVO vo = new QueryParamVO();
 		vo.setPk_corp(pk_corp);

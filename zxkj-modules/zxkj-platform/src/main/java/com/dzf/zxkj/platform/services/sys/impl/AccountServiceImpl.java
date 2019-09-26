@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.services.sys.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.services.sys.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;

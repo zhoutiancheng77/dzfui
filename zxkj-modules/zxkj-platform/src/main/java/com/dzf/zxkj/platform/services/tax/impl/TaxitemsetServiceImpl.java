@@ -5,7 +5,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.tree.BDTreeCreator;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.DZFConstant;
-import com.dzf.zxkj.common.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;

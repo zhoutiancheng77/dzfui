@@ -1,7 +1,6 @@
 package com.dzf.zxkj.base.framework;
 
 import com.alibaba.druid.pool.xa.DruidXADataSource;
-import com.dzf.zxkj.common.utils.IDGenerate;
 import com.dzf.zxkj.base.framework.exception.DbException;
 import com.dzf.zxkj.base.framework.exception.ExceptionFactory;
 import com.dzf.zxkj.base.framework.processor.BaseProcessor;
@@ -12,7 +11,8 @@ import com.dzf.zxkj.base.framework.util.DBUtil;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.model.SuperVO;
 import com.dzf.zxkj.base.utils.StringUtil;
-import com.dzf.zxkj.custom.type.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.utils.IDGenerate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;

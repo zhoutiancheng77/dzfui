@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.services.report.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.SafeCompute;

@@ -3,7 +3,7 @@ package com.dzf.zxkj.base.dao;
 import com.dzf.zxkj.base.framework.JdbcSession;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.common.exception.DAOException;
+import com.dzf.zxkj.base.exception.DAOException;
 import com.dzf.zxkj.base.framework.exception.DbException;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.DBConsts;

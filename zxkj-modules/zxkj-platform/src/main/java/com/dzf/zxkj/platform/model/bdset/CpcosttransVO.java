@@ -1,10 +1,10 @@
 package com.dzf.zxkj.platform.model.bdset;
 
 import com.dzf.zxkj.base.model.SuperVO;
-import com.dzf.zxkj.custom.type.DZFDate;
-import com.dzf.zxkj.custom.type.DZFDateTime;
-import com.dzf.zxkj.custom.type.DZFDouble;
-import com.dzf.zxkj.platform.model.ITradeInfo;
+import com.dzf.zxkj.common.entity.ITradeInfo;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.Entity;
