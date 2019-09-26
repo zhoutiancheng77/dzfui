@@ -13,7 +13,6 @@
 
     <name>zxkj-modules</name>
     <modules>
-        <module>zxkj-jbsz</module>
         <module>zxkj-platform</module>
     </modules>
     <packaging>pom</packaging>

@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.utils;
+package com.dzf.zxkj.common.utils;
 
 import com.dzf.zxkj.common.lang.DZFTime;
 import org.apache.commons.beanutils.ConversionException;

@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.utils;
+package com.dzf.zxkj.common.utils;
 
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;

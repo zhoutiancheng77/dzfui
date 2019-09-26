@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.model;
+package com.dzf.zxkj.common.model;
 
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.BeanHelper;
