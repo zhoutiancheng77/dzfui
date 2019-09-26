@@ -17,6 +17,7 @@
         <module>zxkj-common</module>
         <module>zxkj-tools</module>
         <module>zxkj-platform-api</module>
+        <module>zxkj-platform-model</module>
     </modules>
 
     <name>dzf-zxkj</name>
