@@ -1,14 +1,14 @@
 package com.dzf.zxkj.gateway.filter;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.dzf.zxkj.common.cache.CorpBean;
-import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.auth.model.CorpModel;
+import com.dzf.zxkj.platform.auth.model.UserModel;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
+import com.dzf.zxkj.platform.auth.service.IUserService;
 import io.netty.buffer.ByteBufAllocator;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Configuration;
@@ -37,8 +37,11 @@ import java.nio.charset.Charset;
 @SuppressWarnings("all")
 public class PermissionFilter implements GlobalFilter, Ordered {
 
-    @Reference
+    @Reference(version = "1.0.0")
     private IAuthService authService;
+
+    @Reference(version = "1.0.0")
+    private IUserService userService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -48,14 +51,11 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         String token = headers.getFirst("x-token");
         String pk_corp = headers.getFirst("pk_corp");
         ServerHttpResponse response = exchange.getResponse();
-        CorpModel corpModel = null;
-        try {
-            corpModel = authService.queryCorpByPk(pk_corp);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String userid = "002MPP00000001gD0zjI0006";
+        final CorpModel corpModel = authService.queryCorpByPk(pk_corp);
+        final UserModel userModel = userService.queryByUserId(userid);
 
-        if(corpModel == null){
+        if(corpModel == null || userModel == null){
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }
@@ -73,12 +73,9 @@ public class PermissionFilter implements GlobalFilter, Ordered {
                     String bodyJson = new String(content, Charset.forName("UTF-8"));
                     //转化成json对象
                     JSONObject jsonObject = JSON.parseObject(bodyJson);
-
-                    CorpBean corpBean = new CorpBean();
-                    corpBean.setPk_corp("123");
-                    corpBean.setBegindate(new DZFDate());
                     //把用户id和客户端id添加到json对象中
-                    jsonObject.put("corpVO", corpBean);
+                    jsonObject.put("corpVo", corpModel);
+                    jsonObject.put("userVo", userModel);
                     String result = jsonObject.toJSONString();
                     //转成字节
                     byte[] bytes = result.getBytes();
