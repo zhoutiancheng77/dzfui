@@ -20,7 +20,7 @@ public class UserServiceImpl implements IUserService {
             return null;
         }
         QueryWrapper<UserModel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UserModel::getCuserid, userid).ne(UserModel::getDr, "1");
+        queryWrapper.lambda().eq(UserModel::getCuserid, userid).and(condition -> condition.eq(UserModel::getDr, "0").or().isNull(UserModel::getDr));
         UserModel userModel = userMapper.selectOne(queryWrapper);
         return userModel;
     }
