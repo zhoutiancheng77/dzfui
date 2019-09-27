@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.auth.mapper.CorpMapper;
 import com.dzf.zxkj.platform.auth.model.CorpModel;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
@@ -14,11 +15,13 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private CorpMapper corpMapper;
 
-
     @Override
-    public CorpModel queryCorpByPk(String pk_corp) throws Exception {
+    public CorpModel queryCorpByPk(String pk_corp) {
+        if(StringUtil.isEmptyWithTrim(pk_corp)){
+            return null;
+        }
         QueryWrapper<CorpModel> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(CorpModel::getPk_corp, pk_corp).ne(CorpModel::getDr,"1");
+        queryWrapper.lambda().eq(CorpModel::getPk_corp, pk_corp); //.ne(CorpModel::getDr, "1")
         CorpModel corpModel = corpMapper.selectOne(queryWrapper);
         corpModel.setUnitname(CodeUtils1.deCode(corpModel.getUnitname()));
         corpModel.setUnitshortname(CodeUtils1.deCode(corpModel.getUnitshortname()));
