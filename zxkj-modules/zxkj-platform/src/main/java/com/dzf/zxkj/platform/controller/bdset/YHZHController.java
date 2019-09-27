@@ -236,9 +236,9 @@ public class YHZHController {
     @PostMapping("/tingyong")
     public ReturnData<Json> tingyong(BankAccountVO vo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
         Json json = new Json();
-        if(vo != null){
+        if (vo != null) {
             try {
-                beforeAuth(vo,IBillManageConstants.TINGY_STATUS, corpVO, userVO);
+                beforeAuth(vo, IBillManageConstants.TINGY_STATUS, corpVO, userVO);
 
                 gl_yhzhserv.update(vo,
                         new String[]{"state", "modifyoperid", "modifydatetime"});
@@ -250,7 +250,7 @@ public class YHZHController {
                 json.setSuccess(false);
                 json.setMsg("停用失败");
             }
-        }else{
+        } else {
             json.setSuccess(false);
             json.setMsg("停用失败");
         }
@@ -259,8 +259,9 @@ public class YHZHController {
 //                "银行账户停用", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
+
     @GetMapping("/queryDjCode")
-    public ReturnData<Json> queryDjCode(String pk_corp){
+    public ReturnData<Json> queryDjCode(String pk_corp) {
         Json grid = new Json();
         try {
             String invcode = yntBoPubUtil.getYhzhCode(pk_corp);
@@ -271,7 +272,7 @@ public class YHZHController {
         } catch (DZFWarpException e) {
             grid.setSuccess(false);
             grid.setMsg("获取单据号失败");
-            log.error("获取单据号失败",e);
+            log.error("获取单据号失败", e);
         }
         return ReturnData.ok().data(grid);
     }
