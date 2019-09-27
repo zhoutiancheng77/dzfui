@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * EasyUI DataGrid模型  禁用
+ * EasyUI DataGrid模型
  * 
  * @author 孙宇
  * 
