@@ -4,8 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.common.cache.CorpBean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.platform.auth.model.CorpModel;
+import com.dzf.zxkj.platform.auth.service.IAuthService;
 import io.netty.buffer.ByteBufAllocator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +17,7 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -33,6 +37,9 @@ import java.nio.charset.Charset;
 @SuppressWarnings("all")
 public class PermissionFilter implements GlobalFilter, Ordered {
 
+    @Reference
+    private IAuthService authService;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -41,6 +48,17 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         String token = headers.getFirst("x-token");
         String pk_corp = headers.getFirst("pk_corp");
         ServerHttpResponse response = exchange.getResponse();
+        CorpModel corpModel = null;
+        try {
+            corpModel = authService.queryCorpByPk(pk_corp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(corpModel == null){
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            return response.setComplete();
+        }
 
         ServerHttpRequestDecorator serverHttpRequestDecorator = new ServerHttpRequestDecorator(request){
             @Override

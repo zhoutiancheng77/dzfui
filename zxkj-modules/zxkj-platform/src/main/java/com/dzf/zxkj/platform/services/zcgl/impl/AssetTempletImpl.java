@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.utils.CodeUtils1;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.AssetUtil;
 import com.dzf.zxkj.platform.model.bdset.BdTradeAssetTemplateVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;

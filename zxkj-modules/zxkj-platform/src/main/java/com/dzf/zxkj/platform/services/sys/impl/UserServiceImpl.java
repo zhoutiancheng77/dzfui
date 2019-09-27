@@ -11,7 +11,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
-import com.dzf.zxkj.base.utils.CodeUtils1;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISmsConst;

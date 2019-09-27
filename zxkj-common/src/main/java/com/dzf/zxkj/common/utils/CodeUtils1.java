@@ -1,9 +1,5 @@
-package com.dzf.zxkj.base.utils;
+package com.dzf.zxkj.common.utils;
 
-import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.exception.WiseRunException;
-import com.dzf.zxkj.common.utils.RC4;
-import com.dzf.zxkj.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 
@@ -18,20 +14,23 @@ import java.io.ObjectInputStream;
 @Slf4j
 public class CodeUtils1 {
 	
-	private static ClassPathResource resource = new ClassPathResource("param.txt");
+	private static ClassPathResource resource;
 
 	private static String pubkey;
 	
 	private static String prikey;
 	
 	private static String defaultkey;
+
+	static {
+		resource = new ClassPathResource("param.txt");
+	}
 	
 	private static void readUIParameter(){
 		FileInputStream fis = null;
 		ObjectInputStream ois = null;
 		try {
-			String path = resource.getURL().getPath(); 
-			File f = new File(path);
+			File f = resource.getFile();
 			if (f.isFile()){
 				fis = new FileInputStream(f);
 				ois = new ObjectInputStream(fis);
@@ -41,12 +40,12 @@ public class CodeUtils1 {
 			}
 		}catch (Exception ex){
 			log.error("错误",ex);
-			throw new WiseRunException(ex);
+			throw new RuntimeException(ex);
 		}
 	}
 
 	//这里异常吃掉
-	public static String enCode(String value) throws DZFWarpException {
+	public static String enCode(String value) throws RuntimeException {
 		if(StringUtil.isEmpty(value))
 			return value;
 		if(pubkey == null || "".equals(pubkey))
@@ -62,7 +61,7 @@ public class CodeUtils1 {
 	}
 
 	//这里异常吃掉
-	public static String deCode(String pvalue) throws DZFWarpException{
+	public static String deCode(String pvalue) throws RuntimeException{
 		if(StringUtil.isEmpty(pvalue))
 			return pvalue;
 		if(prikey == null || "".equals(prikey))

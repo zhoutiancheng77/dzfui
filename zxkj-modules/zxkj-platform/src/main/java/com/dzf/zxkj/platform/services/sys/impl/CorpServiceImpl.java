@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.services.sys.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.utils.CodeUtils1;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.services.sys.ICorpService;
 import lombok.extern.slf4j.Slf4j;
