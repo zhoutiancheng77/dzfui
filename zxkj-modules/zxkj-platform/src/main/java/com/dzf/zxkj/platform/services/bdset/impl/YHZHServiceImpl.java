@@ -75,8 +75,7 @@ public class YHZHServiceImpl implements IYHZHService {
 		sf.append("   left join ynt_cpaccount cp ");
 		sf.append("     on y.relatedsubj = cp.pk_corp_account ");
 		sf.append("  Where nvl(y.dr, 0) = 0 ");
-//		sf.append("    and nvl(cp.dr, 0) = 0 ");
-		
+
 		if(!StringUtil.isEmpty(isnhsty)){
 			sf.append(" and state != ? ");
 			sp.addParam(IBillManageConstants.TINGY_STATUS);

@@ -90,7 +90,7 @@ public class YHZHController {
     }
 
     @PostMapping("/save")
-    public ReturnData<Json> save(BankAccountVO bankAccountVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
+    public ReturnData<Json> save(BankAccountVO bankAccountVO, @MultiRequestBody UserVO userVo, @MultiRequestBody CorpVO corpVo) {
         Json json = new Json();
         if (bankAccountVO != null) {
             boolean isAdd = true;
@@ -99,7 +99,7 @@ public class YHZHController {
             }
 
             try {
-                if (beforeSave(bankAccountVO, isAdd, userVO, corpVO)) {
+                if (beforeSave(bankAccountVO, isAdd, userVo, corpVo)) {
 
                     if (isAdd) {
                         gl_yhzhserv.save(bankAccountVO);
