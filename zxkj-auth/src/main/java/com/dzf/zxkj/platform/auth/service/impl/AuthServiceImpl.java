@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.UserCorpRelation;
@@ -27,6 +28,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
+    @SentinelResource("protected-resource")
     public List<String> getPkCorpByUserId(String userid) {
         QueryWrapper<UserCorpRelation> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(UserCorpRelation::getUserid, userid).and(condition -> condition.eq(UserCorpRelation::getDr, "0").or().isNull(UserCorpRelation::getDr));
