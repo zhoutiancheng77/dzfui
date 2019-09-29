@@ -32,6 +32,7 @@ import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Auther: dandelion
@@ -102,6 +103,11 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }
+
+        //权限校验
+        Set<String> allPermissions = authService.getAllPermission();
+        Set<String> myPermisssions = authService.getPermisssionByUserid(ijwtInfo.getBody());
+
         //内置到请求body中
         ServerHttpRequestDecorator serverHttpRequestDecorator = new ServerHttpRequestDecorator(request) {
             @Override

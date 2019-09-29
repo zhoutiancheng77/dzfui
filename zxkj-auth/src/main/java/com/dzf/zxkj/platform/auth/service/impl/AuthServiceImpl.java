@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service(version = "1.0.0")
@@ -38,5 +39,17 @@ public class AuthServiceImpl implements IAuthService {
             return new ArrayList();
         }
         return userCorpRelationList.stream().map(UserCorpRelation::getPk_corp).collect(Collectors.toList());
+    }
+
+    @Override
+    @SentinelResource(value="auth-resource", fallbackClass= AuthServiceFallBack.class, fallback = "getAllPermission")
+    public Set<String> getAllPermission() {
+        return null;
+    }
+
+    @Override
+    @SentinelResource(value="auth-resource", fallbackClass= AuthServiceFallBack.class, fallback = "getPermisssionByUserid")
+    public Set<String> getPermisssionByUserid(String userid) {
+        return null;
     }
 }
