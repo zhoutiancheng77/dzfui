@@ -6,6 +6,7 @@ import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.UserCorpRelation;
 import com.dzf.zxkj.platform.auth.mapper.UserCorpRelationMapper;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
+import com.dzf.zxkj.platform.auth.service.impl.fallback.AuthServiceFallBack;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,7 +29,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    @SentinelResource("protected-resource")
+    @SentinelResource(value="auth-resource", fallbackClass= AuthServiceFallBack.class, fallback = "getPkCorpByUserId")
     public List<String> getPkCorpByUserId(String userid) {
         QueryWrapper<UserCorpRelation> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(UserCorpRelation::getUserid, userid).and(condition -> condition.eq(UserCorpRelation::getDr, "0").or().isNull(UserCorpRelation::getDr));

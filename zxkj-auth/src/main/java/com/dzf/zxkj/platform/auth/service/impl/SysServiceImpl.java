@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -8,6 +9,7 @@ import com.dzf.zxkj.platform.auth.mapper.UserMapper;
 import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
 import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.ISysService;
+import com.dzf.zxkj.platform.auth.service.impl.fallback.SysServiceFallBack;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,6 +25,7 @@ public class SysServiceImpl implements ISysService {
     private UserMapper userMapper;
 
     @Override
+    @SentinelResource(value="auth-resource", fallbackClass= SysServiceFallBack.class, fallback = "queryByUserId")
     public UserModel queryByUserId(String userid) {
         if (StringUtil.isEmptyWithTrim(userid)) {
             return null;
@@ -34,6 +37,7 @@ public class SysServiceImpl implements ISysService {
     }
 
     @Override
+    @SentinelResource(value="auth-resource", fallbackClass= SysServiceFallBack.class, fallback = "queryCorpByPk")
     public CorpModel queryCorpByPk(String pk_corp) {
         if(StringUtil.isEmptyWithTrim(pk_corp)){
             return null;
