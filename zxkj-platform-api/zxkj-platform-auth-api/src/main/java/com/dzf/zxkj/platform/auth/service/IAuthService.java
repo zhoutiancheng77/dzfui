@@ -1,7 +1,8 @@
 package com.dzf.zxkj.platform.auth.service;
 
-import com.dzf.zxkj.platform.auth.model.CorpModel;
+import java.util.List;
 
 public interface IAuthService {
-    CorpModel queryCorpByPk(String pk_corp);
+    byte[] getPubKey();
+    List<String> getPkCorpByUserId(String userid);
 }

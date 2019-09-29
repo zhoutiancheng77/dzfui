@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.auth.model;
+package com.dzf.zxkj.platform.auth.model.sys;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
