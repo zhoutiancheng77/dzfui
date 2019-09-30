@@ -7,5 +7,5 @@ public interface IAuthService {
     byte[] getPubKey();
     List<String> getPkCorpByUserId(String userid);
     Set<String> getAllPermission();
-    Set<String> getPermisssionByUserid(String userid);
+    Set<String> getPermisssionByUseridAndPkCorp(String userid, String pk_corp);
 }

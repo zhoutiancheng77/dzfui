@@ -83,18 +83,21 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             return response.setComplete();
         }
 
-        String pk_corp = headers.getFirst("pk_corp");
+        String currentCorp = headers.getFirst("pk_corp");
         //用户与公司关联校验
         List<String> corps = authService.getPkCorpByUserId(ijwtInfo.getBody());
-        if (corps == null || corps.contains(pk_corp)) {
+        if (corps == null || corps.contains(currentCorp)) {
             log.info("用户没有操作公司权限！");
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }
         //参数中存在pk_corp直接使用参数中的
+        String pk_corp;
         String queryCorp = request.getQueryParams().getFirst("pk_corp");
         if (StringUtils.isNotBlank(queryCorp)) {
             pk_corp = queryCorp;
+        }else{
+            pk_corp = currentCorp;
         }
         //查询公司和用户vo
         final CorpModel corpModel = sysService.queryCorpByPk(pk_corp);
@@ -106,7 +109,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
 
         //权限校验
         Set<String> allPermissions = authService.getAllPermission();
-        Set<String> myPermisssions = authService.getPermisssionByUserid(ijwtInfo.getBody());
+        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(ijwtInfo.getBody(), currentCorp);
 
         //内置到请求body中
         ServerHttpRequestDecorator serverHttpRequestDecorator = new ServerHttpRequestDecorator(request) {

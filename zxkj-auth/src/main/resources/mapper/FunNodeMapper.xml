@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dzf.zxkj.platform.auth.mapper.FunNodeMapper">
+    <resultMap id="funNode" type="com.dzf.zxkj.platform.auth.entity.FunNode"/>
+
+    <select id="getFunNodeByUseridAndPkCorp" resultMap="funNode">
+        SELECT
+            pk_funnode,
+            module,
+            nodeurl,
+            dr
+        FROM
+            sm_funnode funnode
+        WHERE
+            EXISTS (
+            SELECT
+                1
+            FROM
+                sm_user_role role,
+                sm_power_func func
+            WHERE
+                role.pk_role = func.pk_role
+                AND role.cuserid = #{userid}
+                AND role.pk_corp = #{pk_corp}
+            AND func.resource_data_id = funnode.pk_funnode)
+
+    </select>
+</mapper>
