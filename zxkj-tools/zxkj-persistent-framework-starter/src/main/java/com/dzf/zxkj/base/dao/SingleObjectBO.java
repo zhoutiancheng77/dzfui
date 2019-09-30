@@ -2,6 +2,7 @@ package com.dzf.zxkj.base.dao;
 
 import com.dzf.zxkj.base.exception.DAOException;
 import com.dzf.zxkj.base.exception.WiseRunException;
+import com.dzf.zxkj.base.vo.QueryPageVO;
 import com.dzf.zxkj.common.utils.IDGenerate;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
@@ -153,6 +154,18 @@ public class SingleObjectBO {
     public Object executeQuery(String sql, SQLParameter parameter, ResultSetProcessor processor) throws DAOException {
         BaseDAO dao = new BaseDAO(dataSource);
         return dao.executeQuery(sql, parameter, processor);
+    }
+
+    public QueryPageVO executeQuery(String sql, SQLParameter parameter, BeanListProcessor processor, QueryPageVO queryPageVO) throws DAOException {
+        BaseDAO dao = new BaseDAO(dataSource);
+        int i = getTotalRow(sql, parameter);
+        queryPageVO.setTotal(i);
+        int pageNum = queryPageVO.getPageofrows();
+        int page = queryPageVO.getPage();
+        String q = "select a.* from ( select t.*,rownum rowno from ("+sql+") t where rownum <= "+page * pageNum+" ) a where a.rowno >= "+((page-1) * pageNum)+1;
+        SuperVO[] object = (SuperVO[]) dao.executeQuery(sql, parameter, processor);
+        queryPageVO.setPagevos(object);
+        return queryPageVO;
     }
 
     public Object executeQuery(String wheresql, SQLParameter parameter, Class[] cs) throws DAOException {
@@ -409,6 +422,12 @@ public class SingleObjectBO {
     public int getTotalRow(String sql) throws DAOException {
         BaseDAO dao = new BaseDAO(dataSource);
         return new Integer(dao.executeQuery(sql, null, new ColumnProcessor()).toString());
+    }
+
+    public int getTotalRow(String sql, SQLParameter sqlParameter) throws DAOException {
+        BaseDAO dao = new BaseDAO(dataSource);
+        String countSql = "SELECT COUNT(*) FROM ("+sql+")";
+        return new Integer(dao.executeQuery(countSql, sqlParameter, new ColumnProcessor()).toString());
     }
 
     public int getTotalRow(String tablename, String Condition, SQLParameter parameter) throws DAOException {
