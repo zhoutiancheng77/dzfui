@@ -94,5 +94,10 @@
             <groupId>com.alibaba.csp</groupId>
             <artifactId>sentinel-datasource-nacos</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-platform-auth-secret-key-api</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 </project>

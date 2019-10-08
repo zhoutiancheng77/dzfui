@@ -8,7 +8,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IRoleCodeCont;
@@ -100,7 +100,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 				Map<String, String> namemap = new HashMap<String,String>();
 				if(uvos!=null && uvos.length>0){
 					for(UserVO uvo:uvos){
-						namemap.put(uvo.getCuserid(), CodeUtils1.deCode(uvo.getUser_name()));
+						namemap.put(uvo.getCuserid(), SecretCodeUtils.deCode(uvo.getUser_name()));
 					}
 					
 					for(CorpTaxVo vo : cptaxvos){
@@ -171,7 +171,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 				Map<String, String> namemap = new HashMap<String,String>();
 				if(uvos!=null && uvos.length>0){
 					for(UserVO uvo:uvos){
-						namemap.put(uvo.getCuserid(), CodeUtils1.deCode(uvo.getUser_name()));
+						namemap.put(uvo.getCuserid(), SecretCodeUtils.deCode(uvo.getUser_name()));
 					}
 				}
 				for(CorpTaxVo vo:vos){
@@ -253,7 +253,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 			if ("legalbodycode".equals(column) || "vcorporatephone".equals(column) || "unitname".equals(column)) {
 				String value = (String) corptaxvo.getAttributeValue(column);
 //				if (!StringUtil.isEmpty(value)) {
-//					value = CodeUtils1.enCode(value);
+//					value = SecretCodeUtils.enCode(value);
 //				}
 				cpvo.setAttributeValue(column, value);
 			}else if("isxrq".equals(column)){//Integer 类型有问题，单独处理

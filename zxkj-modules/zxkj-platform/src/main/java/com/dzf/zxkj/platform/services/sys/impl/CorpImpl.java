@@ -5,7 +5,7 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.common.utils.CorpGenerate;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.MD5;
@@ -74,7 +74,7 @@ public class CorpImpl implements ICorp {
 		// bdOS.beforeOperate("100406",
 		// nc.vo.bd.service.IBDOperate.BDOPERATION_INSERT, null, null,
 		// corp);
-        String unitname = CodeUtils1.deCode(corp.getUnitname());
+        String unitname = SecretCodeUtils.deCode(corp.getUnitname());
         corp.setRcunitname(CryptCodeUtil.enCode(unitname));
 		String key = singleObjectBO.insertVOWithPK(corp);
 		corp.setPrimaryKey(key);
@@ -256,7 +256,7 @@ public class CorpImpl implements ICorp {
 		if (repeatCodeNum > 0) {
 			throw new BusinessException("客户编码["+condCorpVO.getInnercode()+"]不能重复。");
 		} else if (repeatNameNum > 0) {
-			throw new BusinessException("客户名称["+CodeUtils1.deCode(condCorpVO.getUnitname())+"]不能重复。");
+			throw new BusinessException("客户名称["+SecretCodeUtils.deCode(condCorpVO.getUnitname())+"]不能重复。");
 		}
 		return false;
 	}
@@ -305,7 +305,7 @@ public class CorpImpl implements ICorp {
 	public CorpVO queryCorpByName(String unitname) throws DZFWarpException {
 		SQLParameter sp = new SQLParameter();
 		try {
-			sp.addParam(CodeUtils1.enCode(unitname));
+			sp.addParam(SecretCodeUtils.enCode(unitname));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

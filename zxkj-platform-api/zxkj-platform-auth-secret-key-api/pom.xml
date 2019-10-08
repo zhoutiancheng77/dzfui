@@ -3,18 +3,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>dzf-zxkj</artifactId>
+        <artifactId>zxkj-platform-api</artifactId>
         <groupId>com.dzf</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zxkj-platform-api</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>zxkj-platform-auth-secret-key-api</artifactId>
 
-    <name>zxkj-platform-api</name>
-    <modules>
-        <module>zxkj-platform-auth-api</module>
-        <module>zxkj-platform-auth-secret-key-api</module>
-    </modules>
+    <name>zxkj-platform-auth-secret-key-api</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+    </dependencies>
 </project>

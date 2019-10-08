@@ -14,7 +14,7 @@ import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.common.model.CircularlyAccessibleValueObject;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.vo.QueryPageVO;
@@ -3899,7 +3899,7 @@ public class VoucherServiceImpl implements IVoucherService {
 		StringBuffer sf = new StringBuffer();
 		String unitname;
 		for(int i = 0; i < fathers.size(); i++){
-			unitname = CodeUtils1.deCode(fathers.get(i).getUnitname());
+			unitname = SecretCodeUtils.deCode(fathers.get(i).getUnitname());
 			sf.append(unitname);
 			sf.append(",");
 			

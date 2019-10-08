@@ -8,7 +8,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.*;
@@ -2049,7 +2049,7 @@ public class QmclServiceImpl implements IQmclService {
 			qmcl.setCbjz5(qmcl.getCbjz5() == null ? DZFBoolean.FALSE : qmcl.getCbjz5());
 			qmcl.setCbjz6(qmcl.getCbjz6() == null ? DZFBoolean.FALSE : qmcl.getCbjz6());
 			if (cpvo != null) {
-				qmcl.setCorpname(CodeUtils1.deCode(cpvo.getUnitname()));
+				qmcl.setCorpname(SecretCodeUtils.deCode(cpvo.getUnitname()));
 			}
 
 		}
@@ -2127,7 +2127,7 @@ public class QmclServiceImpl implements IQmclService {
 	private String deCodename(String corpName) {
 		String realName = "";
 		try {
-			realName = CodeUtils1.deCode(corpName);
+			realName = SecretCodeUtils.deCode(corpName);
 		} catch (Exception e) {
 			throw new WiseRunException(e);
 		}

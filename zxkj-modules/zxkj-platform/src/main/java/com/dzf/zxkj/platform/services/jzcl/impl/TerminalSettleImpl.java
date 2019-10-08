@@ -7,7 +7,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -569,13 +569,13 @@ public class TerminalSettleImpl implements ITerminalSettle {
 			}
 			Integer yeartemp =Integer.parseInt(jzvo.getPeriod().substring(0, 4));
 			if(yeartemp.intValue()>year.intValue()){
-				tipstemp +=  "公司："+ CodeUtils1.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【当前登录日期小于结账日期，不能结账】 ";
+				tipstemp +=  "公司："+ SecretCodeUtils.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【当前登录日期小于结账日期，不能结账】 ";
 			}
 			if(year.intValue()==yeartemp.intValue() &&  month<12){
 				if (!tipstemp.equals("")) {
 					tipstemp +=  "【最后一月才能结账】 ";
 				}else{
-					tipstemp += "公司："+ CodeUtils1.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【最后一月才能结账】 ";
+					tipstemp += "公司："+ SecretCodeUtils.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【最后一月才能结账】 ";
 				}
 			}
 			
@@ -583,7 +583,7 @@ public class TerminalSettleImpl implements ITerminalSettle {
 				if (!tipstemp.equals("")) {
 					tipstemp += "【凭证记账检查未通过】 ";
 				}else{
-					tipstemp += "公司："+ CodeUtils1.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【凭证记账检查未通过】 ";
+					tipstemp += "公司："+ SecretCodeUtils.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【凭证记账检查未通过】 ";
 				}
 			}
 			if (corpVO == null) {
@@ -593,21 +593,21 @@ public class TerminalSettleImpl implements ITerminalSettle {
 				if (!tipstemp.equals("")) {
 					tipstemp += "【损益期间结转检查未通过】 ";
 				} else {
-					tipstemp += "公司："+ CodeUtils1.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【损益期间结转检查未通过】 ";
+					tipstemp += "公司："+ SecretCodeUtils.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【损益期间结转检查未通过】 ";
 				}
 			}
 			if (jzvo.getQmph() == null || !jzvo.getQmph().booleanValue()) {
 				if (!tipstemp.equals("")) {
 					tipstemp += "【期末试算平衡检查未通过】";
 				} else {
-					tipstemp += "公司："+ CodeUtils1.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【期末试算平衡检查未通过】 ";
+					tipstemp += "公司："+ SecretCodeUtils.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【期末试算平衡检查未通过】 ";
 				}
 			}
 			if (jzvo.getJzfinish() != null && jzvo.getJzfinish().booleanValue()) {
 				if (!tipstemp.equals("")) {
 					tipstemp += "【凭证已结账】";
 				} else {
-					tipstemp += "公司："+ CodeUtils1.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【凭证已结账】,不能重复结账";
+					tipstemp += "公司："+ SecretCodeUtils.deCode(corpVO.getUnitname())  + "，所在期间:"+jzvo.getPeriod()+"【凭证已结账】,不能重复结账";
 				}
 			}
 
