@@ -8,4 +8,5 @@ public interface IAuthService {
     List<String> getPkCorpByUserId(String userid);
     Set<String> getAllPermission();
     Set<String> getPermisssionByUseridAndPkCorp(String userid, String pk_corp);
+    boolean validateTokenEx(String token);
 }

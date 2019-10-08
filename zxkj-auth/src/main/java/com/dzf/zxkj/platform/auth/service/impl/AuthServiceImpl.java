@@ -64,4 +64,11 @@ public class AuthServiceImpl implements IAuthService {
         List<FunNode> funNodeList = funNodeMapper.getFunNodeByUseridAndPkCorp(userid, pk_corp);
         return funNodeList.stream().filter(v -> StringUtils.isNotBlank(v.getNodeurl())).map(FunNode::getNodeurl).flatMap(str -> Stream.of(str.split(","))).collect(Collectors.toSet());
     }
+
+    @Override
+    @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenEx")
+    public boolean validateTokenEx(String token) {
+        //过期返回true 结合redis实现
+        return false;
+    }
 }

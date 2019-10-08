@@ -58,9 +58,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
         //登陆请求不验证权限
-        System.out.println(path);
-        System.out.println(gatewayConfig.getLoginUrl());
-        System.out.println(gatewayConfig.getLoginUrl().equals(path));
+        log.info("登录url:",path);
         if (gatewayConfig.getLoginUrl().equals(path) || (gatewayConfig.getIgnoreUrl() != null && gatewayConfig.getIgnoreUrl().contains(path))) {
             return chain.filter(exchange);
         }
@@ -79,6 +77,11 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             ijwtInfo = JWTUtil.getInfoFromToken(token, gatewayConfig.getUserPubKey());
         } catch (Exception e) {
             log.info("token验证失败！");
+            response.setStatusCode(HttpStatus.UNAUTHORIZED);
+            return response.setComplete();
+        }
+        //token过期时间校验
+        if(authService.validateTokenEx(token)){
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }

@@ -39,7 +39,7 @@ public class LoginServiceImpl implements ILoginService {
         if (new Encode().encode(password).equals(loginUser.getPassword())) {
             String token = null;
             try {
-                token = JWTUtil.generateToken(new JWTInfo(loginUser.getUsername(), loginUser.getUserid()), rsaKeyConfig.getUserPriKey(), 2 * 24 * 60 * 1000);
+                token = JWTUtil.generateToken(new JWTInfo(loginUser.getUsername(), loginUser.getUserid()), rsaKeyConfig.getUserPriKey(), 60 * 24 * 60 * 60);
             } catch (Exception e) {
                 log.info("用户名密码错误！");
             }

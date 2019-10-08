@@ -23,4 +23,10 @@ public class AuthServiceFallBack {
         log.error("[鉴权中心-获取用户["+userid+":"+pk_corp+"]权限列表] - [熔断] :{}", throwable.getStackTrace());
         return new HashSet();
     }
+
+    public static boolean validateTokenEx(String token, Throwable throwable) {
+        //过期返回true 结合redis实现
+        log.error("[鉴权中心-验证token["+token+"]过期时间] - [熔断] :{}", throwable.getStackTrace());
+        return true;
+    }
 }
