@@ -8,6 +8,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+/**
+ *  公司信息加密解密工具类
+ */
 @Component
 public class SecretCodeUtils implements ApplicationContextAware {
 
