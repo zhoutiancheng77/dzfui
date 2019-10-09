@@ -6,4 +6,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/bdset/gl_fzhsact")
 public class AuxiliaryAccountController {
+
 }

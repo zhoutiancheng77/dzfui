@@ -1,6 +1,6 @@
 package com.dzf.zxkj.common.entity;
 
-import com.dzf.zxkj.common.constant.HttpStatus;
+import com.dzf.zxkj.common.enums.HttpStatusEnum;
 
 import java.io.Serializable;
 
@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @Description:
  */
 public class ReturnData<T> implements Serializable {
-    private int status = HttpStatus.OK.value();
+    private int status = HttpStatusEnum.OK.value();
 
     private String message;
 
@@ -72,7 +72,7 @@ public class ReturnData<T> implements Serializable {
     }
 
     public static ReturnData error(String message) {
-        return new ReturnData(HttpStatus.INTERNAL_SERVER_ERROR.value(), message);
+        return new ReturnData(HttpStatusEnum.INTERNAL_SERVER_ERROR.value(), message);
     }
 
     public static ReturnData ok() {
