@@ -60,7 +60,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
         //登陆请求不验证权限
-        log.info("登录url:",path);
+        log.info("登录url:"+path);
         if (gatewayConfig.getLoginUrl().equals(path) || (gatewayConfig.getIgnoreUrl() != null && gatewayConfig.getIgnoreUrl().contains(path))) {
             return chain.filter(exchange);
         }
