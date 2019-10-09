@@ -3,6 +3,7 @@ package com.dzf.zxkj.gateway.filter;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.zxkj.common.enums.HttpStatusEnum;
 import com.dzf.zxkj.gateway.config.GatewayConfig;
 import com.dzf.zxkj.platform.auth.model.jwt.IJWTInfo;
 import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
@@ -31,6 +32,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 
@@ -68,8 +70,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         //token非空判断
         String token = headers.getFirst("X-ACCESS-TOKEN");
         if (StringUtils.isBlank(token)) {
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
         }
         //token校验
         IJWTInfo ijwtInfo = null;
@@ -77,13 +78,11 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             ijwtInfo = JWTUtil.getInfoFromToken(token, gatewayConfig.getUserPubKey());
         } catch (Exception e) {
             log.info("token验证失败！");
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE,response);
         }
         //token过期时间校验
         if(authService.validateTokenEx(token)){
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+            return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE,response);
         }
 
         String currentCorp = headers.getFirst("pk_corp");
@@ -91,8 +90,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         List<String> corps = authService.getPkCorpByUserId(ijwtInfo.getBody());
         if (corps == null || corps.contains(currentCorp)) {
             log.info("用户没有操作公司权限！");
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
         }
         //参数中存在pk_corp直接使用参数中的
         String pk_corp;
@@ -106,13 +104,16 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         final CorpModel corpModel = sysService.queryCorpByPk(pk_corp);
         final UserModel userModel = sysService.queryByUserId(ijwtInfo.getBody());
         if (corpModel == null || userModel == null) {
-            response.setStatusCode(HttpStatus.UNAUTHORIZED);
-            return response.setComplete();
+            return reponse(HttpStatusEnum.EX_USER_INVALID_CODE, response);
         }
 
         //权限校验
         Set<String> allPermissions = authService.getAllPermission();
         Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(ijwtInfo.getBody(), currentCorp);
+
+        if(allPermissions.contains(path) && !myPermisssions.contains(path)){
+            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+        }
 
         //内置到请求body中
         ServerHttpRequestDecorator serverHttpRequestDecorator = new ServerHttpRequestDecorator(request) {
@@ -155,6 +156,18 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         };
 
         return chain.filter(exchange.mutate().request(serverHttpRequestDecorator).build());
+    }
+
+    private Mono<Void> reponse(HttpStatusEnum httpStatus, ServerHttpResponse response){
+        JSONObject message = new JSONObject();
+        message.put("status", httpStatus.value());
+        message.put("msg", httpStatus.msg());
+        byte[] bits = message.toJSONString().getBytes(StandardCharsets.UTF_8);
+        DataBuffer buffer = response.bufferFactory().wrap(bits);
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        //指定编码，否则在浏览器中会中文乱码
+        response.getHeaders().add("Content-Type", "text/plain;charset=UTF-8");
+        return response.writeWith(Mono.just(buffer));
     }
 
     @Override
