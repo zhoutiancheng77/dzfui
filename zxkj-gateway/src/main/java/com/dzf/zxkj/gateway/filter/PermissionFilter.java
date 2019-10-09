@@ -161,7 +161,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
     private Mono<Void> reponse(HttpStatusEnum httpStatus, ServerHttpResponse response){
         JSONObject message = new JSONObject();
         message.put("status", httpStatus.value());
-        message.put("msg", httpStatus.msg());
+        message.put("message", httpStatus.msg());
         byte[] bits = message.toJSONString().getBytes(StandardCharsets.UTF_8);
         DataBuffer buffer = response.bufferFactory().wrap(bits);
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
