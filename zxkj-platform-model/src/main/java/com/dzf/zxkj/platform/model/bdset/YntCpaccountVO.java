@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * YntCpaccount entity. @author MyEclipse Persistence Tools
+ * YntCpaccount vo. @author MyEclipse Persistence Tools
  */
 public class YntCpaccountVO extends SuperVO {
 

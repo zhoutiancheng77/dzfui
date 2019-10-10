@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 /**
- * YntCptransmbVO entity. @author MyEclipse Persistence Tools
+ * YntCptransmbVO vo. @author MyEclipse Persistence Tools
  * <p>
  * 公司期间损益
  */
