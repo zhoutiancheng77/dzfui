@@ -1242,7 +1242,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     /* (non-Javadoc)
-     * @see com.dzf.service.sys.sys_power.IUserService#onImportSave(com.dzf.model.sys.sys_power.UserVO[], com.dzf.model.sys.sys_power.CorpVO, java.lang.String)
+     * @see com.dzf.service.sys.sys_power.IUserService#onImportSave(com.dzf.entity.sys.sys_power.UserVO[], com.dzf.entity.sys.sys_power.CorpVO, java.lang.String)
      */
     @Override
     public List<UserVO> onImportSave(UserVO[] uvos,CorpVO cvo,String loginUserid) throws DZFWarpException {

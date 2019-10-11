@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.service.cwbb;
 
 import com.dzf.zxkj.platform.model.qcset.YntXjllqcyePageVO;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.report.query.cwbb.XjllQueryVO;
 import com.dzf.zxkj.report.vo.cwbb.XjllMxvo;
 import com.dzf.zxkj.report.vo.cwbb.XjllbVO;
@@ -15,7 +16,7 @@ public interface IXjllService {
      * @return
      * @throws Exception
      */
-    XjllbVO[] query(XjllQueryVO vo) throws Exception;
+    XjllbVO[] query(XjllQueryVO vo, CorpVO corpVO) throws Exception;
 
     /**
      *  截止到当前期间的每个月的现金流量信息
@@ -23,7 +24,7 @@ public interface IXjllService {
      * @return
      * @throws Exception
      */
-    Map<String,XjllbVO[]> queryEveryPeriod(XjllQueryVO vo) throws Exception;
+    Map<String,XjllbVO[]> queryEveryPeriod(XjllQueryVO vo,CorpVO corpVO) throws Exception;
 
     /**
      * 现金流量明细数据
@@ -43,7 +44,7 @@ public interface IXjllService {
      * @return
      * @throws Exception
      */
-    XjllbVO[] getXjllDataForCwBs(String qj, String corpIds, String qjlx) throws Exception;
+    XjllbVO[] getXjllDataForCwBs(String qj, String corpIds, String qjlx, CorpVO corpVO) throws Exception;
 
     /**
      *  获取现金流量期初数据

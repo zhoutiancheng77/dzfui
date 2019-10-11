@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dzf.zxkj.report.mapper.XjllMapper">
+    <select id="queryXjllbVOList" resultType="com.dzf.zxkj.report.vo.cwbb.XjllbVO">
+        SELECT
+            sum( CASE WHEN doperatedate &gt; #{beginPeriod} AND doperatedate &lt; #{endPeriod} THEN nvl( nmny, 0 ) ELSE 0 END ) bqje,
+            sum(
+            nvl( nmny, 0 )) Sqje,
+            pk_xjllxm as xm
+        FROM
+            ynt_xjll
+        WHERE
+            doperatedate &lt; #{endPeriod}
+            <if test="year != null">
+                and substr( doperatedate, 0, 4 ) = #{year}
+            </if>
+            and pk_corp = #{endPeriod}
+            and nvl( dr, 0 ) = 0
+        GROUP BY
+            pk_xjllxm
+    </select>
+    <select id="queryFsXjll" resultType="com.dzf.zxkj.report.vo.cwbb.XjllbVO">
+        SELECT
+            substr( doperatedate, 0, 7 ) as year,
+            sum(
+            nvl( nmny, 0 )) f2 bqje,
+            pk_xjllxm as xm
+        FROM
+            YNT_XJLL
+        WHERE
+            doperatedate &gt; #{begin_period}
+            AND doperatedate &lt; #{endPeriod}
+            AND pk_corp = #{pk_corp}
+            AND nvl( dr, 0 ) = 0
+        GROUP BY
+            substr( doperatedate, 0, 7 ),
+            pk_xjllxm
+    </select>
+    <select id="queryXjllMxList" resultType="com.dzf.zxkj.report.vo.cwbb.XjllMxvo">
+        SELECT
+            h.pzh AS pzh,
+            h.doperatedate AS dopedate,
+            c.nmny AS jffs,
+            h.pk_tzpz_h,
+            td.itemname AS xm,
+            td.itemcode AS xmcode
+        FROM
+            ynt_tzpz_h h
+            INNER JOIN ynt_xjll c ON h.pk_tzpz_h = c.pk_tzpz_h
+            AND nvl( c.dr, 0 ) = 0
+            LEFT JOIN ynt_tdcashflow td ON c.pk_xjllxm = td.pk_trade_cashflow
+        WHERE
+            c.doperatedate LIKE #{period_like}
+            AND c.pk_corp = #{pk_corp}
+            AND EXISTS (
+            SELECT
+                1
+            FROM
+                ynt_tdcashflow flow
+            WHERE
+                nvl( flow.dr, 0 ) = 0
+                AND flow.pk_trade_accountschema = #{pk_trade_accountschema}
+                AND flow.itemcode = #{hc}
+            AND c.pk_xjllxm = flow.PK_TRADE_CASHFLOW
+            )
+    </select>
+
+</mapper>

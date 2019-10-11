@@ -46,4 +46,6 @@ public class XjllbVO {
     private DZFBoolean bkmqm;//是否科目期末
 
     private String formula;//公式
+
+    private String year;
 }

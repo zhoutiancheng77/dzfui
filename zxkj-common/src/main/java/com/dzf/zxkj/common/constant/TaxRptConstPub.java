@@ -1,7 +1,7 @@
 package com.dzf.zxkj.common.constant;
 
 /**
- * 这个类要和com.dzf.model.gl.jiangsutaxrpt.TaxRptConst这个类一样。 
+ * 这个类要和com.dzf.entity.gl.jiangsutaxrpt.TaxRptConst这个类一样。
  * 必须和ynt_tax_sbzl表中的数据一致
  * @author zpm
  *

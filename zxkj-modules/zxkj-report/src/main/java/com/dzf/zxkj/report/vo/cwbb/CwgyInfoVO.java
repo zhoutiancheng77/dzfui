@@ -2,7 +2,9 @@ package com.dzf.zxkj.report.vo.cwbb;
 
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import lombok.Data;
 
+@Data
 public class CwgyInfoVO {
     /**
      *

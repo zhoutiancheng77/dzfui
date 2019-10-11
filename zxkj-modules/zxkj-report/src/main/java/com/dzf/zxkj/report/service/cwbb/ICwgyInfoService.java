@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.service.cwbb;
 
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.report.query.cwbb.CwgyInfoQueryVO;
 import com.dzf.zxkj.report.vo.cwbb.CwgyInfoVO;
 
@@ -12,7 +13,7 @@ public interface ICwgyInfoService {
      * @return
      * @throws Exception
      */
-    CwgyInfoVO[] getCwgyInfoVOs(CwgyInfoQueryVO queryVO) throws Exception;
+    CwgyInfoVO[] getCwgyInfoVOs(CwgyInfoQueryVO queryVO, CorpVO corpVO) throws Exception;
 
     /**
      *  取一年的财务概要信息表
@@ -22,5 +23,5 @@ public interface ICwgyInfoService {
      * @return
      * @throws Exception
      */
-    Map<String, CwgyInfoVO[]> getCwgyInfoVOs(String year, String pk_corp, Object[] obj) throws Exception;
+    Map<String, CwgyInfoVO[]> getCwgyInfoVOs(String year, CorpVO corpVO, Object[] obj) throws Exception;
 }

@@ -3,7 +3,9 @@ package com.dzf.zxkj.report.vo.cwbb;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 
+@Data
 public class XjllMxvo {
     private String xm;
     private String xmcode;

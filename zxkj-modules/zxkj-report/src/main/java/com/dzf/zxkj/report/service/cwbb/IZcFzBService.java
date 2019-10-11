@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.service.cwbb;
 
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.report.vo.cwbb.ZcFzBVO;
 import com.dzf.zxkj.report.vo.cwzb.FseJyeVO;
 
@@ -52,7 +53,7 @@ public interface IZcFzBService {
      * @return
      * @throws Exception
      */
-    Object[] getZCFZBVOsConMsg(String period ,String pk_corp,String ishasjz,String[] hasyes) throws  Exception ;
+    Object[] getZCFZBVOsConMsg(String period , String pk_corp, String ishasjz, String[] hasyes, CorpVO corpVO) throws  Exception ;
 
     /**
      *  资产负债表查询(根据"发生额余额表"取数) 单个月份的

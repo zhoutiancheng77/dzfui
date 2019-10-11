@@ -1,7 +1,10 @@
 package com.dzf.zxkj.report.vo.cwbb;
 
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 
+@Data
 public class XjllquarterlyVO {
     private String xm;
     private String hc;
@@ -27,4 +30,37 @@ public class XjllquarterlyVO {
     private String period;// 期间
 
     private String pk_corp;
+
+    @JsonIgnore
+    public DZFDouble getJd(int i){
+        switch (i){
+            case 1:
+                return this.jd1;
+            case 2:
+                return this.jd2;
+            case 3:
+                return this.jd3;
+            case 4:
+                return this.jd4;
+            default:
+                return DZFDouble.ZERO_DBL;
+        }
+    }
+
+    public void setJd(int i, DZFDouble v){
+        switch (i){
+            case 1:
+                this.jd1 = v;
+                break;
+            case 2:
+                this.jd2 = v;
+                break;
+            case 3:
+                this.jd3 = v;
+                break;
+            case 4:
+                this.jd4 = v;
+                break;
+        }
+    }
 }

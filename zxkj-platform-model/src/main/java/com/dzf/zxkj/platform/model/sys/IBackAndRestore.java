@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.model.sys;
 
-//import com.dzf.model.gl.gl_pjgl.VATInComInvoiceVO;
+//import com.dzf.entity.gl.gl_pjgl.VATInComInvoiceVO;
 
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.gzgl.*;

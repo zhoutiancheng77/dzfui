@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.service.cwbb;
 
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.report.query.cwbb.LrbQuarterlyQueryVO;
 import com.dzf.zxkj.report.vo.cwbb.LrbquarterlyVO;
 
@@ -13,7 +14,7 @@ public interface ILrbQuarterlyService {
      * @return
      * @throws Exception
      */
-    LrbquarterlyVO[] getLRBquarterlyVOs(LrbQuarterlyQueryVO queryVO) throws Exception;
+    LrbquarterlyVO[] getLRBquarterlyVOs(LrbQuarterlyQueryVO queryVO, CorpVO corpVO) throws Exception;
 
     /**
      * 从科目明细账取数据
@@ -22,7 +23,7 @@ public interface ILrbQuarterlyService {
      * @return
      * @throws Exception
      */
-    Map<String, LrbquarterlyVO[]> getLRBquarterlyVOs(LrbQuarterlyQueryVO vo, Object[] objs) throws Exception;
+    Map<String, LrbquarterlyVO[]> getLRBquarterlyVOs(LrbQuarterlyQueryVO vo, Object[] objs, CorpVO corpVO) throws Exception;
 
     /**
      * 每个月的利润表取数

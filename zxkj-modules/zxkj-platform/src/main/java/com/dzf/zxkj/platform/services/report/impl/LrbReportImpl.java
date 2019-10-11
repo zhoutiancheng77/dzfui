@@ -30,7 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-//import com.dzf.model.gl.gl_bdset.YntCpaccountVO;
+//import com.dzf.entity.gl.gl_bdset.YntCpaccountVO;
 
 /**
  * 利润表

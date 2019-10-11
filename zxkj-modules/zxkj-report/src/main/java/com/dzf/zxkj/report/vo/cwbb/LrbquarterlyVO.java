@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.vo.cwbb;
 
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.utils.BeanHelper;
 import lombok.Data;
 
 @Data
@@ -53,5 +54,14 @@ public class LrbquarterlyVO {
     private String pk_corp;
 
     private DZFBoolean isseven;
+
+    public void setAttributeValue(String name, Object value) {
+        BeanHelper.setProperty(this, name, value);
+    }
+
+    public Object getAttributeValue(String name) {
+
+        return BeanHelper.getProperty(this, name);
+    }
 
 }
