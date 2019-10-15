@@ -6,7 +6,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 import java.util.HashMap;
 import java.util.List;

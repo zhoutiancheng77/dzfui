@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.service.report;
 
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 /**
  * 外币的科目明细账

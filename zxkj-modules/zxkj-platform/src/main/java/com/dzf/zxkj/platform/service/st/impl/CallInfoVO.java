@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.service.st.impl;
 
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.enums.CellTypeEnum;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 import java.util.ArrayList;
 import java.util.Arrays;

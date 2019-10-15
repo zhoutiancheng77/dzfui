@@ -8,7 +8,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.platform.model.zcgl.WorkloadManagementVO;
 import com.dzf.zxkj.platform.service.zcgl.IworkloadManagement;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

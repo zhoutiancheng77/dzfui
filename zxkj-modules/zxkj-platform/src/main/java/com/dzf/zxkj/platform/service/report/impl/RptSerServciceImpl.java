@@ -15,7 +15,7 @@ import com.dzf.zxkj.platform.service.report.ILrbReport;
 import com.dzf.zxkj.platform.service.report.IRptSetService;
 import com.dzf.zxkj.platform.service.report.IZcFzBReport;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

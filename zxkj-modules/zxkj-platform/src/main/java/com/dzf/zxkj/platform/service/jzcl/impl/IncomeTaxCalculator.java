@@ -25,7 +25,7 @@ import com.dzf.zxkj.platform.service.bdset.impl.IncomeWarningServiceImpl;
 import com.dzf.zxkj.platform.service.report.ILrbQuarterlyReport;
 import com.dzf.zxkj.platform.service.report.ILrbReport;
 import com.dzf.zxkj.platform.service.sys.IBDCorpTaxService;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 import java.util.List;
 import java.util.Map;

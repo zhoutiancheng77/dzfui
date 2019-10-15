@@ -45,7 +45,7 @@ import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.TaxItemUtil;
 import com.dzf.zxkj.platform.util.TsCheckUtil;
 import com.dzf.zxkj.platform.util.VoUtils;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

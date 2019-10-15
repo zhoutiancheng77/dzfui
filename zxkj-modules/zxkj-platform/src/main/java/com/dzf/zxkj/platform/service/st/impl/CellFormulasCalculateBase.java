@@ -13,7 +13,7 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.util.Formula;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Array;

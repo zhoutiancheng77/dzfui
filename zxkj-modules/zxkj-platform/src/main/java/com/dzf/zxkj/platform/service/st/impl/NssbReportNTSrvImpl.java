@@ -14,7 +14,7 @@ import com.dzf.zxkj.platform.model.st.ReportTabClassMapping;
 import com.dzf.zxkj.platform.model.st.StNssbInfoVO;
 import com.dzf.zxkj.platform.service.st.INssbNTReportSrv;
 import com.dzf.zxkj.platform.util.Formula;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

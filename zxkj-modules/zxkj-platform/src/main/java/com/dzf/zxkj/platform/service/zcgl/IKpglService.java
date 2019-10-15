@@ -8,7 +8,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetcardDisplayColumnVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetcardVO;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 import java.util.List;
 

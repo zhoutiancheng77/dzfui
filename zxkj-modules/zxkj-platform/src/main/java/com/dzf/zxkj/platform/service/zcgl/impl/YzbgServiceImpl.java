@@ -26,7 +26,7 @@ import com.dzf.zxkj.platform.service.zcgl.IAssetCard;
 import com.dzf.zxkj.platform.service.zcgl.IAssetcardHelper;
 import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.service.zcgl.IYzbgService;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

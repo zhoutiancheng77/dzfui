@@ -109,6 +109,7 @@ public class QueryParamVO extends SuperVO {
     private String currency; //币种名称
 
 
+
     public String getChargedeptname() {
         return chargedeptname;
     }

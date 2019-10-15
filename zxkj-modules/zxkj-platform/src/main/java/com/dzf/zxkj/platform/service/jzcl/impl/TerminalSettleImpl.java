@@ -38,7 +38,7 @@ import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -763,7 +763,7 @@ public class TerminalSettleImpl implements ITerminalSettle {
 			for (String pk_corp : pk_corps) {
 				QmJzVO qmclVO = new QmJzVO();
 				qmclVO.setPk_corp(pk_corp);
-				qmclVO.setCoperatorid(queryvo.getUservo().getPrimaryKey());
+				qmclVO.setCoperatorid(queryvo.getUserid());
 				qmclVO.setDoperatedate(queryvo.getClientdate());
 				qmclVO.setPeriod((dateq.getYear() + (i)) + "-" + "12");
 				/** 查询公司、期间是已经做过期末结账 */

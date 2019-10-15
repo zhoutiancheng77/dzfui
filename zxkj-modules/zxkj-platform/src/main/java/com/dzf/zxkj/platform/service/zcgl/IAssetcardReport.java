@@ -5,7 +5,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.zcgl.ZcMxZVO;
 import com.dzf.zxkj.platform.model.zcgl.ZcZzVO;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 public interface IAssetcardReport {
 	/**

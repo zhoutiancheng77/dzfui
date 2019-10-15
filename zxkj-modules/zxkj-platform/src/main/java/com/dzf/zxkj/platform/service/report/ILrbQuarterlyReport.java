@@ -3,7 +3,7 @@ package com.dzf.zxkj.platform.service.report;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.report.LrbquarterlyVO;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 import java.util.Map;
 

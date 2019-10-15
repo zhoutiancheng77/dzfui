@@ -9,7 +9,7 @@ import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.platform.model.st.StNssbInfoVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 

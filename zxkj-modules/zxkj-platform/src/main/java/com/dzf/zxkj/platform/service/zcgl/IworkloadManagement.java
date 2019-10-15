@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.service.zcgl;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.zcgl.WorkloadManagementVO;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 
 import java.util.List;
 

@@ -12,7 +12,7 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.zcgl.ZcMxZVO;
 import com.dzf.zxkj.platform.model.zcgl.ZcZzVO;
 import com.dzf.zxkj.platform.service.zcgl.IAssetcardReport;
-import com.dzf.zxkj.platform.vo.sys.QueryParamVO;
+import com.dzf.zxkj.base.query.QueryParamVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -6,19 +6,20 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
-import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
-import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
-import com.dzf.zxkj.platform.model.report.XjllQcyeVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.bdset.IIncomeWarningService;
+import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
+import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,10 +39,19 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IIncomeWarningService iw_serv;// 预警信息
+    @Autowired
+    private ICorpService corpService;
+    @Autowired
+    private IAccountService accountService;
+    @Autowired
+    private IQcye gl_qcyeserv;
+
+    @Autowired
+    private IAuxiliaryAccountService gl_fzhsserv;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
-        return null;
+        return corpService.queryByPk(pk_corp);
     }
 
     @Override
@@ -62,73 +72,53 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Override
     public String queryAccountRule(String pk_corp) {
-        return null;
+        return gl_cpacckmserv.queryAccountRule(pk_corp);
     }
 
     @Override
     public String getCurrentCorpAccountSchema(String pk_corp) {
-        return null;
+        return yntBoPubUtil.getCurrentCorpAccountSchema(pk_corp);
     }
 
     @Override
     public YntCpaccountVO[] queryByPk(String pk_corp) {
-        return new YntCpaccountVO[0];
+        return accountService.queryByPk(pk_corp);
     }
 
     @Override
     public Map<String, YntCpaccountVO> queryMapByPk(String pk_corp) {
-        return null;
+        return accountService.queryMapByPk(pk_corp);
     }
 
     @Override
     public String getNewRuleCode(String oldCode, String oldrule, String newrule) {
-        return null;
-    }
-
-    @Override
-    public BdtradecashflowVO[] queryBdtradecashflowVOList(String pk_trade_accountschema, String hc) {
-        return new BdtradecashflowVO[0];
-    }
-
-    @Override
-    public List<XjllQcyeVO> queryXjllQcyeVOList(String pk_corp, String year) {
-        return null;
-    }
-
-    @Override
-    public List<TzpzBVO> queryTzpzBVObyHVOPk(List<String> tzpzHVOPks) {
-        return null;
+        return gl_accountcoderule.getNewRuleCode(oldCode, oldrule,newrule);
     }
 
     @Override
     public SsphRes qcyeSsph(String pk_corp) {
-        return null;
+        return gl_qcyeserv.ssph(pk_corp);
     }
 
     @Override
     public String[] getNewCodes(String[] oldcode, String oldrule, String newrule) {
-        return new String[0];
+        return gl_accountcoderule.getNewCodes(oldcode, oldrule, newrule);
     }
 
     @Override
     public Map<String, AuxiliaryAccountBVO> queryAuxiliaryAccountBVOMap(String pk_corp) {
-        return null;
+        return gl_fzhsserv.queryMap(pk_corp);
     }
 
-    @Override
-    public List<TzpzBVO> queryVoucher(String pk_corp, String account_code, String end_date, String auaccount_detail) {
-        return null;
-    }
-
-    @Override
-    public List<TzpzBVO> queryVoucher(String pk_corp, String account_code, String end_date, String auaccount_detail, String auaccount_type) {
-        return null;
-    }
-
-    @Override
-    public Map<String, FzhsqcVO> queryFzhsqcMap(String pk_corp, String account_code, String auaccount_type, String auaccount_detail) {
-        return null;
-    }
+//    @Override
+//    public List<TzpzBVO> queryVoucher(String pk_corp, String account_code, String end_date, String auaccount_detail) {
+//        return null;
+//    }
+//
+//    @Override
+//    public List<TzpzBVO> queryVoucher(String pk_corp, String account_code, String end_date, String auaccount_detail, String auaccount_type) {
+//        return null;
+//    }
 
     @Override
     public DZFDouble getTaxValue(CorpVO cpvo, String rptname, String period, int[][] zbs) {

@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.util;
 
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.base.utils.StringUtil;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
