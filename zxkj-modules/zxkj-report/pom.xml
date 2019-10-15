@@ -110,5 +110,10 @@
             <version>5.5.7</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-platform-report-api</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 </project>

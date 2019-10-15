@@ -24,7 +24,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.*;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.tax.ICorpTaxService;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

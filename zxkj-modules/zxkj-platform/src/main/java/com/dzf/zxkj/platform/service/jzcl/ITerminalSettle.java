@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.jzcl.QmJzVO;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 
 /**
  * 期末结账接口

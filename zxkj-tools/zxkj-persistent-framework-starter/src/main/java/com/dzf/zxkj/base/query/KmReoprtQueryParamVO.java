@@ -2,6 +2,7 @@ package com.dzf.zxkj.base.query;
 
 
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.query.QueryParamVO;
 
 /**
  * 科目查询公共的vo参数

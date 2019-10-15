@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.util;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.lang.DZFBoolean;

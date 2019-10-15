@@ -11,9 +11,9 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.util.Formula;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Array;
@@ -34,7 +34,7 @@ public abstract class CellFormulasCalculateBase {
 	public DZFDouble zero = new DZFDouble(0.0D,2);
 	private SingleObjectBO sbo;
 	
-	private IFsYeReport kmreportsrv;//科目数据查询
+	private IZxkjReportService zxkjReportService;//科目数据查询
 	
     /***
      * 年  -->科目对照发生额，KEY=报表项目编号
@@ -44,11 +44,11 @@ public abstract class CellFormulasCalculateBase {
 	//外部数据源   key：页签编码  value：行数据
     private Map<String,Map<String,Object>> outdatasource=new HashMap<String,Map<String,Object>>();
 	
-	public IFsYeReport getKmreportsrv() {
-		if(kmreportsrv==null){
-			kmreportsrv=(IFsYeReport) SpringUtils.getBean("gl_rep_fsyebserv");
+	public IZxkjReportService getKmreportsrv() {
+		if(zxkjReportService==null){
+			zxkjReportService=SpringUtils.getBean(IZxkjReportService.class);
 		}
-		return kmreportsrv;
+		return zxkjReportService;
 	}
 	
 	@SuppressWarnings("rawtypes")

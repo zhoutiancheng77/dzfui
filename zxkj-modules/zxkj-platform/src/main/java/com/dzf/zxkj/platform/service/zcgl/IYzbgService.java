@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.zcgl.ValuemodifyVO;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 
 import java.util.List;
 

@@ -1,24 +1,25 @@
 package com.dzf.zxkj.platform.service.tax.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.enums.SurTaxEnum;
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
@@ -34,9 +35,6 @@ import com.dzf.zxkj.platform.model.tax.*;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.jzcl.impl.IncomeTaxCalculator;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
-import com.dzf.zxkj.platform.service.report.ILrbQuarterlyReport;
-import com.dzf.zxkj.platform.service.report.ILrbReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -46,7 +44,8 @@ import com.dzf.zxkj.platform.service.tax.ITaxCalculateArchiveService;
 import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
 import com.dzf.zxkj.platform.util.KmbmUpgrade;
 import com.dzf.zxkj.platform.util.ReportUtil;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -59,16 +58,14 @@ public class TaxCalculateArchiveServiceImpl implements
 
     @Autowired
     private SingleObjectBO singleObjectBO;
-    @Autowired
-    private IFsYeReport gl_rep_fsyebserv;
-    @Autowired
-    private ILrbQuarterlyReport gl_rep_lrbquarterlyserv;
+
+    @Reference(version = "1.0.0")
+    private IZxkjReportService zxkjReportService;
+
     @Autowired
     private IQmclService gl_qmclserv;
     @Autowired
     private ITaxitemsetService sys_taxsetserv;
-    @Autowired
-    private ILrbReport gl_rep_lrbserv;
     @Autowired
     private ICorpTaxService sys_corp_tax_serv;
     @Autowired
@@ -196,7 +193,7 @@ public class TaxCalculateArchiveServiceImpl implements
         QueryParamVO paramvo = ReportUtil.getFseQueryParamVO(corpVO, beginDate,
                 endDate, kms, false);
 
-        FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(paramvo, 1);
+        FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(paramvo, 1);
         if (fsejyevos != null) {
             rs.addAll(Arrays.asList(fsejyevos));
         }
@@ -221,7 +218,7 @@ public class TaxCalculateArchiveServiceImpl implements
             paramvo.setQjz(DateUtils.getPeriod(endDate));
             paramvo.setPk_corp(corpVO.getPk_corp());
             paramvo.setIshasjz(DZFBoolean.FALSE);
-            LrbquarterlyVO[] lrVos = gl_rep_lrbquarterlyserv
+            LrbquarterlyVO[] lrVos = zxkjReportService
                     .getLRBquarterlyVOs(paramvo);
             DZFDouble lrzz = DZFDouble.ZERO_DBL;
             if (lrVos != null) {
@@ -1016,7 +1013,7 @@ public class TaxCalculateArchiveServiceImpl implements
         QueryParamVO paramvo = ReportUtil
                 .getFseQueryParamVO(corp, new DZFDate(periodStart + "-01"),
                         new DZFDate(periodEnd + "-01"), kms, true);
-        FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(paramvo, 1);
+        FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(paramvo, 1);
         AddValueTaxCalVO taxVO = new AddValueTaxCalVO();
         if (fsejyevos != null && fsejyevos.length > 0) {
             for (FseJyeVO fseVO : fsejyevos) {
@@ -1068,7 +1065,7 @@ public class TaxCalculateArchiveServiceImpl implements
         QueryParamVO paramvo = ReportUtil
                 .getFseQueryParamVO(corp, new DZFDate(periodStart + "-01"),
                         new DZFDate(periodEnd + "-01"), kms, true);
-        FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(paramvo, 1);
+        FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(paramvo, 1);
         AddValueTaxCalVO taxVO = new AddValueTaxCalVO();
         if (fsejyevos != null && fsejyevos.length > 0) {
             for (FseJyeVO fseVO : fsejyevos) {
@@ -1108,7 +1105,7 @@ public class TaxCalculateArchiveServiceImpl implements
         QueryParamVO paramvo = ReportUtil
                 .getFseQueryParamVO(corpVO, new DZFDate(periodStart + "-01"),
                         new DZFDate(periodEnd + "-01"), kms, true);
-        FseJyeVO[] vos = gl_rep_fsyebserv.getFsJyeVOs(paramvo, 1);
+        FseJyeVO[] vos = zxkjReportService.getFsJyeVOs(paramvo, 1);
         if (vos != null && vos.length > 0) {
             for (FseJyeVO vo : vos) {
                 if (incomeSubj1.equals(vo.getKmbm()) || incomeSubj2.equals(vo.getKmbm())) {
@@ -1400,8 +1397,7 @@ public class TaxCalculateArchiveServiceImpl implements
 
     private IncomeTaxVO getIncomeTax(CorpVO corp, String period,
                                      TaxSettingVO setting, boolean reFetch) {
-        IncomeTaxCalculator incomeCal = new IncomeTaxCalculator(singleObjectBO,
-                gl_rep_lrbquarterlyserv, gl_rep_lrbserv);
+        IncomeTaxCalculator incomeCal = new IncomeTaxCalculator(singleObjectBO,zxkjReportService);
         IncomeTaxVO tax = null;
         IncomeTaxVO savedTax = getSavedIncomeTax(corp.getPk_corp(), period);
         if (reFetch || savedTax == null || !isSameIncomeTaxType(savedTax, setting)) {

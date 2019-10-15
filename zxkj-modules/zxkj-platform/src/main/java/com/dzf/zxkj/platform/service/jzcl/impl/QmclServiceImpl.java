@@ -47,7 +47,9 @@ import com.dzf.zxkj.platform.service.zcgl.IAssetCard;
 import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.util.KmbmUpgrade;
 import com.dzf.zxkj.platform.util.ReportUtil;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -86,20 +88,14 @@ public class QmclServiceImpl implements IQmclService {
 	private IJtsjTemService gl_jtsjtemserv;
 	@Autowired
 	private IPurchInService ic_purchinserv;
-	@Autowired
-	private IFsYeReport kmreportsrv;// 科目数据查询
-	@Autowired
-	private ILrbQuarterlyReport lrbQuarterlyReport;
+	@Reference(version = "1.0.0")
+	private IZxkjReportService zxkjReportService;
 	@Autowired
 	private IQmgzService qmgzService;
-	@Autowired
-	private IFsYeReport gl_rep_fsyebserv;
 	@Autowired
 	private IParameterSetService sys_parameteract;
 	@Autowired
 	private IKpglService am_kpglserv;
-	@Autowired
-	private ILrbReport gl_rep_lrbserv;
 	@Autowired
 	private IParameterSetService parameterserv;
 	@Autowired
@@ -2468,7 +2464,7 @@ public class QmclServiceImpl implements IQmclService {
 			String[] kms = new String[] { incomeKm, incomeKm2 };
 			QueryParamVO pramavo = getFseQueryParamVO(pk_corp, beginDate, endDate, kms);
 
-			FseJyeVO[] vos = (FseJyeVO[]) kmreportsrv.getFsJyeVOs1(pramavo)[0];
+			FseJyeVO[] vos = (FseJyeVO[]) zxkjReportService.getFsJyeVOs1(pramavo)[0];
 			if (vos != null && vos.length > 0) {
 				for (FseJyeVO vo : vos) {
 					if (incomeKm.equals(vo.getKmbm()) || incomeKm2.equals(vo.getKmbm())) {
@@ -2486,7 +2482,7 @@ public class QmclServiceImpl implements IQmclService {
 			String[] kms = new String[] { inTax, outTax, stayTax, incomeKm, incomeKm2};
 			QueryParamVO pramavo = getFseQueryParamVO(pk_corp, beginDate, endDate, kms);
 			
-			FseJyeVO[] vos = (FseJyeVO[]) kmreportsrv.getFsJyeVOs1(pramavo)[0];
+			FseJyeVO[] vos = (FseJyeVO[]) zxkjReportService.getFsJyeVOs1(pramavo)[0];
 			calData = DZFDouble.ZERO_DBL;
 			if (vos != null && vos.length > 0) {
 				for (FseJyeVO vo : vos) {
@@ -2803,7 +2799,7 @@ public class QmclServiceImpl implements IQmclService {
 		QueryParamVO param = ReportUtil.getFseQueryParamVO(corpVO,
 				new DZFDate(beginPeriod + "-01"), new DZFDate(endPeriod + "-01"),
 				new String[]{deductCode}, true);
-		FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(param, 1);
+		FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(param, 1);
 		if (fsejyevos != null && fsejyevos.length > 0) {
 			for (FseJyeVO fseVO : fsejyevos) {
 				if (deductCode.equals(fseVO.getKmbm())) {
@@ -3088,7 +3084,7 @@ public class QmclServiceImpl implements IQmclService {
 			DZFDate queryDate = new DZFDate(period + "-01");
 			QueryParamVO paramvo = getFseQueryParamVO(pk_corp, queryDate, queryDate, new String[] { zzscode });
 			DZFDouble yyzzs = DZFDouble.ZERO_DBL;
-			FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(paramvo, 1);
+			FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(paramvo, 1);
 			if (fsejyevos != null && fsejyevos.length > 0) {
 				for (FseJyeVO yevo : fsejyevos) {
 					if (zzscode.equals(yevo.getKmbm())) {
@@ -3463,7 +3459,7 @@ public class QmclServiceImpl implements IQmclService {
 					&& taxInfo.getIncomtaxtype() == 1;
 			DZFDouble shuikuan = null;
 			IncomeTaxCalculator calculator = new IncomeTaxCalculator(singleObjectBO,
-					lrbQuarterlyReport, gl_rep_lrbserv, incomewarningserv);
+					zxkjReportService, incomewarningserv);
 			shuikuan = calculator.calculateIncomeTax(qmvo.getPeriod(), isQuarter, corpvo,
 					taxInfo);
 			if (shuikuan != null && shuikuan.doubleValue() > 0) {
@@ -3551,7 +3547,7 @@ public class QmclServiceImpl implements IQmclService {
 		paramVO.setEnddate(enddate);
 		paramVO.setQjq(period);
 		paramVO.setQjz(period);
-		LrbquarterlyVO[] vos = lrbQuarterlyReport.getLRBquarterlyVOs(paramVO);
+		LrbquarterlyVO[] vos = zxkjReportService.getLRBquarterlyVOs(paramVO);
 		shuikuan = getQuarterlySdsShui1(pk_corp,period, vos);
 		return shuikuan;
 	}
@@ -3746,7 +3742,7 @@ public class QmclServiceImpl implements IQmclService {
 	private DZFDouble getMonthIncomeTax(QmclVO qmvo) {
 		String pk_corp = qmvo.getPk_corp();
 		String period = qmvo.getPeriod();
-		Map<String, List<LrbVO>> map = gl_rep_lrbserv.getYearLrbMap(period.substring(0, 4), pk_corp, null, null,null);
+		Map<String, List<LrbVO>> map = zxkjReportService.getYearLrbMap(period.substring(0, 4), pk_corp, null, null,null);
 		// 本月利润总额
 		DZFDouble profit = null;
 		// 所得税
@@ -3870,7 +3866,7 @@ public class QmclServiceImpl implements IQmclService {
 		paramVO.setEnddate(enddate);
 		paramVO.setQjq(DateUtils.getPeriod(begindate));
 		paramVO.setQjz(DateUtils.getPeriod(enddate));
-		LrbVO[] vos = gl_rep_lrbserv.getLRBVOsByPeriod(paramVO);
+		LrbVO[] vos = zxkjReportService.getLRBVOsByPeriod(paramVO);
 		return vos;
 	}
 
@@ -3893,7 +3889,7 @@ public class QmclServiceImpl implements IQmclService {
 		paramVO.setEnddate(enddate);
 		paramVO.setQjq(beginperiod);
 		paramVO.setQjz(period);
-		LrbVO[] vos = gl_rep_lrbserv.getLRBVOsByPeriod(paramVO);
+		LrbVO[] vos = zxkjReportService.getLRBVOsByPeriod(paramVO);
 		return vos;
 	}
 

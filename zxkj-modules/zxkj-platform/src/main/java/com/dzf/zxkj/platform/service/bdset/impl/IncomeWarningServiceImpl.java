@@ -1,17 +1,18 @@
 package com.dzf.zxkj.platform.service.bdset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.IIncomeWarningConstants;
 import com.dzf.zxkj.common.constant.TaxRptConst;
 import com.dzf.zxkj.common.constant.TaxRptConstPub;
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.IncomeHistoryVo;
 import com.dzf.zxkj.platform.model.bdset.IncomeWarningVO;
@@ -22,15 +23,13 @@ import com.dzf.zxkj.platform.model.report.ZcFzBVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.IIncomeWarningService;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
-import com.dzf.zxkj.platform.service.report.ILrbReport;
-import com.dzf.zxkj.platform.service.report.IZcFzBReport;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IBDCorpTaxService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.util.ReportUtil;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,14 +41,10 @@ import java.util.stream.Collectors;
 public class IncomeWarningServiceImpl implements IIncomeWarningService {
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-	@Autowired
-	private IFsYeReport gl_rep_fsyebserv;
+	@Reference(version = "1.0.0")
+	private IZxkjReportService zxkjReportService;
 	@Autowired
 	private IBDCorpTaxService corpTaxService;
-	@Autowired
-	private ILrbReport gl_rep_lrbserv;
-	@Autowired
-	private IZcFzBReport gl_rep_zcfzserv;
 	@Autowired
 	private IAccountService accountService;
 
@@ -349,7 +344,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 			if (kmList.size() > 0) {
 				QueryParamVO pramavo = ReportUtil.getFseQueryParamVO(corpvo, beginDate,
 						endDate, kmList.toArray(new String[0]), true);
-				fsVos = gl_rep_fsyebserv.getFsJyeVOs(pramavo, 1);
+				fsVos = zxkjReportService.getFsJyeVOs(pramavo, 1);
 			}
 
 			for (IncomeWarningVO ivo : warningList) {
@@ -461,7 +456,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 			codeMap.put(yntCpaccountVO.getPk_corp_account(), yntCpaccountVO.getAccountcode());
 		}
         //查询指定公司 科目 时间区间内的发生额(不包括余额)
-		Map<String,Map<String,Double>> fseMap = gl_rep_fsyebserv.getVoucherFseQryVOListByPkCorpAndKmBetweenPeriod(pk_corp, yntCpaccountVOS, previousYearPeriod, endPeriod);
+		Map<String,Map<String,Double>> fseMap = zxkjReportService.getVoucherFseQryVOListByPkCorpAndKmBetweenPeriod(pk_corp, yntCpaccountVOS, previousYearPeriod, endPeriod);
 
 		//预警信息中的历史发生金额
 		IncomeHistoryVo[] incomeHistoryVos = (IncomeHistoryVo[]) singleObjectBO.queryByCondition(IncomeHistoryVo.class,
@@ -563,13 +558,13 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 				DZFDouble ef = null;
 				ZcFzBVO[] zfbvos = null;
 				if(beginPeriod.compareTo(DateUtils.getPeriod(begindate)) >= 0){
-					zfbvos = gl_rep_zcfzserv.getZCFZBVOsConXmids(beginPeriod, pk_corp, "N",
+					zfbvos = zxkjReportService.getZCFZBVOsConXmids(beginPeriod, pk_corp, "N",
 							new String[] { "N", "N", "N", "N","N" }, null);
 					bf = getZcValueByMc(zfbvos, "资产总计");
 					flag = true;
 				}
 				
-				zfbvos = gl_rep_zcfzserv.getZCFZBVOsConXmids(endPeriod, pk_corp, "N",
+				zfbvos = zxkjReportService.getZCFZBVOsConXmids(endPeriod, pk_corp, "N",
 						new String[] { "N", "N", "N", "N","N" }, null);
 				ef = getZcValueByMc(zfbvos, "资产总计");
 				
@@ -584,7 +579,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 				paramVO.setEnddate(enddate);
 				paramVO.setQjq(endPeriod);
 				paramVO.setQjz(endPeriod);
-				LrbVO[] lrbvos = gl_rep_lrbserv.getLRBVOsConXm(paramVO, null);
+				LrbVO[] lrbvos = zxkjReportService.getLRBVOsConXm(paramVO, null);
 				
 				CorpTaxVo ctvo = corpTaxService.queryCorpTaxVO(pk_corp);
 				Integer type = ctvo.getTaxlevytype();

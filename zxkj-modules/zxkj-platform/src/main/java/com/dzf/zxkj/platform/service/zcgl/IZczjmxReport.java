@@ -3,7 +3,7 @@ package com.dzf.zxkj.platform.service.zcgl;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 
 /**
  * 资产折旧明细

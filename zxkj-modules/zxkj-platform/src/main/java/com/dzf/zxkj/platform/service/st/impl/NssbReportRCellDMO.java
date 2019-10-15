@@ -8,9 +8,9 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.st.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.util.Formula;
+import com.dzf.zxkj.report.service.IZxkjReportService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class NssbReportRCellDMO extends NssbBaseDMO{
 	
 	private SingleObjectBO sbo;
 	
-	private IFsYeReport kmreportsrv;//科目数据查询
+	private IZxkjReportService zxkjReportService;//科目数据查询
 	
 	private IYntBoPubUtil pubutil;
 	

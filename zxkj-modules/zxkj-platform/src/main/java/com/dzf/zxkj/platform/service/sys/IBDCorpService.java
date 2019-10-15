@@ -7,7 +7,7 @@ import com.dzf.zxkj.platform.model.sys.CorpDocVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.tax.CorpTaxInfoVO;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 
 import java.io.File;
 import java.util.HashMap;

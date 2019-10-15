@@ -22,33 +22,27 @@ import com.dzf.zxkj.platform.model.tax.SpecDeductHistVO;
 import com.dzf.zxkj.platform.model.tax.TaxSettingVO;
 import com.dzf.zxkj.platform.service.bdset.IIncomeWarningService;
 import com.dzf.zxkj.platform.service.bdset.impl.IncomeWarningServiceImpl;
-import com.dzf.zxkj.platform.service.report.ILrbQuarterlyReport;
-import com.dzf.zxkj.platform.service.report.ILrbReport;
 import com.dzf.zxkj.platform.service.sys.IBDCorpTaxService;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
 
 import java.util.List;
 import java.util.Map;
 
 public class IncomeTaxCalculator {
 	private SingleObjectBO singleObjectBO;
-	private ILrbQuarterlyReport lrbQuarterlyReport;
-	private ILrbReport gl_rep_lrbserv;
+
+	private IZxkjReportService zxkjReportService;
 	private IIncomeWarningService incomewarningserv;
 
-	public IncomeTaxCalculator(SingleObjectBO singleObjectBO,
-                               ILrbQuarterlyReport lrbQuarterlyReport,
-                               ILrbReport gl_rep_lrbserv) {
+	public IncomeTaxCalculator(SingleObjectBO singleObjectBO,IZxkjReportService zxkjReportService) {
 		this.singleObjectBO = singleObjectBO;
-		this.lrbQuarterlyReport = lrbQuarterlyReport;
-		this.gl_rep_lrbserv = gl_rep_lrbserv;
+		this.zxkjReportService = zxkjReportService;
 	}
 	
-	public IncomeTaxCalculator(SingleObjectBO singleObjectBO,
-                               ILrbQuarterlyReport lrbQuarterlyReport,
-                               ILrbReport gl_rep_lrbserv,
+	public IncomeTaxCalculator(SingleObjectBO singleObjectBO,IZxkjReportService zxkjReportService,
                                IIncomeWarningService incomewarningserv) {
-		this(singleObjectBO, lrbQuarterlyReport, gl_rep_lrbserv);
+		this(singleObjectBO, zxkjReportService);
 		this.incomewarningserv = incomewarningserv;
 	}
 
@@ -160,8 +154,7 @@ public class IncomeTaxCalculator {
 			paramVO.setEnddate(beginDate);
 			paramVO.setQjq(period);
 			paramVO.setQjz(period);
-			LrbquarterlyVO[] vos = lrbQuarterlyReport
-					.getLRBquarterlyVOs(paramVO);
+			LrbquarterlyVO[] vos = zxkjReportService.getLRBquarterlyVOs(paramVO);
 			if (vos != null && vos.length > 0) {
 				LrbquarterlyVO incomeVO = null;
 				LrbquarterlyVO incomeOtherVO = null;
@@ -223,7 +216,7 @@ public class IncomeTaxCalculator {
 				}
 			}
 		} else {
-			Map<String, List<LrbVO>> map = gl_rep_lrbserv.getYearLrbMap(
+			Map<String, List<LrbVO>> map = zxkjReportService.getYearLrbMap(
 					period.substring(0, 4), pk_corp, null, null, null);
 			for (Map.Entry<String, List<LrbVO>> entry : map.entrySet()) {
 				String lrbPeriod = entry.getKey();

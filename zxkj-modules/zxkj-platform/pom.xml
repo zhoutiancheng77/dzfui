@@ -131,5 +131,10 @@
             <artifactId>zxkj-platform-main-api</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-platform-report-api</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 </project>

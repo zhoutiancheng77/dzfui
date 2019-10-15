@@ -25,13 +25,14 @@ import com.dzf.zxkj.platform.model.zcgl.*;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zcgl.*;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,8 +61,8 @@ public class AssetCardImpl implements IAssetCard {
     @Autowired
     private ICpaccountService gl_cpacckmserv;
 
-    @Autowired
-    private IFsYeReport gl_rep_fsyebserv;
+    @Reference(version = "1.0.0")
+    private IZxkjReportService gl_rep_fsyebserv;
 
     @Autowired
     private IZcCommonService zcCommonService;

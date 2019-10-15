@@ -6,7 +6,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.base.utils.CalculationUtil;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.lang.DZFBoolean;

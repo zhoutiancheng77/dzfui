@@ -32,7 +32,7 @@ import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.util.CryptCodeUtil;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

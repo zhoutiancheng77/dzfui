@@ -1,14 +1,15 @@
 package com.dzf.zxkj.platform.service.jzcl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.platform.filter.NodeFillter;
@@ -24,12 +25,11 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
-import com.dzf.zxkj.platform.service.report.IZcFzBReport;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,13 +46,10 @@ public class QmgzServiceImpl implements IQmgzService {
 	
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-	
-	@Autowired
-	private IFsYeReport fsYeReport;
-	
-	@Autowired
-	private IZcFzBReport gl_rep_zcfzserv;
-	
+
+	@Reference(version = "1.0.0")
+	private IZxkjReportService zxkjReportService;
+
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
 
@@ -214,7 +211,7 @@ public class QmgzServiceImpl implements IQmgzService {
 		qvo.setXswyewfs(DZFBoolean.TRUE);
 		qvo.setCjq(1);
 		qvo.setCjz(6);
-		FseJyeVO[] fvos = fsYeReport.getFsJyeVOs(qvo,1);
+		FseJyeVO[] fvos = zxkjReportService.getFsJyeVOs(qvo,1);
 		List<FseJyeVO> fsjyevoList = new ArrayList<FseJyeVO>();
 		if(fvos!=null && fvos.length>0){
 			for(FseJyeVO fsjye : fvos) {  // 级次
@@ -301,7 +298,7 @@ public class QmgzServiceImpl implements IQmgzService {
 			}
 		}
 
-		ZcFzBVO[] dataVOS = gl_rep_zcfzserv.getZcfzVOs(pk_corp, new String[] { "N", "N", "N", "N","N" }, mapc, fvos);
+		ZcFzBVO[] dataVOS = zxkjReportService.getZcfzVOs(pk_corp, new String[] { "N", "N", "N", "N","N" }, mapc, fvos);
 		
 		DZFDouble ncye1 = ((ZcFzBVO) dataVOS[dataVOS.length - 1]).getNcye1() == null ? DZFDouble.ZERO_DBL
 				: ((ZcFzBVO) dataVOS[dataVOS.length - 1]).getNcye1();

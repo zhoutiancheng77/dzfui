@@ -1,7 +1,7 @@
 package com.dzf.zxkj.report.service.cwbb.impl;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;

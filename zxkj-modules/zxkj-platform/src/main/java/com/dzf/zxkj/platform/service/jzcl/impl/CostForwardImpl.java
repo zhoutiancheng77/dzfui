@@ -1,15 +1,16 @@
 package com.dzf.zxkj.platform.service.jzcl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -25,10 +26,10 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.jzcl.IndustryForward;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -53,17 +54,8 @@ public class CostForwardImpl implements IndustryForward {
 		this.cpaccountService = cpaccountService;
 	}
 
-	private IFsYeReport gl_rep_fsyebserv;
-
-	public IFsYeReport getGl_rep_fsyebserv() {
-		return gl_rep_fsyebserv;
-	}
-
-	@Autowired
-	public void setGl_rep_fsyebserv(IFsYeReport gl_rep_fsyebserv) {
-		this.gl_rep_fsyebserv = gl_rep_fsyebserv;
-	}
-
+	@Reference(version = "1.0.0")
+	private IZxkjReportService zxkjReportService;
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
 
@@ -240,7 +232,7 @@ public class CostForwardImpl implements IndustryForward {
 		quvo.setXswyewfs(DZFBoolean.TRUE);
 		quvo.setXsyljfs(DZFBoolean.TRUE);
 		quvo.setIshasjz(DZFBoolean.FALSE);
-		fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(quvo, 1);
+		fsejyevos = zxkjReportService.getFsJyeVOs(quvo, 1);
 		if (fsejyevos == null) {
 			return new ArrayList<CostForwardInfo>();
 		}
@@ -356,7 +348,7 @@ public class CostForwardImpl implements IndustryForward {
 		quvo.setXswyewfs(DZFBoolean.TRUE);
 		quvo.setXsyljfs(DZFBoolean.TRUE);
 		quvo.setIshasjz(DZFBoolean.FALSE);
-		fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(quvo, 1);
+		fsejyevos = zxkjReportService.getFsJyeVOs(quvo, 1);
 		CostForwardInfo info = new CostForwardInfo();
 		if (fsejyevos == null) {
 			return new ArrayList<CostForwardInfo>();

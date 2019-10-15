@@ -2,7 +2,7 @@ package com.dzf.zxkj.report.service.cwzb;
 
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.yscs.DzfpscReqBVO;

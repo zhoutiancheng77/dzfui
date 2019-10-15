@@ -2,19 +2,19 @@ package com.dzf.zxkj.platform.service.st.impl;
 
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.st.*;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.util.Formula;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +33,7 @@ public class NssbYjdDMO extends NssbBaseDMO{
 	
 	private SingleObjectBO sbo;
 	
-	private IFsYeReport kmreportsrv;//科目数据查询
+	private IZxkjReportService kmreportsrv;//科目数据查询
 	
 	private IYntBoPubUtil pubutil;
 
@@ -64,9 +64,9 @@ public class NssbYjdDMO extends NssbBaseDMO{
 		return sbo;
 	}
 	
-	private IFsYeReport getKmreportsrv() {
+	private IZxkjReportService getKmreportsrv() {
 		if(kmreportsrv==null){
-			kmreportsrv=(IFsYeReport)SpringUtils.getBean("gl_rep_fsyebserv");
+			kmreportsrv=SpringUtils.getBean(IZxkjReportService.class);
 		}
 		return kmreportsrv;
 	}

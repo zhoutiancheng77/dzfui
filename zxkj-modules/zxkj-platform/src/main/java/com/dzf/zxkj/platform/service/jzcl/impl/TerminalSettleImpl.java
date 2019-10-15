@@ -7,11 +7,11 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -34,11 +34,12 @@ import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.bdset.ICptransLrService;
 import com.dzf.zxkj.platform.service.jzcl.ITerminalSettle;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
+import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -54,11 +55,13 @@ import java.util.Vector;
  */
 @Service("gl_qmjzserv")
 public class TerminalSettleImpl implements ITerminalSettle {
-	
+
+	@Reference(version = "1.0.0")
+	private IZxkjReportService zxkjReportService;
+
 	private IVoucherService gl_tzpzserv;
 	private ICptransLrService gl_cplrmbserv;
 	private SingleObjectBO singleObjectBO = null;
-	private IFsYeReport gl_rep_fsyebserv;
 	private IYntBoPubUtil gslx;
 	private ICpaccountService cpaccountserv;
 	private ICpaccountCodeRuleService cpaccountcoderuleserv;
@@ -107,13 +110,6 @@ public class TerminalSettleImpl implements ITerminalSettle {
 	@Autowired
 	public void setGl_tzpzserv(IVoucherService gl_tzpzserv) {
 		this.gl_tzpzserv = gl_tzpzserv;
-	}
-	public IFsYeReport getGl_rep_fsyebserv() {
-		return gl_rep_fsyebserv;
-	}
-	@Autowired
-	public void setGl_rep_fsyebserv(IFsYeReport gl_rep_fsyebserv) {
-		this.gl_rep_fsyebserv = gl_rep_fsyebserv;
 	}
 	public SingleObjectBO getSingleObjectBO() {
 		return singleObjectBO;
@@ -963,7 +959,7 @@ public class TerminalSettleImpl implements ITerminalSettle {
 		queryParam.setIshasjz(new DZFBoolean(false));
 		queryParam.setBegindate1(period);
 		queryParam.setEnddate(period);
-		FseJyeVO[] fsyeVos= gl_rep_fsyebserv.getFsJyeVOs(queryParam,1);
+		FseJyeVO[] fsyeVos= zxkjReportService.getFsJyeVOs(queryParam,1);
 		if(fsyeVos==null||fsyeVos.length==0){
 			throw new BusinessException("发生额及余额表为空！");
 		}

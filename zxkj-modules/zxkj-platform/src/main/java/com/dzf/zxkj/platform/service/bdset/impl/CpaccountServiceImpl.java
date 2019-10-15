@@ -38,11 +38,12 @@ import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
 import com.dzf.zxkj.platform.service.jzcl.impl.TerminalCurrSettleDMO;
-import com.dzf.zxkj.platform.service.report.IFsYeReport;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
-import com.dzf.zxkj.base.query.QueryParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,8 +59,6 @@ public class CpaccountServiceImpl implements ICpaccountService {
 	private IPersonalSetService gl_gxhszserv;
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-//	@Autowired
-//	private IYntBoPubUtil yntBoPubUtil;
 	@Autowired
 	private ICpaccountCodeRuleService gl_accountcoderule;
 	@Autowired
@@ -68,8 +67,8 @@ public class CpaccountServiceImpl implements ICpaccountService {
 	private SaveCpaccount kmzfz_SaveCpaccount;
 	@Autowired
 	private SaveCpaccount1 kmzfz_SaveCpaccount1;
-	@Autowired
-	private IFsYeReport gl_rep_fsyebserv;
+	@Reference(version = "1.0.0")
+	private IZxkjReportService zxkjReportService;
 
 	@Autowired
 	private ICorpService corpService;
@@ -462,7 +461,7 @@ public class CpaccountServiceImpl implements ICpaccountService {
 				qvo.setEnddate(enddate);
 				qvo.setQjz(DateUtils.getPeriod(enddate));
 				qvo.setPk_corp(corpvo.getPk_corp());
-				FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(qvo, 1);
+				FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(qvo, 1);
 				if (fsejyevos != null && fsejyevos.length > 0) {
 					FseJyeVO fse = fsejyevos[0];
 					DZFDouble temp = DZFDouble.ZERO_DBL;
