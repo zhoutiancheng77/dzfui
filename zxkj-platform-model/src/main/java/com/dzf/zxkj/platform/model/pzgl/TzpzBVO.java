@@ -1,10 +1,10 @@
 package com.dzf.zxkj.platform.model.pzgl;
 
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;

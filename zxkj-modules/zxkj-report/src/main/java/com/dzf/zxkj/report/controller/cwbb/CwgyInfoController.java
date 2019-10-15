@@ -6,4 +6,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("gl_rep_cwgyinfoact")
 public class CwgyInfoController {
+
 }

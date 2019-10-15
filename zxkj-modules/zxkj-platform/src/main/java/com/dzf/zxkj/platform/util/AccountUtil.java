@@ -3,7 +3,7 @@ package com.dzf.zxkj.platform.util;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
-import com.dzf.zxkj.platform.services.bdset.IAuxiliaryAccountService;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -5,7 +5,7 @@ import com.dzf.zxkj.base.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.services.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.IAccountService;
 
 import java.util.*;
 

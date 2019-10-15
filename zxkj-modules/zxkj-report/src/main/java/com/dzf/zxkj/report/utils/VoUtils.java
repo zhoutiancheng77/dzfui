@@ -11,4 +11,8 @@ public class VoUtils {
     public static DZFDouble getDZFDouble(DZFDouble ufd) {
         return ufd == null ? DZFDouble.ZERO_DBL : ufd;
     }
+
+    public static DZFDouble getDZFDouble(Object ufd) {
+        return ufd == null ? DZFDouble.ZERO_DBL : (DZFDouble) ufd;
+    }
 }

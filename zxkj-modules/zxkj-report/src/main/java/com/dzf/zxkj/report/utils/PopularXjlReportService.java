@@ -1,15 +1,14 @@
 package com.dzf.zxkj.report.utils;
 
+import com.dzf.zxkj.base.query.QueryParamVO;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
-import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.report.FseJyeVO;
+import com.dzf.zxkj.platform.model.report.XjllbVO;
 import com.dzf.zxkj.report.enums.KmschemaCash;
-import com.dzf.zxkj.report.query.cwzb.FsYeQueryVO;
-import com.dzf.zxkj.report.service.cwzb.IFsYeService;
-import com.dzf.zxkj.report.vo.cwbb.XjllbVO;
-import com.dzf.zxkj.report.vo.cwzb.FseJyeVO;
+import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,21 +20,23 @@ import java.util.Set;
  * @author zhangj
  *
  */
-@SuppressWarnings("all")
 public class PopularXjlReportService {
+	
+	private IFsYeReport fsYeService;
 
-	private IFsYeService fsYeService;
+	public PopularXjlReportService(IFsYeReport fsYeService) {
+		this.fsYeService = fsYeService;
+	}
 
 	public XjllbVO[] getXjlBvos(Map<Float, XjllbVO> map, String period ,
-								CorpVO cpvo , String pk_trade_accountschema, YntCpaccountVO[] cpavos) throws Exception {
-
-		FsYeQueryVO queryParamvo =  new FsYeQueryVO();
+								String pk_corp ,String corptype, String pk_trade_accountschema, YntCpaccountVO[] cpavos){
+		
+		QueryParamVO queryParamvo =  new QueryParamVO();
 		queryParamvo.setQjq(period);
 		queryParamvo.setQjz(period);
 		queryParamvo.setIshasjz(new DZFBoolean("N"));
 		queryParamvo.setIshassh(DZFBoolean.TRUE);
-		queryParamvo.setPk_corp(cpvo.getPk_corp());
-		fsYeService = SpringUtils.getBean(IFsYeService.class);
+		queryParamvo.setPk_corp(pk_corp);
 		FseJyeVO[] fvos =  fsYeService.getFsJyeVOs(queryParamvo, 1);
 		
 		Map<String,FseJyeVO> mapfs=new HashMap<String, FseJyeVO>();
@@ -54,7 +55,7 @@ public class PopularXjlReportService {
 		voWu.setRowno(61);
 		DZFDouble bqje = DZFDouble.ZERO_DBL;
 		DZFDouble sqje = DZFDouble.ZERO_DBL;
-		Set<String> cashset =  KmschemaCash.getCashSubjectCode1(cpavos, cpvo.getCorptype(), DZFBoolean.TRUE);
+		Set<String> cashset =  KmschemaCash.getCashSubjectCode1(cpavos, corptype, DZFBoolean.TRUE);
 		for(String str:cashset){
 			if(mapfs.containsKey(str)){
 				bqje = bqje.add(SafeCompute.sub(mapfs.get(str).getEndfsjf(), mapfs.get(str).getEndfsdf()) );
