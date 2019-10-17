@@ -23,7 +23,7 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
 
-    public String login(String username, String password) {
+    public LoginUser login(String username, String password) {
 
         if (StringUtils.isAnyBlank(username, password)) {
             return null;
@@ -42,7 +42,8 @@ public class LoginServiceImpl implements ILoginService {
             } catch (Exception e) {
                 log.info("用户名密码错误！");
             }
-            return token;
+            loginUser.setToken(token);
+            return loginUser;
         }
 
         return null;

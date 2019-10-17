@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISysConstant;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -52,26 +53,10 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
         JSONObject jsonObject = JSON.parseObject(jsonBody);
         // 根据@MultiRequestBody注解value作为json解析的key
         MultiRequestBody parameterAnnotation = parameter.getParameterAnnotation(MultiRequestBody.class);
-        //注解的value是JSON的key
-        String key = parameterAnnotation.value();
-        Object value;
-        // 如果@MultiRequestBody注解没有设置value，则取参数名FrameworkServlet作为json解析的key
-        if (StringUtils.isNotEmpty(key)) {
-            value = jsonObject.get(key);
-            // 如果设置了value但是解析不到，报错
-            if (value == null && parameterAnnotation.required()) {
-                throw new IllegalArgumentException(String.format("required param %s is not present", key));
-            }
-        } else {
-            // 注解为设置value则用参数名当做json的key
-            key = parameter.getParameterName();
-            value = jsonObject.get(key);
-        }
-
-
 
         // 获取的注解后的类型 Long
         Class<?> parameterType = parameter.getParameterType();
+
         // 通过注解的value或者参数名解析，能拿到value进行解析
 
         if(parameterType.getName().equals(CorpVO.class.getName())){
@@ -88,6 +73,24 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
                 IUserService userService = SpringUtils.getBean(IUserService.class);
                 return userService.queryUserById(userId);
             }
+        }
+        if(StringUtil.isEmptyWithTrim(jsonBody)){
+            return null;
+        }
+        //注解的value是JSON的key
+        String key = parameterAnnotation.value();
+        Object value;
+        // 如果@MultiRequestBody注解没有设置value，则取参数名FrameworkServlet作为json解析的key
+        if (StringUtils.isNotEmpty(key)) {
+            value = jsonObject.get(key);
+            // 如果设置了value但是解析不到，报错
+            if (value == null && parameterAnnotation.required()) {
+                throw new IllegalArgumentException(String.format("required param %s is not present", key));
+            }
+        } else {
+            // 注解为设置value则用参数名当做json的key
+            key = parameter.getParameterName();
+            value = jsonObject.get(key);
         }
 
         if (value != null) {

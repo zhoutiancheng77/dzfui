@@ -5,6 +5,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class CorpVO<T extends SuperVO<T>> extends SuperVO {
@@ -409,6 +410,8 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
     private String pk_source;// 来源主键
 
     private String text;
+
+
 
     @JsonProperty("pyfc")
     private String pyfirstcomb;// 客户名称首字母(王钊宁的客户模糊查询)
@@ -1978,6 +1981,7 @@ public class CorpVO<T extends SuperVO<T>> extends SuperVO {
      *
      * @return boolean
      */
+    @JsonIgnore
     public boolean isBackup() {
         return m_isbackup;
     }

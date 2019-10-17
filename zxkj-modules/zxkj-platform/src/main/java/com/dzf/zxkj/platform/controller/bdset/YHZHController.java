@@ -87,7 +87,7 @@ public class YHZHController {
     }
 
     @PostMapping("/save")
-    public ReturnData<Json> save(@MultiRequestBody("bankAccountVO") BankAccountVO bankAccountVO, @MultiRequestBody CorpVO corpVO) {
+    public ReturnData<Json> save(@MultiRequestBody("bankAccountVO") BankAccountVO bankAccountVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
         Json json = new Json();
         if (bankAccountVO != null) {
             boolean isAdd = true;

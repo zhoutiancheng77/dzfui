@@ -1,7 +1,6 @@
 package com.dzf.zxkj.gateway.filter;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.common.enums.HttpStatusEnum;
 import com.dzf.zxkj.gateway.config.GatewayConfig;
@@ -22,19 +21,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
@@ -123,47 +118,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
         }
 
-        //内置到请求body中
-        ServerHttpRequestDecorator serverHttpRequestDecorator = new ServerHttpRequestDecorator(request) {
-            @Override
-            public Flux<DataBuffer> getBody() {
-                Flux<DataBuffer> body = super.getBody();
-                return body.map(dataBuffer -> {
-                    byte[] content = new byte[dataBuffer.readableByteCount()];
-                    dataBuffer.read(content);
-                    //释放掉内存
-                    DataBufferUtils.release(dataBuffer);
-                    //这个就是request body的json格式数据
-                    String bodyJson = new String(content, Charset.forName("UTF-8"));
-                    //转化成json对象
-                    JSONObject jsonObject = JSON.parseObject(bodyJson);
-                    //把用户id和客户端id添加到json对象中
-                    jsonObject.put("corpVo", corpModel);
-                    jsonObject.put("userVo", userModel);
-                    String result = jsonObject.toJSONString();
-                    //转成字节
-                    byte[] bytes = result.getBytes();
-
-                    NettyDataBufferFactory nettyDataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
-                    DataBuffer buffer = nettyDataBufferFactory.allocateBuffer(bytes.length);
-                    buffer.write(bytes);
-                    return buffer;
-                });
-            }
-
-            //复写getHeaders方法，删除content-length
-            @Override
-            public HttpHeaders getHeaders() {
-                HttpHeaders httpHeaders = new HttpHeaders();
-                httpHeaders.putAll(super.getHeaders());
-                //由于修改了请求体的body，导致content-length长度不确定，因此使用分块编码
-                httpHeaders.remove(HttpHeaders.CONTENT_LENGTH);
-                httpHeaders.set(HttpHeaders.TRANSFER_ENCODING, "chunked");
-                return httpHeaders;
-            }
-        };
-
-        return chain.filter(exchange.mutate().request(serverHttpRequestDecorator).build());
+        return chain.filter(exchange);
     }
 
     private Mono<Void> reponse(HttpStatusEnum httpStatus, ServerHttpResponse response) {
