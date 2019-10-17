@@ -1,7 +1,7 @@
 package com.dzf.zxkj.report.config;
 
-import com.dzf.zxkj.jackson.resolver.MultiRequestBodyArgumentResolver;
 import com.dzf.zxkj.report.processor.RenamingProcessor;
+import com.dzf.zxkj.report.resolver.MultiRequestBodyArgumentResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
