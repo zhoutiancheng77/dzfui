@@ -1,14 +1,16 @@
 package com.dzf.zxkj.platform.model.sys;
 
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.model.SuperVO;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public class LoginLogVo extends SuperVO {
     private String pk_login;
     private String memo;
     private String loginip;
+    List<SysFunNodeVO> sysFunNodeVOList;
 
     public String getPk_login() {
         return pk_login;

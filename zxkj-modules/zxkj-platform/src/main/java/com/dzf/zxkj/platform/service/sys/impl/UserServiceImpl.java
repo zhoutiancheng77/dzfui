@@ -4,26 +4,25 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DAOException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.DataSourceFactory;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
-import com.dzf.zxkj.common.tree.BDTreeCreator;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISmsConst;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.sys.*;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IRoleMngService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.FunnodetreeCreate;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -912,11 +911,11 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public void loginLog(LoginLogVo loginLogVo) throws DZFWarpException {
-		try{
-			singleObjectBO.saveObject(loginLogVo.getPk_corp() != null ? loginLogVo.getPk_corp() : IDefaultValue.DefaultGroup, loginLogVo);			
-		}catch(Exception e){
-			throw new WiseRunException(e);
-		}
+//		try{
+//			singleObjectBO.saveObject(loginLogVo.getPk_corp() != null ? loginLogVo.getPk_corp() : IDefaultValue.DefaultGroup, loginLogVo);
+//		}catch(Exception e){
+//			throw new WiseRunException(e);
+//		}
 	}
 
 	//zpm 注掉。不去更新数据库了。

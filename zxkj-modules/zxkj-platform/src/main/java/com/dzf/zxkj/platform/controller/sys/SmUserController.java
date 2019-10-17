@@ -6,17 +6,28 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.LoginLogVo;
+import com.dzf.zxkj.platform.model.sys.SysFunNodeVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.sys.ISysFunnodeService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("sm_user")
@@ -25,16 +36,63 @@ public class SmUserController {
 
     @Autowired
     private IUserService userService;
+    @Autowired
+    private ISysFunnodeService sysFunnodeService = null;
 
-    @PostMapping("gsSelect")
-    public ReturnData<Grid> gsSelect(@MultiRequestBody UserVO userVO, @MultiRequestBody String pk_corp, @MultiRequestBody DZFDate loginDate) {
+    @Autowired
+    private ICorpService corpService;
+
+    @GetMapping("gsSelect")
+    public ReturnData<Grid> gsSelect(@MultiRequestBody UserVO userVO, @RequestParam("pk_corp") String pk_corp, @RequestParam("login_date") DZFDate loginDate) {
         Grid json = new Grid();
         if (userVO.getLocked_tag() != null && userVO.getLocked_tag().booleanValue()) {
             json.setMsg("当前用户被锁定，请联系管理员!");
         } else {
+            CorpVO corpVo = corpService.queryByPk(pk_corp);
+            Set<String> corps=  userService.querypowercorpSet(userVO.getPrimaryKey());
+            if(!corps.contains(corpVo.getPk_corp())){
+                json.setMsg("公司不存在!");
+            } else {
+                if(corpVo == null){
+                    json.setMsg("公司不存在!");
+                }else if(corpVo.getBegindate() == null){
+                    json.setMsg("请初始化公司开账日期!");
+                }/*else if(corpVo.getBegindate().compareTo(optDate) > 0){
+							json.setMsg("登录日期不能小于开账日期!");
+						}*/else if(corpVo.getBegindate().compareTo(loginDate) > 0){
+                    json.setMsg("登录日期不能小于开账日期!");
+                }/*else if(userVo.getDisable_time() != null && userVo.getDisable_time().compareTo(optDate) < 0){
+							json.setMsg("登录日期不能大于用户失效日期!");
+						}*/else{
+                    //List<SysFunNodeVO> lfunnode = sysFunnodeService.querySysnodeByUserAndCorp(userVo, corpVo, IGlobalConstants.DZF_KJ);
+                    List<SysFunNodeVO> lfunnode = sysFunnodeService.querySysnodeByUser1(userVO, IGlobalConstants.DZF_KJ,corpVo.getPk_corp());
 
+                    json.setSuccess(true);
+                    LoginLogVo loginLogVo = getLoginVo(IGlobalConstants.DZF_KJ);
+                    loginLogVo.setLoginstatus(1);
+                    loginLogVo.setPk_corp(corpVo.getPk_corp());
+                    loginLogVo.setPk_user(userVO.getCuserid());
+                    loginLogVo.setMemo("选公司");
+                    userService.loginLog(loginLogVo);
+                    json.setMsg("选择公司!");
+                    json.setRows(corpVo);
+
+                }
+            }
         }
         return ReturnData.ok().data(json);
+    }
+
+    private LoginLogVo getLoginVo(String project){
+        LoginLogVo loginLogVo =  new LoginLogVo();
+        try{
+            loginLogVo.setLogindate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+            loginLogVo.setLoginstatus(0);
+            loginLogVo.setProject_name(project);
+        }catch(Exception e){
+            log.error("错误",e);
+        }
+        return loginLogVo;
     }
 
     @GetMapping("gsQuery")
