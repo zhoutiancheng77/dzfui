@@ -1,10 +1,12 @@
 package com.dzf.zxkj.report.utils;
 
+
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
-import com.dzf.zxkj.report.vo.cwbb.ZcFzBVO;
-import com.dzf.zxkj.report.vo.cwzb.FseJyeVO;
+import com.dzf.zxkj.platform.model.report.FseJyeVO;
+import com.dzf.zxkj.platform.model.report.ZcFzBVO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.Map;
 @SuppressWarnings("all")
 public class CauseRpForZcfzImpl {
 	
-	public ZcFzBVO[] getCauseZCFZBVOs(Map<String, FseJyeVO> map, String[] hasyes, Map<String, YntCpaccountVO> mapc) throws Exception{
+	public ZcFzBVO[] getCauseZCFZBVOs(Map<String, FseJyeVO> map, String[] hasyes, Map<String, YntCpaccountVO> mapc) throws BusinessException {
 		ZcFzBVO votemp = new ZcFzBVO();
 		
 		ZcFzBVO vo0 = new ZcFzBVO() ;

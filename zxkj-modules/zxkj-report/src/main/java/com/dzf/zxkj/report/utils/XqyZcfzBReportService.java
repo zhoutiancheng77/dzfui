@@ -1,19 +1,21 @@
 package com.dzf.zxkj.report.utils;
 
-
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.report.FseJyeVO;
+import com.dzf.zxkj.platform.model.report.ZcFzBVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import com.dzf.zxkj.report.vo.cwbb.ZcFzBVO;
-import com.dzf.zxkj.report.vo.cwzb.FseJyeVO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 
 @SuppressWarnings("all")
 public class XqyZcfzBReportService {
@@ -27,7 +29,7 @@ public class XqyZcfzBReportService {
 	}
 
 	public ZcFzBVO[] getZCFZB2013VOs(Map<String, FseJyeVO> map, String[] hasyes,
-									 Map<String, YntCpaccountVO> mapc, String queryAccountRule) throws Exception{
+									 Map<String, YntCpaccountVO> mapc, String queryAccountRule) throws DZFWarpException {
 		if (hasyes == null || hasyes.length != 5 || !"Y".equals(hasyes[0])) {
 			hasyes = new String[] { "N", "N", "N", "N","N" };
 		}
@@ -470,14 +472,14 @@ public class XqyZcfzBReportService {
 	}
 
 	private ZcFzBVO getZcFzBVO_YJSF_CFL(Map<String, FseJyeVO> map, Map<String, YntCpaccountVO> mapc,
-			String queryAccountRule, ZcFzBVO vo6) throws Exception {
+			String queryAccountRule, ZcFzBVO vo6) {
 		List<String> list = getYSJFKmList(queryAccountRule);
 		ZcFzBVO vo6temp = new ZcFzBVO();
 		vo6temp = getZCFZBVO1(map, vo6temp, false, mapc,true, list.toArray(new String[0]));
 		//2221下的所有科目
 		List<String> orderlist = new ArrayList<String>();
 		String filtercode = zxkjPlatformService.getNewRuleCode("222114",DZFConstant.ACCOUNTCODERULE, queryAccountRule);
-		for (Map.Entry<String, YntCpaccountVO> entry : mapc.entrySet()) {
+		for (Entry<String, YntCpaccountVO> entry : mapc.entrySet()) {
 			if (entry.getValue() != null && entry.getValue().getAccountcode().startsWith("2221")
 					&& entry.getValue().getAccountlevel() ==2 
 					) {//只是核算2级科目

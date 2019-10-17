@@ -2,16 +2,16 @@ package com.dzf.zxkj.base.dao;
 
 import com.dzf.zxkj.base.exception.DAOException;
 import com.dzf.zxkj.base.exception.WiseRunException;
-import com.dzf.zxkj.base.vo.QueryPageVO;
-import com.dzf.zxkj.common.utils.IDGenerate;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.utils.StringUtil;
+import com.dzf.zxkj.base.vo.QueryPageVO;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.utils.IDGenerate;
+import com.dzf.zxkj.common.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;

@@ -1,12 +1,12 @@
 package com.dzf.zxkj.report.utils;
 
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.report.query.cwzb.FsYeQueryVO;
-import com.dzf.zxkj.report.service.cwzb.IFsYeService;
-import com.dzf.zxkj.report.vo.cwbb.XjllbVO;
-import com.dzf.zxkj.report.vo.cwzb.FseJyeVO;
+import com.dzf.zxkj.platform.model.report.FseJyeVO;
+import com.dzf.zxkj.platform.model.report.XjllbVO;
+import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
@@ -18,21 +18,23 @@ import java.util.Map;
  * @author zhangj
  *
  */
-@SuppressWarnings("all")
 @Slf4j
 public class CompanyXjlReportService {
 	
-	private IFsYeService fsYeService;
+	private IFsYeReport fsYeService;
 
-	public XjllbVO[] getXjlBvos(Map<Float, XjllbVO> map, String period , String pk_corp , String pk_trade_accountschema) throws Exception {
+	public CompanyXjlReportService(IFsYeReport fsYeService) {
+		this.fsYeService = fsYeService;
+	}
 
-		FsYeQueryVO queryParamvo =  new FsYeQueryVO();
+	public XjllbVO[] getXjlBvos(Map<Float, XjllbVO> map, String period , String pk_corp , String pk_trade_accountschema){
+		
+		QueryParamVO queryParamvo =  new QueryParamVO();
 		queryParamvo.setQjq(period);
 		queryParamvo.setQjz(period);
 		queryParamvo.setIshasjz(new DZFBoolean("N"));
 		queryParamvo.setIshassh(DZFBoolean.TRUE);
 		queryParamvo.setPk_corp(pk_corp);
-		fsYeService = SpringUtils.getBean(IFsYeService.class);
 		FseJyeVO[] fvos =  fsYeService.getFsJyeVOs(queryParamvo, 1);
 		
 		Map<String,FseJyeVO> mapfs=new HashMap<String, FseJyeVO>();

@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.util;
 
-import com.dzf.zxkj.base.utils.StringUtil;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.tax.Taxclassifybodyinfo;
 import com.dzf.zxkj.platform.model.tax.Taxclassifyheadinfo;
