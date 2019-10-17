@@ -11,6 +11,7 @@ import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
 import com.dzf.zxkj.platform.auth.service.ISysService;
 import com.dzf.zxkj.platform.auth.utils.JWTUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBufAllocator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +33,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -46,6 +49,8 @@ import java.util.Set;
 @SuppressWarnings("all")
 public class PermissionFilter implements GlobalFilter, Ordered {
 
+    private final DataBufferFactory dataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
+
     @Reference(version = "1.0.0")
     private ISysService sysService;
 
@@ -55,13 +60,16 @@ public class PermissionFilter implements GlobalFilter, Ordered {
     @Autowired
     private GatewayConfig gatewayConfig;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
         //登陆请求不验证权限
-        log.info("登录url:"+path);
-        if (gatewayConfig.getLoginUrl().equals(path) || (gatewayConfig.getIgnoreUrl() != null && gatewayConfig.getIgnoreUrl().contains(path))) {
+        log.info("登录url:" + path);
+        if (true) {
             return chain.filter(exchange);
         }
 
@@ -78,11 +86,11 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             ijwtInfo = JWTUtil.getInfoFromToken(token, gatewayConfig.getUserPubKey());
         } catch (Exception e) {
             log.info("token验证失败！");
-            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE,response);
+            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
         }
         //token过期时间校验
-        if(authService.validateTokenEx(token)){
-            return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE,response);
+        if (authService.validateTokenEx(token)) {
+            return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
         }
 
         String currentCorp = headers.getFirst("pk_corp");
@@ -97,7 +105,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         String queryCorp = request.getQueryParams().getFirst("pk_corp");
         if (StringUtils.isNotBlank(queryCorp)) {
             pk_corp = queryCorp;
-        }else{
+        } else {
             pk_corp = currentCorp;
         }
         //查询公司和用户vo
@@ -111,7 +119,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         Set<String> allPermissions = authService.getAllPermission();
         Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(ijwtInfo.getBody(), currentCorp);
 
-        if(allPermissions.contains(path) && !myPermisssions.contains(path)){
+        if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
             return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
         }
 
@@ -158,7 +166,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         return chain.filter(exchange.mutate().request(serverHttpRequestDecorator).build());
     }
 
-    private Mono<Void> reponse(HttpStatusEnum httpStatus, ServerHttpResponse response){
+    private Mono<Void> reponse(HttpStatusEnum httpStatus, ServerHttpResponse response) {
         JSONObject message = new JSONObject();
         message.put("status", httpStatus.value());
         message.put("message", httpStatus.msg());
@@ -168,6 +176,10 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         //指定编码，否则在浏览器中会中文乱码
         response.getHeaders().add("Content-Type", "text/plain;charset=UTF-8");
         return response.writeWith(Mono.just(buffer));
+    }
+
+    private class InputStreamHolder {
+        InputStream inputStream;
     }
 
     @Override

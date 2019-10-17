@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.annotation;
+package com.dzf.zxkj.jackson.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -3,7 +3,14 @@ package com.dzf.zxkj.platform.resolver;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dzf.zxkj.platform.annotation.MultiRequestBody;
+import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.constant.ISysConstant;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.sys.IUserService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
@@ -61,9 +68,28 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
             value = jsonObject.get(key);
         }
 
+
+
         // 获取的注解后的类型 Long
         Class<?> parameterType = parameter.getParameterType();
         // 通过注解的value或者参数名解析，能拿到value进行解析
+
+        if(parameterType.getName().equals(CorpVO.class.getName())){
+            String pk_corp = webRequest.getHeader(ISysConstant.LOGIN_PK_CORP);
+            if(StringUtils.isNoneBlank(pk_corp)){
+                ICorpService corpService = SpringUtils.getBean(ICorpService.class);
+                return corpService.queryByPk(pk_corp);
+            }
+        }
+
+        if(parameterType.getName().equals(UserVO.class.getName())){
+            String userId = webRequest.getHeader(ISysConstant.LOGIN_USER_ID);
+            if(StringUtils.isNoneBlank(userId)){
+                IUserService userService = SpringUtils.getBean(IUserService.class);
+                return userService.queryUserById(userId);
+            }
+        }
+
         if (value != null) {
             //基本类型
             if (parameterType.isPrimitive()) {
@@ -77,7 +103,7 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
                 return value.toString();
             }
             // 其他复杂对象
-            return JSON.parseObject(value.toString(), parameterType);
+            return JsonUtils.deserialize(value.toString(), parameterType);
         }
 
         // 解析不到则将整个json串解析为当前参数类型
@@ -101,7 +127,7 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
         // 非基本类型，允许解析，将外层属性解析
         Object result;
         try {
-            result = JSON.parseObject(jsonObject.toString(), parameterType);
+            result = JsonUtils.deserialize(jsonObject.toString(), parameterType);
         } catch (JSONException jsonException) {
             // TODO:: 异常处理返回null是否合理？
             result = null;

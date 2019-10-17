@@ -31,10 +31,9 @@ public class LoginServiceImpl implements ILoginService {
         //校验用户(后期改成对接公司用户中心)
         LoginUser loginUser = queryLoginUser(username);
 
-        System.out.println(password);
-        System.out.println(loginUser.getPassword());
-        System.out.println(new Encode().encode(password));
-        System.out.println(new Encode().decode(loginUser.getPassword()));
+        if(loginUser == null){
+            return null;
+        }
 
         if (new Encode().encode(password).equals(loginUser.getPassword())) {
             String token = null;

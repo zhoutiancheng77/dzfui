@@ -96,11 +96,6 @@
         </dependency>
         <dependency>
             <groupId>com.dzf</groupId>
-            <artifactId>zxkj-platform-auth-secret-key-api</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dzf</groupId>
             <artifactId>zxkj-redis-cache-starter</artifactId>
             <version>1.0</version>
         </dependency>

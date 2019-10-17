@@ -9,7 +9,7 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.platform.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -19,10 +19,7 @@ import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +38,7 @@ public class YHZHController {
     private IAccountService accountService;
 
     @GetMapping("/query")
-    public ReturnData<Grid> query(String pk_corp, String isnhsty) {
+    public ReturnData<Grid> query(@RequestParam("pk_corp") String pk_corp, @RequestParam("isnhsty") String isnhsty) {
         Grid grid = new Grid();
         try {
             List<BankAccountVO> list = gl_yhzhserv.query(pk_corp, isnhsty);
@@ -90,7 +87,7 @@ public class YHZHController {
     }
 
     @PostMapping("/save")
-    public ReturnData<Json> save(BankAccountVO bankAccountVO, @MultiRequestBody UserVO userVo, @MultiRequestBody CorpVO corpVo) {
+    public ReturnData<Json> save(@MultiRequestBody("bankAccountVO") BankAccountVO bankAccountVO, @MultiRequestBody CorpVO corpVO) {
         Json json = new Json();
         if (bankAccountVO != null) {
             boolean isAdd = true;
@@ -99,7 +96,7 @@ public class YHZHController {
             }
 
             try {
-                if (beforeSave(bankAccountVO, isAdd, userVo, corpVo)) {
+                if (beforeSave(bankAccountVO, isAdd)) {
 
                     if (isAdd) {
                         gl_yhzhserv.save(bankAccountVO);
@@ -135,17 +132,17 @@ public class YHZHController {
     }
 
 
-    private boolean beforeSave(BankAccountVO vo, boolean isAdd, UserVO userVO, CorpVO corpVO) {
+    private boolean beforeSave(BankAccountVO vo, boolean isAdd) {
         boolean result = true;
 
 //        FieldValidateUtils.Validate(data);
 
-        if (isAdd) {
-            setDefaultValue(vo, isAdd, userVO, corpVO);
-        } else {
-            setDefaultValue(vo, isAdd, userVO, corpVO);
-
-        }
+//        if (isAdd) {
+//            setDefaultValue(vo, isAdd);
+//        } else {
+//            setDefaultValue(vo, isAdd);
+//
+//        }
 
         return result;
     }
