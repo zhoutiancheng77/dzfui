@@ -13,9 +13,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -28,13 +26,24 @@ public class SmUserController {
     @Autowired
     private IUserService userService;
 
-    @GetMapping("gsQuery")
-    public ReturnData<Grid> gsQuery(@MultiRequestBody UserVO userVO, Page page){
+    @PostMapping("gsSelect")
+    public ReturnData<Grid> gsSelect(@MultiRequestBody UserVO userVO, @MultiRequestBody String pk_corp, @MultiRequestBody DZFDate loginDate) {
         Grid json = new Grid();
-        if(userVO.getLocked_tag() != null && userVO.getLocked_tag().booleanValue()){
+        if (userVO.getLocked_tag() != null && userVO.getLocked_tag().booleanValue()) {
+            json.setMsg("当前用户被锁定，请联系管理员!");
+        } else {
+
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("gsQuery")
+    public ReturnData<Grid> gsQuery(@MultiRequestBody UserVO userVO, Page page) {
+        Grid json = new Grid();
+        if (userVO.getLocked_tag() != null && userVO.getLocked_tag().booleanValue()) {
             json.setMsg("当前用户被锁定，请联系管理员!");
             json.setSuccess(false);
-        }else{
+        } else {
             List<CorpVO> list = userService.queryPowerCorpKj(userVO.getPrimaryKey());
             if (list != null && list.size() > 0) {
                 String pyfirstcomb = null;
@@ -64,13 +73,13 @@ public class SmUserController {
                                 : accountProgressDate.substring(0, 4) + "年")
                                 + accountProgressDate.substring(5, 7) + "月");
                     } catch (Exception e) {
-                        log.error("错误",e);
+                        log.error("错误", e);
                     }
                 }
             }
             json.setSuccess(true);
             json.setRows(list);
-            json.setTotal(list == null?0L:list.size());
+            json.setTotal(list == null ? 0L : list.size());
             json.setMsg("登录成功!");
         }
         return ReturnData.ok().data(json);

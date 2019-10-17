@@ -24,13 +24,17 @@ public class AuthController {
         String password = RSAUtils.decryptStringByJs(loginUser.getPassword());
 
         if (StringUtils.isAnyBlank(username, password)) {
-            return ReturnData.error().message("用户名或密码不能为空！");
+            grid.setSuccess(false);
+            grid.setMsg("用户名或密码不能为空！");
+            return ReturnData.ok().data(grid);
         }
 
         loginUser = loginService.login(username, password);
 
         if (loginUser == null) {
-            return ReturnData.error("用户名或密码不正确！");
+            grid.setSuccess(false);
+            grid.setMsg("用户名或密码不正确！");
+            return ReturnData.ok().data(grid);
         }
         grid.setSuccess(true);
         grid.setRows(loginUser);
