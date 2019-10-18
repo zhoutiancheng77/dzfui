@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.auth.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
@@ -21,5 +22,10 @@ public class LoginUser implements Serializable {
     private String password;// 密码
     @TableField(exist = false)
     private String token;
+    @JsonIgnore
     private String dr;
+    @TableField(exist = false)
+    private String verify;
+    @TableField(exist = false)
+    private String key;
 }
