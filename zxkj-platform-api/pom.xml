@@ -15,7 +15,6 @@
     <name>zxkj-platform-api</name>
     <modules>
         <module>zxkj-platform-auth-api</module>
-        <module>zxkj-platform-auth-secret-key-api</module>
         <module>zxkj-platform-main-api</module>
         <module>zxkj-platform-report-api</module>
     </modules>

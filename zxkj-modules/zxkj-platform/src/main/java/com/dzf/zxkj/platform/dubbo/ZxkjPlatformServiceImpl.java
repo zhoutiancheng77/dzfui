@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 
-@Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
+@Service(version = "1.0.0", timeout = Integer.MAX_VALUE, group = "zxkj-platform")
 public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
