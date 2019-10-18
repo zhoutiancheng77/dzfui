@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.model.gzgl;
 
+import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
