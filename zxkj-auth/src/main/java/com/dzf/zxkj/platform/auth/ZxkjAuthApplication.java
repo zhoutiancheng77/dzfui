@@ -1,6 +1,5 @@
 package com.dzf.zxkj.platform.auth;
 
-import com.dzf.zxkj.cache.EnableZxkjCache;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +10,6 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableDiscoveryClient
 @MapperScan("com.dzf.zxkj.platform.auth.mapper")
 @ComponentScan(basePackages = {"com.dzf.zxkj.platform.auth","com.dzf.zxkj.mybatis.handler"})
-@EnableZxkjCache
 public class ZxkjAuthApplication {
     public static void main(String[] args) {
         SpringApplication.run(ZxkjAuthApplication.class, args);
