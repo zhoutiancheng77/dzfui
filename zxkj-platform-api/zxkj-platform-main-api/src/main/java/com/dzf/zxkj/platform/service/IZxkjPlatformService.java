@@ -10,6 +10,7 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 
 import java.util.List;
@@ -78,4 +79,6 @@ public interface IZxkjPlatformService {
     String getNewVoucherNo(String pk_corp, DZFDate doperatedate);
 
     List<XssrVO> queryXssrVO(String pk_corp);
+
+    UserVO queryUserById(String userId);
 }

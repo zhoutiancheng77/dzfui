@@ -10,6 +10,7 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
@@ -20,6 +21,7 @@ import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.sys.IUserService;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,6 +50,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IAuxiliaryAccountService gl_fzhsserv;
+
+    @Autowired
+    private IUserService userService;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -203,6 +208,11 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     @Override
     public List<XssrVO> queryXssrVO(String pk_corp) {
         return null;
+    }
+
+    @Override
+    public UserVO queryUserById(String userId) {
+        return userService.queryUserById(userId);
     }
 
 }
