@@ -3,8 +3,12 @@ package com.dzf.zxkj.report.resolver;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.report.utils.SystemUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
@@ -44,6 +48,23 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
         String jsonBody = getRequestBody(webRequest);
 
         JSONObject jsonObject = JSON.parseObject(jsonBody);
+
+        // 获取的注解后的类型 Long
+        Class<?> parameterType = parameter.getParameterType();
+
+        if(parameterType.getName().equals(CorpVO.class.getName())){
+            String pk_corp = webRequest.getHeader(ISysConstant.LOGIN_PK_CORP);
+            if(StringUtils.isNoneBlank(pk_corp)){
+                return SystemUtil.queryCorp(pk_corp);
+            }
+        }
+
+        if(parameterType.getName().equals(UserVO.class.getName())){
+            String userId = webRequest.getHeader(ISysConstant.LOGIN_USER_ID);
+            if(StringUtils.isNoneBlank(userId)){
+                return SystemUtil.queryUser(userId);
+            }
+        }
         // 根据@MultiRequestBody注解value作为json解析的key
         MultiRequestBody parameterAnnotation = parameter.getParameterAnnotation(MultiRequestBody.class);
         //注解的value是JSON的key
@@ -64,8 +85,7 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
 
 
 
-        // 获取的注解后的类型 Long
-        Class<?> parameterType = parameter.getParameterType();
+
         // 通过注解的value或者参数名解析，能拿到value进行解析
 
         if (value != null) {
