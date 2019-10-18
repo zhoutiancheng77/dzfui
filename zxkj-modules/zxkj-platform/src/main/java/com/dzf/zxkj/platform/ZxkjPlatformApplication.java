@@ -11,7 +11,6 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan
 public class ZxkjPlatformApplication {
     public static void main(String[] args) {
         SpringApplication.run(ZxkjPlatformApplication.class, args);
