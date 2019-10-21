@@ -51,9 +51,7 @@ public class AuxiliaryAccountController {
     private IYntBoPubUtil yntBoPubUtil;
 
     @GetMapping("/queryH")
-    public ReturnData<Json> queryType(@RequestParam(name = "pk_corp", required = false) String pk_corp,
-                                      @RequestParam(name = "isfull", required = false,
-                                              defaultValue = "N") String isfull) {
+    public ReturnData<Json> queryType(String pk_corp, String isfull) {
         Json json = new Json();
         try {
             if (StringUtil.isEmpty(pk_corp)) {
@@ -117,14 +115,10 @@ public class AuxiliaryAccountController {
     }
 
     @GetMapping("/queryB")
-    public ReturnData<Json> queryArchive(@RequestParam(name = "page", required = false) Integer page,
-                                         @RequestParam(name = "rows", required = false) Integer rows,
+    public ReturnData<Json> queryArchive(Integer page, Integer rows,
                                          @RequestParam("id") String hid,
-                                         @RequestParam(name = "kmid", required = false) String kmid,
-                                         @RequestParam(name = "billtype", required = false) String billtype,
-                                         @RequestParam(name = "type", required = false) String type,
-                                         @RequestParam(name = "isfenye", required = false) String isfenye,
-                                         @RequestParam(name = "pk_corp", required = false) String pk_corp) {
+                                         String kmid, String billtype, String type,
+                                         String isfenye, String pk_corp) {
         Json json = new Json();
         try {
 
@@ -165,18 +159,10 @@ public class AuxiliaryAccountController {
     }
 
     @GetMapping("/queryBParam")
-    public ReturnData<Json> queryBParam(@RequestParam(name = "page", required = false) Integer page,
-                                        @RequestParam(name = "rows", required = false) Integer rows,
-                                        @RequestParam("id") String hid,
-                                        @RequestParam(name = "param", required = false) String param,
-                                        @RequestParam(name = "qrystyle", required = false) String qrystyle,
-                                        @RequestParam(name = "isfenye", required = false) String isfenye,
-                                        @RequestParam(name = "type", required = false) String type,
-                                        @RequestParam(name = "code", required = false) String code,
-                                        @RequestParam(name = "name", required = false) String name,
-                                        @RequestParam(name = "spec", required = false) String spec,
-                                        @RequestParam(name = "qchukukmid", required = false) String qchukukmid,
-                                        @RequestParam(name = "qkmclassify", required = false) String qkmclassify) {
+    public ReturnData<Json> queryBParam(Integer page, Integer rows,
+                                        @RequestParam("id") String hid, String param, String qrystyle,
+                                        String isfenye, String type, String code, String name, String spec,
+                                        String qchukukmid, String qkmclassify) {
         Json json = new Json();
         try {
             String pk_corp = SystemUtil.getLoginCorpId();
@@ -588,18 +574,12 @@ public class AuxiliaryAccountController {
      */
     @GetMapping("/queryInvTaxinfo")
     public ReturnData<Json> queryInvTaxinfo(@RequestParam("invname") String invname,
-                                            @RequestParam("pk_corp") String pk_corp) {
+                                            String pk_corp) {
         Json json = new Json();
         try {
-            if (StringUtil.isEmpty(invname)) {
-                json.setMsg("参数为空！");
-                json.setSuccess(false);
-            }
-
             if (StringUtil.isEmpty(pk_corp)) {
                 pk_corp = SystemUtil.getLoginCorpId();
             }
-
             AuxiliaryAccountBVO[] bvos = gl_fzhsserv.queryInvtaxInfo(invname, pk_corp);
             json.setRows(bvos);
             json.setMsg("查询成功");
@@ -612,10 +592,9 @@ public class AuxiliaryAccountController {
     // 查询单据号
     @GetMapping("/queryDjCode")
     public ReturnData<Json> queryDjCode(@RequestParam("id") String pk_auacount_h,
-                                        @RequestParam("pk_corp") String pk_corp) {
+                                        String pk_corp) {
         Json json = new Json();
         try {
-
             if (StringUtil.isEmpty(pk_corp)) {
                 pk_corp = SystemUtil.getLoginCorpId();
             }

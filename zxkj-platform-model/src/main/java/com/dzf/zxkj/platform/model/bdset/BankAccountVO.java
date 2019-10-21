@@ -35,7 +35,6 @@ public class BankAccountVO extends SuperVO implements ICodeName {
     private String accountcode;
     @JsonProperty("accname")
     private String accountname;
-    @JsonProperty("bkstatus")
     private int state;//银行账户状态
 
     private String modifyoperid;//修改人
