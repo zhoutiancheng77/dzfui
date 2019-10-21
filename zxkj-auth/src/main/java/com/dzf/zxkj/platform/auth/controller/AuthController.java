@@ -44,7 +44,7 @@ public class AuthController {
         // 设置类型，纯数字、纯字母、字母数字混合
         specCaptcha.setCharType(Captcha.TYPE_ONLY_NUMBER);
         String verCode = specCaptcha.text().toLowerCase();
-        // 验证码存入session
+        // 验证码存入缓存
         String key = UUID.randomUUID().toString();
         checkCodeCache.put(key, verCode);
         // 输出图片流
