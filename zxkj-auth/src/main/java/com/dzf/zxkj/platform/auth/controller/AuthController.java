@@ -21,12 +21,13 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 public class AuthController {
     //redis缓存 过期时间5分钟
 //    @CreateCache(name = "zxkj-check-code", cacheType = CacheType.REMOTE, expire = 5 * 60)
-    @CreateCache(name = "zxkj-check-code", cacheType = CacheType.LOCAL, expire = 5 * 60)
+    @CreateCache(name = "zxkj-check-code", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.MINUTES)
     private Cache<String, String> checkCodeCache;
     @Autowired
     private ILoginService loginService;
