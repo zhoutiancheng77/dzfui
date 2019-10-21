@@ -1,9 +1,9 @@
-package com.dzf.zxkj.platform.model.icset;
+package com.dzf.zxkj.platform.model.glic;
 
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 
 /**
  * 存货别名VO
@@ -46,7 +46,26 @@ public class InventoryAliasVO extends SuperVO {
     private String fphm;//存货匹配界面 仅展示用 不存库
     private String mid;
     
+    private DZFDouble saleNumber;//销售数量
+    
+	private DZFDouble salePrice;//销售价格
 	
+	public DZFDouble getSaleNumber() {
+		return saleNumber;
+	}
+
+	public void setSaleNumber(DZFDouble saleNumber) {
+		this.saleNumber = saleNumber;
+	}
+
+	public DZFDouble getSalePrice() {
+		return salePrice;
+	}
+
+	public void setSalePrice(DZFDouble salePrice) {
+		this.salePrice = salePrice;
+	}
+
 	public String getMid() {
 		return mid;
 	}

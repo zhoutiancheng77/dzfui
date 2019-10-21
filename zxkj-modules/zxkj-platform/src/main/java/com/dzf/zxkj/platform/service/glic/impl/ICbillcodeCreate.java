@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.service.icset.impl;
+package com.dzf.zxkj.platform.service.glic.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;

@@ -53,7 +53,7 @@ public class SalaryAccSetController {
 	}
 
 	@PostMapping("/save")
-	public  ReturnData<Json>  save(Map<String,String> map, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
+	public  ReturnData<Json>  save(@RequestBody Map<String,String> map, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
 		Json json = new Json();
 		try {
 			String szdata = map.get("szdata");

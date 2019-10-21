@@ -3,6 +3,9 @@ package com.dzf.zxkj.platform.model.sys;
 //import com.dzf.entity.gl.gl_pjgl.VATInComInvoiceVO;
 
 import com.dzf.zxkj.platform.model.bdset.*;
+import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
+import com.dzf.zxkj.platform.model.glic.InventoryQcVO;
+import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.gzgl.*;
 import com.dzf.zxkj.platform.model.icset.*;
 import com.dzf.zxkj.platform.model.image.*;

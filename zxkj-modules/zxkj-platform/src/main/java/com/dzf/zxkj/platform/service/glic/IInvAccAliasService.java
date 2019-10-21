@@ -1,7 +1,7 @@
-package com.dzf.zxkj.platform.service.icset;
+package com.dzf.zxkj.platform.service.glic;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.platform.model.icset.InventoryAliasVO;
+import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
 
 public interface IInvAccAliasService {
 	
