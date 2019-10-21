@@ -16,6 +16,7 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.service.cwbb.IRptSetService;
 import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,7 @@ public class RptSerServciceImpl implements IRptSetService {
 	
 	@Autowired
 	private ILrbReport gl_rep_lrbserv;
-	@Autowired
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Override

@@ -45,7 +45,7 @@ import java.util.*;
 @SuppressWarnings("all")
 public class KmMxZReportForWbImpl implements IKmMxZReportForWb {
 
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private SingleObjectBO singleObjectBO = null;

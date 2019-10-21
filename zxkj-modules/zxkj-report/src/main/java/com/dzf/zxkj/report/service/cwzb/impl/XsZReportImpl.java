@@ -32,7 +32,7 @@ public class XsZReportImpl implements IXsZReport {
 	@Autowired
 	private SingleObjectBO singleObjectBO = null;
 
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 
 	

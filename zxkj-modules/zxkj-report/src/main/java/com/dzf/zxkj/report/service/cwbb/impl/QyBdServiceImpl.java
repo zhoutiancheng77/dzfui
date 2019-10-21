@@ -20,6 +20,7 @@ import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class QyBdServiceImpl implements IQyBdService {
 	
 	@Autowired
 	private IFsYeReport gl_rep_fsyebserv;
-	@Autowired
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	private String[][] getDefaultstr (){

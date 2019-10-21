@@ -3,15 +3,9 @@ package com.dzf.zxkj.platform.resolver;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
-import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.model.sys.UserVO;
-import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.platform.service.sys.IUserService;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.MethodParameter;
@@ -59,21 +53,21 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
 
         // 通过注解的value或者参数名解析，能拿到value进行解析
 
-        if(parameterType.getName().equals(CorpVO.class.getName())){
-            String pk_corp = webRequest.getHeader(ISysConstant.LOGIN_PK_CORP);
-            if(StringUtils.isNoneBlank(pk_corp)){
-                ICorpService corpService = SpringUtils.getBean(ICorpService.class);
-                return corpService.queryByPk(pk_corp);
-            }
-        }
-
-        if(parameterType.getName().equals(UserVO.class.getName())){
-            String userId = webRequest.getHeader(ISysConstant.LOGIN_USER_ID);
-            if(StringUtils.isNoneBlank(userId)){
-                IUserService userService = SpringUtils.getBean(IUserService.class);
-                return userService.queryUserById(userId);
-            }
-        }
+//        if(parameterType.getName().equals(CorpVO.class.getName())){
+//            String pk_corp = webRequest.getHeader(ISysConstant.LOGIN_PK_CORP);
+//            if(StringUtils.isNoneBlank(pk_corp)){
+//                ICorpService corpService = SpringUtils.getBean(ICorpService.class);
+//                return corpService.queryByPk(pk_corp);
+//            }
+//        }
+//
+//        if(parameterType.getName().equals(UserVO.class.getName())){
+//            String userId = webRequest.getHeader(ISysConstant.LOGIN_USER_ID);
+//            if(StringUtils.isNoneBlank(userId)){
+//                IUserService userService = SpringUtils.getBean(IUserService.class);
+//                return userService.queryUserById(userId);
+//            }
+//        }
         if(StringUtil.isEmptyWithTrim(jsonBody)){
             return null;
         }

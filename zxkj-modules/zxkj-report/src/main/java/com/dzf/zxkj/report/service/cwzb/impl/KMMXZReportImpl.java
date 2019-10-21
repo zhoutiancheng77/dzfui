@@ -55,7 +55,7 @@ public class KMMXZReportImpl implements IKMMXZReport {
 	@Autowired
 	private IKmMxZReportForWb gl_rep_kmmxjservwb = null;
 
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private KmQmJzExtVO getKey(HashMap<String, HashMap<String, KmQmJzExtVO>> map,

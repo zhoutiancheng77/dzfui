@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 @Component
 public class SystemUtil {
 
-    @Reference(version = "1.0.0")
+    @Reference(version = "2.0.0")
     private IZxkjPlatformService zxkjPlatformService;
 
     public static SystemUtil systemUtil;

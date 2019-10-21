@@ -25,7 +25,7 @@ public class SrzcReportImpl implements ISrzcReport {
 	
 	private IFsYeReport gl_rep_fsyebserv;
 
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Override
