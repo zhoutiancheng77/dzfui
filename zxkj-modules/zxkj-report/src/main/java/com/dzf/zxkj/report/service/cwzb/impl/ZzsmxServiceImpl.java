@@ -40,7 +40,7 @@ public class ZzsmxServiceImpl implements IZzsmxService {
 	@Autowired
 	SingleObjectBO singleObjectBO;
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@SuppressWarnings("unchecked")

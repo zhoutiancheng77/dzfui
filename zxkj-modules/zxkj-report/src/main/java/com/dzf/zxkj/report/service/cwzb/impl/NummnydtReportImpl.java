@@ -32,7 +32,7 @@ public class NummnydtReportImpl implements INummnyReport {
 
     private SingleObjectBO singleObjectBO = null;
 
-    @Reference(version = "2.0.0")
+    @Reference
     private IZxkjPlatformService zxkjPlatformService;
 
     @Autowired

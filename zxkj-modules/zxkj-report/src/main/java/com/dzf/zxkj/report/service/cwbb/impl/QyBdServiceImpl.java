@@ -43,7 +43,7 @@ public class QyBdServiceImpl implements IQyBdService {
 	
 	@Autowired
 	private IFsYeReport gl_rep_fsyebserv;
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	private String[][] getDefaultstr (){

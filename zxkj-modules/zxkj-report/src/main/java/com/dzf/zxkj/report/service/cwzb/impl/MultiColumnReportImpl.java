@@ -41,7 +41,7 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 	@Autowired
 	private IFzKmmxReport gl_rep_fzkmmxjrptserv;
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	@Override

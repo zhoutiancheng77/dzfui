@@ -39,7 +39,7 @@ import java.util.*;
 @Service("gl_rep_fzyebserv")
 public class FzhsYebReportImpl implements IFzhsYebReport {
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private SingleObjectBO singleObjectBO = null;

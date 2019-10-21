@@ -25,7 +25,7 @@ public class YyfpController {
     @Autowired
     private IYyFpService yyfpser;
 
-    @Reference(version = "2.0.0")
+    @Reference
     private IZxkjPlatformService zxkjPlatformService;
 
     @RequestMapping("query")

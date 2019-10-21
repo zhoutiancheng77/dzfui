@@ -42,7 +42,7 @@ import java.util.Map.Entry;
 @Slf4j
 public class XjllQuarterLyReportImpl implements IXjllbQuarterlyReport {
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

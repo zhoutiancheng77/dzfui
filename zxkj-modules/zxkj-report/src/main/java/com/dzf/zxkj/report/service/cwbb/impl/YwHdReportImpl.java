@@ -28,7 +28,7 @@ import java.util.Map;
 @Service("gl_rep_ywhdserv")
 public class YwHdReportImpl implements IYwHdReport {
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private IFsYeReport gl_rep_fsyebserv;

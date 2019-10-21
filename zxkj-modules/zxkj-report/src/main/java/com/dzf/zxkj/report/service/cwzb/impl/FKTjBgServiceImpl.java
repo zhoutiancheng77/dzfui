@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings("all")
 public class FKTjBgServiceImpl implements IFkTjBgService {
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

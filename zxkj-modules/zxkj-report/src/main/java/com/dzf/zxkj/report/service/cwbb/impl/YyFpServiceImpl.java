@@ -30,7 +30,7 @@ import java.util.List;
 @Service("yyfpser")
 public class YyFpServiceImpl implements IYyFpService {
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

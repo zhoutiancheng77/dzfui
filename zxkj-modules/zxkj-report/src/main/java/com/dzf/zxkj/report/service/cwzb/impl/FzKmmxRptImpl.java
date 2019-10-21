@@ -45,7 +45,7 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 	@Autowired
 	private SingleObjectBO singleObjectBO;
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Override

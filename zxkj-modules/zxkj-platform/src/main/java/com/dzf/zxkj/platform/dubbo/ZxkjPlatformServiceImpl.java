@@ -13,14 +13,12 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
-import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
-import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
-import com.dzf.zxkj.platform.service.bdset.IIncomeWarningService;
+import com.dzf.zxkj.platform.service.bdset.*;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +51,11 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IParameterSetService sys_parameteract;
+
+    @Autowired
+    private IPersonalSetService gl_gxhszserv;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -97,7 +100,7 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Override
     public String getNewRuleCode(String oldCode, String oldrule, String newrule) {
-        return gl_accountcoderule.getNewRuleCode(oldCode, oldrule,newrule);
+        return gl_accountcoderule.getNewRuleCode(oldCode, oldrule, newrule);
     }
 
     @Override
@@ -157,12 +160,12 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Override
     public YntParameterSet queryParamterbyCode(String pk_corp, String code) {
-        return null;
+        return sys_parameteract.queryParamterbyCode(pk_corp, code);
     }
 
     @Override
     public GxhszVO queryGxhszVOByPkCorp(String pk_corp) {
-        return null;
+        return gl_gxhszserv.query(pk_corp);
     }
 
     @Override

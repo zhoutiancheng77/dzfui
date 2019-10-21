@@ -51,7 +51,7 @@ public class LrbReportImpl implements ILrbReport {
 
 	@Autowired
 	private IRptSetService rptsetser;
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 

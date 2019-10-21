@@ -45,7 +45,7 @@ import java.util.Map.Entry;
 @Slf4j
 public class XjllbReportImpl implements IXjllbReport {
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private XjllReportService xjllReportService = null;

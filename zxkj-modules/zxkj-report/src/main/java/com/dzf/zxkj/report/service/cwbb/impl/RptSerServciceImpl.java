@@ -35,7 +35,7 @@ public class RptSerServciceImpl implements IRptSetService {
 	
 	@Autowired
 	private ILrbReport gl_rep_lrbserv;
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Override

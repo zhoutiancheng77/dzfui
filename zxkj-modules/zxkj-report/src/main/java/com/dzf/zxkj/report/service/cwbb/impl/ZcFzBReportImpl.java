@@ -43,7 +43,7 @@ import java.util.Map;
 @Slf4j
 public class ZcFzBReportImpl implements IZcFzBReport {
 
-	@Reference(version = "2.0.0")
+	@Reference
 	private IZxkjPlatformService zxkjPlatformService;
 	@Autowired
 	private IRptSetService rptsetser;
