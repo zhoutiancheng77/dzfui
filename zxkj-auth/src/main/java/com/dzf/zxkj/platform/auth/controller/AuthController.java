@@ -46,7 +46,7 @@ public class AuthController {
         String verCode = specCaptcha.text().toLowerCase();
         // 验证码存入session
         String key = UUID.randomUUID().toString();
-        checkCodeCache.PUT(key, verCode);
+        checkCodeCache.put(key, verCode);
         // 输出图片流
         result.setSuccess(true);
         checkCode.put("key", key);
