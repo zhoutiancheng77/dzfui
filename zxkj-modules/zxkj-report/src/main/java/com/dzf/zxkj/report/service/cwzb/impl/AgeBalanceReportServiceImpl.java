@@ -33,7 +33,7 @@ public class AgeBalanceReportServiceImpl implements IAgeBalanceReportService {
 	@Autowired
 	private IAgeDetailReportService gl_rep_zlmxb;
 
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	@Override

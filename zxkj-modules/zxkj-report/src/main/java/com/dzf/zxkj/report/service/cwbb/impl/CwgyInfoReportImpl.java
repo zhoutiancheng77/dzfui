@@ -37,7 +37,7 @@ import java.util.Map.Entry;
 @Service("gl_rep_cwgyinfoserv")
 public class CwgyInfoReportImpl implements ICwgyInfoReport {
 
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

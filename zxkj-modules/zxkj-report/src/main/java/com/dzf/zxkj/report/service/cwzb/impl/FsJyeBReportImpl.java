@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("all")
 public class FsJyeBReportImpl implements IFsYeReport {
 
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

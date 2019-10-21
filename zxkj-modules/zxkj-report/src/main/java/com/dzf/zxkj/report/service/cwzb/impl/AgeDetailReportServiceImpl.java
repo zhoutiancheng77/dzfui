@@ -31,7 +31,7 @@ import java.util.*;
 public class AgeDetailReportServiceImpl implements IAgeDetailReportService {
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-	@Reference(version = "1.0.0")
+	@Reference(version = "2.0.0")
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	@Override

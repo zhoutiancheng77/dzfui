@@ -41,7 +41,7 @@ import java.util.*;
 @SuppressWarnings("all")
 public class XjllReportService {
 
-    @Reference(version = "1.0.0")
+    @Reference(version = "2.0.0")
     private IZxkjPlatformService zxkjPlatformService;
     @Autowired
     private SingleObjectBO singleObjectBO = null;
