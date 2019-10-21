@@ -6,6 +6,7 @@ import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.jackson.serializer.DZFBooleanSerializer;
 import com.dzf.zxkj.jackson.serializer.DZFDateSerializer;
 import com.dzf.zxkj.jackson.serializer.DZFDateTimeSerializer;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -26,6 +27,7 @@ public class JsonUtils {
         module.addSerializer(DZFBoolean.class, new DZFBooleanSerializer());
         module.addSerializer(DZFDate.class, new DZFDateSerializer());
         module.addSerializer(DZFDateTime.class, new DZFDateTimeSerializer());
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         objectMapper.registerModule(module);
         objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
     }
