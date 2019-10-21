@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 /*
  * 工资科目设置
  */
@@ -50,10 +52,11 @@ public class SalaryAccSetController {
 		return ReturnData.ok().data(json);
 	}
 
-	@GetMapping("/save")
-	public  ReturnData<Json>  save(@RequestParam("szdata") String szdata, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
+	@PostMapping("/save")
+	public  ReturnData<Json>  save(Map<String,String> map, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
 		Json json = new Json();
 		try {
+			String szdata = map.get("szdata");
 			if (DZFValueCheck.isEmpty(szdata)) {
 				throw new BusinessException("数据为空,保存失败!");
 			}
@@ -117,10 +120,12 @@ public class SalaryAccSetController {
 		return ReturnData.ok().data(json);
 	}
 
-	@GetMapping("/saveFykm")
-	public  ReturnData<Json>  saveFykm(@RequestParam("kmdata") String kmdata,@MultiRequestBody CorpVO corpVO) {
+	@PostMapping("/saveFykm")
+	public  ReturnData<Json>  saveFykm(Map<String,String> map, @MultiRequestBody CorpVO corpVO) {
 		Json json = new Json();
 		try {
+
+			String kmdata =map.get("kmdata");
 			if (DZFValueCheck.isEmpty(kmdata)) {
 				throw new BusinessException("数据为空,保存失败!");
 			}
