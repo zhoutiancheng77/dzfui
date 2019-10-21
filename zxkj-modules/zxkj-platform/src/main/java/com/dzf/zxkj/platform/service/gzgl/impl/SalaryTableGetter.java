@@ -1,7 +1,6 @@
 package com.dzf.zxkj.platform.service.gzgl.impl;
 
 import com.dzf.zxkj.base.utils.DZFValueCheck;
-import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.gzgl.SalaryAccSetVO;
 import com.dzf.zxkj.platform.model.gzgl.SalarySetTableVO;
@@ -67,10 +66,9 @@ public class SalaryTableGetter {
 
 	private static SalaryAccSetVO getCommonSalaryAccSetVO(SalaryAccSetVO setvo, Object[] objs) {
 
-		Map<String, String> headmaping = FieldMapping.getFieldMapping(new SalarySetTableVO());
 		for (Object o : objs) {
-			SalarySetTableVO vo =  JsonUtils.deserialize(o.toString(), SalarySetTableVO.class);
-			setvo.setAttributeValue(vo.getKmsz(), vo.getKjkm());
+			SalarySetTableVO tablevo = JsonUtils.deserialize(JsonUtils.serialize(o), SalarySetTableVO.class);
+			setvo.setAttributeValue(tablevo.getKmsz(), tablevo.getKjkm());
 		}
 		return setvo;
 	}

@@ -9,9 +9,9 @@ import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.gzgl.SalaryAccSetVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryKmDeptVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryAccSetService;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -53,20 +53,22 @@ public class SalaryAccSetController {
 	}
 
 	@PostMapping("/save")
-	public  ReturnData<Json>  save(@RequestBody Map<String,String> map, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
+	public  ReturnData<Json>  save(@RequestBody Map<String,String> map) {
 		Json json = new Json();
 		try {
 			String szdata = map.get("szdata");
 			if (DZFValueCheck.isEmpty(szdata)) {
 				throw new BusinessException("数据为空,保存失败!");
 			}
+			String pk_corp =  SystemUtil.getLoginCorpId();
+			String cuserid =  SystemUtil.getLoginUserId();
 			SalaryAccSetVO vo = JsonUtils.deserialize(szdata,SalaryAccSetVO.class);
 			if (vo == null) {
 				throw new BusinessException("数据为空,保存失败!");
 			}
-			securityserv.checkSecurityForSave(corpVO.getPk_corp(),corpVO.getPk_corp(),userVO.getCuserid());
+			securityserv.checkSecurityForSave(pk_corp,pk_corp,cuserid);
 			if(DZFValueCheck.isEmpty(vo.getPk_corp())){
-				vo.setPk_corp(corpVO.getPk_corp());
+				vo.setPk_corp(pk_corp);
 			}
 			vo = gl_gzkmszserv.save(vo);
 			json.setRows(vo);
@@ -82,7 +84,7 @@ public class SalaryAccSetController {
 		return ReturnData.ok().data(json);
 	}
 
-	@PostMapping("/saveGroup")
+	@GetMapping("/saveGroup")
 	public  ReturnData<Json>  saveGroup(@MultiRequestBody CorpVO corpVO) {
 		Json json = new Json();
 		try {
@@ -121,7 +123,7 @@ public class SalaryAccSetController {
 	}
 
 	@PostMapping("/saveFykm")
-	public  ReturnData<Json>  saveFykm(Map<String,String> map, @MultiRequestBody CorpVO corpVO) {
+	public  ReturnData<Json>  saveFykm(@RequestBody Map<String,String> map) {
 		Json json = new Json();
 		try {
 
@@ -133,7 +135,8 @@ public class SalaryAccSetController {
 			if (vos == null || vos.length==0) {
 				throw new BusinessException("数据为空,保存失败!");
 			}
-			SalaryKmDeptVO[] vos1 = gl_gzkmszserv.saveFykm(corpVO.getPk_corp(), vos);
+			String pk_corp =  SystemUtil.getLoginCorpId();
+			SalaryKmDeptVO[] vos1 = gl_gzkmszserv.saveFykm(pk_corp, vos);
 			json.setRows(vos);
 			json.setMsg("获取入账科目成功");
 			json.setSuccess(true);

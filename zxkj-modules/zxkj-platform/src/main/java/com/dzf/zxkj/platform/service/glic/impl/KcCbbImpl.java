@@ -63,7 +63,7 @@ public class KcCbbImpl implements IKcCbb {
 	private IVoucherService voucher;
 	@Autowired
 	private IQmclService gl_qmclserv;
-	@Autowired(required = false)
+	@Autowired
 	private IQmclNoicService gl_qmclnoicserv;
 	@Autowired
 	private IInventoryQcService gl_ic_invtoryqcserv;

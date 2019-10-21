@@ -78,7 +78,7 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 
 		Map<String, String> map = SalaryTableGetter.getGzQyJt();
 		for (Object o : objs) {
-			SalarySetTableVO tablevo = JsonUtils.deserialize(o.toString(), SalarySetTableVO.class);
+			SalarySetTableVO tablevo = JsonUtils.deserialize(JsonUtils.serialize(o), SalarySetTableVO.class);
 			if (set.contains(tablevo.getKmsz())) {
 				String value = map.get(tablevo.getKmsz());
 				if(!StringUtil.isEmpty(value))

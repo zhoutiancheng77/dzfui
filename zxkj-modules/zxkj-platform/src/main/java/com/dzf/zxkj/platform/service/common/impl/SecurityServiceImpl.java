@@ -58,7 +58,7 @@ public class SecurityServiceImpl implements ISecurityService {
 
 		if (!StringUtil.isEmpty(cuserid)) {
 			Set<String> powerCorpSet = userService.querypowercorpSet(cuserid);
-			if (!powerCorpSet.contains(logincorp)) {
+			if (powerCorpSet == null || !powerCorpSet.contains(logincorp)) {
 				throw new BusinessException("出现数据无权问题，无权操作！");
 			}
 		}
