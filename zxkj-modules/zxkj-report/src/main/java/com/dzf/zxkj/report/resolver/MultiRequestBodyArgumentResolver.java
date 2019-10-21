@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.common.constant.ISysConstant;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -64,6 +65,9 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
             if(StringUtils.isNoneBlank(userId)){
                 return SystemUtil.queryUser(userId);
             }
+        }
+        if(StringUtil.isEmptyWithTrim(jsonBody)){
+            return null;
         }
         // 根据@MultiRequestBody注解value作为json解析的key
         MultiRequestBody parameterAnnotation = parameter.getParameterAnnotation(MultiRequestBody.class);

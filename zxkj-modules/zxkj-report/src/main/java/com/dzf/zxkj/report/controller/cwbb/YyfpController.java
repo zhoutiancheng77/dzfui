@@ -12,13 +12,14 @@ import com.dzf.zxkj.report.service.cwbb.IYyFpService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController
 @Slf4j
+@RestController
 @RequestMapping("gl_rep_yyfpact")
 public class YyfpController {
 
@@ -28,8 +29,8 @@ public class YyfpController {
     @Reference
     private IZxkjPlatformService zxkjPlatformService;
 
-    @RequestMapping("query")
-    public ReturnData query(QueryParamVO queryParamVO, @MultiRequestBody CorpVO corpVO){
+    @GetMapping("query")
+    public ReturnData<Grid> query(QueryParamVO queryParamVO, @MultiRequestBody CorpVO corpVO){
 
         Grid grid = new Grid();
         try {
@@ -44,6 +45,7 @@ public class YyfpController {
             grid.setRows(list);
             grid.setMsg("查询成功");
         } catch (DZFWarpException e) {
+            e.printStackTrace();
             log.error("操作失败", e);
             grid.setMsg("操作失败");
         }
