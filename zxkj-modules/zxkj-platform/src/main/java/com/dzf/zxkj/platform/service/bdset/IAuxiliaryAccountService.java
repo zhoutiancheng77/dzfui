@@ -1,11 +1,11 @@
 package com.dzf.zxkj.platform.service.bdset;
 
-import com.dzf.zxkj.base.vo.QueryPageVO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.vo.QueryPageVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -93,12 +93,12 @@ public interface IAuxiliaryAccountService {
     /**
      *
      */
-    Map<String, String> saveBImp(File file, String pk_auacount_h, String pk_corp, String fileType) throws DZFWarpException;
+    Map<String, String> saveBImp(InputStream is, String pk_auacount_h, String pk_corp, String fileType) throws DZFWarpException;
 
     /**
      *
      */
-    Map<String, String> updateBImp(File file, String pk_corp, String fileType, Map<Integer, String> STYLE_1) throws DZFWarpException;
+    Map<String, String> updateBImp(InputStream is, String pk_corp, String fileType, Map<Integer, String> STYLE_1) throws DZFWarpException;
 
     /**
      * 检查辅助明细是否被总账引用

@@ -44,7 +44,6 @@ public class SystemUtil {
     }
 
     public static UserVO getLoginUserVo(){
-        HttpServletRequest request = (HttpServletRequest) RequestContextHolder.getRequestAttributes();
         return systemUtil.userService.queryUserById(getLoginUserId());
     }
 

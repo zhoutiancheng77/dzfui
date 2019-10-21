@@ -59,9 +59,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -866,9 +865,8 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 	}
 
 	@Override
-	public Map<String, String> saveBImp(File file, String pk_auacount_h, String pk_corp, String fileType)
+	public Map<String, String> saveBImp(InputStream is, String pk_auacount_h, String pk_corp, String fileType)
 			throws DZFWarpException {
-		FileInputStream is = null;
 		Map<String, String> importResult = new HashMap<String, String>();
 		try {
 
@@ -914,7 +912,6 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 			}
 
 			AuxiliaryAccountBVO bvo = null;
-			is = new FileInputStream(file);
 			Workbook impBook = null;
 			if ("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);
@@ -1319,9 +1316,8 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 	}
 	//更新导入存货
 	@Override
-	public Map<String, String> updateBImp(File file, String pk_corp, String fileType,
+	public Map<String, String> updateBImp(InputStream is, String pk_corp, String fileType,
 			 Map<Integer, String> STYLE_1) throws DZFWarpException {
-		FileInputStream is = null;
 		Map<String, String> importResult = new HashMap<String, String>();
 		String pk_auacount_h = AuxiliaryConstant.ITEM_INVENTORY;
 		try {
@@ -1337,7 +1333,6 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 //			Map<String, YntCpaccountVO> accmap = AccountUtil.getAccVOByCodeName(pk_corp, accvos, "_");
 
 			AuxiliaryAccountBVO bvo = null;
-			is = new FileInputStream(file);
 			Workbook impBook = null;
 			if ("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);
