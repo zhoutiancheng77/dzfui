@@ -1,19 +1,19 @@
-package com.dzf.zxkj.platform.service.icset.impl;
+package com.dzf.zxkj.platform.service.glic.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.InventoryConstant;
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
-import com.dzf.zxkj.platform.model.icset.InventorySetVO;
+import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
-import com.dzf.zxkj.platform.service.icset.IInventoryAccSetService;
+import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.util.Kmschema;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 	@Autowired
 	private SingleObjectBO singleObjectBO;
 	@Autowired
-	private CheckInventorySet  inventory_setcheck;
+	private CheckInventorySet inventory_setcheck;
 	@Autowired
 	private IAuxiliaryAccountService gl_fzhsserv;
 	@Autowired

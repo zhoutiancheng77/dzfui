@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.jzcl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
@@ -8,14 +9,13 @@ import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IQmclConstant;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.constant.InventoryConstant;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.SafeCompute;
-import com.dzf.zxkj.platform.model.icset.InventorySetVO;
+import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.icset.IInventoryAccSetService;
+import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.jzcl.ISMcbftService;
 import com.dzf.zxkj.platform.util.Kmschema;
 import org.springframework.beans.factory.annotation.Autowired;

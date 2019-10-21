@@ -25,7 +25,7 @@ import com.dzf.zxkj.platform.model.icset.MeasureVO;
 import com.dzf.zxkj.platform.model.jzcl.KMQMJZVO;
 import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.icset.IInvAccAliasService;
+import com.dzf.zxkj.platform.service.glic.IInvAccAliasService;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.icset.IMeasureService;

@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.bdset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
@@ -8,16 +9,15 @@ import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.constant.InventoryConstant;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.CodeName;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
-import com.dzf.zxkj.platform.model.icset.InventorySetVO;
+import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.icset.IInventoryAccSetService;
+import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.util.Kmschema;
 import org.springframework.beans.factory.annotation.Autowired;
