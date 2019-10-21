@@ -8,6 +8,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
@@ -27,16 +28,24 @@ public class SystemUtil {
         systemUtil = this;
     }
 
-    public static CorpVO queryLoginCorp(){
-
-        HttpServletRequest request = (HttpServletRequest) RequestContextHolder.getRequestAttributes();
-
-        return systemUtil.corpService.queryByPk(request.getHeader(ISysConstant.LOGIN_PK_CORP));
+    public static HttpServletRequest getRequest() {
+        return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+    }
+    public static String getLoginCorpId(){
+        return getRequest().getHeader(ISysConstant.LOGIN_PK_CORP);
     }
 
-    public static UserVO queryLoginUser(){
+    public static String getLoginUserId(){
+        return getRequest().getHeader(ISysConstant.LOGIN_USER_ID);
+    }
+
+    public static CorpVO getLoginCorpVo(){
+        return systemUtil.corpService.queryByPk(getLoginCorpId());
+    }
+
+    public static UserVO getLoginUserVo(){
         HttpServletRequest request = (HttpServletRequest) RequestContextHolder.getRequestAttributes();
-        return systemUtil.userService.queryUserById(request.getHeader(ISysConstant.LOGIN_USER_ID));
+        return systemUtil.userService.queryUserById(getLoginUserId());
     }
 
 }
