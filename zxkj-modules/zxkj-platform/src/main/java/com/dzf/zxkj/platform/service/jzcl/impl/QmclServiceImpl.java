@@ -59,9 +59,9 @@ import java.util.*;
 
 /**
  * 期末结转业务逻辑类
- * 
+ *
  * @author zhangj
- * 
+ *
  */
 @Service("gl_qmclserv")
 public class QmclServiceImpl implements IQmclService {
@@ -197,7 +197,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 公司校验
-	 * 
+	 *
 	 * @param pk_corp
 	 * @return
 	 * @throws BusinessException
@@ -214,7 +214,7 @@ public class QmclServiceImpl implements IQmclService {
 	 * 反期末调汇
 	 */
 	public QmclVO updateFanHuiDuiSunYiTiaoZheng(QmclVO vo) throws DZFWarpException {
-		
+
 		DZFBoolean isqjsyjz = vo.getIsqjsyjz();
 		//年结不能反汇兑
 		updateCheckNj(vo);
@@ -317,7 +317,7 @@ public class QmclServiceImpl implements IQmclService {
 			throw new BusinessException("请选择要损益结转的数据！");
 		}
 		qmvo = checkisGz(qmvo, "不能损益结转！");
-		
+
 		// 控制损益结转后不能再结转，这里重新在查询一次。
 		QmclVO voa = queryQmclVO(qmvo.getPk_corp(), qmvo.getPeriod());
 		if (voa != null) {
@@ -362,7 +362,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 校验是否期末调汇
-	 * 
+	 *
 	 * @param qmclvo
 	 * @param selectrow
 	 * @return
@@ -381,7 +381,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 校验上一期间是否结转
-	 * 
+	 *
 	 * @throws BusinessException
 	 */
 	public void checkLastPeriod(QmclVO vo) throws DZFWarpException {
@@ -410,7 +410,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 检查下一期间是否结转
-	 * 
+	 *
 	 * @param vo
 	 * @throws BusinessException
 	 */
@@ -454,7 +454,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 根据行业科目期间模板设置结转
-	 * 
+	 *
 	 * @param vo
 	 * @throws BusinessException
 	 */
@@ -479,7 +479,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 其他科目方案，根据期间损益模板生成数据
-	 * 
+	 *
 	 * @param vo
 	 * @param aggvos
 	 * @param pk_corp
@@ -574,7 +574,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 生成07或者13的凭证(目前不走模板)
-	 * 
+	 *
 	 * @param vo
 	 * @param aggvos
 	 * @param pk_corp
@@ -640,8 +640,8 @@ public class QmclServiceImpl implements IQmclService {
 //	}
 
 	private void genHyVoucherForSy(YntCpaccountVO[] corpAccVOS, HashMap<String, List<KmZzVO>> mapPz,
-			BdTradeTranstemplateHVO hymbVO, String pk_curr, String zrkm, QmclVO vo,
-			HashMap<String, YntCpaccountVO> mapCorpAcount,String userid) throws DZFWarpException {
+								   BdTradeTranstemplateHVO hymbVO, String pk_curr, String zrkm, QmclVO vo,
+								   HashMap<String, YntCpaccountVO> mapCorpAcount,String userid) throws DZFWarpException {
 		YntCpaccountVO zrkmVO = gl_cpacckmserv.queryById(zrkm);
 //		if (zrkmVO.getIsfzhs() != null && !"0000000000".equals(zrkmVO.getIsfzhs())) {
 //			throw new BusinessException(zrkmVO.getAccountcode() + "科目的辅助核算项不允许为空！");
@@ -833,7 +833,7 @@ public class QmclServiceImpl implements IQmclService {
 		}
 		pzBodyVOs = listBvos.toArray(new TzpzBVO[0]);
 		if (zckm_jflj.doubleValue() == 0 && zckm_dflj.doubleValue() == 0
-			&& pzBodyVOs.length==1) {
+				&& pzBodyVOs.length==1) {
 			// 只有本年利润一条分录时不生成凭证,如果是多条，本年利润为零也生成凭证
 			return;
 		}
@@ -872,7 +872,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 行业期间损益模板结转设置
-	 * 
+	 *
 	 * @throws BusinessException
 	 */
 	public BdTradeTranstemplateHVO[] queryTradeTemplateAggvo(QmclVO vo) throws DZFWarpException {
@@ -909,7 +909,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * //根据行业科目期间模板表体转出科目查询对应公司科目，通过科目编码匹配
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param hymbVO
 	 * @return
@@ -988,7 +988,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 根据公司制定的损益结转模板生成凭证
-	 * 
+	 *
 	 * @param vo
 	 * @param mbvos
 	 * @throws BusinessException
@@ -1010,7 +1010,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 公司生成模板
-	 * 
+	 *
 	 * @param vo
 	 * @param aggvos
 	 * @param pk_curr
@@ -1079,7 +1079,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 07和13的凭证生成
-	 * 
+	 *
 	 * @param vo
 	 * @param aggvos
 	 * @param pk_curr
@@ -1128,7 +1128,7 @@ public class QmclServiceImpl implements IQmclService {
 //	}
 
 	private void genCorpVoucherForSy(QmclVO vo, YntCptransmbHVO gsmbVO, YntCpaccountVO[] corpAccVos,
-			HashMap<String, List<KmZzVO>> mapPz, String abstracts, String pk_curr,String userid) throws DZFWarpException {
+									 HashMap<String, List<KmZzVO>> mapPz, String abstracts, String pk_curr,String userid) throws DZFWarpException {
 		// 转入科目
 		String zrkm = gsmbVO.getPk_transferinaccount();
 		YntCpaccountVO zrkmVO = gl_cpacckmserv.queryById(zrkm);
@@ -1311,8 +1311,8 @@ public class QmclServiceImpl implements IQmclService {
 
 		if (zckm_jflj.doubleValue() == 0 && zckm_dflj.doubleValue() == 0
 				&& pzBodyVOs.length==1) {
-				// 只有本年利润一条分录时不生成凭证,如果是多条，本年利润为零也生成凭证
-				return;
+			// 只有本年利润一条分录时不生成凭证,如果是多条，本年利润为零也生成凭证
+			return;
 		}
 		// 凭证表头VO
 		TzpzHVO pzHeadVO = getTzpzHvo(vo, pzBodyVOs,userid);
@@ -1327,7 +1327,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 查询公司损益科目
-	 * 
+	 *
 	 * @throws BusinessException
 	 */
 	public YntCpaccountVO[] querySykm(String pk_corp) throws DZFWarpException {
@@ -1351,7 +1351,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 查询公司损益科目
-	 * 
+	 *
 	 * @throws BusinessException
 	 */
 	public YntCpaccountVO[] querykm(String pk_corp) throws DZFWarpException {
@@ -1462,7 +1462,7 @@ public class QmclServiceImpl implements IQmclService {
 		for (KmZzVO kmZzVO : result) {
 			StringBuilder key = new StringBuilder();
 			key.append(kmZzVO.getPk_accsubj()).append(",").append(kmZzVO.getPk_inventory())
-			.append(ReportUtil.getFzKey(kmZzVO));
+					.append(ReportUtil.getFzKey(kmZzVO));
 			String keyStr = key.toString();
 			if (kmVoMap.containsKey(keyStr)) {
 				KmZzVO existVo = kmVoMap.get(keyStr);
@@ -1501,7 +1501,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 公司损益科目主键查询语句
-	 * 
+	 *
 	 * @return
 	 */
 	public String getCorpSykmpkSql(String pk_corp, SQLParameter sp) {
@@ -1554,7 +1554,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 取期间所属月的最好一天
-	 * 
+	 *
 	 * @param vo
 	 * @return
 	 */
@@ -1566,7 +1566,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 公司期间损益模板结转设置
-	 * 
+	 *
 	 * @throws BusinessException
 	 */
 	public YntCptransmbHVO[] queryCorpTemplateAggvo(QmclVO vo) throws DZFWarpException {
@@ -1697,7 +1697,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 已经年结不能反操作
-	 * 
+	 *
 	 * @param vos
 	 */
 	private void updateCheckNj(QmclVO vos) {
@@ -1716,7 +1716,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 校验是否可做反操作
-	 * 
+	 *
 	 * @param vo
 	 * @return
 	 * @throws Exception
@@ -1772,7 +1772,7 @@ public class QmclServiceImpl implements IQmclService {
 
 		// 检查公司是否需要损益结转
 //		CorpVO corpVO = CorpCache.getInstance().get(null, vo.getPk_corp());// (CorpVO)
-																			// singleObjectBO.queryByPrimaryKey(
+		// singleObjectBO.queryByPrimaryKey(
 		// CorpVO.class, pk_corp);
 		ICorpService corpService = SpringUtils.getBean(ICorpService.class);
 		CorpVO corpVO = corpService.queryByPk(vo.getPk_corp());
@@ -1828,7 +1828,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	@Override
 	public List<QmclVO> initquery(List<String> corppks, DZFDate dateq, DZFDate datez, String userid, DZFDate dopedate,
-			DZFBoolean iscarover, DZFBoolean isuncarover) throws DZFWarpException {
+								  DZFBoolean iscarover, DZFBoolean isuncarover) throws DZFWarpException {
 		// 处理结账逻辑
 		// 1、检查所选公司、期间的所有凭证是否全部都记账；
 		// String[] pk_corps = pane.getRefPKs();
@@ -2053,22 +2053,22 @@ public class QmclServiceImpl implements IQmclService {
 	}
 
 	public List<TzpzHVO> queryQmclGlpz(String period, String pk_corp, String sourcebilltype) throws DZFWarpException {
-	    SQLParameter sp = new SQLParameter();
+		SQLParameter sp = new SQLParameter();
 		StringBuffer sql = new StringBuffer("select * from YNT_TZPZ_H  where nvl(dr,0)=0");
 		if(!StringUtil.isEmpty(pk_corp)){
-            sql.append(" and pk_corp = ?");
-            sp.addParam(pk_corp);
-        }
+			sql.append(" and pk_corp = ?");
+			sp.addParam(pk_corp);
+		}
 
 		if(!StringUtil.isEmpty(period)){
-            sql.append(" and period = ?");
-            sp.addParam(period);
-        }
+			sql.append(" and period = ?");
+			sp.addParam(period);
+		}
 
 		if(!StringUtil.isEmpty(sourcebilltype)){
 			sql.append(" and sourcebilltype = ?");
 			sp.addParam(sourcebilltype);
-        }else{
+		}else{
 			sql.append(" and sourcebilltype in ('HP34','HP32','HCH10535','HP39','HP120','HP125','HP67')");
 		}
 
@@ -2433,7 +2433,7 @@ public class QmclServiceImpl implements IQmclService {
 	private void doJtsj(QmclVO qmvo, List<SurtaxTemplateVO> list, CorpVO corpVO, String period, boolean isQuarter,String userid) {
 		boolean isSmall = !"一般纳税人".equals(corpVO.getChargedeptname());
 		String pk_corp = corpVO.getPk_corp();
-		
+
 		DZFDouble calData = null;
 		DZFDate endDate = new DZFDate(period + "-01");
 		DZFDate beginDate = endDate;
@@ -2481,7 +2481,7 @@ public class QmclServiceImpl implements IQmclService {
 			String stayTax = getUpdateKmcode(corpVO, getLdkmCode(corpVO.getCorptype()));
 			String[] kms = new String[] { inTax, outTax, stayTax, incomeKm, incomeKm2};
 			QueryParamVO pramavo = getFseQueryParamVO(pk_corp, beginDate, endDate, kms);
-			
+
 			FseJyeVO[] vos = (FseJyeVO[]) zxkjReportService.getFsJyeVOs1(pramavo)[0];
 			calData = DZFDouble.ZERO_DBL;
 			if (vos != null && vos.length > 0) {
@@ -2613,7 +2613,7 @@ public class QmclServiceImpl implements IQmclService {
 		qmvo.setIsjtsj(DZFBoolean.TRUE);
 		singleObjectBO.update(qmvo, new String[] { "isjtsj" });
 	}
-	
+
 	private String getLdkmCode(String corptype) {
 		if("00000100000000Ig4yfE0005".equals(corptype)){
 			return "217102";
@@ -2659,7 +2659,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	@Override
 	public DZFDouble[] getVatMnyByInvoiceType(CorpVO corpVO,
-			String beginPeriod, String endPeriod) {
+											  String beginPeriod, String endPeriod) {
 		String codeRule = corpVO.getAccountcoderule();
 		String incomeParentCode1 = null;
 		String incomeParentCode2 = null;
@@ -2939,7 +2939,7 @@ public class QmclServiceImpl implements IQmclService {
 
 		return vos;
 	}
-	
+
 	/**
 	 * 删除计提附加税凭证
 	 * @param pk_qmcl
@@ -3128,11 +3128,11 @@ public class QmclServiceImpl implements IQmclService {
 		if (isQuarter && Integer.valueOf(period.substring(5, 7)) % 3 != 0) {
 			return;
 		}
-		
+
 		if("00000100000000Ig4yfE0005".equals(corpvo.getCorptype())){
 			throw new BusinessException("企业会计制度暂不支持增值税结转，请手工结转");
 		}
-		
+
 		DZFDate endDate = new DZFDate(period + "-01");
 		DZFDate beginDate = endDate;
 		if (isQuarter) {
@@ -3171,7 +3171,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 生成增值税凭证子表
-	 * 
+	 *
 	 * @param yyzzs
 	 */
 	private TzpzBVO[] createpzBVO(CorpVO rpvo, String pk_corp, DZFDouble yyzzs) {
@@ -3262,7 +3262,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	/**
 	 * 生成增值税凭证主表
-	 * 
+	 *
 	 * @param qmvo
 	 * @param zzsmny
 	 */
@@ -3435,7 +3435,7 @@ public class QmclServiceImpl implements IQmclService {
 		if (paramSet != null && paramSet.getPardetailvalue() != 0) {
 			isQuarter = false;
 		}
-		
+
 		// 季度末计提、结转
 		int month = new DZFDate(qmvo.getPeriod() + "-01").getMonth();
 		if (!isQuarter || isQuarter && month % 3 == 0) {
@@ -3475,7 +3475,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	// 生成所得税计提凭证
 	private TzpzHVO createsdsjtpz(QmclVO qmvo, DZFDouble sdsmny, CorpVO corpvo,String userid,
-			boolean isIndividual) {
+								  boolean isIndividual) {
 		TzpzHVO pzvo = createpzinfo(qmvo, sdsmny, IBillTypeCode.HP125,userid);
 		TzpzBVO[] bvos = createsdsjtBVO(qmvo.getPk_corp(), sdsmny, corpvo, isIndividual);
 		pzvo.setChildren(bvos);
@@ -3484,7 +3484,7 @@ public class QmclServiceImpl implements IQmclService {
 
 	// 生成所得税计提子表
 	private TzpzBVO[] createsdsjtBVO(String pk_corp, DZFDouble sdsmny, CorpVO corpvo,
-			boolean isIndividual) {
+									 boolean isIndividual) {
 		TzpzBVO[] pzbvs = new TzpzBVO[2];
 		TzpzBVO pzbvo_jf = new TzpzBVO();
 		TzpzBVO pzbvo_df = new TzpzBVO();
@@ -3500,8 +3500,8 @@ public class QmclServiceImpl implements IQmclService {
 			kmcode = "5801";
 		}
 		String jfpk = getAccsubjfromcode(pk_corp, getUpdateKmcode(corpvo, kmcode));// 所得税费用
-																					// 所得税费用5801
-																					// 6801
+		// 所得税费用5801
+		// 6801
 		String dfpk = getAccsubjfromcode(pk_corp, getUpdateKmcode(corpvo,dfkmcode));// 应交企业所得税
 		//
 		pzbvo_jf.setPk_accsubj(jfpk);
@@ -3613,40 +3613,40 @@ public class QmclServiceImpl implements IQmclService {
 
 		// 计算 3 6 9 12 月份的税额
 		switch (month) {
-		case 3: {
-			if (first != null && first.compareTo(DZFDouble.ZERO_DBL) > 0) {
-				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+			case 3: {
+				if (first != null && first.compareTo(DZFDouble.ZERO_DBL) > 0) {
+					shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+				}
+				break;
 			}
-			break;
-		}
-		case 6: {
-			if (second != null && second.compareTo(DZFDouble.ZERO_DBL) > 0) {
-				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
-				shuikuan = SafeCompute.sub(shuikuan, firstsds);
+			case 6: {
+				if (second != null && second.compareTo(DZFDouble.ZERO_DBL) > 0) {
+					shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+					shuikuan = SafeCompute.sub(shuikuan, firstsds);
+				}
+				break;
 			}
-			break;
-		}
-		case 9: {
-			if (third != null && third.compareTo(DZFDouble.ZERO_DBL) > 0) {
-				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
-				shuikuan = SafeCompute.sub(shuikuan, SafeCompute.add(firstsds, secondsds));
+			case 9: {
+				if (third != null && third.compareTo(DZFDouble.ZERO_DBL) > 0) {
+					shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+					shuikuan = SafeCompute.sub(shuikuan, SafeCompute.add(firstsds, secondsds));
+				}
+				break;
 			}
-			break;
-		}
-		case 12: {
-			if (fourth != null && fourth.compareTo(DZFDouble.ZERO_DBL) > 0) {
-				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
-				shuikuan = SafeCompute.sub(shuikuan, SafeCompute.add(thirdsds, SafeCompute.add(firstsds, secondsds)));
+			case 12: {
+				if (fourth != null && fourth.compareTo(DZFDouble.ZERO_DBL) > 0) {
+					shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+					shuikuan = SafeCompute.sub(shuikuan, SafeCompute.add(thirdsds, SafeCompute.add(firstsds, secondsds)));
+				}
+				break;
 			}
-			break;
-		}
-		default:
-			break;
+			default:
+				break;
 
 		}
 		return shuikuan;
 	}
-	
+
 	/**
 	 * @param pk_corp
 	 * @param period
@@ -3704,29 +3704,29 @@ public class QmclServiceImpl implements IQmclService {
 
 		// 计算 3 6 9 12 月份的税额
 		switch (month) {
-		case 3: {
-			shuikuan = calcshuikuan2(period, bnlj, nlossmny);
-			break;
-		}
-		case 6: {
-			shuikuan = calcshuikuan2(period, bnlj, nlossmny);
-			break;
-		}
-		case 9: {
-			shuikuan = calcshuikuan2(period, bnlj, nlossmny);
-			break;
-		}
-		case 12: {
-			shuikuan = calcshuikuan2(period, bnlj, nlossmny);
-			break;
-		}
-		default:
-			break;
+			case 3: {
+				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+				break;
+			}
+			case 6: {
+				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+				break;
+			}
+			case 9: {
+				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+				break;
+			}
+			case 12: {
+				shuikuan = calcshuikuan2(period, bnlj, nlossmny);
+				break;
+			}
+			default:
+				break;
 
 		}
 		return shuikuan;
 	}
-	
+
 	// 计算本季度的所得税
 	private DZFDouble calcCurrentSuodeshui2(QmclVO qmvo, int month) {
 		String pk_corp = qmvo.getPk_corp();
@@ -3766,7 +3766,7 @@ public class QmclServiceImpl implements IQmclService {
 				}
 			}
 		}
-		
+
 		DZFDouble shuikuan = DZFDouble.ZERO_DBL;
 		DZFDouble nlossmny = DZFDouble.ZERO_DBL;
 		CorpVO pvo = corpService.queryByPk(pk_corp);
@@ -3789,7 +3789,7 @@ public class QmclServiceImpl implements IQmclService {
 			}
 		}
 		return shuikuan;
-	
+
 	}
 
 	private DZFDouble calcshuikuan2(String period, DZFDouble bnlj, DZFDouble nlossmny) {
@@ -3897,26 +3897,26 @@ public class QmclServiceImpl implements IQmclService {
 		int iYear = Integer.parseInt(yearmonth.substring(0, 4));
 		int iMonth = Integer.parseInt(yearmonth.substring(5, 7));
 		switch (iMonth) {
-		case 1:
-		case 2:
-		case 3: {
-			return "" + (iYear - 1) + "-12-31";
-		}
-		case 4:
-		case 5:
-		case 6: {
-			return "" + iYear + "-03-31";
-		}
-		case 7:
-		case 8:
-		case 9: {
-			return "" + iYear + "-06-30";
-		}
-		case 10:
-		case 11:
-		case 12: {
-			return "" + iYear + "-09-30";
-		}
+			case 1:
+			case 2:
+			case 3: {
+				return "" + (iYear - 1) + "-12-31";
+			}
+			case 4:
+			case 5:
+			case 6: {
+				return "" + iYear + "-03-31";
+			}
+			case 7:
+			case 8:
+			case 9: {
+				return "" + iYear + "-06-30";
+			}
+			case 10:
+			case 11:
+			case 12: {
+				return "" + iYear + "-09-30";
+			}
 		}
 		return null;
 
@@ -4067,7 +4067,7 @@ public class QmclServiceImpl implements IQmclService {
 				throw new BusinessException(year + "年度存在月度计提的所得税,不可修改。");
 			}
 		}*/
-		
+
 		QmLossesVO vo = queryLossmny(dateq, copid);
 		vo.setNlossmny(mny);
 		singleObjectBO.saveObject(copid, vo);
@@ -4149,7 +4149,7 @@ public class QmclServiceImpl implements IQmclService {
 			} else {
 				DZFDouble taxMny = taxCal.getAddtax_info().getBqmse();
 				if (taxMny != null && taxMny.doubleValue() > 0) {
-                    voucher = createVoucherByZzsSmall(qmvo, corpVO, corpVO.getPk_corp(), taxMny,userid);
+					voucher = createVoucherByZzsSmall(qmvo, corpVO, corpVO.getPk_corp(), taxMny,userid);
 					gl_tzpzserv.saveVoucher(corpVO, voucher);
 				}
 			}
