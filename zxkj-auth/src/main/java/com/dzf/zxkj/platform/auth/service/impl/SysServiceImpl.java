@@ -14,7 +14,7 @@ import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("all")
-@Service(version = "1.0.0", timeout = 2 * 60 * 1000, group = "zxkj-auth") //version方便上线
+@Service(version = "1.0.0", timeout = 2 * 60 * 1000) //version方便上线
 @org.springframework.stereotype.Service
 public class SysServiceImpl implements ISysService {
 

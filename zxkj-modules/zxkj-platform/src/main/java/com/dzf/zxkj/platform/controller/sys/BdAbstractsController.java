@@ -43,6 +43,9 @@ public class BdAbstractsController {
             grid.setSuccess(true);
         } catch (Exception e) {
             grid.setMsg("查询失败");
+            if(e instanceof BusinessException){
+                grid.setMsg(e.getMessage());
+            }
             grid.setSuccess(false);
             log.error("查询失败", e);
         }
@@ -124,6 +127,9 @@ public class BdAbstractsController {
             grid.setSuccess(true);
         } catch (Exception e) {
             grid.setMsg("查询失败");
+            if(e instanceof BusinessException){
+                grid.setMsg(e.getMessage());
+            }
             grid.setSuccess(false);
             log.error("查询失败", e);
         }
@@ -146,6 +152,9 @@ public class BdAbstractsController {
                 json.setMsg("保存成功！");
             }catch(Exception e){
                 json.setSuccess(false);
+                if(e instanceof BusinessException){
+                    json.setMsg(e.getMessage());
+                }
                 json.setMsg("保存失败");
                 log.error("保存失败", e);
             }
