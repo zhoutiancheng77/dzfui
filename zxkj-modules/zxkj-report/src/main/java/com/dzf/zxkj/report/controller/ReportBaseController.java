@@ -57,6 +57,10 @@ public class ReportBaseController {
         }
     }
 
+    public String getPrintTitleName (){
+        return "";
+    }
+
 
 
 }
