@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @version NCPrj 1.0
  */
 @SuppressWarnings("serial")
-public class PzmbhVO extends SuperVO {
+public class PzmbhVO extends SuperVO<PzmbbVO> {
     private static final long serialVersionUID = 3902288880635219195L;
 
     private DZFDateTime ts;
