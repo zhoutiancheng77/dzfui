@@ -2,9 +2,13 @@ package com.dzf.zxkj.report.controller;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
-import com.dzf.zxkj.common.utils.StringUtil;
-import lombok.extern.slf4j.Slf4j;
 import com.dzf.zxkj.common.entity.Json;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ReportBaseController {
@@ -33,6 +37,23 @@ public class ReportBaseController {
         }
         json.setSuccess(false);
     }
+
+    public QueryParamVO getQueryParamVO(QueryParamVO queryvo,CorpVO corpVO){
+        if(StringUtil.isEmpty(queryvo.getPk_corp())){
+            //如果编制单位为空则取当前默认公司
+            queryvo.setPk_corp(corpVO.getPk_corp());
+        }
+        return queryvo;
+    }
+
+    public void checkPowerDate(QueryParamVO vo,CorpVO corpVO)  {
+        //开始日期应该在建账日期前
+        DZFDate begdate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(corpVO.getBegindate())) ;
+        if(begdate.after(vo.getBegindate1())){
+            throw new BusinessException("开始日期不能在建账日期("+DateUtils.getPeriod(begdate)+")前!");
+        }
+    }
+
 
 
 }

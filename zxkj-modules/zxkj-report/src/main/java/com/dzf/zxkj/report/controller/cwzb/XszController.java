@@ -12,6 +12,7 @@ import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.report.XsZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwzb.IXsZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("gl_rep_xszact")
 @Slf4j
-public class XszController {
+public class XszController  extends ReportBaseController {
 
     @Autowired
     private IXsZReport gl_rep_xszserv;
@@ -98,14 +99,6 @@ public class XszController {
             }
         }
         return kmmxvos;
-    }
-
-    private void checkPowerDate(KmReoprtQueryParamVO vo,CorpVO corpVO)  {
-        //开始日期应该在建账日期前
-        DZFDate begdate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(corpVO.getBegindate())) ;
-        if(begdate.after(vo.getBegindate1())){
-            throw new BusinessException("开始日期不能在建账日期("+DateUtils.getPeriod(begdate)+")前!");
-        }
     }
 
     /**

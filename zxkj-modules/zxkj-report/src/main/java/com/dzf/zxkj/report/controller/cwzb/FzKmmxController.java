@@ -142,12 +142,4 @@ public class FzKmmxController extends ReportBaseController {
         }
     }
 
-
-    private void checkPowerDate(QueryParamVO vo,CorpVO corpVO) {
-        /** 开始日期应该在建账日期前 */
-        DZFDate begdate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(corpVO.getBegindate()));
-        if (begdate.after(vo.getBegindate1())) {
-            throw new BusinessException("开始日期不能在建账日期(" + DateUtils.getPeriod(begdate) + ")前!");
-        }
-    }
 }
