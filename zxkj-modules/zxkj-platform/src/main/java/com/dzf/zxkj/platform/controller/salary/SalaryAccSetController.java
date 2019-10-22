@@ -11,6 +11,7 @@ import com.dzf.zxkj.platform.model.gzgl.SalaryKmDeptVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryAccSetService;
+import com.dzf.zxkj.platform.util.JsonErrorUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import java.util.Map;
  * 工资科目设置
  */
 @RestController
-@RequestMapping("/gl/gl_gzkmszact2")
+@RequestMapping("/salary/gl_gzkmszact2")
 @Slf4j
 public class SalaryAccSetController {
 
@@ -45,9 +46,7 @@ public class SalaryAccSetController {
 			json.setMsg("查询成功");
 			json.setSuccess(true);
 		} catch (Exception e) {
-			json.setMsg("查询失败");
-			json.setSuccess(false);
-			log.error("查询失败", e);
+			JsonErrorUtil.jsonErrorLog(json,log,e,"查询失败");
 		}
 		return ReturnData.ok().data(json);
 	}
@@ -76,9 +75,7 @@ public class SalaryAccSetController {
 			json.setSuccess(true);
 			// log.info("保存成功");
 		} catch (Exception e) {
-			json.setSuccess(false);
-			json.setMsg("保存失败");
-			log.error("保存失败", e);
+			JsonErrorUtil.jsonErrorLog(json,log,e,"保存失败");
 		}
 //		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资科目设置保存", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
@@ -88,16 +85,12 @@ public class SalaryAccSetController {
 	public  ReturnData<Json>  saveGroup(@MultiRequestBody CorpVO corpVO) {
 		Json json = new Json();
 		try {
-			// BeanUtils.copyProperties(data, vo1);
 			SalaryAccSetVO vo = gl_gzkmszserv.saveGroupVO(corpVO.getPk_corp());
 			json.setRows(vo);
 			json.setMsg("获取入账科目成功");
 			json.setSuccess(true);
-			// log.info("保存成功");
 		} catch (Exception e) {
-			json.setSuccess(false);
-			json.setMsg("保存失败");
-			log.error("保存失败", e);
+			JsonErrorUtil.jsonErrorLog(json,log,e,"获取入账科目失败");
 		}
 
 //		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资科目设置获取入账科目", ISysConstants.SYS_2);
@@ -115,9 +108,7 @@ public class SalaryAccSetController {
 			json.setSuccess(true);
 			// log.info("查询成功");
 		} catch (Exception e) {
-			json.setMsg("查询失败");
-			json.setSuccess(false);
-			log.error("查询失败", e);
+			JsonErrorUtil.jsonErrorLog(json,log,e,"查询部门费用失败");
 		}
 		return ReturnData.ok().data(json);
 	}
@@ -138,13 +129,11 @@ public class SalaryAccSetController {
 			String pk_corp =  SystemUtil.getLoginCorpId();
 			SalaryKmDeptVO[] vos1 = gl_gzkmszserv.saveFykm(pk_corp, vos);
 			json.setRows(vos);
-			json.setMsg("获取入账科目成功");
+			json.setMsg("保存部门费用科目成功");
 			json.setSuccess(true);
 			// log.info("保存成功");
 		} catch (Exception e) {
-			json.setSuccess(false);
-			json.setMsg("保存失败");
-			log.error("保存失败", e);
+			JsonErrorUtil.jsonErrorLog(json,log,e,"保存部门费用科目失败");
 		}
 
 //		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资科目设置获取入账科目", ISysConstants.SYS_2);

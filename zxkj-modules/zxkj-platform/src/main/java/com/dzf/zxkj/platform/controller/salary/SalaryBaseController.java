@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 工资基数设置
  */
 @RestController
-@RequestMapping("/gl/gl_gzbbase")
+@RequestMapping("/salary/gl_gzbbase")
 @Slf4j
 public class SalaryBaseController {
 

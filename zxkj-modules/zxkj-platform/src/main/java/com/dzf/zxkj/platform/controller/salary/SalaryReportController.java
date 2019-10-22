@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  * 工资表
  */
 @RestController
-@RequestMapping("/gl/gl_gzbact2")
+@RequestMapping("/salary/gl_gzbact2")
 @Slf4j
 public class SalaryReportController {
 
