@@ -78,6 +78,7 @@ public class FzKmmxController extends ReportBaseController {
     /**
      * 获取辅助类别
      */
+    @PostMapping("/getFzlb")
     public ReturnData getFzlb(@RequestParam("corpid") String pk_corp , @MultiRequestBody CorpVO corpVO) {
         if (StringUtil.isEmpty(pk_corp)) {
             pk_corp = corpVO.getPk_corp();
@@ -98,6 +99,7 @@ public class FzKmmxController extends ReportBaseController {
     /**
      * 获取辅助项目参照
      */
+    @PostMapping("/getFzxm")
     public ReturnData getFzxm(@RequestParam("corpid") String pk_corp,@RequestParam("fzlbid") String fzlb, @MultiRequestBody CorpVO corpVO) {
         if (StringUtil.isEmpty(pk_corp)) {
             pk_corp = corpVO.getPk_corp();
