@@ -47,4 +47,8 @@ public class SystemUtil {
         return systemUtil.userService.queryUserById(getLoginUserId());
     }
 
+    public static String getLoginDate(){
+        return getRequest().getHeader(ISysConstant.LOGIN_DATE);
+    }
+
 }
