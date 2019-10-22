@@ -91,46 +91,42 @@ public class SalaryReportController {
     public ReturnData<Json> query(@RequestParam("page") int page, @RequestParam("rows") int rows, @RequestParam("opdate") String qj,
                                   @RequestParam("billtype") String billtype, @RequestParam("pk_corp") String pk_corp, @RequestParam("isfenye") String isfenye) {
         Json json = new Json();
-        try {
-
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            if ("Y".equals(isfenye)) {// 分页
-                QueryPageVO pagevo = gl_gzbserv.queryBodysBypage(pk_corp, qj, billtype, page, rows);
-                json.setTotal(Long.valueOf(pagevo.getTotal()));
-                json.setRows(pagevo.getPagevos());
-            } else {
-                SalaryReportVO[] vos = gl_gzbserv.query(pk_corp, qj, billtype);// 查询工资表数据
-                if (vos == null || vos.length == 0) {
-                    vos = new SalaryReportVO[0];
-                }
-                json.setRows(vos);
-            }
-            DZFBoolean bool = gl_gzbserv.queryIsGZ(pk_corp, qj);// 查询是否关账
-            if (bool.booleanValue()) {
-                json.setStatus(500);
-            } else {
-                json.setStatus(-600);
-            }
-            json.setMsg("查询成功");
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "查询失败！");
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        if ("Y".equals(isfenye)) {// 分页
+            QueryPageVO pagevo = gl_gzbserv.queryBodysBypage(pk_corp, qj, billtype, page, rows);
+            json.setTotal(Long.valueOf(pagevo.getTotal()));
+            json.setRows(pagevo.getPagevos());
+        } else {
+            SalaryReportVO[] vos = gl_gzbserv.query(pk_corp, qj, billtype);// 查询工资表数据
+            if (vos == null || vos.length == 0) {
+                vos = new SalaryReportVO[0];
+            }
+            json.setRows(vos);
+        }
+        DZFBoolean bool = gl_gzbserv.queryIsGZ(pk_corp, qj);// 查询是否关账
+        if (bool.booleanValue()) {
+            json.setStatus(500);
+        } else {
+            json.setStatus(-600);
+        }
+        json.setMsg("查询成功");
+        json.setSuccess(true);
+
         return ReturnData.ok().data(json);
     }
 
     private SalaryReportVO calTotal(SalaryReportVO[] vos) {
         // 计算合计行数据
-        String[] columns = { "yfgz", "yanglaobx", "yiliaobx", "shiyebx", "zfgjj", "ynssde", "grsds", "sfgz", "znjyzc",
+        String[] columns = {"yfgz", "yanglaobx", "yiliaobx", "shiyebx", "zfgjj", "ynssde", "grsds", "sfgz", "znjyzc",
                 "jxjyzc", "zfdkzc", "zfzjzc", "sylrzc", "ljsre", "ljznjyzc", "ljjxjyzc", "ljzfdkzc", "ljzfzjzc",
                 "ljsylrzc", "ljynse", "yyjse", "ljzxkc", "qyyanglaobx", "qyyiliaobx", "qyshiyebx", "qyzfgjj", "qygsbx",
-                "qyshybx" };
+                "qyshybx"};
 
         SalaryReportVO nvo = new SalaryReportVO();
         nvo.setYgbm("合计");
@@ -150,44 +146,38 @@ public class SalaryReportController {
     }
 
     @GetMapping("/query")
-    public ReturnData<Json> judgeHasPZ(@RequestParam("opdate")  String qj) {
+    public ReturnData<Json> judgeHasPZ(@RequestParam("opdate") String qj) {
         Json json = new Json();
-        try {
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            String msg = gl_gzbserv.judgeHasPZ(SystemUtil.getLoginCorpId(), qj);
-            json.setRows(null);
-            json.setMsg(msg);
-            json.setSuccess(true);
-            log.info("查询成功");
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "查询失败！");
-        }
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        String msg = gl_gzbserv.judgeHasPZ(SystemUtil.getLoginCorpId(), qj);
+        json.setRows(null);
+        json.setMsg(msg);
+        json.setSuccess(true);
+        log.info("查询成功");
+
         return ReturnData.ok().data(json);
     }
 
     @GetMapping("/query")
-    public ReturnData<Json> isGZ(@RequestParam("opdate")  String qj,@RequestParam("isgz")  String isgz) {
+    public ReturnData<Json> isGZ(@RequestParam("opdate") String qj, @RequestParam("isgz") String isgz) {
         Json json = new Json();
-        try {
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            DZFBoolean bool = gl_gzbserv.isGZ(SystemUtil.getLoginCorpId(), qj, isgz);
-            if (bool == null) {
-                json.setStatus(500);
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        DZFBoolean bool = gl_gzbserv.isGZ(SystemUtil.getLoginCorpId(), qj, isgz);
+        if (bool == null) {
+            json.setStatus(500);
+        } else {
+            if (bool.booleanValue()) {
+                json.setStatus(600);
             } else {
-                if (bool.booleanValue()) {
-                    json.setStatus(600);
-                } else {
-                    json.setStatus(700);
-                }
+                json.setStatus(700);
             }
-            json.setRows(null);
-            json.setMsg("操作成功");
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "操作失败！");
         }
+        json.setRows(null);
+        json.setMsg("操作成功");
+        json.setSuccess(true);
+
         if (!StringUtil.isEmpty(qj)) {
             DZFDate from = new DZFDate(qj + "-01");
             String info = null;
@@ -208,39 +198,30 @@ public class SalaryReportController {
     @PostMapping("/save")
     public ReturnData<Json> save(@RequestBody Map<String, String> map) {
         Json json = new Json();
-
-        try {
-            String strArr = map.get("strArr");
-            if (DZFValueCheck.isEmpty(strArr)) {
-                throw new BusinessException("数据为空");
-            }
-
-            String qj = map.get("opdate");
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-
-            String billtype =map.get("billtype");
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
-
-            String pk_corp =map.get("pk_corp");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            securityserv.checkSecurityForSave(pk_corp, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
-
-            List<SalaryReportVO> list = new ArrayList<>();
-            SalaryReportVO vo = JsonUtils.deserialize(strArr, SalaryReportVO.class);
-            list.add(vo);
-            SalaryReportVO[] vos = gl_gzbserv.save(pk_corp, list, qj, SystemUtil.getLoginUserId(), billtype);
-            json.setMsg("工资表保存成功");
-            json.setRows(vos);
-            json.setSuccess(true);
-
-        } catch (Exception e) {
-            // log.error("失败!" , e);
-            JsonErrorUtil.jsonErrorLog(json, log, e, "保存失败！");
+        String strArr = map.get("strArr");
+        if (DZFValueCheck.isEmpty(strArr)) {
+            throw new BusinessException("数据为空");
         }
+        String qj = map.get("opdate");
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+
+        String billtype = map.get("billtype");
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
+
+        String pk_corp = map.get("pk_corp");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
+        }
+        securityserv.checkSecurityForSave(pk_corp, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+        List<SalaryReportVO> list = new ArrayList<>();
+        SalaryReportVO vo = JsonUtils.deserialize(strArr, SalaryReportVO.class);
+        list.add(vo);
+        SalaryReportVO[] vos = gl_gzbserv.save(pk_corp, list, qj, SystemUtil.getLoginUserId(), billtype);
+        json.setMsg("工资表保存成功");
+        json.setRows(vos);
+        json.setSuccess(true);
 //        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资表保存", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
@@ -248,200 +229,179 @@ public class SalaryReportController {
     @PostMapping("/delete")
     public ReturnData<Json> delete(@RequestBody Map<String, String> map) {
         Json json = new Json();
-
-        try {
-            String qj =map.get("opdate");
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            String pk_corp =map.get("ops");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            String primaryKey =map.get("pks");
-            if (StringUtil.isEmpty(primaryKey)) {
-                throw new BusinessException("删除数据为空");
-            }
-            securityserv.checkSecurityForDelete(pk_corp, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
-            SalaryReportVO[] vo = gl_gzbserv.delete(pk_corp, primaryKey, qj);
-            json.setRows(vo);
-            json.setMsg("删除成功");
-            json.setSuccess(true);
-            log.info("查询成功");
-        } catch (Exception e) {
-            // log.error("失败!" , e);
-            JsonErrorUtil.jsonErrorLog(json, log, e, "删除失败！");
+        String qj = map.get("opdate");
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        String pk_corp = map.get("ops");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        String primaryKey = map.get("pks");
+        if (StringUtil.isEmpty(primaryKey)) {
+            throw new BusinessException("删除数据为空");
+        }
+        securityserv.checkSecurityForDelete(pk_corp, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+        SalaryReportVO[] vo = gl_gzbserv.delete(pk_corp, primaryKey, qj);
+        json.setRows(vo);
+        json.setMsg("删除成功");
+        json.setSuccess(true);
 //        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资表删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
     @GetMapping("/check")
     public ReturnData<Json> check(@RequestParam("opdate") String qj,
-                                  @RequestParam("operate") String str,@RequestParam("pk_corp") String pk_corp) {
+                                  @RequestParam("operate") String str, @RequestParam("pk_corp") String pk_corp) {
         Json json = new Json();
-        try {
 
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            if (!pk_corp.equals(SystemUtil.getLoginCorpId())) {
-                CorpVO corp = corpService.queryByPk(pk_corp);
-                throw new BusinessException("请切换到" + corp.getUnitname() + "公司,再进行操作！");
-            }
-            gl_gzbserv.checkPz(pk_corp, qj, str, true);
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "校验失败！");
+
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        if (!pk_corp.equals(SystemUtil.getLoginCorpId())) {
+            CorpVO corp = corpService.queryByPk(pk_corp);
+            throw new BusinessException("请切换到" + corp.getUnitname() + "公司,再进行操作！");
+        }
+        gl_gzbserv.checkPz(pk_corp, qj, str, true);
+        json.setSuccess(true);
+
         return ReturnData.ok().data(json);
 
     }
 
     @GetMapping("/gzjt")
     public ReturnData<Json> gzjt(@RequestParam("opdate") String qj,
-                                 @RequestParam("gzjttotal") String gzjttotal,@RequestParam("pk_corp") String pk_corp) {
+                                 @RequestParam("gzjttotal") String gzjttotal, @RequestParam("pk_corp") String pk_corp) {
         Json json = new Json();
-        try {
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            securityserv.checkSecurityForSave(pk_corp, pk_corp, SystemUtil.getLoginUserId());
 
-            CorpVO corp = corpService.queryByPk(pk_corp);
-            TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, gzjttotal, null, null, null, null, qj, SystemUtil.getLoginUserId(),
-                    "gzjt");
-            // json.setHvo(msg);
-            json.setData(msg);
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "工资计提生成凭证失败！");
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        securityserv.checkSecurityForSave(pk_corp, pk_corp, SystemUtil.getLoginUserId());
+
+        CorpVO corp = corpService.queryByPk(pk_corp);
+        TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, gzjttotal, null, null, null, null, qj, SystemUtil.getLoginUserId(),
+                "gzjt");
+        // json.setHvo(msg);
+        json.setData(msg);
+        json.setSuccess(true);
+
 //        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资计提", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
     @GetMapping("/queryGlpz")
     public ReturnData<Json> queryGlpz(@RequestParam("sourcebilltype") String sourcebilltype,
-                                      @RequestParam("period") String period,@RequestParam("pk_corp") String pk_corp){
+                                      @RequestParam("period") String period, @RequestParam("pk_corp") String pk_corp) {
         Json grid = new Json();
-        try {
-            if (StringUtil.isEmpty(period))
-                throw new BusinessException("期间为空");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            sourcebilltype = pk_corp + period +"gzjt,"+ pk_corp + period +"gzff";
-            SQLParameter sp = new SQLParameter();
-            sp.addParam(pk_corp);
-            StringBuffer wheresql = new StringBuffer(" pk_corp = ? and nvl(dr,0) = 0 ");
-            if(!StringUtil.isEmpty(sourcebilltype)){
-                if(sourcebilltype.contains(",")){
-                    String[] sourcebilltypeArr = sourcebilltype.split(",");
-                    wheresql.append(" and ");
-                    wheresql.append(SqlUtil.buildSqlForIn("sourcebilltype", sourcebilltypeArr));
-                }else{
-                    wheresql.append(" and sourcebilltype = ? ");
-                    sp.addParam(sourcebilltype);
-                }
-            }
-            TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql.toString(), sp);
-            if(hvos == null || hvos.length==0){
-                grid.setData(hvos);
-                grid.setTotal((long)0);
-            }else{
-                grid.setData(hvos);
-                grid.setTotal((long)hvos.length);
-            }
-            grid.setSuccess(true);
-            grid.setMsg("联查成功！");
-        } catch (Exception e) {
-            grid.setRows(new ArrayList<TzpzHVO>());
-            JsonErrorUtil.jsonErrorLog(grid, log, e, "联查凭证失败！");
+        if (StringUtil.isEmpty(period))
+            throw new BusinessException("期间为空");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        sourcebilltype = pk_corp + period + "gzjt," + pk_corp + period + "gzff";
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(pk_corp);
+        StringBuffer wheresql = new StringBuffer(" pk_corp = ? and nvl(dr,0) = 0 ");
+        if (!StringUtil.isEmpty(sourcebilltype)) {
+            if (sourcebilltype.contains(",")) {
+                String[] sourcebilltypeArr = sourcebilltype.split(",");
+                wheresql.append(" and ");
+                wheresql.append(SqlUtil.buildSqlForIn("sourcebilltype", sourcebilltypeArr));
+            } else {
+                wheresql.append(" and sourcebilltype = ? ");
+                sp.addParam(sourcebilltype);
+            }
+        }
+        TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql.toString(), sp);
+        if (hvos == null || hvos.length == 0) {
+            grid.setData(hvos);
+            grid.setTotal((long) 0);
+        } else {
+            grid.setData(hvos);
+            grid.setTotal((long) hvos.length);
+        }
+        grid.setSuccess(true);
+        grid.setMsg("联查成功！");
+
         return ReturnData.ok().data(grid);
     }
 
     @GetMapping("/gzff")
-    public ReturnData<Json> gzff(@RequestParam("sourcebilltype") String bxtotal,@RequestParam("gjjtotal") String gjjtotal,
+    public ReturnData<Json> gzff(@RequestParam("sourcebilltype") String bxtotal, @RequestParam("gjjtotal") String gjjtotal,
                                  @RequestParam("grsdstotal") String grsdstotal, @RequestParam("sfgztotal") String sfgztotal,
-                                 @RequestParam("opdate") String qj,@RequestParam("pk_corp") String pk_corp) {
+                                 @RequestParam("opdate") String qj, @RequestParam("pk_corp") String pk_corp) {
         Json json = new Json();
-        try {
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
-            CorpVO corp = corpService.queryByPk(pk_corp);
-            TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, null, bxtotal, gjjtotal, grsdstotal, sfgztotal, qj,
-                    SystemUtil.getLoginUserId(), "gzff");
-            json.setData(msg);
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "工资发放生成凭证失败！");
+
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        CorpVO corp = corpService.queryByPk(pk_corp);
+        TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, null, bxtotal, gjjtotal, grsdstotal, sfgztotal, qj,
+                SystemUtil.getLoginUserId(), "gzff");
+        json.setData(msg);
+        json.setSuccess(true);
+
 //        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资发放", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
     @GetMapping("/getCopyMonth")
-    public ReturnData<Json> getCopyMonth(@RequestParam("copyTodate") String copyTodate,@RequestParam("pk_corp") String pk_corp) {
+    public ReturnData<Json> getCopyMonth(@RequestParam("copyTodate") String copyTodate, @RequestParam("pk_corp") String pk_corp) {
         Json json = new Json();
-        try {
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            SalaryReportVO[] vos = gl_gzbserv.queryAllType(pk_corp, copyTodate);// 查询工资表数据
-            if (vos != null && vos.length > 0) {
 
-            } else {
-                String sql = "select max(qj) from  ynt_salaryreport t where t.qj <? and t.pk_corp =? and nvl(t.dr,0)=0 ";
-                SQLParameter sp = new SQLParameter();
-                sp.addParam(copyTodate);
-                sp.addParam(pk_corp);
-                Object o = singlebo.executeQuery(sql, sp, new ColumnProcessor());
-                json.setData(o);
-            }
-            json.setMsg("获取复制期间成功");
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "获取复制期间失败！");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        SalaryReportVO[] vos = gl_gzbserv.queryAllType(pk_corp, copyTodate);// 查询工资表数据
+        if (vos != null && vos.length > 0) {
+
+        } else {
+            String sql = "select max(qj) from  ynt_salaryreport t where t.qj <? and t.pk_corp =? and nvl(t.dr,0)=0 ";
+            SQLParameter sp = new SQLParameter();
+            sp.addParam(copyTodate);
+            sp.addParam(pk_corp);
+            Object o = singlebo.executeQuery(sql, sp, new ColumnProcessor());
+            json.setData(o);
+        }
+        json.setMsg("获取复制期间成功");
+        json.setSuccess(true);
+
         return ReturnData.ok().data(json);
     }
 
     @GetMapping("/copyByMonth")
-    public ReturnData<Json> copyByMonth(@RequestParam("copyFromdate") String copyFromdate,@RequestParam("copyTodate") String copyTodate,
+    public ReturnData<Json> copyByMonth(@RequestParam("copyFromdate") String copyFromdate, @RequestParam("copyTodate") String copyTodate,
                                         @RequestParam("billtype") String billtype, @RequestParam("pk_corp") String pk_corp, @RequestParam("auto") String auto) {
         Json json = new Json();
-        try {
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
-            SalaryReportVO[] vos = null;
-            if (!StringUtil.isEmpty(auto)) {
-                // 复制最近月份工资表到当前月份
-                if ("Y".equalsIgnoreCase(auto)) {
-                    vos = gl_gzbserv.saveCopyByMonth(pk_corp, copyFromdate, copyTodate, SystemUtil.getLoginUserId(), null);
-                }
-            } else {
+
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
+        }
+        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        SalaryReportVO[] vos = null;
+        if (!StringUtil.isEmpty(auto)) {
+            // 复制最近月份工资表到当前月份
+            if ("Y".equalsIgnoreCase(auto)) {
                 vos = gl_gzbserv.saveCopyByMonth(pk_corp, copyFromdate, copyTodate, SystemUtil.getLoginUserId(), null);
             }
-            json.setRows(vos);
-            json.setMsg("复制成功");
-            json.setSuccess(true);
-            log.info("复制成功");
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "复制失败！");
+        } else {
+            vos = gl_gzbserv.saveCopyByMonth(pk_corp, copyFromdate, copyTodate, SystemUtil.getLoginUserId(), null);
         }
+        json.setRows(vos);
+        json.setMsg("复制成功");
+        json.setSuccess(true);
+        log.info("复制成功");
+
         if (!StringUtil.isEmpty(copyFromdate)) {// &&
 //            DZFDate from = new DZFDate(copyFromdate + "-01");
 //            DZFDate to = new DZFDate(copyTodate + "-01");
@@ -473,26 +433,26 @@ public class SalaryReportController {
     }
 
     @PostMapping("/printAction")
-    public void printAction(Map<String,String> map) {
+    public void printAction(Map<String, String> map) {
         String qijian = null;
         try {
-            String type =map.get("type");
-            String pageOrt =map.get("pageOrt");
-            String left =map.get("left");
-            String top =map.get("top");
-            String printdate =map.get("printdate");
-            String font =map.get("font");
-            String pageNum =map.get("pageNum");
-            String hiddenphone =map.get("hiddenphone");
-            String zbr =map.get("zbr");
+            String type = map.get("type");
+            String pageOrt = map.get("pageOrt");
+            String left = map.get("left");
+            String top = map.get("top");
+            String printdate = map.get("printdate");
+            String font = map.get("font");
+            String pageNum = map.get("pageNum");
+            String hiddenphone = map.get("hiddenphone");
+            String zbr = map.get("zbr");
 
-            String billtype =map.get("billtype");
+            String billtype = map.get("billtype");
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("类型为空");
-            String pk_corp =map.get("pk_corp");
+            String pk_corp = map.get("pk_corp");
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("公司为空");
-            String opdate =map.get("opdate");
+            String opdate = map.get("opdate");
             if (StringUtil.isEmpty(opdate))
                 throw new BusinessException("期间为空");
 
@@ -576,7 +536,7 @@ public class SalaryReportController {
         try {
             MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
             MultipartFile infile = multipartRequest.getFile("impfile");
-            if (infile == null ) {
+            if (infile == null) {
                 throw new BusinessException("请选择导入文件!");
             }
 
@@ -585,7 +545,7 @@ public class SalaryReportController {
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("类型为空");
 
-            String filename =  infile.getOriginalFilename();
+            String filename = infile.getOriginalFilename();
             int index = filename.lastIndexOf(".");
             String filetype = filename.substring(index + 1);
 
@@ -666,15 +626,15 @@ public class SalaryReportController {
     }
 
     @PostMapping("/expExcelData")
-    public void expExcelData(HttpServletResponse response,@RequestBody Map<String,String> pmap) {
+    public void expExcelData(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
 
-        String billtype =pmap.get("billtype");
+        String billtype = pmap.get("billtype");
         if (StringUtil.isEmpty(billtype))
             throw new BusinessException("类型为空");
-        String pk_corp =pmap.get("pk_corp");
+        String pk_corp = pmap.get("pk_corp");
         if (StringUtil.isEmpty(billtype))
             throw new BusinessException("公司为空");
-        String opdate =pmap.get("opdate");
+        String opdate = pmap.get("opdate");
         if (StringUtil.isEmpty(opdate))
             throw new BusinessException("期间为空");
 
@@ -683,7 +643,7 @@ public class SalaryReportController {
         if (listVo == null || listVo.length == 0)
             return;
 
-        String zbr =pmap.get("zbr");// 制表人
+        String zbr = pmap.get("zbr");// 制表人
         for (SalaryReportVO vo : listVo) {
             vo.setZjlx(SalaryReportEnum.getTypeEnumByValue(vo.getZjlx()).getName());
             if (!StringUtil.isEmpty(zbr) && new DZFBoolean(zbr).booleanValue()) {
@@ -700,7 +660,7 @@ public class SalaryReportController {
         sb.append(qjval[0]).append("年").append(qjval[1])
                 .append("月工资表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ").xls");
         ExcelReport<SalaryReportVO> ex = new ExcelReport<SalaryReportVO>();
-        String hiddenphone =pmap.get("hiddenphone");
+        String hiddenphone = pmap.get("hiddenphone");
 
         List<Integer> hiddenColList = getHiddenColumn(billtype);
         if (!StringUtil.isEmpty(hiddenphone) && new DZFBoolean(hiddenphone).booleanValue()) {
@@ -739,7 +699,7 @@ public class SalaryReportController {
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             byte[] length = ex.exportExcel("工 资 表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")",
-                    cnFields, enFields, list,SystemUtil.getLoginCorpVo().getUnitname(), qj, toClient, userServiceImpl);
+                    cnFields, enFields, list, SystemUtil.getLoginCorpVo().getUnitname(), qj, toClient, userServiceImpl);
             String srt2 = new String(length, "UTF-8");
             response.addHeader("Content-Length", srt2);
             toClient.flush();
@@ -769,13 +729,13 @@ public class SalaryReportController {
     }
 
     @PostMapping("/expExcel")
-    public  void expExcel(HttpServletResponse response,@RequestBody Map<String,String> pmap) {
+    public void expExcel(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
         OutputStream toClient = null;
         try {
-            String billtype =pmap.get("billtype");
+            String billtype = pmap.get("billtype");
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("类型为空");
-            String type =pmap.get("type");
+            String type = pmap.get("type");
             if (StringUtil.isEmpty(type))
                 type = "1";
             response.reset();
@@ -920,19 +880,19 @@ public class SalaryReportController {
     }
 
     @PostMapping("/expNSSBB")
-    public void expNSSBB(HttpServletResponse response,@RequestBody Map<String,String> pmap) {
+    public void expNSSBB(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
         OutputStream toClient = null;
-        String period =pmap.get("period");
+        String period = pmap.get("period");
         try {
 
             if (StringUtil.isEmpty(period))
                 throw new BusinessException("期间为空");
 
-            String billtype =pmap.get("billtype");
+            String billtype = pmap.get("billtype");
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("类型为空");
 
-            String pk_corp =pmap.get("pk_corp");
+            String pk_corp = pmap.get("pk_corp");
             if (StringUtil.isEmpty(pk_corp))
                 throw new BusinessException("公司为空");
 
@@ -1000,91 +960,88 @@ public class SalaryReportController {
     }
 
     @PostMapping("/expPerson")
-    public  ReturnData expPerson(HttpServletResponse response,@RequestBody Map<String,String> pmap) {
+    public ReturnData expPerson(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
         Json json = new Json();
-        String period =pmap.get("period");
+        String period = pmap.get("period");
         String isexp = null;
-        try {
-            if (StringUtil.isEmpty(period))
-                throw new BusinessException("期间为空");
-            String billtype =pmap.get("billtype");
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
+        if (StringUtil.isEmpty(period))
+            throw new BusinessException("期间为空");
+        String billtype = pmap.get("billtype");
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
 
-            String pk_corp =pmap.get("pk_corp");
-            if (StringUtil.isEmpty(pk_corp))
-                throw new BusinessException("公司为空");
-            isexp =pmap.get("isexp");
+        String pk_corp = pmap.get("pk_corp");
+        if (StringUtil.isEmpty(pk_corp))
+            throw new BusinessException("公司为空");
+        isexp = pmap.get("isexp");
 
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
-            // 查询工资表数据
-            SalaryReportVO[] vos = gl_gzbserv.queryAllType(pk_corp, period);
-            if (vos == null || vos.length == 0)
-                return ReturnData.ok();
-            Map<String, List<String>> map = gl_gzbserv.queryAllTypeBeforeCurr(pk_corp, period);
-            String qj = vos[0].getQj();
+        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        // 查询工资表数据
+        SalaryReportVO[] vos = gl_gzbserv.queryAllType(pk_corp, period);
+        if (vos == null || vos.length == 0)
+            return ReturnData.ok();
+        Map<String, List<String>> map = gl_gzbserv.queryAllTypeBeforeCurr(pk_corp, period);
+        String qj = vos[0].getQj();
 
-            String preqj = DateUtils.getPreviousPeriod(qj);
-            SalaryReportVO[] vos1 = gl_gzbserv.queryAllType(vos[0].getPk_corp(), preqj);// 查询上一个月工资表数据
+        String preqj = DateUtils.getPreviousPeriod(qj);
+        SalaryReportVO[] vos1 = gl_gzbserv.queryAllType(vos[0].getPk_corp(), preqj);// 查询上一个月工资表数据
 
-            List<SalaryReportVO> list = new ArrayList<>();
-            List<String> slist = new ArrayList<>();
-            for (SalaryReportVO vo : vos) {
-                String minqj = null;
-                List<String> qlist = map.get(vo.getCpersonid());
-                if (qlist == null || qlist.size() == 0) {
-                    minqj = period;
-                } else {
-                    minqj = qlist.get(0);
-                }
-                if (StringUtil.isEmpty(vo.getVdef1()))
-                    vo.setVdef1(DateUtils.getPeriodStartDate(minqj).toString());
-                vo.setRyzt("正常");
-                list.add(vo);
-                slist.add(vo.getZjbm());
-            }
-
-            if (vos1 != null && vos1.length > 0) {
-                for (SalaryReportVO vo : vos1) {
-                    if (!slist.contains(vo.getZjbm())) {
-                        String minqj = null;
-                        String maxqj = null;
-                        List<String> qlist = map.get(vo.getCpersonid());
-                        if (qlist == null || qlist.size() == 0) {
-                            minqj = period;
-                            maxqj = period;
-                        } else {
-                            minqj = qlist.get(0);
-                            maxqj = qlist.get(qlist.size() - 1);
-                        }
-                        if (StringUtil.isEmpty(vo.getVdef1()))
-                            vo.setVdef1(DateUtils.getPeriodStartDate(minqj).toString());
-                        if (StringUtil.isEmpty(vo.getVdef2()))
-                            vo.setVdef2(DateUtils.getPeriodEndDate(maxqj).toString());
-                        vo.setRyzt("非正常");
-                        list.add(vo);
-                    }
-                }
-            }
-            if (StringUtil.isEmpty(isexp) || "N".equals(isexp)) {
-                if ("2019-01".compareTo(period) > 0) {
-                } else {
-                    for (SalaryReportVO vo : list) {
-                        checkPersonInfo(vo);
-                    }
-                }
+        List<SalaryReportVO> list = new ArrayList<>();
+        List<String> slist = new ArrayList<>();
+        for (SalaryReportVO vo : vos) {
+            String minqj = null;
+            List<String> qlist = map.get(vo.getCpersonid());
+            if (qlist == null || qlist.size() == 0) {
+                minqj = period;
             } else {
-                expPerson(response, list, pk_corp, period, billtype);
+                minqj = qlist.get(0);
             }
-            json.setMsg("excel导出成功");
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "excel导出失败！");
+            if (StringUtil.isEmpty(vo.getVdef1()))
+                vo.setVdef1(DateUtils.getPeriodStartDate(minqj).toString());
+            vo.setRyzt("正常");
+            list.add(vo);
+            slist.add(vo.getZjbm());
         }
+
+        if (vos1 != null && vos1.length > 0) {
+            for (SalaryReportVO vo : vos1) {
+                if (!slist.contains(vo.getZjbm())) {
+                    String minqj = null;
+                    String maxqj = null;
+                    List<String> qlist = map.get(vo.getCpersonid());
+                    if (qlist == null || qlist.size() == 0) {
+                        minqj = period;
+                        maxqj = period;
+                    } else {
+                        minqj = qlist.get(0);
+                        maxqj = qlist.get(qlist.size() - 1);
+                    }
+                    if (StringUtil.isEmpty(vo.getVdef1()))
+                        vo.setVdef1(DateUtils.getPeriodStartDate(minqj).toString());
+                    if (StringUtil.isEmpty(vo.getVdef2()))
+                        vo.setVdef2(DateUtils.getPeriodEndDate(maxqj).toString());
+                    vo.setRyzt("非正常");
+                    list.add(vo);
+                }
+            }
+        }
+        if (StringUtil.isEmpty(isexp) || "N".equals(isexp)) {
+            if ("2019-01".compareTo(period) > 0) {
+            } else {
+                for (SalaryReportVO vo : list) {
+                    checkPersonInfo(vo);
+                }
+            }
+        } else {
+            expPerson(response, list, pk_corp, period, billtype);
+        }
+        json.setMsg("excel导出成功");
+        json.setSuccess(true);
+
         if (StringUtil.isEmpty(isexp) || "N".equals(isexp)) {
             return ReturnData.ok().data(json);
         }
-       return ReturnData.ok();
+        return ReturnData.ok();
     }
 
     private void expPerson(HttpServletResponse response, List<SalaryReportVO> list, String pk_corp, String period,
@@ -1192,186 +1149,159 @@ public class SalaryReportController {
     }
 
     @PostMapping("/setFykm")
-    public ReturnData<Json> setFykm(@RequestBody Map<String,String> map) {
+    public ReturnData<Json> setFykm(@RequestBody Map<String, String> map) {
         Json json = new Json();
-
-        try {
-            String qj =map.get("opdate");
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            String billtype =map.get("billtype");
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
-            String pk_corp =map.get("ops");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            String fykmid =map.get("fykmid");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("更新科目为空");
-            }
-            String primaryKey =map.get("pks");
-            if (StringUtil.isEmpty(primaryKey)) {
-                throw new BusinessException("更新数据为空");
-            }
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
-
-            gl_gzbserv.updateFykm(pk_corp, fykmid, primaryKey, qj, billtype);
-            json.setMsg("更新费用科目成功");
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "更新费用科目失败！");
+        String qj = map.get("opdate");
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        String billtype = map.get("billtype");
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
+        String pk_corp = map.get("ops");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        String fykmid = map.get("fykmid");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("更新科目为空");
+        }
+        String primaryKey = map.get("pks");
+        if (StringUtil.isEmpty(primaryKey)) {
+            throw new BusinessException("更新数据为空");
+        }
+        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        gl_gzbserv.updateFykm(pk_corp, fykmid, primaryKey, qj, billtype);
+        json.setMsg("更新费用科目成功");
+        json.setSuccess(true);
 //        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "更新费用科目", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
     @PostMapping("/setDept")
-    public ReturnData<Json> setDept(@RequestBody Map<String,String> map) {
+    public ReturnData<Json> setDept(@RequestBody Map<String, String> map) {
         Json json = new Json();
-        try {
-            String qj =map.get("opdate");
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            String billtype =map.get("billtype");
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
-            String pk_corp =map.get("ops");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            String cdeptid =map.get("cdeptid");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("更新部门为空");
-            }
-            String primaryKey =map.get("pks");
-            if (StringUtil.isEmpty(primaryKey)) {
-                throw new BusinessException("更新数据为空");
-            }
-
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
-            gl_gzbserv.updateDeptid(pk_corp, cdeptid, primaryKey, qj, billtype);
-            json.setMsg("更新部门成功");
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "更新部门失败！");
+        String qj = map.get("opdate");
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        String billtype = map.get("billtype");
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
+        String pk_corp = map.get("ops");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        String cdeptid = map.get("cdeptid");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("更新部门为空");
+        }
+        String primaryKey = map.get("pks");
+        if (StringUtil.isEmpty(primaryKey)) {
+            throw new BusinessException("更新数据为空");
+        }
+        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        gl_gzbserv.updateDeptid(pk_corp, cdeptid, primaryKey, qj, billtype);
+        json.setMsg("更新部门成功");
+        json.setSuccess(true);
+
 //        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "更新费用科目", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
     @PostMapping("/getSalaryAccSet")
-    public ReturnData<Json> getSalaryAccSet(@RequestBody Map<String,String> map) {
-        Json json = new Json();
-        try {
-            String billtype =map.get("billtype");
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
-            String pk_corp =map.get("pk_corp");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
+    public ReturnData<Json> getSalaryAccSet(@RequestBody Map<String, String> map) {
 
-            String isnew =map.get("isnew");
-            SalaryReportVO[] vos = null;
-            String cpersonids =map.get("cpersonids");
-            String opdate =map.get("opdate");
-            if (StringUtil.isEmpty(opdate)) {
-                throw new BusinessException("期间为空");
-            }
-            if (isnew == null || !"true".equals(isnew)) {
+        Json json = new Json();
+        String billtype = map.get("billtype");
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
+        String pk_corp = map.get("pk_corp");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
+        }
+        String isnew = map.get("isnew");
+        SalaryReportVO[] vos = null;
+        String cpersonids = map.get("cpersonids");
+        String opdate = map.get("opdate");
+        if (StringUtil.isEmpty(opdate)) {
+            throw new BusinessException("期间为空");
+        }
+        if (isnew == null || !"true".equals(isnew)) {
+            vos = gl_gzbserv.getSalarySetInfo(pk_corp, billtype, cpersonids, opdate);
+        } else {
+            if ("2019-01".compareTo(opdate) > 0 || (!StringUtil.isEmpty(billtype)
+                    && !billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue()))) {
                 vos = gl_gzbserv.getSalarySetInfo(pk_corp, billtype, cpersonids, opdate);
             } else {
-                if ("2019-01".compareTo(opdate) > 0 || (!StringUtil.isEmpty(billtype)
-                        && !billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue()))) {
-                    vos = gl_gzbserv.getSalarySetInfo(pk_corp, billtype, cpersonids, opdate);
-                } else {
-                    vos = gl_gzbserv.calLjData(pk_corp, cpersonids, billtype, opdate);
-                }
+                vos = gl_gzbserv.calLjData(pk_corp, cpersonids, billtype, opdate);
             }
-            json.setMsg("获取工资科目设置成功");
-            json.setRows(vos);
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "获取工资科目设置失败！");
         }
+        json.setMsg("获取工资科目设置成功");
+        json.setRows(vos);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 
     @PostMapping("/changeNum")
-    public ReturnData<Json> changeNum(@RequestBody Map<String,String> map) {
-        Json json = new Json();
-        try {
-            String qj =map.get("opdate");
-            if (StringUtil.isEmpty(qj))
-                throw new BusinessException("期间为空");
-            String billtype =map.get("billtype");
-            if (StringUtil.isEmpty(billtype))
-                throw new BusinessException("类型为空");
-            String pk_corp =map.get("ops");
-            if (StringUtil.isEmpty(pk_corp)) {
-                throw new BusinessException("公司为空");
-            }
-            String primaryKey =map.get("pks");
-            if (StringUtil.isEmpty(primaryKey)) {
-                throw new BusinessException("更新数据为空");
-            }
+    public ReturnData<Json> changeNum(@RequestBody Map<String, String> map) {
 
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
-            String strlist =map.get("chgdata");
-            if (!StringUtil.isEmpty(strlist) && (billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())
-                    || billtype.equals(SalaryTypeEnum.FOREIGNSALARY.getValue()))) {
-                SalaryBaseVO setvo = JsonUtils.deserialize(strlist, SalaryBaseVO.class);
-                gl_gzbbaseserv.updateChangeNum(pk_corp, setvo, primaryKey, qj, billtype);
-            }
-            json.setMsg("调整基数成功");
-            json.setSuccess(true);
-        } catch (Exception e) {
-            JsonErrorUtil.jsonErrorLog(json, log, e, "调整基数失败！");
+        Json json = new Json();
+        String qj = map.get("opdate");
+        if (StringUtil.isEmpty(qj))
+            throw new BusinessException("期间为空");
+        String billtype = map.get("billtype");
+        if (StringUtil.isEmpty(billtype))
+            throw new BusinessException("类型为空");
+        String pk_corp = map.get("ops");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空");
         }
+        String primaryKey = map.get("pks");
+        if (StringUtil.isEmpty(primaryKey)) {
+            throw new BusinessException("更新数据为空");
+        }
+        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        String strlist = map.get("chgdata");
+        if (!StringUtil.isEmpty(strlist) && (billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())
+                || billtype.equals(SalaryTypeEnum.FOREIGNSALARY.getValue()))) {
+            SalaryBaseVO setvo = JsonUtils.deserialize(strlist, SalaryBaseVO.class);
+            gl_gzbbaseserv.updateChangeNum(pk_corp, setvo, primaryKey, qj, billtype);
+        }
+        json.setMsg("调整基数成功");
+        json.setSuccess(true);
+
 //        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "调整基数", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
     @GetMapping("/changeNum")
-    public ReturnData<Json> checkJzDate(@RequestParam("date")String date, @RequestParam("corp_id")String pk_corp) {
+    public ReturnData<Json> checkJzDate(@RequestParam("date") String date, @RequestParam("corp_id") String pk_corp) {
 
         Json json = new Json();
-        try {
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
-            CorpVO corpVo = corpService.queryByPk(pk_corp);
-            if (corpVo == null)
-                throw new BusinessException("选择公司出错！");
-            else if (corpVo.getBegindate() == null)
-                throw new BusinessException("公司建账日期为空！");
-            json.setData(corpVo.getBegindate().toDate());
-            json.setSuccess(true);
-        } catch (Exception e) {
-            log.error("错误", e);
-            JsonErrorUtil.jsonErrorLog(json, log, e, "校验结转日期失败！");
-        }
+        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        CorpVO corpVo = corpService.queryByPk(pk_corp);
+        if (corpVo == null)
+            throw new BusinessException("选择公司出错！");
+        else if (corpVo.getBegindate() == null)
+            throw new BusinessException("公司建账日期为空！");
+        json.setData(corpVo.getBegindate().toDate());
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
-
     }
+
     @GetMapping("/getNationalArea")
     public ReturnData<Json> getNationalArea() {
         Json json = new Json();
-        try {
-            securityserv.checkSecurityForSave(null, null, SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
-            String nationalArea = NationalAreaUtil.getNationalArea();
-            String[] nationals = nationalArea.split(",");
-            List<SalaryReportVO> list = new ArrayList<>();
-            for (String str : nationals) {
-                SalaryReportVO vo = new SalaryReportVO();
-                vo.setVarea(str);
-                list.add(vo);
-            }
-            json.setRows(list);
-            json.setSuccess(true);
-        } catch (Exception e) {
-            log.error("错误", e);
-            JsonErrorUtil.jsonErrorLog(json, log, e, "获取国家地区失败！");
+        securityserv.checkSecurityForSave(null, null, SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+        String nationalArea = NationalAreaUtil.getNationalArea();
+        String[] nationals = nationalArea.split(",");
+        List<SalaryReportVO> list = new ArrayList<>();
+        for (String str : nationals) {
+            SalaryReportVO vo = new SalaryReportVO();
+            vo.setVarea(str);
+            list.add(vo);
         }
+        json.setRows(list);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 }
