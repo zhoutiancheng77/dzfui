@@ -14,7 +14,7 @@ import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.base.vo.QueryPageVO;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.StateEnum;

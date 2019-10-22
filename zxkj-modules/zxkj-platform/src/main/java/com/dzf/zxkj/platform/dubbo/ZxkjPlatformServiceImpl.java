@@ -3,10 +3,12 @@ package com.dzf.zxkj.platform.dubbo;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -14,6 +16,7 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.*;
+import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
@@ -56,6 +59,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IPersonalSetService gl_gxhszserv;
+
+    @Autowired
+    private IVoucherService gl_tzpzserv;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -216,6 +222,11 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     @Override
     public UserVO queryUserById(String userId) {
         return userService.queryUserById(userId);
+    }
+
+    @Override
+    public QueryPageVO processQueryVoucherPaged(VoucherParamVO paramvo) {
+        return gl_tzpzserv.processQueryVoucherPaged(paramvo);
     }
 
 }

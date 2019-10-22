@@ -3,10 +3,12 @@ package com.dzf.zxkj.platform.service;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -81,4 +83,6 @@ public interface IZxkjPlatformService {
     List<XssrVO> queryXssrVO(String pk_corp);
 
     UserVO queryUserById(String userId);
+
+    QueryPageVO processQueryVoucherPaged(VoucherParamVO paramvo);
 }

@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.vo;
+package com.dzf.zxkj.common.query;
 
 import com.dzf.zxkj.common.model.SuperVO;
 

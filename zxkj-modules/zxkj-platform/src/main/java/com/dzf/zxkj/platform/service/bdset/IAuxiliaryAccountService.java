@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.service.bdset;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.vo.QueryPageVO;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 

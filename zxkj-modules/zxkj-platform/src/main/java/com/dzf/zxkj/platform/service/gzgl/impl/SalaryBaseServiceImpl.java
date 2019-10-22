@@ -7,7 +7,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.utils.*;
-import com.dzf.zxkj.base.vo.QueryPageVO;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.utils.StringUtil;

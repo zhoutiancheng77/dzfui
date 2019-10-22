@@ -10,7 +10,7 @@ import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.VOUtil;
-import com.dzf.zxkj.base.vo.QueryPageVO;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
