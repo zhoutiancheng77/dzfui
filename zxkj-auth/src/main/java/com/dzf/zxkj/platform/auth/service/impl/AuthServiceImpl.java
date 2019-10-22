@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service(version = "1.0.0", timeout = 2 * 60 * 1000, group = "zxkj-auth")
+@Service(version = "1.0.0", timeout = 2 * 60 * 1000)
 @SuppressWarnings("all")
 public class AuthServiceImpl implements IAuthService {
 
