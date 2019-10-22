@@ -21,9 +21,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+/**
+ * 常用凭证模板
+ *
+ */
 @RestController
 @RequestMapping("/bdset/gl_cymb")
-@Slf4j
 public class PzmbhController {
     @Autowired
     private IPzmbhService pzmbhService;

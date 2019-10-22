@@ -477,24 +477,20 @@ public class AuxiliaryAccountController {
             bos.close();
             return bos.toByteArray();
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("导出失败", e);
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
                 }
             }
-
             if (bos != null) {
                 try {
                     bos.close();
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
                 }
             }
-
         }
         return bytes;
     }
@@ -538,7 +534,6 @@ public class AuxiliaryAccountController {
             pk_corp = SystemUtil.getLoginCorpId();
         }
         String invcode = yntBoPubUtil.getFZHsCode(pk_corp, pk_auacount_h);
-        log.info("获取单据号成功！");
         json.setData(invcode);
         json.setSuccess(true);
         json.setMsg("获取单据号成功");
