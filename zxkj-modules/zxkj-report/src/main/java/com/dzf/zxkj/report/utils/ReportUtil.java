@@ -455,7 +455,7 @@ public class ReportUtil {
      * @param value
      * @return
      */
-    public boolean isNullNum(DZFDouble value) {
+    public static boolean isNullNum(DZFDouble value) {
         if (value == null || value.doubleValue() == 0) {
             return true;
         } else {

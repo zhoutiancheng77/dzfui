@@ -33,21 +33,21 @@ public class KmzzController extends ReportBaseController {
     @PostMapping("/queryAction")
     public ReturnData<Grid> queryAction(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
-        QueryParamVO queryParamvo = getQueryParamVO(queryvo,corpVO);
+        QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
             KmZzVO[] vos = null;
             /** 验证 查询范围应该在当前登录人的权限范围内 */
-            checkPowerDate(queryParamvo,corpVO);
+            checkPowerDate(queryParamvo, corpVO);
             queryParamvo.setIsnomonthfs(DZFBoolean.TRUE);
             queryParamvo.setBtotalyear(DZFBoolean.TRUE);
-            KmZzVO[] kmmxvos = gl_rep_kmzjserv.getKMZZVOs(queryParamvo,null);
+            KmZzVO[] kmmxvos = gl_rep_kmzjserv.getKMZZVOs(queryParamvo, null);
             new ReportUtil().updateKFx(kmmxvos);
             /** 如果有期初余额则不显示下面的 */
             List<KmZzVO> listmx = filterQC(kmmxvos);
             vos = listmx.toArray(new KmZzVO[0]);
-            grid.setTotal((long) (vos==null?0:vos.length));
-            if(vos != null && vos.length > 0){
-                vos = getPagedZZVOs(vos,queryvo.getPage(),queryvo.getRows());
+            grid.setTotal((long) (vos == null ? 0 : vos.length));
+            if (vos != null && vos.length > 0) {
+                vos = getPagedZZVOs(vos, queryvo.getPage(), queryvo.getRows());
             }
             grid.setRows(vos == null ? new ArrayList<KmZzVO>() : Arrays.asList(vos));
             grid.setSuccess(true);
@@ -59,23 +59,23 @@ public class KmzzController extends ReportBaseController {
 //        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
 //                "科目总账查询:"+queryParamvo.getBegindate1().toString().substring(0, 7) +
 //                        "-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
-        return  ReturnData.ok().data(grid);
+        return ReturnData.ok().data(grid);
     }
 
     public static List<KmZzVO> filterQC(KmZzVO[] kmmxvos) {
         HashMap<String, DZFBoolean> mapshow = new HashMap<String, DZFBoolean>();
-        for(KmZzVO mxzvo:kmmxvos){
+        for (KmZzVO mxzvo : kmmxvos) {
             mapshow.put(mxzvo.getPk_accsubj(), DZFBoolean.FALSE);
         }
         List<KmZzVO> listmx = new ArrayList<KmZzVO>();
-        for(KmZzVO mxzvo:kmmxvos){
-            if(mapshow.get(mxzvo.getPk_accsubj()).booleanValue() && "期初余额".equals(mxzvo.getZy()) ){
+        for (KmZzVO mxzvo : kmmxvos) {
+            if (mapshow.get(mxzvo.getPk_accsubj()).booleanValue() && "期初余额".equals(mxzvo.getZy())) {
                 continue;
             }
 
             listmx.add(mxzvo);
-            if(!mapshow.get(mxzvo.getPk_accsubj()).booleanValue() && "期初余额".equals(mxzvo.getZy())){
-                mapshow.put(mxzvo.getPk_accsubj(),  DZFBoolean.TRUE) ;
+            if (!mapshow.get(mxzvo.getPk_accsubj()).booleanValue() && "期初余额".equals(mxzvo.getZy())) {
+                mapshow.put(mxzvo.getPk_accsubj(), DZFBoolean.TRUE);
             }
         }
         return listmx;
@@ -83,6 +83,7 @@ public class KmzzController extends ReportBaseController {
 
     /**
      * 将查询后的结果分页
+     *
      * @param kmmxvos
      * @param page
      * @param rows
@@ -105,14 +106,15 @@ public class KmzzController extends ReportBaseController {
 
     /**
      * 使用 Map按key进行排序
+     *
      * @param map
      * @return
      */
-    public  Map<String,  List<SuperVO>> sortMapByKey(Map<String, List<SuperVO>> map) {
+    public Map<String, List<SuperVO>> sortMapByKey(Map<String, List<SuperVO>> map) {
         if (map == null || map.isEmpty()) {
             return null;
         }
-        Map<String,  List<SuperVO>> sortMap = new TreeMap<String,  List<SuperVO>>(new Comparator<String>() {
+        Map<String, List<SuperVO>> sortMap = new TreeMap<String, List<SuperVO>>(new Comparator<String>() {
             public int compare(String str1, String str2) {
                 return str1.compareTo(str2);
             }
@@ -123,17 +125,5 @@ public class KmzzController extends ReportBaseController {
         return sortMap;
     }
 
-
-    public QueryParamVO getQueryParamVO(QueryParamVO queryvo,CorpVO corpVO){
-
-        QueryParamVO paramvo = super.getQueryParamVO(queryvo,corpVO);
-
-        /** 把字符串变成codelist集合 */
-        if(paramvo.getKms()!=null && paramvo.getKms().length()>0){
-            List<String> codelist = Arrays.asList(paramvo.getKms().split(","));
-            paramvo.setKmcodelist(codelist);
-        }
-        return paramvo;
-    }
 
 }

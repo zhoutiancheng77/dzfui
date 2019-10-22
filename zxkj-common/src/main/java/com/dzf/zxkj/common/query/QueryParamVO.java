@@ -108,7 +108,58 @@ public class QueryParamVO extends SuperVO {
     private String chargedeptname;
     private String currency; //币种名称
 
+    //----begin---资产负债报表查询参数
+    private String ishasye;
 
+    private String hasye1;
+
+    private String hasye2;
+
+    private String hasye3;
+
+    private String hasye4;
+
+    //----end---资产负债报表查询参数
+
+    public String getIshasye() {
+        return ishasye;
+    }
+
+    public void setIshasye(String ishasye) {
+        this.ishasye = ishasye;
+    }
+
+    public String getHasye1() {
+        return hasye1;
+    }
+
+    public void setHasye1(String hasye1) {
+        this.hasye1 = hasye1;
+    }
+
+    public String getHasye2() {
+        return hasye2;
+    }
+
+    public void setHasye2(String hasye2) {
+        this.hasye2 = hasye2;
+    }
+
+    public String getHasye3() {
+        return hasye3;
+    }
+
+    public void setHasye3(String hasye3) {
+        this.hasye3 = hasye3;
+    }
+
+    public String getHasye4() {
+        return hasye4;
+    }
+
+    public void setHasye4(String hasye4) {
+        this.hasye4 = hasye4;
+    }
 
     public String getChargedeptname() {
         return chargedeptname;

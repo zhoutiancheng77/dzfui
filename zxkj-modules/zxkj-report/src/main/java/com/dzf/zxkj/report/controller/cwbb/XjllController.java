@@ -108,6 +108,7 @@ public class XjllController extends ReportBaseController {
     /**
      * 联查现金流量明细账
      */
+    @PostMapping("/queryMxAction")
     public ReturnData<Grid> queryMxAction(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO){
         Grid grid = new Grid();
         try {
@@ -132,6 +133,7 @@ public class XjllController extends ReportBaseController {
         return "corpIds="+cpvo.getPk_corp()+"&gsname="+ CodeUtils1.deCode(cpvo.getUnitname());
     }
 
+    @PostMapping("/linkPz")
     public  ReturnData<Json> linkPz(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO){
         Json json = new Json();
         try {
