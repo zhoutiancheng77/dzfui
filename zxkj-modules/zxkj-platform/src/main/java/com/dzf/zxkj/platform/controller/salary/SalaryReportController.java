@@ -145,7 +145,7 @@ public class SalaryReportController {
         return nvo;
     }
 
-    @GetMapping("/query")
+    @GetMapping("/judgeHasPZ")
     public ReturnData<Json> judgeHasPZ(@RequestParam("opdate") String qj) {
         Json json = new Json();
         if (StringUtil.isEmpty(qj))
@@ -159,7 +159,7 @@ public class SalaryReportController {
         return ReturnData.ok().data(json);
     }
 
-    @GetMapping("/query")
+    @GetMapping("/isGZ")
     public ReturnData<Json> isGZ(@RequestParam("opdate") String qj, @RequestParam("isgz") String isgz) {
         Json json = new Json();
         if (StringUtil.isEmpty(qj))
@@ -529,7 +529,7 @@ public class SalaryReportController {
 //        }
     }
 
-    @PostMapping("/printAction")
+    @PostMapping("/impExcel")
     public ReturnData<Json> impExcel(HttpServletRequest request) {
         Json json = new Json();
         String opdate = null;
