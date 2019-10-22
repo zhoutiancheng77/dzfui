@@ -12,7 +12,6 @@ import com.dzf.zxkj.common.query.QueryParamVO;
  */
 public class KmReoprtQueryParamVO extends QueryParamVO {
 
-	private String begindate;
 
 	// 辅助明细账使用
 	private DZFBoolean isxsxj;// 只是显示下级
@@ -128,14 +127,6 @@ public class KmReoprtQueryParamVO extends QueryParamVO {
 
 	public void setCorpIds1(String corpIds1) {
 		this.corpIds1 = corpIds1;
-	}
-
-	public String getBegindate() {
-		return begindate;
-	}
-
-	public void setBegindate(String begindate) {
-		this.begindate = begindate;
 	}
 
 	public DZFBoolean getIsxsxj() {
