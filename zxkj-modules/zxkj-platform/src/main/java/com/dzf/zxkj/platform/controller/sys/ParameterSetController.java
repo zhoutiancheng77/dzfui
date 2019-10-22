@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -11,7 +12,10 @@ import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +51,9 @@ public class ParameterSetController {
             grid.setMsg("查询成功");
         }catch (Exception e) {
             grid.setMsg("查询失败");
+            if(e instanceof BusinessException){
+                grid.setMsg(e.getMessage());
+            }
             grid.setSuccess(false);
             log.error("查询失败", e);
         }
@@ -120,6 +127,9 @@ public class ParameterSetController {
             }
         }catch(Exception e){
             grid.setMsg("保存失败!");
+            if(e instanceof BusinessException){
+                grid.setMsg(e.getMessage());
+            }
             grid.setSuccess(false);
             log.error("保存失败!", e);
         }

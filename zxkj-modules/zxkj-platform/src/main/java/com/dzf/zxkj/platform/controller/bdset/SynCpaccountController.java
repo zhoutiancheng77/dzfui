@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -48,6 +49,9 @@ public class SynCpaccountController {
             grid.setMsg("查询成功!");
         } catch (Exception e) {
             grid.setMsg("查询失败");
+            if(e instanceof BusinessException){
+                grid.setMsg(e.getMessage());
+            }
             grid.setSuccess(false);
             log.error("查询失败", e);
         }
@@ -69,6 +73,9 @@ public class SynCpaccountController {
             grid.setMsg("查询成功!");
         } catch (Exception e) {
             grid.setMsg("查询失败");
+            if(e instanceof BusinessException){
+                grid.setMsg(e.getMessage());
+            }
             grid.setSuccess(false);
             log.error("查询失败", e);
         }
@@ -93,6 +100,9 @@ public class SynCpaccountController {
             }
         } catch (Exception e) {
             grid.setMsg("同步失败");
+            if(e instanceof BusinessException){
+                grid.setMsg(e.getMessage());
+            }
             grid.setSuccess(false);
             log.error("同步失败", e);
         }
