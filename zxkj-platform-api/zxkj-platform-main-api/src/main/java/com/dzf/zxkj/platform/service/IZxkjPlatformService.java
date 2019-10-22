@@ -10,6 +10,7 @@ import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
+import com.dzf.zxkj.platform.model.report.LrbquarterlyVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -85,4 +86,6 @@ public interface IZxkjPlatformService {
     UserVO queryUserById(String userId);
 
     QueryPageVO processQueryVoucherPaged(VoucherParamVO paramvo);
+
+    DZFDouble getQuarterlySdsShui1(String pk_corp, String period, LrbquarterlyVO[] vos);
 }

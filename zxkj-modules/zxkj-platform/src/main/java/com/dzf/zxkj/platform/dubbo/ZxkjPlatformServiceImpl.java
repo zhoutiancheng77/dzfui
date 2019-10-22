@@ -10,12 +10,14 @@ import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
+import com.dzf.zxkj.platform.model.report.LrbquarterlyVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.*;
+import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
@@ -62,6 +64,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IVoucherService gl_tzpzserv;
+
+    @Autowired
+    private IQmclService qmclService;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -227,6 +232,11 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     @Override
     public QueryPageVO processQueryVoucherPaged(VoucherParamVO paramvo) {
         return gl_tzpzserv.processQueryVoucherPaged(paramvo);
+    }
+
+    @Override
+    public DZFDouble getQuarterlySdsShui1(String pk_corp, String period, LrbquarterlyVO[] vos) {
+        return qmclService.getQuarterlySdsShui1(pk_corp, period, vos);
     }
 
 }
