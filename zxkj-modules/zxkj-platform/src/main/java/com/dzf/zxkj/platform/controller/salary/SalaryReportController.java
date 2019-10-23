@@ -110,14 +110,14 @@ public class SalaryReportController {
             json.setRows(vos);
         }
         DZFBoolean bool = gl_gzbserv.queryIsGZ(pk_corp, qj);// 查询是否关账
+        String msg = "状态代码";
         if (bool.booleanValue()) {
-            json.setStatus(500);
+            msg +="500";
         } else {
-            json.setStatus(-600);
+            msg +="-600";
         }
-        json.setMsg("查询成功");
+        json.setMsg(msg);
         json.setSuccess(true);
-
         return ReturnData.ok().data(json);
     }
 
@@ -165,19 +165,20 @@ public class SalaryReportController {
         if (StringUtil.isEmpty(qj))
             throw new BusinessException("期间为空");
         DZFBoolean bool = gl_gzbserv.isGZ(SystemUtil.getLoginCorpId(), qj, isgz);
+
+        String msg = "状态代码";
         if (bool == null) {
-            json.setStatus(500);
+            msg +="500";
         } else {
             if (bool.booleanValue()) {
-                json.setStatus(600);
+                msg +="600";
             } else {
-                json.setStatus(700);
+                msg +="700";
             }
         }
         json.setRows(null);
-        json.setMsg("操作成功");
+        json.setMsg(msg);
         json.setSuccess(true);
-
         if (!StringUtil.isEmpty(qj)) {
             DZFDate from = new DZFDate(qj + "-01");
             String info = null;
@@ -392,6 +393,8 @@ public class SalaryReportController {
         if (!StringUtil.isEmpty(auto)) {
             // 复制最近月份工资表到当前月份
             if ("Y".equalsIgnoreCase(auto)) {
+                vos = gl_gzbserv.saveCopyByMonth(pk_corp, copyFromdate, copyTodate, SystemUtil.getLoginUserId(), null);
+            }else{
                 vos = gl_gzbserv.saveCopyByMonth(pk_corp, copyFromdate, copyTodate, SystemUtil.getLoginUserId(), null);
             }
         } else {
