@@ -80,7 +80,7 @@ public class AuthController {
                 return ReturnData.ok().data(grid);
             }
 
-            loginUser = loginService.login(username, password, true);
+            loginUser = loginService.login(username, password, false);
         }else{
             loginUser = loginService.exchange(token);
         }
