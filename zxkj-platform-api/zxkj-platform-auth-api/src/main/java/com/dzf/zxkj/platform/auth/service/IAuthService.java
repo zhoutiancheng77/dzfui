@@ -9,4 +9,5 @@ public interface IAuthService {
     Set<String> getAllPermission();
     Set<String> getPermisssionByUseridAndPkCorp(String userid, String pk_corp);
     boolean validateTokenEx(String token);
+    boolean validateTokenByInter(String token);//调用统一认证
 }

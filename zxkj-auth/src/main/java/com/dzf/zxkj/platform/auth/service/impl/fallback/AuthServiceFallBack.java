@@ -29,4 +29,9 @@ public class AuthServiceFallBack {
         log.error("[鉴权中心-验证token["+token+"]过期时间] - [熔断] :{}", throwable.getStackTrace());
         return true;
     }
+
+    public static boolean validateTokenByInter(String token, Throwable throwable) {
+        log.error("[鉴权中心-验证tokenByInter["+token+"]过期时间] - [熔断] :{}", throwable.getStackTrace());
+        return true;
+    }
 }

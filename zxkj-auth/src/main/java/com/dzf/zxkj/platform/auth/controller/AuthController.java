@@ -60,25 +60,30 @@ public class AuthController {
     @PostMapping("/login")
     public ReturnData<Grid> login(@RequestBody LoginUser loginUser) {
         Grid<LoginUser> grid = new Grid<>();
+        String token = loginUser.getToken();
 
-        String verify = checkCodeCache.get(loginUser.getKey());
+        if(StringUtils.isAnyBlank(token)){
+            String verify = checkCodeCache.get(loginUser.getKey());
 
-        if (verify == null || !verify.equals(loginUser.getVerify())) {
-            grid.setSuccess(false);
-            grid.setMsg("验证码错误！");
-            return ReturnData.ok().data(grid);
+            if (verify == null || !verify.equals(loginUser.getVerify())) {
+                grid.setSuccess(false);
+                grid.setMsg("验证码错误！");
+                return ReturnData.ok().data(grid);
+            }
+
+            String username = RSAUtils.decryptStringByJs(loginUser.getUsername());
+            String password = RSAUtils.decryptStringByJs(loginUser.getPassword());
+
+            if (StringUtils.isAnyBlank(username, password)) {
+                grid.setSuccess(false);
+                grid.setMsg("用户名或密码不能为空！");
+                return ReturnData.ok().data(grid);
+            }
+
+            loginUser = loginService.login(username, password, false);
+        }else{
+            loginUser = loginService.exchange(token);
         }
-
-        String username = RSAUtils.decryptStringByJs(loginUser.getUsername());
-        String password = RSAUtils.decryptStringByJs(loginUser.getPassword());
-
-        if (StringUtils.isAnyBlank(username, password)) {
-            grid.setSuccess(false);
-            grid.setMsg("用户名或密码不能为空！");
-            return ReturnData.ok().data(grid);
-        }
-
-        loginUser = loginService.login(username, password);
 
         if (loginUser == null) {
             grid.setSuccess(false);

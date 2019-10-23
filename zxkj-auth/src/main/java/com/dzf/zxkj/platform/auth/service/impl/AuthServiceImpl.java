@@ -2,6 +2,9 @@ package com.dzf.zxkj.platform.auth.service.impl;
 
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.dzf.auth.api.model.user.UserVO;
+import com.dzf.auth.api.result.Result;
+import com.dzf.auth.api.service.IUserService;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.entity.UserCorpRelation;
@@ -10,6 +13,7 @@ import com.dzf.zxkj.platform.auth.mapper.UserCorpRelationMapper;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
 import com.dzf.zxkj.platform.auth.service.impl.fallback.AuthServiceFallBack;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,6 +35,9 @@ public class AuthServiceImpl implements IAuthService {
 
     @Autowired
     private FunNodeMapper funNodeMapper;
+
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    private IUserService userService;
 
     @Override
     public byte[] getPubKey() {
@@ -69,6 +76,16 @@ public class AuthServiceImpl implements IAuthService {
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenEx")
     public boolean validateTokenEx(String token) {
         //过期返回true 结合redis实现
+        return false;
+    }
+
+    @Override
+    @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenByInter")
+    public boolean validateTokenByInter(String token) {
+        Result<UserVO> rs = userService.exchangeResource(token);
+        if(rs.getData() != null){
+           return true;
+        }
         return false;
     }
 }
