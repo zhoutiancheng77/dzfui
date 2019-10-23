@@ -50,6 +50,10 @@ public class JsonUtils {
         }
     }
 
+    public static <T> T convertValue(Object obj, Class<T> clazz) {
+        return objectMapper.convertValue(obj, clazz);
+    }
+
     public static JavaType getCollectionType(Class<?> collectionClass, Class<?>... elementClasses) {
         return objectMapper.getTypeFactory().constructParametricType(collectionClass, elementClasses);
     }

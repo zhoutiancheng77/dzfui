@@ -31,7 +31,16 @@ public class KmReoprtQueryParamVO extends QueryParamVO {
 	private String minmny;// 最小金额
 	private String maxmny;//最大金额
 	private String zy;// 摘要
-	
+
+	private String list;//list字符串
+
+	public String getList() {
+		return list;
+	}
+
+	public void setList(String list) {
+		this.list = list;
+	}
 
 	public DZFBoolean getBswitch() {
 		return bswitch;
