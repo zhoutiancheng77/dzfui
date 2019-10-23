@@ -45,8 +45,8 @@ public class LrbController extends ReportBaseController {
         try {
             /** 来源利润表 */
             queryParamvo.setRptsource("lrb");
-            queryParamvo.setQjq(DateUtils.getPeriod(queryParamvo.getBegindate1()));
-            queryParamvo.setQjz(DateUtils.getPeriod(queryParamvo.getBegindate1()));
+            queryParamvo.setQjz(queryParamvo.getQjq());
+            queryParamvo.setBegindate1(DateUtils.getPeriodStartDate(queryParamvo.getQjq()));
             queryParamvo.setEnddate(queryParamvo.getBegindate1());
             LrbVO[] fsejyevos = null;
             /** 开始日期应该在建账日期前,检查权限 */
