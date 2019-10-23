@@ -538,7 +538,7 @@ public class ReportUtil {
     }
 
 
-    public String formatQj(String qj) {
+    public static String formatQj(String qj) {
         if (StringUtil.isEmpty(qj)) {
             return qj;
         }
