@@ -1,6 +1,9 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.dzf.auth.api.model.user.UserVO;
+import com.dzf.auth.api.result.Result;
+import com.dzf.auth.api.service.IUserService;
 import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
@@ -10,6 +13,7 @@ import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +27,42 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
 
-    public LoginUser login(String username, String password) {
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    private IUserService userService;
+
+    public LoginUser login(String username, String password, boolean flag) {
 
         if (StringUtils.isAnyBlank(username, password)) {
             return null;
         }
-        //校验用户(后期改成对接公司用户中心)
+
+        LoginUser loginUser = null;
+        if(flag){//校验用户(后期改成对接公司用户中心)
+            loginUser = getLoginUserInter(username, password);
+        }else{
+            loginUser = getLoginUserSelf(username, password);
+        }
+
+        return loginUser;
+    }
+
+    @Override
+    public LoginUser exchange(String resource) {
+        Result<UserVO> rs = userService.exchangeResource(resource);
+        if(rs.getData() != null){
+            return transfer(rs.getData());
+        }
+        return null;
+    }
+
+    private LoginUser transfer(UserVO uservo){
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUsername(uservo.getUserName());
+        loginUser.setToken(uservo.getUserToken());
+        return loginUser;
+    }
+
+    private LoginUser getLoginUserSelf(String username, String password){
         LoginUser loginUser = queryLoginUser(username);
 
         if(loginUser == null){
@@ -46,6 +80,14 @@ public class LoginServiceImpl implements ILoginService {
             return loginUser;
         }
 
+        return null;
+    }
+
+    private LoginUser getLoginUserInter(String username, String password){
+        Result<UserVO> rs = userService.login("zxkj", username, password);
+        if(rs.getData() != null){
+            return transfer(rs.getData());
+        }
         return null;
     }
 
