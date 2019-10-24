@@ -56,6 +56,8 @@ public interface IZxkjPlatformService {
 
     AuxiliaryAccountBVO[] queryBByFzlb(String pk_corp, String fzlb);
 
+    AuxiliaryAccountBVO[] queryAllB( String pk_corp);
+
     BdCurrencyVO queryCurrencyVOByPk(String pk_currency);
 
     List<InventoryVO> queryInventoryVOs(String pk_corp);

@@ -159,6 +159,11 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     }
 
     @Override
+    public AuxiliaryAccountBVO[] queryAllB(String pk_corp) {
+        return gl_fzhsserv.queryAllB(pk_corp);
+    }
+
+    @Override
     public BdCurrencyVO queryCurrencyVOByPk(String pk_currency) {
         return null;
     }
