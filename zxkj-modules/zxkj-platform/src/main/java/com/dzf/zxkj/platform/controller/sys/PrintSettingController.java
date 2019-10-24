@@ -41,13 +41,12 @@ public class PrintSettingController {
     }
 
     @PostMapping("save")
-    public ReturnData<Grid> save(String pk_corp, PrintSettingVO printSettingVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
+    public ReturnData<Grid> save(@MultiRequestBody PrintSettingVO printSettingVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
         Grid json = new Grid();
         try {
-            if (StringUtil.isEmpty(pk_corp)) {
-                pk_corp = corpVO.getPk_corp();
+            if (StringUtil.isEmpty(printSettingVO.getCorpids())) {
+                printSettingVO.setCorpids(corpVO.getPk_corp());
             }
-            printSettingVO.setPk_corp(pk_corp);
             printSettingVO.setCuserid(userVO.getCuserid());
             gl_print_setting_serv.save(printSettingVO);
             json.setMsg("保存成功");
