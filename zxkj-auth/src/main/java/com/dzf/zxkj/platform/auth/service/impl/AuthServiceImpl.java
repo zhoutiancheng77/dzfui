@@ -2,9 +2,9 @@ package com.dzf.zxkj.platform.auth.service.impl;
 
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.dzf.auth.api.model.user.UserVO;
-import com.dzf.auth.api.result.Result;
-import com.dzf.auth.api.service.IUserService;
+//import com.dzf.auth.api.model.user.UserVO;
+//import com.dzf.auth.api.result.Result;
+//import com.dzf.auth.api.service.IUserService;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.entity.UserCorpRelation;
@@ -36,8 +36,8 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private FunNodeMapper funNodeMapper;
 
-    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
-    private IUserService userService;
+//    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+//    private IUserService userService;
 
     @Override
     public byte[] getPubKey() {
@@ -82,10 +82,10 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenByInter")
     public boolean validateTokenByInter(String token) {
-        Result<UserVO> rs = userService.exchangeResource(token);
-        if(rs.getData() != null){
-           return true;
-        }
+//        Result<UserVO> rs = userService.exchangeResource(token);
+//        if(rs.getData() != null){
+//           return true;
+//        }
         return false;
     }
 }
