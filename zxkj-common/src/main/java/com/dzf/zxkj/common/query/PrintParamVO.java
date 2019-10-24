@@ -21,7 +21,6 @@ public class PrintParamVO extends SuperVO {
 	private String ishidepzh;
 	//字段显示的属性
 	private String columnslist ;
-	
 
 	public String getColumnslist() {
 		return columnslist;
