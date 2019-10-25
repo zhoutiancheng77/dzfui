@@ -23,7 +23,6 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.IFzhsYebReport;
 import com.dzf.zxkj.report.utils.VoUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +38,7 @@ import java.util.*;
 @Service("gl_rep_fzyebserv")
 public class FzhsYebReportImpl implements IFzhsYebReport {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private SingleObjectBO singleObjectBO = null;

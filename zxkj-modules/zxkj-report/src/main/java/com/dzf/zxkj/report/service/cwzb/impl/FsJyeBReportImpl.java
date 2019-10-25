@@ -27,7 +27,6 @@ import com.dzf.zxkj.report.utils.BeanUtils;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("all")
 public class FsJyeBReportImpl implements IFsYeReport {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

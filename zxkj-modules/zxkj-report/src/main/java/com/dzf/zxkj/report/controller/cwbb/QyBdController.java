@@ -20,7 +20,6 @@ import com.dzf.zxkj.report.service.cwbb.IQyBdService;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,7 +41,7 @@ import java.util.Map;
 public class QyBdController {
     @Autowired
     private IQyBdService qybdser;
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     @RequestMapping("query")

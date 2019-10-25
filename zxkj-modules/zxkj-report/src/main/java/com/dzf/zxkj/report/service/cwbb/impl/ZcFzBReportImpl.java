@@ -24,7 +24,6 @@ import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.utils.*;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +42,7 @@ import java.util.Map;
 @Slf4j
 public class ZcFzBReportImpl implements IZcFzBReport {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 	@Autowired
 	private IRptSetService rptsetser;

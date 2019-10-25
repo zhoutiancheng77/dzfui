@@ -14,7 +14,6 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.INummnyReport;
 import com.dzf.zxkj.report.utils.*;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,7 @@ public class NummnydtReportImpl implements INummnyReport {
 
     private SingleObjectBO singleObjectBO = null;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     @Autowired

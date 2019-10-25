@@ -26,7 +26,6 @@ import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.utils.*;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +40,7 @@ import java.util.*;
 @SuppressWarnings("all")
 public class XjllReportService {
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
     @Autowired
     private SingleObjectBO singleObjectBO = null;

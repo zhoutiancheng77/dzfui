@@ -14,7 +14,6 @@ import com.dzf.zxkj.platform.model.report.XsZVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.IXsZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,7 @@ public class XsZReportImpl implements IXsZReport {
 	@Autowired
 	private SingleObjectBO singleObjectBO = null;
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	

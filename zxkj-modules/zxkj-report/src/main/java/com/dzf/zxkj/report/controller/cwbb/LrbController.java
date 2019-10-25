@@ -13,7 +13,6 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +31,7 @@ public class LrbController extends ReportBaseController {
     @Autowired
     private ILrbReport gl_rep_lrbserv;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     /**

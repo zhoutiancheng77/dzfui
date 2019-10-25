@@ -4,7 +4,7 @@ import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import org.apache.dubbo.config.annotation.Reference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class SystemUtil {
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     public static SystemUtil systemUtil;

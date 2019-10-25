@@ -16,7 +16,6 @@ import com.dzf.zxkj.report.service.cwbb.IYyFpService;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.utils.VoUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +29,7 @@ import java.util.List;
 @Service("yyfpser")
 public class YyFpServiceImpl implements IYyFpService {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

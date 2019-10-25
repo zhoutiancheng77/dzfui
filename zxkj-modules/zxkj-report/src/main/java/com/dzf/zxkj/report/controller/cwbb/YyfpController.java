@@ -21,7 +21,6 @@ import com.dzf.zxkj.report.service.cwbb.IYyFpService;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,7 +45,7 @@ public class YyfpController {
     @Autowired
     private IYyFpService yyfpser;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     @GetMapping("query")

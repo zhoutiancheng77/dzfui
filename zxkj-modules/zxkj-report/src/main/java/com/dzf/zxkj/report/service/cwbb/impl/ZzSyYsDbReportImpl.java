@@ -17,7 +17,6 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwbb.IZzSyYsDbReport;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +34,7 @@ import java.util.Map;
 @Service("gl_rep_yyssbbserv")
 public class ZzSyYsDbReportImpl implements IZzSyYsDbReport {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

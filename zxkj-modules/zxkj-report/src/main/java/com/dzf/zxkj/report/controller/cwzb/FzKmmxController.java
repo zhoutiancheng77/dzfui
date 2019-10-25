@@ -17,7 +17,6 @@ import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwzb.IFzKmmxReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +35,7 @@ public class FzKmmxController extends ReportBaseController {
     @Autowired
     private IFzKmmxReport gl_rep_fzkmmxjrptserv;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
 

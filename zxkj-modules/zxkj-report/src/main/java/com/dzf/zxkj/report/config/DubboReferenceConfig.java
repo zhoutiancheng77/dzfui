@@ -10,7 +10,7 @@ public class DubboReferenceConfig {
     @Reference
     private IZxkjPlatformService zxkjPlatformService;
 
-    @Bean
+    @Bean("zxkjPlatformService")
     public IZxkjPlatformService zxkjPlatformService() {
         return zxkjPlatformService;
     }

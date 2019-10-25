@@ -21,7 +21,6 @@ import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwbb.IXjllbReport;
 import com.dzf.zxkj.report.utils.VoUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +37,7 @@ public class XjllController extends ReportBaseController {
     @Autowired
     private IXjllbReport gl_rep_xjlybserv;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     /**

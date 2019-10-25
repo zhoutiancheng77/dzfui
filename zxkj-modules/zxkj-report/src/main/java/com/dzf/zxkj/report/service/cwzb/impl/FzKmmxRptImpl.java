@@ -31,7 +31,6 @@ import com.dzf.zxkj.report.tree.KmmxFzVoTreeStrategy;
 import com.dzf.zxkj.report.utils.BeanUtils;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +44,7 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 	@Autowired
 	private SingleObjectBO singleObjectBO;
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Override

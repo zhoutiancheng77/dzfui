@@ -12,7 +12,6 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwbb.IYwHdReport;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.utils.VoUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +27,7 @@ import java.util.Map;
 @Service("gl_rep_ywhdserv")
 public class YwHdReportImpl implements IYwHdReport {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private IFsYeReport gl_rep_fsyebserv;
