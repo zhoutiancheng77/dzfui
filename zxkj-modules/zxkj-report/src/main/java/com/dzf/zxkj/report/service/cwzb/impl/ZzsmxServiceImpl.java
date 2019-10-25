@@ -27,7 +27,6 @@ import com.dzf.zxkj.platform.model.yscs.DzfpscReqHVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.IZzsmxService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,7 +39,7 @@ public class ZzsmxServiceImpl implements IZzsmxService {
 	@Autowired
 	SingleObjectBO singleObjectBO;
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@SuppressWarnings("unchecked")

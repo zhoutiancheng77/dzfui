@@ -29,7 +29,6 @@ import com.dzf.zxkj.report.service.cwzb.IKmMxZReportForWb;
 import com.dzf.zxkj.report.utils.BeanUtils;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +44,7 @@ import java.util.*;
 @SuppressWarnings("all")
 public class KmMxZReportForWbImpl implements IKmMxZReportForWb {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private SingleObjectBO singleObjectBO = null;

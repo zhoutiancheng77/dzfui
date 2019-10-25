@@ -23,7 +23,6 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwbb.ICwgyInfoReport;
 import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +36,7 @@ import java.util.Map.Entry;
 @Service("gl_rep_cwgyinfoserv")
 public class CwgyInfoReportImpl implements ICwgyInfoReport {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	@Autowired

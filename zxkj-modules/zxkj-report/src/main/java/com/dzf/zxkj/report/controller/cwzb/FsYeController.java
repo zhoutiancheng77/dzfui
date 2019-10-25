@@ -29,7 +29,6 @@ import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,7 +50,7 @@ public class FsYeController  extends ReportBaseController {
     @Autowired
     private IKMMXZReport gl_rep_kmmxjserv;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     /**

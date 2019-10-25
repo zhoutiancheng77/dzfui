@@ -25,7 +25,6 @@ import com.dzf.zxkj.report.utils.PopularXjlReportService;
 import com.dzf.zxkj.report.utils.Qy07XjlReportService;
 import com.dzf.zxkj.report.utils.XQy13XjlReportService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +44,7 @@ import java.util.Map.Entry;
 @Slf4j
 public class XjllbReportImpl implements IXjllbReport {
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
 	private XjllReportService xjllReportService = null;

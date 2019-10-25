@@ -24,7 +24,6 @@ import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +47,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 	
 	@Autowired
 	private ILrbReport gl_rep_lrbserv;
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	/**

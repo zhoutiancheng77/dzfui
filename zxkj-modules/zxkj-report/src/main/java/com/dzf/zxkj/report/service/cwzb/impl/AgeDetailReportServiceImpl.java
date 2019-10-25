@@ -21,7 +21,6 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.IAgeDetailReportService;
 import com.dzf.zxkj.report.utils.AgeReportUtil;
 import com.dzf.zxkj.report.utils.ReportUtil;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +30,7 @@ import java.util.*;
 public class AgeDetailReportServiceImpl implements IAgeDetailReportService {
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	@Override

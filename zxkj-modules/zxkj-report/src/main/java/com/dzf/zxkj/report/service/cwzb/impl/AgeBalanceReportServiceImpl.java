@@ -19,7 +19,6 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.IAgeBalanceReportService;
 import com.dzf.zxkj.report.service.cwzb.IAgeDetailReportService;
 import com.dzf.zxkj.report.utils.AgeReportUtil;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ public class AgeBalanceReportServiceImpl implements IAgeBalanceReportService {
 	@Autowired
 	private IAgeDetailReportService gl_rep_zlmxb;
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	@Override

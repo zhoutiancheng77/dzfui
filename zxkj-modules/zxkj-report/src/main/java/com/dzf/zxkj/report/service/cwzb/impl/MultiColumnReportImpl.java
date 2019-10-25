@@ -16,7 +16,6 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.IFzKmmxReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.service.cwzb.IMultiColumnReport;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +40,7 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 	@Autowired
 	private IFzKmmxReport gl_rep_fzkmmxjrptserv;
 
-	@Reference
+	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 	
 	@Override
