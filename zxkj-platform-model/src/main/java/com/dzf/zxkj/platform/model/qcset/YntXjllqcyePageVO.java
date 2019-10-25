@@ -62,8 +62,6 @@ public class YntXjllqcyePageVO extends SuperVO {
         this.isSet = isSet;
     }
 
-    @JsonProperty("bz")
-    private String memo;
     @JsonProperty("v1")
     private String vdef1;
     @JsonProperty("v2")
@@ -267,14 +265,6 @@ public class YntXjllqcyePageVO extends SuperVO {
 
     public void setNmny(DZFDouble nmny) {
         this.nmny = nmny;
-    }
-
-    public String getMemo() {
-        return memo;
-    }
-
-    public void setMemo(String memo) {
-        this.memo = memo;
     }
 
     public String getVdef1() {
