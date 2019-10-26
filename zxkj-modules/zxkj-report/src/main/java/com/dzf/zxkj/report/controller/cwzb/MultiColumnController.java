@@ -9,7 +9,6 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
-import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -169,23 +168,17 @@ public class MultiColumnController extends ReportBaseController {
                 }
 
                 HashMap<String, Object> map = null;
+                List<Map<String,Object>> resultData = new ArrayList<>();
                 /** 这里是重点 */
                 List<ExMultiVO> loanList = new ArrayList<ExMultiVO>();
                 if (mulresvos != null && mulresvos.length > 0) {
-                    String str = "[";
                     int i = 0;
                     for (ExMultiVO votemp : mulresvos) {
                         votemp.setPk_currency(vo.getPk_currency());
-                        map = votemp.getHash();
-                        str = toJson(str, map, i);
-                        i++;
-                        vo.getAttributeNames();
-                        loanList.add(votemp);
+                        resultData.add(votemp.getHash());
                     }
-                    str = str + "]";
-                    grid.setRowdata(str);
                 }
-                grid.setRows(loanList);
+                grid.setRows(resultData);
                 grid.setColumns(columnList);
                 grid.setColumnlist2(columnList2);
                 grid.setSuccess(true);
@@ -250,11 +243,7 @@ public class MultiColumnController extends ReportBaseController {
         return str;
     }
 
-    private KmReoprtQueryParamVO getQueryParamVO(KmReoprtQueryParamVO queryvo, CorpVO corpVO) {
-        String strlist = queryvo.getList();
-        List<KmReoprtQueryParamVO> lists =  JsonUtils.deserialize(strlist,List.class,KmReoprtQueryParamVO.class);
-        KmReoprtQueryParamVO paramvo = lists.get(0);
-        paramvo.setBegindate1(paramvo.getBegindate1());
+    private KmReoprtQueryParamVO getQueryParamVO(KmReoprtQueryParamVO paramvo, CorpVO corpVO) {
         paramvo.setXsyljfs(DZFBoolean.TRUE);
         paramvo.setXswyewfs(DZFBoolean.TRUE);
         paramvo.setIshasjz(DZFBoolean.FALSE);
