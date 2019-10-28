@@ -20,12 +20,10 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwzb.IMultiColumnReport;
+import com.dzf.zxkj.report.utils.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -207,14 +205,15 @@ public class MultiColumnController extends ReportBaseController {
     /**
      * 获取辅助项目参照
      */
-    public ReturnData<Grid> getFzxm(@RequestParam("corpid") String pk_corp , @MultiRequestBody CorpVO corpVO) {
+    @GetMapping("queryFzxm")
+    public ReturnData<Grid> getFzxm(@RequestParam("corpid") String pk_corp) {
         if (StringUtil.isEmpty(pk_corp)) {
-            pk_corp = corpVO.getPk_corp();
+            pk_corp = SystemUtil.getLoginCorpId();
         }
         Grid grid = new Grid();
         try {
-            AuxiliaryAccountBVO[] bvos =zxkjPlatformService.queryBByFzlb(pk_corp,null) ;
-            grid.setRows(Arrays.asList(bvos));
+            AuxiliaryAccountBVO[] bvos =zxkjPlatformService.queryAllB(pk_corp) ;
+            grid.setRows(bvos);
             grid.setSuccess(true);
         } catch (Exception e) {
             log.error("辅助类别查询失败:", e);

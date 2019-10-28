@@ -48,4 +48,25 @@ public class QcyeController {
         }
         return ReturnData.ok().data(js);
     }
+
+    @GetMapping("queryCurByPkCorp")
+    public ReturnData<QcYeCurJson> queryCurByPkCorp(String pk_corp) {
+        QcYeCurJson js = new QcYeCurJson();
+        try {
+            QcYeCurrency[] vos = gl_qcyeserv.queryCur(pk_corp);
+            for (QcYeCurrency c : vos) {
+                if ("人民币".equals(c.getCurrencyname())) {
+                    js.setDefaultvalue(c.getPk_currency());
+                    break;
+                }
+            }
+            js.setSuccess(true);
+            js.setMsg("查询当前公司外币成功!");
+            js.setRows(vos);
+        } catch (Exception e) {
+            js.setSuccess(false);
+            js.setMsg("查询当前公司外币失败!");
+        }
+        return ReturnData.ok().data(js);
+    }
 }

@@ -51,4 +51,21 @@ public class CpaccountController {
         }
         return ReturnData.ok().data(json);
     }
+
+    @GetMapping("/queryByPkCorp")
+    public ReturnData<Grid> queryByPkCorp(String pk_corp) {
+        Grid grid = new Grid();
+        try {
+            YntCpaccountVO[] vos = cpaccountService
+                    .queryAccountByPz(pk_corp);
+            if (vos != null && vos.length > 0) {
+                grid.setRows(Arrays.asList(vos));
+            }
+            grid.setSuccess(true);
+            grid.setMsg("查询成功!");
+        } catch (Exception e) {
+            // TODO: 2019/10/21
+        }
+        return ReturnData.ok().data(grid);
+    }
 }

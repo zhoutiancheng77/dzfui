@@ -47,6 +47,7 @@ public interface IAuxiliaryAccountService {
      */
     AuxiliaryAccountHVO[] queryH(String pk_corp) throws DZFWarpException;
 
+    AuxiliaryAccountBVO[] queryByH(String pk_corp, String pk_auacount_h) throws DZFWarpException;
     /**
      * 查询自定义辅助核算项目
      *
