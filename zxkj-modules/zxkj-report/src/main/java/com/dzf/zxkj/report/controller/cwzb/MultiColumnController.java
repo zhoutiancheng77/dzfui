@@ -7,8 +7,11 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.model.ColumnCellAttr;
+import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -22,12 +25,17 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.service.cwzb.IMultiColumnReport;
+import com.dzf.zxkj.report.utils.ExcelReport;
 import com.dzf.zxkj.report.utils.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 @RestController
@@ -258,13 +266,63 @@ public class MultiColumnController extends ReportBaseController {
     }
 
 
-    public void export(ReportExcelExportVO<Map<String, String>> exportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
-//        String titlename = exportVO.getTitleName();
-//        String period = exportVO.getPeriod();
-//        String gs = exportVO.getCorpName();
-//        ExcelReport ex = new ExcelReport();
-//        List<String> headslist=new ArrayList<String>();
-//        List<String> fieldslist=new ArrayList<String>();
+    @PostMapping("export/excel")
+    public void export(ReportExcelExportVO exportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+
+        String data = exportVO.getData();
+
+        List<Map<String, String>> d = JsonUtils.deserialize(data, List.class, Map.class);
+        ColumnCellAttr[] columncellattrvos = JsonUtils.deserialize(exportVO.getColumncellattrvos(), ColumnCellAttr[].class);
+
+        String titlename = exportVO.getTitleName();
+        String period = exportVO.getPeriod();
+        String gs = exportVO.getCorpName();
+        ExcelReport ex = new ExcelReport();
+        List<String> headslist=new ArrayList<String>();
+        List<String> fieldslist=new ArrayList<String>();
+
+        Set<String> groupkey  = new HashSet<String>();
+        for(ColumnCellAttr attr:columncellattrvos){
+            if(attr.getColumname().indexOf("_")>0){
+                if(!groupkey.contains(attr.getColumname().split("_")[0])){
+                    groupkey.add(attr.getColumname().split("_")[0]);
+                    headslist.add(attr.getColumname().split("_")[0]);
+                }
+            }
+            headslist.add(attr.getColumname());
+            fieldslist.add(attr.getColumn());
+        }
+        OutputStream toClient = null;
+        try {
+            response.reset();
+            String date = DateUtils.getDate(new Date());
+            String fileName ="多栏账_"+date+".xls";
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/vnd.ms-excel;charset=gb2312");
+            byte[] length = ex.exportExcel(titlename+"多栏账",headslist,fieldslist ,d, toClient,"",gs,period);
+            response.setContentType("application/vnd.ms-excel;charset=gb2312");
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("excel导出错误",e);
+        }finally{
+            try {
+                if(toClient != null){
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误",e);
+            }
+            try {
+                if(response!=null && response.getOutputStream() != null){
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误",e);
+            }
+        }
     }
 
 }
