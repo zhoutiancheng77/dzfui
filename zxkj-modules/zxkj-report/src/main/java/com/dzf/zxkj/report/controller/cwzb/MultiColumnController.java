@@ -17,14 +17,17 @@ import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.report.KmReportDatagridColumn;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.service.cwzb.IMultiColumnReport;
 import com.dzf.zxkj.report.utils.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @RestController
@@ -38,135 +41,137 @@ public class MultiColumnController extends ReportBaseController {
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
-    private String[] getFrozenColumns(){
-        return new String[]{"rq","pzh","zy","jf","df","fx","ye","pk_accsubj","pk_tzpz_h"};
+    private String[] getFrozenColumns() {
+        return new String[]{"rq", "pzh", "zy", "jf", "df", "fx", "ye", "pk_accsubj", "pk_tzpz_h"};
     }
+
     /**
      * 查询科目明细数据
      */
     @PostMapping("/query")
     public ReturnData<Grid> queryAction(@MultiRequestBody KmReoprtQueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         ReportDataGrid grid = new ReportDataGrid();
-        KmReoprtQueryParamVO vo = getQueryParamVO(queryvo,corpVO);
+        KmReoprtQueryParamVO vo = getQueryParamVO(queryvo, corpVO);
         try {
             List<KmReportDatagridColumn> columnList = new ArrayList<KmReportDatagridColumn>();
             List<KmReportDatagridColumn> columnList2 = new ArrayList<KmReportDatagridColumn>();
             /** 先动态生成column数据 */
             /** 开始日期应该在建账日期前 */
-            checkPowerDate(vo,corpVO);
+            checkPowerDate(vo, corpVO);
             /** 是否显示当年的本年累计 */
             vo.setBtotalyear(DZFBoolean.TRUE);
             /** 动态的列数 */
             Object[] objs = gl_rep_multiserv.getMulColumns(vo);
 
-            ExMultiVO[] mulresvos =  (ExMultiVO[]) objs[0];
+            ExMultiVO[] mulresvos = (ExMultiVO[]) objs[0];
 
-            if(mulresvos!=null && mulresvos.length>0){
+            if (mulresvos != null && mulresvos.length > 0) {
                 List<String> columnlist = (ArrayList<String>) objs[1];
-                int len=columnlist==null?0:columnlist.size();
+                int len = columnlist == null ? 0 : columnlist.size();
 
                 SingleObjectBO singleObjectBO = (SingleObjectBO) SpringUtils.getBean("singleObjectBO");
                 SQLParameter sp = new SQLParameter();
                 sp.addParam(vo.getPk_corp());
                 YntCpaccountVO[] cpvos = (YntCpaccountVO[]) singleObjectBO.queryByCondition(YntCpaccountVO.class, " nvl(dr,0)=0 and pk_corp = ? ", sp);//AccountCache.getInstance().get("", vo.getPk_corp());
-                Map<String,YntCpaccountVO> kmbmmap = new HashMap<String,YntCpaccountVO>();
-                for(YntCpaccountVO cpvo:cpvos){
+                Map<String, YntCpaccountVO> kmbmmap = new HashMap<String, YntCpaccountVO>();
+                for (YntCpaccountVO cpvo : cpvos) {
                     kmbmmap.put(cpvo.getAccountcode(), cpvo);
                 }
                 YntCpaccountVO currvo = kmbmmap.get(vo.getKms_first());
                 /** 循环，根据科目确定借/贷方 */
-                if(len>0){
+                if (len > 0) {
                     KmReportDatagridColumn dc2 = new KmReportDatagridColumn();
                     dc2.setTitle("余额");
-                    dc2.setField("ye");;
+                    dc2.setField("ye");
+                    ;
                     dc2.setWidth(150);
                     dc2.setRowspan(2);
                     dc2.setAlign("right");
                     dc2.setHalign("center");
                     columnList.add(dc2);
 
-                    KmReportDatagridColumn dcjf = null ;
+                    KmReportDatagridColumn dcjf = null;
 
                     KmReportDatagridColumn dcdf = null;
 
-                    Integer jfbfint = 0 ;
-                    Integer dfbfint = 0 ;
+                    Integer jfbfint = 0;
+                    Integer dfbfint = 0;
                     List<String> frozenlist = Arrays.asList(getFrozenColumns());
                     Set<String> kmbmlist = new HashSet<String>();
-                    for(String keyvalue:columnlist){
-                        if(!frozenlist.contains(keyvalue)){
-                            if(!kmbmlist.contains(keyvalue)){
+                    for (String keyvalue : columnlist) {
+                        if (!frozenlist.contains(keyvalue)) {
+                            if (!kmbmlist.contains(keyvalue)) {
                                 kmbmlist.add(keyvalue);
-                                YntCpaccountVO rescpavo =kmbmmap.get(keyvalue.split("_")[0]);
-                                if((rescpavo !=null && rescpavo.getDirection() == 0) || (
+                                YntCpaccountVO rescpavo = kmbmmap.get(keyvalue.split("_")[0]);
+                                if ((rescpavo != null && rescpavo.getDirection() == 0) || (
                                         !StringUtil.isEmpty(vo.getFzlb()) && currvo.getDirection() == 0
-                                )){
-                                    if(dcjf  == null ){
+                                )) {
+                                    if (dcjf == null) {
                                         dcjf = new KmReportDatagridColumn();
                                     }
                                     dcjf.setTitle("借方");
-                                    jfbfint = dcjf.getColspan() == null ? 0: dcjf.getColspan();
-                                    dcjf.setColspan(jfbfint.intValue()+1);
-                                }else if ((rescpavo !=null && rescpavo.getDirection() == 1) || (
+                                    jfbfint = dcjf.getColspan() == null ? 0 : dcjf.getColspan();
+                                    dcjf.setColspan(jfbfint.intValue() + 1);
+                                } else if ((rescpavo != null && rescpavo.getDirection() == 1) || (
                                         !StringUtil.isEmpty(vo.getFzlb()) && currvo.getDirection() == 1
-                                )){
-                                    if(dcdf  == null ){
+                                )) {
+                                    if (dcdf == null) {
                                         dcdf = new KmReportDatagridColumn();
                                     }
                                     dcdf.setTitle("贷方");
-                                    dfbfint = dcdf.getColspan() == null ? 0: dcdf.getColspan();
-                                    dcdf.setColspan(dfbfint.intValue()+1);
+                                    dfbfint = dcdf.getColspan() == null ? 0 : dcdf.getColspan();
+                                    dcdf.setColspan(dfbfint.intValue() + 1);
                                 }
                             }
                         }
                     }
-                    if(dcjf != null){
+                    if (dcjf != null) {
                         columnList.add(dcjf);
                     }
 
-                    if(dcdf != null ){
+                    if (dcdf != null) {
                         columnList.add(dcdf);
                     }
                 }
                 String key;
-                KmReportDatagridColumn dc =null;
+                KmReportDatagridColumn dc = null;
                 /** 获取属性的名字 */
-                String[] strs=null;
+                String[] strs = null;
                 /** 分组，借方在上，贷方在下 */
                 List<KmReportDatagridColumn> jfcolumnlist = new ArrayList<KmReportDatagridColumn>();
                 List<KmReportDatagridColumn> dfcolumnlist = new ArrayList<KmReportDatagridColumn>();
-                for(int i=0;i<len;i++){
-                    key=columnlist.get(i);
+                for (int i = 0; i < len; i++) {
+                    key = columnlist.get(i);
                     dc = new KmReportDatagridColumn();
-                    YntCpaccountVO rescpavo =kmbmmap.get(key.split("_")[0]);
+                    YntCpaccountVO rescpavo = kmbmmap.get(key.split("_")[0]);
                     /** 获取属性的名字 */
-                    strs=key.split("_");
+                    strs = key.split("_");
                     dc.setField(strs[0]);
                     dc.setTitle(strs[1]);
                     dc.setHalign("center");
                     dc.setAlign("right");
                     dc.setWidth(100);
-                    if((rescpavo !=null && rescpavo.getDirection() == 0) || (
+                    if ((rescpavo != null && rescpavo.getDirection() == 0) || (
                             !StringUtil.isEmpty(vo.getFzlb()) && currvo.getDirection() == 0
-                    )){
+                    )) {
                         jfcolumnlist.add(dc);
-                    }else if((rescpavo !=null && rescpavo.getDirection() == 1) || (
+                    } else if ((rescpavo != null && rescpavo.getDirection() == 1) || (
                             !StringUtil.isEmpty(vo.getFzlb()) && currvo.getDirection() == 1
-                    )){
+                    )) {
                         dfcolumnlist.add(dc);
                     }
                 }
 
-                for(KmReportDatagridColumn dctemp:jfcolumnlist){
+                for (KmReportDatagridColumn dctemp : jfcolumnlist) {
                     columnList2.add(dctemp);
                 }
 
-                for(KmReportDatagridColumn dctemp:dfcolumnlist){
+                for (KmReportDatagridColumn dctemp : dfcolumnlist) {
                     columnList2.add(dctemp);
                 }
 
                 HashMap<String, Object> map = null;
-                List<Map<String,Object>> resultData = new ArrayList<>();
+                List<Map<String, Object>> resultData = new ArrayList<>();
                 /** 这里是重点 */
                 List<ExMultiVO> loanList = new ArrayList<ExMultiVO>();
                 if (mulresvos != null && mulresvos.length > 0) {
@@ -182,7 +187,7 @@ public class MultiColumnController extends ReportBaseController {
                 grid.setSuccess(true);
                 grid.setMsg("查询成功!");
 
-            }else{
+            } else {
                 grid.setColumns(columnList);
                 grid.setColumnlist2(columnList2);
                 grid.setSuccess(false);
@@ -212,7 +217,7 @@ public class MultiColumnController extends ReportBaseController {
         }
         Grid grid = new Grid();
         try {
-            AuxiliaryAccountBVO[] bvos =zxkjPlatformService.queryAllB(pk_corp) ;
+            AuxiliaryAccountBVO[] bvos = zxkjPlatformService.queryAllB(pk_corp);
             grid.setRows(bvos);
             grid.setSuccess(true);
         } catch (Exception e) {
@@ -232,9 +237,9 @@ public class MultiColumnController extends ReportBaseController {
     private static String toJson(String str, Map<String, Object> map, int i) {
         str = str + "{";
         for (String key : map.keySet()) {
-            if(map.get(key)!=null){
+            if (map.get(key) != null) {
                 str = str + "\"" + key + "\"" + ":\"" + map.get(key).toString().replaceAll("\n", "") + "\",";
-            }else{
+            } else {
                 str = str + "\"" + key + "\"" + ":\"" + map.get(key) + "\",";
             }
         }
@@ -248,10 +253,18 @@ public class MultiColumnController extends ReportBaseController {
         paramvo.setIshasjz(DZFBoolean.FALSE);
         paramvo.setPk_corp(paramvo.getCorpIds1());
         paramvo.setBtotalyear(DZFBoolean.TRUE);
-        paramvo = (KmReoprtQueryParamVO) super.getQueryParamVO(paramvo,corpVO );
+        paramvo = (KmReoprtQueryParamVO) super.getQueryParamVO(paramvo, corpVO);
         return paramvo;
     }
 
 
+    public void export(ReportExcelExportVO<Map<String, String>> exportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+//        String titlename = exportVO.getTitleName();
+//        String period = exportVO.getPeriod();
+//        String gs = exportVO.getCorpName();
+//        ExcelReport ex = new ExcelReport();
+//        List<String> headslist=new ArrayList<String>();
+//        List<String> fieldslist=new ArrayList<String>();
+    }
 
 }
