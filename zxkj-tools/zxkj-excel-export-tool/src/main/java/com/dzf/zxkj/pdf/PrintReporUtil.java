@@ -1,5 +1,6 @@
 package com.dzf.zxkj.pdf;
 
+import com.alibaba.fastjson.JSONArray;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -135,7 +136,7 @@ public class PrintReporUtil {
      * @throws IOException
      */
     public void printHz(Map<String, List<SuperVO>> kmmap, SuperVO[] zzvos, String title, String[] columns,
-                        String[] columnnames, int[] widths, Integer pagecount, String type, Map<String,String> invmaps,Map<String, String> pmap,
+                        String[] columnnames, int[] widths, Integer pagecount, String type, Map<String, String> invmaps, Map<String, String> pmap,
                         Map<String, String> tmap) throws DocumentException, IOException {
         if (pmap.get("type").equals("1"))//A4纸张
             printGroup(kmmap, zzvos, title, columns, columnnames, null, widths, pagecount, invmaps, pmap, tmap); // A4纸张打印
@@ -196,16 +197,16 @@ public class PrintReporUtil {
                     head.add(cdate);
                     head.add(corp);
                     if (titlename.equals("科 目 汇 总 表")) {
-                        creatTitle(document,tmap, tableHeadFounts, titlename,titleFonts);
+                        creatTitle(document, tmap, tableHeadFounts, titlename, titleFonts);
                     }
                     head.setAlignment(Element.ALIGN_LEFT);
                     document.add(Chunk.NEWLINE);
                     document.add(head);
                     List<SuperVO> zzvosList = new ArrayList<SuperVO>();
                     //获取行数
-                    int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"),titlename);
-                    if(titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表") ){
-                        line = line -1;
+                    int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"), titlename);
+                    if (titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表")) {
+                        line = line - 1;
                     }
                     for (int i = 0; i < kmList.size(); i++) { // 遍历本科目下的 所有数据
                         zzvosList.add(kmList.get(i));
@@ -242,7 +243,7 @@ public class PrintReporUtil {
                         + PrintUtil.getSpace(4), tableBodyFounts);
                 corp = new Chunk("公司：" + zzvos[0].getAttributeValue("gs") + PrintUtil.getSpace(4), tableBodyFounts);
                 if (titlename.equals("科 目 汇 总 表")) {
-                    creatTitle(document,tmap, tableHeadFounts, titlename,titleFonts);
+                    creatTitle(document, tmap, tableHeadFounts, titlename, titleFonts);
                 } else {
                     head.add(cdate);
                     head.add(corp);
@@ -251,9 +252,9 @@ public class PrintReporUtil {
                 document.add(Chunk.NEWLINE);
                 document.add(head);
                 List<SuperVO> zzvosList = new ArrayList<SuperVO>();
-                int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"),titlename);
-                if(titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表") ){
-                    line = line -1;
+                int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"), titlename);
+                if (titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表")) {
+                    line = line - 1;
                 }
                 //获取行数
                 for (int i = 0; i < zzvos.length; i++) {
@@ -269,7 +270,7 @@ public class PrintReporUtil {
                             document.newPage();
                             document.add(Chunk.NEWLINE);
                             document.add(head);
-                            creatTitle(document,tmap, tableHeadFounts, titlename,titleFonts);
+                            creatTitle(document, tmap, tableHeadFounts, titlename, titleFonts);
                             pageNum++;
                             printdate = new Chunk("打印日期：" + pmap.get("printdate") + PrintUtil.getSpace(9) + "第" + pageNum + "页", tableHeadFounts);
                         }
@@ -913,7 +914,6 @@ public class PrintReporUtil {
         float topsize = (float) (Float.parseFloat(pmap.get("top")) * 2.83);
 
 
-
         Document document = null;
         Rectangle pageSize = null;
         float totaltablewidth = 0;
@@ -963,6 +963,7 @@ public class PrintReporUtil {
 
     /**
      * 财报特殊的表尾
+     *
      * @param pmap
      * @param tableHeadFounts
      * @param document
@@ -972,13 +973,13 @@ public class PrintReporUtil {
                                  String pageNum, CorpVO corpvo, List<SuperVO> kmList) {
         List<String[]> bottomlist = new ArrayList<String[]>();
         String defaultvalue = "打印日期：" + pmap.get("printdate") + PrintUtil.getSpace(9) + "第" + pageNum + "页";
-        String[] defaultvlaues = new String[] { defaultvalue };
+        String[] defaultvlaues = new String[]{defaultvalue};
         if ("资 产 负 债 表".equals(titlename) || "利 润 表".equals(titlename) || "利 润 表 季 报".equals(titlename)
                 || "现 金 流 量 表".equals(titlename) || "现 金 流 量 表 季 报".equals(titlename)) {
             String dwzrr = pmap.containsKey("单位负责人") ? pmap.get("单位负责人") : PrintUtil.getSpace(10);
             String cwzrr = pmap.containsKey("财务负责人") ? pmap.get("财务负责人") : PrintUtil.getSpace(10);
             String zbr = pmap.containsKey("制表人") ? pmap.get("制表人") : PrintUtil.getSpace(10);
-            String[] value1 = new String[] { "单位负责人：" + dwzrr, "财务负责人: " + cwzrr, "制表人: " + zbr };
+            String[] value1 = new String[]{"单位负责人：" + dwzrr, "财务负责人: " + cwzrr, "制表人: " + zbr};
             bottomlist.add(value1);
             bottomlist.add(defaultvlaues);
         } else if ("入 库 单".equals(titlename) || "出 库 单".equals(titlename)) {
@@ -986,7 +987,7 @@ public class PrintReporUtil {
             if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
                 bottomlist.add(defaultvlaues);
             } else {
-                bottomlist.add(new String[]{"公司：" + corpvo.getUnitname(),getBottomItemIc(pmap, kmList, tableHeadFounts,corpvo)});
+                bottomlist.add(new String[]{"公司：" + corpvo.getUnitname(), getBottomItemIc(pmap, kmList, tableHeadFounts, corpvo)});
             }
         } else {
             bottomlist.add(defaultvlaues);
@@ -997,6 +998,7 @@ public class PrintReporUtil {
 
     /**
      * 标题
+     *
      * @param tableHeadFounts
      * @param document
      * @param value
@@ -1053,7 +1055,7 @@ public class PrintReporUtil {
                     cell1.setHorizontalAlignment(Element.ALIGN_LEFT); // 水平居中
                 } else if (i == value.length - 1) {
                     cell1.setHorizontalAlignment(Element.ALIGN_RIGHT); // 水平居中
-                }else{
+                } else {
                     cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
                 }
                 cell1.setPadding(0f);
@@ -1088,17 +1090,17 @@ public class PrintReporUtil {
             }
             kmList = kmEntry.getValue(); // 得到当前科目 所对应的 数据
             // 插入头部信息
-            titleobjs = putA4TitleMsg(document,titlename, invmaps, tmap, titleFonts, tableHeadFounts, leftsize, rightsize,
+            titleobjs = putA4TitleMsg(document, titlename, invmaps, tmap, titleFonts, tableHeadFounts, leftsize, rightsize,
                     topsize, writer, para, kmList);
             tmap = (Map<String, String>) titleobjs[0];
-            String titlenametemp =  (String) titleobjs[1];
+            String titlenametemp = (String) titleobjs[1];
             // 末尾信息
             document.add(new Chunk(PrintUtil.getSpace(1), tableHeadFounts));
 
             int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize,
-                    (float) para.get("totalMnyHight"),titlename);// 获取行数
-            if(titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表") ){
-                line = line -1;
+                    (float) para.get("totalMnyHight"), titlename);// 获取行数
+            if (titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表")) {
+                line = line - 1;
             }
             zzvosList = new ArrayList<SuperVO>();
             for (int i = 0; i < kmList.size(); i++) { // 遍历本科目下的 所有数据
@@ -1115,7 +1117,7 @@ public class PrintReporUtil {
                         pageNum++;
                         document.newPage();
                         document.add(new Chunk(PrintUtil.getSpace(1), tableHeadFounts));
-                        creatTitle(document,tmap, tableHeadFounts, titlenametemp,titleFonts);
+                        creatTitle(document, tmap, tableHeadFounts, titlenametemp, titleFonts);
                     }
                 }
             }
@@ -1140,14 +1142,14 @@ public class PrintReporUtil {
      * @param widths
      * @return
      */
-    private int getA4LineNotPage(float pagesize, Object tableheight, float topsize, float totalMnyHight,String titlename) {
+    private int getA4LineNotPage(float pagesize, Object tableheight, float topsize, float totalMnyHight, String titlename) {
         //120是默认的head 和 title,和表尾的 高度
         if (tableheight == null) {
             tableheight = 2f;
         }
         float defaultheight = 80f;
-        if(!StringUtil.isEmpty(titlename)){
-            if("发 生 额 及 余 额 表".equals(titlename)  || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0){
+        if (!StringUtil.isEmpty(titlename)) {
+            if ("发 生 额 及 余 额 表".equals(titlename) || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0) {
                 defaultheight = 120f;
             }
         }
@@ -1155,14 +1157,14 @@ public class PrintReporUtil {
         return new Float(value).intValue();
     }
 
-    private Object[] putA4TitleMsg(Document document,String titlename, Map<String, String> invmaps, Map<String, String> tmap,
+    private Object[] putA4TitleMsg(Document document, String titlename, Map<String, String> invmaps, Map<String, String> tmap,
                                    Font titleFonts, Font tableHeadFounts, float leftsize, float rightsize, float topsize, PdfWriter writer,
                                    Map<String, Object> para, List<SuperVO> kmList) {
         Object[] objs = putRptHeadMap(tmap, titlename, kmList, para, invmaps, 0);
         tmap = (Map<String, String>) objs[0];
         titlename = (String) objs[1];
         creatTitle(document, tmap, tableHeadFounts, titlename, titleFonts);
-        return new Object[] {tmap,titlename};
+        return new Object[]{tmap, titlename};
     }
 
     /**
@@ -1187,15 +1189,15 @@ public class PrintReporUtil {
             }
 
             String dw = "";
-            if(tmap != null && tmap.containsKey("单位")){
+            if (tmap != null && tmap.containsKey("单位")) {
                 dw = tmap.get("单位");
             }
 
             tmap = new LinkedHashMap<String, String>();
             tmap.put("公司", kmList.get(0).getAttributeValue("gs").toString());
             tmap.put("期间", kmList.get(0).getAttributeValue("titlePeriod").toString());
-            tmap.put("科目", "Enter" +kmList.get(0).getAttributeValue("kmfullname").toString());
-            if(!StringUtil.isEmptyWithTrim(dw)){
+            tmap.put("科目", "Enter" + kmList.get(0).getAttributeValue("kmfullname").toString());
+            if (!StringUtil.isEmptyWithTrim(dw)) {
                 tmap.put("单位", dw);
             }
         } else if (!StringUtil.isEmpty(titlename) && titlename.indexOf("库存明细账") > 0) {
@@ -1244,15 +1246,15 @@ public class PrintReporUtil {
                 } else {
                     tmap.put("单据号", (String) (kmList.get(0).getAttributeValue("dbillid") == null ? "  "
                             : kmList.get(0).getAttributeValue("dbillid")));
-                    if (invmaps == null || invmaps.isEmpty() || invmaps.get("isHiddenPzh") == null ||!invmaps.get("isHiddenPzh").equals("Y")) {
+                    if (invmaps == null || invmaps.isEmpty() || invmaps.get("isHiddenPzh") == null || !invmaps.get("isHiddenPzh").equals("Y")) {
                         String pzh = getPzh(kmList);
                         tmap.put("凭证号", pzh);
                     }
                     String custname = (String) kmList.get(0).getAttributeValue("custname");
                     if ("入 库 单".equals(titlename)) {
-                        tmap.put("供应商", StringUtil.isEmpty(custname) ? "Enter"+"  " : "Enter"+custname);
+                        tmap.put("供应商", StringUtil.isEmpty(custname) ? "Enter" + "  " : "Enter" + custname);
                     } else {
-                        tmap.put("客户", StringUtil.isEmpty(custname) ? "Enter"+"  " : "Enter"+custname);
+                        tmap.put("客户", StringUtil.isEmpty(custname) ? "Enter" + "  " : "Enter" + custname);
                     }
                     String speriod = DateUtils.getPeriod((DZFDate) vo.getAttributeValue("dbilldate"));
                     tmap.put("期间", speriod);
@@ -1272,7 +1274,7 @@ public class PrintReporUtil {
             } else {
                 titlename = kmList.get(0).getAttributeValue("fzname").toString() + "辅助明细账";
             }
-            tmap.put("项目","Enter" + kmList.get(0).getAttributeValue("fzname").toString());
+            tmap.put("项目", "Enter" + kmList.get(0).getAttributeValue("fzname").toString());
         }
         return new Object[]{tmap, titlename};
     }
@@ -1363,9 +1365,9 @@ public class PrintReporUtil {
 
         Document document = null;
         Rectangle pageSize = new Rectangle((PageSize.A5.getHeight()), (PageSize.A5.getWidth()));
-        if(titlename.startsWith("工 资 表")){
+        if (titlename.startsWith("工 资 表")) {
             document = new Document(pageSize, leftsize, 15, topsize, 10);
-        }else{
+        } else {
             document = new Document(pageSize, leftsize, 5, topsize, 10);
         }
         totaltablewidth = PageSize.A5.getHeight() - leftsize - 5;
@@ -1423,7 +1425,7 @@ public class PrintReporUtil {
             tmap = (Map<String, String>) objs[0];
             String titlenametemp = (String) objs[1];
 //            addIcTitleB5(kmList, writer, tableHeadFounts, iscross, titlename, leftsize, topsize);
-            creatTitle(document,tmap, tableHeadFounts, titlenametemp,titleFonts);
+            creatTitle(document, tmap, tableHeadFounts, titlenametemp, titleFonts);
             if (titlename.length() > 30) {
                 titleFonts = new Font(bf_Bold, 11, Font.BOLD);
             }
@@ -1432,9 +1434,9 @@ public class PrintReporUtil {
             List<SuperVO> zzvosList = new ArrayList<SuperVO>();
             for (int i = 0; i < kmList.size(); i++) { // 遍历本科目下的 所有数据
                 zzvosList.add(kmList.get(i));
-                int line = getB5Line(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"),titlename);
-                if(titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表") ){
-                    line = line -1;
+                int line = getB5Line(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"), titlename);
+                if (titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表")) {
+                    line = line - 1;
                 }
                 if ((i + 1) % line == 0 && i != 0) { // 每页只打22行
                     SuperVO[] zzvoArray = zzvosList.toArray(new SuperVO[0]);
@@ -1442,14 +1444,14 @@ public class PrintReporUtil {
                     PdfPTable table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr,
                             widths, pagecount, titlename, totalwidthmap);
                     document.add(table); // 打印表格
-                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                     zzvosList.clear();
                     if (i < kmList.size() - 1) {// 整数页最后一条打完不新建页
                         pageNum++;
                         document.newPage();
                         document.add(new Chunk(PrintUtil.getSpace(1), tableHeadFounts));
 //                        addIcTitleB5(kmList, writer, tableHeadFounts, iscross, titlename, leftsize, topsize);
-                        creatTitle(document,tmap, tableHeadFounts, titlenametemp,titleFonts);
+                        creatTitle(document, tmap, tableHeadFounts, titlenametemp, titleFonts);
                     }
                 }
             }
@@ -1458,7 +1460,7 @@ public class PrintReporUtil {
                 PdfPTable table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths,
                         pagecount, titlename, totalwidthmap);
                 document.add(table);
-                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
             }
             document.newPage(); // 新的一页 导出下一个科目
             pageNum++;
@@ -1477,8 +1479,8 @@ public class PrintReporUtil {
             List<SuperVO> kmList = kmEntry.getValue(); // 得到当前科目 所对应的 数据
             Object[] objs = putRptHeadMap(tmap, titlename, kmList, para, invmaps, 1);//B5纸张
             tmap = (Map<String, String>) objs[0];
-            String  titlenametemp = (String) objs[1];
-            creatTitle(document,tmap, tableHeadFounts, titlenametemp,titleFonts);
+            String titlenametemp = (String) objs[1];
+            creatTitle(document, tmap, tableHeadFounts, titlenametemp, titleFonts);
             if (titlename.length() > 30) {
                 titleFonts = new Font(bf_Bold, 11, Font.BOLD);
             }
@@ -1487,9 +1489,9 @@ public class PrintReporUtil {
             List<SuperVO> zzvosList = new ArrayList<SuperVO>();
             for (int i = 0; i < kmList.size(); i++) { // 遍历本科目下的 所有数据
                 zzvosList.add(kmList.get(i));
-                int line = getB5Line(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"),titlename);
-                if(titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表") ){
-                    line = line -1;
+                int line = getB5Line(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"), titlename);
+                if (titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表")) {
+                    line = line - 1;
                 }
                 if ((i + 1) % line == 0 && i != 0) { // 每页只打22行
                     SuperVO[] zzvoArray = zzvosList.toArray(new SuperVO[0]);
@@ -1497,7 +1499,7 @@ public class PrintReporUtil {
                     PdfPTable table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames,
                             listattr, widths, pagecount, titlename, totalwidthmap);
                     document.add(table); // 打印表格
-                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                     zzvosList.clear();
                     if (i < kmList.size() - 1) {// 整数页最后一条打完不新建页
                         pageNum++;
@@ -1507,7 +1509,7 @@ public class PrintReporUtil {
                             writer.addPageDictEntry(PdfName.ROTATE, PdfPage.SEASCAPE);
                         }
                         document.add(new Chunk(PrintUtil.getSpace(1), tableHeadFounts));
-                        creatTitle(document,tmap, tableHeadFounts, titlenametemp,titleFonts);
+                        creatTitle(document, tmap, tableHeadFounts, titlenametemp, titleFonts);
                     }
                 }
             }
@@ -1516,7 +1518,7 @@ public class PrintReporUtil {
                 PdfPTable table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths,
                         pagecount, titlename, totalwidthmap);
                 document.add(table);
-                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
             }
             document.newPage(); // 新的一页 导出下一个科目
             pageNum++;
@@ -1524,13 +1526,13 @@ public class PrintReporUtil {
         return tmap;
     }
 
-    private int getB5Line(float pagesize, Object tableheight, float topsize, float totalMnyHight,String titlename) {
+    private int getB5Line(float pagesize, Object tableheight, float topsize, float totalMnyHight, String titlename) {
         //120是默认的head 和 title,和表尾的 高度
         if (tableheight == null) {
             tableheight = 2f;
         }
         float defaultheight = 80f;
-        if("发 生 额 及 余 额 表".equals(titlename) || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0){
+        if ("发 生 额 及 余 额 表".equals(titlename) || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0) {
             defaultheight = 120f;
         }
         float value = (pagesize - topsize - (float) tableheight - defaultheight) / totalMnyHight;
@@ -1559,15 +1561,15 @@ public class PrintReporUtil {
         return foot;
     }
 
-    public void creatTitle( Document document,Map<String, String> tmapvalue,
-                            Font tableHeadFounts,   String titlename, Font titleFonts) throws RuntimeException {
+    public void creatTitle(Document document, Map<String, String> tmapvalue,
+                           Font tableHeadFounts, String titlename, Font titleFonts) throws RuntimeException {
         //通过"enter" 分组tmap
-        List<String[]> listmap = getListMap(tmapvalue,titlename);
+        List<String[]> listmap = getListMap(tmapvalue, titlename);
         //标题
         createBt(tableHeadFounts, document, listmap.get(0), titleFonts);
-        if(listmap.size()>1){
+        if (listmap.size() > 1) {
             List<String[]> list2 = new ArrayList<>();
-            for(int i =1 ;i<listmap.size();i++){
+            for (int i = 1; i < listmap.size(); i++) {
                 list2.add(listmap.get(i));
             }
             createTopAndBottom(tableHeadFounts, document, list2);
@@ -1576,11 +1578,12 @@ public class PrintReporUtil {
 
     /**
      * 一共是只有三行，和标题同行，标题下第一行，标题下第二行
+     *
      * @param tmap
      * @param titlename
      * @return
      */
-    private List<String[]> getListMap(Map<String, String> tmap,String titlename) {
+    private List<String[]> getListMap(Map<String, String> tmap, String titlename) {
         List<String[]> reslist = new ArrayList<String[]>();
         //标题平行
         List<String> list0 = new ArrayList<String>();
@@ -1590,30 +1593,30 @@ public class PrintReporUtil {
         //第二行
         List<String> list2 = new ArrayList<String>();
         int group1 = 1;
-        for(Map.Entry<String, String> entry:tmap.entrySet()){
-            if(!StringUtil.isEmpty(entry.getValue()) && entry.getValue().indexOf("Enter")>-1){
+        for (Map.Entry<String, String> entry : tmap.entrySet()) {
+            if (!StringUtil.isEmpty(entry.getValue()) && entry.getValue().indexOf("Enter") > -1) {
                 entry.getValue().replace("Enter", "");
-                group1 =2;//第三组
-            }else if("科 目 汇 总 表".equals(titlename) && (entry.getKey().equals("凭证数") || entry.getKey().equals("附件数"))){
-                group1 =0;//第一组
-            }else if(("入 库 单".equals(titlename) || "出 库 单".equals(titlename))
-                    && (entry.getKey().equals("单据号") || entry.getKey().equals("凭证号"))){
-                group1 =0;//第一组
+                group1 = 2;//第三组
+            } else if ("科 目 汇 总 表".equals(titlename) && (entry.getKey().equals("凭证数") || entry.getKey().equals("附件数"))) {
+                group1 = 0;//第一组
+            } else if (("入 库 单".equals(titlename) || "出 库 单".equals(titlename))
+                    && (entry.getKey().equals("单据号") || entry.getKey().equals("凭证号"))) {
+                group1 = 0;//第一组
             }
-            if(group1 ==1){
-                list1.add(entry.getKey()+":"+entry.getValue());
-            }else if(group1 == 2){
-                list2.add(entry.getKey()+":"+entry.getValue().replace("Enter", ""));
-            }else if(group1 ==0){
-                list0.add(entry.getKey()+":"+entry.getValue());
+            if (group1 == 1) {
+                list1.add(entry.getKey() + ":" + entry.getValue());
+            } else if (group1 == 2) {
+                list2.add(entry.getKey() + ":" + entry.getValue().replace("Enter", ""));
+            } else if (group1 == 0) {
+                list0.add(entry.getKey() + ":" + entry.getValue());
             }
         }
         //最后一次追加
         reslist.add(list0.toArray(new String[0]));
-        if(list1.size()>0){
+        if (list1.size() > 0) {
             reslist.add(list1.toArray(new String[0]));
         }
-        if(list2.size()>0){
+        if (list2.size() > 0) {
             reslist.add(list2.toArray(new String[0]));
         }
         return reslist;
@@ -1709,7 +1712,7 @@ public class PrintReporUtil {
      */
     public void printGroupCombin(Map<String, List<SuperVO>> kmmap, String titlename, String[] columns,
                                  String[] columnnames, List<ColumnCellAttr> listattr, int[] widths, Integer pagecount,
-                                 Map<String, String> pmap,Map<String,String> invmaps) throws DocumentException, IOException {
+                                 Map<String, String> pmap, Map<String, String> invmaps) throws DocumentException, IOException {
         Font titleFonts = new Font(bf_Bold, 20, Font.BOLD);
         int font = Integer.parseInt(pmap.get("font"));
         Font tableBodyFounts = new Font(bf, font, Font.NORMAL);
@@ -1788,13 +1791,13 @@ public class PrintReporUtil {
                             // 单据的第一条 增加标头行
                             if (i == 0) {
                                 totaltableheight = addTableHeadTitleA4(titlename, kmList, document, tableHeadFounts,
-                                        totaltableheight, totaltablewidth,invmaps);
+                                        totaltableheight, totaltablewidth, invmaps);
                             }
                             zzvoArray = zzvosList.toArray(new SuperVO[0]);
                             table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths,
                                     pagecount, titlename, totalwidthmap);
                             document.add(table); // 打印表格
-                            createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                            createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                             document.add(getLineSeparator(true));
                             document.add(Chunk.NEWLINE);
                             zzvosList.clear();
@@ -1812,14 +1815,14 @@ public class PrintReporUtil {
                             if (totaltableheight < 80) {
                                 if (i == 0) {
                                     totaltableheight = addTableHeadTitleA4(titlename, kmList, document, tableHeadFounts,
-                                            totaltableheight, totaltablewidth,invmaps);
+                                            totaltableheight, totaltablewidth, invmaps);
                                 }
                                 zzvoArray = zzvosList.toArray(new SuperVO[0]);
                                 table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths,
                                         pagecount, titlename, totalwidthmap);
                                 document.add(table); // 打印表格
                                 zzvosList.clear();
-                                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                                 document.add(getLineSeparator(true));
                                 document.add(Chunk.NEWLINE);
                                 pageNum++;
@@ -1827,11 +1830,11 @@ public class PrintReporUtil {
                                 totaltableheight = totaltableheighttemp;
                                 totaltableheight = addHeadTitle(title, document, tableHeadFounts, totaltableheight);
                                 totaltableheight = addTableHeadTitleA4(titlename, kmList, document, tableHeadFounts,
-                                        totaltableheight, totaltablewidth,invmaps);
+                                        totaltableheight, totaltablewidth, invmaps);
                             } else {
                                 if (i == 0) {
                                     totaltableheight = addTableHeadTitleA4(titlename, kmList, document, tableHeadFounts,
-                                            totaltableheight, totaltablewidth,invmaps);
+                                            totaltableheight, totaltablewidth, invmaps);
                                 }
                             }
                         }
@@ -1884,7 +1887,7 @@ public class PrintReporUtil {
     }
 
     private float addTableHeadTitleA4(String titlename, List<SuperVO> kmList, Document document, Font tableHeadFounts,
-                                      float totaltableheight, float totaltablewidth,Map<String,String> invmaps) throws DocumentException {
+                                      float totaltableheight, float totaltablewidth, Map<String, String> invmaps) throws DocumentException {
         // 输入标题
 
         if (kmList == null || kmList.size() == 0) {
@@ -1895,7 +1898,7 @@ public class PrintReporUtil {
         paragraph.setLeading(6f);
         SuperVO vo = kmList.get(0);
 
-        if (invmaps == null || invmaps.isEmpty() || invmaps.get("isHiddenPzh") == null ||!invmaps.get("isHiddenPzh").equals("Y")) {
+        if (invmaps == null || invmaps.isEmpty() || invmaps.get("isHiddenPzh") == null || !invmaps.get("isHiddenPzh").equals("Y")) {
             String username = (String) (vo.getAttributeValue("dbillid") == null ? "" : vo.getAttributeValue("dbillid"));
             Chunk printdate = new Chunk("单据号：" + username, tableHeadFounts);
             printdate.setTextRise(16f);
@@ -1934,7 +1937,7 @@ public class PrintReporUtil {
     // b5宽
     public void printB5Combin(Map<String, List<SuperVO>> kmmap, String titlename, String[] columns,
                               String[] columnnames, List<ColumnCellAttr> listattr, int[] widths, Integer pagecount,
-                              Map<String, String> pmap,Map<String,String> invmaps) throws DocumentException, IOException {
+                              Map<String, String> pmap, Map<String, String> invmaps) throws DocumentException, IOException {
         Font titleFonts = new Font(bf_Bold, 16, Font.BOLD);
         int font = Integer.parseInt(pmap.get("font"));
         Font tableBodyFounts = new Font(bf, font, Font.NORMAL);
@@ -2000,13 +2003,13 @@ public class PrintReporUtil {
                             // 单据的第一条 增加标头行
                             if (i == 0) {
                                 totaltableheight = addTableHeadTitleB5(titlename, kmList, document, tableHeadFounts,
-                                        totaltableheight, totaltablewidth,invmaps);
+                                        totaltableheight, totaltablewidth, invmaps);
                             }
                             zzvoArray = zzvosList.toArray(new SuperVO[0]);
                             table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths,
                                     pagecount, titlename, totalwidthmap);
                             document.add(table); // 打印表格
-                            createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                            createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                             document.add(getLineSeparator(false));
                             zzvosList.clear();
                             // 最后一条数据 或者 页已经打印完成
@@ -2023,25 +2026,25 @@ public class PrintReporUtil {
                             if (totaltableheight < 80) {
                                 if (i == 0) {
                                     totaltableheight = addTableHeadTitleB5(titlename, kmList, document, tableHeadFounts,
-                                            totaltableheight, totaltablewidth,invmaps);
+                                            totaltableheight, totaltablewidth, invmaps);
                                 }
                                 zzvoArray = zzvosList.toArray(new SuperVO[0]);
                                 table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths,
                                         pagecount, titlename, totalwidthmap);
                                 document.add(table); // 打印表格
                                 zzvosList.clear();
-                                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                                 document.add(getLineSeparator(false));
                                 pageNum++;
                                 document.newPage();
                                 totaltableheight = totaltableheighttemp;
                                 totaltableheight = addHeadTitle(title, document, tableHeadFounts, totaltableheight);
                                 totaltableheight = addTableHeadTitleB5(titlename, kmList, document, tableHeadFounts,
-                                        totaltableheight, totaltablewidth,invmaps);
+                                        totaltableheight, totaltablewidth, invmaps);
                             } else {
                                 if (i == 0) {
                                     totaltableheight = addTableHeadTitleB5(titlename, kmList, document, tableHeadFounts,
-                                            totaltableheight, totaltablewidth,invmaps);
+                                            totaltableheight, totaltablewidth, invmaps);
                                 }
                             }
                         }
@@ -2088,7 +2091,7 @@ public class PrintReporUtil {
     }
 
     private float addTableHeadTitleB5(String titlename, List<SuperVO> kmList, Document document, Font tableHeadFounts,
-                                      float totaltableheight, float totaltablewidth,Map<String,String> invmaps) throws DocumentException {
+                                      float totaltableheight, float totaltablewidth, Map<String, String> invmaps) throws DocumentException {
         // 输入标题
 
         if (kmList == null || kmList.size() == 0) {
@@ -2099,7 +2102,7 @@ public class PrintReporUtil {
         paragraph.setLeading(14f);
         SuperVO vo = kmList.get(0);
 
-        if (invmaps == null || invmaps.isEmpty() || invmaps.get("isHiddenPzh") == null ||!invmaps.get("isHiddenPzh").equals("Y")) {
+        if (invmaps == null || invmaps.isEmpty() || invmaps.get("isHiddenPzh") == null || !invmaps.get("isHiddenPzh").equals("Y")) {
             String username = (String) (vo.getAttributeValue("dbillid") == null ? "" : vo.getAttributeValue("dbillid"));
             Chunk printdate = new Chunk("单据号：" + username, tableHeadFounts);
             printdate.setTextRise(16f);
@@ -2234,7 +2237,7 @@ public class PrintReporUtil {
      * @throws IOException
      */
     public void printICInvoice(Map<String, List<SuperVO>> kmmap, SuperVO[] zzvos, String titlename, String[] columns,
-                               String[] columnnames, int[] widths, Integer pagecount,Map<String,String> invmaps, Map<String, String> pmap, Map<String, String> tmap)
+                               String[] columnnames, int[] widths, Integer pagecount, Map<String, String> invmaps, Map<String, String> pmap, Map<String, String> tmap)
             throws DocumentException, IOException {
         Font titleFonts = new Font(bf_Bold, 20, Font.BOLD);
         int font = Integer.parseInt(pmap.get("font"));
@@ -2291,12 +2294,12 @@ public class PrintReporUtil {
             for (Map.Entry<String, List<SuperVO>> kmEntry : kmmap.entrySet()) {
                 kmList = kmEntry.getValue(); // 得到当前科目 所对应的 数据
                 // 插入头部信息
-                titleobjs = putA4TitleMsgInvoice(document,titlename, invmaps, tmap, titleFonts, tableHeadFounts, leftsize, rightsize, topsize,
+                titleobjs = putA4TitleMsgInvoice(document, titlename, invmaps, tmap, titleFonts, tableHeadFounts, leftsize, rightsize, topsize,
                         writer, para, kmList);
                 tmap = (Map<String, String>) titleobjs[0];
-                int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"),titlename);
-                if(titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表") ){
-                    line = line -1;
+                int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize, (float) para.get("totalMnyHight"), titlename);
+                if (titlename.startsWith("出入库明细表") || titlename.startsWith("库存成本表")) {
+                    line = line - 1;
                 }
                 zzvosList = new ArrayList<SuperVO>();
                 for (int i = 0; i < kmList.size(); i++) { // 遍历本科目下的 所有数据
@@ -2307,7 +2310,7 @@ public class PrintReporUtil {
                         table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, null, widths,
                                 pagecount, titlename, totalwidthmap);
                         document.add(table); // 打印表格
-                        createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                        createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                         zzvosList.clear();
                         if (i < kmList.size() - 1) {// 整数页最后一条打完不新建页
                             pageNum++;
@@ -2322,7 +2325,7 @@ public class PrintReporUtil {
                     table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, null, widths, pagecount,
                             titlename, totalwidthmap);
                     document.add(table);
-                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, kmList);
+                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO, kmList);
                 }
                 document.newPage(); // 新的一页 导出下一个科目
                 pageNum++;
@@ -2336,14 +2339,207 @@ public class PrintReporUtil {
         outPutPdf(titlename, buffer);
     }
 
-    private Object[] putA4TitleMsgInvoice( Document document,String titlename, Map<String, String> invmaps, Map<String, String> tmap,
-                                           Font titleFonts, Font tableHeadFounts, float leftsize, float rightsize, float topsize, PdfWriter writer,
-                                           Map<String, Object> para, List<SuperVO> kmList) {
+    private Object[] putA4TitleMsgInvoice(Document document, String titlename, Map<String, String> invmaps, Map<String, String> tmap,
+                                          Font titleFonts, Font tableHeadFounts, float leftsize, float rightsize, float topsize, PdfWriter writer,
+                                          Map<String, Object> para, List<SuperVO> kmList) {
         Object[] objs = putRptHeadMap(tmap, titlename, kmList, para, invmaps, 0);//A4纸张
         tmap = (Map<String, String>) objs[0];
         titlename = (String) objs[1];
         creatTitle(document, tmap, tableHeadFounts, titlename, titleFonts);
         return new Object[]{tmap};
+    }
+
+    public void printMultiColumn(List<Map<String, String>> array, String titlename, List<String> columns, String[] fields, int[] widths, int pagecount, List<ColumnCellAttr> listattr, Map<String, String> pmap, HttpServletResponse response) throws IOException {
+        Document document = null;
+        ByteArrayOutputStream buffer = null;
+        try {
+            BaseFont bf = BaseFont.createFont("/data1/webApp/font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);// C:/windows/fonts/simfang.ttf
+            BaseFont bf_Bold = BaseFont.createFont("/data1/webApp/font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);//IGlobalConstants.FONTPATH
+            Font titleFonts = new Font(bf_Bold, 20, Font.BOLD);
+            int font = Integer.parseInt(pmap.get("font"));
+            Font tableBodyFounts = new Font(bf, font, Font.NORMAL);
+            Font tableHeadFounts = new Font(bf, font, Font.NORMAL);
+            float totalAmountHight = 13f;
+            float totalMnyHight;
+            totalMnyHight = 22f;//设置双倍行距解决科目显示不完整问题
+            int separatorLine = 1;
+            int pageVchNum = 1;
+            float leftsize = (float) (Float.parseFloat(pmap.get("left")) * 2.83);
+            float rightsize = 15;
+            float topsize = (float) (Float.parseFloat(pmap.get("top")) * 2.83);
+            Rectangle pageSize = null;
+            float totaltablewidth = 0;
+            if (iscross != null && iscross.booleanValue()) {
+                pageSize = new Rectangle((PageSize.A4.getHeight()), (PageSize.A4.getWidth()));
+                document = new Document(pageSize, leftsize, 15, topsize, 10);
+                totaltablewidth = PageSize.A4.getHeight() - leftsize - 15;
+            } else {
+                pageSize = PageSize.A4;
+                document = new Document(pageSize, leftsize, 15, topsize, 5);
+                totaltablewidth = PageSize.A4.getWidth() - leftsize - 15;
+            }
+            buffer = new ByteArrayOutputStream();
+            PdfWriter writer = PdfWriter.getInstance(document, buffer);
+            document.open();
+            Map<String, Object> para = new TreeMap<String, Object>();
+            para.put("titleFonts", titleFonts);
+            para.put("tableHeadFounts", tableHeadFounts);
+            para.put("tableBodyFounts", tableBodyFounts);
+            para.put("totalAmountHight", totalAmountHight);
+            para.put("totalMnyHight", totalMnyHight);
+            Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存前台传来的设置参数
+            tmap.put("公司", pmap.get("gs"));
+            tmap.put("期间", pmap.get("period"));
+            tmap.put("单位", "元");
+            setTableHeadFount(new Font(getBf(), font, Font.NORMAL));//设置表头字体
+            document.add(new Chunk(PrintUtil.getSpace(1), tableHeadFounts));
+            creatTitle(document, tmap, tableHeadFounts, titlename, titleFonts);
+            int linenum = 0;
+            int pageNum = 1;
+            linenum = getLineNum(columns, fields);//获取行多少
+            JSONArray array1 = new JSONArray();
+            Map<String, Float> totalwidthmap = new HashMap<String, Float>();
+            totalwidthmap = PrintUtil.calculateWidths(fields, columns.toArray(new String[0]), widths, totaltablewidth);
+            for (int i = 0; i < array.size(); i++) {
+                array1.add(array.get(i));
+                if ((i + 1) % linenum == 0 && i != 0) {
+                    PdfPTable table = getTableBody(tableBodyFounts, array1, totalMnyHight, columns, fields, titlename, widths, para, listattr, totalwidthmap);
+                    document.add(table);
+                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", null, null);
+                    array1.clear();
+                    if (i < array.size() - 1) {
+                        pageNum++;
+                        document.newPage();
+//						createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", null, null);
+                        creatTitle(document, tmap, tableHeadFounts, titlename, titleFonts);
+                    }
+                }
+            }
+
+            if (array1 != null && array1.size() > 0) {
+                PdfPTable table = getTableBody(tableBodyFounts, array1, totalMnyHight, columns, fields, titlename, widths, para, listattr, totalwidthmap);
+
+                document.add(table);
+
+                createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", null, null);
+            }
+        } catch (Exception e) {
+            log.error("错误", e);
+        } finally {
+            if (document != null)
+                document.close();
+        }
+        ServletOutputStream out = null;
+        try {
+//			getResponse().setContentType("application/pdf");
+//			getResponse().setCharacterEncoding("utf-8");
+//			if(buffer != null){
+//				getResponse().setContentLength(buffer.size());
+//				out = getResponse().getOutputStream();
+//				buffer.writeTo(out);
+//				buffer.flush();
+//				out.flush();
+//			}
+            GxhszVO gvo = zxkjPlatformService.queryGxhszVOByPkCorp(corpVO.getPk_corp());
+            String filename = titlename.replace(" ", "");//titlename.replace(" ", "");
+            filename = filename + "_" + new DZFDate().toString();
+            if (gvo != null && gvo.getPrintType() != null && gvo.getPrintType() == 1) {
+                getResponse().setContentType("application/octet-stream");
+                String contentDisposition = "attachment;filename=" + URLEncoder.encode(filename + ".pdf", "UTF-8")
+                        + ";filename*=UTF-8''" + URLEncoder.encode(filename + ".pdf", "UTF-8");
+                getResponse().addHeader("Content-Disposition", contentDisposition);
+            } else {
+                getResponse().setContentType("application/pdf");
+                getResponse().setCharacterEncoding("utf-8");
+                String contentDisposition = "inline;filename=" + URLEncoder.encode(filename + ".pdf", "UTF-8")
+                        + ";filename*=UTF-8''" + URLEncoder.encode(filename + ".pdf", "UTF-8");
+                getResponse().setHeader("Content-Disposition", contentDisposition);
+                getResponse().setContentLength(buffer.size());
+            }
+            out = getResponse().getOutputStream();
+            buffer.writeTo(out);
+            buffer.flush();//flush 放在finally的时候流关闭失败报错
+            out.flush();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            try {
+                if (buffer != null) {
+                    buffer.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                throw e;
+            }
+        }
+    }
+
+
+    public PdfPTable getTableBody(Font fonts, JSONArray array, float totalMnyHight, List<String> columns,
+                                  String[] fields, String tilename, int[] widths, Map<String, Object> para, List<ColumnCellAttr> listattr
+            , Map<String, Float> totalwidthmap) {
+        int columnslength = columns.size();
+        int fieldslength = fields.length;
+        PdfPTable table = new PdfPTable(fieldslength);
+        if (columnslength != fieldslength) {
+            table.setHeaderRows(2);
+        } else {
+            table.setHeaderRows(1);
+        }
+        table.setSpacingBefore(2);
+        table.setWidthPercentage(100);
+        try {
+            table.setWidths(widths);
+        } catch (DocumentException e1) {
+        }
+        addTabHead((Font) para.get("tableHeadFounts"), table, totalMnyHight, listattr, totalwidthmap);
+        try {
+            PdfPCell cell = null;
+            for (int i = 0; i < array.size(); i++) {
+                Map<String, String> map = (Map<String, String>) array.get(i);
+                Set<String> keySet = map.keySet();
+                keySet.remove("pk_tzpz_h");
+                keySet.remove("pk_accsubj");
+                for (String key : fields) {
+                    if (key.equals("rq") || key.equals("zy") || key.equals("fx") || key.equals("pzh")) {
+                        cell = new PdfPCell(new Phrase((String) map.get(key), PrintUtil.getAutoFont(fonts, (String) map.get(key), totalwidthmap.get(key), totalMnyHight, DZFBoolean.FALSE)));
+                        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                    } else {
+                        cell = new PdfPCell(new Phrase((String) map.get(key), PrintUtil.getAutoFont(fonts, (String) map.get(key), totalwidthmap.get(key), totalMnyHight, DZFBoolean.TRUE)));
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    }
+                    if (getBasecolor() != null) {
+                        cell.setBorderColor(getBasecolor());
+                    }
+                    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    cell.setFixedHeight(totalMnyHight);
+                    table.addCell(cell);
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return table;
+    }
+
+    private int getLineNum(List<String> columns, String[] fields) {
+        int linenum;
+        if (iscross != null && iscross.booleanValue()) {
+            if (columns.size() != fields.length) {
+                linenum = 20;
+            } else {
+                linenum = 21;
+            }
+        } else {
+            if (columns.size() != fields.length) {
+                linenum = 26;
+            } else {
+                linenum = 27;
+            }
+        }
+        return linenum;
     }
 }
 
