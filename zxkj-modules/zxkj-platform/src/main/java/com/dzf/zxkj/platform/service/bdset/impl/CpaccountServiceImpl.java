@@ -43,6 +43,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -1045,7 +1046,7 @@ public class CpaccountServiceImpl implements ICpaccountService {
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		String FCParam = "";
-		if(StringUtil.nequals(isShowFC, "true")){
+		if(!StringUtils.equals(isShowFC, "true")){
 			FCParam = " and nvl(bisseal,'N')='N'";
 		}
 		Collection<YntCpaccountVO> c =  singleObjectBO.retrieveByClause(YntCpaccountVO.class, " pk_corp = ? and nvl(dr,0) = 0 "+FCParam,"accountcode", sp);
