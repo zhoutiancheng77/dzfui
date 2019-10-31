@@ -27,7 +27,11 @@ public class Fieldelement implements Serializable{
 	private Integer colspan;//占用多少列
 	
 	private Integer cell_pos;//单元格起始位置
-	
+
+	public Fieldelement() {
+
+	}
+
 	/**
 	 * 
 	 * @param name  显示名称

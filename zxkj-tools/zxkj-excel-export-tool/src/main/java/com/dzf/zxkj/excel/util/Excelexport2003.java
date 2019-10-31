@@ -241,7 +241,7 @@ public class Excelexport2003<T extends SuperVO> {
 							// 判断值的类型后进行强制类型转换
 							String textValue = null;
 							if(fieldinfos[i].getIsdecimal()){//数字类型特殊处理
-								DZFDouble bValue = (DZFDouble) value;
+								DZFDouble bValue = value!= null ? new DZFDouble(Double.parseDouble(value.toString())): DZFDouble.ZERO_DBL;
 								if(bValue == null || (bValue.doubleValue() == 0 && fieldinfos[i].isZeroshownull())){
 //									cell.setCellValue("");
 								}else{
