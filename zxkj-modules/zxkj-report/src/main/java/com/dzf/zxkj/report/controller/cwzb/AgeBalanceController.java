@@ -4,6 +4,7 @@ import com.dzf.zxkj.base.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.entity.DynamicAttributeVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.param.Fieldelement;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -11,9 +12,12 @@ import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.report.AgeReportResultVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.excel.cwzb.AgeBalanceExcelField;
 import com.dzf.zxkj.report.service.cwzb.IAgeBalanceReportService;
+import com.dzf.zxkj.report.utils.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,12 +40,22 @@ public class AgeBalanceController {
     @Autowired
     private IAgeBalanceReportService gl_rep_zlyeb;
 
+    @Reference
+    private IZxkjPlatformService zxkjPlatformService;
+
     @PostMapping("/query")
-    public ReturnData<Grid> query(@MultiRequestBody AgeReportQueryVO param, @MultiRequestBody CorpVO corpVO) {
+    public ReturnData<Grid> query(@MultiRequestBody AgeReportQueryVO param) {
 
         if (param.getFzlb() != null && param.getFzlb() > 0) {
             param.setAuaccount_type("fzhsx" + param.getFzlb());
         }
+
+        if(StringUtil.isEmptyWithTrim(param.getPk_corp())){
+            param.setPk_corp(SystemUtil.getLoginCorpId());
+        }
+
+        CorpVO corpVO = zxkjPlatformService.queryCorpByPk(param.getPk_corp());
+
         if (corpVO.getBegindate().after(param.getEnd_date())) {
             return ReturnData.error().message("截止日期不能早于建账日期");
         }

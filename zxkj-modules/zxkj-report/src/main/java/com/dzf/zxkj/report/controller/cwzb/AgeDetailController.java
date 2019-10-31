@@ -5,6 +5,7 @@ import com.dzf.zxkj.base.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.report.AgeReportResultVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
@@ -29,7 +30,7 @@ public class AgeDetailController {
     private IZxkjPlatformService zxkjPlatformService;
 
     @PostMapping("query")
-    public ReturnData<Grid> query (AgeReportQueryVO ageReportQueryVO) {
+    public ReturnData<Grid> query (@MultiRequestBody AgeReportQueryVO ageReportQueryVO) {
         Grid json = new Grid();
         try {
 
@@ -50,6 +51,7 @@ public class AgeDetailController {
         } catch (Exception e) {
             json.setSuccess(false);
             json.setMsg("查询失败");
+            log.info("查询失败", e);
         }
         return ReturnData.ok().data(json);
     }
