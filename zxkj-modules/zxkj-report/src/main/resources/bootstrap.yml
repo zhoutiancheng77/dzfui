@@ -4,7 +4,6 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: 172.16.6.124:8848
+        server-addr: 127.0.0.1:8848
         file-extension: yaml
         group: dzf-zxkj
-        namespace: bddf255f-a744-4702-9aea-6e6b7016eb75

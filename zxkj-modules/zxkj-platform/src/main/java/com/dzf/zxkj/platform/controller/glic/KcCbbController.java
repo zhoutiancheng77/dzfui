@@ -29,6 +29,7 @@ import java.util.*;
  * @author wangzhn
  *
  */
+@RestController
 @RequestMapping("/glic/gl_rep_kcccbact")
 @Slf4j
 public class KcCbbController extends GlicReportController{
