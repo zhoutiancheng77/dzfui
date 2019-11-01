@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *
  */
 
-@RequestMapping("/gl/gl_icinvalias")
+@RequestMapping("/glic/gl_icinvalias")
 @Slf4j
 public class InvtoryAliasController {
 
