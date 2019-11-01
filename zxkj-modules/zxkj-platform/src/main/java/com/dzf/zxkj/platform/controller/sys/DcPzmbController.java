@@ -113,7 +113,7 @@ public class DcPzmbController {
 
     //查询
     @GetMapping("/query")
-    public ReturnData<Json> query(@RequestParam("isquickcreate") String quickcreate,
+    public ReturnData<Json> query(@RequestParam(name = "isquickcreate", required = false) String quickcreate,
                       String isdefault, String busitypetempname){
         Grid grid = new Grid();
         String corpid = SystemUtil.getLoginCorpId();
