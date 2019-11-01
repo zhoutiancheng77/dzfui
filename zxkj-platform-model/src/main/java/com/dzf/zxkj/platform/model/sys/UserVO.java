@@ -108,6 +108,9 @@ public class UserVO extends SuperVO {
 
     private String emcode;// 员工编码
 
+    @JsonProperty("unifid")
+    private String unifiedid;// 统一登录平台用户主键
+
     //以下4字段集团密码策略使用
     private Integer strategy;//密码策略,null或者0：不控制，1：到期提醒，不锁定账号，2：到期提前提醒，锁定账号。
     private DZFDate dpwddate;//密码策略时间 （修改密码，解锁，策略保存时更新）
@@ -143,6 +146,14 @@ public class UserVO extends SuperVO {
     private ArrayList<SysFunNodeVO> listFunnode;
 
     private List<CorpVO> list;//有登录权限的客户
+
+    public String getUnifiedid() {
+        return unifiedid;
+    }
+
+    public void setUnifiedid(String unifiedid) {
+        this.unifiedid = unifiedid;
+    }
 
     public List<CorpVO> getList() {
         return list;
