@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author liubj
  *
  */
-@RequestMapping("/gl/gl_icinvqc")
+@RequestMapping("/glic/gl_icinvqc")
 @Slf4j
 public class InvtoryQcController{
 

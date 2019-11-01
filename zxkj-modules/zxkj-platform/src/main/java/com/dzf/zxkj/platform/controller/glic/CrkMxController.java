@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *
  */
 
-@RequestMapping("/gl/gl_rep_crkmxact")
+@RequestMapping("/glic/gl_rep_crkmxact")
 @Slf4j
 public class CrkMxController {
 

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *
  */
 
-@RequestMapping("/gl/gl_icinvset")
+@RequestMapping("/glic/gl_icinvset")
 @Slf4j
 public class InvtorySetController {
 

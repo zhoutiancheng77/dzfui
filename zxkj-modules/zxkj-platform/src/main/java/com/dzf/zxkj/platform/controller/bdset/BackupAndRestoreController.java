@@ -206,6 +206,8 @@ public class BackupAndRestoreController {
 			json.setSuccess(true);
 			json.setMsg("保存成功");
 		} catch (Exception e) {
+			json.setSuccess(false);
+			json.setMsg("更新失败");
 //			printErrorLog(json, log, e, "更新失败");
 		}
 //		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "数据备注更新", ISysConstants.SYS_2);
