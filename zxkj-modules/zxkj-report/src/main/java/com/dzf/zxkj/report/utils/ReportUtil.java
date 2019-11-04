@@ -234,7 +234,7 @@ public class ReportUtil {
      * @return
      * @throws DZFWarpException
      */
-    public SuperVO[] updateKFx(SuperVO[] kmmxvos) throws DZFWarpException {
+    public static SuperVO[] updateKFx(SuperVO[] kmmxvos) throws DZFWarpException {
         if (kmmxvos != null && kmmxvos.length > 0) {
             DZFDouble ye = DZFDouble.ZERO_DBL;
             for (SuperVO vo : kmmxvos) {
