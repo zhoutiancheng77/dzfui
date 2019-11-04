@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.controller.glic;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -37,7 +38,7 @@ public class CrkMxController extends GlicReportController{
     private IUserService userService;
 
     @GetMapping("/query")
-    public void queryAction(@RequestParam Map<String, String> param){
+    public ReturnData queryAction(@RequestParam Map<String, String> param){
         ReportDataGrid grid = new ReportDataGrid();
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
         checkPowerDate(queryParamvo);
@@ -55,7 +56,7 @@ public class CrkMxController extends GlicReportController{
         grid.setKcDetail(list);
         grid.setRows(list);
         grid.setSuccess(true);
-
+        return ReturnData.ok().data(grid);
     }
 
     private List<IcDetailVO> getPagedMXZVos(List<IcDetailFzVO> listsps,
