@@ -1,5 +1,6 @@
 package com.dzf.zxkj.base;
 
+import com.dzf.zxkj.base.dao.MultBodyObjectBO;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -23,5 +24,10 @@ public class ZxkjPersistentFrameworkAutoConfiguration {
     @Bean
     public SpringUtils springUtils(){
         return new SpringUtils();
+    }
+
+    @Bean("multBodyObjectBO")
+    public MultBodyObjectBO multBodyObjectBO(){
+        return new MultBodyObjectBO();
     }
 }

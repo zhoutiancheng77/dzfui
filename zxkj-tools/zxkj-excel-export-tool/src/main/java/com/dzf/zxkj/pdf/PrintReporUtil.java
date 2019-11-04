@@ -316,12 +316,17 @@ public class PrintReporUtil {
                 String contentDisposition = "attachment;filename=" + URLEncoder.encode(filename + ".pdf", "UTF-8")
                         + ";filename*=UTF-8''" + URLEncoder.encode(filename + ".pdf", "UTF-8");
                 getResponse().addHeader("Content-Disposition", contentDisposition);
+                getResponse().setContentType("application/pdf");
+                getResponse().setCharacterEncoding("utf-8");
+                getResponse().setContentLength(buffer.size());
             } else {
                 getResponse().setContentType("application/pdf");
                 getResponse().setCharacterEncoding("utf-8");
                 String contentDisposition = "inline;filename=" + URLEncoder.encode(filename + ".pdf", "UTF-8")
                         + ";filename*=UTF-8''" + URLEncoder.encode(filename + ".pdf", "UTF-8");
                 getResponse().setHeader("Content-Disposition", contentDisposition);
+                getResponse().setContentType("application/pdf");
+                getResponse().setCharacterEncoding("utf-8");
                 getResponse().setContentLength(buffer.size());
             }
             out = getResponse().getOutputStream();
@@ -2448,12 +2453,17 @@ public class PrintReporUtil {
                 String contentDisposition = "attachment;filename=" + URLEncoder.encode(filename + ".pdf", "UTF-8")
                         + ";filename*=UTF-8''" + URLEncoder.encode(filename + ".pdf", "UTF-8");
                 getResponse().addHeader("Content-Disposition", contentDisposition);
+                getResponse().setContentType("application/pdf");
+                getResponse().setCharacterEncoding("utf-8");
+                getResponse().setContentLength(buffer.size());
             } else {
                 getResponse().setContentType("application/pdf");
                 getResponse().setCharacterEncoding("utf-8");
                 String contentDisposition = "inline;filename=" + URLEncoder.encode(filename + ".pdf", "UTF-8")
                         + ";filename*=UTF-8''" + URLEncoder.encode(filename + ".pdf", "UTF-8");
                 getResponse().setHeader("Content-Disposition", contentDisposition);
+                getResponse().setContentType("application/pdf");
+                getResponse().setCharacterEncoding("utf-8");
                 getResponse().setContentLength(buffer.size());
             }
             out = getResponse().getOutputStream();
