@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 别名设置
- * @author zpm
  *
  */
 

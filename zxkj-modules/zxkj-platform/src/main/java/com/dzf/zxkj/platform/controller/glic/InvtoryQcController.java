@@ -5,8 +5,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 存货期初
- * 
- * @author liubj
  *
  */
 @RequestMapping("/glic/gl_icinvqc")

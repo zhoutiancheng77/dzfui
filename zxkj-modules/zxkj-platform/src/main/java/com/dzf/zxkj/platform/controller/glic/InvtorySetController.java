@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * 存货设置
- * @author zpm
  *
  */
 
