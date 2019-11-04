@@ -53,7 +53,11 @@ public class QcxjlyController {
                 grid.setSuccess(true);
                 grid.setRows(yntXjllqcyePageVO);
                 grid.setMsg("保存成功");
-            } catch (Exception e) {
+            } catch (BusinessException bs){
+                grid.setSuccess(false);
+                grid.setMsg(bs.getMessage());
+                log.error(bs.getMessage(), bs);
+            }catch (Exception e) {
                 grid.setSuccess(false);
                 grid.setMsg("保存失败");
                 log.error("保存失败", e);
@@ -101,7 +105,11 @@ public class QcxjlyController {
                 json.setSuccess(true);
                 json.setRows(yntXjllqcyePageVO);
                 json.setMsg("修改成功");
-            } catch (Exception e) {
+            } catch (BusinessException bs){
+                json.setSuccess(false);
+                json.setMsg(bs.getMessage());
+                log.error(bs.getMessage(), bs);
+            }catch (Exception e) {
                 json.setSuccess(false);
                 json.setMsg("修改失败");
                 log.error("修改失败", e);
@@ -135,7 +143,11 @@ public class QcxjlyController {
                 json.setSuccess(true);
                 // json.setObj(data);
                 json.setMsg("删除成功！");
-            } catch (Exception e) {
+            } catch (BusinessException bs){
+                json.setSuccess(false);
+                json.setMsg(bs.getMessage());
+                log.error(bs.getMessage(), bs);
+            }catch (Exception e) {
                 log.error("删除失败！", e);
                 json.setSuccess(false);
                 json.setMsg("删除失败！" + e.getMessage());
