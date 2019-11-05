@@ -1,8 +1,10 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.common.base.BaseController;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.query.PrintParamVO;
@@ -40,7 +42,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("gl_rep_yyfpact")
-public class YyfpController {
+public class YyfpController extends BaseController {
 
     @Autowired
     private IYyFpService yyfpser;
@@ -64,10 +66,10 @@ public class YyfpController {
             grid.setRows(list);
             grid.setMsg("查询成功");
         } catch (DZFWarpException e) {
-            e.printStackTrace();
-            log.error("操作失败", e);
-            grid.setMsg("操作失败");
+            printErrorLog(grid, e, "查询失败");
+            log.error("查询失败", e);
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"查询盈余分配表");
         return ReturnData.ok().data(grid);
     }
 

@@ -14,4 +14,12 @@
     <packaging>jar</packaging>
 
     <name>zxkj-operate-log-starter</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-persistent-framework-starter</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
 </project>

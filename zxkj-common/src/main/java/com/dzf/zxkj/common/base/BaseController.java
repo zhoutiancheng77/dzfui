@@ -1,10 +1,12 @@
 package com.dzf.zxkj.common.base;
 
+import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.common.tool.IpUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +54,9 @@ public class BaseController {
 
     public void writeLogRecord(LogRecordEnum recordEnum, String msg, Integer ident) {
         try {
-//            String login_corp = request.getHeader("pk_corp");
-//            String login_userid = request.getHeader("userId");
-//            operatorLogService.saveLog(login_corp, null, IpUtil.getIpAddr(request), recordEnum.getValue(), msg, ident, login_userid);
+            String login_corp = request.getHeader(ISysConstant.LOGIN_PK_CORP);
+            String login_userid = request.getHeader(ISysConstant.LOGIN_USER_ID);
+            operatorLogService.saveLog(login_corp, null, IpUtil.getIpAddr(request), recordEnum.getValue(), msg, ident, login_userid);
         } catch (Exception e) {
             log.error("错误", e);
         }

@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.dzf.zxkj.common.base.BaseController;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -38,7 +39,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("gl_rep_qybdact")
 @Slf4j
-public class QyBdController {
+public class QyBdController extends BaseController {
     @Autowired
     private IQyBdService qybdser;
     @Autowired
@@ -57,8 +58,7 @@ public class QyBdController {
             grid.setRows(list);
             grid.setMsg("查询成功");
         } catch (Exception e) {
-            grid.setSuccess(false);
-            grid.setMsg("查询失败");
+            printErrorLog(grid, e, "查询失败");
             log.error("查询失败", e);
         }
         return ReturnData.ok().data(grid);
