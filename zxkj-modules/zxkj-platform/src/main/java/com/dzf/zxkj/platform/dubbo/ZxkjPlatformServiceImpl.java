@@ -20,10 +20,7 @@ import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
-import com.dzf.zxkj.platform.service.sys.IAccountService;
-import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.platform.service.sys.IParameterSetService;
-import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.service.sys.*;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -37,6 +34,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     private ICpaccountService gl_cpacckmserv;
     @Autowired
     private ICpaccountCodeRuleService gl_accountcoderule;
+
+    @Autowired
+    private IBDCurrencyService sys_currentserv;
 
     @Autowired
     private YntBoPubUtil yntBoPubUtil;
@@ -167,6 +167,11 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     @Override
     public BdCurrencyVO queryCurrencyVOByPk(String pk_currency) {
         return null;
+    }
+
+    @Override
+    public BdCurrencyVO[] queryCurrencyByPkCorp(String pk_corp){
+        return sys_currentserv.queryCurrencyByCorp(pk_corp);
     }
 
     @Override
