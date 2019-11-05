@@ -11,6 +11,7 @@ import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,6 +23,7 @@ import java.util.List;
  * @author zhangj
  *
  */
+@Service
 public class OperatorLogServiceImpl implements IOperatorLogService {
 
 

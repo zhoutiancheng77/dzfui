@@ -14,7 +14,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableScheduling
-@ComponentScan
+@ComponentScan(basePackages= {"com.dzf.zxkj.report","com.dzf.zxkj.operate.log"})
 public class ZxkjReportApplication {
     public static void main(String[] args) {
         SpringApplication.run(ZxkjReportApplication.class, args);

@@ -12,6 +12,7 @@ import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.operate.log.annotation.LogRecord;
 import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.YyFpVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -51,6 +52,7 @@ public class YyfpController extends BaseController {
     private IZxkjPlatformService zxkjPlatformService;
 
     @GetMapping("query")
+    @LogRecord(type = LogRecordEnum.OPE_KJ_CWREPORT, msg = "查询盈余分配表")
     public ReturnData<Grid> query(QueryParamVO queryParamVO, @MultiRequestBody CorpVO corpVO) {
 
         Grid grid = new Grid();
@@ -69,7 +71,7 @@ public class YyfpController extends BaseController {
             printErrorLog(grid, e, "查询失败");
             log.error("查询失败", e);
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"查询盈余分配表");
+//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"查询盈余分配表");
         return ReturnData.ok().data(grid);
     }
 
