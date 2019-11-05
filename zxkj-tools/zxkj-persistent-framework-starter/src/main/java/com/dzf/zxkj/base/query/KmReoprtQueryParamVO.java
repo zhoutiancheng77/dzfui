@@ -23,6 +23,7 @@ public class KmReoprtQueryParamVO extends QueryParamVO {
 	private String selectxmid;// 选中的项目id
 	private DZFBoolean xskm;// 是否显示科目
 	private DZFBoolean bswitch;//是否切换
+	private int report_rows;//报表显示页数
 
 	// 科目明细账使用
 	private DZFBoolean isqry;// 是否是重新查询或者第一次查询(空默认就是重新查询)
@@ -33,6 +34,14 @@ public class KmReoprtQueryParamVO extends QueryParamVO {
 	private String zy;// 摘要
 
 	private String list;//list字符串
+
+	public int getReport_rows() {
+		return report_rows;
+	}
+
+	public void setReport_rows(int report_rows) {
+		this.report_rows = report_rows;
+	}
 
 	public String getList() {
 		return list;
