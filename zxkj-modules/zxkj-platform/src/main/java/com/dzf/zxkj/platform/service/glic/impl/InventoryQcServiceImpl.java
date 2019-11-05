@@ -34,11 +34,11 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -240,12 +240,12 @@ public class InventoryQcServiceImpl implements IInventoryQcService {
 
 	@Override
 	public String processImportExcel(CorpVO corp, String userid, String fileType,
-			File impFile, String date) throws DZFWarpException {
+									 MultipartFile impFile, String date) throws DZFWarpException {
 		checkInventorySet(userid, corp.getPk_corp(),null);
 		StringBuilder msg = new StringBuilder();
-		FileInputStream is = null;
+		InputStream is = null;
 		try {
-			is = new FileInputStream(impFile);
+			is = impFile.getInputStream();
 			Workbook impBook = null;
 			if ("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);

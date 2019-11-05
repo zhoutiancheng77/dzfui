@@ -4,8 +4,8 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.glic.InventoryQcVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 public interface IInventoryQcService {
@@ -25,5 +25,5 @@ public interface IInventoryQcService {
 	public void updateDate(String pk_corp, String date) throws DZFWarpException;
 
 	public String processImportExcel(CorpVO corp, String user_id,
-									 String fileType, File impFile, String date) throws DZFWarpException;
+									 String fileType, MultipartFile impFile, String date) throws DZFWarpException;
 }

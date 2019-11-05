@@ -8,6 +8,7 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
+import com.dzf.zxkj.common.query.ReportPrintParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -25,7 +26,6 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.entity.ReportExcelExportVO;
-import com.dzf.zxkj.common.query.ReportPrintParamVO;
 import com.dzf.zxkj.report.print.cwzb.MultiColumnPdfField;
 import com.dzf.zxkj.report.service.cwzb.IMultiColumnReport;
 import com.dzf.zxkj.report.utils.ExcelReport;
@@ -218,6 +218,26 @@ public class MultiColumnController extends ReportBaseController {
         return ReturnData.ok().data(grid);
     }
 
+    /**
+     * 获取辅助项目参照
+     */
+    @GetMapping("queryFzLb")
+    public ReturnData<Grid> getFzLb(@RequestParam("corpid") String pk_corp) {
+        if (StringUtil.isEmpty(pk_corp)) {
+            pk_corp = SystemUtil.getLoginCorpId();
+        }
+        Grid grid = new Grid();
+        try {
+            AuxiliaryAccountHVO[] bvos = zxkjPlatformService.queryHByPkCorp(pk_corp);
+            grid.setRows(bvos);
+            grid.setSuccess(true);
+        } catch (Exception e) {
+            log.error("辅助类别查询失败:", e);
+            grid.setRows(new ArrayList<AuxiliaryAccountHVO>());
+            printErrorLog(grid, e, "辅助类别查询失败!");
+        }
+        return ReturnData.ok().data(grid);
+    }
 
     /**
      * 获取辅助项目参照
@@ -233,9 +253,9 @@ public class MultiColumnController extends ReportBaseController {
             grid.setRows(bvos);
             grid.setSuccess(true);
         } catch (Exception e) {
-            log.error("辅助类别查询失败:", e);
+            log.error("辅助项目查询失败:", e);
             grid.setRows(new ArrayList<AuxiliaryAccountHVO>());
-            printErrorLog(grid, e, "辅助类别查询失败!");
+            printErrorLog(grid, e, "辅助项目查询失败!");
         }
         return ReturnData.ok().data(grid);
     }
