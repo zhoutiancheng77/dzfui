@@ -6,7 +6,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;

@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.utils.VOUtil;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;

@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.constant.IBillManageConstants;
 import com.dzf.zxkj.common.entity.Grid;

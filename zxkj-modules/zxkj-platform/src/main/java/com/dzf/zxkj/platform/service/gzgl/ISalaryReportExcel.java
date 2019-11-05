@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.service.gzgl;
 
 import com.alibaba.fastjson.JSONArray;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.UserVO;

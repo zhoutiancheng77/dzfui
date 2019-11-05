@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.service.qcset.impl;
 
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
 
 import java.util.ArrayList;

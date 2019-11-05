@@ -1,38 +1,21 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.alibaba.fastjson.JSON;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
-import com.dzf.zxkj.base.utils.FieldMapping;
-import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
-import com.dzf.zxkj.common.lang.DZFBoolean;
-import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.common.utils.DateUtils;
-import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
-import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwzb.IXjRjZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
-import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.util.*;
 
 @RestController

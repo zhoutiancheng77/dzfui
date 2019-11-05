@@ -1,7 +1,7 @@
 package com.dzf.zxkj.report.service.cwzb;
 
 
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.query.QueryParamVO;
 
 /**

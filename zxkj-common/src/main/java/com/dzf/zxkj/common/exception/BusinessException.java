@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.exception;
+package com.dzf.zxkj.common.exception;
 
 /**
  * @Auther: dandelion
@@ -10,7 +10,7 @@ package com.dzf.zxkj.base.exception;
  * 正常的业务提示信息提示到前台
  */
 
-public class BusinessException extends DZFWarpException {
+public class BusinessException extends RuntimeException {
 
 
 //	private static Logger logger = Logger.getLogger(BusinessException.class);

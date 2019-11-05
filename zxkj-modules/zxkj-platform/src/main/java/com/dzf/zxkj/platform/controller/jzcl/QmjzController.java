@@ -1,9 +1,8 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -54,7 +53,7 @@ public class QmjzController {
             grid.setSuccess(true);
             grid.setRows(qmjzvo);
             grid.setMsg("查询成功!");
-        } catch (DZFWarpException e) {
+        } catch (Exception e) {
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? "查询失败" : e.getMessage());
             log.error("查询失败!", e);

@@ -1,8 +1,7 @@
 package com.dzf.zxkj.report.controller;
 
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.common.entity.Grid;
-import com.dzf.zxkj.common.entity.Json;
+import com.dzf.zxkj.common.base.BaseController;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
@@ -14,32 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class ReportBaseController {
-
-    protected void printErrorLog(Grid grid,Throwable e, String errorinfo){
-        if(StringUtil.isEmpty(errorinfo))
-            errorinfo = "操作失败";
-        if(e instanceof BusinessException){
-            grid.setMsg(e.getMessage());
-        }else{
-            grid.setMsg(errorinfo);
-            log.error(errorinfo,e);
-        }
-        grid.setSuccess(false);
-    }
-
-
-    protected void printErrorLog(Json json,Throwable e,String errorinfo){
-        if(StringUtil.isEmpty(errorinfo))
-            errorinfo = "操作失败";
-        if(e instanceof BusinessException){
-            json.setMsg(e.getMessage());
-        }else{
-            json.setMsg(errorinfo);
-            log.error(errorinfo,e);
-        }
-        json.setSuccess(false);
-    }
+public class ReportBaseController extends BaseController {
 
     public QueryParamVO getQueryParamVO(QueryParamVO queryvo,CorpVO corpVO){
         if(StringUtil.isEmpty(queryvo.getPk_corp())){

@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.enums.CellTypeEnum;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.common.lang.DZFBoolean;

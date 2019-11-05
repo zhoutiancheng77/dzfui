@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.service.gzgl.ImpExcel.impl;
 
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;

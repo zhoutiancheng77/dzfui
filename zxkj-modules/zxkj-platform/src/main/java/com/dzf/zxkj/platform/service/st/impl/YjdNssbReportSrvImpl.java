@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.service.st.impl;
 
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.platform.model.st.StBaseVO;

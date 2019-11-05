@@ -1,6 +1,6 @@
 package com.dzf.zxkj.base.utils;
 
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.tool.SqlBuilder;
 import com.dzf.zxkj.common.utils.CompareEnum;
 import com.dzf.zxkj.common.utils.SqlUtil;

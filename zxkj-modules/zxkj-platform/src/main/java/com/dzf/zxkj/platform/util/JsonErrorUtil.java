@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.util;
 
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.common.entity.Json;
 import org.slf4j.Logger;

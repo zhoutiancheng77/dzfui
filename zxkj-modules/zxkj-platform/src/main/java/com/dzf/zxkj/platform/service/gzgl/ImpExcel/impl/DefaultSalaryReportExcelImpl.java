@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.service.gzgl.ImpExcel.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.lang.DZFDate;

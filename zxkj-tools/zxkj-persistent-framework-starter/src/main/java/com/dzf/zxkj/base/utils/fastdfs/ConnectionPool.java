@@ -1,16 +1,16 @@
 package com.dzf.zxkj.base.utils.fastdfs;
 
+import com.dzf.zxkj.common.exception.BusinessException;
+import lombok.extern.slf4j.Slf4j;
+import org.csource.fastdfs.ClientGlobal;
+import org.csource.fastdfs.TrackerClient;
+import org.csource.fastdfs.TrackerServer;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import com.dzf.zxkj.base.exception.BusinessException;
-import lombok.extern.slf4j.Slf4j;
-import org.csource.fastdfs.ClientGlobal;
-import org.csource.fastdfs.TrackerClient;
-import org.csource.fastdfs.TrackerServer;
 
 /**
  *
