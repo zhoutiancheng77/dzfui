@@ -48,7 +48,7 @@ public class ZclbController extends BaseController {
     }
 
     //参照查询使用这个方法
-    @GetMapping("/query")
+    @GetMapping("/queryRef")
     public ReturnData<Grid> queryRef(@MultiRequestBody CorpVO corpVo) {
         List<BdAssetCategoryVO> list = null;
         try {
