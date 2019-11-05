@@ -150,7 +150,8 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Override
     public AuxiliaryAccountHVO[] queryHByPkCorp(String pk_corp) {
-        return new AuxiliaryAccountHVO[0];
+        return gl_fzhsserv.queryH(pk_corp);
+//        return new AuxiliaryAccountHVO[0];
     }
 
     @Override
