@@ -60,6 +60,8 @@ public interface IZxkjPlatformService {
 
     BdCurrencyVO queryCurrencyVOByPk(String pk_currency);
 
+    BdCurrencyVO[] queryCurrencyByPkCorp(String pk_corp);
+
     List<InventoryVO> queryInventoryVOs(String pk_corp);
 
     YntParameterSet queryParamterbyCode(String pk_corp, String code);

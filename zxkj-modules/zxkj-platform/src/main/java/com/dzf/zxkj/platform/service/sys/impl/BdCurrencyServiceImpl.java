@@ -105,4 +105,15 @@ public class BdCurrencyServiceImpl implements IBDCurrencyService {
 		return vo;
 	}
 
+	@Override
+	public BdCurrencyVO[] queryCurrencyByCorp(String pk_corp) throws DZFWarpException {
+		if(StringUtil.isEmpty(pk_corp)){
+			return null;
+		}
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(pk_corp);
+		BdCurrencyVO[] vos = (BdCurrencyVO[]) singleObjectBO.queryByCondition(BdCurrencyVO.class,"nvl(dr,0)=0 and pk_corp = ?",sp);
+		return vos;
+	}
+
 }
