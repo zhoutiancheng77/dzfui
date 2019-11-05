@@ -1,47 +1,24 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
-import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.lang.DZFBoolean;
-import com.dzf.zxkj.common.model.ColumnCellAttr;
-import com.dzf.zxkj.common.query.ReportPrintParamVO;
-import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
-import com.dzf.zxkj.jackson.utils.JsonUtils;
-import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
-import com.dzf.zxkj.platform.model.report.ExMultiVO;
-import com.dzf.zxkj.platform.model.report.KmMxZVO;
-import com.dzf.zxkj.platform.model.report.KmReportDatagridColumn;
-import com.dzf.zxkj.platform.model.report.ReportDataGrid;
-import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
-import com.dzf.zxkj.report.entity.ReportExcelExportVO;
-import com.dzf.zxkj.report.print.cwzb.MultiColumnPdfField;
-import com.dzf.zxkj.report.service.cwzb.IMultiColumnReport;
-import com.dzf.zxkj.report.utils.ExcelReport;
 import com.dzf.zxkj.report.utils.SystemUtil;
-import com.itextpdf.text.BaseColor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("gl_rep_qrysysset")
@@ -51,6 +28,26 @@ public class QrySysSetController extends ReportBaseController {
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
+    /**
+     * 获取公司科目
+     */
+    @GetMapping("querySubjectRef")
+    public ReturnData<Grid> getSubjectRef(@RequestParam("corpid") String pk_corp) {
+        if (StringUtil.isEmpty(pk_corp)) {
+            pk_corp = SystemUtil.getLoginCorpId();
+        }
+        Grid grid = new Grid();
+        try {
+            YntCpaccountVO[] bvos = zxkjPlatformService.queryByPk(pk_corp);
+            grid.setRows(bvos);
+            grid.setSuccess(true);
+        } catch (Exception e) {
+            log.error("科目查询失败:", e);
+            grid.setRows(new ArrayList<AuxiliaryAccountHVO>());
+            printErrorLog(grid, e, "科目查询失败!");
+        }
+        return ReturnData.ok().data(grid);
+    }
 
     /**
      * 获取辅助类别参照
@@ -62,8 +59,17 @@ public class QrySysSetController extends ReportBaseController {
         }
         Grid grid = new Grid();
         try {
+            BdCurrencyVO zhbwb = new BdCurrencyVO();
+            zhbwb.setPk_currency("");
+            zhbwb.setCurrencyname("综合本位币");
             BdCurrencyVO[] bvos = zxkjPlatformService.queryCurrencyByPkCorp(pk_corp);
-            grid.setRows(bvos);
+            BdCurrencyVO[] results = null;
+            if (bvos!=null && bvos.length>0){
+                results = (BdCurrencyVO[]) ArrayUtils.addAll(new BdCurrencyVO[]{zhbwb},bvos);
+            }else{
+                results= new BdCurrencyVO[]{zhbwb};
+            }
+            grid.setRows(results);
             grid.setSuccess(true);
         } catch (Exception e) {
             log.error("币种查询失败:", e);
