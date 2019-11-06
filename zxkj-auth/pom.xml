@@ -115,17 +115,10 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>application.yml</include>
                     <include>mapper/*.xml</include>
                     <include>param.txt</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
                     <include>bootstrap.yml</include>
                 </includes>
-                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>

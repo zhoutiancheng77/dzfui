@@ -149,7 +149,6 @@
                 <includes>
                     <include>bootstrap.yml</include>
                 </includes>
-                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>

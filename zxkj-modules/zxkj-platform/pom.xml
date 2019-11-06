@@ -155,7 +155,6 @@
                     <include>logback-spring.xml</include>
                     <include>param.txt</include>
                 </includes>
-                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
