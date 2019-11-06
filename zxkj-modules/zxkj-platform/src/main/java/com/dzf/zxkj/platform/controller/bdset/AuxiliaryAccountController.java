@@ -2,12 +2,12 @@ package com.dzf.zxkj.platform.controller.bdset;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryPageVO;
@@ -16,9 +16,14 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
+import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
+import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +56,10 @@ public class AuxiliaryAccountController {
     private IParameterSetService parameterserv;
     @Autowired
     private IYntBoPubUtil yntBoPubUtil;
+    @Autowired
+    private IAccountService accountService;
+    @Autowired
+    private ICorpService corpService;
 
     @GetMapping("/queryH")
     public ReturnData<Json> queryType(String pk_corp, String isfull) {
@@ -566,4 +575,33 @@ public class AuxiliaryAccountController {
         json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
+
+    // 出库科目
+    @GetMapping("/getChukuKm")
+    public ReturnData<Json> getChukuKm() {
+        Json json = new Json();
+        YntCpaccountVO[] accounts =accountService.queryByPk(SystemUtil.getLoginCorpId());
+        CorpVO corpVo = corpService.queryByPk(SystemUtil.getLoginCorpId());
+        List<String> chukukm = Kmschema.getChukuKm(corpVo.getCorptype(), accounts);
+        json.setRows(chukukm);
+        json.setMsg("获取出库科目成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    // 分类科目
+    @GetMapping("/getKmclassify")
+    public ReturnData<Json> getKmclassify(@RequestParam("id") String pk_auacount_h,
+                                       String pk_corp) {
+        Json json = new Json();
+        YntCpaccountVO[] accounts =accountService.queryByPk(SystemUtil.getLoginCorpId());
+        CorpVO corpVo = corpService.queryByPk(SystemUtil.getLoginCorpId());
+        //得到分类科目
+        List<String> classify = Kmschema.getKmclassify(corpVo.getCorptype(), accounts);
+        json.setRows(classify);
+        json.setMsg("获取分类科目成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
 }

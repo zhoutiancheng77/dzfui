@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.zcgl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -10,10 +11,10 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.BdTradeAccountVO;
@@ -24,7 +25,6 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.BdAssetCategoryVO;
 import com.dzf.zxkj.platform.model.sys.BdTradeAssetCheckVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.model.tax.TaxitemParamVO;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetcardDisplayColumnVO;
@@ -42,10 +42,8 @@ import com.dzf.zxkj.platform.service.zcgl.IAssetCleanService;
 import com.dzf.zxkj.platform.service.zcgl.IAssetcardHelper;
 import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.util.Kmschema;
-import com.dzf.zxkj.platform.util.TaxItemUtil;
 import com.dzf.zxkj.platform.util.TsCheckUtil;
 import com.dzf.zxkj.platform.util.VoUtils;
-import com.dzf.zxkj.common.query.QueryParamVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -1630,10 +1628,6 @@ public class KpglServiceImpl implements IKpglService {
             if (!jxsflist.contains(key)) {// 税目信息
                 debitVO.setPk_accsubj(key.split("_")[0]);
                 debitVO.setNrate(new DZFDouble(key.split("_")[1]));
-
-                TaxitemParamVO taxparam = new TaxitemParamVO.Builder(pk_corp, debitVO.getNrate()).build();
-                TaxItemUtil.dealTaxItem(debitVO, taxparam, cpamap.get(debitVO.getPk_accsubj()));
-
                 key = key.split("_")[0];
             } else {
                 debitVO.setPk_accsubj(key);
