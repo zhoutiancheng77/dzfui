@@ -9,6 +9,7 @@ import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
+import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -170,8 +171,8 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     }
 
     @Override
-    public BdCurrencyVO[] queryCurrencyByPkCorp(String pk_corp){
-        return sys_currentserv.queryCurrencyByCorp(pk_corp);
+    public QcYeCurrency[] queryCurrencyByPkCorp(String pk_corp){
+        return gl_qcyeserv.queryCur(pk_corp);
     }
 
     @Override

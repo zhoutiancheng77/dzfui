@@ -7,6 +7,7 @@ import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.utils.SystemUtil;
@@ -59,17 +60,9 @@ public class QrySysSetController extends ReportBaseController {
         }
         Grid grid = new Grid();
         try {
-            BdCurrencyVO zhbwb = new BdCurrencyVO();
-            zhbwb.setPk_currency("");
-            zhbwb.setCurrencyname("综合本位币");
-            BdCurrencyVO[] bvos = zxkjPlatformService.queryCurrencyByPkCorp(pk_corp);
-            BdCurrencyVO[] results = null;
-            if (bvos!=null && bvos.length>0){
-                results = (BdCurrencyVO[]) ArrayUtils.addAll(new BdCurrencyVO[]{zhbwb},bvos);
-            }else{
-                results= new BdCurrencyVO[]{zhbwb};
-            }
-            grid.setRows(results);
+            QcYeCurrency[] bvos = zxkjPlatformService.queryCurrencyByPkCorp(pk_corp);
+            bvos[0].setPk_currency("");//综合本位币去掉
+            grid.setRows(bvos);
             grid.setSuccess(true);
         } catch (Exception e) {
             log.error("币种查询失败:", e);

@@ -9,6 +9,7 @@ import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
+import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -60,7 +61,7 @@ public interface IZxkjPlatformService {
 
     BdCurrencyVO queryCurrencyVOByPk(String pk_currency);
 
-    BdCurrencyVO[] queryCurrencyByPkCorp(String pk_corp);
+    QcYeCurrency[] queryCurrencyByPkCorp(String pk_corp);
 
     List<InventoryVO> queryInventoryVOs(String pk_corp);
 
