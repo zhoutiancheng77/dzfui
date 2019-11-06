@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>zxkj-auth</artifactId>
+    <packaging>jar</packaging>
 
     <name>zxkj-auth</name>
 
@@ -120,6 +121,7 @@
                     <include>param.txt</include>
                     <include>bootstrap.yml</include>
                 </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
