@@ -12,4 +12,8 @@ public class ReportExcelExportVO {
     private DZFDate beginDate;
     private DZFDate endDate;
     private String titleName;
+    private String list;// 当前页面数据
+    private String isPaging;// 是否分页
+    private String export_all;// 是否导出全部
+    private String fzlb_name;//辅助类别名称
 }
