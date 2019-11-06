@@ -5,8 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
@@ -22,9 +20,7 @@ public class SecretKeyConfig {
     public SecretKeyConfig() throws RuntimeException, IOException, ClassNotFoundException {
         log.info("秘钥初始化。。。。。。");
         ClassPathResource resource = new ClassPathResource("param.txt");
-        File f = resource.getFile();
-        FileInputStream fis = new FileInputStream(f);
-        ObjectInputStream ois = new ObjectInputStream(fis);
+        ObjectInputStream ois = new ObjectInputStream(resource.getInputStream());
         pubKey = (String) ois.readObject();
         preKey = (String) ois.readObject();
         defaultKey = (String) ois.readObject();
