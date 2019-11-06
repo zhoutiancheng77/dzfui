@@ -13,6 +13,7 @@ import java.util.Map;
 
 public interface IZxkjReportService {
     FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction);
+    Map<String, FseJyeVO> getFsJyeVOs(String pk_corp, String period, Integer direction);
     Map<String, Map<String,Double>>  getVoucherFseQryVOListByPkCorpAndKmBetweenPeriod(String pk_corp, YntCpaccountVO[] yntCpaccountVOS, String beginPeriod, String endPeriod);
     LrbVO[] getLRBVOsConXm(QueryParamVO paramVO, List<String> xmid);
     ZcFzBVO[] getZCFZBVOsConXmids(String period, String pk_corp, String ishasjz, String[] hasyes, List<String> xmids);
