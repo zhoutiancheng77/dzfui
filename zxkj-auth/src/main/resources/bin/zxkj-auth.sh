@@ -2,8 +2,8 @@
 ## Author hanjindong
 ## UPDATE 2019-08-27
 version="1.0";
-appName=@project.artifactId@
-appVersion=@project.version@
+appName=zxkj-auth
+appVersion=1.0
 fullName=$appName-$appVersion.jar
 function start()
 {
