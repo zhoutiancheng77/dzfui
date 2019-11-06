@@ -96,14 +96,14 @@ public class FzKmmxController extends ReportBaseController {
      * 导出Excel
      */
     @PostMapping("export/excel")
-    public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void excelReport( ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         FzKmmxVO[] listVo = null;
         queryparamvo = (KmReoprtQueryParamVO)getQueryParamVO(queryparamvo, corpVO);
         String gs = corpVO.getUnitname();
         String qj = "";
 
         /** 获取汇率精度 */
-        Integer hljd = new ReportUtil().getHlJd(queryparamvo.getPk_corp());
+        Integer hljd = new ReportUtil(zxkjPlatformService).getHlJd(queryparamvo.getPk_corp());
         if (!StringUtil.isEmpty(excelExportVO.getExport_all()) && "Y".equals(excelExportVO.getExport_all())) {
             Object[] objs = gl_rep_fzkmmxjrptserv.getFzkmmxVos(queryparamvo, DZFBoolean.FALSE);
             List<FzKmmxVO> rsfzvos = (List<FzKmmxVO>) objs[0];
