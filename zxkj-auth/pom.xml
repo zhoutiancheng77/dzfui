@@ -116,6 +116,7 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>mapper/*.xml</include>
+                    <include>__RSA_KEY.txt</include>
                     <include>param.txt</include>
                     <include>bootstrap.yml</include>
                 </includes>
