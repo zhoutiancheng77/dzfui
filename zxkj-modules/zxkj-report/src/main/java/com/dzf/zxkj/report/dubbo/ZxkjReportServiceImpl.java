@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.dubbo;
 
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -33,6 +34,11 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     @Override
     public FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction) {
         return fsYeReport.getFsJyeVOs(vo, direction);
+    }
+
+    @Override
+    public Map<String, FseJyeVO> getFsJyeVOs(String pk_corp, String period, Integer direction) throws DZFWarpException {
+        return fsYeReport.getFsJyeVOs(pk_corp,period,direction);
     }
 
     @Override
