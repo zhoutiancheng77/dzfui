@@ -3,8 +3,6 @@ package com.dzf.zxkj.common.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 
 
@@ -27,17 +25,11 @@ public class CodeUtils1 {
 	}
 	
 	private static void readUIParameter(){
-		FileInputStream fis = null;
-		ObjectInputStream ois = null;
 		try {
-			File f = resource.getFile();
-			if (f.isFile()){
-				fis = new FileInputStream(f);
-				ois = new ObjectInputStream(fis);
+			ObjectInputStream ois = new ObjectInputStream(resource.getInputStream());
 				pubkey = (String)ois.readObject();
 				prikey =  (String)ois.readObject();
 				defaultkey = (String)ois.readObject();
-			}
 		}catch (Exception ex){
 			log.error("错误",ex);
 			throw new RuntimeException(ex);
