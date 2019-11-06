@@ -17,7 +17,7 @@ import java.util.Map;
  * 存货设置
  *
  */
-@RestController
+@RestController("glicnvtorySetController")
 @RequestMapping("/glic/gl_icinvset")
 @Slf4j
 public class InvtorySetController {
