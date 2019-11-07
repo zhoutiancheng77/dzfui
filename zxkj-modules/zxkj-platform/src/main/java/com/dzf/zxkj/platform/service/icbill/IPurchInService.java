@@ -9,8 +9,8 @@ import com.dzf.zxkj.platform.model.icset.IntradeParamVO;
 import com.dzf.zxkj.platform.model.jzcl.TempInvtoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 public interface IPurchInService {
@@ -41,7 +41,7 @@ public interface IPurchInService {
 
 	public AggIcTradeVO[] queryAggIntradeVOByID(String pk_ictrade_h, String pk_corp) throws DZFWarpException ;
 
-	public String saveImp(File file, String pk_corp, String fileType, String cuserid) throws DZFWarpException;
+	public String saveImp(MultipartFile file, String pk_corp, String fileType, String cuserid) throws DZFWarpException;
 
 	// 查询暂估数量
 	public List<TempInvtoryVO> queryZgVOs(CorpVO corpvo, String userid, DZFDate doped) throws DZFWarpException;
@@ -50,4 +50,6 @@ public interface IPurchInService {
 	public void saveZg(TempInvtoryVO[] bodyvos, CorpVO corpvo, String userid, String pk_zggys) throws DZFWarpException;
 
 	public void check(IntradeHVO hvo, String pk_corp, boolean iscopy, boolean istogl) throws DZFWarpException;
+
+	StringBuffer buildQmjzMsg(List<String> periodList, String pk_corp) throws DZFWarpException;
 }
