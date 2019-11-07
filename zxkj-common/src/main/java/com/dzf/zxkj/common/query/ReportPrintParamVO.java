@@ -10,4 +10,5 @@ public class ReportPrintParamVO {
     private String top;
     private String printdate;
     private String font;
+    private String isPaging;
 }
