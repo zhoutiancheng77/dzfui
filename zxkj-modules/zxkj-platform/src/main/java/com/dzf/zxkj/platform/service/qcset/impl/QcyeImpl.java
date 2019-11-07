@@ -31,7 +31,7 @@ import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.qcset.IFzhsqcService;
-import com.dzf.zxkj.platform.service.qcset.IQcService;
+import com.dzf.zxkj.platform.service.icset.IQcService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.util.Kmschema;

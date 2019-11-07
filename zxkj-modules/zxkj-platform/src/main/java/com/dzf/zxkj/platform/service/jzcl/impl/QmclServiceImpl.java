@@ -31,7 +31,7 @@ import com.dzf.zxkj.platform.model.sys.*;
 import com.dzf.zxkj.platform.model.tax.TaxCalculateVO;
 import com.dzf.zxkj.platform.model.tax.TaxEffeHistVO;
 import com.dzf.zxkj.platform.service.bdset.*;
-import com.dzf.zxkj.platform.service.icset.IPurchInService;
+import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;

@@ -2,8 +2,8 @@ package com.dzf.zxkj.platform.service.icset;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -44,11 +44,13 @@ public interface IInventoryService {
 	 InventoryVO queryByPrimaryKey(String pk) throws DZFWarpException;
 
 	// 批量导入商品
-	 String saveImp(File file, String pk_corp, String fileType, String userid) throws DZFWarpException;
+	 String saveImp(MultipartFile file, String pk_corp, String fileType, String userid) throws DZFWarpException;
 
 	 Map<String, InventoryVO> queryInventoryVOs(String pk_corp, String[] pks) throws DZFWarpException;
 
 	 List<InventoryVO> queryByIDs(String pk_corp, String ids) throws DZFWarpException;
 
 	 InventoryVO  saveMergeData(String pk_corp, String id, InventoryVO[] vos) throws DZFWarpException;
+
+	 InventoryVO  createPrice(String pk_corp, String priceway,String bili,String vdate,InventoryVO[] vos) throws DZFWarpException;
 }

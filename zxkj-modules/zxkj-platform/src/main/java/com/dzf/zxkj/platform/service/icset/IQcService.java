@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.service.qcset;
+package com.dzf.zxkj.platform.service.icset;
 
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -6,8 +6,8 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.service.common.IBgPubService;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 public interface IQcService extends IBgPubService {
@@ -31,7 +31,7 @@ public interface IQcService extends IBgPubService {
 	public IcbalanceVO queryByPrimaryKey(String primaryKey) throws DZFWarpException;
 
 	// 批量导入商品
-	public String saveImp(File file, String pk_corp, String fileType, String userid, DZFDate icdate)
+	public String saveImp(MultipartFile file, String pk_corp, String fileType, String userid, DZFDate icdate)
 			throws DZFWarpException;
 
 	// 批量删除

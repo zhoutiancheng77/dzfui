@@ -1,10 +1,10 @@
 package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
 import com.dzf.zxkj.platform.service.common.impl.BgPubServiceImpl;
@@ -18,11 +18,11 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -115,10 +115,10 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 	}
 
 	@Override
-	public String saveImp(File file, String pk_corp, String fileType) throws DZFWarpException {
-		FileInputStream is = null;
+	public String saveImp(MultipartFile file, String pk_corp, String fileType) throws DZFWarpException {
+		InputStream is = null;
 		try {
-			is = new FileInputStream(file);
+			is = file.getInputStream();
 			Workbook impBook = null;
 			if("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);

@@ -17,7 +17,7 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.BdTradeCostTransferVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.icset.IInvAccSetService;
-import com.dzf.zxkj.platform.service.icset.IPurchInService;
+import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.jzcl.IndustryForward;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
