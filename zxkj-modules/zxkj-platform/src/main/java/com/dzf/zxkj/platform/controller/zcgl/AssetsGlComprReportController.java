@@ -1,6 +1,5 @@
 package com.dzf.zxkj.platform.controller.zcgl;
 
-import com.dzf.zxkj.common.base.BaseController;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -8,9 +7,12 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.controller.PrintAndExcelExportController;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.excel.zcgl.AssetGlComprExcelField;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetQueryCdtionVO;
@@ -35,7 +37,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/am/am_rep_zczzdzbact")
 @Slf4j
-public class AssetsGlComprReportController extends BaseController {
+public class AssetsGlComprReportController extends PrintAndExcelExportController {
 
     @Autowired
     private IZczzdzReportService zczzdzReportService;
@@ -68,6 +70,21 @@ public class AssetsGlComprReportController extends BaseController {
         }
 
         return ReturnData.ok().data(grid);
+    }
+
+    @PostMapping("export/excel")
+    public void export(String list, String corpName, String period, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
+        ZcdzVO[] listVo = JsonUtils.deserialize(list, ZcdzVO[].class);
+
+        Excelexport2003<ZcdzVO> lxs = new Excelexport2003<ZcdzVO>();
+        AssetGlComprExcelField yhd = new AssetGlComprExcelField();
+        yhd.setVos(listVo);
+        yhd.setQj(period);
+        yhd.setCreator(userVO.getCuserid());
+        yhd.setCorpName(corpName);
+
+        baseExcelExport(response,lxs,yhd);
+
     }
 
     @PostMapping("print/pdf")

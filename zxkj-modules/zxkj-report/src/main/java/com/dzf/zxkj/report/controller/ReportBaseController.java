@@ -6,6 +6,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.controller.PrintAndExcelExportController;
 import com.dzf.zxkj.excel.param.IExceport;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -20,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class ReportBaseController extends BaseController {
+public class ReportBaseController extends PrintAndExcelExportController {
 
     public QueryParamVO getQueryParamVO(QueryParamVO queryvo,CorpVO corpVO){
         if(StringUtil.isEmpty(queryvo.getPk_corp())){
@@ -50,40 +51,6 @@ public class ReportBaseController extends BaseController {
         return "";
     }
 
-
-    public void baseExcelExport(HttpServletResponse response, Excelexport2003 lxs, IExceport yhd){
-        OutputStream toClient = null;
-        try {
-            response.reset();
-            String filename = yhd.getExcelport2003Name();
-            String formattedName = URLEncoder.encode(filename, "UTF-8");
-            response.addHeader("Content-Disposition",
-                    "attachment;filename=" + filename + ";filename*=UTF-8''" + formattedName);
-            toClient = new BufferedOutputStream(response.getOutputStream());
-            response.setContentType("application/vnd.ms-excel;charset=gb2312");
-            lxs.exportExcel(yhd, toClient);
-            toClient.flush();
-            response.getOutputStream().flush();
-
-        } catch (IOException e) {
-            log.error("excel导出错误", e);
-        } finally {
-            try {
-                if (toClient != null) {
-                    toClient.close();
-                }
-            } catch (IOException e) {
-                log.error("excel导出错误", e);
-            }
-            try {
-                if (response != null && response.getOutputStream() != null) {
-                    response.getOutputStream().close();
-                }
-            } catch (IOException e) {
-                log.error("excel导出错误", e);
-            }
-        }
-    }
 
 
 }
