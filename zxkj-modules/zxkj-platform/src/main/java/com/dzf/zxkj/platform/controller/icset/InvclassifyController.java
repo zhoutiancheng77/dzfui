@@ -142,7 +142,7 @@ public class InvclassifyController {
 	}
 
 	// 查询单据号
-	@GetMapping("/queryInv")
+	@GetMapping("/queryDjCode")
 	public ReturnData queryDjCode() {
 		Json grid = new Json();
 		String invcode = yntBoPubUtil.getInvclCode(SystemUtil.getLoginCorpId());
