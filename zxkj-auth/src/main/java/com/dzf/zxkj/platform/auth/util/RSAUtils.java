@@ -2,28 +2,28 @@ package com.dzf.zxkj.platform.auth.util;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateFormatUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import javax.crypto.Cipher;
-import java.io.*;
+import java.io.ObjectInputStream;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.*;
-import java.util.Date;
 
 
 /**
  * RSA算法加密/解密工具类。
  * 
  */
+@SuppressWarnings("all")
 public class RSAUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RSAUtils.class);
@@ -33,7 +33,6 @@ public class RSAUtils {
 //    /**保存生成的密钥对的文件名称。 */
 //    private static final String RSA_PAIR_FILENAME = "/classes/__RSA_PAIR.txt";
     /**保存生成的密钥对的文件名称。 */
-    private static final String RSA_KEY_FILENAME = "/classes/__RSA_KEY.txt";
     /** 密钥大小 */
     private static final int KEY_SIZE = 1024; 
     /** 默认的安全服务提供者 */
@@ -44,7 +43,7 @@ public class RSAUtils {
     /** 缓存的密钥对。 */
     private static KeyPair oneKeyPair = null;
 
-    private static File rsaPairFile = null;
+    private static Resource resource;
 
     static {
         try {
@@ -53,100 +52,24 @@ public class RSAUtils {
         } catch (NoSuchAlgorithmException ex) {
             LOGGER.error(ex.getMessage());
         }
-        rsaPairFile = new File(getRSAPairFilePath());
+        resource =new ClassPathResource("__RSA_KEY.txt");
     }
 
     private RSAUtils() {
     }
 
     /**
-     * 生成并返回RSA密钥对。
-     */
-    private static synchronized KeyPair generateKeyPair() {
-        try {
-            keyPairGen.initialize(KEY_SIZE, new SecureRandom(DateFormatUtils.format(new Date(), "yyyyMMdd").getBytes()));
-            oneKeyPair = keyPairGen.generateKeyPair();
-            saveKeyPair(oneKeyPair);
-            return oneKeyPair;
-        } catch (InvalidParameterException ex) {
-            LOGGER.error("KeyPairGenerator does not support a key length of " + KEY_SIZE + ".", ex);
-        } catch (NullPointerException ex) {
-            LOGGER.error("RSAUtils#KEY_PAIR_GEN is null, can not generate KeyPairGenerator instance.",
-                    ex);
-        }
-        return null;
-    }
-
-    /**
-     * 返回生成/读取的密钥对文件的路径。
-     */
-    private static String getRSAPairFilePath() {
-        String urlPath = RSAUtils.class.getResource("/").getPath();
-        return (new File(urlPath).getParent() + RSA_KEY_FILENAME);
-    }
-
-    /**
-     * 若需要创建新的密钥对文件，则返回 {@code true}，否则 {@code false}。
-     */
-    private static boolean isCreateKeyPairFile() {
-        // 是否创建新的密钥对文件
-        boolean createNewKeyPair = false;
-        if (!rsaPairFile.exists() || rsaPairFile.isDirectory()) {
-            createNewKeyPair = true;
-        }
-        return createNewKeyPair;
-    }
-
-    /**
-     * 将指定的RSA密钥对以文件形式保存。
-     * 
-     * @param keyPair 要保存的密钥对。
-     */
-    private static void saveKeyPair(KeyPair keyPair) {
-        FileOutputStream fos = null;
-        ObjectOutputStream oos = null;
-        try {
-            fos = FileUtils.openOutputStream(rsaPairFile);
-            oos = new ObjectOutputStream(fos);
-            //公钥
-            RSAPublicKey publickey = (RSAPublicKey)keyPair.getPublic();
-            String strPublicKey = RSACoder.encryptBASE64(publickey.getEncoded());
-            //私钥
-            RSAPrivateKey privatekey = (RSAPrivateKey)keyPair.getPrivate();
-            String StrPrivateKey = RSACoder.encryptBASE64(privatekey.getEncoded());
-            
-            oos.writeObject(strPublicKey);
-            oos.writeObject(StrPrivateKey);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-        	IOUtils.closeQuietly(oos);
-            IOUtils.closeQuietly(fos);
-        }
-    }
-
-    /**
      * 返回RSA密钥对。
      */
     public static KeyPair getKeyPair() {
-        // 首先判断是否需要重新生成新的密钥对文件
-        if (isCreateKeyPairFile()) {
-            // 直接强制生成密钥对文件，并存入缓存。
-            return generateKeyPair();
-        }
-        if (oneKeyPair != null) {
-            return oneKeyPair;
-        }
         return readKeyPair();
     }
     
     // 同步读出保存的密钥对
     private static KeyPair readKeyPair() {
-        FileInputStream fis = null;
         ObjectInputStream ois = null;
         try {
-            fis = FileUtils.openInputStream(rsaPairFile);
-            ois = new ObjectInputStream(fis);
+            ois = new ObjectInputStream(resource.getInputStream());
             
             String strPublicKey = (String)ois.readObject();
             X509EncodedKeySpec bobPubKeySpec = new X509EncodedKeySpec(RSACoder.decryptBASE64(strPublicKey));   
@@ -164,7 +87,6 @@ public class RSAUtils {
             ex.printStackTrace();
         } finally {
             IOUtils.closeQuietly(ois);
-            IOUtils.closeQuietly(fis);
         }
         return null;
     }

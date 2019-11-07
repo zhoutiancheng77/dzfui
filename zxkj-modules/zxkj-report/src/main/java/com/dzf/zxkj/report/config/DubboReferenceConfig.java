@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DubboReferenceConfig {
-    @Reference
+    @Reference(version = "2.0.0", timeout = Integer.MAX_VALUE)
     private IZxkjPlatformService zxkjPlatformService;
 
     @Bean("zxkjPlatformService")
