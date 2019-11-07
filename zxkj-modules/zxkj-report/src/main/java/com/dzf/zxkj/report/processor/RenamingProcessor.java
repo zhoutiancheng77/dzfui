@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.processor;
 
 import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.utils.ArrayUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -18,7 +19,7 @@ public class RenamingProcessor extends ServletModelAttributeMethodProcessor{
     private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
     //Rename cache
-    private final Map<Class<?>, Map<String, String>> replaceMap = new ConcurrentHashMap<Class<?>, Map<String, String>>();
+    private final Map<String, Map<String, String>> replaceMap = new ConcurrentHashMap<>();
 
     public RenamingProcessor(boolean annotationNotRequired) {
         super(annotationNotRequired);
@@ -33,18 +34,28 @@ public class RenamingProcessor extends ServletModelAttributeMethodProcessor{
         }
 
         Class<?> targetClass = target.getClass();
-        if (!replaceMap.containsKey(targetClass)) {
+        if (!replaceMap.containsKey(targetClass.getName())) {
             Map<String, String> mapping = analyzeClass(targetClass);
-            replaceMap.put(targetClass, mapping);
+            replaceMap.put(targetClass.getName(), mapping);
         }
-        Map<String, String> mapping = replaceMap.get(targetClass);
+        Map<String, String> mapping = replaceMap.get(targetClass.getName());
         ParamNameDataBinder paramNameDataBinder = new ParamNameDataBinder(target, binder.getObjectName(), mapping);
         requestMappingHandlerAdapter.getWebBindingInitializer().initBinder(paramNameDataBinder, nativeWebRequest);
         super.bindRequestParameters(paramNameDataBinder, nativeWebRequest);
     }
 
-    private static Map<String, String> analyzeClass(Class<?> targetClass) {
+    private static Field[] getAllField(Class<?> targetClass){
         Field[] fields = targetClass.getDeclaredFields();
+        Class clazz = targetClass.getSuperclass();
+        if(clazz != null){
+            return ArrayUtil.mergeArray(fields, clazz.getDeclaredFields());
+        }
+        return fields;
+    }
+
+    private static Map<String, String> analyzeClass(Class<?> targetClass) {
+        Field[] fields = getAllField(targetClass);
+
         Map<String, String> renameMap = new HashMap<String, String>();
         for (Field field : fields) {
             JsonProperty paramNameAnnotation = field.getAnnotation(JsonProperty.class);
