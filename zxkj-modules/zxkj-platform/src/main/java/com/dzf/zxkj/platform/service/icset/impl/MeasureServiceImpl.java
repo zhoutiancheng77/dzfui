@@ -1,15 +1,15 @@
 package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.icset.MeasureVO;
@@ -24,11 +24,11 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -126,14 +126,14 @@ public class MeasureServiceImpl implements IMeasureService {
 	}
 
 	@Override
-	public void updateVOArr(String pk_corp, String cuserid, String sort, String order, List<MeasureVO> list)
+	public void updateVOArr(String pk_corp, String cuserid, List<MeasureVO> list)
 			throws DZFWarpException {
 
 		String k = null;
 		if (list == null || list.size() == 0)
 			return;
 
-		checkBeforeSave(pk_corp, sort, order, list);
+		checkBeforeSave(pk_corp, list);
 
 		List<MeasureVO> listNew = new ArrayList<MeasureVO>();
 		for (MeasureVO vo : list) {
@@ -159,14 +159,14 @@ public class MeasureServiceImpl implements IMeasureService {
 	}
 
 	@Override
-	public MeasureVO[] savenNewVOArr(String pk_corp, String cuserid, String sort, String order, List<MeasureVO> list)
+	public MeasureVO[] savenNewVOArr(String pk_corp, String cuserid,List<MeasureVO> list)
 			throws DZFWarpException {
 
 		String k = null;
 		if (list == null || list.size() == 0)
 			return null;
 
-		checkBeforeSave(pk_corp, sort, order, list);
+		checkBeforeSave(pk_corp, list);
 
 		List<MeasureVO> listNew = new ArrayList<MeasureVO>();
 		for (MeasureVO vo : list) {
@@ -232,8 +232,8 @@ public class MeasureServiceImpl implements IMeasureService {
 		}
 	}
 
-	private void checkBeforeSave(String pk_corp, String sort, String order, List<MeasureVO> list) {
-		List<MeasureVO> listAll = quyerByPkcorp(pk_corp, sort, order);
+	private void checkBeforeSave(String pk_corp, List<MeasureVO> list) {
+		List<MeasureVO> listAll = quyerByPkcorp(pk_corp, null, null);
 		HashSet<String> pkSet = new HashSet<String>();
 		for (MeasureVO vo : list) {
 			if (!StringUtil.isEmpty(vo.getPk_measure()))
@@ -270,11 +270,11 @@ public class MeasureServiceImpl implements IMeasureService {
 	}
 
 	@Override
-	public String saveImp(File file, String pk_corp, String fileType, String userid) throws DZFWarpException {
+	public String saveImp(MultipartFile file, String pk_corp, String fileType, String userid) throws DZFWarpException {
 		DZFDateTime date = new DZFDateTime();
-		FileInputStream is = null;
+		InputStream is = null;
 		try {
-			is = new FileInputStream(file);
+			is =file.getInputStream();
 			Workbook impBook = null;
 			if ("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);

@@ -1,19 +1,19 @@
-package com.dzf.zxkj.platform.service.qcset.impl;
+package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
@@ -28,7 +28,7 @@ import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.common.impl.BgPubServiceImpl;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
-import com.dzf.zxkj.platform.service.qcset.IQcService;
+import com.dzf.zxkj.platform.service.icset.IQcService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
@@ -45,11 +45,11 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -238,14 +238,14 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 
 	
 	@Override
-	public String saveImp(File file, String pk_corp, String fileType, String userid, DZFDate icdate)
+	public String saveImp(MultipartFile file, String pk_corp, String fileType, String userid, DZFDate icdate)
 			throws DZFWarpException {
-		FileInputStream is = null;
+		InputStream is = null;
 		try {
 
 			checkIsCbjz(pk_corp);
 			DZFDateTime date = new DZFDateTime();
-			is = new FileInputStream(file);
+			is = file.getInputStream();
 			Workbook impBook = null;
 			FormulaEvaluator formula= null;
 			if ("xls".equals(fileType)) {

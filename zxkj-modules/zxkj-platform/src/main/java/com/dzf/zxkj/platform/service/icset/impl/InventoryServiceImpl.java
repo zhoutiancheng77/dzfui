@@ -1,22 +1,20 @@
 package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.utils.IDGenerate;
-import com.dzf.zxkj.common.utils.SafeCompute;
-import com.dzf.zxkj.common.utils.SqlUtil;
-import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
@@ -30,6 +28,7 @@ import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.pjgl.IVATGoodsInvenRelaService;
+import com.dzf.zxkj.platform.service.report.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -42,63 +41,36 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("ic_inventoryserv")
 public class InventoryServiceImpl implements IInventoryService {
-
+    @Autowired
 	private SingleObjectBO singleObjectBO = null;
+    @Autowired
 	private IInvclassifyService splbService;
+    @Autowired
 	private IMeasureService jldwService;
 	@Autowired
 	private IVATGoodsInvenRelaService goodsinvenservice;
-
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
-
 	@Autowired
 	private IParameterSetService parameterserv;
-
 	@Autowired
 	private IInvAccAliasService ic_invtoryaliasserv = null;
-
 	@Autowired
 	private IAccountService accountService;
 	@Autowired
 	private ICorpService corpService;
-
-	public SingleObjectBO getSingleObjectBO() {
-		return singleObjectBO;
-	}
-
-	@Autowired
-	public void setSingleObjectBO(SingleObjectBO singleObjectBO) {
-		this.singleObjectBO = singleObjectBO;
-	}
-
-	public IInvclassifyService getSplbService() {
-		return splbService;
-	}
-
-	@Autowired
-	public void setSplbService(IInvclassifyService splbService) {
-		this.splbService = splbService;
-	}
-
-	public IMeasureService getJldwService() {
-		return jldwService;
-	}
-
-	@Autowired
-	public void setJldwService(IMeasureService jldwService) {
-		this.jldwService = jldwService;
-	}
-	
+    @Autowired
+    private IQueryLastNum ic_rep_cbbserv;
 	@Override
 	public String save(String pk_corp, InventoryVO[] vos) throws DZFWarpException {
 		return save(pk_corp, vos, null);
@@ -613,11 +585,11 @@ public class InventoryServiceImpl implements IInventoryService {
 	}
 
 	@Override
-	public String saveImp(File file, String pk_corp, String fileType, String userid) throws DZFWarpException {
-		FileInputStream is = null;
+	public String saveImp(MultipartFile file, String pk_corp, String fileType, String userid) throws DZFWarpException {
+		InputStream is = null;
 		try {
 			DZFDateTime date = new DZFDateTime();
-			is = new FileInputStream(file);
+			is = file.getInputStream();
 			Workbook impBook = null;
 			if ("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);
@@ -961,16 +933,16 @@ public class InventoryServiceImpl implements IInventoryService {
 			if(list != null && list.size()>0){
 				InventoryVO[] newvos = new InventoryVO[list.size()];
 				newvos = list.toArray(newvos);
-				getSingleObjectBO().insertVOArr(pk_corp, newvos);
+                singleObjectBO.insertVOArr(pk_corp, newvos);
 			}
 			
 			if (newInvclVoList != null && newInvclVoList.size() > 0) {
-				getSingleObjectBO().insertVOWithPK(pk_corp,
+                singleObjectBO.insertVOWithPK(pk_corp,
 						newInvclVoList.toArray(new InvclassifyVO[newInvclVoList.size()]));
 			}
 			
 			if (newMeasureVOList != null && newMeasureVOList.size() > 0) {
-				getSingleObjectBO().insertVOWithPK(pk_corp,
+                singleObjectBO.insertVOWithPK(pk_corp,
 						newMeasureVOList.toArray(new MeasureVO[newMeasureVOList.size()]));
 			}
 
@@ -1447,4 +1419,133 @@ public class InventoryServiceImpl implements IInventoryService {
 		return susflag;
 	}
 
+	@Override
+	public InventoryVO createPrice(String pk_corp, String priceway, String bili, String vdate, InventoryVO[] vos)
+			throws DZFWarpException {
+		DZFDate vDate = new DZFDate();
+		if (!StringUtil.isEmpty(vdate)) {
+			vDate = new DZFDate(vdate);
+		}
+		String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
+		int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
+		String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
+		int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
+
+		if ("1".equals(priceway)) {
+//			SQLParameter sp = new SQLParameter();
+//			StringBuffer sf = new StringBuffer();
+//			sf.append(" select * from ynt_qmcl where nvl(dr,0)=0 and pk_corp = ? and  period = ? ");
+//			sp.addParam(pk_corp);
+//			sp.addParam(DateUtils.getPeriod(vDate));
+//			List<QmclVO> list = (List<QmclVO>) singleObjectBO.executeQuery(sf.toString(),
+//					sp, new BeanListProcessor(QmclVO.class));
+//
+//			if(list ==null || list.size()==0){
+//				throw new BusinessException("期末处理数据出错！");
+//			}else{
+//				DZFBoolean value = list.get(0).getIscbjz();
+//				if(value == null || !value.booleanValue()){
+//					throw new BusinessException("本期还未成本结转，请先结转成本或选择按【销售平均单价】生成结算价！");
+//				}
+//			}
+			setJcdj(vos, pk_corp, vDate, num, price);
+		} else if ("2".equals(priceway)) {
+			setXsdj(vos, pk_corp, vDate, bili, price);
+		}
+		updateJsPrice(vos);
+		return null;
+	}
+
+	private void setJcdj(InventoryVO[] vos, String pk_corp, DZFDate vDate, int num, int price) {
+		if (vos == null || vos.length == 0)
+			return;
+		Map<String, IcbalanceVO> balMap = ic_rep_cbbserv.queryLastBanlanceVOs_byMap1(vDate.toString(), pk_corp, null,
+				true);
+
+		// 新模式模式 启用库存
+		CorpVO corpVo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);// 防止vo信息有变化
+		Map<String, IcbalanceVO> balMap1 = ic_rep_cbbserv.queryLastBanlanceVOs_byMap4(vDate.toString(), pk_corp, null,
+				true);
+		for (InventoryVO vo : vos) {
+			if (corpVo.getIbuildicstyle() != null && corpVo.getIbuildicstyle() == 1) {// 新模式库存
+				if (balMap != null && balMap.size() > 0) {
+					IcbalanceVO balvo = balMap.get(vo.getPk_inventory());
+					if (balvo != null) {
+						vo.setNjznum(balvo.getNnum() == null ? balvo.getNnum()
+								: new DZFDouble(balvo.getNnum().toString(), num));
+					}
+
+					IcbalanceVO balvo1 = balMap1.get(vo.getPk_inventory());
+					if (balvo1 != null) {
+						if ((vo.getNjznum() == null || vo.getNjznum().doubleValue() == 0)
+								&& (vo.getNjzmny() == null || vo.getNjzmny().doubleValue() == 0)) {
+						} else {
+							vo.setNcbprice(SafeCompute.div(balvo1.getNcost(), balvo1.getNnum()).setScale(price, 2));
+							vo.setNjzmny(balvo1.getNcost());
+							vo.setJsprice(SafeCompute.div(balvo1.getNcost(), balvo1.getNnum()).setScale(price, 2));
+						}
+					}
+				}
+			} else {
+				if ((vo.getNjznum() == null || vo.getNjznum().doubleValue() == 0)
+						&& (vo.getNjzmny() == null || vo.getNjzmny().doubleValue() == 0)) {
+				} else {
+					vo.setNcbprice(SafeCompute.div(vo.getNjzmny(), vo.getNjznum()).setScale(price, 2));
+					vo.setJsprice(SafeCompute.div(vo.getNjzmny(), vo.getNjznum()).setScale(price, 2));
+				}
+			}
+		}
+	}
+
+	private void setXsdj(InventoryVO[] vos, String pk_corp, DZFDate vDate, String bili, int price)
+			throws DZFWarpException {
+		if (vos == null || vos.length == 0)
+			return;
+		String period = DateUtils.getPeriod(vDate);
+		String bdate = DateUtils.getPeriodStartDate(period).toString();
+		String edate = DateUtils.getPeriodEndDate(period).toString();
+		StringBuffer sf = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+		sf.append(" select sum(nnum) nnum ,sum(nymny) nymny,pk_inventory from ( ");
+		// 出库
+		sf.append("  (select out1.pk_inventory,nnum as nnum ,nymny as nymny from ynt_ictradeout out1 ");
+		sf.append(
+				"   where out1.dbilldate >= ? and out1.dbilldate <= ? and out1.pk_corp =  ? and nvl(out1.dr,0)=0  and nvl(out1.nnum,0)>0 and nvl(out1.nymny,0)>0 ");
+		sp.addParam(bdate);
+		sp.addParam(edate);
+		sp.addParam(pk_corp);
+		sf.append("  )) group by pk_inventory ");
+		List<IcbalanceVO> ancevos = (List<IcbalanceVO>) singleObjectBO.executeQuery(sf.toString(), sp,
+				new BeanListProcessor(IcbalanceVO.class));
+		Map<String, IcbalanceVO> balMap = new java.util.HashMap<String, IcbalanceVO>();
+		if (ancevos != null && ancevos.size() > 0) {
+			for (IcbalanceVO v : ancevos) {
+				balMap.put(v.getPk_inventory(), v);
+			}
+		}
+		DZFDouble dbili = new DZFDouble(bili);
+		for (InventoryVO vo : vos) {
+			if (balMap != null && balMap.size() > 0) {
+				IcbalanceVO balvo = balMap.get(vo.getPk_inventory());
+				if (balvo != null) {
+					vo.setJsprice(SafeCompute.multiply(SafeCompute.div(balvo.getNymny(), balvo.getNnum()), dbili)
+							.setScale(price, 2));
+				}
+			}
+		}
+	}
+
+	private void updateJsPrice(InventoryVO[] vos) {
+		if (vos == null || vos.length == 0)
+			return;
+		//更新价格大于零的结算价
+		List<InventoryVO> list = Arrays.asList(vos);
+		List<InventoryVO> btlist = list.stream()
+				.filter(item -> item.getJsprice() != null && item.getJsprice().doubleValue() > 0)
+				.collect(Collectors.toList());
+		if(btlist == null || btlist.size() == 0)
+			return;
+		singleObjectBO.updateAry(btlist.toArray(new InventoryVO[btlist.size()]), new String[] { "jsprice" });
+
+	}
 }
