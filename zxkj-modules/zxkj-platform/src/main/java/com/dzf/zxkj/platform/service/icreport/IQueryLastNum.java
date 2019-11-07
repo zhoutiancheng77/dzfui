@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.service.report;
+package com.dzf.zxkj.platform.service.icreport;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
