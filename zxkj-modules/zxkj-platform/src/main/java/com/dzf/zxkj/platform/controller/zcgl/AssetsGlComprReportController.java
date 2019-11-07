@@ -1,25 +1,36 @@
 package com.dzf.zxkj.platform.controller.zcgl;
 
 import com.dzf.zxkj.common.base.BaseController;
-import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
-import com.dzf.zxkj.platform.model.sys.BdAssetCategoryVO;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetQueryCdtionVO;
 import com.dzf.zxkj.platform.model.zcgl.ZcdzVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.zcgl.IZczzdzReportService;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/am/am_rep_zczzdzbact")
@@ -29,7 +40,10 @@ public class AssetsGlComprReportController extends BaseController {
     @Autowired
     private IZczzdzReportService zczzdzReportService;
 
-    @PostMapping("/save")
+    @Autowired
+    private IZxkjPlatformService zxkjPlatformService;
+
+    @PostMapping("/query")
     public ReturnData<Grid> query(@MultiRequestBody AssetQueryCdtionVO qryVO, @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
         try {
@@ -53,9 +67,42 @@ public class AssetsGlComprReportController extends BaseController {
             printErrorLog(grid, e, "查询失败");
         }
 
-//        writeJson(grid);
-
         return ReturnData.ok().data(grid);
+    }
+
+    @PostMapping("print/pdf")
+    public void print(String corpName, String period, PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            String strlist = printParamVO.getList();
+            if (strlist == null) {
+                return;
+            }
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+
+            if (printParamVO.getPageOrt().equals("Y")) {
+                printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
+            } else {
+                printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
+            }
+            ZcdzVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(), ZcdzVO[].class);
+
+            Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
+            tmap.put("公司", bodyvos[0].getGs());
+            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
+            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos,
+                    "总 账 对 账", new String[] { "zcsx", "zclb", "zckm",
+                            "zzkmbh", "zzkmmc", "zcje", "zzje" }, new String[] {
+                            "资产属性", "资产类别", "资产科目", "总账科目编号", "总账科目名称", "资产金额",
+                            "总账" }, new int[] { 1, 1, 1, 1, 1, 1, 1 }, 20,
+                    printParamVO.getType(), pmap, tmap);
+
+        } catch (DocumentException e) {
+            log.error("打印错误", e);
+        } catch (IOException e) {
+            log.error("打印错误", e);
+        }
     }
 
 }

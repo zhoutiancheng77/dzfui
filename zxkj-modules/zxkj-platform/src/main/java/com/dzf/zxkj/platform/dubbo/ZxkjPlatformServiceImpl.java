@@ -22,13 +22,14 @@ import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.*;
-import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
-@Service(version = "2.0.0", timeout = Integer.MAX_VALUE)
+@Service
+@org.apache.dubbo.config.annotation.Service(version = "2.0.0", timeout = Integer.MAX_VALUE)
 public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
