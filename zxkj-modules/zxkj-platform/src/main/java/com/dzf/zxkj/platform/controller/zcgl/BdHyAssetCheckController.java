@@ -37,11 +37,11 @@ public class BdHyAssetCheckController extends BaseController {
 
 
     @GetMapping("/query")
-	public ReturnData<Grid> query(@RequestParam("kmfaid") String kmfaid,@MultiRequestBody CorpVO corpVo) {
+	public ReturnData<Grid> query(@MultiRequestBody CorpVO corpVo) {
 		Grid grid = new Grid();
 		try {
 			List<BdTradeAssetCheckVO> list = null;
-			list = sys_zczzdzbserv.queryAssCheckVOs(corpVo.getPk_corp(), kmfaid);
+			list = sys_zczzdzbserv.queryAssCheckVOs(corpVo.getPk_corp(), "");
 			grid.setTotal(list == null ? 0 : (long) list.size());
 			grid.setRows(list == null ? new ArrayList<BdTradeAssetCheckVO>() : list);
 			grid.setSuccess(true);

@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.service.report.impl;
+package com.dzf.zxkj.platform.service.icreport.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -14,7 +14,7 @@ import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.report.IQueryLastNum;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

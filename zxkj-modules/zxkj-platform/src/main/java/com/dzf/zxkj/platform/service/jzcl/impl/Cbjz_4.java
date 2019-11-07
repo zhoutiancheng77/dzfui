@@ -18,7 +18,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.report.IQueryLastNum;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 

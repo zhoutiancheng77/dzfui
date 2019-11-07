@@ -33,7 +33,7 @@ import com.dzf.zxkj.platform.service.glic.IInventoryQcService;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.jzcl.IQmclNoicService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.report.IQueryLastNum;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;

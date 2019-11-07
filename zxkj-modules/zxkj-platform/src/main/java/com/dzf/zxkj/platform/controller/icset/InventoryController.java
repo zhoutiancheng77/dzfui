@@ -18,7 +18,7 @@ import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
-import com.dzf.zxkj.platform.service.report.IQueryLastNum;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;

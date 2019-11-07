@@ -8,8 +8,8 @@ import com.dzf.zxkj.platform.model.icset.IntradeParamVO;
 import com.dzf.zxkj.platform.model.icset.IntradeoutVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 
 public interface ISaleoutService {
@@ -44,7 +44,7 @@ public interface ISaleoutService {
 
 	public AggIcTradeVO[] queryAggIntradeVOByID(String pk_ictrade_h, String pk_corp) throws DZFWarpException ;
 
-	public String saveImp(File file, String pk_corp, String fileType, String cuserid) throws DZFWarpException;
+	public String saveImp(MultipartFile file, String pk_corp, String fileType, String cuserid) throws DZFWarpException;
 	
 	public StringBuffer buildQmjzMsg(List<String> periodList, String pk_corp) throws DZFWarpException;
 

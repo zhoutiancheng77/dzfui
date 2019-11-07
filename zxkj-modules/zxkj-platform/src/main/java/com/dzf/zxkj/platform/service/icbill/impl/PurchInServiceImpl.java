@@ -1,13 +1,13 @@
 package com.dzf.zxkj.platform.service.icbill.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
@@ -17,10 +17,10 @@ import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.IcBillTypeEnum;
 import com.dzf.zxkj.common.enums.IcPayWayEnum;
 import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
@@ -39,12 +39,15 @@ import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
-import com.dzf.zxkj.platform.service.icset.*;
+import com.dzf.zxkj.platform.service.icset.IInvAccSetService;
+import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
+import com.dzf.zxkj.platform.service.icset.IInventoryService;
+import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.pjgl.IVATInComInvoiceService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.report.IQueryLastNum;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -59,11 +62,11 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -2088,10 +2091,10 @@ public class PurchInServiceImpl implements IPurchInService {
 	}
 
 	@Override
-	public String saveImp(File file, String pk_corp, String fileType, String cuserid) throws DZFWarpException {
-		FileInputStream is = null;
+	public String saveImp(MultipartFile file, String pk_corp, String fileType, String cuserid) throws DZFWarpException {
+		InputStream is = null;
 		try {
-			is = new FileInputStream(file);
+			is = file.getInputStream();
 			Workbook impBook = null;
 			if ("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);
@@ -2906,5 +2909,49 @@ public class PurchInServiceImpl implements IPurchInService {
 		for (TzpzBVO bvo : tblist) {
 			bvo.setRowno(rowno++);
 		}
+	}
+
+	@Override
+	public StringBuffer buildQmjzMsg(List<String> periodList, String pk_corp) throws DZFWarpException {
+		if(periodList == null || periodList.size() == 0)
+			return null;
+
+		String part = SqlUtil.buildSqlForIn("period", periodList.toArray(new String[0]));
+
+		SQLParameter sp = new SQLParameter();
+		StringBuffer sf = new StringBuffer();
+		sf.append(" select * from ynt_qmcl where nvl(dr,0)=0 and pk_corp = ? and ");
+		sf.append(part);
+		sp.addParam(pk_corp);
+
+		List<QmclVO> list = (List<QmclVO>) singleObjectBO.executeQuery(sf.toString(),
+				sp, new BeanListProcessor(QmclVO.class));
+
+		VOUtil.ascSort(list, new String[]{"period"});
+		sf.setLength(0);
+		if(list != null && list.size() > 0){
+			String period;
+			DZFBoolean value;
+			for(QmclVO vo : list){
+				period = vo.getPeriod();
+
+				value = vo.getIsqjsyjz();
+				if(value != null && value.booleanValue()){
+					sf.append("<p><font color = 'red'>").append(period).append("期间损益已结转，生成凭证后，请重新结转期间损益!</font></p>");
+				}
+
+				value = vo.getIscbjz();
+				if(value != null && value.booleanValue()){
+					sf.append("<p><font color = 'red'>").append(period).append("成本已结转，生成凭证后，请重新结转成本!</font></p>");
+				}
+
+				value = vo.getIshdsytz();
+				if(value != null && value.booleanValue()){
+					sf.append("<p><font color = 'red'>").append(period).append("汇兑调整已完成，生成凭证后，请重新进行汇兑调整!</font></p>");
+				}
+			}
+		}
+
+		return sf;
 	}
 }
