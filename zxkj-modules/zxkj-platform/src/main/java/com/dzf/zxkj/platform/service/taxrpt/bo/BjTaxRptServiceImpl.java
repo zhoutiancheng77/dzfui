@@ -1,48 +1,39 @@
 package com.dzf.zxkj.platform.service.taxrpt.bo;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.log4j.Logger;
-import org.springframework.stereotype.Service;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.dzf.dao.bs.SingleObjectBO;
-import com.dzf.dao.jdbc.framework.SQLParameter;
-import com.dzf.dao.jdbc.framework.processor.BeanProcessor;
-import com.dzf.model.gl.gl_bdset.YntCpaccountVO;
-import com.dzf.model.gl.jiangsutaxrpt.TaxRptConst;
-import com.dzf.model.gl.taxrpt.PeriodType;
-import com.dzf.model.gl.taxrpt.TaxReportDetailVO;
-import com.dzf.model.gl.taxrpt.TaxReportNewQcInitVO;
-import com.dzf.model.gl.taxrpt.TaxReportVO;
-import com.dzf.model.gl.taxrpt.TaxRptTempletVO;
-import com.dzf.model.gl.taxrpt.chk.TaxRptChk10101_beijing;
-import com.dzf.model.gl.taxrpt.chk.TaxRptChk10102_beijing;
-import com.dzf.model.sys.sys_power.CorpTaxVo;
-import com.dzf.model.sys.sys_power.CorpVO;
-import com.dzf.model.sys.sys_power.UserVO;
-import com.dzf.pub.BusinessException;
-import com.dzf.pub.DZFWarpException;
-import com.dzf.pub.DzfUtil;
-import com.dzf.pub.StringUtil;
-import com.dzf.pub.cache.AccountCache;
-import com.dzf.pub.dzfconstant.DZFConstant;
-import com.dzf.pub.lang.DZFDouble;
-import com.dzf.service.gl.gl_bdset.ICpaccountCodeRuleService;
-import com.dzf.service.gl.gl_bdset.ICpaccountService;
-import com.dzf.service.gl.gl_cwreport.service.YntBoPubUtil;
-import com.dzf.service.gl.taxrpt.ITaxBalaceCcrService;
-import com.dzf.service.gl.taxrpt.impl.SpecialSheetSetter;
-import com.dzf.service.gl.taxrpt.impl.TaxDeclarationServiceImpl;
-import com.dzf.service.spreadjs.SpreadTool;
-import com.dzf.spring.SpringUtils;
+import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.framework.processor.BeanProcessor;
+import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.constant.DZFConstant;
+import com.dzf.zxkj.common.constant.PeriodType;
+import com.dzf.zxkj.common.constant.TaxRptConst;
+import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.utils.DzfUtil;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportDetailVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportNewQcInitVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportVO;
+import com.dzf.zxkj.platform.model.tax.TaxRptTempletVO;
+import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10101_beijing;
+import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10102_beijing;
+import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
+import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
+import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
+import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
+import com.dzf.zxkj.platform.service.taxrpt.impl.SpecialSheetSetter;
+import com.dzf.zxkj.platform.service.taxrpt.impl.TaxDeclarationServiceImpl;
+import com.dzf.zxkj.platform.service.taxrpt.spreadjs.SpreadTool;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -50,16 +41,25 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.*;
 
 //  北京地区
 @Service("taxRptservice_beijing")
+@Slf4j
 public class BjTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
-	private static Logger log = Logger.getLogger(BjTaxRptServiceImpl.class);
+	@Autowired
+	private IAccountService accountService;
+	@Autowired
+	private ICorpService corpService;
 
 //	@Override
 //	public List<RptBillVO> getRptBillVO(TaxReportVO paravo, SingleObjectBO sbo, CorpVO corpvo) throws DZFWarpException {
-//		List<RptBillVO> volist = null;
 //		// 先查询客户档案中勾选的报表
 //
 //		SQLParameter params = new SQLParameter();
@@ -121,7 +121,7 @@ public class BjTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 	@Override
 	public String checkReportData(Map mapJson, CorpVO corpvo, TaxReportVO reportvo,
-			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
+								  HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
 		String errmsg = "";
 		if (reportvo.getSb_zlbh().equals(TaxRptConst.SB_ZLBH10101)) {
 			errmsg = checkForSB_ZLBH10101_bj(mapJson, corpvo, reportvo, hmRptDetail, sbo);
@@ -227,7 +227,7 @@ public class BjTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 
 		if (listReportName.contains(maintablename)) {
-			YntCpaccountVO[] accountVO  = AccountCache.getInstance().get(null, corpvo.getPk_corp());
+			YntCpaccountVO[] accountVO  = accountService.queryByPk(corpvo.getPk_corp());
 			// E7+F7+F10 6行4列和5列 9行5列
 			DZFDouble dkfp = getDzfDouble(spreadtool.getCellValue(mapJson, maintablename, 6, 4))
 					.add(getDzfDouble(spreadtool.getCellValue(mapJson, maintablename, 6, 5)))
@@ -655,7 +655,7 @@ public class BjTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	
 	@Override
 	public void processZeroDeclaration(TaxReportVO reportvo,
-			CorpVO corpvo,CorpTaxVo corptaxvo, SingleObjectBO singleObjectBO)
+									   CorpVO corpvo, CorpTaxVo corptaxvo, SingleObjectBO singleObjectBO)
 			throws DZFWarpException {
 		if(reportvo == null)
 			return;
@@ -689,7 +689,7 @@ public class BjTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		Map objMapRet = new SpreadTool().fillReportWithZero(objMap,listRptName, reportvo,qcdata, corpvo,corptaxvo);
 		// 设置企业所得税的封面字段
 		SpecialSheetSetter setter = new SpecialSheetSetter(
-				singleObjectBO, new SpreadTool());
+				singleObjectBO, new SpreadTool(), corpService);
 		String sReturn = null;
 		try {
 			setter.setSpecialSheetDefaultValue(reportvo, objMapRet);

@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.model.tax.jiangsutaxrpt;
+package com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest;
 /**
  * 查询待申报的报表清单结果VO
  * @author 

@@ -2,8 +2,8 @@ package com.dzf.zxkj.platform.service.taxrpt.jiangsurequest;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.tax.TaxReportVO;
-import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.QueryResultVO;
-import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.RptBillVO;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.QueryResultVO;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.RptBillVO;
 
 import java.util.List;
 import java.util.Map;

@@ -1,46 +1,45 @@
 package com.dzf.zxkj.platform.service.taxrpt.bo;
 
+import com.alibaba.fastjson.JSON;
+import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.framework.processor.BeanProcessor;
+import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.constant.PeriodType;
+import com.dzf.zxkj.common.constant.TaxRptConst;
+import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportDetailVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportNewQcInitVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportVO;
+import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10102_chongqing;
+import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
+import com.dzf.zxkj.platform.service.taxrpt.impl.TaxDeclarationServiceImpl;
+import com.dzf.zxkj.platform.service.taxrpt.spreadjs.SpreadTool;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.alibaba.fastjson.JSON;
-import com.dzf.dao.bs.SingleObjectBO;
-import com.dzf.dao.jdbc.framework.SQLParameter;
-import com.dzf.dao.jdbc.framework.processor.BeanProcessor;
-import com.dzf.model.gl.gl_bdset.YntCpaccountVO;
-import com.dzf.model.gl.jiangsutaxrpt.TaxRptConst;
-import com.dzf.model.gl.taxrpt.PeriodType;
-import com.dzf.model.gl.taxrpt.TaxReportDetailVO;
-import com.dzf.model.gl.taxrpt.TaxReportNewQcInitVO;
-import com.dzf.model.gl.taxrpt.TaxReportVO;
-import com.dzf.model.gl.taxrpt.chk.TaxRptChk10102_chongqing;
-import com.dzf.model.sys.sys_power.CorpVO;
-import com.dzf.model.sys.sys_power.UserVO;
-import com.dzf.pub.BusinessException;
-import com.dzf.pub.DZFWarpException;
-import com.dzf.pub.StringUtil;
-import com.dzf.pub.cache.AccountCache;
-import com.dzf.pub.lang.DZFDouble;
-import com.dzf.service.gl.taxrpt.ITaxBalaceCcrService;
-import com.dzf.service.gl.taxrpt.impl.TaxDeclarationServiceImpl;
-import com.dzf.service.gl.taxrpt.shandong.impl.TaxReportServiceImpl;
-import com.dzf.service.spreadjs.SpreadTool;
-import com.dzf.spring.SpringUtils;
-
 // 重庆地区
 @Service("taxRptservice_congqin")
+@Slf4j
 public class CqTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
-
-	private static Logger log = Logger.getLogger(TaxReportServiceImpl.class);
 
 	@Autowired
 	private SingleObjectBO sbo;
+	@Autowired
+	private IAccountService accountService;
 
 //	@Override
 //	public TaxTypeListDetailVO[] getTypeList(CorpVO corpvo, String yearmonth, String operatorid, String operatedate,
@@ -351,7 +350,7 @@ public class CqTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //	}
 
 	public String checkReportData(Map mapJson, CorpVO corpvo, TaxReportVO reportvo,
-			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
+								  HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
 		String errmsg = "";
 		if (reportvo.getSb_zlbh().equals(TaxRptConst.SB_ZLBH10412)
 //				|| reportvo.getSb_zlbh().equals(TaxRptConst.SB_ZLBH1041201)
@@ -397,7 +396,7 @@ public class CqTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	private String checkForSB_ZLBH10102_cq(Map mapJson, CorpVO corpvo, TaxReportVO reportvo,
 			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo2) {
 		String errmsg = "";
-		YntCpaccountVO[] accountVO = AccountCache.getInstance().get(null, corpvo.getPk_corp());
+		YntCpaccountVO[] accountVO = accountService.queryByPk(corpvo.getPk_corp());
 		ITaxBalaceCcrService taxbalancesrv = (ITaxBalaceCcrService) SpringUtils.getBean("gl_tax_formulaimpl");
 		SpreadTool spreadtool = new SpreadTool(taxbalancesrv);
 		List<String> listReportName = spreadtool.getReportNameList(mapJson);

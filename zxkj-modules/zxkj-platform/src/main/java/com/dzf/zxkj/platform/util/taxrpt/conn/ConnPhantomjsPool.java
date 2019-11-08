@@ -1,20 +1,19 @@
 package com.dzf.zxkj.platform.util.taxrpt.conn;
 
+import com.dzf.zxkj.common.utils.StringUtil;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.log4j.Logger;
-
-import com.dzf.pub.StringUtil;
 
 /**
  * 
  * phantomjs连接池
  * 
  */
+@Slf4j
 public class ConnPhantomjsPool {
-	private static final Logger LOGGER =Logger.getLogger(ConnPhantomjsPool.class);
 	/** 空闲的连接池 */
 	private LinkedBlockingQueue<String> idleConnectionPool = null;
 	/** 连接池默认最小连接数 */
@@ -43,7 +42,7 @@ public class ConnPhantomjsPool {
 				createTrackerServer(logId, COUNT);
 			}
 		} catch (Exception e) {
-			LOGGER.error("初始化访问phantomjs连接池错误!", e);
+			log.error("初始化访问phantomjs连接池错误!", e);
 		}
 	}
 
@@ -57,7 +56,7 @@ public class ConnPhantomjsPool {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("初始化访问phantomjs队列错误", e);
+			log.error("初始化访问phantomjs队列错误", e);
 		}
 	}
 
@@ -69,13 +68,13 @@ public class ConnPhantomjsPool {
 				String logId = UUID.randomUUID().toString();
 				createTrackerServer(logId, COUNT);
 				try {
-					requestid = idleConnectionPool.poll(waitTimes,TimeUnit.SECONDS);
+					requestid = idleConnectionPool.poll(waitTimes, TimeUnit.SECONDS);
 				} catch (Exception e) {
-					LOGGER.error("新增访问phantomjs队列连接失败",e);
+					log.error("新增访问phantomjs队列连接失败",e);
 				}
 			}
 			if (StringUtil.isEmpty(requestid)) {
-				LOGGER.error("获取访问phantomjs队列连接失败，请稍候");
+				log.error("获取访问phantomjs队列连接失败，请稍候");
 			}
 		}
 		return requestid;
