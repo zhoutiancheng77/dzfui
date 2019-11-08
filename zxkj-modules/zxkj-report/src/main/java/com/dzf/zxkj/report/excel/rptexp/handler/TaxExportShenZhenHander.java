@@ -1,8 +1,8 @@
 package com.dzf.zxkj.report.excel.rptexp.handler;
 
-import com.dzf.model.gl.gl_cwreport.*;
-import com.dzf.pub.StringUtil;
-import com.dzf.service.gl.gl_cwreport.rptexp.TaxExportUtil;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.report.*;
+import com.dzf.zxkj.report.excel.rptexp.TaxExportUtil;
 import org.dom4j.Element;
 
 import java.util.Map;
@@ -10,7 +10,7 @@ import java.util.Map;
 public class TaxExportShenZhenHander extends TaxExportHander{
 
 	public void putXjllXml_yb(Map<String, XjllbVO> xjllmap, XjllTaxVo[] xjlltaxvos, Element ybqycwbbxx, Integer areatype,
-			String corptype) {
+							  String corptype) {
 		Element ybqyxjllbVO = ybqycwbbxx.addElement("ybqyxjllbVO");
 		Element ybqyxjllbGrid = ybqyxjllbVO.addElement("ybqyxjllbGrid");
 		Element child =null;
@@ -44,7 +44,7 @@ public class TaxExportShenZhenHander extends TaxExportHander{
 
 
 	
-	public void putZcfzXml_Yb(Map<String, ZcFzBVO>  zcfzmap,ZcfzTaxVo[] zcfztaxvos, Element root,Integer areatype,String corptype) {
+	public void putZcfzXml_Yb(Map<String, ZcFzBVO>  zcfzmap, ZcfzTaxVo[] zcfztaxvos, Element root, Integer areatype, String corptype) {
 		// 创建syxqyzcfzb
 		Element syxqyzcfzb = root.addElement("ybqyzcfzbVO");
 		// 创建syxqyzcfzbGrid
@@ -139,7 +139,7 @@ public class TaxExportShenZhenHander extends TaxExportHander{
 		}
 	}
 	
-	public void putLrbXml_Yb(Map<String, LrbVO> lrbmap,LrbTaxVo[] lrbtaxvos, Element root, Integer area_type,String corptype) {
+	public void putLrbXml_Yb(Map<String, LrbVO> lrbmap, LrbTaxVo[] lrbtaxvos, Element root, Integer area_type, String corptype) {
 		// 创建syxqyzcfzb
 		Element ybqylrbVO = root.addElement("ybqylrbVO");
 		// 创建syxqyzcfzbGrid

@@ -1,14 +1,14 @@
 package com.dzf.zxkj.report.excel.rptexp.handler;
 
-import com.dzf.model.gl.gl_cwreport.LrbVO;
-import com.dzf.model.gl.gl_cwreport.XjllbVO;
-import com.dzf.model.gl.gl_cwreport.ZcFzBVO;
-import com.dzf.report.enums.ExportTemplateEnum;
-import com.dzf.service.gl.gl_cwreport.rptexp.ExcelExportHander;
-import com.dzf.service.gl.gl_cwreport.rptexp.OneWorkBookKj2007Excel;
-import com.dzf.service.gl.gl_cwreport.rptexp.OneWorkBookKj2013Excel;
-import com.dzf.service.gl.gl_cwreport.rptexp.ResourceUtil;
-import org.apache.log4j.Logger;
+import com.dzf.zxkj.platform.model.report.LrbVO;
+import com.dzf.zxkj.platform.model.report.XjllbVO;
+import com.dzf.zxkj.platform.model.report.ZcFzBVO;
+import com.dzf.zxkj.report.excel.rptexp.ExcelExportHander;
+import com.dzf.zxkj.report.excel.rptexp.OneWorkBookKj2007Excel;
+import com.dzf.zxkj.report.excel.rptexp.OneWorkBookKj2013Excel;
+import com.dzf.zxkj.report.excel.rptexp.ResourceUtil;
+import com.dzf.zxkj.report.excel.rptexp.enums.ExportTemplateEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -16,9 +16,9 @@ import org.springframework.core.io.Resource;
 
 import java.util.Map;
 
+@Slf4j
 public class ExcelExportQingDaoHander extends ExcelExportHander implements OneWorkBookKj2007Excel, OneWorkBookKj2013Excel {
 
-    private static Logger log = Logger.getLogger(ExcelExportQingDaoHander.class);
 
     @Override
     public Workbook createWorkBookKj2007(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) throws Exception{
