@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -7,16 +8,24 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
-import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.SafeCompute;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.KmConFzVoTreeStrateGyByPk;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
+import com.dzf.zxkj.report.excel.cwzb.FsYeBExcelField;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
+import com.dzf.zxkj.report.service.power.IButtonPowerService;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +33,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
 
 @RestController
@@ -34,6 +46,9 @@ public class FsYeController  extends ReportBaseController {
     private IFsYeReport gl_rep_fsyebserv;
     @Autowired
     private IKMMXZReport gl_rep_kmmxjserv;
+
+    @Autowired
+    private IButtonPowerService btn_power_ser;
 
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
@@ -72,7 +87,7 @@ public class FsYeController  extends ReportBaseController {
                 /** 转换成tree类型 */
                 FseJyeVO fsvo = (FseJyeVO) BDTreeCreator.createTree(fsejyevos, new KmConFzVoTreeStrateGyByPk(isshowfs,isxswyewfs,isxswyewfs_bn));
                 fsejyevos = (FseJyeVO[]) fsvo.getChildren();
-                fsejyevos = getTotalRow(fsejyevos);
+                fsejyevos = getTotalRow(fsejyevos,true);
                 log.info("查询成功！");
                 grid.setSuccess(true);
                 grid.setTotal(fsejyevos == null ? 0 : (long) Arrays.asList(fsejyevos).size());
@@ -136,10 +151,11 @@ public class FsYeController  extends ReportBaseController {
         return false;
     }
 
-    private FseJyeVO[] getTotalRow(FseJyeVO[] fsejyevo){
+    private FseJyeVO[] getTotalRow(FseJyeVO[] fsejyevo,boolean btree){
         if(fsejyevo==null || fsejyevo.length==0){
             return fsejyevo;
         }
+        List<String> codelist = new ArrayList<String>();
         DZFDouble qcjfhj = DZFDouble.ZERO_DBL;
         DZFDouble qcdfhj = DZFDouble.ZERO_DBL;
         DZFDouble fsjfhj = DZFDouble.ZERO_DBL;
@@ -161,6 +177,17 @@ public class FsYeController  extends ReportBaseController {
 
         /** 是否已这个开始的 */
         for (int i = 0; i < fsejyevo.length; i++) {
+            //如果是树状结构，不需要continue
+            if(!btree){
+                if(codelist.size()>0){
+                    boolean tt = bKmStartWith(fsejyevo, codelist, i);
+                    if(tt){
+                        continue;
+                    }
+                }
+            }
+            codelist.add(fsejyevo[i].getKmbm());
+
             qcjfhj = SafeCompute.add(qcjfhj, fsejyevo[i].getQcjf());
             qcdfhj = SafeCompute.add(qcdfhj, fsejyevo[i].getQcdf());
             fsjfhj = SafeCompute.add(fsjfhj, fsejyevo[i].getFsjf());
@@ -204,6 +231,16 @@ public class FsYeController  extends ReportBaseController {
         res[fsejyevo.length] = total;
         return res;
     }
+
+    private boolean bKmStartWith(FseJyeVO[] fsejyevo, List<String> codelist, int i) {
+        for(String code:codelist){
+            if(fsejyevo[i].getKmbm().startsWith(code)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private FseJyeVO[] conversionTree(FseJyeVO[] fsejyevos,Integer level,Integer cjz,String firstkm
             ,DZFBoolean isshowfs, DZFBoolean isxswyewfs, DZFBoolean isxswyewfs_bn
     ) {
@@ -414,7 +451,127 @@ public class FsYeController  extends ReportBaseController {
 
 
 
+    //导出Excel
+    @PostMapping("export/excel")
+    public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        boolean bexport = checkExcelExport(corpVO.getPk_corp(),response);
+        if(!bexport){
+            return;
+        }
+        Excelexport2003<FseJyeVO> lxs = new Excelexport2003<FseJyeVO>();
+        FsYeBExcelField fsyebfield =  getFsExcel(excelExportVO,queryparamvo,corpVO);
+        baseExcelExport(response,lxs,fsyebfield);
+//        QueryParamVO vo = getQueryParamVO();
+//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(), "发生额及余额表导出:"
+//                        + vo.getBegindate1().toString().substring(0, 7) + "-" + vo.getEnddate().toString().substring(0, 7),
+//                ISysConstants.SYS_2);
+    }
+    private String getCNName(int month) {
+        String[] cnnames = new String[] { "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月" };
 
+        return cnnames[month - 1];
+    }
 
+    private FsYeBExcelField getFsExcel(ReportExcelExportVO excelExportVO,KmReoprtQueryParamVO vo,CorpVO cpvo) {
+        String nodename = "发生额余额表";
+        String currencyname = new ReportUtil().getCurrencyDw(vo.getCurrency());
+        String[] periods = null;
+        String[] allsheetname = null;
+        String qj = "";
+        String corpname = "";
+
+        String strlist = excelExportVO.getList();
+        FseJyeVO[] listVo = JsonUtils.deserialize(strlist, FseJyeVO[].class);
+        corpname = listVo[0].getGs();
+        qj = listVo[0].getTitlePeriod();
+
+        List<FseJyeVO[]> fslist = new ArrayList<FseJyeVO[]>();
+        if ("0".equals(excelExportVO.getExcelsel())) {// 当前期间
+            allsheetname = new String[] { getCNName(vo.getBegindate1().getMonth()) };
+            periods = new String[] { DateUtils.getPeriod(vo.getBegindate1()) };
+            fslist.add(listVo);
+        } else {
+            vo.setBegindate1(new DZFDate(vo.getEnddate().getYear() + "-01-01"));
+            vo.setEnddate(new DZFDate(vo.getEnddate().getYear() + "-12-01"));
+            // 根据vo查询明细账数据
+            if(cpvo.getBegindate().getYear() == vo.getBegindate1().getYear()){
+                vo.setBegindate1(cpvo.getBegindate());
+            }
+            Object[] qryobjs = gl_rep_kmmxjserv.getKMMXZVOs1(vo, false);
+            String year = vo.getBegindate1().getYear() + "";
+            String pk_corp = vo.getPk_corp();
+            Object[] fsobjs = gl_rep_fsyebserv.getYearFsJyeVOs(year, pk_corp, qryobjs, "");
+            Map<String, List<FseJyeVO>> maps = (Map<String, List<FseJyeVO>>) fsobjs[0];
+            List<String> sheetnamelist = new ArrayList<String>();
+            FseJyeVO[] tvos = null;
+            List<String> periodlist = ReportUtil.getPeriods(vo.getBegindate1(), vo.getEnddate());
+            for(String period:periodlist){
+                tvos = getTotalRow(maps.get(period).toArray(new FseJyeVO[0]),false);
+                putFsyeOnKmlb(tvos);
+                fslist.add(tvos);
+                sheetnamelist.add(getCNName(Integer.parseInt(period.substring(5, 7))));
+            }
+            allsheetname = sheetnamelist.toArray(new String[0]);
+            periods = periodlist.toArray(new String[0]);
+        }
+        FsYeBExcelField field = new FsYeBExcelField(nodename, vo.getPk_currency(), currencyname, periods, allsheetname, qj,
+                corpname);
+        field.setAllsheetzcvos(fslist);
+        return field;
+    }
+
+    private void putFsyeOnKmlb(FseJyeVO[] vos) {
+        if (vos != null && vos.length > 0) {
+            for(FseJyeVO vo:vos){
+                if(StringUtil.isEmpty(vo.getKmlb())){
+                    vo.setKmlb("");
+                }
+                switch (vo.getKmlb()) {
+                    case "0":
+                        vo.setKmlb("资产");
+                        break;
+                    case "1":
+                        vo.setKmlb("负债");
+                        break;
+                    case "2":
+                        vo.setKmlb("共同");
+                        break;
+                    case "3":
+                        vo.setKmlb("所有者权益");
+                        break;
+                    case "4":
+                        vo.setKmlb("成本");
+                        break;
+                    case "5":
+                        vo.setKmlb("损益");
+                        break;
+                    default:
+                        vo.setKmlb("合计:");
+                        break;
+                }
+            }
+        }
+
+    }
+
+    private boolean checkExcelExport(String pk_corp,HttpServletResponse response) {
+        String tips = btn_power_ser.qryButtonPower(pk_corp);
+        if (!StringUtil.isEmpty(tips)) {
+            PrintWriter pw = null;
+            try {
+                pw = response.getWriter();
+                pw.write("<h4 style = 'margin:15% auto;color:red;font-size: 20px;text-align:center;padding:0px '>"+tips+"</h4>");
+                pw.flush();
+            } catch (IOException e) {
+
+            } finally {
+                if (pw != null) {
+                    pw.close();
+                }
+            }
+            return false;
+        }
+        return true;
+    }
 
 }

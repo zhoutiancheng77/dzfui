@@ -4,14 +4,9 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
-import com.dzf.zxkj.platform.model.report.FseJyeVO;
-import com.dzf.zxkj.platform.model.report.LrbVO;
-import com.dzf.zxkj.platform.model.report.LrbquarterlyVO;
-import com.dzf.zxkj.platform.model.report.ZcFzBVO;
+import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.report.service.IZxkjReportService;
-import com.dzf.zxkj.report.service.cwbb.ILrbQuarterlyReport;
-import com.dzf.zxkj.report.service.cwbb.ILrbReport;
-import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
+import com.dzf.zxkj.report.service.cwbb.*;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +25,10 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     private IZcFzBReport zcFzBReport;
     @Autowired
     private ILrbQuarterlyReport lrbQuarterlyReport;
+    @Autowired
+    private IXjllbReport xjllReport;
+    @Autowired
+    private IXjllbQuarterlyReport xjlyquarbReport;
 
     @Override
     public FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction) {
@@ -79,5 +78,22 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     @Override
     public LrbVO[] getLRBVOsByPeriod(QueryParamVO paramVO) {
         return lrbReport.getLRBVOsByPeriod(paramVO);
+    }
+
+    @Override
+    public LrbVO[] getLRBVOs(QueryParamVO paramVO) {
+        return lrbReport.getLRBVOs(paramVO);
+    }
+    @Override
+    public ZcFzBVO[] getZCFZBVOs(String period , String pk_corp,String ishasjz,String[] hasyes){
+        return zcFzBReport.getZCFZBVOs(period, pk_corp, ishasjz, hasyes);
+    }
+    @Override
+    public XjllbVO[] getXJLLVOs(QueryParamVO vo){
+        return xjllReport.query(vo);
+    }
+    @Override
+    public List<XjllquarterlyVo> getXjllQuartervos(QueryParamVO paramvo,String jd){
+        return xjlyquarbReport.getXjllQuartervos(paramvo, jd);
     }
 }

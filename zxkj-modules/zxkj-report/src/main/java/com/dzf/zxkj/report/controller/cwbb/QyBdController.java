@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.model.report.QyBdVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.excel.cwbb.QyBdExcelField;
 import com.dzf.zxkj.report.print.cwbb.QyBdPdfField;
 import com.dzf.zxkj.report.service.cwbb.IQyBdService;
@@ -39,7 +40,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("gl_rep_qybdact")
 @Slf4j
-public class QyBdController extends BaseController {
+public class QyBdController extends ReportBaseController {
     @Autowired
     private IQyBdService qybdser;
     @Autowired
@@ -75,37 +76,8 @@ public class QyBdController extends BaseController {
         qyBdExcelField.setCreator(userVO.getCuserid());
         qyBdExcelField.setCorpName(corpName);
 
-        OutputStream toClient = null;
-        try {
-            response.reset();
-            String filename = qyBdExcelField.getExcelport2003Name();
-            String formattedName = URLEncoder.encode(filename, "UTF-8");
-            response.addHeader("Content-Disposition",
-                    "attachment;filename=" + filename + ";filename*=UTF-8''" + formattedName);
-            toClient = new BufferedOutputStream(response.getOutputStream());
-            response.setContentType("application/vnd.ms-excel;charset=gb2312");
-            lxs.exportExcel(qyBdExcelField, toClient);
-            toClient.flush();
-            response.getOutputStream().flush();
 
-        } catch (IOException e) {
-            log.error("excel导出错误", e);
-        } finally {
-            try {
-                if (toClient != null) {
-                    toClient.close();
-                }
-            } catch (IOException e) {
-                log.error("excel导出错误", e);
-            }
-            try {
-                if (response != null && response.getOutputStream() != null) {
-                    response.getOutputStream().close();
-                }
-            } catch (IOException e) {
-                log.error("excel导出错误", e);
-            }
-        }
+        baseExcelExport(response,lxs,qyBdExcelField);
     }
 
     @PostMapping("print/pdf")

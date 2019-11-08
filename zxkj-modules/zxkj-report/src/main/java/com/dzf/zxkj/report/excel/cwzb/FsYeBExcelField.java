@@ -23,7 +23,6 @@ import java.util.List;
  *
  */
 public class FsYeBExcelField  extends MuiltSheetAndTitleExceport<FseJyeVO> implements UnitExceport {
-
     private FseJyeVO[] vos = null;
 
     private List<FseJyeVO[]> allsheetvos = null;
@@ -66,38 +65,67 @@ public class FsYeBExcelField  extends MuiltSheetAndTitleExceport<FseJyeVO> imple
 
     private Fieldelement[] getFileWbs() {
         List<Fieldelement> list = new ArrayList<Fieldelement>();
-        list.add(new Fieldelement("fzlb", "辅助类别", false, 0, true, 2, 1));
-        list.add(new Fieldelement("text", "项目名称", false, 0, true, 40, false, 2, 1));
-        list.add(new Fieldelement("rq", "日期", false, 0, true, 2, 1));
-        list.add(new Fieldelement("pzh", "凭证号", false, 0, true, 2, 1));
-        list.add(new Fieldelement("zy", "摘要", false, 0, true, 2, 1));
-        list.add(new Fieldelement("bz", "币别", false, 0, true, 2, 1));
-        Fieldelement jfelement = new Fieldelement("", "借方金额", true, 2, true, 1, 2);
-        jfelement.setChilds(new Fieldelement[] { new Fieldelement("ybjf", "原币", true, 2, true),
-                new Fieldelement("jf", "本位币", true, 2, true) });
-        list.add(jfelement);
-        Fieldelement dfelement = new Fieldelement("", "贷方金额", true, 2, true, 1, 2);
-        dfelement.setChilds(new Fieldelement[] { new Fieldelement("ybdf", "原币", true, 2, true),
-                new Fieldelement("df", "本位币", true, 2, true) });
-        list.add(dfelement);
-        Fieldelement yeelement = new Fieldelement("", "余额", true, 2, true, 1, 3);
-        yeelement.setChilds(new Fieldelement[] { new Fieldelement("fx", "方向", false, 0, true),
-                new Fieldelement("ybye", "原币", true, 2, true), new Fieldelement("ye", "本位币", true, 2, true) });
+        list.add( new Fieldelement("kmlb", "科目类别", false, 0, true));
+        list.add( new Fieldelement("kmbm", "科目编码", false, 0, true));
+        list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,80,false));
+        Fieldelement qcelement = new Fieldelement("", "期初余额", true, 2, true, 1, 4);
+        qcelement.setChilds(new Fieldelement[] {
+                new Fieldelement("ybqcjf", "借方(原币)", true, 2, true),
+                new Fieldelement("qcjf", "借方(本位币)", true, 2, true),
+                new Fieldelement("ybqcdf", "贷方(原币)", true, 2, true),
+                new Fieldelement("qcdf", "贷方(本位币)", true, 2, true) });
+        list.add(qcelement);
+        Fieldelement bqelement = new Fieldelement("", "本期发生额", true, 2, true, 1, 4);
+        bqelement.setChilds(new Fieldelement[] {
+                new Fieldelement("ybfsjf", "借方(原币)", true, 2, true),
+                new Fieldelement("fsjf", "借方(本位币)", true, 2, true),
+                new Fieldelement("ybfsdf", "贷方(原币)", true, 2, true),
+                new Fieldelement("fsdf", "贷方(本位币)", true, 2, true) });
+        list.add(bqelement);
+        Fieldelement bnelement = new Fieldelement("", "本年发生额", true, 2, true, 1, 4);
+        bnelement.setChilds(new Fieldelement[] {
+                new Fieldelement("ybjftotal", "借方(原币)", true, 2, true),
+                new Fieldelement("jftotal", "借方(本位币)", true, 2, true),
+                new Fieldelement("ybdftotal", "贷方(原币)", true, 2, true),
+                new Fieldelement("dftotal", "贷方(本位币)", true, 2, true) });
+        list.add(bnelement);
+        Fieldelement yeelement = new Fieldelement("", "期末余额", true, 2, true, 1, 4);
+        yeelement.setChilds(new Fieldelement[] {
+                new Fieldelement("ybqmjf", "借方(原币)", true, 2, true),
+                new Fieldelement("qmjf", "借方(本位币)", true, 2, true),
+                new Fieldelement("ybqmdf", "贷方(原币)", true, 2, true),
+                new Fieldelement("qmdf", "贷方(本位币)", true, 2, true) });
         list.add(yeelement);
-
         return list.toArray(new Fieldelement[0]);
     }
 
-    private Fieldelement[] fields = new Fieldelement[] {
-            new Fieldelement("fzlb", "辅助类别", false, 0, true),
-            new Fieldelement("text", "项目名称", false, 0, true,80,false),
-            new Fieldelement("rq", "日期", false, 0, true),
-            new Fieldelement("pzh", "凭证号", false, 0, true),
-            new Fieldelement("zy", "摘要", false, 0, true),
-            new Fieldelement("jf", "借方", true, 2, true),
-            new Fieldelement("df", "贷方", true, 2, true),
-            new Fieldelement("fx", "方向", false, 0, true),
-            new Fieldelement("ye", "余额", true, 2, true) };
+    private Fieldelement[] getFileNoWbs() {
+        List<Fieldelement> list = new ArrayList<Fieldelement>();
+        list.add( new Fieldelement("kmlb", "科目类别", false, 0, true));
+        list.add( new Fieldelement("kmbm", "科目编码", false, 0, true));
+        list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,80,false));
+        Fieldelement qcelement = new Fieldelement("", "期初余额", true, 2, true, 1, 2);
+        qcelement.setChilds(
+                new Fieldelement[] { new Fieldelement("qcjf", "借方", true, 2, true),
+                        new Fieldelement("qcdf", "贷方", true, 2, true) });
+        list.add(qcelement);
+        Fieldelement bqelement = new Fieldelement("", "本期发生额", true, 2, true, 1, 2);
+        bqelement.setChilds(
+                new Fieldelement[] { new Fieldelement("fsjf", "借方", true, 2, true),
+                        new Fieldelement("fsdf", "贷方", true, 2, true) });
+        list.add(bqelement);
+        Fieldelement bnelement = new Fieldelement("", "本年发生额", true, 2, true, 1, 2);
+        bnelement.setChilds(
+                new Fieldelement[] { new Fieldelement("jftotal", "借方", true, 2, true),
+                        new Fieldelement("dftotal", "贷方", true, 2, true) });
+        list.add(bnelement);
+        Fieldelement yeelement = new Fieldelement("", "期末余额", true, 2, true, 1, 2);
+        yeelement.setChilds(
+                new Fieldelement[] { new Fieldelement("qmjf", "借方", true, 2, true),
+                        new Fieldelement("qmdf", "贷方", true, 2, true) });
+        list.add(yeelement);
+        return list.toArray(new Fieldelement[0]);
+    }
 
     @Override
     public String getExcelport2007Name() {
@@ -129,7 +157,7 @@ public class FsYeBExcelField  extends MuiltSheetAndTitleExceport<FseJyeVO> imple
         if (!StringUtil.isEmpty(pk_currency) && !pk_currency.equals(IGlobalConstants.RMB_currency_id)) {
             return getFileWbs();
         } else {
-            return fields;
+            return getFileNoWbs();
         }
     }
 
