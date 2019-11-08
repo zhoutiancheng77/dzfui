@@ -1,29 +1,28 @@
 package com.dzf.zxkj.platform.service.taxrpt.bo;
 
+import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.common.constant.TaxRptConst;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportDetailVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportVO;
+import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10101_guangxi;
+import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10102_guangxi;
+import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
-
-import com.dzf.dao.bs.SingleObjectBO;
-import com.dzf.dao.jdbc.framework.SQLParameter;
-import com.dzf.model.gl.jiangsutaxrpt.TaxRptConst;
-import com.dzf.model.gl.taxrpt.TaxReportDetailVO;
-import com.dzf.model.gl.taxrpt.TaxReportVO;
-import com.dzf.model.gl.taxrpt.chk.TaxRptChk10101_guangxi;
-import com.dzf.model.gl.taxrpt.chk.TaxRptChk10102_guangxi;
-import com.dzf.model.sys.sys_power.CorpVO;
-import com.dzf.model.sys.sys_power.UserVO;
-import com.dzf.pub.DZFWarpException;
-
 @Service("taxRptservice_guangxi")
 public class GxTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	@Override
 	public String checkReportData(Map mapJson, CorpVO corpvo,
-			TaxReportVO reportvo,
-			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo)
+								  TaxReportVO reportvo,
+								  HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo)
 			throws DZFWarpException {
 		String errmsg = "";
 		if (reportvo.getSb_zlbh().equals(TaxRptConst.SB_ZLBH10412)){

@@ -1,31 +1,30 @@
 package com.dzf.zxkj.platform.service.taxrpt.bo;
 
+import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.constant.TaxRptConst;
+import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.utils.SafeCompute;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportDetailVO;
+import com.dzf.zxkj.platform.model.tax.TaxReportVO;
+import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
+import com.dzf.zxkj.platform.service.taxrpt.spreadjs.SpreadTool;
+import org.springframework.stereotype.Service;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.springframework.stereotype.Service;
-
-import com.dzf.dao.bs.SingleObjectBO;
-import com.dzf.model.gl.jiangsutaxrpt.TaxRptConst;
-import com.dzf.model.gl.taxrpt.TaxReportDetailVO;
-import com.dzf.model.gl.taxrpt.TaxReportVO;
-import com.dzf.model.sys.sys_power.CorpVO;
-import com.dzf.model.sys.sys_power.UserVO;
-import com.dzf.pub.DZFWarpException;
-import com.dzf.pub.StringUtil;
-import com.dzf.pub.lang.DZFDouble;
-import com.dzf.pub.util.SafeCompute;
-import com.dzf.service.gl.taxrpt.ITaxBalaceCcrService;
-import com.dzf.service.spreadjs.SpreadTool;
-import com.dzf.spring.SpringUtils;
 
 @Service("taxRptservice_zhejiang")
 public class ZjTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	@Override
 	public String checkReportData(Map mapJson, CorpVO corpvo,
-			TaxReportVO reportvo,
-			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo)
+								  TaxReportVO reportvo,
+								  HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo)
 			throws DZFWarpException {
 		String errmsg = "";
 		if (reportvo.getSb_zlbh().equals(TaxRptConst.SB_ZLBH10412)){
@@ -36,7 +35,7 @@ public class ZjTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	}
 	
 	protected String checkForSB_ZLBH10412(Map mapJson, CorpVO corpvo, TaxReportVO reportvo,
-			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
+										  HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
 		String errmsg = "";
 		ITaxBalaceCcrService taxbalancesrv = (ITaxBalaceCcrService) SpringUtils.getBean("gl_tax_formulaimpl");
 		SpreadTool spreadtool = new SpreadTool(taxbalancesrv);
