@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping
+@RequestMapping("am_rep_zcmxact")
 @Slf4j
 public class AmZcMxReportController extends BaseController {
     @Autowired
