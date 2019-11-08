@@ -4,13 +4,19 @@ import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.report.XsZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
+import com.dzf.zxkj.report.excel.cwzb.XszExcelField;
 import com.dzf.zxkj.report.service.cwzb.IXsZReport;
+import com.dzf.zxkj.report.service.power.IButtonPowerService;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +24,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +41,9 @@ public class XszController  extends ReportBaseController {
 
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
+
+    @Autowired
+    private IButtonPowerService btn_power_ser;
 
     /**
      * 查询科目明细数据
@@ -112,5 +124,48 @@ public class XszController  extends ReportBaseController {
         }
         kmmxvos = Arrays.copyOfRange(kmmxvos, beginIndex, endIndex);
         return kmmxvos;
+    }
+
+    private boolean checkExcelExport(String pk_corp,HttpServletResponse response) {
+        String tips = btn_power_ser.qryButtonPower(pk_corp);
+        if (!StringUtil.isEmpty(tips)) {
+            PrintWriter pw = null;
+            try {
+                pw = response.getWriter();
+                pw.write("<h4 style = 'margin:15% auto;color:red;font-size: 20px;text-align:center;padding:0px '>"+tips+"</h4>");
+                pw.flush();
+            } catch (IOException e) {
+
+            } finally {
+                if (pw != null) {
+                    pw.close();
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+    //导出Excel
+    @PostMapping("export/excel")
+    public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
+        boolean bexport = checkExcelExport(queryparamvo.getPk_corp(),response);
+        if(!bexport){
+            return;
+        }
+        XsZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),XsZVO[].class);
+        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
+        String gs= CodeUtils1.deCode(qrycorpvo.getUnitname());
+        String qj=  listVo[0].getTitlePeriod();
+        listVo = queryVOsFromCon(queryparamvo,corpVO);
+        String currencyname = new ReportUtil().getCurrencyDw(queryparamvo.getCurrency());
+        String[] periods = new String[]{qj};
+        String[] allsheetname = new String[]{"序时账"};
+
+        XszExcelField field = new XszExcelField("序时账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,
+                CodeUtils1.deCode(qrycorpvo.getUnitname()));
+
+        //日志记录
+//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
+//                "序时账导出:"+queryvo.getBegindate1() +"-"+ queryvo.getEnddate(), ISysConstants.SYS_2);
     }
 }
