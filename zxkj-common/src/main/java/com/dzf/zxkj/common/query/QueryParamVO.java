@@ -108,6 +108,8 @@ public class QueryParamVO extends SuperVO {
     private String chargedeptname;
     private String currency; //币种名称
 
+    private String period;
+
     //----begin---资产负债报表查询参数
     private String ishasye;
 
@@ -118,6 +120,14 @@ public class QueryParamVO extends SuperVO {
     private String hasye3;
 
     private String hasye4;
+
+    public String getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(String period) {
+        this.period = period;
+    }
 
     //----end---资产负债报表查询参数
 
