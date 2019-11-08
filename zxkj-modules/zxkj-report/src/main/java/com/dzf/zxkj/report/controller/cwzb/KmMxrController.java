@@ -9,15 +9,21 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.common.utils.ArrayUtil;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.report.KmConFzVoTreeStrategy;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.report.KmmxConFzMxVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
+import com.dzf.zxkj.report.excel.cwzb.KmmxExcelField;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @RestController
@@ -46,7 +53,7 @@ public class KmMxrController extends ReportBaseController {
     @PostMapping("/queryAction")
     public ReturnData queryAction(@MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO) {
         ReportDataGrid grid = new ReportDataGrid();
-        KmReoprtQueryParamVO queryParamvo = getQueryParamVO(queryparamvo,corpVO);
+        KmReoprtQueryParamVO queryParamvo = (KmReoprtQueryParamVO)getQueryParamVO(queryparamvo,corpVO);
         try {
             int page = queryParamvo == null ?1: queryParamvo.getPage();
             if(queryParamvo.getBswitch()!=null && queryParamvo.getBswitch().booleanValue()){
@@ -336,17 +343,37 @@ public class KmMxrController extends ReportBaseController {
         return sortMap;
     }
 
-    public KmReoprtQueryParamVO getQueryParamVO(@MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO){
-        KmReoprtQueryParamVO paramvo = (KmReoprtQueryParamVO)super.getQueryParamVO( queryparamvo,corpVO);
 
-        //把字符串变成codelist集合
-        if(paramvo.getKms()!=null && paramvo.getKms().length()>0){
-            List<String> codelist = Arrays.asList(paramvo.getKms().split(","));
-            paramvo.setKmcodelist(codelist);
-        }
-        return paramvo;
+    @PostMapping("export/excel")
+    public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
+
+        KmMxZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),KmMxZVO[].class);
+
+        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
+        String gs= CodeUtils1.deCode(qrycorpvo.getUnitname());
+        String qj=  listVo[0].getTitlePeriod();
+        String pk_currency = queryparamvo.getPk_currency();
+        String userid= userVO.getCuserid();
+        queryparamvo.setBtotalyear(DZFBoolean.TRUE);//是否显示本年累计
+        KmMxZVO[] kmmxvos = gl_rep_kmmxjserv.getKMMXZConFzVOs(queryparamvo,null);
+        kmmxvos = filterQcVos(kmmxvos,queryparamvo.getPk_corp(),zxkjPlatformService);
+        kmmxvos = getCurrKm(kmmxvos, queryparamvo.getCurrkmbm());
+        ReportUtil.updateKFx(kmmxvos);
+        listVo =kmmxvos ;
+        String currencyname = new ReportUtil().getCurrencyDw(queryparamvo.getCurrency());
+        String[] periods = new String[]{qj};
+        String[] allsheetname = new String[]{"科目明细账"};
+
+        KmmxExcelField field = new KmmxExcelField("科目明细账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,
+                CodeUtils1.deCode(qrycorpvo.getUnitname()));
+
+        Excelexport2003<KmMxZVO> lxs = new Excelexport2003<KmMxZVO>();
+        baseExcelExport(response,lxs,field);
+
+//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
+//                "科目明细账导出:"+queryParamvo.getBegindate1().toString().substring(0, 7)
+//                        +"-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
     }
-
 
 
 
