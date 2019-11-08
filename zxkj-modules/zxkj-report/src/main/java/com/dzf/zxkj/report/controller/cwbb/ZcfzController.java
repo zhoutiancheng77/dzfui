@@ -1,31 +1,38 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.common.utils.Common;
-import com.dzf.zxkj.common.utils.DateUtils;
-import com.dzf.zxkj.common.utils.DzfUtil;
-import com.dzf.zxkj.common.utils.SafeCompute;
+import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
-import com.dzf.zxkj.platform.model.report.ReportDataGrid;
-import com.dzf.zxkj.platform.model.report.ZcFzBVO;
-import com.dzf.zxkj.platform.model.report.ZcfzMsgVo;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
+import com.dzf.zxkj.report.excel.cwbb.ZcfzExcelField;
+import com.dzf.zxkj.report.excel.rptexp.handler.TaxEnHander;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.service.cwbb.IXjllbReport;
 import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
+import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 @RestController
 @RequestMapping("gl_rep_zcfzact")
@@ -43,6 +50,9 @@ public class ZcfzController  extends ReportBaseController {
 
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
+
+    @Autowired
+    public SingleObjectBO singleObjectBO;
 
 
     /**
@@ -180,10 +190,219 @@ public class ZcfzController  extends ReportBaseController {
 
 
 
+    /**
+     * 导出Excel
+     */
+    @PostMapping("export/excel")
+    public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),ZcFzBVO[].class);
+        String qj = listVo[0].getTitlePeriod();
+
+        //获取利润表数据
+        String corpIds = queryparamvo.getPk_corp();
+        if (StringUtil.isEmpty(corpIds)) {
+            corpIds = corpVO.getPk_corp();
+        }
+        CorpVO cpvo = zxkjPlatformService.queryCorpByPk(corpIds);
+        String gs = listVo[0].getGs();
+        Excelexport2003<ZcFzBVO> lxs = new Excelexport2003<ZcFzBVO>();
+        ZcfzExcelField zcfz = getExcelField(excelExportVO,queryparamvo,userVO,listVo, gs, qj);
+        zcfz.setCorptype(cpvo.getCorptype());
+
+        baseExcelExport(response,lxs,zcfz);
+
+//        String excelsel = getRequest().getParameter("excelsel");
+//        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
+//            qj = qj.substring(0, 4);
+//        }
+//        //日志记录
+//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
+//                "资产负债导出:" + qj, ISysConstants.SYS_2);
+    }
 
 
+    private ZcfzExcelField getExcelField(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, UserVO userVO, ZcFzBVO[] listVo, String gs, String qj) {
+        ZcfzExcelField zcfz = new ZcfzExcelField();
+
+        List<ZcFzBVO[]> listbvos = new ArrayList<ZcFzBVO[]>();
+
+        String excelsel = excelExportVO.getExcelsel();
+
+        String[] strs = new String[]{"一月", "二月", "三月", "四月",
+                "五月", "六月", "七月", "八月",
+                "九月", "十月", "十一月", "十二月"};
+
+        List<String> periods = new ArrayList<String>();
+        List<String> titlename = new ArrayList<String>();
+
+        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {//按照年来查询
+            String ishajz = "N";
+            if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
+                ishajz = "Y";
+            }
+
+            String ishasye = queryParamvo.getIshasye();
+            String hasye1 = queryParamvo.getHasye1();
+            String hasye2 = queryParamvo.getHasye2();
+            String hasye3 = queryParamvo.getHasye3();
+            if (ishasye == null || "".equals(ishasye)) {
+                ishasye = "N";
+            }
+            String[] yes = null;
+
+            if ("Y".equals(ishasye)) {
+                yes = new String[]{ishasye, hasye1, hasye2, hasye3};
+            } else {
+                yes = new String[]{"N", "N", "N", "N"};
+            }
+
+            CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
+
+            String begstr = null;
+
+            if (cpvo.getBegindate().getYear() == queryParamvo.getBegindate1().getYear()) {//和建账日期对比
+                begstr = DateUtils.getPeriod(cpvo.getBegindate()) + "-01";//从一月份开始查询
+            } else {
+                begstr = queryParamvo.getBegindate1().getYear() + "-01" + "-01";
+            }
+
+            String endstr = queryParamvo.getBegindate1().getYear() + "-12" + "-01";//从一月份开始查询 ;
+
+            listbvos = gl_rep_zcfzserv.getZcfzVOs(new DZFDate(begstr), new DZFDate(endstr),
+                    queryParamvo.getPk_corp(), ishajz, yes, null);
+
+            periods = ReportUtil.getPeriods(new DZFDate(begstr), new DZFDate(endstr));
+
+            for (int i = strs.length - listbvos.size(); i < 12; i++) {
+                titlename.add(strs[i]);
+            }
+        } else {
+            listbvos.add(listVo);//多页签导出集合
+            titlename.add("资产负债表");
+            periods.add(qj);
+        }
+
+        zcfz.setPeriods(periods.toArray(new String[0]));
+        zcfz.setAllsheetname(titlename.toArray(new String[0]));
+        zcfz.setZcfzvos(listVo);
+        zcfz.setAllsheetzcvos(listbvos);
+        zcfz.setQj(qj);
+        zcfz.setCreator(userVO.getUser_name());
+        zcfz.setCorpName(gs);
+        return zcfz;
+    }
 
 
+    /**
+     * @return []
+     * @Author gzx
+     * @Description 英文报表导出
+     * @Param void
+     */
+    @PostMapping("export/excelEn")
+    public void excelReportEn(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),ZcFzBVO[].class);
+        String qj = listVo[0].getTitlePeriod();
+        String gs = listVo[0].getGs();
+        CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
+
+        List<ZcFzBVO[]> listZcfzBvos = getListZcfzBvos(excelExportVO,queryParamvo,listVo, gs, qj, cpvo);
+        List<LrbVO[]> listLrbBvos = getListLrbBvos(excelExportVO,queryParamvo,qj, cpvo);
+
+        LrbTaxVo[] lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = '1314'", new SQLParameter());
+
+        Map<String, String> taxvo = new HashMap();
+        for (LrbTaxVo lrbTaxVo : lrbtaxvos) {
+            String vname = lrbTaxVo.getVname();
+            if (!StringUtil.isEmpty(vname)) {
+                String[] vanmeArr = vname.split("_");
+                taxvo.put(vanmeArr[0].toLowerCase(), vanmeArr[1]);
+            }
+        }
+
+        TaxEnHander taxHander = new TaxEnHander();
+        Map<String, Workbook> workbookMap = taxHander.handle(listZcfzBvos, taxvo, cpvo.unitname, listLrbBvos);
+
+        exportExcelToZip(response, workbookMap, "资产负债表、利润表(" + qj + ")");
+
+//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
+//                "财务报表英文模式导出:" + qj, ISysConstants.SYS_2);
+    }
+
+    private List<LrbVO[]> getListLrbBvos(ReportExcelExportVO excelExportVO,KmReoprtQueryParamVO queryParamvo, String qj,  CorpVO cpvo) {
+        List<LrbVO[]> lrbvos = new ArrayList<LrbVO[]>();
+        String excelsel = excelExportVO.getExcelsel();
+        // 按照年来查询
+        String year = queryParamvo.getBegindate1().getYear() + "";
+
+        Map<String, List<LrbVO>> mapvalues = gl_rep_lrbserv.getYearLrbMap(year, queryParamvo.getPk_corp(),
+                queryParamvo.getXmmcid(), null, queryParamvo.getIshasjz());
+        List<String> periods = new ArrayList<String>();
+        String begstr = queryParamvo.getBegindate1().toString();
+        String endstr = queryParamvo.getBegindate1().toString();
+        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
+            if (cpvo.getBegindate().getYear() == queryParamvo.getBegindate1().getYear()) {// 和建账日期对比
+                begstr = DateUtils.getPeriod(cpvo.getBegindate()) + "-01";// 从一月份开始查询
+            } else {
+                begstr = queryParamvo.getBegindate1().getYear() + "-01" + "-01";
+            }
+
+            endstr = queryParamvo.getBegindate1().getYear() + "-12" + "-01";// 从一月份开始查询
+        }
+
+        periods = ReportUtil.getPeriods(new DZFDate(begstr), new DZFDate(endstr));
+
+        for (String period : periods) {
+            if (mapvalues.get(period) != null && mapvalues.get(period).size() > 0) {
+                lrbvos.add(mapvalues.get(period).toArray(new LrbVO[0]));
+            }
+        }
+
+
+        return lrbvos;
+    }
+
+    private List<ZcFzBVO[]> getListZcfzBvos(ReportExcelExportVO excelExportVO,KmReoprtQueryParamVO queryParamvo, ZcFzBVO[] listVo, String gs, String qj, CorpVO cpvo) {
+        List<ZcFzBVO[]> listZcfzBvos = new ArrayList<>();
+        String excelsel = excelExportVO.getExcelsel();
+        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
+            String ishajz = "N";
+            if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
+                ishajz = "Y";
+            }
+
+            String ishasye = queryParamvo.getIshasye();
+            String hasye1 = queryParamvo.getHasye1();
+            String hasye2 = queryParamvo.getHasye2();
+            String hasye3 =queryParamvo.getHasye3();
+            if (ishasye == null || "".equals(ishasye)) {
+                ishasye = "N";
+            }
+            String[] yes = null;
+
+            if ("Y".equals(ishasye)) {
+                yes = new String[]{ishasye, hasye1, hasye2, hasye3};
+            } else {
+                yes = new String[]{"N", "N", "N", "N"};
+            }
+
+            String begstr = null;
+
+            if (cpvo.getBegindate().getYear() == queryParamvo.getBegindate1().getYear()) {//和建账日期对比
+                begstr = DateUtils.getPeriod(cpvo.getBegindate()) + "-01";//从一月份开始查询
+            } else {
+                begstr = queryParamvo.getBegindate1().getYear() + "-01" + "-01";
+            }
+
+            String endstr = queryParamvo.getBegindate1().getYear() + "-12" + "-01";//从一月份开始查询 ;
+
+            listZcfzBvos = gl_rep_zcfzserv.getZcfzVOs(new DZFDate(begstr), new DZFDate(endstr),
+                    queryParamvo.getPk_corp(), ishajz, yes, null);
+        } else {
+            listZcfzBvos.add(listVo);
+        }
+        return listZcfzBvos;
+    }
 
 
 

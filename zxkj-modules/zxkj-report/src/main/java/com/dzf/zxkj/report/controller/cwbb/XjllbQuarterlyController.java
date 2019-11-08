@@ -1,14 +1,20 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.report.XjllbVO;
 import com.dzf.zxkj.platform.model.report.XjllquarterlyVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
+import com.dzf.zxkj.report.excel.cwbb.XjllQuarterlyExcelField;
 import com.dzf.zxkj.report.service.cwbb.IXjllbQuarterlyReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("gl_rep_xjlyquarbact")
@@ -71,6 +79,27 @@ public class XjllbQuarterlyController extends ReportBaseController {
             count ="4";
         }
         return new String[]{res,count};
+    }
+
+    //导出Excel
+    @PostMapping("export/excel")
+    public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
+
+        XjllquarterlyVo[] listVo = JsonUtils.deserialize(excelExportVO.getList(),XjllquarterlyVo[].class);//
+        String gs=  listVo[0].getGs();
+        String qj=  listVo[0].getTitlePeriod();
+        Excelexport2003<XjllquarterlyVo> lxs = new Excelexport2003<XjllquarterlyVo>();
+        XjllQuarterlyExcelField lrb = new XjllQuarterlyExcelField();
+        lrb.setLrbvos(listVo);
+
+        lrb.setQj(qj);
+        lrb.setCreator(userVO.getUser_name());
+        lrb.setCorpName(gs);
+
+        baseExcelExport(response,lxs,lrb);
+
+        // 日志记录接口
+//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(), "现金流量季报导出:" +qj, ISysConstants.SYS_2);
     }
 
 
