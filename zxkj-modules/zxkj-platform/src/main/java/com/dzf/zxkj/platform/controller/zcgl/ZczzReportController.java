@@ -126,7 +126,7 @@ public class ZczzReportController extends BaseController {
                 }
             }
 
-            ZcZzVO[] bodyvos = JsonUtils.deserialize(param.getData(), ZcZzVO[].class);
+            ZcZzVO[] bodyvos = JsonUtils.deserialize(param.getList(), ZcZzVO[].class);
 
             Map<String, String> tmap = new HashMap<>();// 声明一个map用来存title
             tmap.put("公司", bodyvos[0].getGs());

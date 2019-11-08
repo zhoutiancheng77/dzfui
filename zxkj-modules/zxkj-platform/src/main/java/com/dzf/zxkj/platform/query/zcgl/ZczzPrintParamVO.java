@@ -6,5 +6,4 @@ import lombok.Data;
 @Data
 public class ZczzPrintParamVO extends PrintParamVO {
     private String zcsx;
-    private String data;
 }
