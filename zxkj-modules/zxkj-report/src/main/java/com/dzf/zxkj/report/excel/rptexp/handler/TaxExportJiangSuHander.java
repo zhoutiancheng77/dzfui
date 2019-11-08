@@ -1,7 +1,7 @@
 package com.dzf.zxkj.report.excel.rptexp.handler;
 
-import com.dzf.model.gl.gl_cwreport.*;
-import com.dzf.service.gl.gl_cwreport.rptexp.TaxExportUtil;
+import com.dzf.zxkj.platform.model.report.*;
+import com.dzf.zxkj.report.excel.rptexp.TaxExportUtil;
 import org.dom4j.Element;
 
 import java.util.List;

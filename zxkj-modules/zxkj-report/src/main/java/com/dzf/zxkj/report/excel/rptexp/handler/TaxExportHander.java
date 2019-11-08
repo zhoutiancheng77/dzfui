@@ -1,13 +1,13 @@
 package com.dzf.zxkj.report.excel.rptexp.handler;
 
-import com.dzf.model.gl.gl_cwreport.*;
-import com.dzf.model.sys.sys_power.CorpVO;
-import com.dzf.pub.BusinessException;
-import com.dzf.pub.StringUtil;
-import com.dzf.report.enums.ExportTemplateEnum;
-import com.dzf.service.gl.gl_cwreport.rptexp.ResourceUtil;
-import com.dzf.service.gl.gl_cwreport.rptexp.TaxExportUtil;
-import org.apache.log4j.Logger;
+import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.report.*;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.report.excel.rptexp.ResourceUtil;
+import com.dzf.zxkj.report.excel.rptexp.TaxExportUtil;
+import com.dzf.zxkj.report.excel.rptexp.enums.ExportTemplateEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -17,9 +17,9 @@ import org.springframework.core.io.Resource;
 import java.io.File;
 import java.util.Map;
 
+@Slf4j
 public abstract class TaxExportHander {
 
-    private static Logger log = Logger.getLogger(TaxExportHander.class);
 
     protected String trim(String str){
         if(StringUtil.isEmpty(str)){
