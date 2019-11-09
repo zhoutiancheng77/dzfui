@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * YntCpaccount vo. @author MyEclipse Persistence Tools
  */
-public class YntCpaccountVO extends SuperVO {
+public class YntCpaccountVO extends SuperVO<YntCpaccountVO> {
 
     @JsonProperty("id")
     private String pk_corp_account;
