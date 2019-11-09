@@ -527,7 +527,7 @@ public class KpglServiceImpl implements IKpglService {
     @Override
     public List<AssetcardVO> queryByPkcorp(String loginDate, String pk_corp,
                                            String isclear) throws DZFWarpException {
-        if (isclear == null || isclear.equals("null")) {
+        if (StringUtil.isEmptyWithTrim(isclear)) {
             isclear = "N";
         }
         SQLParameter sp = new SQLParameter();
