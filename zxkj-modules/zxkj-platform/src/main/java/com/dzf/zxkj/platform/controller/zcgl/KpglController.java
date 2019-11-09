@@ -37,6 +37,7 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -313,7 +314,7 @@ public class KpglController extends BaseController {
     /**
      * 用于参照数据查询
      */
-    @PostMapping("queryRefData")
+    @GetMapping("queryRefData")
     public ReturnData queryRefData(String isclear) {
         Grid grid = new Grid();
         try {
