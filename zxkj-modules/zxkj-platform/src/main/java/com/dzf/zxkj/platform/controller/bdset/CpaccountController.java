@@ -1,16 +1,18 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
-import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
+import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
 import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,12 +33,14 @@ public class CpaccountController {
     private ICpaccountService cpaccountService;
     @Autowired
     private IReferenceCheck refchecksrv;
+    @Autowired
+    private IBDCurrencyService sys_currentserv;
 
     @GetMapping("query")
-    public ReturnData querykm(String isShowFC) {
+    public ReturnData querykm(boolean excludeSealed) {
         Json json = new Json();
         Map<String, List<YntCpaccountVO>> maps = cpaccountService.queryAccountVO(SystemUtil.getLoginUserId(),
-                SystemUtil.getLoginCorpId(), isShowFC);
+                SystemUtil.getLoginCorpId(), excludeSealed);
         if (maps != null) {
             json.setRows(maps);
             json.setSuccess(true);
@@ -139,10 +144,9 @@ public class CpaccountController {
     }
 
     //新增科目 进行父级检查
-    public ReturnData preCheckForAddKM(@RequestBody YntCpaccountVO data) {
+    @PostMapping("/isAllowAdd")
+    public ReturnData isAllowAdd(@RequestBody YntCpaccountVO data) {
         Json json = new Json();
-        //保存操作预检查
-        //onSaveNew.action
         CorpVO corpvo = SystemUtil.getLoginCorpVo();
         //// 库存模式。 1、代表 由库存推总账。
         //// 0、或者没有代表由总账推库存。
@@ -155,20 +159,38 @@ public class CpaccountController {
                 }
             }
         }
-
         //效验级别
-        cpaccountService.perCheckForAddKeMu(data, corpvo);
-        try {
-            // 获取新编码
-            String newCode = cpaccountService.getNewSubCode(data, corpvo);
-            data.setAccountcode(newCode);
-            json.setData(data);
-        } catch (Exception e) {
-            log.error("获取科目新编码失败", e);
-        }
-
+        cpaccountService.checkBeforeAdd(data.getPk_corp_account(), corpvo);
         json.setSuccess(true);
         json.setMsg("效验成功");
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/checkParentRef")
+    public ReturnData checkParentRef(String code) {
+        Json json = new Json();
+        boolean exist = cpaccountService.checkIsQuote(SystemUtil.getLoginCorpId(), code);
+        json.setData(exist);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/checkOnEdit")
+    public ReturnData checkOnEdit(@RequestBody YntCpaccountVO data) {
+        Json json = new Json();
+        Map<String, Boolean> checkData = new HashMap<>();
+        String corpId = SystemUtil.getLoginCorpId();
+        boolean pzRef = cpaccountService.checkIsPzRef(corpId, data.getPk_corp_account());
+        boolean qcRef = cpaccountService.checkBeginDataRef(corpId, data.getPk_corp_account());
+        boolean parentVerification = cpaccountService.checkParentVerification(corpId, data.getAccountcode());
+        if (data.getIswhhs() != null && data.getIswhhs().booleanValue()) {
+            boolean currencyRef = cpaccountService.checkCurrencyRef(corpId, data.getPk_corp_account());
+            checkData.put("currencyRef", currencyRef);
+        }
+        checkData.put("ref", pzRef || qcRef);
+        checkData.put("parentVerification", parentVerification);
+        json.setData(checkData);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 
@@ -205,5 +227,77 @@ public class CpaccountController {
         grid.setSuccess(true);
         grid.setMsg("查询成功!");
         return ReturnData.ok().data(grid);
+    }
+
+    @GetMapping("getNewCode")
+    public ReturnData<Grid> getNewCode(String code, Integer level) {
+        Json json = new Json();
+        CorpVO corp = SystemUtil.getLoginCorpVo();
+        YntCpaccountVO vo = new YntCpaccountVO();
+        vo.setAccountcode(code);
+        vo.setAccountlevel(level);
+        String newCode = cpaccountService.getNewSubCode(vo, corp);
+        json.setSuccess(true);
+        json.setData(newCode);
+        json.setMsg("获取成功!");
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("getCurrency")
+    public ReturnData<Grid> getCurrency() {
+        Json json = new Json();
+        BdCurrencyVO[] currencies = sys_currentserv.queryCurrency();
+        json.setSuccess(true);
+        json.setRows(currencies);
+        return ReturnData.ok().data(json);
+    }
+
+    //科目下级转辅助
+    @PostMapping("childrenToAuxiliary")
+    public ReturnData childrenToAuxiliary(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String pk_km = param.get("subjectId");
+        String pk_fz = param.get("auxiliaryType");
+        if (StringUtils.isEmpty(pk_km) || StringUtils.isEmpty(pk_fz)) {
+            json.setSuccess(false);
+            json.setMsg("科目下级转换辅助失败，参数为空");
+        } else {
+            String userid = SystemUtil.getLoginUserId();
+            String pk_corp = SystemUtil.getLoginCorpId();
+            cpaccountService.saveKmzhuanFz(userid, pk_corp, pk_km, pk_fz);
+            json.setSuccess(true);
+            json.setMsg("科目下级转换辅助成功");
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    // 封存
+    @PostMapping("/seal")
+    public ReturnData seal(@RequestBody YntCpaccountVO accvo) {
+        Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        accvo.setPk_corp(pk_corp);
+        // 只能从末级科目依次封存
+        if (!accvo.getIsleaf().booleanValue()) {
+            throw new BusinessException("请从末级节点依次操作！");
+        }
+        // 封存
+        cpaccountService.updateSeal(accvo);
+        json.setMsg("封存成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/unseal")
+    public ReturnData unseal(@RequestBody YntCpaccountVO data) {
+        Json json = new Json();
+        data.setPk_corp(SystemUtil.getLoginCorpId());
+        if (!data.getIsleaf().booleanValue()) {
+            throw new BusinessException("请从末级节点依次操作！");
+        }
+        cpaccountService.updateUnSeal(data);
+        json.setMsg("解除封存成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
     }
 }
