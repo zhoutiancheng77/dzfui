@@ -114,7 +114,7 @@ public class ZczjmxActReportController extends BaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(@MultiRequestBody ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void printAction(ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
@@ -136,8 +136,8 @@ public class ZczjmxActReportController extends BaseController {
             AssetDepreciaTionVO[] bodyvos = JsonUtils.deserialize(printParamVO.getData(), AssetDepreciaTionVO[].class);
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存title
-            tmap.put("公司", bodyvos[0].getGs());
-            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getPeriod());
             String title = "折 旧 明 细 账";
             if (printParamVO.getIsPaging() != null && "Y".equals(printParamVO.getIsPaging())) {//分页打印
                 //转换map

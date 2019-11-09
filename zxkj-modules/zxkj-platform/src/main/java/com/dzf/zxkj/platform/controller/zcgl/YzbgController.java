@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.zcgl.ValuemodifyVO;
@@ -86,6 +87,9 @@ public class YzbgController extends BaseController {
         Grid grid = new Grid();
         try {
             if (paramvo != null) {
+                if(StringUtil.isEmptyWithTrim(paramvo.getPk_corp())){
+                    paramvo.setPk_corp(SystemUtil.getLoginCorpId());
+                }
                 List<ValuemodifyVO> list = am_yzbgserv.query(paramvo);
                 log.info("查询成功！");
                 writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"原值变更查询",ISysConstants.SYS_2);
@@ -167,7 +171,7 @@ public class YzbgController extends BaseController {
 
     private void checkCorp(String loginCorp, ValuemodifyVO vo)
             throws DZFWarpException {
-        ValuemodifyVO qvo = am_yzbgserv.queryById(vo.getPrimaryKey());
+        ValuemodifyVO qvo = am_yzbgserv.queryById(vo.getPk_assetvaluemodify());
         if (qvo == null)
             throw new BusinessException("该数据不存在，或已被删除！");
         if (!loginCorp.equals(qvo.getPk_corp()))

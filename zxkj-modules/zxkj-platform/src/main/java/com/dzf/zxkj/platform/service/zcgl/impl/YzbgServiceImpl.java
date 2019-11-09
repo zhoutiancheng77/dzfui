@@ -176,6 +176,9 @@ public class YzbgServiceImpl implements IYzbgService {
 	public ValuemodifyVO queryById(String id) throws DZFWarpException {
 		ValuemodifyVO vo = (ValuemodifyVO) singleObjectBO.queryVOByID(id,
 				ValuemodifyVO.class);
+		if(vo == null){
+			return null;
+		}
 		HashMap<String, AssetcardVO> assetCardMap = queryAssetcardByPkcorp(null,vo.getPk_corp());
 		if(assetCardMap.get(vo.getPk_assetcard())!=null){
 			vo.setPk_assetcard_name(assetCardMap.get(vo.getPk_assetcard()).getAssetname());

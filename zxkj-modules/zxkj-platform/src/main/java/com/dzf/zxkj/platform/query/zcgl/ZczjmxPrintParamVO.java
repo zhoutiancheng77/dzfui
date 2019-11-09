@@ -13,4 +13,6 @@ public class ZczjmxPrintParamVO extends ReportPrintParamVO {
     private String xjtotal;
     private String hjtotal ;
     private String isPaging;
+    private String corpName;
+    private String period;
 }
