@@ -20,4 +20,5 @@ public class ReportExcelExportVO {
     private String xmmcid;
     private String columnOrder;
     private  String currjd;//
+    private String titleperiod;//查询期间段
 }
