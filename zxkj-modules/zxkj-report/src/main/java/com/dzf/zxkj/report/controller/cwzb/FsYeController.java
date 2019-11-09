@@ -8,6 +8,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -480,16 +481,18 @@ public class FsYeController  extends ReportBaseController {
         String qj = "";
         String corpname = "";
 
-        String strlist = excelExportVO.getList();
-        FseJyeVO[] listVo = JsonUtils.deserialize(strlist, FseJyeVO[].class);
-        corpname = listVo[0].getGs();
-        qj = listVo[0].getTitlePeriod();
+        CorpVO querycorpvo = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
+        corpname = CodeUtils1.deCode(querycorpvo.getUnitname());
+        qj = excelExportVO.getTitleperiod();
 
         List<FseJyeVO[]> fslist = new ArrayList<FseJyeVO[]>();
         if ("0".equals(excelExportVO.getExcelsel())) {// 当前期间
             allsheetname = new String[] { getCNName(vo.getBegindate1().getMonth()) };
             periods = new String[] { DateUtils.getPeriod(vo.getBegindate1()) };
-            fslist.add(listVo);
+            FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(vo,1);
+            fsejyevos = getTotalRow(fsejyevos,false);
+            putFsyeOnKmlb(fsejyevos);
+            fslist.add(fsejyevos);
         } else {
             vo.setBegindate1(new DZFDate(vo.getEnddate().getYear() + "-01-01"));
             vo.setEnddate(new DZFDate(vo.getEnddate().getYear() + "-12-01"));
