@@ -132,14 +132,24 @@ public class Excelexport2003<T extends SuperVO> {
 			sheet.addMergedRegion(new CellRangeAddress(position, position, 0,fieldslen-1));
 		}else if(group == 2){
 			s[1] = fieldslen / 2;
-			sheet.addMergedRegion(new CellRangeAddress(position, position, 0,s[1]-1));
-			sheet.addMergedRegion(new CellRangeAddress(position, position,s[1], fieldslen - 1));
+			if(0 != s[1]-1){
+				sheet.addMergedRegion(new CellRangeAddress(position, position, 0,s[1]-1));
+			}
+			if(s[1]!= fieldslen - 1){
+				sheet.addMergedRegion(new CellRangeAddress(position, position,s[1], fieldslen - 1));
+			}
 		}else if(group == 3){
 			s[1] = fieldslen / 3;
 			s[2] = 2*fieldslen / 3;
-			sheet.addMergedRegion(new CellRangeAddress(position, position, 0,s[1]-1));
-			sheet.addMergedRegion(new CellRangeAddress(position, position,s[1], s[2]-1));
-			sheet.addMergedRegion(new CellRangeAddress(position, position,s[2],fieldslen - 1));
+			if(s[1]-1 != 0){
+				sheet.addMergedRegion(new CellRangeAddress(position, position, 0,s[1]-1));
+			}
+			if(s[2]-1 != s[1]){
+				sheet.addMergedRegion(new CellRangeAddress(position, position,s[1], s[2]-1));
+			}
+			if((fieldslen - 1) != s[2]) {
+				sheet.addMergedRegion(new CellRangeAddress(position, position,s[2],fieldslen - 1));
+			}
 		}
 		return s;
 	}

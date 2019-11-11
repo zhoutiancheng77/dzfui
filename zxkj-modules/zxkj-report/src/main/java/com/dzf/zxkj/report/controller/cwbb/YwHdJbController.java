@@ -98,8 +98,8 @@ public class YwHdJbController extends ReportBaseController {
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         YwHdVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),YwHdVO[].class);
-        String gs = listVo[0].getGs();
-        String qj = listVo[0].getTitlePeriod();
+        String gs = excelExportVO.getCorpName();
+        String qj = excelExportVO.getTitleperiod();
 
         Excelexport2003<YwHdVO> lxs = new Excelexport2003<YwHdVO>();
         YwHdQuarterlyExcelField yhd = new YwHdQuarterlyExcelField();

@@ -134,8 +134,8 @@ public class LrbQuarterlyController extends ReportBaseController {
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
 
         LrbquarterlyVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), LrbquarterlyVO[].class);
-        String gs=  listVo[0].getGs();
-        String qj=  listVo[0].getTitlePeriod();
+        String gs=  excelExportVO.getCorpName();
+        String qj=  excelExportVO.getTitleperiod();
         Excelexport2003<LrbquarterlyVO> lxs = new Excelexport2003<LrbquarterlyVO>();
         LrbQuarterlyExcelField lrb = new LrbQuarterlyExcelField(excelExportVO.getCurrjd());
         lrb.setLrbvos(listVo);
