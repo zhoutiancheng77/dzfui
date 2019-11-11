@@ -583,7 +583,7 @@ public class AuxiliaryAccountController {
         YntCpaccountVO[] accounts =accountService.queryByPk(SystemUtil.getLoginCorpId());
         CorpVO corpVo = corpService.queryByPk(SystemUtil.getLoginCorpId());
         List<String> chukukm = Kmschema.getChukuKm(corpVo.getCorptype(), accounts);
-        json.setRows(chukukm);
+        json.setRows(chukukm.toArray(new String[chukukm.size()]));
         json.setMsg("获取出库科目成功");
         json.setSuccess(true);
         return ReturnData.ok().data(json);
@@ -591,14 +591,13 @@ public class AuxiliaryAccountController {
 
     // 分类科目
     @GetMapping("/getKmclassify")
-    public ReturnData<Json> getKmclassify(@RequestParam("id") String pk_auacount_h,
-                                       String pk_corp) {
+    public ReturnData<Json> getKmclassify() {
         Json json = new Json();
         YntCpaccountVO[] accounts =accountService.queryByPk(SystemUtil.getLoginCorpId());
         CorpVO corpVo = corpService.queryByPk(SystemUtil.getLoginCorpId());
         //得到分类科目
         List<String> classify = Kmschema.getKmclassify(corpVo.getCorptype(), accounts);
-        json.setRows(classify);
+        json.setRows(classify.toArray(new String[classify.size()]));
         json.setMsg("获取分类科目成功");
         json.setSuccess(true);
         return ReturnData.ok().data(json);
