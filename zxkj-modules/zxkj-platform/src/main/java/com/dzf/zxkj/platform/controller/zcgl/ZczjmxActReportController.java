@@ -286,7 +286,7 @@ public class ZczjmxActReportController extends BaseController {
 
     // 导出Excel
     @PostMapping("export/excel")
-    public void excelReport(@MultiRequestBody String strlist, @MultiRequestBody String corpName, @MultiRequestBody String qj, HttpServletResponse response) {
+    public void excelReport(String strlist, String corpName, String qj, HttpServletResponse response) {
         AssetDepreciaTionVO[] listVo = JsonUtils.deserialize(strlist, AssetDepreciaTionVO[].class);
 
         Excelexport2003<AssetDepreciaTionVO> lxs = new Excelexport2003<AssetDepreciaTionVO>();
