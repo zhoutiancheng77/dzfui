@@ -44,8 +44,6 @@ public class XszController  extends ReportBaseController {
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
-    @Autowired
-    private IButtonPowerService btn_power_ser;
 
     /**
      * 查询科目明细数据
@@ -113,40 +111,21 @@ public class XszController  extends ReportBaseController {
 
     /**
      * 将查询后的结果分页
-     * @param kmmxvos
+     * @param xsZVOS
      * @param page
      * @param rows
      * @return
      */
-    private XsZVO[] getPagedXSZVOs(XsZVO[] kmmxvos,int page,int rows){
+    private XsZVO[] getPagedXSZVOs(XsZVO[] xsZVOS,int page,int rows){
         int beginIndex = rows * (page-1);
         int endIndex = rows*page;
-        if(endIndex>=kmmxvos.length){//防止endIndex数组越界
-            endIndex=kmmxvos.length;
+        if(endIndex>=xsZVOS.length){//防止endIndex数组越界
+            endIndex=xsZVOS.length;
         }
-        kmmxvos = Arrays.copyOfRange(kmmxvos, beginIndex, endIndex);
-        return kmmxvos;
+        xsZVOS = Arrays.copyOfRange(xsZVOS, beginIndex, endIndex);
+        return xsZVOS;
     }
 
-    private boolean checkExcelExport(String pk_corp,HttpServletResponse response) {
-        String tips = btn_power_ser.qryButtonPower(pk_corp);
-        if (!StringUtil.isEmpty(tips)) {
-            PrintWriter pw = null;
-            try {
-                pw = response.getWriter();
-                pw.write("<h4 style = 'margin:15% auto;color:red;font-size: 20px;text-align:center;padding:0px '>"+tips+"</h4>");
-                pw.flush();
-            } catch (IOException e) {
-
-            } finally {
-                if (pw != null) {
-                    pw.close();
-                }
-            }
-            return false;
-        }
-        return true;
-    }
     //导出Excel
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
