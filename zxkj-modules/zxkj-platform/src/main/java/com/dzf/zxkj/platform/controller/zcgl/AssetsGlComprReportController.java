@@ -105,8 +105,8 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
             ZcdzVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(), ZcdzVO[].class);
 
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
-            tmap.put("公司", bodyvos[0].getGs());
-            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getPeriod());
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos,
                     "总 账 对 账", new String[] { "zcsx", "zclb", "zckm",

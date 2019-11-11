@@ -347,11 +347,11 @@ public class KmMxrController extends ReportBaseController {
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
 
-        KmMxZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),KmMxZVO[].class);
+//        KmMxZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),KmMxZVO[].class);
 
-        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
-        String gs= CodeUtils1.deCode(qrycorpvo.getUnitname());
-        String qj=  listVo[0].getTitlePeriod();
+//        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
+        String gs= excelExportVO.getCorpName();
+        String qj=  excelExportVO.getTitleperiod();
         String pk_currency = queryparamvo.getPk_currency();
         String userid= userVO.getCuserid();
         queryparamvo.setBtotalyear(DZFBoolean.TRUE);//是否显示本年累计
@@ -359,13 +359,16 @@ public class KmMxrController extends ReportBaseController {
         kmmxvos = filterQcVos(kmmxvos,queryparamvo.getPk_corp(),zxkjPlatformService);
         kmmxvos = getCurrKm(kmmxvos, queryparamvo.getCurrkmbm());
         ReportUtil.updateKFx(kmmxvos);
-        listVo =kmmxvos ;
+        KmMxZVO[] listVo =kmmxvos ;
         String currencyname = new ReportUtil().getCurrencyDw(queryparamvo.getCurrency());
         String[] periods = new String[]{qj};
         String[] allsheetname = new String[]{"科目明细账"};
 
         KmmxExcelField field = new KmmxExcelField("科目明细账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,
-                CodeUtils1.deCode(qrycorpvo.getUnitname()));
+                gs);
+        List<KmMxZVO[]> results = new ArrayList<KmMxZVO[]>();
+        results.add(kmmxvos);
+        field.setAllsheetzcvos(results);
 
         Excelexport2003<KmMxZVO> lxs = new Excelexport2003<KmMxZVO>();
         baseExcelExport(response,lxs,field);

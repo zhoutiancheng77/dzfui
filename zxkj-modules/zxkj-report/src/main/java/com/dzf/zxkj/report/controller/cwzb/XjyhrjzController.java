@@ -124,12 +124,12 @@ public class XjyhrjzController extends ReportBaseController {
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
-        KmMxZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), KmMxZVO[].class);
-        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
-        String gs = CodeUtils1.deCode(qrycorpvo.getUnitname());
-        String qj = listVo[0].getTitlePeriod();
+//        KmMxZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), KmMxZVO[].class);
+//        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
+        String gs = excelExportVO.getCorpName();
+        String qj = excelExportVO.getTitleperiod();
         String pk_currency = queryParamvo.getPk_currency();
-        listVo = gl_rep_xjyhrjzserv.getXJRJZVOsConMo(queryParamvo.getPk_corp(), queryParamvo.getKms_first(),
+        KmMxZVO[] listVo = gl_rep_xjyhrjzserv.getXJRJZVOsConMo(queryParamvo.getPk_corp(), queryParamvo.getKms_first(),
                 queryParamvo.getKms_last(), queryParamvo.getBegindate1(), queryParamvo.getEnddate(),
                 queryParamvo.getXswyewfs(), queryParamvo.getXsyljfs(), queryParamvo.getIshasjz(),
                 queryParamvo.getIshassh(), queryParamvo.getPk_currency(), null, null);// 默认人民币

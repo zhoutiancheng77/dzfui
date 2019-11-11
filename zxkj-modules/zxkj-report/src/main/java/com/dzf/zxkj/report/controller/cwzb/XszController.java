@@ -6,8 +6,10 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.report.XsZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -152,17 +154,21 @@ public class XszController  extends ReportBaseController {
         if(!bexport){
             return;
         }
-        XsZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),XsZVO[].class);
-        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
-        String gs= CodeUtils1.deCode(qrycorpvo.getUnitname());
-        String qj=  listVo[0].getTitlePeriod();
-        listVo = queryVOsFromCon(queryparamvo,corpVO);
+//        XsZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),XsZVO[].class);
+//        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
+        String gs= excelExportVO.getCorpName();
+        String qj=  excelExportVO.getTitleperiod();
+        XsZVO[] listVo = queryVOsFromCon(queryparamvo,corpVO);
         String currencyname = new ReportUtil().getCurrencyDw(queryparamvo.getCurrency());
         String[] periods = new String[]{qj};
         String[] allsheetname = new String[]{"序时账"};
 
-        XszExcelField field = new XszExcelField("序时账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,
-                CodeUtils1.deCode(qrycorpvo.getUnitname()));
+        XszExcelField field = new XszExcelField("序时账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,gs);
+        List<XsZVO[]> result = new ArrayList<XsZVO[]>();
+        result.add(listVo);
+        field.setAllsheetzcvos(result);
+        Excelexport2003<XsZVO> lxs = new Excelexport2003<XsZVO>();
+        baseExcelExport(response,lxs,field);
 
         //日志记录
 //        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),

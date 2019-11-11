@@ -481,8 +481,8 @@ public class FsYeController  extends ReportBaseController {
         String qj = "";
         String corpname = "";
 
-        CorpVO querycorpvo = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
-        corpname = CodeUtils1.deCode(querycorpvo.getUnitname());
+//        CorpVO querycorpvo = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
+        corpname = excelExportVO.getCorpName();
         qj = excelExportVO.getTitleperiod();
 
         List<FseJyeVO[]> fslist = new ArrayList<FseJyeVO[]>();

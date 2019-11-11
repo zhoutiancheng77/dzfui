@@ -21,6 +21,24 @@ public class PrintParamVO extends SuperVO {
 	private String ishidepzh;
 	//字段显示的属性
 	private String columnslist ;
+	private String corpName;
+	private String period;
+
+	public String getCorpName() {
+		return corpName;
+	}
+
+	public void setCorpName(String corpName) {
+		this.corpName = corpName;
+	}
+
+	public String getPeriod() {
+		return period;
+	}
+
+	public void setPeriod(String period) {
+		this.period = period;
+	}
 
 	public String getColumnslist() {
 		return columnslist;
