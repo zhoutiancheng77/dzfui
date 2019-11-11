@@ -89,8 +89,8 @@ public class SrzcController extends ReportBaseController {
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
         SrzcBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),SrzcBVO[].class);//
-        String gs=  listVo[0].getGs();
-        String qj=  listVo[0].getTitlePeriod();
+        String gs=  excelExportVO.getCorpName();
+        String qj=  excelExportVO.getTitleperiod();
 
         Excelexport2003<SrzcBVO> lxs = new Excelexport2003<SrzcBVO>();
         SrzcExcelField field = new SrzcExcelField();

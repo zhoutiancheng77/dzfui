@@ -21,7 +21,7 @@ public class SrzcExcelField implements IExceport<SrzcBVO> {
 	private String corpname = null;
 
 	private Fieldelement[] fields = new Fieldelement[] {
-			new Fieldelement("xm", "项目", false, 0, true),
+			new Fieldelement("xm", "项目", false, 0, true,80, false),
 			new Fieldelement("monnum", "本月数", true, 2, true),
 			new Fieldelement("yearnum", "本年累计数", true, 2, true) };
 	

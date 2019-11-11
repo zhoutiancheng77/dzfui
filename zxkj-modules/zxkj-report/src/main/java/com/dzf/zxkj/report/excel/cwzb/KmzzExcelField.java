@@ -66,8 +66,8 @@ public class KmzzExcelField extends MuiltSheetAndTitleExceport<KmZzVO> implement
         List<Fieldelement> list = new ArrayList<Fieldelement>();
         list.add( new Fieldelement("kmbm", "科目编码", false, 0, true));
         list.add(new Fieldelement("km", "科目名称", false, 0, true,80,false));
-        list.add(new Fieldelement("period", "期间", false, 0, true,80,false));
-        list.add(new Fieldelement("zy", "摘要", false, 0, true,80,false));
+        list.add(new Fieldelement("kmbm", "科目编码", false, 0, true));
+        list.add(new Fieldelement("zy", "摘要", false, 0, true));
         Fieldelement qcelement = new Fieldelement("", "借方金额", true, 2, true, 1, 2);
         qcelement.setChilds(new Fieldelement[] {
                 new Fieldelement("ybjf", "原币", true, 2, true),
@@ -80,7 +80,7 @@ public class KmzzExcelField extends MuiltSheetAndTitleExceport<KmZzVO> implement
         list.add(bqelement);
         Fieldelement bnelement = new Fieldelement("", "余额", true, 2, true, 1, 3);
         bnelement.setChilds(new Fieldelement[] {
-                new Fieldelement("fx", "方向", false, 0, true,80,false),
+                new Fieldelement("fx", "方向", false, 0, true),
                 new Fieldelement("ybye", "原币", true, 2, true),
                 new Fieldelement("ye", "本位币", true, 2, true) });
         list.add(bnelement);
@@ -91,11 +91,11 @@ public class KmzzExcelField extends MuiltSheetAndTitleExceport<KmZzVO> implement
         List<Fieldelement> list = new ArrayList<Fieldelement>();
         list.add( new Fieldelement("kmbm", "科目编码", false, 0, true));
         list.add(new Fieldelement("km", "科目名称", false, 0, true,80,false));
-        list.add(new Fieldelement("period", "期间", false, 0, true,80,false));
-        list.add(new Fieldelement("zy", "摘要", false, 0, true,80,false));
+        list.add(new Fieldelement("period", "期间", false, 0, true));
+        list.add(new Fieldelement("zy", "摘要", false, 0, true));
         list.add(new Fieldelement("jf", "借方", true, 2, true));
         list.add(new Fieldelement("df", "贷方", true, 2, true));
-        list.add(new Fieldelement("fx", "方向", false, 0, true,80,false));
+        list.add(new Fieldelement("fx", "方向", false, 0, true));
         list.add(new Fieldelement("ye", "余额", true, 2, true));
         return list.toArray(new Fieldelement[0]);
     }

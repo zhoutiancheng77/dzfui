@@ -1,14 +1,9 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
-import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
-import com.dzf.zxkj.base.utils.FieldMapping;
-import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -17,8 +12,6 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
-import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
-import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.LrbVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -35,10 +28,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -189,8 +179,8 @@ public class LrbController extends ReportBaseController {
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
         LrbVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), LrbVO[].class);
-        String gs = listVo[0].getGs();
-        String qj = listVo[0].getTitlePeriod();
+        String gs = excelExportVO.getCorpName();
+        String qj = excelExportVO.getTitleperiod();
 
         String title ="";
         Excelexport2003<LrbVO> lxs = new Excelexport2003<LrbVO>();

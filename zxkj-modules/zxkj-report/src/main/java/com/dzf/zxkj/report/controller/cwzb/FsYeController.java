@@ -49,9 +49,6 @@ public class FsYeController  extends ReportBaseController {
     private IKMMXZReport gl_rep_kmmxjserv;
 
     @Autowired
-    private IButtonPowerService btn_power_ser;
-
-    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     /**
@@ -481,8 +478,8 @@ public class FsYeController  extends ReportBaseController {
         String qj = "";
         String corpname = "";
 
-        CorpVO querycorpvo = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
-        corpname = CodeUtils1.deCode(querycorpvo.getUnitname());
+//        CorpVO querycorpvo = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
+        corpname = excelExportVO.getCorpName();
         qj = excelExportVO.getTitleperiod();
 
         List<FseJyeVO[]> fslist = new ArrayList<FseJyeVO[]>();
@@ -557,24 +554,5 @@ public class FsYeController  extends ReportBaseController {
 
     }
 
-    private boolean checkExcelExport(String pk_corp,HttpServletResponse response) {
-        String tips = btn_power_ser.qryButtonPower(pk_corp);
-        if (!StringUtil.isEmpty(tips)) {
-            PrintWriter pw = null;
-            try {
-                pw = response.getWriter();
-                pw.write("<h4 style = 'margin:15% auto;color:red;font-size: 20px;text-align:center;padding:0px '>"+tips+"</h4>");
-                pw.flush();
-            } catch (IOException e) {
-
-            } finally {
-                if (pw != null) {
-                    pw.close();
-                }
-            }
-            return false;
-        }
-        return true;
-    }
 
 }

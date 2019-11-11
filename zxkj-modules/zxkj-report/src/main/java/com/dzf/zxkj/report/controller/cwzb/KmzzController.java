@@ -144,24 +144,26 @@ public class KmzzController extends ReportBaseController {
      */
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
-        KmZzVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),KmZzVO[].class);
-        String gs=  listVo[0].getGs();
-        String qj=  listVo[0].getTitlePeriod();
-        String pk_currency = listVo[0].getPk_currency();
+//        KmZzVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),KmZzVO[].class);
+        String gs=  excelExportVO.getCorpName();
+        String qj=  excelExportVO.getTitleperiod();
+        String pk_currency = queryparamvo.getPk_currency();
         queryparamvo.setBtotalyear(DZFBoolean.TRUE);
         queryparamvo.setIsnomonthfs(DZFBoolean.TRUE);
         KmZzVO[] kmmxvos = gl_rep_kmzjserv.getKMZZVOs(queryparamvo,null);
         ReportUtil.updateKFx(kmmxvos);
         /** 如果有期初余额则不显示下面的 */
         List<KmZzVO> listmx = filterQC(kmmxvos);
-        listVo = listmx.toArray(new KmZzVO[0]);//KmzzReportCache.getInstance().get(userid);
+        KmZzVO[] listVo = listmx.toArray(new KmZzVO[0]);//KmzzReportCache.getInstance().get(userid);
         String currencyname = new ReportUtil().getCurrencyDw(queryparamvo.getCurrency());
         String[] periods = new String[]{qj};
         String[] allsheetname = new String[]{"科目总账"};
-        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
+//        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
 
-        KmzzExcelField field = new KmzzExcelField("科目总账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,
-                CodeUtils1.deCode(qrycorpvo.getUnitname()));
+        KmzzExcelField field = new KmzzExcelField("科目总账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj, gs);
+        List<KmZzVO[]> results = new ArrayList<KmZzVO[]>();
+        results.add(listVo);
+        field.setAllsheetzcvos(results);
 
         Excelexport2003<KmZzVO> lxs = new Excelexport2003<KmZzVO>();
         baseExcelExport(response,lxs,field);

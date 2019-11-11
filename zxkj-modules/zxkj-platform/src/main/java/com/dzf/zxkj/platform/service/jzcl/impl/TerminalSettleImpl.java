@@ -1056,18 +1056,14 @@ public class TerminalSettleImpl implements ITerminalSettle {
 		return pzHeadVO;
 	}
 
-	public boolean queryTzpzHvo(String pk_corp,DZFDate period) throws DZFWarpException{
-		VoucherParamVO paramvo= new VoucherParamVO();
-		paramvo.setBegindate(period);
-		paramvo.setEnddate(period);
-		paramvo.setPk_corp(pk_corp);
-		List<TzpzHVO> vos=gl_tzpzserv.queryVoucher(paramvo);
-		List<String> listType =new ArrayList<String>();
-		for (TzpzHVO vo:vos){
-			listType.add(vo.getSourcebilltype());
-		}
-		return listType.contains(IBillTypeCode.HP28);
-		
+	public boolean queryTzpzHvo(String pk_corp,DZFDate period) throws DZFWarpException {
+		SQLParameter sp = new SQLParameter();
+		String sql = "select 1 from ynt_tzpz_h where pk_corp = ? and period = ? " +
+				" and sourcebilltype = ? and nvl(dr,0) = 0";
+		sp.addParam(pk_corp);
+		sp.addParam(period);
+		sp.addParam(IBillTypeCode.HP28);
+		return singleObjectBO.isExists(pk_corp, sql, sp);
 	}
 	private YntCpaccountVO getChildKm(YntCpaccountVO km){
 		if (!km.getIsleaf().booleanValue()) {

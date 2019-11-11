@@ -196,8 +196,8 @@ public class XjllController extends ReportBaseController {
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         XjllbVO[] listVo= JsonUtils.deserialize(excelExportVO.getList(),XjllbVO[].class);
 
-        String gs = listVo[0].getGs();
-        String qj = listVo[0].getTitlePeriod();
+        String gs = excelExportVO.getCorpName();
+        String qj = excelExportVO.getTitleperiod();
         String corpIds = queryparamvo.getPk_corp();
         if(StringUtil.isEmpty(corpIds)){
             corpIds = corpVO.getPk_corp();
@@ -226,8 +226,8 @@ public class XjllController extends ReportBaseController {
     @PostMapping("export/excelmx")
     public void excelReportMx(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         XjllMxvo[] listVo = JsonUtils.deserialize(excelExportVO.getList(), XjllMxvo[].class);
-        String gs = listVo[0].getGs();
-        String qj = listVo[0].getTitlePeriod();
+        String gs = excelExportVO.getCorpName();
+        String qj = excelExportVO.getTitleperiod();
         String corpIds = queryparamvo.getPk_corp();
         if (StringUtil.isEmpty(corpIds)) {
             corpIds =  corpVO.getPk_corp();

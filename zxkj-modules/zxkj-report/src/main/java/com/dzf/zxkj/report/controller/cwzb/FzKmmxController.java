@@ -26,10 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("gl_rep_fzkmmxjact")
@@ -99,7 +96,7 @@ public class FzKmmxController extends ReportBaseController {
     public void excelReport( ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         FzKmmxVO[] listVo = null;
         queryparamvo = (KmReoprtQueryParamVO)getQueryParamVO(queryparamvo, corpVO);
-        String gs = corpVO.getUnitname();
+        String gs = excelExportVO.getCorpName();
         String qj = "";
 
         /** 获取汇率精度 */
@@ -119,7 +116,8 @@ public class FzKmmxController extends ReportBaseController {
         } else {
             String strlist = excelExportVO.getList();
             listVo =  JsonUtils.deserialize(strlist,FzKmmxVO[].class);
-            qj = listVo.length > 0 ? listVo[0].getTitlePeriod() : "";
+            putFzlb_name(Arrays.asList(listVo),excelExportVO.getFzlb_name());
+            qj = excelExportVO.getTitleperiod();
         }
         if (listVo == null) {
             log.error("数据为空!");

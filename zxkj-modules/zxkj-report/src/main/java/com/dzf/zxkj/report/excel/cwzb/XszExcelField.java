@@ -67,10 +67,10 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         list.add( new Fieldelement("rq", "日期", false, 0, true));
         list.add( new Fieldelement("year", "年度", false, 0, true));
         list.add( new Fieldelement("qj", "期间", false, 0, true));
-        list.add(new Fieldelement("pzz", "凭证字", false, 0, true,80,false));
-        list.add(new Fieldelement("pzh", "凭证号", false, 0, true,80,false));
-        list.add(new Fieldelement("zy", "摘要", false, 0, true,80,false));
-        list.add(new Fieldelement("kmbm", "科目编码", false, 0, true,80,false));
+        list.add(new Fieldelement("pzz", "凭证字", false, 0, true));
+        list.add(new Fieldelement("pzh", "凭证号", false, 0, true));
+        list.add(new Fieldelement("zy", "摘要", false, 0, true));
+        list.add(new Fieldelement("kmbm", "科目编码", false, 0, true));
         list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,80,false));
         list.add(new Fieldelement("bz", "币种", false, 0, true,80,false));
         list.add(new Fieldelement("hl", "汇率", true, 2, true));
@@ -90,9 +90,9 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
     private Fieldelement[] getFileNoWbs() {
         List<Fieldelement> list = new ArrayList<Fieldelement>();
         list.add( new Fieldelement("rq", "日期", false, 0, true));
-        list.add(new Fieldelement("pzh", "凭证号", false, 0, true,80,false));
-        list.add(new Fieldelement("zy", "摘要", false, 0, true,80,false));
-        list.add(new Fieldelement("kmbm", "科目编码", false, 0, true,80,false));
+        list.add(new Fieldelement("pzh", "凭证号", false, 0, true));
+        list.add(new Fieldelement("zy", "摘要", false, 0, true));
+        list.add(new Fieldelement("kmbm", "科目编码", false, 0, true));
         list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,80,false));
         list.add(new Fieldelement("jfmny", "借方", true, 2, true));
         list.add(new Fieldelement("dfmny", "贷方", true, 2, true));

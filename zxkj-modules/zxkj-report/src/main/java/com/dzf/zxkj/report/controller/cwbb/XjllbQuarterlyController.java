@@ -86,8 +86,8 @@ public class XjllbQuarterlyController extends ReportBaseController {
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
 
         XjllquarterlyVo[] listVo = JsonUtils.deserialize(excelExportVO.getList(),XjllquarterlyVo[].class);//
-        String gs=  listVo[0].getGs();
-        String qj=  listVo[0].getTitlePeriod();
+        String gs=  excelExportVO.getCorpName();
+        String qj= excelExportVO.getTitleperiod();
         Excelexport2003<XjllquarterlyVo> lxs = new Excelexport2003<XjllquarterlyVo>();
         XjllQuarterlyExcelField lrb = new XjllQuarterlyExcelField();
         lrb.setLrbvos(listVo);
