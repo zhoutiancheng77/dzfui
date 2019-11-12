@@ -89,7 +89,7 @@ public class ZczzReportController extends BaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(@MultiRequestBody ZczzPrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void printAction( ZczzPrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
 
@@ -129,8 +129,8 @@ public class ZczzReportController extends BaseController {
             ZcZzVO[] bodyvos = JsonUtils.deserialize(param.getList(), ZcZzVO[].class);
 
             Map<String, String> tmap = new HashMap<>();// 声明一个map用来存title
-            tmap.put("公司", bodyvos[0].getGs());
-            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            tmap.put("公司", param.getCorpName());
+            tmap.put("期间", param.getPeriod());
 
             String[] columnames = new String[]{"期间", "摘要", title1, title2,
                     "净值余额", "借方", "贷方", "余额", "借方", "贷方", "余额"};
