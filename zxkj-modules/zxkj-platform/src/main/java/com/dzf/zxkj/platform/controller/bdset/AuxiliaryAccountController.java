@@ -563,7 +563,7 @@ public class AuxiliaryAccountController {
 
         String body = param.get("body"); // 子表
         body = body.replace("}{", "},{");
-        body = "[" + body + "]";
+//        body = "[" + body + "]";
 
         AuxiliaryAccountBVO[] bodyvos = JsonUtils.deserialize(body, AuxiliaryAccountBVO[].class);
         if (bodyvos == null || bodyvos.length == 0) {
