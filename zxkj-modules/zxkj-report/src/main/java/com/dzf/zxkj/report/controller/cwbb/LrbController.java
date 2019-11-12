@@ -1,18 +1,22 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
-import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.LrbVO;
+import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
@@ -22,6 +26,9 @@ import com.dzf.zxkj.report.excel.cwbb.LrbCenterExcelField;
 import com.dzf.zxkj.report.excel.cwbb.LrbExcelField;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,10 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("gl_rep_lrbact")
@@ -262,6 +267,113 @@ public class LrbController extends ReportBaseController {
         lrb.setQj(qj);
         lrb.setCreator(userVO.getUser_name());
         lrb.setCorpName(gs);
+    }
+
+
+    /**
+     * 打印操作
+     */
+    @PostMapping("print/pdf")
+    public void printAction(String corpName, String period, PrintParamVO printParamVO, QueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            String strlist = printParamVO.getList();
+            String xmmcid  =  printParamVO.getXmmcid();
+            String type = printParamVO.getType();
+            String font = printParamVO.getFont();
+            String columnOrder = printParamVO.getColumnOrder();
+            if(strlist==null){
+                return;
+            }
+            LrbVO[] bodyvos = JsonUtils.deserialize(strlist,  LrbVO[].class);
+            Map<String,String> tmap=new LinkedHashMap<String,String>();/** 声明一个map用来存前台传来的设置参数 */
+            CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
+            tmap.put("公司",  printParamVO.getCorpName());
+            tmap.put("期间",  printParamVO.getTitleperiod());
+            tmap.put("单位",  "元");
+            QueryParamVO paramvo = new QueryParamVO();
+            paramvo.setPk_corp(corpVO.getPk_corp());
+            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
+            if(listVos != null && listVos.size() > 0){
+                Optional<CorpTaxVo> optional = listVos.stream().filter(v-> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
+                optional.ifPresent(corpTaxVo ->{
+                    if(!StringUtil.isEmpty(corpTaxVo.getLegalbodycode())){
+                        pmap.put("单位负责人", corpTaxVo.getLegalbodycode());
+                    }
+                    if(!StringUtil.isEmpty(corpTaxVo.getLinkman1())){
+                        pmap.put("财务负责人", corpTaxVo.getLinkman1());
+                    }
+                    pmap.put("制表人", userVO.getUser_name());
+                });
+            }
+            if(type.equals("2")){
+                printReporUtil.setLineheight(12f);
+            }else{
+                printReporUtil.setLineheight(18f);
+            }
+            printReporUtil.setBf_Bold(printReporUtil.getBf());
+            printReporUtil.setBasecolor(new BaseColor(0,0,0));//设置单元格线颜色
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));
+            String titlename = "利 润 表";
+            Map<String, List<SuperVO>>  qrymap = getLrbMap(queryparamvo);
+            Object[] obj = getPrintOrder(columnOrder);//根据类型查询
+            if(!StringUtil.isEmpty(xmmcid)){
+                titlename = "分 部 利 润 表";
+                printReporUtil.printHz(qrymap,null,titlename,
+                        (String[])obj[0], (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+            }else{
+                printReporUtil.printHz(qrymap,null,titlename,
+                        (String[])obj[0], (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+            }
+        } catch (DocumentException e) {
+            log.error("打印错误",e);
+        } catch (IOException e) {
+            log.error("打印错误",e);
+        }
+    }
+
+    public Object[] getPrintOrder(String columnOrder){
+        Object[] obj = new Object[4];
+        if("on".equalsIgnoreCase(columnOrder)){
+            obj[0] = new String[]{"xm","hs","byje","bnljje"};
+            obj[1] = new String[]{"项            目","行数","本月金额","本年累计金额"};
+            obj[2] = new int[]{5,1,2,2};
+            obj[3] = 20;
+        }else{
+            obj[0] = new String[]{"xm","hs","bnljje","byje"};
+            obj[1] = new String[]{"项            目","行数","本年累计金额","本月金额"};
+            obj[2] = new int[]{5,1,2,2};
+            obj[3] = 20;
+        }
+        return obj;
+    }
+
+    private Map<String, List<SuperVO>> getLrbMap(QueryParamVO queryParamvo) {
+        Map<String, List<SuperVO>> resmap = new LinkedHashMap<String, List<SuperVO>>();
+
+        CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp()) ;
+
+        String begstr = null;
+
+        begstr = DateUtils.getPeriod(queryParamvo.getBegindate1());
+
+        List<LrbVO[]> listvos = gl_rep_lrbserv.getBetweenLrbMap(DateUtils.getPeriodStartDate(begstr),
+                queryParamvo.getEnddate(), queryParamvo.getPk_corp(), queryParamvo.getXmmcid(), null,queryParamvo.getIshasjz());
+
+        if(listvos!=null && listvos.size()>0){
+            List<SuperVO> t_list = new ArrayList<SuperVO>();
+            for(LrbVO[] tvos:listvos){
+                t_list = new ArrayList<>();
+                for(LrbVO tvo:tvos){
+                    t_list.add(tvo);
+                }
+                resmap.put(tvos[0].getPeriod() , t_list);
+            }
+        }
+
+
+        return resmap;
     }
 
 }

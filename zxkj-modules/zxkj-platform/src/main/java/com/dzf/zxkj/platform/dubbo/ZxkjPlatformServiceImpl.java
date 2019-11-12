@@ -4,6 +4,7 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryPageVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
@@ -68,6 +69,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IQmclService qmclService;
+
+    @Autowired
+    private IBDCorpTaxService sys_corp_tax_serv;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -251,4 +255,8 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
         return qmclService.getQuarterlySdsShui(pk_corp, period);
     }
 
+    @Override
+    public List<CorpTaxVo> queryTaxVoByParam(QueryParamVO paramvo, UserVO uservo){
+        return sys_corp_tax_serv.queryTaxVoByParam(paramvo, uservo);
+    }
 }

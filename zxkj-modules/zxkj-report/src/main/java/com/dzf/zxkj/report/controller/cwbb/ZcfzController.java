@@ -2,16 +2,21 @@ package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.*;
+import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
@@ -24,6 +29,9 @@ import com.dzf.zxkj.report.service.cwbb.IXjllbReport;
 import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -405,6 +414,130 @@ public class ZcfzController  extends ReportBaseController {
     }
 
 
+    /**
+     * 打印操作
+     */
+    @PostMapping("print/pdf")
+    public void printAction(String corpName, String period, PrintParamVO printParamVO, QueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            String strlist = printParamVO.getList();
+            String type = printParamVO.getType();
+            String font = printParamVO.getFont();
+            if (strlist == null) {
+                return;
+            }
+            printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
+            ZcFzBVO[] bodyvos = JsonUtils.deserialize(strlist, ZcFzBVO[].class);
+            Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存前台传来的设置参数
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getTitleperiod());
+            tmap.put("单位", "元");
+            QueryParamVO paramvo = new QueryParamVO();
+            paramvo.setPk_corp(corpVO.getPk_corp());
+            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
+            if(listVos != null && listVos.size() > 0){
+                Optional<CorpTaxVo> optional = listVos.stream().filter(v-> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
+                optional.ifPresent(corpTaxVo ->{
+                    if(!StringUtil.isEmpty(corpTaxVo.getLegalbodycode())){
+                        pmap.put("单位负责人", corpTaxVo.getLegalbodycode());
+                    }
+                    if(!StringUtil.isEmpty(corpTaxVo.getLinkman1())){
+                        pmap.put("财务负责人", corpTaxVo.getLinkman1());
+                    }
+                    pmap.put("制表人", userVO.getUser_name());
+                });
+            }
+
+            printReporUtil.setLineheight(-1f);//设置行高
+            printReporUtil.setFirstlineheight(20f);
+
+            printReporUtil.setBf_Bold(printReporUtil.getBf());
+            printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
+            Object[] obj = getPrintXm(0);
+            printReporUtil.printHz(getZcfzMap(queryparamvo), null, "资 产 负 债 表",
+                    (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
+        } catch (DocumentException e) {
+            log.error("打印错误", e);
+        } catch (IOException e) {
+            log.error("打印错误", e);
+        }
+    }
+
+    private Map<String, List<SuperVO>> getZcfzMap(QueryParamVO queryParamvo ) {
+        Map<String, List<SuperVO>> resmap = new LinkedHashMap<String, List<SuperVO>>();
+
+        String ishajz = "N";
+        if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
+            ishajz = "Y";
+        }
+
+        String ishasye = queryParamvo.getIshasye() ;
+        String hasye1 = queryParamvo.getHasye1();
+        String hasye2 = queryParamvo.getHasye2();
+        String hasye3 = queryParamvo.getHasye3();
+        String hasye4 = queryParamvo.getHasye4();
+        if (ishasye == null || "".equals(ishasye)) {
+            ishasye = "N";
+        }
+        String[] yes = null;
+
+        if ("Y".equals(ishasye)) {
+            yes = new String[]{ishasye, hasye1, hasye2, hasye3,hasye4};
+        } else {
+            yes = new String[]{"N", "N", "N", "N","N"};
+        }
+
+        CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
+
+        String begstr = null;
+
+        begstr = queryParamvo.getBegindate1().toString();
+
+        String endstr = queryParamvo.getEnddate().toString();// 从一月份开始查询
+
+        String begstr1 = "";
+        if (cpvo.getBegindate().getYear() == queryParamvo.getBegindate1().getYear()) {//和建账日期对比
+            begstr1 = DateUtils.getPeriod(cpvo.getBegindate()) + "-01";//从一月份开始查询
+        } else {
+            begstr1 = queryParamvo.getBegindate1().getYear() + "-01" + "-01";
+        }
+
+        List<ZcFzBVO[]> listbvos = gl_rep_zcfzserv.getZcfzVOs(new DZFDate(begstr1), new DZFDate(endstr), queryParamvo.getPk_corp(),
+                ishajz, yes, null);
+
+        if (listbvos != null && listbvos.size() > 0) {
+            List<SuperVO> tlist = null;
+            for (int i = 0; i < listbvos.size(); i++) {
+                tlist = new ArrayList<SuperVO>();
+                for (ZcFzBVO bvo_t : listbvos.get(i)) {
+                    tlist.add(bvo_t);
+                }
+                if (begstr.substring(0, 7).compareTo(listbvos.get(i)[0].getPeriod()) <= 0) {
+                    resmap.put(DateUtils.getPeriodEndDate(listbvos.get(i)[0].getPeriod()).toString(), tlist);
+                }
+            }
+        }
+
+        return resmap;
+    }
+
+    public Object[] getPrintXm(int type) {
+        Object[] obj = new Object[4];
+        switch (type) {
+            case 0:
+                obj[0] = new String[]{"zc", "hc1", "qmye1", "ncye1", "fzhsyzqy", "hc2", "qmye2", "ncye2"};
+                obj[1] = new String[]{"资      产", "行次", "期末余额", "年初余额", "负债和所有者权益", "行次", "期末余额", "年初余额"};
+                obj[2] = new int[]{5, 1, 3, 3, 5, 1, 3, 3};
+                obj[3] = 20;
+                break;
+            default:
+                break;
+        }
+        return obj;
+    }
 
 
 
@@ -412,7 +545,4 @@ public class ZcfzController  extends ReportBaseController {
 
 
 
-
-
-
-}
+    }

@@ -33,6 +33,33 @@ public class PrintParamVO extends SuperVO {
 	private String fzlb_name;
 	private String showbm;//
 	private String isxshl;// 是否显示汇率
+	private String xmmcid;
+	private String columnOrder;//列表顺序
+	private String currjd;//当前季度
+
+	public String getCurrjd() {
+		return currjd;
+	}
+
+	public void setCurrjd(String currjd) {
+		this.currjd = currjd;
+	}
+
+	public String getColumnOrder() {
+		return columnOrder;
+	}
+
+	public void setColumnOrder(String columnOrder) {
+		this.columnOrder = columnOrder;
+	}
+
+	public String getXmmcid() {
+		return xmmcid;
+	}
+
+	public void setXmmcid(String xmmcid) {
+		this.xmmcid = xmmcid;
+	}
 
 	public String getIsxshl() {
 		return isxshl;
