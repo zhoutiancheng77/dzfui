@@ -2,12 +2,14 @@ package com.dzf.zxkj.report.dubbo;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.report.service.IZxkjReportService;
 import com.dzf.zxkj.report.service.cwbb.*;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
+import com.dzf.zxkj.report.service.cwzb.INummnyReport;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,7 +31,8 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     private IXjllbReport xjllReport;
     @Autowired
     private IXjllbQuarterlyReport xjlyquarbReport;
-
+    @Autowired
+    INummnyReport gl_rep_nmdtserv;
     @Override
     public FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction) {
         return fsYeReport.getFsJyeVOs(vo, direction);
@@ -95,5 +98,10 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     @Override
     public List<XjllquarterlyVo> getXjllQuartervos(QueryParamVO paramvo,String jd){
         return xjlyquarbReport.getXjllQuartervos(paramvo, jd);
+    }
+
+    @Override
+    public List<NumMnyGlVO> getNumMnyGlVO(QueryCondictionVO paramVo) {
+        return gl_rep_nmdtserv.getNumMnyGlVO(paramVo);
     }
 }

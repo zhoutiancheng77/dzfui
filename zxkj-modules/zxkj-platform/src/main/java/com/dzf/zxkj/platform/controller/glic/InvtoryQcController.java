@@ -1,10 +1,10 @@
 package com.dzf.zxkj.platform.controller.glic;
 
-import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.glic.InventoryQcVO;
 import com.dzf.zxkj.platform.service.glic.IInventoryQcService;
@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,28 +27,49 @@ import java.util.Map;
 @RestController
 @RequestMapping("/glic/gl_icinvqc")
 @Slf4j
-public class InvtoryQcController{
+public class InvtoryQcController {
     @Autowired
     private IInventoryQcService gl_ic_invtoryqcserv;
 
     @GetMapping("/query")
-    public ReturnData query() {
+    public ReturnData query(@RequestParam Map<String, String> param) {
         Grid grid = new Grid();
-        List<InventoryQcVO> vos = gl_ic_invtoryqcserv.query(SystemUtil.getLoginCorpId());
-        if (vos != null && vos.size() > 0) {
-            grid.setRows(vos);
-            grid.setMsg("查询成功");
+        List<InventoryQcVO> list = gl_ic_invtoryqcserv.query(SystemUtil.getLoginCorpId());
+        String isfenye = param.get("isfenye");
+        QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+        if("Y".equals(isfenye)) {
+            int page = queryParamvo.getPage();
+            int rows = queryParamvo.getRows();
+            if (list != null && list.size() > 0) {
+                grid.setTotal((long) list.size());
+                InventoryQcVO[] PzglPagevos = getPagedZZVOs(list.toArray(new InventoryQcVO[list.size()]), page, rows);
+                grid.setRows(Arrays.asList(PzglPagevos));
+            }
         } else {
-            grid.setMsg("查询数据为空");
+            if (list != null && list.size() > 0) {
+                grid.setTotal((long) list.size());
+                grid.setRows(list);
+            }
         }
+        grid.setMsg("查询成功");
         grid.setSuccess(true);
         return ReturnData.ok().data(grid);
     }
 
+    // 将查询后的结果分页
+    private InventoryQcVO[] getPagedZZVOs(InventoryQcVO[] PzglPagevos, int page, int rows) {
+        int beginIndex = rows * (page - 1);
+        int endIndex = rows * page;
+        if (endIndex >= PzglPagevos.length) {// 防止endIndex数组越界
+            endIndex = PzglPagevos.length;
+        }
+        PzglPagevos = Arrays.copyOfRange(PzglPagevos, beginIndex, endIndex);
+        return PzglPagevos;
+    }
+
     @PostMapping("/save")
-    public ReturnData save(@RequestParam Map<String, String> param) {
+    public ReturnData save(@RequestBody InventoryQcVO data) {
         Json json = new Json();
-        InventoryQcVO data = JsonUtils.convertValue(param, InventoryQcVO.class);
         data.setPk_corp(SystemUtil.getLoginCorpId());
         InventoryQcVO vo = gl_ic_invtoryqcserv.save(SystemUtil.getLoginUserId(),SystemUtil.getLoginCorpId(),data);
         json.setRows(vo);
@@ -59,13 +81,13 @@ public class InvtoryQcController{
     }
 
     @PostMapping("/onDelete")
-    public ReturnData onDelete(@RequestBody Map<String, String> map) {
+    public ReturnData onDelete(@RequestBody InventoryQcVO[] vos) {
         Json json = new Json();
-        String rows = map.get("rows");
-        if (DZFValueCheck.isEmpty(rows)) {
-            throw new BusinessException("数据为空,删除失败!");
-        }
-        InventoryQcVO[] vos = JsonUtils.deserialize(rows, InventoryQcVO[].class);
+//        String rows = map.get("rows");
+//        if (DZFValueCheck.isEmpty(rows)) {
+//            throw new BusinessException("数据为空,删除失败!");
+//        }
+//        InventoryQcVO[] vos = JsonUtils.deserialize(rows, InventoryQcVO[].class);
         if (vos == null || vos.length == 0) {
             throw new BusinessException("数据为空,删除失败!");
         }
