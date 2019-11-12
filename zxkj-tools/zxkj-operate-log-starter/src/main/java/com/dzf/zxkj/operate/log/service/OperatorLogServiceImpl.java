@@ -7,7 +7,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.base.IOperatorLogService;
 import com.dzf.zxkj.common.base.LogQueryParamVO;
 import com.dzf.zxkj.common.base.LogRecordVo;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;

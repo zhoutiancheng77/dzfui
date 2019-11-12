@@ -1,6 +1,6 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.dzf.zxkj.common.base.BaseController;
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;

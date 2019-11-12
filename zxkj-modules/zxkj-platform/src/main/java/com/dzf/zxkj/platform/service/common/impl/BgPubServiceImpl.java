@@ -7,7 +7,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.entity.ConditionVO;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.common.lang.DZFBoolean;

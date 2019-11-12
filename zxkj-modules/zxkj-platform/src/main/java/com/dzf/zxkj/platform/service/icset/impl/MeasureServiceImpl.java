@@ -7,7 +7,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.base.utils.VOUtil;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.SqlUtil;

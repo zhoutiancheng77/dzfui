@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.IGlobalConstants;

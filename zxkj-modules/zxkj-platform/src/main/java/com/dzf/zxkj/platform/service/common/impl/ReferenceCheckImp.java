@@ -7,7 +7,7 @@ package com.dzf.zxkj.platform.service.common.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;

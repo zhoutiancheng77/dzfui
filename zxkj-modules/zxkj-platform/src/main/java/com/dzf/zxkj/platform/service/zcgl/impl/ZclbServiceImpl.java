@@ -9,7 +9,7 @@ import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.tree.AccTreeCreateStrategy;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.common.constant.DZFConstant;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.common.utils.IGlobalConstants;

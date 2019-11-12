@@ -10,7 +10,7 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.common.constant.PeriodType;
 import com.dzf.zxkj.common.constant.TaxRptConst;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;

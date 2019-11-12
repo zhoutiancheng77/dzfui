@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.service.zcgl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.zcgl.IAssetcardHelper;

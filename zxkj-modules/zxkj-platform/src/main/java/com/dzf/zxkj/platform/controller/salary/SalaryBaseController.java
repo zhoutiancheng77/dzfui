@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.controller.salary;
 
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;

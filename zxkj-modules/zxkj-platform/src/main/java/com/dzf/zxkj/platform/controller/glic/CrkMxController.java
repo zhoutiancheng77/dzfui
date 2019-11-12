@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.controller.glic;
 
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;

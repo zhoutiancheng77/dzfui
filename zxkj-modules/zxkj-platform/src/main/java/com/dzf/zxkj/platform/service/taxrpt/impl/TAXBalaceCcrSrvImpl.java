@@ -12,7 +12,7 @@ import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.constant.TaxRptConst;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;

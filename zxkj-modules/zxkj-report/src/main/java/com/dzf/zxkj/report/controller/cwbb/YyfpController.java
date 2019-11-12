@@ -1,7 +1,6 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.common.base.BaseController;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
@@ -32,10 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;

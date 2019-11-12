@@ -1,7 +1,7 @@
 package com.dzf.zxkj.base.utils;
 
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 
 import java.util.ArrayList;
 import java.util.Collection;

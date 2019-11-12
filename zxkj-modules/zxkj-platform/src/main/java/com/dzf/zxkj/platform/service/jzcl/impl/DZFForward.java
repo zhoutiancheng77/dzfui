@@ -8,7 +8,7 @@ import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.QmjzByDzfInfo;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
