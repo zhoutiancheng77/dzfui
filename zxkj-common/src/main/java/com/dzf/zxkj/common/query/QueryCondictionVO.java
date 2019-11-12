@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.query;
+package com.dzf.zxkj.common.query;
 
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;

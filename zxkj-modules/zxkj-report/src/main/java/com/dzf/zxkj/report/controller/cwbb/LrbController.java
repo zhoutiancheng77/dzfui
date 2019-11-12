@@ -1,6 +1,6 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
-import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;

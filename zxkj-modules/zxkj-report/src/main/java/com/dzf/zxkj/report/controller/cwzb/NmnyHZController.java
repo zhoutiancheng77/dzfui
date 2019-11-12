@@ -2,7 +2,7 @@ package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.common.exception.BusinessException;
-import com.dzf.zxkj.base.query.QueryCondictionVO;
+import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;

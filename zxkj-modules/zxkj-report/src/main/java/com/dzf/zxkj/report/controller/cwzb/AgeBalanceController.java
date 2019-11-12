@@ -1,6 +1,6 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.dzf.zxkj.base.query.AgeReportQueryVO;
+import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.entity.DynamicAttributeVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;

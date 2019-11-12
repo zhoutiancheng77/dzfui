@@ -2,7 +2,7 @@ package com.dzf.zxkj.report.service.cwzb;
 
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.platform.model.report.FzYebVO;
 
 import java.util.List;

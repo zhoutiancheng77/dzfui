@@ -3,7 +3,7 @@ package com.dzf.zxkj.report.service.cwzb.impl;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.query.AgeReportQueryVO;
+import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.IDefaultValue;
