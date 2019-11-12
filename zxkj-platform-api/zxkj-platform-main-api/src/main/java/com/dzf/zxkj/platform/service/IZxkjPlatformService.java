@@ -4,6 +4,7 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryPageVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
@@ -92,4 +93,6 @@ public interface IZxkjPlatformService {
     QueryPageVO processQueryVoucherPaged(VoucherParamVO paramvo);
 
     DZFDouble getQuarterlySdsShui(String pk_corp, String period);
+
+    List<CorpTaxVo> queryTaxVoByParam(QueryParamVO paramvo, UserVO uservo);
 }
