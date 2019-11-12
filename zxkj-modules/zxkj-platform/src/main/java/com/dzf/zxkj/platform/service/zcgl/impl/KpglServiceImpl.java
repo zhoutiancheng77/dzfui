@@ -536,7 +536,9 @@ public class KpglServiceImpl implements IKpglService {
         StringBuilder sb = new StringBuilder();
         sb.append(" nvl(dr,0) = 0 and (nvl(istogl,'N') = 'Y' or nvl(isperiodbegin,'N') = 'Y')");
         sb.append(" and nvl(isclear,'N')=?  and pk_corp=? ");
-        sb.append(" and  nvl(assetnetvalue,0)>nvl(plansalvage,0) ");//如果已经折旧完毕，则不显示(如果资产净值大于预估残值，才显示)
+        if(!"Y".equals(isclear)){
+            sb.append(" and  nvl(assetnetvalue,0)>nvl(plansalvage,0) ");//如果已经折旧完毕，则不显示(如果资产净值大于预估残值，才显示)
+        }
         if (loginDate != null) {
             sb.append(" and accountdate <=?");
             sp.addParam(loginDate);
