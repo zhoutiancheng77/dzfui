@@ -564,22 +564,13 @@ public class FsYeController  extends ReportBaseController {
     public void printAction(String corpName, String period, PrintParamVO printParamVO,KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
-            String strlist = printParamVO.getList();
-            if (strlist == null) {
-                return;
-            }
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             /** 是否横向 */
             printReporUtil.setIscross(DZFBoolean.TRUE);
-            FseJyeVO[] bodyvos = JsonUtils.deserialize(strlist, FseJyeVO[].class);
-            /** 去掉空格 */
-            if (bodyvos != null && bodyvos.length > 0) {
-                for (FseJyeVO vo : bodyvos) {
-                    if(!StringUtil.isEmpty(vo.getKmmc())){
-                        vo.setKmmc(vo.getKmmc().trim());
-                    }
-                }
-            }
+//            FseJyeVO[] bodyvos = JsonUtils.deserialize(strlist, FseJyeVO[].class);
+            FseJyeVO[] bodyvos = gl_rep_fsyebserv.getFsJyeVOs(queryparamvo,1);
+            bodyvos = getTotalRow(bodyvos,false);
+            putFsyeOnKmlb(bodyvos);
             /** 声明一个map用来存title */
             Map<String, String> tmap = new LinkedHashMap<String, String>();
             tmap.put("公司", printParamVO.getCorpName());

@@ -393,7 +393,7 @@ public class KmMxrController extends ReportBaseController {
             printReporUtil.setLineheight(StringUtil.isEmpty(lineHeight) ? 22f : Float.parseFloat(lineHeight));
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = null;
-            if(bodyvos[0].getIsPaging().equals("Y")){  //需要分页打印
+            if(printParamVO.getIsPaging().equals("Y")){  //需要分页打印
                 Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
                 for(KmMxZVO mxvo:bodyvos){
                     List<SuperVO> mxlist=null;
