@@ -1,15 +1,24 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.base.utils.DzfTypeUtils;
+import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
+import com.dzf.zxkj.common.utils.DzfUtil;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
+import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -20,6 +29,8 @@ import com.dzf.zxkj.report.excel.cwzb.FsYeBExcelField;
 import com.dzf.zxkj.report.excel.cwzb.KmzzExcelField;
 import com.dzf.zxkj.report.service.cwzb.IKMZZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -144,7 +156,6 @@ public class KmzzController extends ReportBaseController {
      */
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
-//        KmZzVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),KmZzVO[].class);
         String gs=  excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
         String pk_currency = queryparamvo.getPk_currency();
@@ -170,6 +181,159 @@ public class KmzzController extends ReportBaseController {
 //        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
 //                "科目总账导出:"+qryvo.getBegindate1().toString().substring(0, 7) +
 //                        "-"+ qryvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+    }
+
+    /**
+     * 打印操作
+     */
+    @PostMapping("print/pdf")
+    public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            String strlist = printParamVO.getList();
+            if (strlist == null) {
+                return;
+            }
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            String pageOrt = pmap.get("pageOrt");
+            String lineHeight = pmap.get("lineHeight");
+            String font = pmap.get("font");
+            String type = pmap.get("type");
+            if(pageOrt.equals("Y")){
+                printReporUtil.setIscross(DZFBoolean.TRUE);//是否横向
+            }else{
+                printReporUtil.setIscross(DZFBoolean.FALSE);//是否横向
+            }
+            queryparamvo.setBtotalyear(DZFBoolean.TRUE);
+            queryparamvo.setIsnomonthfs(DZFBoolean.TRUE);
+            KmZzVO[] bodyvos = reloadNewValue(printParamVO.getTitleperiod(),printParamVO.getCorpName(),printParamVO.getIsPaging(),queryparamvo);
+            ReportUtil.updateKFx(bodyvos);
+            Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存前台传来的设置参数
+
+            if(bodyvos != null && bodyvos.length > 0){
+                tmap.put("公司", printParamVO.getCorpName());
+                tmap.put("期间", printParamVO.getTitleperiod());
+                tmap.put("单位", new ReportUtil().getCurrencyByPk(queryparamvo.getPk_currency()));
+            }
+            printReporUtil.setLineheight(StringUtil.isEmpty(lineHeight) ? 22f : Float.parseFloat(lineHeight));
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
+            Object[] obj = null;
+            /** 需要分页打印 */
+            if(bodyvos!=null && bodyvos.length>0 &&  bodyvos[0].getIsPaging().equals("Y")){
+                List<SuperVO> mxlist=null;
+                Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
+                String kmfullname;
+                Map<String, YntCpaccountVO> cpamap = zxkjPlatformService.queryMapByPk(queryparamvo.getPk_corp());
+                for(KmZzVO mxvo:bodyvos){
+                    /** 设置公司名称 */
+                    mxvo.setGs(bodyvos[0].getGs());
+                    /** map里的key 不包含当前数据科目编码 */
+                    if(!mxmap.containsKey(mxvo.getKmbm())){
+                        /**  就 创建一个list  把这条数据 加进去 */
+                        mxlist = new ArrayList<SuperVO>();
+                        kmfullname = putHeadForKmPage(cpamap, mxvo);
+                        mxvo.setKmfullname(kmfullname);
+                        mxvo.setTitlePeriod(tmap.get("期间"));
+                        mxlist.add(mxvo);
+                    }else{
+                        /** map里的key 包含当前数据科目编码 */
+                        mxlist = mxmap.get(mxvo.getKmbm());
+                        mxlist.add(mxvo);
+                    }
+                    mxmap.put(mxvo.getKmbm(), mxlist);
+                }
+                /** 排序--根据key排序 */
+                mxmap = sortMapByKey(mxmap);
+                if(!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)){
+                    obj = getPrintXm(3);
+                }else{
+                    obj = getPrintXm(2);
+                }
+                printReporUtil.printHz(mxmap ,new SuperVO[]{},"*科目总账",(String[])obj[0],
+                        (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+            }else{/** 不需要分页打印 */
+                int len=bodyvos==null?0:bodyvos.length;
+                for(int i=0;i<len;i++){
+                    bodyvos[i].setKm(bodyvos[i].getKmbm()+"_"+bodyvos[i].getKm());
+                }
+                if(!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)){
+                    obj = getPrintXm(1);
+                }else{
+                    obj = getPrintXm(0);
+                }
+                printReporUtil.printHz(new HashMap<String, List<SuperVO>>() ,bodyvos,"科目总账",
+                        (String[])obj[0], (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+                for(int i=0;i<len;i++){
+                    bodyvos[i].setKm(bodyvos[i].getKm().substring(bodyvos[i].getKm().lastIndexOf('_')+1));
+                }
+            }
+        } catch (DocumentException e) {
+            log.error("错误",e);
+        } catch (IOException e) {
+            log.error("错误",e);
+        }
+    }
+
+    /**
+     * 分页打印 设置科目(标题用)和科目全称(head使用 和公司，期间并列)
+     * @param cpamap
+     * @param mxvo
+     * @return
+     */
+    private String putHeadForKmPage(Map<String, YntCpaccountVO> cpamap, KmZzVO mxvo) {
+        String kmfullname;
+        if(cpamap.containsKey(mxvo.getPk_accsubj())){
+            mxvo.setKm(cpamap.get(mxvo.getPk_accsubj()).getAccountname());
+        }
+        if(mxvo.getPk_accsubj()!=null
+                && (mxvo.getPk_accsubj()).length()>24){//默认有辅助项目
+            kmfullname =mxvo.getKmfullname() + "/"+mxvo.getKm()+"("+ mxvo.getKmbm()+")" ;
+        }else{
+            kmfullname =mxvo.getKmfullname()+"("+ mxvo.getKmbm()+")" ;
+        }
+        return kmfullname;
+    }
+
+    public Object[] getPrintXm(int type){
+        Object[] obj = new Object[4];
+        switch (type) {
+            case 3:
+                obj[0] = new String[]{"period","zy","ybjf","jf","ybdf","df","fx","ybye","ye"};
+                obj[1] = new String[]{"期间","摘要","借方_原币","借方_本位币","贷方_原币","贷方_本位币","方向","余额_原币","余额_本位币"};
+                obj[2] = new int[]{2,5,3,3,3,3,1,3,3};
+                obj[3] = 20;
+                break;
+            case 2:
+                obj[0] = new String[]{"period","zy","jf","df","fx","ye"};
+                obj[1] = new String[]{"期间","摘要","借方","贷方","方向","余额"};
+                obj[2] = new int[]{2,5,3,3,1,3};
+                obj[3] = 20;
+                break;
+            case 1:
+                obj[0] = new String[]{"km","period","zy","ybjf","jf","ybdf","df","fx","ybye","ye"};
+                obj[1] = new String[]{"科目","期间","摘要","借方_原币","借方_本位币","贷方_原币","贷方_本位币","方向","余额_原币","余额_本位币"};
+                obj[2] = new int[]{7,2,5,3,3,3,3,1,3,3};
+                obj[3] = 20;
+                break;
+            case 0:
+                obj[0] = new String[]{"km","period","zy","jf","df","fx","ye"};
+                obj[1] = new String[]{"科目","期间","摘要","借方","贷方","方向","余额"};
+                obj[2] = new int[]{7,2,5,3,3,1,3};
+                obj[3] = 20;
+                break;
+            default:
+                break;
+        }
+        return obj;
+    }
+    public KmZzVO[] reloadNewValue(String titlePeriod,String gs, String isPaging ,QueryParamVO queryParamvo) {
+        queryParamvo.setBtotalyear(DZFBoolean.TRUE);
+        KmZzVO[] bodyvos = gl_rep_kmzjserv.getKMZZVOs(queryParamvo, null);
+        bodyvos = filterQC(bodyvos).toArray(new KmZzVO[0]);
+        bodyvos[0].setIsPaging(isPaging);
+        bodyvos[0].setGs(gs);
+        bodyvos[0].setTitlePeriod(titlePeriod);
+        return bodyvos;
     }
 
 }

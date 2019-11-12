@@ -1,14 +1,21 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.base.utils.DzfTypeUtils;
+import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.FzKmmxVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -19,6 +26,8 @@ import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwzb.FzmxMuiltSheetExcelField;
 import com.dzf.zxkj.report.service.cwzb.IFzKmmxReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -190,5 +200,105 @@ public class FzKmmxController extends ReportBaseController {
         }
     }
 
+    /**
+     * 打印操作
+     */
+    @PostMapping("print/pdf")
+    public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            String strlist = printParamVO.getList();
+            if (strlist == null) {
+                return;
+            }
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            String print_all = pmap.get("print_all");
+            FzKmmxVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(),FzKmmxVO[].class);
+            Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存前台传来的设置参数
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getTitleperiod());
+            tmap.put("单位", new ReportUtil(zxkjPlatformService).getCurrencyByPk(queryparamvo.getPk_currency()));
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
+
+            List<Object> columns = getcolumns(queryparamvo.getPk_currency(), print_all, printParamVO.getIsPaging(),printParamVO.getShowbm());//字段名字
+
+            printReporUtil.setLineheight(22f);
+            if(!StringUtil.isEmpty(print_all) && "Y".equals(print_all)){
+                Object[] objs = gl_rep_fzkmmxjrptserv.getFzkmmxVos(queryparamvo,DZFBoolean.FALSE);
+                List<FzKmmxVO> rsfzvos = (List<FzKmmxVO>) objs[0];
+                if(rsfzvos == null){
+                    log.error("数据为空!");
+                    return;
+                }
+                ReportUtil.updateKFx(rsfzvos.toArray(new FzKmmxVO[0]));
+                tmap.put("期间", DateUtils.getPeriod(queryparamvo.getBegindate1())+"~"+DateUtils.getPeriod(queryparamvo.getEnddate()));
+                bodyvos =  rsfzvos.toArray(new FzKmmxVO[0]);
+
+                //汇率精度
+                Integer hljd = new ReportUtil(zxkjPlatformService).getHlJd(queryparamvo.getPk_corp());
+
+                putHlJd(bodyvos, hljd);
+
+            }
+            Map<String,List<SuperVO>> pagemap =  new LinkedHashMap<String, List<SuperVO>>();
+
+            String titlename  = "辅助明细账";
+            if("Y".equals(pmap.get("showlb")) && !StringUtil.isEmpty( pmap.get("fzlb_name"))){
+                titlename = pmap.get("fzlb_name")+titlename;
+            }
+            if("Y".equals(pmap.get("isPaging"))){
+                for(FzKmmxVO fzvo: bodyvos){
+                    if(pagemap.containsKey(fzvo.getFzname()+fzvo.getKmname())){
+                        pagemap.get(fzvo.getFzname()+fzvo.getKmname()).add(fzvo);
+                    }else{
+                        List<SuperVO> list = new ArrayList<SuperVO>();
+                        list.add(fzvo);
+                        pagemap.put(fzvo.getFzname()+fzvo.getKmname(), list);
+                    }
+                }
+                titlename= "FZMX_辅助明细账";
+            }
+
+            if(StringUtil.isEmpty(pmap.get("showbm")) || "N".equals(pmap.get("showbm"))){//不显示编码
+                if(bodyvos!=null && bodyvos.length>0){
+                    for(FzKmmxVO vo:bodyvos){
+                        if(!StringUtil.isEmpty(vo.getKmname())){
+                            vo.setText(vo.getKmname() + "_"+vo.getFzname());
+                        }else{
+                            vo.setText(vo.getFzname());
+                        }
+                    }
+                }
+            }
+
+            printReporUtil.printHz(pagemap, bodyvos, titlename,
+                    (String[])columns.get(0), (String[])columns.get(1), (int[])columns.get(2), 20, pmap,tmap);
+
+        } catch (DocumentException e) {
+            log.error("打印错误",e);
+        } catch (IOException e) {
+            log.error("打印错误",e);
+        }
+    }
+
+    private List<Object> getcolumns(String pk_currency,String print_all,String isPage,String showbm){
+        List<Object> list = new ArrayList<>();
+        if(!StringUtil.isEmpty(pk_currency) && !DzfUtil.PK_CNY.equals(pk_currency)){//外币
+            if("Y".equals(isPage) || (StringUtil.isEmpty(print_all) || "N".endsWith(print_all))){//单独打印和分页打印显示项目名称
+                list.add( new String[] {"rq", "pzh", "zy","bz", "ybjf","jf", "ybdf","df", "fx", "ybye", "ye"  });
+                list.add( new String[] { "日期", "凭证号", "摘要","币别", "借方_原币","借方_本位币", "贷方_原币","贷方_本位币", "方向", "余额_原币", "余额_本位币" });
+                list.add( new int[]{ 3, 2, 5, 3,3,3, 3,3, 1, 3,3 });
+            }else{
+                list.add( new String[] {"text", "rq", "pzh", "zy","bz", "ybjf","jf", "ybdf","df", "fx", "ybye", "ye"  });
+                list.add( new String[] {"项目", "日期", "凭证号", "摘要","币别", "借方_原币","借方_本位币", "贷方_原币","贷方_本位币", "方向", "余额_原币", "余额_本位币" });
+                list.add( new int[]{5, 3, 2, 5, 3,3,3, 3,3, 1, 3,3 });
+            }
+        }else{//人民币
+            list.add( new String[] { "text","rq", "pzh", "zy", "jf", "df", "fx", "ye" });
+            list.add(new String[] {"项目", "日期", "凭证号", "摘要", "借方", "贷方", "方向", "余额" });
+            list.add(new int[] {5, 3, 2, 5, 3, 3, 1, 3 });
+        }
+        return list;
+    }
 
 }

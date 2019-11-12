@@ -1,20 +1,25 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.base.utils.DzfTypeUtils;
+import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.entity.Grid;
+import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
-import com.dzf.zxkj.common.utils.CodeUtils1;
-import com.dzf.zxkj.common.utils.DateUtils;
-import com.dzf.zxkj.common.utils.SafeCompute;
-import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.KmConFzVoTreeStrateGyByPk;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
@@ -28,6 +33,8 @@ import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.service.power.IButtonPowerService;
 import com.dzf.zxkj.report.utils.ReportUtil;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -551,7 +558,80 @@ public class FsYeController  extends ReportBaseController {
                 }
             }
         }
+    }
 
+    @PostMapping("print/pdf")
+    public void printAction(String corpName, String period, PrintParamVO printParamVO,KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            String strlist = printParamVO.getList();
+            if (strlist == null) {
+                return;
+            }
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            /** 是否横向 */
+            printReporUtil.setIscross(DZFBoolean.TRUE);
+            FseJyeVO[] bodyvos = JsonUtils.deserialize(strlist, FseJyeVO[].class);
+            /** 去掉空格 */
+            if (bodyvos != null && bodyvos.length > 0) {
+                for (FseJyeVO vo : bodyvos) {
+                    if(!StringUtil.isEmpty(vo.getKmmc())){
+                        vo.setKmmc(vo.getKmmc().trim());
+                    }
+                }
+            }
+            /** 声明一个map用来存title */
+            Map<String, String> tmap = new LinkedHashMap<String, String>();
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getTitleperiod());
+            tmap.put("单位", new ReportUtil().getCurrencyDw(queryparamvo.getCurrency()));
+
+            /** 设置表头字体 */
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));
+            Object[] obj = null;
+            printReporUtil.setLineheight(22f);
+            if(!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)){
+                obj = getPrintXm(1);
+            }else{
+                obj = getPrintXm(0);
+            }
+            printReporUtil.printHz(new HashMap<String, List<SuperVO>>() ,bodyvos,"发 生 额 及 余 额 表",(String[])obj[0],
+                    (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+        } catch (DocumentException e) {
+            log.error("打印错误",e);
+        } catch (IOException e) {
+            log.error("打印错误",e);
+        }
+    }
+
+    public Object[] getPrintXm(int type){
+        Object[] obj = new Object[4];
+        switch (type) {
+            case 1:
+                obj[0] = new String[]{"kmlb","kmbm","kmmc","ybqcjf","qcjf","ybqcdf","qcdf",
+                        "ybfsjf","fsjf","ybfsdf","fsdf",
+                        "ybjftotal","jftotal","ybdftotal","dftotal",
+                        "ybqmjf","qmjf","ybqmdf","qmdf"};
+                obj[1] = new String[]{"科目类别","科目编码","科目名称",
+                        "期初余额_借方(原币)","期初余额_借方(本位币)","期初余额_贷方(原币)","期初余额_贷方(本位币 )",
+                        "本期发生额_借方(原币)","本期发生额_借方(本位币)",
+                        "本期发生额_贷方(原币)","本期发生额_贷方(本位币)",
+                        "本年累计发生额_借方(原币)","本年累计发生额_借方(本位币)",
+                        "本年累计发生额_贷方(原币)","本年累计发生额_贷方(本位币)",
+                        "期末余额_借方(原币)","期末余额_借方(本位币)","期末余额_贷方(原币)","期末余额_贷方(本位币)"};
+                obj[2] = new int[]{2,2,5,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3};
+                obj[3] = 60;
+                break;
+            case 0:
+                obj[0] = new String[]{"kmlb","kmbm","kmmc","qcjf","qcdf","fsjf","fsdf","jftotal","dftotal","qmjf","qmdf"};
+                obj[1] = new String[]{"科目类别","科目编码","科目名称","期初余额_借方","期初余额_贷方","本期发生额_借方","本期发生额_贷方","本年累计发生额_借方","本年累计发生额_贷方","期末余额_借方","期末余额_贷方"};
+                obj[2] = new int[]{3,4,6,5,5,5,5,5,5,5,5};
+                obj[3] = 60;
+                break;
+            default:
+                break;
+        }
+        return obj;
     }
 
 

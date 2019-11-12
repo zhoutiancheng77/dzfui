@@ -113,7 +113,7 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
                             "zzkmbh", "zzkmmc", "zcje", "zzje" }, new String[] {
                             "资产属性", "资产类别", "资产科目", "总账科目编号", "总账科目名称", "资产金额",
                             "总账" }, new int[] { 1, 1, 1, 1, 1, 1, 1 }, 20,
-                    printParamVO.getType(), pmap, tmap);
+                     pmap, tmap);
 
         } catch (DocumentException e) {
             log.error("打印错误", e);

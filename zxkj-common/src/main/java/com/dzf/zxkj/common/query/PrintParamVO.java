@@ -23,6 +23,96 @@ public class PrintParamVO extends SuperVO {
 	private String columnslist ;
 	private String corpName;
 	private String period;
+	private String titleperiod;
+	private String isPaging;//是否分页
+	private String lineHeight;//行高
+	private String isbilateralprint;//是否双向打印
+	private String projectname;//项目名称
+	private String print_all;
+	private String showlb;
+	private String fzlb_name;
+	private String showbm;//
+	private String isxshl;// 是否显示汇率
+
+	public String getIsxshl() {
+		return isxshl;
+	}
+
+	public void setIsxshl(String isxshl) {
+		this.isxshl = isxshl;
+	}
+
+	public String getPrint_all() {
+		return print_all;
+	}
+
+	public void setPrint_all(String print_all) {
+		this.print_all = print_all;
+	}
+
+	public String getShowlb() {
+		return showlb;
+	}
+
+	public void setShowlb(String showlb) {
+		this.showlb = showlb;
+	}
+
+	public String getFzlb_name() {
+		return fzlb_name;
+	}
+
+	public void setFzlb_name(String fzlb_name) {
+		this.fzlb_name = fzlb_name;
+	}
+
+	public String getShowbm() {
+		return showbm;
+	}
+
+	public void setShowbm(String showbm) {
+		this.showbm = showbm;
+	}
+
+	public String getProjectname() {
+		return projectname;
+	}
+
+	public void setProjectname(String projectname) {
+		this.projectname = projectname;
+	}
+
+	public String getIsbilateralprint() {
+		return isbilateralprint;
+	}
+
+	public void setIsbilateralprint(String isbilateralprint) {
+		this.isbilateralprint = isbilateralprint;
+	}
+
+	public String getLineHeight() {
+		return lineHeight;
+	}
+
+	public void setLineHeight(String lineHeight) {
+		this.lineHeight = lineHeight;
+	}
+
+	public String getIsPaging() {
+		return isPaging;
+	}
+
+	public void setIsPaging(String isPaging) {
+		this.isPaging = isPaging;
+	}
+
+	public String getTitleperiod() {
+		return titleperiod;
+	}
+
+	public void setTitleperiod(String titleperiod) {
+		this.titleperiod = titleperiod;
+	}
 
 	public String getCorpName() {
 		return corpName;

@@ -98,7 +98,7 @@ public class AssetClsController extends BaseController {
                     new String[] { "pk_assetcard_name", "businessdate",
                             "istogl", "voucherno" }, new String[] { "资产卡片",
                             "清理日期", "转凭证", "凭证号" }, new int[] { 3, 3, 3, 3 },
-                    20, printParamVO.getType(), pmap, tmap);
+                    20,  pmap, tmap);
         } catch (DocumentException e) {
             log.error("资产清理打印失败", e);
         } catch (IOException e) {
