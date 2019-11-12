@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.service.bdset;
 
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
 
 import java.util.List;

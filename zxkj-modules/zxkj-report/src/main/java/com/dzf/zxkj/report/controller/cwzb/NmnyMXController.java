@@ -1,7 +1,7 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;

@@ -1,9 +1,6 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.alibaba.fastjson.JSON;
-import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
-import com.dzf.zxkj.base.utils.FieldMapping;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;

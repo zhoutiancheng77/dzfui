@@ -1,12 +1,12 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.common.base.BaseController;
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.platform.model.bdset.YntCptransmbBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCptransmbHVO;
 import com.dzf.zxkj.platform.service.bdset.ICPSYMBService;

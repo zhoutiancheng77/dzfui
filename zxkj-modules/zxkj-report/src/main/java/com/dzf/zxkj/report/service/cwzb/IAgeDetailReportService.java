@@ -2,7 +2,7 @@ package com.dzf.zxkj.report.service.cwzb;
 
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.base.query.AgeReportQueryVO;
+import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.platform.model.report.AgeBalanceVO;
 import com.dzf.zxkj.platform.model.report.AgeReportResultVO;
 

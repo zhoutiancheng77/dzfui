@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.service.zcgl;
 
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetcardVO;

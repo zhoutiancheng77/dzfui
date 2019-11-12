@@ -1,7 +1,7 @@
 package com.dzf.zxkj.report.utils;
 
 
-import com.dzf.zxkj.common.exception.BusinessException;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.ArrayUtil;
 import com.dzf.zxkj.common.utils.StringUtil;

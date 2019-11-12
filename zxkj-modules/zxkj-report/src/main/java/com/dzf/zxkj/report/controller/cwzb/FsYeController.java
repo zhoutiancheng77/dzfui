@@ -1,11 +1,7 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.alibaba.fastjson.JSON;
-import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
-import com.dzf.zxkj.base.utils.FieldMapping;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
-import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -17,9 +13,7 @@ import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
-import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
-import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.KmConFzVoTreeStrateGyByPk;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
@@ -31,7 +25,6 @@ import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwzb.FsYeBExcelField;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
-import com.dzf.zxkj.report.service.power.IButtonPowerService;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -43,7 +36,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.*;
 
 @RestController
