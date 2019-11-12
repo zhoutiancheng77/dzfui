@@ -107,7 +107,7 @@ public class PrintReporUtil {
      * @throws IOException
      */
     public void printHz(Map<String, List<SuperVO>> kmmap, SuperVO[] zzvos, String title, String[] columns,
-                        String[] columnnames, int[] widths, Integer pagecount, String type, Map<String, String> pmap,
+                        String[] columnnames, int[] widths, Integer pagecount, Map<String, String> pmap,
                         Map<String, String> tmap) throws DocumentException, IOException {
         if (pmap.get("type").equals("1"))//A4纸张
             printGroup(kmmap, zzvos, title, columns, columnnames, null, widths, pagecount, null, pmap, tmap); // A4纸张打印
@@ -1689,6 +1689,13 @@ public class PrintReporUtil {
         pmap.put("printdate", printvo.getPrintdate());
         pmap.put("font", printvo.getFont());
         pmap.put("pageNum", printvo.getPageNum());
+        pmap.put("isPaging",printvo.getIsPaging());
+        pmap.put("lineHeight",printvo.getLineHeight());
+        pmap.put("projectname",printvo.getProjectname());
+        pmap.put("print_all",printvo.getPrint_all());
+        pmap.put("showlb",printvo.getShowlb());
+        pmap.put("fzlb_name",printvo.getFzlb_name());
+        pmap.put("showbm", printvo.getShowbm());
         return pmap;
     }
 

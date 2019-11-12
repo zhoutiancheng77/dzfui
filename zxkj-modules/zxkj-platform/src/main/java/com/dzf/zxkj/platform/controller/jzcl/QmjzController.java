@@ -398,7 +398,7 @@ public class QmjzController {
                     new String[]{"period", "corpname", "pzhasjz", "gdzchasjz", "sykmwye", "vdef10", "qmph",
                             "jzfinish"},
                     new String[]{"期间", "公司", "凭证都已记账", "固定资产已结账", "期间损益已结转", "利润结转", "期末试算平衡", "结账完成"},
-                    new int[]{2, 5, 3, 3, 3, 3, 3, 2}, 20, printParamVO.getType(), pmap, tmap);
+                    new int[]{2, 5, 3, 3, 3, 3, 3, 2}, 20,  pmap, tmap);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

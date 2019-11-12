@@ -166,7 +166,7 @@ public class ZczjmxActReportController extends BaseController {
                         new String[]{"zy", "businessdate", "assetmny", "depreciationmny", "assetnetmny",
                                 "originalvalue"},
                         new String[]{"摘要", "折旧日期", "资产原值", "累计折旧", "资产净值", "本期折旧"},
-                        new int[]{3, 3, 3, 3, 3, 3}, 20, printParamVO.getType(), pmap, tmap);
+                        new int[]{3, 3, 3, 3, 3, 3}, 20,  pmap, tmap);
             } else {
                 printReporUtil.setLineheight(22f);
                 printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), filter(bodyvos, printParamVO.getXjtotal(), printParamVO.getHjtotal()), title,
@@ -182,7 +182,7 @@ public class ZczjmxActReportController extends BaseController {
                                 4,
                                 "N".equals(printParamVO.getZjrq()) ? 0 : 3,
                                 "N".equals(printParamVO.getZjnx()) ? 0 : 3,
-                                4, 4, 4, 4}, 20, printParamVO.getType(), pmap, tmap);
+                                4, 4, 4, 4}, 20,  pmap, tmap);
             }
         } catch (DocumentException e) {
             log.error("折旧明细账打印失败", e);

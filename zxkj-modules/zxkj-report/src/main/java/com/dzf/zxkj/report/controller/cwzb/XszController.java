@@ -1,14 +1,22 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.base.utils.DzfTypeUtils;
+import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.ColumnCellAttr;
+import com.dzf.zxkj.common.query.PrintParamVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.report.XsZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -20,6 +28,7 @@ import com.dzf.zxkj.report.excel.cwzb.XszExcelField;
 import com.dzf.zxkj.report.service.cwzb.IXsZReport;
 import com.dzf.zxkj.report.service.power.IButtonPowerService;
 import com.dzf.zxkj.report.utils.ReportUtil;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,9 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("gl_rep_xszact")
@@ -133,8 +140,6 @@ public class XszController  extends ReportBaseController {
         if(!bexport){
             return;
         }
-//        XsZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),XsZVO[].class);
-//        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
         String gs= excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
         XsZVO[] listVo = queryVOsFromCon(queryparamvo,corpVO);
@@ -152,5 +157,72 @@ public class XszController  extends ReportBaseController {
         //日志记录
 //        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
 //                "序时账导出:"+queryvo.getBegindate1() +"-"+ queryvo.getEnddate(), ISysConstants.SYS_2);
+    }
+
+    public XsZVO[] reloadNewValue(String titlePeriod,String gs,KmReoprtQueryParamVO queryParamvo,CorpVO corpVO){
+        //重新赋以下2个值
+        XsZVO[] bodyvos = queryVOsFromCon(queryParamvo, corpVO);
+        bodyvos[0].setGs(gs);
+        bodyvos[0].setTitlePeriod(titlePeriod);
+        return bodyvos;
+    }
+
+
+    /**
+     * 打印操作
+     */
+    @PostMapping("print/pdf")
+    public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryParamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));
+            XsZVO[] bodyvos = reloadNewValue(printParamVO.getTitleperiod(),printParamVO.getCorpName(),queryParamvo,corpVO);
+
+            ColumnCellAttr[] columncellattrvos = null;
+            String isxshl= printParamVO.getIsxshl();
+            List<ColumnCellAttr> list = new ArrayList<ColumnCellAttr>();
+            if("Y".equals(isxshl)){
+                list.add(new ColumnCellAttr("日期",null,null,2,"rq",1));
+                list.add(new ColumnCellAttr("年度",null,null,2,"year",1));
+                list.add(new ColumnCellAttr("期间",null,null,2,"qj",1));
+                list.add(new ColumnCellAttr("凭证字",null,null,2,"pzz",1));
+                list.add(new ColumnCellAttr(" 凭证号",null,null,2,"pzh",1));
+                list.add(new ColumnCellAttr("摘要",null,null,2,"zy",1));
+                list.add(new ColumnCellAttr("科目编码",null,null,2,"kmbm",1));
+                list.add(new ColumnCellAttr("科目名称",null,null,2,"kmmc",3));
+                list.add(new ColumnCellAttr("币种",null,null,2,"bz",1));
+                list.add(new ColumnCellAttr("汇率",null,null,2,"hl",1));
+                list.add(new ColumnCellAttr("借方",null,2,null,null,4));
+                list.add(new ColumnCellAttr("贷方",null,2,null,null,4));
+                list.add(new ColumnCellAttr("原币",null,null,null,"ybjf",1));
+                list.add(new ColumnCellAttr("本位币",null,null,null,"jfmny",1));
+                list.add(new ColumnCellAttr("原币",null,null,null,"ybdf",1));
+                list.add(new ColumnCellAttr("本位币",null,null,null,"dfmny",1));
+
+            }else{
+                list.add(new ColumnCellAttr("日期",null,null,null,"rq",1));
+                list.add(new ColumnCellAttr(" 凭证号",null,null,null,"pzh",1));
+                list.add(new ColumnCellAttr("摘要",null,null,null,"zy",1));
+                list.add(new ColumnCellAttr("科目编码",null,null,null,"kmbm",1));
+                list.add(new ColumnCellAttr("科目名称",null,null,null,"kmmc",3));
+                list.add(new ColumnCellAttr("借方",null,null,null,"jfmny",1));
+                list.add(new ColumnCellAttr("贷方",null,null,null,"dfmny",1));
+            }
+            columncellattrvos = list.toArray(new ColumnCellAttr[0]);
+
+
+            //初始化表头
+            Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
+            tmap.put("公司", bodyvos[0].getGs());
+            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            printReporUtil.setLineheight(22f);
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
+            //初始化表体列编码和列名称
+            printReporUtil.printReport(bodyvos,"序 时 账", Arrays.asList(columncellattrvos),18,pmap.get("type"),pmap,tmap);
+
+        } catch (Exception e) {
+            log.error("打印错误",e);
+        }
     }
 }

@@ -167,7 +167,7 @@ public class ZjhzReportController extends BaseController {
                     new String[]{"assetproperty", "catename", "assetmny", "originalvalue", "depreciationmny",
                             "assetnetmny"},
                     new String[]{"资产属性", "资产类别", "资产原值", "本期折旧额", "累计折旧额", "资产净值"},
-                    new int[]{3, 3, 3, 3, 3, 3}, 20, printParamVO.getType(), pmap, tmap);
+                    new int[]{3, 3, 3, 3, 3, 3}, 20, pmap, tmap);
 
         } catch (DocumentException e) {
             log.error("折旧汇总打印失败", e);

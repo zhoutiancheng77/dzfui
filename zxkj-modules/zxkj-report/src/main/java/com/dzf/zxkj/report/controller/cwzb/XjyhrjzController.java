@@ -1,14 +1,22 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.base.utils.DzfTypeUtils;
+import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -18,6 +26,8 @@ import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwzb.XjyhrjzExcelField;
 import com.dzf.zxkj.report.service.cwzb.IXjRjZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,9 +35,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequestMapping("gl_rep_xjyhrjzact")
@@ -154,6 +163,58 @@ public class XjyhrjzController extends ReportBaseController {
 //                "现金/银行日记账导出:" + queryParamvo.getBegindate1().toString().substring(0, 7) + "-"
 //                        + queryParamvo.getEnddate().toString().substring(0, 7),
 //                ISysConstants.SYS_2);
+    }
+    /**
+     * 打印操作
+     */
+    @PostMapping("print/pdf")
+    public void printAction(String corpName, String period, PrintParamVO printParamVO, QueryParamVO queryParamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            String lineHeight = pmap.get("lineHeight");
+            String font = pmap.get("font");
+            printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));
+
+            /** 声明一个map用来存前台传来的设置参数 */
+            String pk_currency = queryParamvo.getPk_currency();
+            Map<String, String> tmap = new LinkedHashMap<>();
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间",printParamVO.getTitleperiod());
+            tmap.put("单位", new ReportUtil(zxkjPlatformService).getCurrencyByPk(queryParamvo.getPk_currency()));
+            KmMxZVO[] bodyvos = gl_rep_xjyhrjzserv.getXJRJZVOsConMo(queryParamvo.getPk_corp(),
+                    queryParamvo.getKms_first(),queryParamvo.getKms_last(),  queryParamvo.getBegindate1(), queryParamvo.getEnddate(),
+                    queryParamvo.getXswyewfs(),queryParamvo.getXsyljfs(),
+                    queryParamvo.getIshasjz(), queryParamvo.getIshassh(), queryParamvo.getPk_currency(), null,null);//默认人民币
+            putKmRq(bodyvos);
+            printReporUtil.setLineheight(22f);
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
+            for (int i = 0; i < bodyvos.length; i++) {
+                bodyvos[i].km=bodyvos[i].km.trim();
+            }
+            Object[] obj = getPrintXm(0);
+            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(),bodyvos,"现金/银行日记账",(String[])obj[0],
+                    (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+        } catch (DocumentException e) {
+            log.error("打印错误",e);
+        } catch (IOException e) {
+            log.error("打印错误",e);
+        }
+    }
+
+    public Object[] getPrintXm(int type){
+        Object[] obj = new Object[4];
+        switch (type) {
+            case 0:
+                obj[0] = new String[]{"rq","km","pzh","zy","jf","df","fx","ye"};
+                obj[1] = new String[]{"日期","科目","凭证号","摘要","借方","贷方","方向","余额"};
+                obj[2] = new int[]{2,3,1,4,2,2,1,2};
+                obj[3] = 20;
+                break;
+            default:
+                break;
+        }
+        return obj;
     }
 
 

@@ -16,9 +16,18 @@ public class ColumnCellAttr extends SuperVO {
 	private String column;
 	private int width;
 
-	public ColumnCellAttr() {
+	public ColumnCellAttr(String columname, String key, Integer colspan, Integer rowspan, String column, int width) {
+		super();
+		this.columname = columname;
+		this.key = key;
+		this.colspan = colspan;
+		this.rowspan = rowspan;
+		this.column = column;
+		this.width = width;
 	}
 
+	public ColumnCellAttr() {
+	}
 	public ColumnCellAttr(String columnname) {
 		this.columname = columnname;
 	}

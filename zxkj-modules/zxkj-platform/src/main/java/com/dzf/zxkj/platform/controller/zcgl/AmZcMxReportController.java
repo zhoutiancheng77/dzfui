@@ -97,7 +97,7 @@ public class AmZcMxReportController extends BaseController {
                             "资产编码", "资产名称", "资产类别", "资产属性", "凭证号", "摘要",
                             "固定资产借方", "固定资产贷方", "固定资产余额", "累计折旧借方", "累计折旧贷方",
                             "累计折旧余额", "净值余额"}, new int[]{4, 4, 4, 7, 4, 3,
-                            4, 4, 4, 4, 4, 4, 4, 4}, 20, param.getType(),
+                            4, 4, 4, 4, 4, 4, 4, 4}, 20,
                     pmap, tmap);
         } catch (DocumentException e) {
             log.error("资产明细账打印失败", e);
