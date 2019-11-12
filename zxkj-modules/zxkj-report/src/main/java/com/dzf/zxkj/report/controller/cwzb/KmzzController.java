@@ -190,10 +190,6 @@ public class KmzzController extends ReportBaseController {
     public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
-            String strlist = printParamVO.getList();
-            if (strlist == null) {
-                return;
-            }
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String pageOrt = pmap.get("pageOrt");
             String lineHeight = pmap.get("lineHeight");
@@ -219,7 +215,7 @@ public class KmzzController extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = null;
             /** 需要分页打印 */
-            if(bodyvos!=null && bodyvos.length>0 &&  bodyvos[0].getIsPaging().equals("Y")){
+            if(bodyvos!=null && bodyvos.length>0 &&  printParamVO.getIsPaging().equals("Y")){
                 List<SuperVO> mxlist=null;
                 Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
                 String kmfullname;
