@@ -54,6 +54,10 @@ public class AssetClsController extends BaseController {
                     grid.setRows(list);
                     grid.setSuccess(true);
                     grid.setMsg("查询成功！");
+                }else{
+                    grid.setTotal(0L);
+                    grid.setSuccess(true);
+                    grid.setMsg("查询成功！");
                 }
                 writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"资产清理查询", ISysConstants.SYS_2);
             }
@@ -68,7 +72,7 @@ public class AssetClsController extends BaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(@MultiRequestBody ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void printAction(ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
             Map<String, String> pmap = new HashMap<String, String>(10);// 声明一个map用来存前台传来的设置参数
 
@@ -91,8 +95,8 @@ public class AssetClsController extends BaseController {
             AssetCleanVO[] bodyvos = JsonUtils.deserialize(printParamVO.getData(), AssetCleanVO[].class);
 
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
-            tmap.put("公司", bodyvos[0].getGs());
-            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getPeriod());
 
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "资产清理",
                     new String[] { "pk_assetcard_name", "businessdate",
