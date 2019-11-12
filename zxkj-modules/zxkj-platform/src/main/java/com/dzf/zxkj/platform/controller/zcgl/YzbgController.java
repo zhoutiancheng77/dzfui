@@ -95,7 +95,11 @@ public class YzbgController extends BaseController {
                 writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"原值变更查询",ISysConstants.SYS_2);
                 if (list != null && list.size() > 0) {
                     grid.setTotal((long) list.size());
+                    grid.setSuccess(true);
                     grid.setRows(list);
+                }else{
+                    grid.setTotal(0L);
+                    grid.setSuccess(true);
                 }
             }
         } catch (Exception e) {
