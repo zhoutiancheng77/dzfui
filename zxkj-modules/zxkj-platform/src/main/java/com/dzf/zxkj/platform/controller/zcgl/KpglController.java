@@ -325,6 +325,7 @@ public class KpglController extends BaseController {
             if (list != null && list.size() > 0) {
                 grid.setTotal((long) list.size());
                 grid.setRows(list);
+                grid.setSuccess(true);
                 grid.setMsg("查询成功！");
             }
         } catch (Exception e) {
