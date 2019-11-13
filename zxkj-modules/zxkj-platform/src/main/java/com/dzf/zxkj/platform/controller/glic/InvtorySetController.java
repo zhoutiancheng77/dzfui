@@ -56,7 +56,6 @@ public class InvtorySetController {
         json.setSuccess(true);
         if(!StringUtil.isEmpty(vo.getErrorinfo())){
             json.setMsg("返回提示信息");
-            json.setStatus(-100);
         }
 
         if(!StringUtil.isEmpty(vo.getLoginfo())){

@@ -257,7 +257,7 @@ public class InventoryController {
 	}
 
 	@PostMapping("/save")
-	public ReturnData save(@RequestParam Map<String, String> param) {
+	public ReturnData save(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		InventoryVO[] bodyvos;
 		String spInfo =param.get("body"); // 获得前台传进来的
@@ -294,7 +294,7 @@ public class InventoryController {
 	}
 
 	@PostMapping("/batchSave")
-	public ReturnData batchSave(@RequestParam Map<String, String> param) {
+	public ReturnData batchSave(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		String firstCode = null;
 		String firstName = null;
@@ -352,7 +352,7 @@ public class InventoryController {
 	}
 
 	@PostMapping("/mergeData")
-	public ReturnData mergeData(@RequestParam Map<String, String> param) {
+	public ReturnData mergeData(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		String spid = param.get("spid");
 		String pk_corp = param.get("pk_corp");
@@ -392,7 +392,7 @@ public class InventoryController {
 
 	// 删除记录
 	@PostMapping("/onDelete")
-	public ReturnData onDelete(@RequestParam Map<String, String[]> param) {
+	public ReturnData onDelete(@RequestBody Map<String, String[]> param) {
 		String[] paramValues = param.get("ids[]");
 		String[] pk_corps = param.get("gss[]");
 		Json json = new Json();
@@ -479,7 +479,7 @@ public class InventoryController {
 	}
 
 	@PostMapping("/createPrice")
-	public ReturnData createPrice(@RequestParam Map<String, String> param) {
+	public ReturnData createPrice(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		String pk_corp = param.get("pk_corp");
 		if (StringUtil.isEmpty(pk_corp)) {

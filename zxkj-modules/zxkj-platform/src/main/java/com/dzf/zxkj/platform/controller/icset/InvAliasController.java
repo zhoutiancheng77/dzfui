@@ -1,5 +1,8 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.DZFStringUtil;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -47,7 +50,7 @@ public class InvAliasController {
 	}
 
 	@PostMapping("/save")
-	public ReturnData save(@RequestParam Map<String, String> param){
+	public ReturnData save(@RequestBody Map<String, String> param){
 		Json json = new Json();
 		InventoryAliasVO data = JsonUtils.convertValue(param, InventoryAliasVO.class);
 		data.setPk_corp(SystemUtil.getLoginCorpId()); 
@@ -62,12 +65,17 @@ public class InvAliasController {
 	}
 
 	@PostMapping("/onDelete")
-	public ReturnData onDelete(@RequestParam Map<String, String> param){
+	public ReturnData onDelete(@RequestBody Map<String, String> param){
 		Json json = new Json();
-		String pk_alias = param.get("pk_alias");
+		String pk_alias = param.get("pk_aliass");
 		String cateName = param.get("cate_name");
 		String aliasname =param.get("aliasname");
-		ic_invtoryaliasserv.delete(pk_alias, SystemUtil.getLoginCorpId());
+
+		String[] pkss = DZFStringUtil.getString2Array(pk_alias, ",");
+		if (DZFValueCheck.isEmpty(pkss)){
+			throw new BusinessException("数据为空,删除失败!");
+		}
+		ic_invtoryaliasserv.deleteByPks(pkss, SystemUtil.getLoginCorpId());
 		json.setMsg("删除成功");
 		json.setSuccess(true);
 //		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "总账存货管理-存货档案，删除",ISysConstants.SYS_2);
