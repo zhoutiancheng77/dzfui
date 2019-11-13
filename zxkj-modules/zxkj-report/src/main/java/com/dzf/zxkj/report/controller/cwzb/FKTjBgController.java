@@ -3,6 +3,7 @@ package com.dzf.zxkj.report.controller.cwzb;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.report.FkTjSetVo;
 import com.dzf.zxkj.report.query.FktjQueryParam;
@@ -38,6 +39,25 @@ public class FKTjBgController extends BaseController {
             log.error("查询失败", e);
         }
         return ReturnData.ok().data(grid);
+    }
+
+    @PostMapping("save")
+    public ReturnData save() {
+        Grid json = new Grid();
+        try {
+            FkTjSetVo setvo = new FkTjSetVo();
+            setvo.setPk_corp(SystemUtil.getLoginCorpId());
+            setvo.setInspectdate(new DZFDateTime());
+            setvo.setQj(SystemUtil.getLoginDate().substring(0, 4) + "-01~" + SystemUtil.getLoginDate().substring(0, 7));
+            setvo.setVinspector(SystemUtil.getLoginUserId());
+            gl_fktjbgserv.save(setvo);
+            json.setMsg("保存成功");
+            json.setSuccess(true);
+        } catch (Exception e) {
+            printErrorLog(json, e, "保存失败");
+            log.error("保存失败",e);
+        }
+        return ReturnData.ok().data(json);
     }
 
 }
