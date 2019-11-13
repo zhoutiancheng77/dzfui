@@ -148,7 +148,7 @@ public class HyAssetCheckServiceImpl extends BgPubServiceImpl implements IHyAsse
 			sf.append(" left join ynt_cpaccount cc1 on oo.pk_zjfykm = cc1.pk_corp_account ");
 			sf.append(" left join ynt_cpaccount cc2 on oo.pk_jskm = cc2.pk_corp_account ");
 			sf.append(" left join ynt_category dd on oo.pk_assetcategory = dd.pk_assetcategory ");
-			if(kmfaid!=null){
+			if(!StringUtil.isEmpty(kmfaid)){
 				sl.addParam(pk_corp);
 				sl.addParam(kmfaid);
 				sf.append(" where oo.pk_corp = ? and oo.PK_TRADE_ACCOUNTSCHEMA = ? and nvl(oo.dr,0)=0 ");

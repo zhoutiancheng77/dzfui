@@ -1,10 +1,12 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.DZFStringUtil;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -86,7 +88,7 @@ public class QcController {
 
 	// 保存(包含新增 修改)
 	@PostMapping("/onUpdate")
-	public ReturnData onUpdate(@RequestParam Map<String, String> param) {
+	public ReturnData onUpdate(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		IcbalanceVO[] bodyvos;
 		String spInfo =param.get("body"); // 获得前台传进来的
@@ -120,30 +122,26 @@ public class QcController {
 	}
 	// 删除记录
 	@PostMapping("/onDelete")
-	public ReturnData onDelete(@RequestParam Map<String, String[]> param) {
-		String[] paramValues = param.get("ids[]");
-		String[] pk_corps = param.get("gss[]");
+	public ReturnData onDelete(@RequestBody Map<String, String> param) {
+		String paramValues = param.get("ids");
+		String pk_corp = param.get("pk_corp");
 		Json json = new Json();
-		if (paramValues != null && paramValues.length != 0) {
-			for (String pk : pk_corps) {
-				if (!SystemUtil.getLoginCorpId().equals(pk)) {
-					json.setSuccess(false);
-					json.setMsg("您无操作权限！");
-					return ReturnData.error().data(json);
-				}
-			}
-			securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
-			String errmsg = iservice.deleteBatch(paramValues, SystemUtil.getLoginCorpId());
-			json.setSuccess(true);
-			if(StringUtil.isEmpty(errmsg)){
-				json.setMsg("删除成功!");
-			}else{
-				json.setMsg(errmsg);
-			}
-		} else {
+		securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
+		String[] pkss = DZFStringUtil.getString2Array(paramValues, ",");
+		if (DZFValueCheck.isEmpty(pkss)){
+			throw new BusinessException("数据为空,删除失败!");
+		}
+		if (!SystemUtil.getLoginCorpId().equals(pk_corp)) {
 			json.setSuccess(false);
 			json.setMsg("您无操作权限！");
 			return ReturnData.error().data(json);
+		}
+		String errmsg = iservice.deleteBatch(pkss, SystemUtil.getLoginCorpId());
+		json.setSuccess(true);
+		if(StringUtil.isEmpty(errmsg)){
+			json.setMsg("删除成功!");
+		}else{
+			json.setMsg(errmsg);
 		}
 //		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "删除库存期初", ISysConstants.SYS_2);
 //		writeJson(json);

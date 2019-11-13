@@ -29,7 +29,7 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
 
-    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+//    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private com.dzf.auth.api.service.ILoginService userService;
 
     public LoginUser login(String username, String password, boolean flag) {

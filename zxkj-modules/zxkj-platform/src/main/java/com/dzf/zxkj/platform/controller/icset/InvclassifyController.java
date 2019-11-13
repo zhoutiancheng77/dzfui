@@ -51,7 +51,7 @@ public class InvclassifyController {
 	}
 
 	@PostMapping("/save")
-	public ReturnData save(@RequestParam Map<String, String> param) {
+	public ReturnData save(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		InvclassifyVO data = JsonUtils.convertValue(param, InvclassifyVO.class);
 		if (data != null) {
@@ -95,7 +95,7 @@ public class InvclassifyController {
 	}
 
 	@PostMapping("/delete")
-	public ReturnData delete(@RequestParam Map<String, String> param) {
+	public ReturnData delete(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		InvclassifyVO data = JsonUtils.convertValue(param, InvclassifyVO.class);
 		if (data != null) {

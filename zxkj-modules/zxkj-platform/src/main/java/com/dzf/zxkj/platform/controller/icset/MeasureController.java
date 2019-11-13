@@ -98,7 +98,7 @@ public class MeasureController{
 
 	// 修改保存
     @PostMapping("/onUpdate")
-	public ReturnData onUpdate(@RequestParam Map<String, String[]> param) {
+	public ReturnData onUpdate(@RequestBody Map<String, String[]> param) {
 		Json json = new Json();
         String[] strArr = param.get("strArr[]");
         List<MeasureVO> list = new ArrayList<>();
@@ -134,7 +134,7 @@ public class MeasureController{
 
 	// 删除记录
     @PostMapping("/onDelete")
-	public ReturnData onDelete(@RequestParam Map<String, String> param) {
+	public ReturnData onDelete(@RequestBody Map<String, String> param) {
 		// MeasureVO msvo = super.getActionVO(MeasureVO.class);
 		Json json = new Json();
         String pk_corp = SystemUtil.getLoginCorpId();

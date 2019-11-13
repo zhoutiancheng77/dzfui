@@ -78,10 +78,12 @@ public class QcyeController extends BaseController {
         }
         return  ReturnData.ok().data(json);
     }
-    @PostMapping("gdzcsync")
-    public ReturnData gdzcsync(@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
+    @GetMapping("gdzcsync")
+    public ReturnData gdzcsync() {
         Json json = new Json();
         try {
+            CorpVO corpVO = SystemUtil.getLoginCorpVo();
+            UserVO userVO = SystemUtil.getLoginUserVo();
             gl_qcyeserv.saveGdzcsync(userVO.getCuserid(), corpVO.getBegindate(),corpVO.getPk_corp());
             json.setSuccess(true);
             json.setMsg("固定资产同步成功！");
@@ -91,11 +93,10 @@ public class QcyeController extends BaseController {
 //        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "固定资产同步", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
-    @PostMapping("kcsync")
-    public ReturnData kcsync(@MultiRequestBody QcYeVO qcYeVO, @MultiRequestBody CorpVO corpVO,@MultiRequestBody UserVO userVO) {
+    @GetMapping("kcsync")
+    public ReturnData kcsync(String pk_corp, @MultiRequestBody CorpVO corpVO,@MultiRequestBody UserVO userVO) {
         Json json = new Json();
         try {
-            String pk_corp = qcYeVO.getPk_corp();
             securityserv.checkSecurityForOther(pk_corp, corpVO.getPk_corp(), userVO.getCuserid());
             /*
              *  库存老模式：总账同步到库存
@@ -179,10 +180,11 @@ public class QcyeController extends BaseController {
     /**
      * 清楚全部数据
      */
-    @PostMapping("deleteAct")
-    public ReturnData deleteAct(HttpServletRequest request, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
+    @GetMapping("deleteAct")
+    public ReturnData deleteAct(String atype) {
         Json json = new Json();
         try {
+            CorpVO corpVO = SystemUtil.getLoginCorpVo();
             String corpid = corpVO.getPk_corp();
             if ( corpid == null	|| "".equals(corpid) ) {
                 throw new BusinessException("出现数据无权问题，无法修改！");
@@ -196,7 +198,6 @@ public class QcyeController extends BaseController {
                     throw new BusinessException("已经存在关账的月份，不允许删除期初数据哦！");
                 }
             }
-            String atype = request.getParameter("atype");
             if("0".equals(atype)){
                 gl_qcyeserv.deleteFs(corpid);
 //                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "科目期初-清除发生", ISysConstants.SYS_2);
@@ -216,7 +217,7 @@ public class QcyeController extends BaseController {
      * 试算平衡
      */
     @PostMapping("ssph")
-    public ReturnData ssph(HttpServletRequest request, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
+    public ReturnData ssph(@MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
         SsphRes ss = null;
         try {
             String corpid = corpVO.getPk_corp();
@@ -312,16 +313,13 @@ public class QcyeController extends BaseController {
             }
             QcYeVO qc = new QcYeVO();
             Map<String, String> bodymapping = FieldMapping.getFieldMapping(qc);
-            QcYeVO[] bodyvos = JsonUtils.deserialize(strlist, QcYeVO[].class);
+            QcYeVO[] bodyvos =  JsonUtils.deserialize(strlist, QcYeVO[].class);
             printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
             Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-            String str = (String) bodyvos[0].getPk_currency();
-            String b = str.substring(0,str.indexOf("|"));
-            String c = str.substring(str.indexOf("|")+1);
-            tmap.put("公司", bodyvos[0].getGs());
-            tmap.put("期间", bodyvos[0].getDate());
-            tmap.put("币别", b);
-            tmap.put("汇率", c);
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getTitleperiod());
+            tmap.put("币别", printParamVO.getCurrencyname());
+            tmap.put("汇率", printParamVO.getExtra());
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
             if (showAmount) {
                 printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos,

@@ -37,6 +37,25 @@ public class PrintParamVO extends SuperVO {
 	private String columnOrder;//列表顺序
 	private String currjd;//当前季度
 	private String showAmount;
+	private String extra;//汇率
+	private String currencyname;//币种名称
+
+
+	public String getExtra() {
+		return extra;
+	}
+
+	public void setExtra(String extra) {
+		this.extra = extra;
+	}
+
+	public String getCurrencyname() {
+		return currencyname;
+	}
+
+	public void setCurrencyname(String currencyname) {
+		this.currencyname = currencyname;
+	}
 
 	public String getShowAmount() {
 		return showAmount;
