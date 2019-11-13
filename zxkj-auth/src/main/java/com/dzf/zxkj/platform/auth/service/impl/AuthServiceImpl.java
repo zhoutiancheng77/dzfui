@@ -36,7 +36,7 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private FunNodeMapper funNodeMapper;
 
-    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+//    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private ILoginService userService;
 
     @Override
