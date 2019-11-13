@@ -1,10 +1,9 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.dzf.auth.api.model.platform.PlatformUserVO;
+import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.auth.api.model.user.UserVO;
-//import com.dzf.auth.api.result.Result;
-//import com.dzf.auth.api.service.IUserService;
+import com.dzf.auth.api.result.Result;
 import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
@@ -14,11 +13,11 @@ import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-//import org.apache.dubbo.config.annotation.Reference;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -30,8 +29,8 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
 
-//    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
-//    private IUserService userService;
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    private com.dzf.auth.api.service.ILoginService userService;
 
     public LoginUser login(String username, String password, boolean flag) {
 
@@ -51,24 +50,26 @@ public class LoginServiceImpl implements ILoginService {
 
     @Override
     public LoginUser exchange(String resource) {
-//        Result<UserVO> rs = userService.exchangeResource(resource);
-//        if(rs.getCode() == 200){
-//            return transfer(rs.getData());
-//        }
+        Result<UserVO> rs = userService.exchangeResource(resource);
+        if(rs.getCode() == 200){
+            return transfer(rs.getData());
+        }
         return null;
     }
 
     private LoginUser transfer(UserVO uservo){
         LoginUser loginUser = null;
-        List<PlatformUserVO> list = uservo.getPlatformList();
+        Set<PlatformVO> list = uservo.getCanJumpPlatforms();
         if(list != null && list.size() > 0){
             loginUser = new LoginUser();
             loginUser.setUsername(uservo.getUserName());
             loginUser.setToken(uservo.getUserToken());
-            for(PlatformUserVO pvo : list){
+            loginUser.setUserid(uservo.getPlatformUserId());
+            loginUser.setUsername(uservo.getUserName());
+            for(PlatformVO pvo : list){
                 if("zxkj".equals(pvo.getPlatformTag())){
-                    loginUser.setUserid(pvo.getPlatformUserId());
-                    loginUser.setUsername(pvo.getUserName());
+//                    loginUser.setUserid(pvo.getPlatformUserId());
+//                    loginUser.setUsername(pvo.getUserName());
                 }
             }
         }
@@ -97,10 +98,10 @@ public class LoginServiceImpl implements ILoginService {
     }
 
     private LoginUser getLoginUserInter(String username, String password){
-//        Result<UserVO> rs = userService.login("zxkj", username, password);
-//        if(rs.getData() != null){
-//            return transfer(rs.getData());
-//        }
+        Result<UserVO> rs = userService.loginByUserName("zxkj", username, password);
+        if(rs.getData() != null){
+            return transfer(rs.getData());
+        }
         return null;
     }
 
