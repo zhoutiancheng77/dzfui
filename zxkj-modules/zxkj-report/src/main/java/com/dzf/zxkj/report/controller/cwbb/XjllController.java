@@ -158,16 +158,8 @@ public class XjllController extends ReportBaseController {
             //凭证查询vo
             VoucherParamVO pzparamvo = new VoucherParamVO();
             pzparamvo.setPk_corp(vo.getPk_corp());
-            pzparamvo.setPage(1);
             pzparamvo.setBegindate(DateUtils.getPeriodStartDate(vo.getQjq()));
             pzparamvo.setEnddate(DateUtils.getPeriodEndDate(vo.getQjq()));
-            pzparamvo.setSerdate("serMon");
-            pzparamvo.setStartYear(vo.getQjq().substring(0, 4));
-            pzparamvo.setStartMonth(pzparamvo.getBegindate().getStrMonth());
-            pzparamvo.setEndYear(pzparamvo.getEnddate().getYear()+"");
-            pzparamvo.setEndMonth(pzparamvo.getEnddate().getStrMonth());
-            pzparamvo.setPz_status(0);
-            pzparamvo.setRows(50);
             pzparamvo.setIs_error_cash(Boolean.TRUE);
             QueryPageVO pagevo = zxkjPlatformService.processQueryVoucherPaged(pzparamvo);
             TzpzHVO[] vos = (TzpzHVO[]) pagevo.getPagevos();
