@@ -225,12 +225,9 @@ public class VoucherServiceImpl implements IVoucherService {
 		// end 2016.3.4
 		if (!StringUtil.isEmpty(hvo.getPk_tzpz_h())) {
 			isadd= false;
-			VoucherParamVO paramvo = new VoucherParamVO();
-			paramvo.setPk_tzpz_h(hvo.getPk_tzpz_h());
-			paramvo.setPk_corp(hvo.getPk_corp());
 			QueryVoucher qv = new QueryVoucher(singleObjectBO,gl_fzhsserv);
 			TzpzBVO[] qbvos = qv.queryBodyVos(hvo.getPk_tzpz_h());
-			TzpzHVO qhvo = qv.queryVoucherById(paramvo);
+			TzpzHVO qhvo = qv.queryVoucherById(hvo.getPk_tzpz_h());
 			hvo.setBsign(qhvo.getBsign());
 			// 重新税目分析
 			boolean reAnalyseTaxItem = false;
@@ -618,121 +615,6 @@ public class VoucherServiceImpl implements IVoucherService {
 				}
 			}
 		}
-		/*if (hvo.getSourcebilltype() != null) {
-			if (hvo.getSourcebilltype().equals(IBillTypeCode.HP59)) { // 来源于固定资产
-				IAssetCard assetCard = (IAssetCard) SpringUtils.getBean("assetCardImpl");
-				if (!StringUtil.isEmpty(hvo.getSourcebillid())) {// 批量的不校验
-					assetCard.updateToGLState(hvo.getSourcebillid(), true, hvo.getPrimaryKey(), 0);
-				}
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP60)) { // 来源于资产原值变更单
-				IYzbgService am_yzbgserv = (IYzbgService) SpringUtils.getBean("am_yzbgserv");
-				am_yzbgserv.updateAVToGLState(hvo.getSourcebillid(), true, hvo.getPrimaryKey());
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP61)) { // 来源于资产清理单
-				IAssetCleanService cleanService = (IAssetCleanService) SpringUtils.getBean("am_assetclsserv");
-				cleanService.updateACToGLState(hvo.getSourcebillid(), true, hvo.getPrimaryKey());
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP66)) { // 来源于资产折旧
-//				IAssetCard assetCard = (IAssetCard) SpringUtils.getBean("assetCardImpl");
-//				assetCard.updateDepToGLState(hvo.getSourcebillid(), true, hvo.getPrimaryKey());
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP67)) { // 来源于资产折旧,多个资产明细生成一张凭证
-
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP70)) { // 更新采购单
-																				// 凭证号
-
-				if (corpvo.getIbuildicstyle() != null && corpvo.getIbuildicstyle() == 1) {
-					SQLParameter sqlp = new SQLParameter();
-					sqlp.addParam(hvo.getPzh());
-					sqlp.addParam(hvo.getPrimaryKey());
-					sqlp.addParam(corpvo.getPrimaryKey());
-					singleObjectBO.executeUpdate(" update ynt_ictrade_h set pzh= ? where pzid= ? and pk_corp = ? ",
-							sqlp);
-					singleObjectBO.executeUpdate(
-							" update ynt_ictradein set pzh= ? where pk_voucher= ? and pk_corp = ? ", sqlp);
-
-				}
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP75)) {// 更新销售单凭证号
-				if (corpvo.getIbuildicstyle() != null && corpvo.getIbuildicstyle() == 1) {
-					SQLParameter sqlp = new SQLParameter();
-					sqlp.addParam(hvo.getPzh());
-					sqlp.addParam(hvo.getPrimaryKey());
-					sqlp.addParam(corpvo.getPrimaryKey());
-					singleObjectBO.executeUpdate(" update ynt_ictrade_h set pzh= ? where pzid= ? and pk_corp = ? ",
-							sqlp);
-					singleObjectBO.executeUpdate(
-							" update ynt_ictradeout set pzh= ? where pk_voucher= ? and pk_corp = ? ", sqlp);
-				}
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP80)) {// 更新票通转总账标识
-				if (StringUtil.isEmptyWithTrim(hvo.getSourcebillid())) {
-					throw new BusinessException("凭证保存：票通单据未找到来源，请检查");
-				}
-				SQLParameter sp = new SQLParameter();
-				sp.addParam(DZFBoolean.TRUE.toString());
-				sp.addParam(hvo.getSourcebillid());
-				singleObjectBO.executeUpdate(" update ynt_ticket_h h set h.istogl = ? where h.pk_ticket_h = ? ", sp);
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP85)) {// 银行对账单
-				if (StringUtil.isEmptyWithTrim(hvo.getSourcebillid())) {
-					throw new BusinessException("银行对账单未找到来源，请检查");
-				}
-
-				if (sourcebillids != null && sourcebillids.length > 0) {
-					StringBuffer sf = new StringBuffer();
-					sf.append(" update ynt_bankstatement y set y.pk_tzpz_h = ?,y.pzh = ? Where  ")
-							.append(SqlUtil.buildSqlForIn("pk_bankstatement", sourcebillids));
-					SQLParameter sp = new SQLParameter();
-					sp.addParam(hvo.getPrimaryKey());
-					sp.addParam(hvo.getPzh());
-					// sp.addParam(hvo.getSourcebillid());
-
-					singleObjectBO.executeUpdate(sf.toString(), sp);
-				}
-
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP90)) {// 销项发票
-				if (StringUtil.isEmptyWithTrim(hvo.getSourcebillid())) {
-					throw new BusinessException("销项发票未找到来源，请检查");
-				}
-
-				if (sourcebillids != null && sourcebillids.length > 0) {
-					StringBuffer sf = new StringBuffer();
-					sf.append("  update ynt_vatsaleinvoice y set y.pk_tzpz_h = ?,y.pzh = ? Where ")
-							.append(SqlUtil.buildSqlForIn("pk_vatsaleinvoice", sourcebillids));
-					SQLParameter sp = new SQLParameter();
-					sp.addParam(hvo.getPrimaryKey());
-					sp.addParam(hvo.getPzh());
-					singleObjectBO.executeUpdate(sf.toString(), sp);
-				}
-
-			} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP95)) {// 进项发票
-				if (StringUtil.isEmptyWithTrim(hvo.getSourcebillid())) {
-					throw new BusinessException("进项发票未找到来源，请检查");
-				}
-
-				if (sourcebillids != null && sourcebillids.length > 0) {
-					StringBuffer sf = new StringBuffer();
-					sf.append("  update ynt_vatincominvoice y set y.pk_tzpz_h = ?,y.pzh = ? Where ");
-					sf.append(SqlUtil.buildSqlForIn("pk_vatincominvoice", sourcebillids));
-					SQLParameter sp = new SQLParameter();
-					sp.addParam(hvo.getPrimaryKey());
-					sp.addParam(hvo.getPzh());
-					singleObjectBO.executeUpdate(sf.toString(), sp);
-				}
-
-			} else if (IBillTypeCode.HP135.equals(hvo.getSourcebilltype())) {
-				// 关单
-				if (StringUtil.isEmptyWithTrim(hvo.getSourcebillid())) {
-					throw new BusinessException("关单未找到来源，请检查");
-				}
-
-				if (sourcebillids != null && sourcebillids.length > 0) {
-					StringBuilder sf = new StringBuilder();
-					sf.append("  update ynt_customsform set pk_voucher = ? Where pk_corp = ? and ");
-					sf.append(SqlUtil.buildSqlForIn("pk_customsform", sourcebillids));
-					SQLParameter sp = new SQLParameter();
-					sp.addParam(hvo.getPrimaryKey());
-					sp.addParam(hvo.getPk_corp());
-
-					singleObjectBO.executeUpdate(sf.toString(), sp);
-				}
-			}
-		}*/
 		// 如果有关联图片
 		if (!StringUtil.isEmpty(hvo.getPk_image_group())) {
 			String requestid = UUID.randomUUID().toString();
@@ -2140,15 +2022,9 @@ public class VoucherServiceImpl implements IVoucherService {
 	}
 
 	@Override
-	public List<TzpzHVO> queryVoucher(VoucherParamVO paramvo) throws DZFWarpException {
+	public TzpzHVO queryVoucherById(String id) throws DZFWarpException {
 		QueryVoucher qv = new QueryVoucher(singleObjectBO,gl_fzhsserv);
-		return qv.queryVoucher(paramvo);
-	}
-
-	@Override
-	public TzpzHVO queryVoucherById(VoucherParamVO paramvo) throws DZFWarpException {
-		QueryVoucher qv = new QueryVoucher(singleObjectBO,gl_fzhsserv);
-		return qv.queryVoucherById(paramvo);
+		return qv.queryVoucherById(id);
 	}
 
 	@Override
@@ -2993,13 +2869,13 @@ public class VoucherServiceImpl implements IVoucherService {
 	}
 
 	@Override
-	public List<TzpzHVO> processCopyVoucher(CorpVO corpvo, String ids, String copyPeriod,
+	public List<TzpzHVO> processCopyVoucher(CorpVO corpvo, List<String> ids, String copyPeriod,
 			String aimPeriod, String aimDate, String userId) throws DZFWarpException {
 		List<TzpzHVO> copiedVOs = new ArrayList<>();
 		QueryVoucher voucher = new QueryVoucher(singleObjectBO,gl_fzhsserv);
-		List<TzpzHVO> hvos = null;
-		if (!StringUtil.isEmpty(ids)) {
-			hvos = voucher.queryVoucherByids(Arrays.asList(ids.split(",")));
+		List<TzpzHVO> hvos;
+		if (ids != null && ids.size() > 0) {
+			hvos = voucher.queryVoucherByids(ids);
 		} else {
 			hvos = voucher.queryByPeriod(copyPeriod, corpvo.getPk_corp());
 		}
@@ -3759,10 +3635,17 @@ public class VoucherServiceImpl implements IVoucherService {
 	}
 
 	@Override
+	public QueryPageVO query(VoucherParamVO paramvo)
+			throws DZFWarpException {
+		QueryVoucher qv = new QueryVoucher(singleObjectBO,gl_fzhsserv);
+		return qv.queryVoucherPaged(paramvo, false);
+	}
+
+	@Override
 	public QueryPageVO processQueryVoucherPaged(VoucherParamVO paramvo)
 			throws DZFWarpException {
 		QueryVoucher qv = new QueryVoucher(singleObjectBO,gl_fzhsserv);
-		return qv.queryVoucherPaged(paramvo);
+		return qv.queryVoucherPaged(paramvo, true);
 	}
 
 	@Override
