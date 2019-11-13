@@ -1356,7 +1356,7 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 	/**
 	 * 报表数据检查
 	 * 
-	 * @param Map
+	 * @param mapJson
 	 *            mapJson 报表的spreaadJS转成的json数据
 	 * @param reportvo
 	 * @throws DZFWarpException
