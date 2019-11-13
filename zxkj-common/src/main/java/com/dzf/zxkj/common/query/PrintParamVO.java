@@ -36,6 +36,15 @@ public class PrintParamVO extends SuperVO {
 	private String xmmcid;
 	private String columnOrder;//列表顺序
 	private String currjd;//当前季度
+	private String showAmount;
+
+	public String getShowAmount() {
+		return showAmount;
+	}
+
+	public void setShowAmount(String showAmount) {
+		this.showAmount = showAmount;
+	}
 
 	public String getCurrjd() {
 		return currjd;

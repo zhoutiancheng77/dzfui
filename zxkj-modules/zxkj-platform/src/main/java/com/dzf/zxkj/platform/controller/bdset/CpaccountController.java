@@ -6,9 +6,11 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.bdset.YntCpaccountVOClassify;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
@@ -20,10 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @Slf4j
@@ -240,6 +239,38 @@ public class CpaccountController {
         json.setSuccess(true);
         json.setData(newCode);
         json.setMsg("获取成功!");
+        return ReturnData.ok().data(json);
+    }
+
+    // 按公司名称查询
+    @GetMapping("queryByPkcorp2")
+    public ReturnData queryByPkcorp2(String accindex, String pk_corp) {
+        YntCpaccountVOClassify json = new YntCpaccountVOClassify();
+        try {
+            if (StringUtil.isEmpty(accindex)) {
+                json.setStatus(-200);
+                json.setSuccess(false);
+                json.setMsg("传参数为空！");
+            } else {
+                CorpVO corp = SystemUtil.getLoginCorpVo();
+                if(StringUtil.isEmpty(pk_corp))
+                    pk_corp = corp.getPk_corp();
+                YntCpaccountVO[] vos = cpaccountService.queryAccountVOSByCorp(
+                        pk_corp, Integer.valueOf(accindex));
+                json.setStatus(200);
+                if (vos == null || vos.length == 0) {
+                    json.setRows(new ArrayList<YntCpaccountVO>());
+                } else {
+                    json.setRows(vos);
+                }
+                json.setSuccess(true);
+                json.setMsg("查询成功!");
+            }
+        } catch (Exception e) {
+            json.setStatus(-200);
+            json.setSuccess(false);
+            json.setMsg("查询失败!");
+        }
         return ReturnData.ok().data(json);
     }
 
