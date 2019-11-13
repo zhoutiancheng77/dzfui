@@ -6,12 +6,12 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
-import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
@@ -24,6 +24,8 @@ import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.glic.IInventoryQcService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.dubbo.config.annotation.Reference;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -50,8 +52,8 @@ public class InventoryQcServiceImpl implements IInventoryQcService {
 
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-//	@Reference(version = "1.0.0")
-//	INummnyReport gl_rep_nmdtserv;
+	@Reference(version = "1.0.0")
+	IZxkjReportService reportService;
 	@Autowired
 	IAuxiliaryAccountService gl_fzhsserv;
 	@Autowired
@@ -193,8 +195,7 @@ public class InventoryQcServiceImpl implements IInventoryQcService {
 		paramVo.setKms_last("1406");
 		paramVo.setIsfzhs(DZFBoolean.TRUE);
 		paramVo.setPk_corp(pk_corp);
-		List<NumMnyGlVO> numVos = null;
-//				gl_rep_nmdtserv.getNumMnyGlVO(paramVo);
+		List<NumMnyGlVO> numVos = reportService.getNumMnyGlVO(paramVo);
 		if (numVos != null && numVos.size() > 0) {
 			Map<String, InventoryQcVO> qcMap = new HashMap<String, InventoryQcVO>();
 			for (NumMnyGlVO numVo : numVos) {

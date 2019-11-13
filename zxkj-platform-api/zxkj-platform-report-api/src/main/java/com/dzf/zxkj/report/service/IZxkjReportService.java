@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.service;
 
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.*;
@@ -23,4 +24,8 @@ public interface IZxkjReportService {
     LrbVO[] getLRBVOs(QueryParamVO paramVO);
     XjllbVO[] getXJLLVOs(QueryParamVO vo);
     List<XjllquarterlyVo> getXjllQuartervos(QueryParamVO paramvo,String jd);
+    /**
+     * 数量金额总账
+     */
+   List<NumMnyGlVO> getNumMnyGlVO(QueryCondictionVO paramVo) ;
 }
