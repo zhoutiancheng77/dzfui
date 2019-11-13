@@ -64,7 +64,7 @@ public class AmZcMxReportController extends BaseController {
     }
 
     @PostMapping("print/pdf")
-    public void printAction(@MultiRequestBody PrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void printAction(PrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
 
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
@@ -88,8 +88,8 @@ public class AmZcMxReportController extends BaseController {
             printReporUtil.setLineheight(22f);
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(param.getFont()), Font.NORMAL));//设置表头字体
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
-            tmap.put("公司", bodyvos[0].getGs());
-            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            tmap.put("公司", param.getCorpName());
+            tmap.put("期间", param.getPeriod());
             printReporUtil.printHz(null, bodyvos, "资 产 明 细 账",
                     new String[]{"rq", "zcbh", "zcmc", "zclb", "zcsx",
                             "pzzh", "zy", "yzjf", "yzdf", "yzye", "ljjf",
