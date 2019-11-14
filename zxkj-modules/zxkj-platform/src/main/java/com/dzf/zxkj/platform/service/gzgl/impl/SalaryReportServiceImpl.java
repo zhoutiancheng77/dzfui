@@ -898,7 +898,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 	}
 
 	private void calOldData(SalaryReportVO vo, String billtype, String opdate) {
-		double kcnum = getkcnum(billtype, opdate);
+		double kcnum = getkcnum(billtype, opdate, VoUtils.getDZFDouble(vo.getYfgz()).doubleValue());
 		DZFDouble d1 = SafeCompute.sub(VoUtils.getDZFDouble(vo.getYfgz()), VoUtils.getDZFDouble(vo.getYanglaobx()));
 		DZFDouble d2 = SafeCompute.sub(d1, VoUtils.getDZFDouble(vo.getYiliaobx()));
 		DZFDouble d3 = SafeCompute.sub(d2, VoUtils.getDZFDouble(vo.getShiyebx()));
@@ -1100,7 +1100,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		return kcnum;
 	}
 
-	private double getkcnum(String billtype, String qj) {
+	private double getkcnum(String billtype, String qj, double taxbase) {
 
 		double kcnum = 0;
 		if (StringUtil.isEmpty(billtype) || billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())) {
@@ -1115,6 +1115,14 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				kcnum = 5000;
 			} else {
 				kcnum = 4800;
+			}
+		} else if (billtype.equals(SalaryTypeEnum.REMUNERATION.getValue())) {
+			if (taxbase <= 800) {
+				kcnum = 0;
+			} else if (taxbase < 4000) {
+				kcnum = (taxbase - 800) * 0.2;
+			} else {
+				kcnum = taxbase * 0.2;
 			}
 		}
 		return kcnum;

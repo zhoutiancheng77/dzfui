@@ -4,6 +4,7 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.InventoryConstant;
@@ -55,6 +56,9 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 		if(vo1.getChcbjzfs() == -1){
 			throw new BusinessException("存货成本核算方式设置为空！");
 		}
+		if(DZFValueCheck.isEmpty(vo1.getPk_corp())){
+			vo1.setPk_corp(pk_corp);
+		}
 		//如果成本结转方式发生了变化，进行校验
 		InventorySetVO orignvo = query(pk_corp);
 		if(orignvo == null){
@@ -93,6 +97,7 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(vo1.getPk_corp());
 		singleObjectBO.executeUpdate(" delete from ynt_glicset where pk_corp = ?  ", sp);
+		vo1.setPk_glicset(null);
 		singleObjectBO.saveObject(vo1.getPk_corp(), vo1);
 		
 		buildLogInfo(orignvo, vo1);
