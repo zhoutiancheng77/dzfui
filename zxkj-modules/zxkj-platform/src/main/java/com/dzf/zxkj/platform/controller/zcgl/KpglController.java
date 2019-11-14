@@ -132,16 +132,17 @@ public class KpglController extends BaseController {
 
     // 查询
     @PostMapping("query")
-    public ReturnData query(@MultiRequestBody QueryParamVO paramvo, @MultiRequestBody Page page, @MultiRequestBody CorpVO corpVO) {
+    public ReturnData query(@MultiRequestBody QueryParamVO paramvo,  @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
         try {
             if (paramvo != null) {
                 paramvo = getQueryParamVO(paramvo, corpVO);
                 List<AssetcardVO> list = am_kpglserv.query(paramvo);
                 if (list != null && list.size() > 0) {
-                    grid.setRows(getPagedCardVOs(list, page.getPage(), page.getRows(), grid));
+                    grid.setRows(getPagedCardVOs(list, paramvo.getPage(), paramvo.getRows(), grid));
                     grid.setMsg("查询成功！");
                 }
+                grid.setSuccess(true);
             }
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");
