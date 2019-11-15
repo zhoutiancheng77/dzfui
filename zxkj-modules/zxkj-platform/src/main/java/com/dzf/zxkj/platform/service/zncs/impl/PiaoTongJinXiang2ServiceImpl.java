@@ -251,7 +251,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 		if(!StringUtil.isEmpty(invo.getPk_tzpz_h())){
 			VoucherParamVO paramvo = new VoucherParamVO();
 			paramvo.setPk_tzpz_h(invo.getPk_tzpz_h());
-			TzpzHVO tzpzhvo = gl_tzpzserv.queryHeadVoById(paramvo);
+			TzpzHVO tzpzhvo = gl_tzpzserv.queryHeadVoById(paramvo.getPk_tzpz_h());
 			if(tzpzhvo != null){
 				gl_tzpzserv.deleteVoucher(tzpzhvo);
 			}

@@ -184,7 +184,7 @@ private Map<String, DcModelHVO> hashlizeDcModel(List<DcModelHVO> list){
 		if(!StringUtil.isEmpty(salevo.getPk_tzpz_h())){
 			VoucherParamVO paramvo = new VoucherParamVO();
 			paramvo.setPk_tzpz_h(salevo.getPk_tzpz_h());
-			TzpzHVO tzpzhvo = gl_tzpzserv.queryHeadVoById(paramvo);
+			TzpzHVO tzpzhvo = gl_tzpzserv.queryHeadVoById(paramvo.getPk_tzpz_h());
 			if(tzpzhvo != null){
 				gl_tzpzserv.deleteVoucher(tzpzhvo);
 			}

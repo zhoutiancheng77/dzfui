@@ -712,7 +712,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		return map;
 	}
 	
-	private String doImport(File file, Sheet sheet, BankStatementVO2 paramvo, String fileType, int sourceType){
+	private String doImport(MultipartFile file, Sheet sheet, BankStatementVO2 paramvo, String fileType, int sourceType){
 		StringBuffer msg = new StringBuffer();
 //		BankAccountVO bankvo = getBankAccountVO(paramvo);
 		List<BankAccountVO> yhzhList = yhzhserv.query(paramvo.getPk_corp(), "Y");//不包含停用
@@ -1222,7 +1222,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 			vo.setYe(new DZFDouble(0));
 	}
 	
-	public List<BankStatementVO2> getDataByExcelNew(File file, 
+	public List<BankStatementVO2> getDataByExcelNew(MultipartFile file,
 			Sheet sheet, 
 			int sourceType, 
 			StringBuffer msg, 
@@ -2201,7 +2201,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		}
 		return checkstr;
 	}
-	public List<BankStatementVO2> getDataByExcel(File file, 
+	public List<BankStatementVO2> getDataByExcel(MultipartFile file,
 			Sheet sheet, 
 			int sourceType, 
 			StringBuffer msg, 
