@@ -21,9 +21,11 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.voucher.CopyParam;
 import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
+import com.dzf.zxkj.platform.service.pzgl.impl.CaclTaxMny;
 import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -360,6 +362,26 @@ public class VoucherController {
         }
         json.setSuccess(true);
         json.setMsg(msg.toString());
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/getTaxItem")
+    public ReturnData getTaxItem() {
+        Json json = new Json();
+        CorpVO corp = SystemUtil.getLoginCorpVo();
+        Map<String, String> subjectRule = new HashMap<>();
+        String[] rules = CaclTaxMny.getSubjectRule(corp);
+        subjectRule.put("cargo", rules[0]);
+        subjectRule.put("service", rules[1]);
+        subjectRule.put("purchase", rules[2]);
+        subjectRule.put("traffic", rules[6]);
+        subjectRule.put("inTax", rules[3]);
+        subjectRule.put("outTax", rules[4]);
+        subjectRule.put("profit", rules[5]);
+        List<TaxitemVO> items = gl_tzpzserv.getTaxItems(corp.getChargedeptname());
+        json.setHead(subjectRule);
+        json.setRows(items);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 }

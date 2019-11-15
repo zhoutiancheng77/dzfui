@@ -21,6 +21,10 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.ExportData;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.export.ExportCell;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.export.ExportRow;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.export.ExportTable;
 import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.jzcl.SurTaxTemplate;
@@ -45,9 +49,15 @@ import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
 import com.dzf.zxkj.platform.util.KmbmUpgrade;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.report.service.IZxkjReportService;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Service("gl_taxarchive")
@@ -2188,5 +2198,218 @@ public class TaxCalculateArchiveServiceImpl implements
         range[0] = year + "-" + (startMonth < 10 ? "0" + startMonth : startMonth);
         range[1] = year + "-" + (endMonth < 10 ? "0" + endMonth : endMonth);
         return range;
+    }
+
+    @Override
+    public byte[] exportExcel(ExportData exportData) throws DZFWarpException {
+        Workbook workbook = new HSSFWorkbook();
+
+        createSheet(exportData, exportData.getAddTax(), workbook);
+        createSheet(exportData, exportData.getSurtax(), workbook);
+        createSheet(exportData, exportData.getIncomeTax(), workbook);
+
+        ByteArrayOutputStream bao = null;
+        byte[] data = null;
+        try {
+            bao = new ByteArrayOutputStream();
+            workbook.write(bao);
+            data = bao.toByteArray();
+            bao.close();
+        } catch (IOException e) {
+
+        } finally {
+            if (bao != null) {
+                try {
+                    bao.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+        return data;
+    }
+
+    private int addExcelTitle(Sheet sheet, CellStyle cellStyle) {
+        int rowIndex = 0;
+        Row titleRow = sheet.createRow(rowIndex++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("税费计算");
+        titleCell.setCellStyle(cellStyle);
+        sheet.createRow(rowIndex++);
+        sheet.createRow(rowIndex++);
+        return rowIndex;
+    }
+
+    private void createSheet(ExportData exportData, ExportTable table, Workbook workbook) {
+        if (table == null) {
+            return;
+        }
+        CellStyle[] styles = new CellStyle[5];
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 10);
+        font.setBold(true);
+        CellStyle headStyle = workbook.createCellStyle();
+        headStyle.setFont(font);
+        headStyle.setAlignment(HorizontalAlignment.CENTER);
+        headStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        CellStyle headStyleBorder = workbook.createCellStyle();
+        headStyleBorder.cloneStyleFrom(headStyle);
+        addBorder(headStyleBorder);
+        styles[0] = headStyleBorder;
+
+        Font normalFont = workbook.createFont();
+        normalFont.setFontHeightInPoints((short) 10);
+
+        // 左对齐
+        CellStyle leftStyle = workbook.createCellStyle();
+        leftStyle.setFont(normalFont);
+        leftStyle.setAlignment(HorizontalAlignment.CENTER);
+        leftStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        CellStyle leftStyleBorder = workbook.createCellStyle();
+        leftStyleBorder.cloneStyleFrom(leftStyle);
+        addBorder(leftStyleBorder);
+        styles[1] = leftStyleBorder;
+        // 居中
+        CellStyle centerStyle = workbook.createCellStyle();
+        centerStyle.cloneStyleFrom(leftStyle);
+        centerStyle.setAlignment(HorizontalAlignment.CENTER);
+        addBorder(centerStyle);
+        styles[2] = centerStyle;
+        // 右对齐
+        CellStyle rightStyle = workbook.createCellStyle();
+        rightStyle.cloneStyleFrom(leftStyle);
+        rightStyle.setAlignment(HorizontalAlignment.RIGHT);
+        CellStyle rightStyleBorder = workbook.createCellStyle();
+        rightStyleBorder.cloneStyleFrom(rightStyle);
+        addBorder(rightStyleBorder);
+        styles[3] = rightStyleBorder;
+
+        CellStyle numberStyle = workbook.createCellStyle();
+        numberStyle.cloneStyleFrom(rightStyleBorder);
+        DataFormat format = workbook.createDataFormat();
+        numberStyle.setDataFormat(format.getFormat("#,##0.00"));
+        styles[4] = numberStyle;
+
+        Sheet sheet = workbook.createSheet(table.getTitle());
+        if (table.getHead()[0].getCells().length <= 3) {
+            // 列少时，列宽增加
+            sheet.setDefaultColumnWidth(30);
+        } else {
+            sheet.setDefaultColumnWidth(15);
+        }
+        int rowIndex = addExcelTitle(sheet, headStyle);
+
+        Row corpInfoRow = sheet.createRow(rowIndex++);
+        Cell corpName = corpInfoRow.createCell(0);
+        corpName.setCellValue("公司：" + exportData.getCorpName());
+        corpName.setCellStyle(leftStyle);
+
+        // 税种名称
+        Cell taxName = sheet.createRow(rowIndex++).createCell(0);
+        taxName.setCellValue(table.getTitle());
+        taxName.setCellStyle(leftStyle);
+
+        addTableRows(sheet, table.getHead(), rowIndex, styles, true);
+        addTableRows(sheet, table.getBody(), sheet.getLastRowNum() + 1, styles, false);
+
+        int colNum = sheet.getRow(rowIndex).getLastCellNum() - 1;
+        Cell period = corpInfoRow.createCell(colNum);
+        period.setCellValue("期间：" + exportData.getPeriod());
+        period.setCellStyle(rightStyle);
+
+        // 合并标题单元格
+        sheet.addMergedRegion(new CellRangeAddress(0, 2,
+                0, colNum));
+        CellRangeAddress tabelRange = new CellRangeAddress(rowIndex, sheet.getLastRowNum(),
+                0, colNum);
+        // 给表格设置边框
+        RegionUtil.setBorderTop(BorderStyle.THIN, tabelRange, sheet);
+        RegionUtil.setBorderRight(BorderStyle.THIN, tabelRange, sheet);
+        RegionUtil.setBorderBottom(BorderStyle.THIN, tabelRange, sheet);
+        RegionUtil.setBorderLeft(BorderStyle.THIN, tabelRange, sheet);
+    }
+
+    private int addTableRows(Sheet sheet, ExportRow[] tableRows, int rowBegin, CellStyle[] styles, boolean isHead) {
+        int lastColIndex = isHead ? 0 : sheet.getRow(rowBegin - 1).getLastCellNum() - 1;
+        int rowIndex = rowBegin;
+        int lastRowIndex = rowBegin + tableRows.length - 1;
+        for (ExportRow tableRow : tableRows) {
+            ExportCell[] exportCells = tableRow.getCells();
+            int colIndex = 0;
+            for (ExportCell exportCell : exportCells) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) {
+                    row = sheet.createRow(rowIndex);
+                }
+                int colSpan = exportCell.getColSpan() == null ? 1 : exportCell.getColSpan();
+                int rowSpan = exportCell.getRowSpan() == null ? 1 : exportCell.getRowSpan();
+                int colBegin = colIndex;
+                for (int i = 0; i < colSpan; i++) {
+                    colIndex = getEmptyCell(row, colIndex);
+                    if (!isHead && colIndex > lastColIndex) {
+                        // colIndex越界
+                        colSpan = i;
+                        break;
+                    }
+                    Cell cell = row.createCell(colIndex);
+                    if (i == 0) {
+                        if (isHead) {
+                            cell.setCellValue(exportCell.getValue());
+                            cell.setCellStyle(styles[0]);
+                            if (colSpan == 1 && exportCell.getValue() != null && exportCell.getValue().length() > 8) {
+                                // 字数过多时，根据字数设置列宽
+                                sheet.setColumnWidth(colIndex, (exportCell.getValue().length() + 1) * 2 * 256);
+                            }
+                        } else {
+                            int align = exportCell.getAlign() == null ? 1 : exportCell.getAlign();
+                            String value = exportCell.getValue();
+                            if (align == 3 && value != null && value.matches("[0-9,\\.\\-]+")) {
+                                cell.setCellValue(new DZFDouble(value.replaceAll(",", "")).doubleValue());
+                                cell.setCellStyle(styles[4]);
+                            } else {
+                                cell.setCellStyle(styles[align]);
+                                cell.setCellValue(value);
+                            }
+                        }
+                    } else {
+                        cell.setCellStyle(isHead ? styles[0] : styles[1]);
+                    }
+                    for (int j = 1; j < rowSpan; j++) {
+                        int ntRowIndex = rowIndex + j;
+                        if (ntRowIndex > lastRowIndex) {
+                            // rowIndex越界
+                            rowSpan = j;
+                            break;
+                        }
+                        Row ntRow = sheet.getRow(ntRowIndex);
+                        if (ntRow == null) {
+                            ntRow = sheet.createRow(ntRowIndex);
+                        }
+                        ntRow.createCell(colIndex).setCellStyle(isHead ? styles[0] : styles[1]);
+                    }
+                    colIndex++;
+                }
+                if (colSpan > 1 || rowSpan > 1) {
+                    sheet.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex + rowSpan - 1,
+                            colBegin, colBegin + colSpan - 1));
+                }
+            }
+            rowIndex++;
+        }
+        return sheet.getRow(rowBegin).getLastCellNum();
+    }
+
+    private int getEmptyCell(Row row, int begin) {
+        while (row.getCell(begin) != null) {
+            begin++;
+        }
+        return begin;
+    }
+
+    private void addBorder(CellStyle style) {
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
     }
 }

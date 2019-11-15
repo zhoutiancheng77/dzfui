@@ -2,7 +2,9 @@ package com.dzf.zxkj.platform.controller.jzcl;
 
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.ExportData;
 import com.dzf.zxkj.platform.model.jzcl.SurTaxTemplate;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -15,6 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -133,5 +140,45 @@ public class TaxCalculateController {
         json.setMsg("保存成功");
         json.setRows(vo);
         return ReturnData.ok().data(json);
+    }
+
+    //导出Excel
+    @PostMapping("/exportExcel")
+    public void exportExcel(@RequestParam String exportData, HttpServletResponse response) {
+        OutputStream toClient = null;
+        try {
+            ExportData data = JsonUtils.deserialize(exportData, ExportData.class);
+            String period = data.getPeriod();
+            String qj1 = DateUtils.getPeriodStartDate(period).toString().replace("-", "");
+            String qj2 = DateUtils.getPeriodEndDate(period).toString().replace("-", "");
+            String fileName = "税费计算-(" + qj1 + "-" + qj2 + ").xls";
+            byte[] excelFile = gl_taxarchive.exportExcel(data);
+
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName
+                    + ";filename*=UTF-8''" + formattedName);
+            response.setContentType("application/vnd.ms-excel");
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            toClient.write(excelFile);
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("excel导出错误", e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误", e);
+            }
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误", e);
+            }
+        }
     }
 }

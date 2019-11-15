@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.tax;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.ExportData;
 import com.dzf.zxkj.platform.model.jzcl.SurTaxTemplate;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -71,4 +72,6 @@ public interface ITaxCalculateArchiveService {
      * @throws DZFWarpException
      */
     void updateIncomeTaxUnCarryover(String pk_corp, String period) throws DZFWarpException;
+
+    byte[] exportExcel(ExportData exportData) throws DZFWarpException;
 }
