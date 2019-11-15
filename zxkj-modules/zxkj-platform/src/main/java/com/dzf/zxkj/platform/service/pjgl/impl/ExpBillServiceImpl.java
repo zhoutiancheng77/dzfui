@@ -438,14 +438,11 @@ public class ExpBillServiceImpl implements IExpBillService {
 	@Override
 	public void deleteVoucher(String[] bills, String pk_corp, String isqjsy)
 			throws DZFWarpException {
-		VoucherParamVO paramVO = new VoucherParamVO();
-		paramVO.setPk_corp(pk_corp);
 		for (String bill : bills) {
 			ExpBillHVO billvo = queryHeadByID(bill, pk_corp);
 			if (billvo == null)
 				throw new BusinessException("报销单不存在！");
-			paramVO.setPk_tzpz_h(billvo.getPk_voucher());
-			TzpzHVO pzvo = gl_tzpzserv.queryHeadVoById(paramVO);
+			TzpzHVO pzvo = gl_tzpzserv.queryHeadVoById(billvo.getPk_voucher());
 			if(pzvo == null)
 				throw new BusinessException("报销单未生成凭证！");
 			if(pzvo.getIshasjz() != null && pzvo.getIshasjz().booleanValue()){

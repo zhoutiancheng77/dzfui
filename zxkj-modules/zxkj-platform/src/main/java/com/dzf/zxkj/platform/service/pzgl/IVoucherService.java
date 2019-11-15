@@ -60,7 +60,7 @@ public interface IVoucherService {
                        ImageTurnMsgVO msgvo, TzpzHVO hvo, boolean delVch,
                        String curropeid, boolean isadd) throws DZFWarpException;// 图片退回/更新图片是否已经使用
 
-    TzpzHVO queryHeadVoById(VoucherParamVO paramvo) throws DZFWarpException;
+    TzpzHVO queryHeadVoById(String id) throws DZFWarpException;
 
     /**
      * 现金流分配
