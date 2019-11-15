@@ -7,8 +7,7 @@ import com.dzf.zxkj.platform.model.image.ImageLibraryVO;
 import com.dzf.zxkj.platform.model.pjgl.FastOcrStateInfoVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
-
-import java.io.File;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
@@ -55,10 +54,10 @@ public interface IImageGroupService {
 
 	// 根据文件MD5查询图片信息
 	public ImageLibraryVO[] queryLibByMD(String pk_corp, String md) throws DZFWarpException;
+
+	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO uservo, MultipartFile[] infiles, String g_id, String period, String pjlxType) throws DZFWarpException;
 	
-	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO uservo, File[] infiles, String[] filenames, String g_id, String period, String pjlxType) throws DZFWarpException;
-	
-	public String getUploadImgMD(File file, CorpVO corpvo) throws DZFWarpException;
+	public String getUploadImgMD(MultipartFile file, CorpVO corpvo) throws DZFWarpException;
 	
 	public void saveCreatePz(ImageLibraryVO libvo, CorpVO corpVO, String gid, String pjlxType) throws DZFWarpException;
 	
@@ -74,7 +73,7 @@ public interface IImageGroupService {
 	public Map<String, Object> getPicStatistics(String pk_corp,
 												String beginDate, String endDate, String serdate) throws DZFWarpException;
 
-	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, File[] infiles, String[] filenames, String g_id, String period, String invoicedata, String pjlxType) throws DZFWarpException;
+	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, MultipartFile[] infiles, String[] filenames, String g_id, String period, String invoicedata, String pjlxType) throws DZFWarpException;
 
 	/**
 	 * 拆分图片组

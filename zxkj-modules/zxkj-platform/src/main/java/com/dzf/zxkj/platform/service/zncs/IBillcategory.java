@@ -32,12 +32,12 @@ public interface IBillcategory {
 	 * @throws DZFWarpException
 	 */
 	public List<CategoryTreeVO> queryCategoryTree(String pk_corp, String period)throws DZFWarpException;
-
+	
 	/**
 	 * 移动到-保存
-	 * @param pk_bills票据ID数组
+	 * @param pk_bills
 	 * @param pk_tree 目标树ID
-	 * @param pk_corp
+	 * @param pk_corp 
 	 * @throws DZFWarpException
 	 */
 	public void saveNewCategory(String[] pk_bills, String pk_tree, String pk_corp, String period)throws DZFWarpException;
@@ -54,7 +54,7 @@ public interface IBillcategory {
 	 * @throws DZFWarpException
 	 */
 	public void updateCategoryName(String pk_category, String categoryname)throws DZFWarpException;
-
+	
 	/*
 	 * 重新整理目录
 	 * param  period 期间
@@ -73,15 +73,14 @@ public interface IBillcategory {
 	 * 查询父节点
 	 */
 	public String queryParentPK(DZFBoolean isyh, OcrInvoiceVO ocrVO, String categorycode)throws DZFWarpException;
-
+	
 	public List<OcrInvoiceDetailVO> queryDetailVOs(String pk_invoice)throws DZFWarpException;
-
+	
 	public List<OcrInvoiceVO> queryBankInvoiceVOs(BillcategoryQueryVO paramVO)throws DZFWarpException;
-
+	
 	/**
 	 * 查分类下有错误的票据
-	 * @param pk_corp
-	 * @param pk_category
+	 * @param paramVO
 	 * @return
 	 * @throws DZFWarpException
 	 */
@@ -98,7 +97,7 @@ public interface IBillcategory {
 	 * @throws DZFWarpException
 	 */
 	public DZFBoolean checkHaveIctrade(OcrInvoiceVO[] vos)throws DZFWarpException;
-
+	
 	/**
 	 * 年结、关账检查当月票是否已做账
 	 * @return
