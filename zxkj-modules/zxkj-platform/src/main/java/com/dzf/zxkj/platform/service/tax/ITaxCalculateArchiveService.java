@@ -42,11 +42,12 @@ public interface ITaxCalculateArchiveService {
 
     SurtaxVO saveOtherTax(SurtaxVO taxVO, String pk_corp, String period, String userID)
             throws DZFWarpException;
+
     void updateOtherTaxOnVoucherDelete(String id) throws DZFWarpException;
 
     /**
-     *
      * 反增值税结转时更新税费计算状态
+     *
      * @param pk_corp
      * @param period
      * @throws DZFWarpException
@@ -54,8 +55,8 @@ public interface ITaxCalculateArchiveService {
     void updateAddTaxUnCarryover(String pk_corp, String period) throws DZFWarpException;
 
     /**
-     *
      * 反附加税结转时更新税费计算状态
+     *
      * @param pk_corp
      * @param period
      * @throws DZFWarpException
@@ -63,8 +64,8 @@ public interface ITaxCalculateArchiveService {
     void updateSurtaxUnCarryover(String pk_corp, String period) throws DZFWarpException;
 
     /**
-     *
      * 反所得税结转时更新税费计算状态
+     *
      * @param pk_corp
      * @param period
      * @throws DZFWarpException

@@ -52,7 +52,7 @@ public class VoucherController {
     @GetMapping("/query")
     public ReturnData query(VoucherParamVO paramvo) {
         Grid grid = new Grid();
-        List<String> pkcorp_list = new ArrayList<String>();
+        List<String> pkcorp_list = new ArrayList<>();
         String corps_id = paramvo.getPk_corp();
         if (!StringUtils.isEmpty(corps_id)) {
             pkcorp_list = Arrays.asList(corps_id.split(","));
@@ -229,9 +229,61 @@ public class VoucherController {
         return measureName;
     }
 
+    @GetMapping("/queryById")
+    public ReturnData queryById(@RequestParam String id) {
+        Json json = new Json();
+        TzpzHVO tzpzH = gl_tzpzserv.queryHeadVoById(id);
+        if(tzpzH == null || !tzpzH.getPk_corp().equals(tzpzH.getPk_corp())){
+            json.setSuccess(false);
+            json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
+            json.setMsg("凭证不存在，请刷新重试");
+        } else {
+            GxhszVO gxh = gl_gxhszserv.query(tzpzH.getPk_corp());
+            Integer kmShow = gxh.getPzSubject();
+            if(tzpzH.getChildren() != null){
+                if (kmShow == 0) {
+                    TzpzBVO[] bvos = (TzpzBVO[]) tzpzH.getChildren();
+                    for (TzpzBVO bvo : bvos) {
+                        bvo.setKmmchie(bvo.getSubj_name());
+                    }
+                } else if (kmShow == 1) {
+                    TzpzBVO[] bvos = (TzpzBVO[]) tzpzH.getChildren();
+                    String[] fullname = null;
+                    for (TzpzBVO bvo : bvos) {
+                        fullname = bvo.getKmmchie().split("/");
+                        if (fullname.length > 1) {
+                            bvo.setKmmchie(fullname[0] + "/" + fullname[fullname.length - 1]);
+                        }
+                    }
+                }
+            }
+            try {
+                if (tzpzH.getZd_user() != null)
+                    tzpzH.setZd_user(CodeUtils1.deCode(tzpzH.getZd_user()));
+                if (tzpzH.getSh_user() != null)
+                    tzpzH.setSh_user(CodeUtils1.deCode(tzpzH.getSh_user()));
+                if (tzpzH.getJz_user() != null)
+                    tzpzH.setJz_user(CodeUtils1.deCode(tzpzH.getJz_user()));
+                if (tzpzH.getCn_user() != null){
+                    tzpzH.setCn_user(CodeUtils1.deCode(tzpzH.getCn_user()));
+                }
+                if("HP80".equals(tzpzH.getSourcebilltype())
+                        && StringUtils.isEmpty(tzpzH.getZd_user())){
+                    tzpzH.setZd_user("大账房系统");
+                }
+            } catch (Exception e) {
+                log.error("解密失败", e);
+            }
+            json.setMsg("查询凭证成功！");
+            json.setSuccess(true);
+            json.setData(tzpzH);
+        }
+        return ReturnData.ok().data(json);
+    }
+
     //按月复制凭证
     @PostMapping("/copy")
-    public void copy(@RequestBody CopyParam copyParam) {
+    public ReturnData copy(@RequestBody CopyParam copyParam) {
         Json json = new Json();
         String[] corpAry;
         TzpzHVO[] sourceVouchers = copyParam.getSourceVoucher();
@@ -308,5 +360,6 @@ public class VoucherController {
         }
         json.setSuccess(true);
         json.setMsg(msg.toString());
+        return ReturnData.ok().data(json);
     }
 }
