@@ -407,14 +407,14 @@ public class KpglController extends BaseController {
     }
 
 //    批量转总账
-    @PostMapping("batchToVoucher")
-    public ReturnData batchToVoucher(String ids, String merge) {
+    @GetMapping("batchToVoucher")
+    public ReturnData batchToVoucher(String assetids, String merge) {
         Json json = new Json();
         try {
-            String[] assetids = ids.split(",");
+            String[] assetidstrs = assetids.split(",");
             DZFBoolean bmerge = new DZFBoolean(merge);
             DZFDate date = new DZFDate(SystemUtil.getLoginDate());
-            String tips = am_kpglserv.saveVoucherFromZc(assetids, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), date, bmerge);
+            String tips = am_kpglserv.saveVoucherFromZc(assetidstrs, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), date, bmerge);
             if (!StringUtil.isEmpty(tips)) {
                 throw new BusinessException(tips);
             }
@@ -427,7 +427,7 @@ public class KpglController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @PostMapping("queryKmFromZclb")
+    @GetMapping("queryKmFromZclb")
     public ReturnData queryKmFromZclb(String zclbid) {
         Json json = new Json();
         try {
