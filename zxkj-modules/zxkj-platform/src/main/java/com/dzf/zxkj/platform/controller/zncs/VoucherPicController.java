@@ -14,7 +14,6 @@ import com.dzf.zxkj.platform.model.image.ImageLibraryVO;
 import com.dzf.zxkj.platform.model.pjgl.PjCheckBVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
-import com.dzf.zxkj.platform.service.image.IPjsjManageService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -48,10 +47,10 @@ public class VoucherPicController extends BaseController {
     private IUserService userService;
     @Autowired
     private ICorpService corpService;
-    @Autowired
-    private IPjsjManageService ipjsjmanageServ;
-    @Autowired
-    private IPjsjManageService pjsj_serv;
+//    @Autowired
+//    private IPjsjManageService ipjsjmanageServ;
+//    @Autowired
+//    private IPjsjManageService pjsj_serv;
 
     public IQmgzService getQmgzService() {
         return qmgzService;
@@ -172,7 +171,7 @@ public class VoucherPicController extends BaseController {
 //			log.info("上传凭证图片失败!" + e.getMessage());
 //			json.setSuccess(false);
 //			json.setMsg("上传失败!\n" + e.getMessage());
-            pjsj_serv.updateCountByPjlx(pk_corp, selYear + "-" + selMon, pjlxType, null, null, userVo, corpvo, -1);//统计数
+           // pjsj_serv.updateCountByPjlx(pk_corp, selYear + "-" + selMon, pjlxType, null, null, userVo, corpvo, -1);//统计数
             printErrorLog(json, e, "上传失败！");
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "上传图片：" + selYear + "年" + selMon + "月", ISysConstants.SYS_2);
@@ -244,9 +243,9 @@ public class VoucherPicController extends BaseController {
         Json json = new Json();
         try {
 
-            List<PjCheckBVO> bvoList = ipjsjmanageServ.queryPjlxTypes(custid);
+           // List<PjCheckBVO> bvoList = ipjsjmanageServ.queryPjlxTypes(custid);
             json.setSuccess(true);
-            json.setRows(bvoList);
+           // json.setRows(bvoList);
             json.setMsg("查询成功");
         } catch (Exception e) {
             printErrorLog(json, e, "查询失败");
