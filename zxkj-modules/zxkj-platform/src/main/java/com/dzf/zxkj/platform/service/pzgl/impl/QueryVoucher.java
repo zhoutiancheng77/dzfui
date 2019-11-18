@@ -259,7 +259,7 @@ public class QueryVoucher {
                             ishashb = DZFBoolean.TRUE;
                         }
                     }
-                    th.setChildren(DZfcommonTools.convertToSuperVO(liz.toArray(new TzpzBVO[0])));
+                    th.setChildren(liz.toArray(new TzpzBVO[0]));
                     ;
                 }
                 if (paramvo.getCnqz() != null && paramvo.getCnqz().booleanValue() && !ishashb.booleanValue()) {//不包含货币资金的不显示
