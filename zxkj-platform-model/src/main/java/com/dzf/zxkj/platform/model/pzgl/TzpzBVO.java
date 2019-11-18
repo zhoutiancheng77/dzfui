@@ -22,7 +22,7 @@ import java.util.List;
  * @version NCPrj 1.0
  */
 @SuppressWarnings("serial")
-public class TzpzBVO extends SuperVO {
+public class TzpzBVO extends SuperVO<TzpzBVO> {
 	@JsonProperty("zy")
 	private String zy;
 	private DZFDateTime ts;

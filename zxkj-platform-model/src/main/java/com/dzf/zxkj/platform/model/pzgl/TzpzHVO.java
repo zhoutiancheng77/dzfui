@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @version NCPrj 1.0
  */
 @SuppressWarnings("serial")
-public class TzpzHVO extends SuperVO {
+public class TzpzHVO extends SuperVO<TzpzBVO> {
 	@JsonProperty("corpId")
 	private String pk_corp;
 	@JsonProperty("ts")
