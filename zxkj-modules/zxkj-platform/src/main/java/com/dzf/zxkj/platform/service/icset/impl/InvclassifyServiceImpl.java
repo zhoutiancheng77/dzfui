@@ -219,9 +219,11 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 			
 			InvclassifyVO[] newvos = new InvclassifyVO[list.size()];
 			newvos = list.toArray(newvos);
+			if(newvos != null && newvos.length>0)
 			getSingleObjectBO().insertVOArr(pk_corp, newvos);
 			if(StringUtil.isEmpty(msg.toString())){
-				return null;
+				msg.append("成功导入 ").append(list.size());
+				return msg.toString();
 			}else{
 				msg.append("成功导入 ").append(list.size()).append(" 条数据。失败 ").append(failCount).append(" 条");
 				return msg.toString();
