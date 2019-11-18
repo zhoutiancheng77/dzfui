@@ -388,7 +388,7 @@ public class AuxiliaryAccountController {
 
     // 目前只做了存货
     @PostMapping("/exportData")
-    public HttpEntity<byte[]> exportData(@RequestBody Map<String, String> param) {
+    public HttpEntity<byte[]> exportData(@RequestParam Map<String, String> param) {
         HttpEntity<byte[]> response = null;
         JSONArray array = JSON.parseArray(param.get("daterows"));
         String fileName = "更新存货档案.xls";

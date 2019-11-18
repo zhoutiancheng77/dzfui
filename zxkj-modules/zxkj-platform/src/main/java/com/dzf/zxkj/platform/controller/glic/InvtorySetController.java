@@ -41,7 +41,7 @@ public class InvtorySetController {
     }
 
     @PostMapping("/save")
-    public ReturnData save(@RequestParam Map<String, String> param){
+    public ReturnData save(@RequestBody Map<String, String> param){
         Json json = new Json();
 
         String isqzsave = param.get("isqzsave");//强制保存

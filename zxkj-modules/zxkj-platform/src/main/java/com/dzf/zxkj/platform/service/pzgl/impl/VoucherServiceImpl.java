@@ -2028,9 +2028,9 @@ public class VoucherServiceImpl implements IVoucherService {
 	}
 
 	@Override
-	public TzpzHVO queryHeadVoById(VoucherParamVO paramvo) throws DZFWarpException {
+	public TzpzHVO queryHeadVoById(String id) throws DZFWarpException {
 		QueryVoucher qv = new QueryVoucher(singleObjectBO,gl_fzhsserv);
-		return qv.queryHeadVOById(paramvo.getPk_tzpz_h());
+		return qv.queryHeadVOById(id);
 	}
 
 	/**

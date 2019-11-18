@@ -48,6 +48,28 @@ public class VatGoosInventoryRelationVO extends SuperVO {
 	private String fphm;
 	
 	private String mid;
+
+	private DZFDouble saleNumber;//销售数量
+
+	private DZFDouble salePrice;//销售价格
+
+
+
+	public DZFDouble getSaleNumber() {
+		return saleNumber;
+	}
+
+	public void setSaleNumber(DZFDouble saleNumber) {
+		this.saleNumber = saleNumber;
+	}
+
+	public DZFDouble getSalePrice() {
+		return salePrice;
+	}
+
+	public void setSalePrice(DZFDouble salePrice) {
+		this.salePrice = salePrice;
+	}
 	
 	public String getMid() {
 		return mid;

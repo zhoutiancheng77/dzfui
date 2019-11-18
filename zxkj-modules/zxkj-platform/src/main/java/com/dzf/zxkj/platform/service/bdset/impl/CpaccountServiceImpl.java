@@ -61,7 +61,7 @@ public class CpaccountServiceImpl implements ICpaccountService {
     private SaveCpaccount kmzfz_SaveCpaccount;
     @Autowired
     private SaveCpaccount1 kmzfz_SaveCpaccount1;
-    @Reference(version = "1.0.0")
+    @Autowired
     private IZxkjReportService zxkjReportService;
 
     @Autowired

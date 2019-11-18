@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.tax;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.ExportData;
 import com.dzf.zxkj.platform.model.jzcl.SurTaxTemplate;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -42,11 +43,12 @@ public interface ITaxCalculateArchiveService {
 
     SurtaxVO saveOtherTax(SurtaxVO taxVO, String pk_corp, String period, String userID)
             throws DZFWarpException;
+
     void updateOtherTaxOnVoucherDelete(String id) throws DZFWarpException;
 
     /**
-     *
      * 反增值税结转时更新税费计算状态
+     *
      * @param pk_corp
      * @param period
      * @throws DZFWarpException
@@ -54,8 +56,8 @@ public interface ITaxCalculateArchiveService {
     void updateAddTaxUnCarryover(String pk_corp, String period) throws DZFWarpException;
 
     /**
-     *
      * 反附加税结转时更新税费计算状态
+     *
      * @param pk_corp
      * @param period
      * @throws DZFWarpException
@@ -63,11 +65,13 @@ public interface ITaxCalculateArchiveService {
     void updateSurtaxUnCarryover(String pk_corp, String period) throws DZFWarpException;
 
     /**
-     *
      * 反所得税结转时更新税费计算状态
+     *
      * @param pk_corp
      * @param period
      * @throws DZFWarpException
      */
     void updateIncomeTaxUnCarryover(String pk_corp, String period) throws DZFWarpException;
+
+    byte[] exportExcel(ExportData exportData) throws DZFWarpException;
 }

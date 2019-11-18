@@ -78,6 +78,18 @@ public class BillCategoryVO extends SuperVO {
 	private DZFBoolean iseditacc;//是否可以编辑3个科目字段
 	
 	private String pk_bankcode;//点中银行票下的4级及以后有用，记录点的是哪个银行账号下的分类
+
+	private String truthindent;
+
+
+
+	public String getTruthindent() {
+		return truthindent;
+	}
+
+	public void setTruthindent(String truthindent) {
+		this.truthindent = truthindent;
+	}
 	
 	public String getPk_bankcode() {
 		return pk_bankcode;

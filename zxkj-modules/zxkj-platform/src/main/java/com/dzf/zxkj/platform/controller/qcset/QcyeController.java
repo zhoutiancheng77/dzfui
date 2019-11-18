@@ -126,11 +126,9 @@ public class QcyeController extends BaseController {
         return  ReturnData.ok().data(json);
     }
     @PostMapping("save")
-    public ReturnData save(HttpServletRequest request, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
+    public ReturnData save(@MultiRequestBody QcYeVO[] bodyvos, @MultiRequestBody String rmb, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
         Json json = new Json();
         try {
-            QcYeVO[] bodyvos = getForwardData(request);
-            //
             for (QcYeVO qcYeVO : bodyvos) {
                 // 权限验证
                 if (!corpVO.getPk_corp().equals(qcYeVO.getPk_corp())) {
@@ -152,16 +150,15 @@ public class QcyeController extends BaseController {
                     throw new BusinessException("已经存在关账的月份，不允许修改期初数据哦！");
                 }
             }
-            String pkcurrence = null;
-            String srt = request.getParameter("rmb");
-            if (srt != null) {
-                Object o = JSON.parse(srt);
-                pkcurrence = ((Map<String, String>) o).get("rmb");
-            }
+            String pkcurrence = rmb;
+//            String srt = rmb;
+//            if (srt != null) {
+//                Object o = JSON.parse(srt);
+//                pkcurrence = ((Map<String, String>) o).get("rmb");
+//            }
             jzDate = DZFDate.getDate(DateUtils.getPeriod(jzDate) + "-01");
-            if (pkcurrence != null && !"".equals(pkcurrence)) {
-                gl_qcyeserv.save(userVO.getCuserid(), jzDate,
-                        pkcurrence, corpVO.getPk_corp(), bodyvos);
+            if (!StringUtil.isEmpty(pkcurrence)) {
+                gl_qcyeserv.save(userVO.getCuserid(), jzDate, pkcurrence, corpVO.getPk_corp(), bodyvos);
                 json.setSuccess(true);
                 json.setMsg("保存成功！");
             } else {

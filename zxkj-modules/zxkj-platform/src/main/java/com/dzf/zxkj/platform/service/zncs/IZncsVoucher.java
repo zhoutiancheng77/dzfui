@@ -1,6 +1,5 @@
 package com.dzf.zxkj.platform.service.zncs;
 
-
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
@@ -30,7 +29,7 @@ public interface IZncsVoucher {
 	 * @throws DZFWarpException
 	 */
 	public List<TzpzHVO> processGeneralTzpzVOs(String pk_category, String pk_bills, String period, String pk_corp, String pk_parent, Map<String, Map<String, Object>> checkMsgMap, String pk_user)throws DZFWarpException;
-
+	
 	/**
 	 * 职能做账凭证保存
 	 * @param tzpzHVOs
@@ -51,14 +50,14 @@ public interface IZncsVoucher {
 	 * @throws DZFWarpException
 	 */
 	public Map<String, Object> generalHandTzpzVOs(String pk_category, String pk_bills, String period, String pk_corp, String pk_parent)throws DZFWarpException;
-
+	
 	/**
 	 * 手动凭证保存
 	 * @param tzpzHVOs
 	 * @throws DZFWarpException
 	 */
 	public void  saveHandVouchers(List<TzpzHVO> tzpzHVOs)throws DZFWarpException;
-
+	
 	public List<OcrInvoiceVO> queryOcrInvoiceVOs(String pk_category, String pk_bills, String period, String pk_corp, String pk_parent, DZFBoolean isErrorVoucher)throws DZFWarpException;
 
 	/**
@@ -75,20 +74,20 @@ public interface IZncsVoucher {
             , List<Object> paramList, Map<String, BdCurrencyVO> currMap, Map<String, Object[]> rateMap, Map<String, String> bankAccountMap, Map<String, YntCpaccountVO> accountMap
             , Map<String, AuxiliaryAccountBVO> assistMap, Map<String, List<AccsetVO>> accsetMap, Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map, Map<String, String> jituanSubMap, YntCpaccountVO[] accVOs
             , String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs) throws DZFWarpException;
-
+	
 	/**
 	 * 保存凭证是否调用职能财税处理路径
 	 * @return
 	 * @throws DZFWarpException
 	 */
 	public DZFBoolean getVoucherFlag()throws DZFWarpException;
-
+	
 	/**
 	 * 返回分类全名称
 	 * @return
 	 * @throws DZFWarpException
 	 */
 	public Map<String, String> queryCategoryFullName(List<String> pk_categoryList, String period, String pk_corp)throws DZFWarpException;
-
+	
 	public Map<String, Object> initVoucherParam(CorpVO corp, String period, boolean isBank)throws DZFWarpException;
 }

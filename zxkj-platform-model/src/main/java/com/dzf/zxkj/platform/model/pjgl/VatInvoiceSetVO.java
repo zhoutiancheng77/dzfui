@@ -12,13 +12,18 @@ public class VatInvoiceSetVO extends SuperVO {
 	private String style;//类型  1银行对账单  2销项发票  3进项发票 
 	private Integer value;//设置的规则  ——》凭证合并的
 	private DZFBoolean isbank;//是否包含银行科目
-	
+	private Integer pzrq;//凭证日期
 	private Integer entry_type;//分录合并规则
 	private String zy;
 	
 	private DZFDateTime ts;
 	private Integer dr;
-	
+
+
+	public Integer getPzrq() { return pzrq; }
+
+	public void setPzrq(Integer pzrq) { this.pzrq = pzrq; }
+
 	public String getPk_invoiceset() {
 		return pk_invoiceset;
 	}

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -63,13 +64,13 @@ public class ImageCopyUtil {
 		}
 	}
 	
-	public static void copy(File src, File dst) {
+	public static void copy(MultipartFile src, File dst) {
         InputStream in = null;
         OutputStream out = null;
-        FileInputStream is = null;
+        InputStream is = null;
         FileOutputStream os = null;
         try {
-        	is = new FileInputStream(src);
+        	is = src.getInputStream();
             in = new BufferedInputStream(is, BUFFER_SIZE);
             os = new FileOutputStream(dst);
             out = new BufferedOutputStream(os,
@@ -116,10 +117,10 @@ public class ImageCopyUtil {
         }
     }
 	
-	public static void transPdfToJpg(File src,
-			File dir,
-			String pdfName,
-			File imgDst){
+	public static void transPdfToJpg(MultipartFile src,
+									 File dir,
+									 String pdfName,
+									 File imgDst){
 		
 		try {
 			File pdfDst = new File(dir, pdfName);
@@ -134,7 +135,7 @@ public class ImageCopyUtil {
 		}
 	}
 	
-	public static void transPdfToJpg(File src,
+	public static void transPdfToJpg(MultipartFile src,
 			File pdfDst,
 			File jpgDst){
 		try {

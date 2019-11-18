@@ -12,6 +12,8 @@ public interface IPrebillService {
 	
 	public List<OcrInvoiceDetailVO> queryDetailByInvList(List<OcrInvoiceVO> list)throws DZFWarpException;
 	
+	public List<OcrInvoiceDetailVO> queryDetailByCondition(String condition) throws DZFWarpException ;
+	
 	public void updateOcrInv(OcrInvoiceVO vo)throws DZFWarpException;
 	
 	public void updateErrorDesc(OcrInvoiceVO vo)throws DZFWarpException;
@@ -23,8 +25,8 @@ public interface IPrebillService {
 	public void updateInvoiceDetailByInvId(List<OcrInvoiceVO> list)throws DZFWarpException;
 	
 	public List<OcrInvoiceVO> queryOcrInvoiceVOByBillId(List<String> arrayList, String pk_corp, String period)throws DZFWarpException;
-
+	
 	public List<OcrInvoiceVO> queryOcrVOIsOnly(OcrInvoiceVO ocrInvoiceVO, String pk_corp)throws DZFWarpException;
-
+	
 	public List<OcrInvoiceVO> queryOcrVOByPkcorpAndPeriod(String pk_corp, String period)throws DZFWarpException;
 }

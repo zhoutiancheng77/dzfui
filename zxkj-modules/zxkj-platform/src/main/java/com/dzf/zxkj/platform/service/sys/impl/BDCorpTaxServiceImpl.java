@@ -301,7 +301,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		corpsql.append("select b1.*,a.innercode,a.begindate,a.createdate,a.vsuperaccount, ");
 		corpsql.append(" a.pk_corp,a.vsoccrecode,a.isxrq,a.drdsj, ");
 		corpsql.append(" a.legalbodycode,a.vcorporatephone, t.tradename as indusname,a.industry,a.unitname,a.chargedeptname, ");
-//		corpsql.append(" a.icostforwardstyle, a.bbuildic, a.ishasaccount, a.holdflag, a.busibegindate, a.icbegindate, a.corptype, ");
+		corpsql.append(" a.icostforwardstyle, a.bbuildic, a.ishasaccount, a.holdflag, a.busibegindate, a.icbegindate, a.corptype, ");
 		corpsql.append(" a.vcustsource,a.vprovince,a.vcity,a.varea,a.vbankname,a.fathercorp,a.isseal,a.icompanytype, ");
 		corpsql.append(" b.unitname as def1 ,");
 		corpsql.append(" b.def3      		,");

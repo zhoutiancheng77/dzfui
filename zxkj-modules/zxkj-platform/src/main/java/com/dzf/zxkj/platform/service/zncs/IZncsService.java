@@ -34,8 +34,8 @@ public interface IZncsService {
 	 * @param pk_corp 公司
 	 * @param period 期间
 	 * @param tickflag 1普票 2专票3未开票(只有12有值)
-	 * @param bs标识 1空2旅客运输3农产品
-	 * @param rzbs认证标识：0已认证/1未认证/空
+	 * @param bs 标识 1空2旅客运输3农产品
+	 * @param bs 认证标识：0已认证/1未认证/空
 	 * @param taxrate 税率
 	 * @return 0金额1税额
 	 * @throws DZFWarpException
@@ -47,7 +47,7 @@ public interface IZncsService {
 	 * @param pk_corp
 	 * @param period
 	 * @param tickflag
-	 * @param bs1空2旅客运输3农产品
+	 * @param bs 1空2旅客运输3农产品
 	 * @param rzbs
 	 * @return
 	 * @throws DZFWarpException

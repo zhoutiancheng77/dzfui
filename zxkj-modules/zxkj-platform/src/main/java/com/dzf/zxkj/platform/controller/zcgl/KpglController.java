@@ -132,16 +132,17 @@ public class KpglController extends BaseController {
 
     // 查询
     @PostMapping("query")
-    public ReturnData query(@MultiRequestBody QueryParamVO paramvo, @MultiRequestBody Page page, @MultiRequestBody CorpVO corpVO) {
+    public ReturnData query(@MultiRequestBody QueryParamVO paramvo,  @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
         try {
             if (paramvo != null) {
                 paramvo = getQueryParamVO(paramvo, corpVO);
                 List<AssetcardVO> list = am_kpglserv.query(paramvo);
                 if (list != null && list.size() > 0) {
-                    grid.setRows(getPagedCardVOs(list, page.getPage(), page.getRows(), grid));
+                    grid.setRows(getPagedCardVOs(list, paramvo.getPage(), paramvo.getRows(), grid));
                     grid.setMsg("查询成功！");
                 }
+                grid.setSuccess(true);
             }
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");
@@ -406,14 +407,14 @@ public class KpglController extends BaseController {
     }
 
 //    批量转总账
-    @PostMapping("batchToVoucher")
-    public ReturnData batchToVoucher(String ids, String merge) {
+    @GetMapping("batchToVoucher")
+    public ReturnData batchToVoucher(String assetids, String merge) {
         Json json = new Json();
         try {
-            String[] assetids = ids.split(",");
+            String[] assetidstrs = assetids.split(",");
             DZFBoolean bmerge = new DZFBoolean(merge);
             DZFDate date = new DZFDate(SystemUtil.getLoginDate());
-            String tips = am_kpglserv.saveVoucherFromZc(assetids, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), date, bmerge);
+            String tips = am_kpglserv.saveVoucherFromZc(assetidstrs, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), date, bmerge);
             if (!StringUtil.isEmpty(tips)) {
                 throw new BusinessException(tips);
             }
@@ -426,7 +427,7 @@ public class KpglController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @PostMapping("queryKmFromZclb")
+    @GetMapping("queryKmFromZclb")
     public ReturnData queryKmFromZclb(String zclbid) {
         Json json = new Json();
         try {

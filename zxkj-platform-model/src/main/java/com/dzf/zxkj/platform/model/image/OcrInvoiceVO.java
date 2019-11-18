@@ -121,7 +121,16 @@ public class OcrInvoiceVO extends SuperVO {
 	private String pk_taxaccsubj;
 	private String vmxx;//明细项
 	private String cyzt;//查验状态
-	
+	private String ocraddress;
+
+
+	public String getOcraddress() {
+		return ocraddress;
+	}
+
+	public void setOcraddress(String ocraddress) {
+		this.ocraddress = ocraddress;
+	}
 	
 	
 	public String getCyzt() {

@@ -46,6 +46,7 @@ import com.dzf.zxkj.platform.util.ThreadImgPoolExecutorFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -611,16 +612,16 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	}
 
 	@Override
-	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO userVo, File[] infiles, String[] filenames, String g_id,
+	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO userVo, MultipartFile[] infiles, String g_id,
 										 String period, String pjlxType) throws DZFWarpException {
 
 		// 2017-09-08 去掉自动识别 在ocr服务统一处理
 		// processImg(g_id, ig, il);
 		ImageLibraryVO il = null;
 		try {
-			il = uploadSingFile1(corpvo, userVo, infiles, filenames, g_id, period, null, pjlxType);
+			il = uploadSingFile1(corpvo, userVo, infiles, g_id, period, null, pjlxType);
 			// 在线端上传图片
-			imgOcrGropuserv.saveData(corpvo, il, pjlxType, 0, filenames[0]);
+			imgOcrGropuserv.saveData(corpvo, il, pjlxType, 0, infiles[0].getOriginalFilename());
 			pjsj_serv.updateCountByPjlx(corpvo.getPrimaryKey(), period, pjlxType, null, null, userVo, corpvo, 1);
 		} catch (Exception e) {
 			throw new BusinessException(e.getMessage());
@@ -629,7 +630,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		return il;
 	}
 
-	private ImageLibraryVO uploadSingFile1(CorpVO corpvo, UserVO userVo, File[] infiles, String[] filenames,
+	private ImageLibraryVO uploadSingFile1(CorpVO corpvo, UserVO userVo, MultipartFile[] infiles,
 			String g_id, String period, String invoicedata, String pjlxType) {
 		// 检查该图片是否已上传
 		String imgMD = getUploadImgMD(infiles[0], corpvo);
@@ -692,7 +693,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		if (ig == null) {
 			throw new BusinessException("未找到图片组！");
 		}
-		String nameSuffix = filenames[0].substring(filenames[0].lastIndexOf("."));
+		String nameSuffix = infiles[0].getOriginalFilename().substring(infiles[0].getOriginalFilename().lastIndexOf("."));
 		String ds = ""; // getRequest().getRealPath("/").replaceAll("\\\\","/");
 		// ds = ds.substring(0,ds.length() -1);
 		File dir = getImageFolder("vchImg", corpvo, ds);
@@ -726,7 +727,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 			imgFileNm = UUID.randomUUID().toString() + nameSuffix;
 			destFile = new File(dir, imgFileNm);
 
-			if (infiles[0].length() > THRESHOLD_FILE_SIZE * 1024 / 20)// 5M
+			if (infiles[0].getSize() > THRESHOLD_FILE_SIZE * 1024 / 20)// 5M
 				throw new BusinessException("上传pdf文件大小超过5M，请检查");
 
 			pdfFileNm = UUID.randomUUID().toString() + nameSuffixTemp;
@@ -734,7 +735,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		} else {
 			destFile = new File(dir, imgFileNm);
 			try {
-				isComBySale = infiles[0].length() > THRESHOLD_FILE_SIZE;
+				isComBySale = infiles[0].getSize() > THRESHOLD_FILE_SIZE;
 				ImageCopyUtil.copy(infiles[0], destFile);
 
 			} catch (Exception e) {
@@ -829,7 +830,6 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	 * @param nameSuffix
 	 * @param imgFileNm
 	 * @param simgFileNm
-	 * @param destMiddlFile
 	 */
 	public void storageImgFile(final File srcFile, final String nameSuffixTemp, final File dir, final String nameSuffix,
 			final String imgFileNm, final String simgFileNm, final String mimgFileNm, final boolean isComBySale) {
@@ -856,12 +856,12 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	 * @param corpvo
 	 * @throws DZFWarpException
 	 */
-	public String getUploadImgMD(File file, CorpVO corpvo) throws DZFWarpException {
+	public String getUploadImgMD(MultipartFile file, CorpVO corpvo) throws DZFWarpException {
 		String value = null;
 		FileInputStream in = null;
 		try {
-			in = new FileInputStream(file);
-			MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.length());
+			in = (FileInputStream)file.getInputStream();
+			MappedByteBuffer byteBuffer = in.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, file.getSize());
 			MessageDigest md5 = MessageDigest.getInstance("MD5");
 			md5.update(byteBuffer);
 			BigInteger bi = new BigInteger(1, md5.digest());
@@ -1298,7 +1298,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	}
 
 	@Override
-	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, File[] infiles, String[] filenames,
+	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, MultipartFile[] infiles, String[] filenames,
 			String g_id, String period, String invoicedata,String pjlxType) throws DZFWarpException {
 		ImageLibraryVO il = null;
 		try {
@@ -1306,7 +1306,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 			if (StringUtil.isEmpty(invoicedata)) {
 				invoicedata = "{}";
 			}
-			il = uploadSingFile1(corpvo, uservo, infiles, filenames, g_id, period, invoicedata, pjlxType);
+			il = uploadSingFile1(corpvo, uservo, infiles, g_id, period, invoicedata, pjlxType);
 
 			// 来源扫描仪上传的图片 保存结果信息
 			saveOcrData(il, invoicedata, filenames[0]);

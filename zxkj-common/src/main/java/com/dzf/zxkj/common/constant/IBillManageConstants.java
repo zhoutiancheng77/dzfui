@@ -1,11 +1,14 @@
 package com.dzf.zxkj.common.constant;
 
+import com.dzf.zxkj.common.lang.DZFDouble;
+
 /**
  * @Auther: dandelion
  * @Date: 2019-09-03
  * @Description:
  */
 public interface IBillManageConstants {
+    public static DZFDouble pjversion =new DZFDouble(1.0,1);
     //银行账户常量
     int QIY_STATUS = 0;//启用
     int TINGY_STATUS = 1;//停用

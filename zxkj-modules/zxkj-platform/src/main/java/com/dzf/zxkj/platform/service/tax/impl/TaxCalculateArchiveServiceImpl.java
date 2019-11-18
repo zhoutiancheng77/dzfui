@@ -21,6 +21,10 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.ExportData;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.export.ExportCell;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.export.ExportRow;
+import com.dzf.zxkj.platform.model.end_process.tax_calculator.export.ExportTable;
 import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.jzcl.SurTaxTemplate;
@@ -45,10 +49,15 @@ import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
 import com.dzf.zxkj.platform.util.KmbmUpgrade;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.report.service.IZxkjReportService;
-import org.apache.dubbo.config.annotation.Reference;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
 
 @Service("gl_taxarchive")
@@ -59,7 +68,7 @@ public class TaxCalculateArchiveServiceImpl implements
     @Autowired
     private SingleObjectBO singleObjectBO;
 
-    @Reference(version = "1.0.0")
+    @Autowired
     private IZxkjReportService zxkjReportService;
 
     @Autowired
@@ -80,6 +89,7 @@ public class TaxCalculateArchiveServiceImpl implements
 
     @Autowired
     private IAccountService accountService;
+
     @Override
     public TaxCalculateArchiveVO[] query(String pk_corp)
             throws DZFWarpException {
@@ -355,6 +365,7 @@ public class TaxCalculateArchiveServiceImpl implements
         setting.setIncomeTaxFixedRate(corpTax.getIncometaxrate());
         return setting;
     }
+
     private void getVoucherInfo(String pk_corp, TaxCalculateVO taxVO) {
         boolean addTaxCarryover = taxVO.getAddValueTaxStatus().getCarryover() != null
                 && taxVO.getAddValueTaxStatus().getCarryover();
@@ -493,7 +504,7 @@ public class TaxCalculateArchiveServiceImpl implements
         List<AddValueTaxVO> addTaxList = getSavedOutAndInTax(taxVO.getPk_corp(), period);
         List<AddValueTaxVO> inTaxList = new ArrayList<>();
         List<AddValueTaxVO> outTaxList = new ArrayList<>();
-        for (AddValueTaxVO tax: addTaxList) {
+        for (AddValueTaxVO tax : addTaxList) {
             if (tax.getTax_type() == AddValueTaxVO.TYPE_OUTTAX) {
                 outTaxList.add(tax);
             } else {
@@ -764,7 +775,7 @@ public class TaxCalculateArchiveServiceImpl implements
     }
 
     private List<SurtaxVO> getSurTax(CorpVO corp, String period, String quarterStart,
-            String quarterEnd, TaxSettingVO setting, boolean reFetch) {
+                                     String quarterEnd, TaxSettingVO setting, boolean reFetch) {
         List<SurtaxVO> taxes = getSavedSurTax(corp.getPk_corp(), period);
         boolean hasSavedData = taxes.size() > 0;
         if (!hasSavedData) {
@@ -791,14 +802,14 @@ public class TaxCalculateArchiveServiceImpl implements
             Map<String, SurTaxTemplate> tempMap = DZfcommonTools
                     .hashlizeObjectByPk(Arrays.asList(temps), new String[]{"pk_archive"});
 
-            for (SurtaxVO tax: taxes) {
+            for (SurtaxVO tax : taxes) {
                 SurTaxTemplate temp = tempMap.get(tax.getPk_archive());
                 if (temp != null && temp.getRate() != null) {
                     tax.setRate(temp.getRate());
                 }
             }
         }
-        for (SurtaxVO tax: taxes) {
+        for (SurtaxVO tax : taxes) {
             if (tax.getIs_surtax() != null && tax.getIs_surtax()) {
                 tax.setPeriod_type(setting.getAddTaxPeriodType());
             }
@@ -806,6 +817,7 @@ public class TaxCalculateArchiveServiceImpl implements
         setSurtaxBaseMny(taxes, corp.getPk_corp(), quarterStart, quarterEnd, reFetch);
         return taxes;
     }
+
     private List<SurtaxVO> getPreviousPeriodSurTax(String pk_corp, String period) {
         StringBuilder sql = new StringBuilder();
         sql.append("select tax.pk_archive, tax.rate, ach.tax_name, ach.show_order as snumber, ")
@@ -825,7 +837,7 @@ public class TaxCalculateArchiveServiceImpl implements
         sp.addParam(period);
         List<SurtaxVO> rs = (List<SurtaxVO>) singleObjectBO
                 .executeQuery(sql.toString(), sp, new BeanListProcessor(SurtaxVO.class));
-        for (SurtaxVO vo: rs) {
+        for (SurtaxVO vo : rs) {
             vo.setPk_corp(pk_corp);
             vo.setPeriod(period);
         }
@@ -875,7 +887,7 @@ public class TaxCalculateArchiveServiceImpl implements
     private void setSurtaxBaseMny(List<SurtaxVO> taxes,
                                   String pk_corp, String quarterStart, String quarterEnd, boolean reFetch) {
         List<String> subjList = new ArrayList<>();
-        for (SurtaxVO tax: taxes) {
+        for (SurtaxVO tax : taxes) {
             if ((reFetch || tax.getPk_tax() == null) && !StringUtil.isEmpty(tax.getPk_base_subject())) {
                 subjList.add(tax.getPk_base_subject());
             }
@@ -886,29 +898,29 @@ public class TaxCalculateArchiveServiceImpl implements
         String subjInSql = SQLHelper.getInSQL(subjList);
         StringBuilder sql = new StringBuilder();
         sql.append(" select pzh.period as rq, cp.direction as fx, ")
-        .append(" pz.pk_accsubj as pk_km, sum(pz.jfmny) fsjf, sum(pz.dfmny) fsdf ")
-        .append(" from ynt_tzpz_b pz ")
-        .append(" join ynt_tzpz_h pzh on pzh.pk_corp = ? and pzh.pk_tzpz_h = pz.pk_tzpz_h ")
-        .append(" left join ynt_cpaccount cp on pz.pk_accsubj = cp.pk_corp_account ")
-        .append(" where pz.pk_corp = ? and pzh.period >= ? and period <= ? and pz.pk_accsubj in ")
-        .append(subjInSql)
-        .append(" and nvl(pzh.dr,0)=0 and nvl(pz.dr,0)=0")
-        .append(" group by cp.direction, pzh.period, pz.pk_accsubj ");
+                .append(" pz.pk_accsubj as pk_km, sum(pz.jfmny) fsjf, sum(pz.dfmny) fsdf ")
+                .append(" from ynt_tzpz_b pz ")
+                .append(" join ynt_tzpz_h pzh on pzh.pk_corp = ? and pzh.pk_tzpz_h = pz.pk_tzpz_h ")
+                .append(" left join ynt_cpaccount cp on pz.pk_accsubj = cp.pk_corp_account ")
+                .append(" where pz.pk_corp = ? and pzh.period >= ? and period <= ? and pz.pk_accsubj in ")
+                .append(subjInSql)
+                .append(" and nvl(pzh.dr,0)=0 and nvl(pz.dr,0)=0")
+                .append(" group by cp.direction, pzh.period, pz.pk_accsubj ");
 
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_corp);
         sp.addParam(pk_corp);
         sp.addParam(quarterStart);
         sp.addParam(quarterEnd);
-        for (String subj: subjList) {
+        for (String subj : subjList) {
             sp.addParam(subj);
         }
         List<FseJyeVO> fseVOs = (List<FseJyeVO>) singleObjectBO
                 .executeQuery(sql.toString(), sp, new BeanListProcessor(FseJyeVO.class));
-        for (SurtaxVO tax: taxes) {
+        for (SurtaxVO tax : taxes) {
             if ((reFetch || tax.getPk_tax() == null) && !StringUtil.isEmpty(tax.getPk_base_subject())) {
                 if (tax.getPeriod_type() == null || tax.getPeriod_type() == TaxSettingVO.PERIOD_MONTH) {
-                    for (FseJyeVO fse: fseVOs) {
+                    for (FseJyeVO fse : fseVOs) {
                         if (fse.getRq().equals(tax.getPeriod())
                                 && fse.getPk_km().equals(tax.getPk_base_subject())) {
                             tax.setBase_tax("0".equals(fse.getFx()) ? fse.getFsjf() : fse.getFsdf());
@@ -917,7 +929,7 @@ public class TaxCalculateArchiveServiceImpl implements
                     }
                 } else {
                     DZFDouble mny = DZFDouble.ZERO_DBL;
-                    for (FseJyeVO fse: fseVOs) {
+                    for (FseJyeVO fse : fseVOs) {
                         if (fse.getPk_km().equals(tax.getPk_base_subject())) {
                             mny = SafeCompute.add(mny, "0".equals(fse.getFx()) ? fse.getFsjf() : fse.getFsdf());
                         }
@@ -1078,7 +1090,7 @@ public class TaxCalculateArchiveServiceImpl implements
             }
         }
         DZFDouble paidTax = DZFDouble.ZERO_DBL;
-        for (AddValueTaxVO outTax: outTaxList) {
+        for (AddValueTaxVO outTax : outTaxList) {
             if (outTax.getFp_style() != null
                     && outTax.getFp_style() == IFpStyleEnum.SPECINVOICE.getValue()) {
                 paidTax = SafeCompute.add(paidTax, outTax.getTaxmny());
@@ -1101,7 +1113,7 @@ public class TaxCalculateArchiveServiceImpl implements
             incomeSubj1 = "5001";
             incomeSubj2 = "5051";
         }
-        String[] kms = new String[] { incomeSubj1, incomeSubj2 };
+        String[] kms = new String[]{incomeSubj1, incomeSubj2};
         QueryParamVO paramvo = ReportUtil
                 .getFseQueryParamVO(corpVO, new DZFDate(periodStart + "-01"),
                         new DZFDate(periodEnd + "-01"), kms, true);
@@ -1397,7 +1409,7 @@ public class TaxCalculateArchiveServiceImpl implements
 
     private IncomeTaxVO getIncomeTax(CorpVO corp, String period,
                                      TaxSettingVO setting, boolean reFetch) {
-        IncomeTaxCalculator incomeCal = new IncomeTaxCalculator(singleObjectBO,zxkjReportService);
+        IncomeTaxCalculator incomeCal = new IncomeTaxCalculator(singleObjectBO, zxkjReportService);
         IncomeTaxVO tax = null;
         IncomeTaxVO savedTax = getSavedIncomeTax(corp.getPk_corp(), period);
         if (reFetch || savedTax == null || !isSameIncomeTaxType(savedTax, setting)) {
@@ -1420,6 +1432,7 @@ public class TaxCalculateArchiveServiceImpl implements
         }
         return tax;
     }
+
     private boolean isSameIncomeTaxType(IncomeTaxVO tax, TaxSettingVO setting) {
         int taxType1 = tax.getTax_type() == null ? 0 : tax.getTax_type();
         int taxType2 = setting.getIncomeTaxType() == null ? 0 : setting.getIncomeTaxType();
@@ -1482,7 +1495,7 @@ public class TaxCalculateArchiveServiceImpl implements
         // 附加税
         List<SurtaxVO> surtaxes = taxCalVO.getSurtax();
         List<SurtaxVO> toSaveSurtax = new ArrayList<>();
-        for (SurtaxVO vo: surtaxes) {
+        for (SurtaxVO vo : surtaxes) {
             if (vo.getCarryover() == null || !vo.getCarryover()) {
                 toSaveSurtax.add(vo);
             }
@@ -1538,7 +1551,7 @@ public class TaxCalculateArchiveServiceImpl implements
         temps.addAll(defaultTemps);
         if (temps.size() > 0) {
             CorpTaxVo corpTax = null;
-            for (SurTaxTemplate temp: temps) {
+            for (SurTaxTemplate temp : temps) {
                 if (SurTaxEnum.URBAN_CONSTRUCTION_TAX.getName().equals(temp.getTax_name())) {
                     if (urbanRate != null) {
                         temp.setRate(urbanRate);
@@ -1609,7 +1622,7 @@ public class TaxCalculateArchiveServiceImpl implements
         if (urbanTaxRate != null && urbanTaxRate.doubleValue() != 0) {
             sql.append(" citybuildtax = ? ");
             sp.addParam(urbanTaxRate);
-            addSplit =true;
+            addSplit = true;
         }
         if (localEduTaxRate != null && localEduTaxRate.doubleValue() != 0) {
             if (addSplit) {
@@ -1669,7 +1682,7 @@ public class TaxCalculateArchiveServiceImpl implements
         DZFDouble urbanRate = null;
         DZFDouble eduRate = null;
         List<String> ids = new ArrayList<>();
-        for (SurtaxVO vo: taxVOs) {
+        for (SurtaxVO vo : taxVOs) {
             if (SurTaxEnum.URBAN_CONSTRUCTION_TAX.getName().equals(vo.getTax_name())) {
                 urbanRate = vo.getRate();
             } else if (SurTaxEnum.LOCAL_EDUCATION_SURTAX.getName().equals(vo.getTax_name())) {
@@ -1681,7 +1694,7 @@ public class TaxCalculateArchiveServiceImpl implements
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_corp);
         sp.addParam(period);
-        for (String id: ids) {
+        for (String id : ids) {
             sp.addParam(id);
         }
         singleObjectBO.executeUpdate(
@@ -1697,7 +1710,7 @@ public class TaxCalculateArchiveServiceImpl implements
 
     @Override
     public SurtaxVO saveOtherTax(SurtaxVO taxVO,
-                              String pk_corp, String period, String userID) {
+                                 String pk_corp, String period, String userID) {
         setDefaultValueBeforeSave(taxVO, pk_corp, period, userID);
         singleObjectBO.saveObject(pk_corp, taxVO);
         return taxVO;
@@ -1803,15 +1816,15 @@ public class TaxCalculateArchiveServiceImpl implements
             qmvo = createQmclVO(pk_corp, period, userID);
         } else {
             if (taxType == TaxCalculateVO.TYPE_ADDTAX) {
-                if (qmvo.getZzsjz() != null && qmvo.getZzsjz() .booleanValue()) {
+                if (qmvo.getZzsjz() != null && qmvo.getZzsjz().booleanValue()) {
                     throw new BusinessException("增值税已结转，不能重复操作");
                 }
             } else if (taxType == TaxCalculateVO.TYPE_SURTAX) {
-                if (qmvo.getIsjtsj() != null && qmvo.getIsjtsj() .booleanValue()) {
+                if (qmvo.getIsjtsj() != null && qmvo.getIsjtsj().booleanValue()) {
                     throw new BusinessException("附加税已结转，不能重复操作");
                 }
             } else if (taxType == TaxCalculateVO.TYPE_INCOMETAX) {
-                if (qmvo.getQysdsjz() != null && qmvo.getQysdsjz() .booleanValue()) {
+                if (qmvo.getQysdsjz() != null && qmvo.getQysdsjz().booleanValue()) {
                     throw new BusinessException("所得税已结转，不能重复操作");
                 }
             }
@@ -1828,7 +1841,7 @@ public class TaxCalculateArchiveServiceImpl implements
             }
         } else if (taxType == TaxCalculateVO.TYPE_SURTAX) {
             List<SurtaxVO> taxVOs = new ArrayList<>();
-            for (SurtaxVO vo: taxCalVO.getSurtax()) {
+            for (SurtaxVO vo : taxCalVO.getSurtax()) {
                 if (vo.getIs_surtax() != null && vo.getIs_surtax()) {
                     taxVOs.add(vo);
                 }
@@ -1841,7 +1854,7 @@ public class TaxCalculateArchiveServiceImpl implements
             taxCalVO.getSurtaxStatus().setCarryover(true);
             taxCalVO.getSurtaxStatus().setSaved(true);
             qmvo.setIsjtsj(DZFBoolean.TRUE);
-            singleObjectBO.update(qmvo, new String[] { "isjtsj" });
+            singleObjectBO.update(qmvo, new String[]{"isjtsj"});
         } else if (taxType == TaxCalculateVO.TYPE_INCOMETAX) {
             taxCalVO.getIncometax().setCarryover(true);
             saveIncomeTax(taxCalVO.getIncometax(), pk_corp, period, userID);
@@ -1877,7 +1890,7 @@ public class TaxCalculateArchiveServiceImpl implements
         if (voucher != null) {
             CorpVO corpVO = corpService.queryByPk(pk_corp);
             gl_tzpzserv.saveVoucher(corpVO, voucher);
-            TzpzHVO deductVoucher  = getDeductionVoucher(taxVOs, tempMap, corpVO, userID);
+            TzpzHVO deductVoucher = getDeductionVoucher(taxVOs, tempMap, corpVO, userID);
             if (deductVoucher != null) {
                 gl_tzpzserv.saveVoucher(corpVO, deductVoucher);
             }
@@ -1892,12 +1905,13 @@ public class TaxCalculateArchiveServiceImpl implements
     private void processBeforeCreateVoucher(String pk_corp, String period, String sourceType, String sourceId) {
         TzpzHVO[] vouchers = queryVoucher(pk_corp, period, sourceType, sourceId);
         if (vouchers != null && vouchers.length > 0) {
-            for (TzpzHVO hvo: vouchers) {
+            for (TzpzHVO hvo : vouchers) {
                 hvo.setIsqxsy(DZFBoolean.TRUE);
                 gl_tzpzserv.deleteVoucher(hvo);
             }
         }
     }
+
     private TzpzHVO[] queryVoucher(String pk_corp, String period, String sourceType, String sourceId) {
         if (StringUtil.isEmpty(pk_corp) || StringUtil.isEmpty(period)
                 || StringUtil.isEmpty(sourceType)) {
@@ -1920,7 +1934,7 @@ public class TaxCalculateArchiveServiceImpl implements
     private SurtaxVO[] createVoucherBySurtax(SurtaxVO[] taxVOs,
                                              QmclVO qmclVO, CorpVO corpVO, String userID) {
         boolean isCarryover = false;
-        for (SurtaxVO taxVO: taxVOs) {
+        for (SurtaxVO taxVO : taxVOs) {
             if (taxVO.getCarryover() != null && taxVO.getCarryover()) {
                 isCarryover = true;
                 break;
@@ -1937,7 +1951,7 @@ public class TaxCalculateArchiveServiceImpl implements
         if (voucher != null) {
             voucher.setSourcebillid(qmclVO.getPk_qmcl());
             gl_tzpzserv.saveVoucher(corpVO, voucher);
-            TzpzHVO deductVoucher  = getDeductionVoucher(taxVOs, tempMap, corpVO, userID);
+            TzpzHVO deductVoucher = getDeductionVoucher(taxVOs, tempMap, corpVO, userID);
             if (deductVoucher != null) {
                 deductVoucher.setSourcebillid(qmclVO.getPk_qmcl());
                 gl_tzpzserv.saveVoucher(corpVO, deductVoucher);
@@ -1955,14 +1969,14 @@ public class TaxCalculateArchiveServiceImpl implements
     }
 
     private List<SurTaxTemplate> getDefaultSurtaxTemplate(CorpVO corpVO,
-                                                      List<SurTaxTemplate> temps) {
+                                                          List<SurTaxTemplate> temps) {
         List<SurTaxTemplate> defaultTemps = new ArrayList<>();
         Set<String> codeSet = new HashSet<>();
-        for (SurTaxTemplate temp: temps) {
+        for (SurTaxTemplate temp : temps) {
             codeSet.add(temp.getTax_code());
         }
         SurtaxArchiveVO[] taxArchives = getPresetTaxArchives();
-        for (SurtaxArchiveVO tax: taxArchives) {
+        for (SurtaxArchiveVO tax : taxArchives) {
             if (!codeSet.contains(tax.getTax_code())) {
                 SurTaxTemplate temp = new SurTaxTemplate();
                 /*String debitSubjCode = "";
@@ -2124,7 +2138,7 @@ public class TaxCalculateArchiveServiceImpl implements
     private TzpzHVO getVoucherHead(String pk_corp, String period, String userID, TzpzBVO[] bvos) {
         DZFDouble jfTotal = DZFDouble.ZERO_DBL;
         DZFDouble dfTotal = DZFDouble.ZERO_DBL;
-        for (TzpzBVO bvo: bvos) {
+        for (TzpzBVO bvo : bvos) {
             jfTotal = SafeCompute.add(jfTotal, bvo.getJfmny());
             dfTotal = SafeCompute.add(dfTotal, bvo.getJfmny());
         }
@@ -2184,5 +2198,218 @@ public class TaxCalculateArchiveServiceImpl implements
         range[0] = year + "-" + (startMonth < 10 ? "0" + startMonth : startMonth);
         range[1] = year + "-" + (endMonth < 10 ? "0" + endMonth : endMonth);
         return range;
+    }
+
+    @Override
+    public byte[] exportExcel(ExportData exportData) throws DZFWarpException {
+        Workbook workbook = new HSSFWorkbook();
+
+        createSheet(exportData, exportData.getAddTax(), workbook);
+        createSheet(exportData, exportData.getSurtax(), workbook);
+        createSheet(exportData, exportData.getIncomeTax(), workbook);
+
+        ByteArrayOutputStream bao = null;
+        byte[] data = null;
+        try {
+            bao = new ByteArrayOutputStream();
+            workbook.write(bao);
+            data = bao.toByteArray();
+            bao.close();
+        } catch (IOException e) {
+
+        } finally {
+            if (bao != null) {
+                try {
+                    bao.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+        return data;
+    }
+
+    private int addExcelTitle(Sheet sheet, CellStyle cellStyle) {
+        int rowIndex = 0;
+        Row titleRow = sheet.createRow(rowIndex++);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("税费计算");
+        titleCell.setCellStyle(cellStyle);
+        sheet.createRow(rowIndex++);
+        sheet.createRow(rowIndex++);
+        return rowIndex;
+    }
+
+    private void createSheet(ExportData exportData, ExportTable table, Workbook workbook) {
+        if (table == null) {
+            return;
+        }
+        CellStyle[] styles = new CellStyle[5];
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 10);
+        font.setBold(true);
+        CellStyle headStyle = workbook.createCellStyle();
+        headStyle.setFont(font);
+        headStyle.setAlignment(HorizontalAlignment.CENTER);
+        headStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        CellStyle headStyleBorder = workbook.createCellStyle();
+        headStyleBorder.cloneStyleFrom(headStyle);
+        addBorder(headStyleBorder);
+        styles[0] = headStyleBorder;
+
+        Font normalFont = workbook.createFont();
+        normalFont.setFontHeightInPoints((short) 10);
+
+        // 左对齐
+        CellStyle leftStyle = workbook.createCellStyle();
+        leftStyle.setFont(normalFont);
+        leftStyle.setAlignment(HorizontalAlignment.CENTER);
+        leftStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        CellStyle leftStyleBorder = workbook.createCellStyle();
+        leftStyleBorder.cloneStyleFrom(leftStyle);
+        addBorder(leftStyleBorder);
+        styles[1] = leftStyleBorder;
+        // 居中
+        CellStyle centerStyle = workbook.createCellStyle();
+        centerStyle.cloneStyleFrom(leftStyle);
+        centerStyle.setAlignment(HorizontalAlignment.CENTER);
+        addBorder(centerStyle);
+        styles[2] = centerStyle;
+        // 右对齐
+        CellStyle rightStyle = workbook.createCellStyle();
+        rightStyle.cloneStyleFrom(leftStyle);
+        rightStyle.setAlignment(HorizontalAlignment.RIGHT);
+        CellStyle rightStyleBorder = workbook.createCellStyle();
+        rightStyleBorder.cloneStyleFrom(rightStyle);
+        addBorder(rightStyleBorder);
+        styles[3] = rightStyleBorder;
+
+        CellStyle numberStyle = workbook.createCellStyle();
+        numberStyle.cloneStyleFrom(rightStyleBorder);
+        DataFormat format = workbook.createDataFormat();
+        numberStyle.setDataFormat(format.getFormat("#,##0.00"));
+        styles[4] = numberStyle;
+
+        Sheet sheet = workbook.createSheet(table.getTitle());
+        if (table.getHead()[0].getCells().length <= 3) {
+            // 列少时，列宽增加
+            sheet.setDefaultColumnWidth(30);
+        } else {
+            sheet.setDefaultColumnWidth(15);
+        }
+        int rowIndex = addExcelTitle(sheet, headStyle);
+
+        Row corpInfoRow = sheet.createRow(rowIndex++);
+        Cell corpName = corpInfoRow.createCell(0);
+        corpName.setCellValue("公司：" + exportData.getCorpName());
+        corpName.setCellStyle(leftStyle);
+
+        // 税种名称
+        Cell taxName = sheet.createRow(rowIndex++).createCell(0);
+        taxName.setCellValue(table.getTitle());
+        taxName.setCellStyle(leftStyle);
+
+        addTableRows(sheet, table.getHead(), rowIndex, styles, true);
+        addTableRows(sheet, table.getBody(), sheet.getLastRowNum() + 1, styles, false);
+
+        int colNum = sheet.getRow(rowIndex).getLastCellNum() - 1;
+        Cell period = corpInfoRow.createCell(colNum);
+        period.setCellValue("期间：" + exportData.getPeriod());
+        period.setCellStyle(rightStyle);
+
+        // 合并标题单元格
+        sheet.addMergedRegion(new CellRangeAddress(0, 2,
+                0, colNum));
+        CellRangeAddress tabelRange = new CellRangeAddress(rowIndex, sheet.getLastRowNum(),
+                0, colNum);
+        // 给表格设置边框
+        RegionUtil.setBorderTop(BorderStyle.THIN, tabelRange, sheet);
+        RegionUtil.setBorderRight(BorderStyle.THIN, tabelRange, sheet);
+        RegionUtil.setBorderBottom(BorderStyle.THIN, tabelRange, sheet);
+        RegionUtil.setBorderLeft(BorderStyle.THIN, tabelRange, sheet);
+    }
+
+    private int addTableRows(Sheet sheet, ExportRow[] tableRows, int rowBegin, CellStyle[] styles, boolean isHead) {
+        int lastColIndex = isHead ? 0 : sheet.getRow(rowBegin - 1).getLastCellNum() - 1;
+        int rowIndex = rowBegin;
+        int lastRowIndex = rowBegin + tableRows.length - 1;
+        for (ExportRow tableRow : tableRows) {
+            ExportCell[] exportCells = tableRow.getCells();
+            int colIndex = 0;
+            for (ExportCell exportCell : exportCells) {
+                Row row = sheet.getRow(rowIndex);
+                if (row == null) {
+                    row = sheet.createRow(rowIndex);
+                }
+                int colSpan = exportCell.getColSpan() == null ? 1 : exportCell.getColSpan();
+                int rowSpan = exportCell.getRowSpan() == null ? 1 : exportCell.getRowSpan();
+                int colBegin = colIndex;
+                for (int i = 0; i < colSpan; i++) {
+                    colIndex = getEmptyCell(row, colIndex);
+                    if (!isHead && colIndex > lastColIndex) {
+                        // colIndex越界
+                        colSpan = i;
+                        break;
+                    }
+                    Cell cell = row.createCell(colIndex);
+                    if (i == 0) {
+                        if (isHead) {
+                            cell.setCellValue(exportCell.getValue());
+                            cell.setCellStyle(styles[0]);
+                            if (colSpan == 1 && exportCell.getValue() != null && exportCell.getValue().length() > 8) {
+                                // 字数过多时，根据字数设置列宽
+                                sheet.setColumnWidth(colIndex, (exportCell.getValue().length() + 1) * 2 * 256);
+                            }
+                        } else {
+                            int align = exportCell.getAlign() == null ? 1 : exportCell.getAlign();
+                            String value = exportCell.getValue();
+                            if (align == 3 && value != null && value.matches("[0-9,\\.\\-]+")) {
+                                cell.setCellValue(new DZFDouble(value.replaceAll(",", "")).doubleValue());
+                                cell.setCellStyle(styles[4]);
+                            } else {
+                                cell.setCellStyle(styles[align]);
+                                cell.setCellValue(value);
+                            }
+                        }
+                    } else {
+                        cell.setCellStyle(isHead ? styles[0] : styles[1]);
+                    }
+                    for (int j = 1; j < rowSpan; j++) {
+                        int ntRowIndex = rowIndex + j;
+                        if (ntRowIndex > lastRowIndex) {
+                            // rowIndex越界
+                            rowSpan = j;
+                            break;
+                        }
+                        Row ntRow = sheet.getRow(ntRowIndex);
+                        if (ntRow == null) {
+                            ntRow = sheet.createRow(ntRowIndex);
+                        }
+                        ntRow.createCell(colIndex).setCellStyle(isHead ? styles[0] : styles[1]);
+                    }
+                    colIndex++;
+                }
+                if (colSpan > 1 || rowSpan > 1) {
+                    sheet.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex + rowSpan - 1,
+                            colBegin, colBegin + colSpan - 1));
+                }
+            }
+            rowIndex++;
+        }
+        return sheet.getRow(rowBegin).getLastCellNum();
+    }
+
+    private int getEmptyCell(Row row, int begin) {
+        while (row.getCell(begin) != null) {
+            begin++;
+        }
+        return begin;
+    }
+
+    private void addBorder(CellStyle style) {
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
     }
 }

@@ -21,9 +21,11 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.voucher.CopyParam;
 import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
+import com.dzf.zxkj.platform.service.pzgl.impl.CaclTaxMny;
 import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -52,7 +54,7 @@ public class VoucherController {
     @GetMapping("/query")
     public ReturnData query(VoucherParamVO paramvo) {
         Grid grid = new Grid();
-        List<String> pkcorp_list = new ArrayList<String>();
+        List<String> pkcorp_list = new ArrayList<>();
         String corps_id = paramvo.getPk_corp();
         if (!StringUtils.isEmpty(corps_id)) {
             pkcorp_list = Arrays.asList(corps_id.split(","));
@@ -229,9 +231,61 @@ public class VoucherController {
         return measureName;
     }
 
+    @GetMapping("/queryById")
+    public ReturnData queryById(@RequestParam String id) {
+        Json json = new Json();
+        TzpzHVO tzpzH = gl_tzpzserv.queryHeadVoById(id);
+        if(tzpzH == null || !tzpzH.getPk_corp().equals(tzpzH.getPk_corp())){
+            json.setSuccess(false);
+            json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
+            json.setMsg("凭证不存在，请刷新重试");
+        } else {
+            GxhszVO gxh = gl_gxhszserv.query(tzpzH.getPk_corp());
+            Integer kmShow = gxh.getPzSubject();
+            if(tzpzH.getChildren() != null){
+                if (kmShow == 0) {
+                    TzpzBVO[] bvos = (TzpzBVO[]) tzpzH.getChildren();
+                    for (TzpzBVO bvo : bvos) {
+                        bvo.setKmmchie(bvo.getSubj_name());
+                    }
+                } else if (kmShow == 1) {
+                    TzpzBVO[] bvos = (TzpzBVO[]) tzpzH.getChildren();
+                    String[] fullname = null;
+                    for (TzpzBVO bvo : bvos) {
+                        fullname = bvo.getKmmchie().split("/");
+                        if (fullname.length > 1) {
+                            bvo.setKmmchie(fullname[0] + "/" + fullname[fullname.length - 1]);
+                        }
+                    }
+                }
+            }
+            try {
+                if (tzpzH.getZd_user() != null)
+                    tzpzH.setZd_user(CodeUtils1.deCode(tzpzH.getZd_user()));
+                if (tzpzH.getSh_user() != null)
+                    tzpzH.setSh_user(CodeUtils1.deCode(tzpzH.getSh_user()));
+                if (tzpzH.getJz_user() != null)
+                    tzpzH.setJz_user(CodeUtils1.deCode(tzpzH.getJz_user()));
+                if (tzpzH.getCn_user() != null){
+                    tzpzH.setCn_user(CodeUtils1.deCode(tzpzH.getCn_user()));
+                }
+                if("HP80".equals(tzpzH.getSourcebilltype())
+                        && StringUtils.isEmpty(tzpzH.getZd_user())){
+                    tzpzH.setZd_user("大账房系统");
+                }
+            } catch (Exception e) {
+                log.error("解密失败", e);
+            }
+            json.setMsg("查询凭证成功！");
+            json.setSuccess(true);
+            json.setData(tzpzH);
+        }
+        return ReturnData.ok().data(json);
+    }
+
     //按月复制凭证
     @PostMapping("/copy")
-    public void copy(@RequestBody CopyParam copyParam) {
+    public ReturnData copy(@RequestBody CopyParam copyParam) {
         Json json = new Json();
         String[] corpAry;
         TzpzHVO[] sourceVouchers = copyParam.getSourceVoucher();
@@ -308,5 +362,26 @@ public class VoucherController {
         }
         json.setSuccess(true);
         json.setMsg(msg.toString());
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/getTaxItem")
+    public ReturnData getTaxItem() {
+        Json json = new Json();
+        CorpVO corp = SystemUtil.getLoginCorpVo();
+        Map<String, String> subjectRule = new HashMap<>();
+        String[] rules = CaclTaxMny.getSubjectRule(corp);
+        subjectRule.put("cargo", rules[0]);
+        subjectRule.put("service", rules[1]);
+        subjectRule.put("purchase", rules[2]);
+        subjectRule.put("traffic", rules[6]);
+        subjectRule.put("inTax", rules[3]);
+        subjectRule.put("outTax", rules[4]);
+        subjectRule.put("profit", rules[5]);
+        List<TaxitemVO> items = gl_tzpzserv.getTaxItems(corp.getChargedeptname());
+        json.setHead(subjectRule);
+        json.setRows(items);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
     }
 }

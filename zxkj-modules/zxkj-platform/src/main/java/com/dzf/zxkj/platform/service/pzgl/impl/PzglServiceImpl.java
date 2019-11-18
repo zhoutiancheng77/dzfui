@@ -894,7 +894,7 @@ public class PzglServiceImpl implements IPzglService {
 	@Override
 	public void reuploadImage(File[] infiles, String imgName, String pk_image_library, String reuploadName, String reuploadType, CorpVO corpvo) throws DZFWarpException {
 		// 检查该图片是否已上传
-		String imgMD = img_groupserv.getUploadImgMD(infiles[0], corpvo);
+//		String imgMD = img_groupserv.getUploadImgMD(infiles[0], corpvo);
 		int dirTypeIndex = imgName.lastIndexOf(".");
 		String dirFileType = imgName.substring(dirTypeIndex);
 
@@ -991,7 +991,7 @@ public class PzglServiceImpl implements IPzglService {
 		img_groupserv.saveImageGroupBackUp(imageGroupVO, PhotoState.state3);// 重传
 		// 更新图片信息
 		imageLibraryVO.setAttributeValue("isback", DZFBoolean.FALSE);
-		imageLibraryVO.setAttributeValue("imgmd", imgMD);
+//		imageLibraryVO.setAttributeValue("imgmd", imgMD);
 		img_groupserv.update(imageLibraryVO);
 
 	}
@@ -1001,7 +1001,7 @@ public class PzglServiceImpl implements IPzglService {
 
 		try {
 			boolean isComBySale = srcFile.length() > 100 * 1024;
-			ImageCopyUtil.copy(srcFile, destFile);
+//			ImageCopyUtil.copy(srcFile, destFile);
 			if (isComBySale && StringUtil.isEmpty(mimgFileNm)) {
 				mimgFileNm = UUID.randomUUID().toString() + "." + nameSuffixTemp;
 				imageLibraryVO.setAttributeValue("middleimgpath", mimgFileNm);
