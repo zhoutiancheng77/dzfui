@@ -39,10 +39,10 @@ import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,6 +85,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	private IParameterSetService sys_parameteract;
 	@Autowired
 	private IAccountService accountService;
+	@Autowired
+	private ICorpService corpService;
 
 
 	@Override
@@ -458,7 +460,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		updateBillPeriod(new BankStatementVO2().getTableName(), condition, param,period);
 		updateBillPeriod(new ImageGroupVO().getTableName(), condition, param,period);
 		updateBillPeriod(new ImageLibraryVO().getTableName(), condition, param,period);
-		CorpVO corpVO = SystemUtil.queryCorp(vos[0].getPk_corp());
+		CorpVO corpVO = corpService.queryByPk(vos[0].getPk_corp());
 
 		invCategory(vos[0].getPk_corp(), period, list);
 	}
@@ -534,8 +536,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		billinfovo.setImgname(librayrvo[0].getImgname());
 		billinfovo.setCorpId(librayrvo[0].getPk_custcorp());
 		// CodeUtils1.deCode(hvo.getCn_user()
-		vo.setCorpName(CodeUtils1.deCode(SystemUtil.queryCorp(librayrvo[0].getPk_custcorp()).getUnitname()));
-		vo.setCorpCode(SystemUtil.queryCorp(librayrvo[0].getPk_custcorp()).getUnitcode());
+		vo.setCorpName(CodeUtils1.deCode(corpService.queryByPk(librayrvo[0].getPk_custcorp()).getUnitname()));
+		vo.setCorpCode(corpService.queryByPk(librayrvo[0].getPk_custcorp()).getUnitcode());
 		
 		if (ibillcategory.checkHaveIctrade(new OcrInvoiceVO[]{vo}).equals(DZFBoolean.TRUE)) {
 			billinfovo.setMessage("已生成出入库单，请删除单据后再修改！");
@@ -595,8 +597,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			billinfovo.setImgname(librarys.get(0).getImgname());
 			billinfovo.setCorpId(librarys.get(0).getPk_custcorp());
 			vo.setCorpName(
-					CodeUtils1.deCode(SystemUtil.queryCorp(librarys.get(0).getPk_custcorp()).getUnitname()));
-			vo.setCorpCode(SystemUtil.queryCorp(librarys.get(0).getPk_custcorp()).getUnitcode());
+					CodeUtils1.deCode(corpService.queryByPk(librarys.get(0).getPk_custcorp()).getUnitname()));
+			vo.setCorpCode(corpService.queryByPk(librarys.get(0).getPk_custcorp()).getUnitcode());
 			returnList.add(billinfovo);
 		}
 		return returnList;
@@ -997,7 +999,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		boolean lock = false;
 		String requestid = null;
 		String key = pk_corp + "," + period;
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		if (list == null)
 			return;
 		try {
@@ -1749,7 +1751,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			return null;
 		}
 		YntCpaccountVO cavo = new YntCpaccountVO();
-		CorpVO corp = SystemUtil.queryCorp(pk_corp);
+		CorpVO corp = corpService.queryByPk(pk_corp);
 		String corptype = corp.getCorptype();
 
 		// 先去前台编辑分类的设置里面找
@@ -2028,7 +2030,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	public OcrAuxiliaryAccountBVO[] processGoods(String pk_corp, AuxiliaryAccountBVO[] bvos) throws DZFWarpException {
 		if (bvos == null || bvos.length == 0)
 			return null;
-		CorpVO corp = SystemUtil.queryCorp(pk_corp);
+		CorpVO corp = corpService.queryByPk(pk_corp);
 		List<OcrAuxiliaryAccountBVO> list = new ArrayList<OcrAuxiliaryAccountBVO>();
 		OcrAuxiliaryAccountBVO obvo = null;
 
@@ -2092,7 +2094,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 		if (code.startsWith("11") || code.startsWith("101015") || code.startsWith("101110")) {
 
-			CorpVO corp = SystemUtil.queryCorp(categoryvo.getPk_corp());
+			CorpVO corp = corpService.queryByPk(categoryvo.getPk_corp());
 			if (corp.getBbuildic().equals(IcCostStyle.IC_OFF)) {
 				String pk_corp = categoryvo.getPk_corp();
 				Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(pk_corp);
@@ -2132,7 +2134,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			return "";
 		if(StringUtil.isEmpty(pk_corp))
 			return "";
-		CorpVO cpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO cpvo = corpService.queryByPk(pk_corp);
 		if(cpvo == null)
 			return "";
 		//启用总账存货的参与校验
@@ -2333,7 +2335,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		if(StringUtil.isEmpty(period)){
 			throw new BusinessException("期间不能为空！");
 		}
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		
 		if (corpvo.getBegindate() == null) {
 			throw new BusinessException("当前公司建账日期为空，可能尚未建账，请检查！");
@@ -2361,7 +2363,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			invvo.setPk_corp(pk_corp);
 			invvo.setPk_billcategory(null);
 			invvo.setPk_category_keyword(null);
-			String unitName = SystemUtil.queryCorp(pk_corp).getUnitname();
+			String unitName = corpService.queryByPk(pk_corp).getUnitname();
 			//其他单据（除机打发票）跨公司后，将付款方名称变为跨入公司名称（不用去特殊符号）
 			if(invvo.getIstate().equals("c其它票据") && !invvo.getInvoicetype().contains("机打发票")){
 				//if(StringUtil.isEmpty(invvo.getVpurchname()) && (StringUtil.isEmpty(invvo.getVsalename()) || !invvo.getVsalename().startsWith(unitName))  ){

@@ -10,8 +10,9 @@ import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import com.dzf.zxkj.platform.model.image.ImageLibraryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,6 +35,8 @@ public class ImageViewController extends BaseController {
 
     private IUserService userService;
     private IImageGroupService gl_pzimageserv;
+    @Autowired
+    private ICorpService corpService;
 
     private Logger log = Logger.getLogger(this.getClass());
 
@@ -104,7 +107,7 @@ public class ImageViewController extends BaseController {
                 }
 
             }
-            CorpVO corpVO2 = SystemUtil.queryCorp(pk_cprp_ser);//图片浏览查询框中公司pk
+            CorpVO corpVO2 = corpService.queryByPk(pk_cprp_ser);//图片浏览查询框中公司pk
             File dir =  getImageFolder(type, corpVO2, imgPathName, imgname);
             String lujing = dir.getAbsolutePath();
             File file  = new File(lujing);

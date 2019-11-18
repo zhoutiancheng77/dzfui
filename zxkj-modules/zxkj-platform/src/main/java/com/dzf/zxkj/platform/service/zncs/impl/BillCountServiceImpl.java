@@ -7,8 +7,8 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.platform.model.zncs.*;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.IBillCountService;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +21,8 @@ public class BillCountServiceImpl implements IBillCountService {
 
 	@Autowired
 	SingleObjectBO singleObjectBO ;
+	@Autowired
+	private ICorpService corpService;
 
 	@Override
 	public List<BillCountVO> queryList(String period, String pk_corp) throws DZFWarpException {
@@ -115,7 +117,7 @@ public class BillCountServiceImpl implements IBillCountService {
 		sp.addParam(pk_corp);
 		sp.addParam(period);
 		List<InvoiceinfoVO> involist=(List<InvoiceinfoVO>)singleObjectBO.executeQuery(sb.toString(), sp, new BeanListProcessor(InvoiceinfoVO.class));
-		String bbuildic = SystemUtil.queryCorp(pk_corp).getBbuildic();//是否是库存模式
+		String bbuildic = corpService.queryByPk(pk_corp).getBbuildic();//是否是库存模式
 		if(IcCostStyle.IC_ON.equals(bbuildic)){
 			//库存
 			StringBuffer asb=new StringBuffer();

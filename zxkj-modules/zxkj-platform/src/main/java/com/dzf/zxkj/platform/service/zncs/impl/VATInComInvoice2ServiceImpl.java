@@ -49,12 +49,10 @@ import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.pjgl.IVATInComInvoiceService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
-import com.dzf.zxkj.platform.service.sys.IAccountService;
-import com.dzf.zxkj.platform.service.sys.IBDCorpTaxService;
-import com.dzf.zxkj.platform.service.sys.IDcpzService;
-import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
 import com.dzf.zxkj.platform.service.zncs.*;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -94,6 +92,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	private IBankStatement2Service gl_yhdzdserv2;
 	@Autowired
 	private IDcpzService dcpzjmbserv;
+	@Autowired
+	private ICorpService corpService;
 	@Autowired
 	private IBillcategory iBillcategory;
 	@Autowired
@@ -402,7 +402,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				}
 				//解决导入时购货方名称为空
 				if(StringUtils.isEmpty(vatInComInvoiceVO2.getGhfmc())){
-					CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+					CorpVO corpVO = corpService.queryByPk(pk_corp);
 					vatInComInvoiceVO2.setGhfmc(corpVO.getUnitname());
 				}
 				
@@ -711,7 +711,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	@Override
 	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid,String period,
 			VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT) throws DZFWarpException {
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		//YntCpaccountVO[] accounts = AccountCache.getInstance().get(null, pk_corp);
 
 		List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
@@ -947,7 +947,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		headVO = (TzpzHVO) singleObjectBO.saveObject(headVO.getPk_corp(), headVO);
 		
 		//更新税目
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		voucher.saveTaxItem(headVO, corpvo);
 		
 		// 暂存态回写
@@ -1802,7 +1802,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				if(StringUtils.isEmpty(pk_category)){
 					List<BillCategoryVO> categoryList = queryCategoryList(vo.getInperiod(), pk_corp);
 					if(categoryList==null||categoryList.size()==0){
-						CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+						CorpVO corpVO = corpService.queryByPk(pk_corp);
 						schedulCategoryService.newSaveCorpCategory(null, pk_corp, vo.getInperiod(), corpVO);
 					}
 					pk_category = gl_yhdzdserv2.queryBillCategoryId(vo.getBusitypetempname(), pk_corp, vo.getInperiod());
@@ -1959,7 +1959,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			StringBuffer msg,VATInComInvoiceVO2 paramvo){
 		
 		List<VATInComInvoiceVO2> list = new ArrayList<VATInComInvoiceVO2>();
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 	
 		SAXReader reader = new SAXReader();
 		StringBuffer sf = new StringBuffer();
@@ -3020,7 +3020,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	 * @param index
 	 */
 	private void checkDataValid(VATInComInvoiceVO2 vo, StringBuffer sf, int index, String pk_corp, int sourceType) {
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 
 		StringBuffer msg = new StringBuffer();
 		if (StringUtil.isEmpty(vo.getFp_hm())) {
@@ -3116,7 +3116,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			}else if(!StringUtils.isEmpty(paramvo.getInperiod())){
 				period=paramvo.getInperiod();
 			} else{
-				CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+				CorpVO corpvo = corpService.queryByPk(pk_corp);
 				if(vo.getKprj().before(corpvo.getBegindate())){
 					period = DateUtils.getPeriod(corpvo.getBegindate());
 				}else{
@@ -3486,7 +3486,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		int fp_style;
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();
 		List<TzpzBVO> inlist = null;
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		
 		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
 		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
@@ -3771,7 +3771,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	@Override
 	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, String period,
 			VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT) throws DZFWarpException {
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		checkisGroup(list, pk_corp);//校验
 		YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);
 //		List<IntradeHVO> ichvoList = new ArrayList<IntradeHVO>();
@@ -4101,7 +4101,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	}
 	
 	private void sortVoucherEntry(List<TzpzBVO> bvos, String pk_corp) {
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		String taxCode = null;
 		if ("00000100AA10000000000BMD".equals(corpVO.getCorptype())
 				|| "00000100AA10000000000BMF".equals(corpVO.getCorptype())) {
@@ -4627,7 +4627,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 
 		List<TaxitemVO> aftervos = new ArrayList<TaxitemVO>();
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		String chargename = corpvo.getChargedeptname();
 		chargename = StringUtil.isEmpty(chargename) ? SMALL_TAX : chargename;
 
@@ -5099,13 +5099,13 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	@Override
 	public void saveGL(IntradeHVO hvo, String pk_corp, String userid) throws DZFWarpException {
-		 CorpVO cvo = SystemUtil.queryCorp(pk_corp);
+		 CorpVO cvo = corpService.queryByPk(pk_corp);
 		ic_purchinserv.saveIntradeHVOToZz(hvo, cvo);// 转总账
 	}
 
 	@Override
 	public void saveTotalGL(IntradeHVO[] vos, String pk_corp, String userid) throws DZFWarpException {
-		 CorpVO cvo = SystemUtil.queryCorp(pk_corp);
+		 CorpVO cvo = corpService.queryByPk(pk_corp);
 		ic_purchinserv.saveIntradeHVOToZz(vos, cvo);// 汇总转总账
 	}
 
@@ -5642,7 +5642,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 		if (vos == null || vos.length == 0)
 			return vos;
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		
 		// 如果存货名称为空 按照别名新增存货
 		InventorySetVO invsetvo = gl_ic_invtorysetserv.query(pk_corp);
@@ -5837,7 +5837,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		Map<String, Set<String>> pzkmidmap = new HashMap<String, Set<String>>();
 		pzkmidmap.put("KMID", set1);
 		pzkmidmap.put("CHID", set2);
-		CorpVO cpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO cpvo = corpService.queryByPk(pk_corp);
 		String err =inventory_setcheck.checkInventorySetCommon("", cpvo, pzkmidmap);
 		if(!StringUtil.isEmpty(err)){
 			throw new BusinessException(err);
@@ -5903,7 +5903,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		if(StringUtils.isEmpty(vo.getPk_model_h())){
 			throw new BusinessException("进项发票:业务类型为空,请重新选择业务类型");
 		}
-		CorpVO corpvo =  SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo =  corpService.queryByPk(pk_corp);
 		// 1-----普票 2----专票 3--- 未开票
 		int fp_style = getFpStyle(vo);
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();
@@ -5980,7 +5980,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	@Override
 	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo,
 			boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
-		CorpVO corpvo =  SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo =  corpService.queryByPk(pk_corp);
 
 		int fp_style;
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();
@@ -6129,7 +6129,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		// 根据存货绑定的类别科目入账取“金额”，税额发票“税额”，结算方式默认往来取“总金额”。
 		// 公司性质为小规模，根据存货绑定的类别科目入账取“总金额”，不体现税额，结算方式默认往来取“总金额”
 
-		CorpVO corpvo = SystemUtil.queryCorp(vo.getPk_corp());
+		CorpVO corpvo = corpService.queryByPk(vo.getPk_corp());
 
 		String chargedeptname = StringUtil.isEmpty(corpvo.getChargedeptname()) ? SMALL_TAX : corpvo.getChargedeptname();
 
@@ -6734,7 +6734,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	 */
 	private List<OcrInvoiceVO> changeToOcr(List<VATInComInvoiceVO2> iList,String pk_corp){
 		List<OcrInvoiceVO> list = new ArrayList<OcrInvoiceVO>();
-		CorpVO corpVO =  SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO =  corpService.queryByPk(pk_corp);
 		
 		for (VATInComInvoiceVO2 ivo : iList) {
 			OcrInvoiceVO ovo = new OcrInvoiceVO();
@@ -6857,7 +6857,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	public List<VATInComInvoiceVO2> changeToInCom(List<VATInComInvoiceVO2> bList,String pk_corp){
 		boolean lock = false;
 		String requestid = null;
-		CorpVO corpVO =  SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		List<OcrInvoiceVO> olist = changeToOcr(bList, pk_corp);
 		
 		if (olist != null&& olist.size() > 0) {	
@@ -7189,7 +7189,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	@Override
 	public List<VatGoosInventoryRelationVO> getGoodsInvenRela(List<VATInComInvoiceVO2> saleList, String pk_corp) throws DZFWarpException {
-		CorpVO corp =  SystemUtil.queryCorp(pk_corp);
+		CorpVO corp =  corpService.queryByPk(pk_corp);
 		AuxiliaryAccountBVO[] invenvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
 
 		Map<String, AuxiliaryAccountBVO> invenMap = new HashMap<>();
@@ -7351,7 +7351,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		 */
 		@Override
 	    public String checkNoStock(List<VATInComInvoiceVO2> list,String pk_corp) throws DZFWarpException {	
-			CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+			CorpVO corpvo = corpService.queryByPk(pk_corp);
 			DZFBoolean icinv = new DZFBoolean(IcCostStyle.IC_INVTENTORY.equals(corpvo.getBbuildic()));
 			String mesg="存货匹配流程";
 			if(IcCostStyle.IC_INVTENTORY.equals(corpvo.getBbuildic())){//开启总账存货的时候

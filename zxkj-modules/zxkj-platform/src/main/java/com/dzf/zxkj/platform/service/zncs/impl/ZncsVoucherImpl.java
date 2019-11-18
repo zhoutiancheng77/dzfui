@@ -43,16 +43,11 @@ import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.pzgl.impl.CaclTaxMny;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
-import com.dzf.zxkj.platform.service.sys.IAccountService;
-import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
-import com.dzf.zxkj.platform.service.sys.IParameterSetService;
-import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,6 +65,8 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	private IAuxiliaryAccountService gl_fzhsserv;
 	@Autowired
 	protected IYntBoPubUtil yntBoPubUtil;
+	@Autowired
+	protected ICorpService corpService;
 	@Autowired
 	private IParaSet iParaSet;
 	@Autowired
@@ -108,6 +105,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	private IBillcategory iBillcategory;
 	@Autowired
 	private IAccountService accountService;
+
 	/**
 	 * 分类或票据生成凭证
 	 */
@@ -146,7 +144,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap=queryFzhsBodyMap(pk_corp,zyFzhsList);
 		//9、InventorySetVO
 		InventorySetVO inventorySetVO=iInventoryAccSetService.query(pk_corp);
-		CorpVO corp= SystemUtil.queryCorp(pk_corp);
+		CorpVO corp= corpService.queryByPk(pk_corp);
 		if(IcCostStyle.IC_INVTENTORY.equals(corp.getBbuildic())&&inventorySetVO==null){
 			throw new BusinessException("启用总账核算存货，请先设置存货成本核算方式！");
 		}
@@ -215,7 +213,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			checkChpp(checkMsgMap,pk_corp, period,invoiceList,categoryMap,fzhsBodyVOs,fzhsBMMap);
 		}
 		List<String[]> checkList=new ArrayList<String[]>();
-		CorpVO corp=SystemUtil.queryCorp(pk_corp);
+		CorpVO corp=corpService.queryByPk(pk_corp);
 		DZFBoolean isZc=isCheck(invoiceList, categoryMap, "zc",checkList,corp);
 		if(DZFBoolean.TRUE.equals(isZc)){//2资产类别
 			List<Map<String, Object>> zzflList=checkZcfl(pk_corp, period,checkList);
@@ -388,7 +386,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		for(int i=0;i<invoiceList.size();i++){
 			invoiceKeyList.add(invoiceList.get(i).getPk_invoice());
 		}
-		String unitName=SystemUtil.queryCorp(pk_corp).getUnitname();
+		String unitName=corpService.queryByPk(pk_corp).getUnitname();
 		List<Map<String, Object>> returnList=new ArrayList<Map<String, Object>>();
 		StringBuffer sb=new StringBuffer();
 		sb.append("select * from ynt_assetcard where  nvl(dr,0)=0 and "+SqlUtil.buildSqlForIn("pk_invoice", invoiceKeyList.toArray(new String[0])));
@@ -431,7 +429,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 * @throws DZFWarpException
 	 */
 	private void checkChpp(Map<String, Map<String, Object>> checkMsgMap,String pk_corp,String period,List<OcrInvoiceVO> invoiceList,Map<String, Object[]> categoryMap,List<AuxiliaryAccountBVO> fzhsBodyVOs,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
-		CorpVO corp=SystemUtil.queryCorp(pk_corp);
+		CorpVO corp=corpService.queryByPk(pk_corp);
 		InventorySetVO inventorySetVO=iInventoryAccSetService.query(pk_corp);
 		for(int i=0;i<invoiceList.size();i++){
 			OcrInvoiceVO invoiceVO=invoiceList.get(i);
@@ -496,7 +494,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 */
 	private Map<String, InventoryAliasVO> getFzhsBMMap(String pk_corp,InventorySetVO inventorySetVO)throws DZFWarpException{
 		Map<String, InventoryAliasVO> returnMap=new HashMap<String, InventoryAliasVO>();
-		CorpVO corp=SystemUtil.queryCorp(pk_corp);
+		CorpVO corp=corpService.queryByPk(pk_corp);
 		StringBuffer sb=new StringBuffer();
 		SQLParameter sp=new SQLParameter();
 		sb.append("select a.*,b.kmclassify,b.chukukmid from ynt_icalias a left outer join ynt_fzhs_b b on(a.pk_inventory=b.pk_auacount_b)  where nvl(a.dr,0)=0 and nvl(b.dr,0)=0 and a.pk_corp=?");
@@ -528,7 +526,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		}
 		List<Map<String, Object>> returnList=new ArrayList<Map<String, Object>>();
 		if(imageGroupKeyList.size()>0){
-			String unitName=SystemUtil.queryCorp(pk_corp).getUnitname();
+			String unitName=corpService.queryByPk(pk_corp).getUnitname();
 			StringBuffer sb=new StringBuffer();
 			sb.append("select * from ynt_ictrade_h where  nvl(dr,0)=0 and cbilltype=? and "+SqlUtil.buildSqlForIn("pk_image_group", imageGroupKeyList.toArray(new String[0])));
 			SQLParameter sp=new SQLParameter();
@@ -623,7 +621,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		sp.addParam(period);
 		List<VATInComInvoiceVO2> VOList=(List<VATInComInvoiceVO2>)singleObjectBO.executeQuery(sb.toString(), sp, new BeanListProcessor(VATInComInvoiceVO2.class));
 		if(VOList!=null&&VOList.size()>0){
-			String unitName=SystemUtil.queryCorp(pk_corp).getUnitname();
+			String unitName=corpService.queryByPk(pk_corp).getUnitname();
 			for(int i=0;i<VOList.size();i++){
 				Map<String, Object> tmpMap=new HashMap<String, Object>();
 				VATInComInvoiceVO2 vo=VOList.get(i);
@@ -653,7 +651,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		sp.addParam(period);
 		List<BankStatementVO2> VOList=(List<BankStatementVO2>)singleObjectBO.executeQuery(sb.toString(), sp, new BeanListProcessor(BankStatementVO2.class));
 		if(VOList!=null&&VOList.size()>0){
-			String unitName=SystemUtil.queryCorp(pk_corp).getUnitname();
+			String unitName=corpService.queryByPk(pk_corp).getUnitname();
 			Map<String, OcrInvoiceVO> invoiceMap=new HashMap<String, OcrInvoiceVO>();
 			for(int i=0;i<invoiceList.size();i++){
 				invoiceMap.put(invoiceList.get(i).getPk_invoice(), invoiceList.get(i));
@@ -715,7 +713,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		sp.addParam(period);
 		List<VATSaleInvoiceVO2> VOList=(List<VATSaleInvoiceVO2>)singleObjectBO.executeQuery(sb.toString(), sp, new BeanListProcessor(VATSaleInvoiceVO2.class));
 		if(VOList!=null&&VOList.size()>0){
-			String unitName=SystemUtil.queryCorp(pk_corp).getUnitname();
+			String unitName=corpService.queryByPk(pk_corp).getUnitname();
 			for(int i=0;i<VOList.size();i++){
 				Map<String, Object> tmpMap=new HashMap<String, Object>();
 				VATSaleInvoiceVO2 vo=VOList.get(i);
@@ -1331,7 +1329,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	
 	private void groupTempBankCode(OcrInvoiceVO invVO,String pk_corp,Map<String, Object[]> categoryMap,Map<String, List<OcrInvoiceVO>> tmpInvouceMap){
 		String bankCode=null;
-		String unitName=SystemUtil.queryCorp(pk_corp).getUnitname();
+		String unitName=corpService.queryByPk(pk_corp).getUnitname();
 		String categorycode=categoryMap.get(invVO.getPk_billcategory())[0].toString();
 		if(categorycode.startsWith(ZncsConst.FLCODE_YHPJ)){
 			String vpurchname=invVO.getVpurchname();//购方名称
@@ -1389,7 +1387,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	private List<TzpzHVO> createFZdyVoucher(List<OcrInvoiceVO> invoiceList,String pk_corp,Map<String, Object[]> categoryMap,List<Object> paramList,List<List<Object[]>> levelList,String pk_user,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, ImageGroupVO> groupMap,Map<String, CategorysetVO> categorysetMap,Map<String, String> bankAccountMap,Map<String,YntCpaccountVO> accountMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,String collectCategory,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Map<String, AuxiliaryAccountBVO> assistMap,Set<String> zyFzhsList,Map<String, InventoryAliasVO> fzhsBMMap,DZFBoolean isBankSubjLeaf)throws DZFWarpException{
 		//1、要返回的凭证集合
 		List<TzpzHVO> returnLists=new ArrayList<TzpzHVO>();
-		CorpVO corp=SystemUtil.queryCorp(pk_corp);
+		CorpVO corp=corpService.queryByPk(pk_corp);
 		//2、查分类入账规则
 		Map<String, List<AccsetVO>> accsetMap=queryAccsetVOMap(corp.getCorptype(),null);
 		//3、查关键字入账规则
@@ -1637,7 +1635,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		Map<String, List<TzpzHVO>> tzpzMap=new HashMap<String, List<TzpzHVO>>();
 		//4、得到票据Map
 		Map<String, OcrInvoiceVO> invoiceVOMap=new HashMap<String, OcrInvoiceVO>();
-		CorpVO corp=SystemUtil.queryCorp(pk_corp);
+		CorpVO corp=corpService.queryByPk(pk_corp);
 		
 		for(int i=0;i<invoiceList.size();i++){
 			OcrInvoiceVO invoiceVO=invoiceList.get(i);
@@ -2018,7 +2016,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		List<TzpzHVO> ListTzpzHVO9=new ArrayList<TzpzHVO>();
 		
 		Map<String, TzpzHVO> bankCustomerMap=new HashMap<String, TzpzHVO>();
-		CorpVO corp=SystemUtil.queryCorp(paramVO.getPk_corp());
+		CorpVO corp=corpService.queryByPk(paramVO.getPk_corp());
 		for(int i=0;i<tmpTzpzList.size();i++){
 			Integer otherTicketDirection=null;//其他票据的方向，决定和进项合还是销项合，没方向就和进项合 0:进项 1销项
 			OcrInvoiceVO invoiceVO=invoiceVOMap.get(tmpTzpzList.get(i).getUserObject().toString().split(",")[0]);//取出凭证对应的票据
@@ -3989,7 +3987,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 */
 	private TzpzBVO[] buildTzpzBVOsByTemplet(VouchertempletBVO[] templetBVOs,OcrInvoiceVO invoiceVO,String pk_corp,Map<String,YntCpaccountVO> accountMap,Map<String, CategorysetVO> categorysetMap,Map<String, String> bankAccountMap,Map<String, Object[]> categoryMap,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
 		TzpzBVO[] tzpzBVOs=new TzpzBVO[templetBVOs.length];
-		CorpVO corp= SystemUtil.queryCorp(pk_corp);
+		CorpVO corp= corpService.queryByPk(pk_corp);
 		for (int j = 0; j < templetBVOs.length; j++) {
 			TzpzBVO tzpzBVO=new TzpzBVO();
 			tzpzBVO.setDr(0);
@@ -4145,7 +4143,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 */
 	private void setFzhsValue(YntCpaccountVO accountVO,Map<String, CategorysetVO> categorysetMap,String pk_corp,OcrInvoiceVO invoiceVO,TzpzBVO tzpzBVO,OcrInvoiceDetailVO detailVO,Map<String, Object[]> categoryMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
 		String fzhs=accountVO.getIsfzhs();//科目辅助核算
-		CorpVO corp=SystemUtil.queryCorp(pk_corp);
+		CorpVO corp=corpService.queryByPk(pk_corp);
 		CategorysetVO setHeadVO=categorysetMap.get(invoiceVO.getPk_billcategory());
 		CategorysetBVO[] setBodyVOs=null;
 		if(setHeadVO!=null){
@@ -4664,7 +4662,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 * @throws DZFWarpException
 	 */
 	private TzpzBVO[] buildTzpzBVOsByTemplet(VouchertempletBVO[] templetBVOs,OcrInvoiceDetailVO[] detailVOs,String pk_corp,Map<String,YntCpaccountVO> accountMap,Map<String, CategorysetVO> categorysetMap,OcrInvoiceVO invoiceVO,Map<String, String> bankAccountMap,Map<String, Object[]> categoryMap,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
-		CorpVO corp=SystemUtil.queryCorp(pk_corp);
+		CorpVO corp=corpService.queryByPk(pk_corp);
 		TzpzBVO[] tzpzBVOs=new TzpzBVO[templetBVOs.length*detailVOs.length];
 		int rowno=1;
 		for (int i = 0; i < detailVOs.length; i++) {
@@ -4969,7 +4967,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 */
 	private TzpzHVO createTzpzHVO(TzpzHVO headVO, ImageGroupVO grpvo,List<Object> paramList,OcrInvoiceVO invoiceVO,String pk_user,Map<String, Object[]> categoryMap)throws DZFWarpException {
 		headVO.setPk_corp(invoiceVO.getPk_corp());//公司
-		CorpVO corp=SystemUtil.queryCorp(headVO.getPk_corp());
+		CorpVO corp=corpService.queryByPk(headVO.getPk_corp());
 		headVO.setCoperatorid(StringUtil.isEmpty(pk_user)?grpvo.getCoperatorid():pk_user);//制单人
 		headVO.setDoperatedate(getVoucherDate(paramList, invoiceVO));
 		headVO.setVbillstatus(IVoucherConstants.FREE);// 凭证状态暂存
@@ -5386,7 +5384,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			throw new BusinessException("请求参数错误");
 		}
 		if(!StringUtil.isEmpty(pk_parent)&&pk_parent.startsWith("bank_")||!StringUtil.isEmpty(pk_category)&&pk_category.startsWith("bank_")){
-			String unitName=SystemUtil.queryCorp(pk_corp).getUnitname();
+			String unitName=corpService.queryByPk(pk_corp).getUnitname();
 			List<OcrInvoiceVO> returnList=new ArrayList<OcrInvoiceVO>();
 			for(int i=0;i<invoiceList.size();i++){
 				OcrInvoiceVO invVO=invoiceList.get(i);
@@ -5693,7 +5691,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			}
 		}
 		
-		CorpVO corp=SystemUtil.queryCorp(tzpzHVOs.get(0).getPk_corp());
+		CorpVO corp=corpService.queryByPk(tzpzHVOs.get(0).getPk_corp());
 		//1、查公司参数
 		List<Object> paramList=queryParams(tzpzHVOs.get(0).getPk_corp());
 		//2、未制证分类
@@ -7365,7 +7363,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		List<OcrInvoiceVO> pjxList=new ArrayList<OcrInvoiceVO>();//普进项+其他
 		List<OcrInvoiceVO> zxxList=new ArrayList<OcrInvoiceVO>();//专销项
 		List<OcrInvoiceVO> pxxList=new ArrayList<OcrInvoiceVO>();//普销项
-		CorpVO corp=SystemUtil.queryCorp(invoiceList.get(0).getPk_corp());
+		CorpVO corp=corpService.queryByPk(invoiceList.get(0).getPk_corp());
 		for (int i = 0; i < invoiceList.size(); i++) {
 			String istate=invoiceList.get(i).getIstate();//发票大类
 			String invoicetype=invoiceList.get(i).getInvoicetype();//发票小类
@@ -7419,8 +7417,8 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			billinfovo.setImgsourid(librayrvo.getCrelationid());
 			billinfovo.setImgname(librayrvo.getImgname());
 			billinfovo.setCorpId(librayrvo.getPk_corp());
-			vo.setCorpName(CodeUtils1.deCode(SystemUtil.queryCorp(librayrvo.getPk_corp()).getUnitname()));
-			vo.setCorpCode(SystemUtil.queryCorp(librayrvo.getPk_corp()).getUnitcode());
+			vo.setCorpName(CodeUtils1.deCode(corpService.queryByPk(librayrvo.getPk_corp()).getUnitname()));
+			vo.setCorpCode(corpService.queryByPk(librayrvo.getPk_corp()).getUnitcode());
 			returnList.add(billinfovo);
 		}
 		return returnList;
@@ -7512,7 +7510,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		if(tzpzHVOs == null || tzpzHVOs.size() == 0){
 			return ;
 		}
-		CorpVO corp=SystemUtil.queryCorp(tzpzHVOs.get(0).getPk_corp());
+		CorpVO corp=corpService.queryByPk(tzpzHVOs.get(0).getPk_corp());
 		//0、查公司参数
 		List<Object> paramList=queryParams(tzpzHVOs.get(0).getPk_corp());
 		//1、取所有凭证上的票据主键
@@ -8079,7 +8077,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			return ;
 		}
 		//59处理资产卡片
-		CorpVO corp=SystemUtil.queryCorp(tzpzHVOs.get(0).getPk_corp());
+		CorpVO corp=corpService.queryByPk(tzpzHVOs.get(0).getPk_corp());
 		Object userObject=tzpzHVOs.get(0).getUserObject();
 		if(userObject==null)return;
 		StringBuffer sb=new StringBuffer();

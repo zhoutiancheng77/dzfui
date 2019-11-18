@@ -38,11 +38,11 @@ import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IDcpzService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.BeanUtils;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +52,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
@@ -102,6 +101,8 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	private IVATInComInvoice2Service gl_vatincinvact2;
 	@Autowired
 	private IAccountService accountService;
+	@Autowired
+	private ICorpService corpService;
 
 	public List<BankStatementVO2> quyerByPkcorp(String pk_corp, BankStatementVO2 vo, String sort, String order) throws DZFWarpException{
 //		try {
@@ -718,7 +719,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		List<BankAccountVO> yhzhList = yhzhserv.query(paramvo.getPk_corp(), "Y");//不包含停用
 		Map<String, BankAccountVO> yhzhMap = hashliseYhzhMap(yhzhList);
 		
-		CorpVO corpvo = SystemUtil.queryCorp(paramvo.getPk_corp());
+		CorpVO corpvo = corpService.queryByPk(paramvo.getPk_corp());
 
 		List<BankStatementVO2> list = null;
 		if(sourceType == BankStatementVO2.SOURCE_1){
@@ -4264,7 +4265,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 			, Map<String, AuxiliaryAccountBVO> assistMap, Map<String, List<AccsetVO>> accsetMap, Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map, Map<String, String> jituanSubMap, YntCpaccountVO[] accVOs
 			, String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs) throws DZFWarpException {
 
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 
 		String pk_curr = yntBoPubUtil.getCNYPk();
 		
@@ -4425,7 +4426,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 //				throw new BusinessException(errCodeStr);
 //			}
 //		}
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		// 操作日期在建账日期前也不能修改
 		DZFDate begindate = corpvo.getBegindate();
 		if (hvo.getDoperatedate().before(begindate)) {
@@ -5334,7 +5335,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		
 		checkisGroup(afterlist, pk_corp);
 		
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		
 		String pk_curr = yntBoPubUtil.getCNYPk();
 		
@@ -5665,7 +5666,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 			,List<Object> paramList,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, String> bankAccountMap,Map<String,YntCpaccountVO> accountMap
 			,Map<String, AuxiliaryAccountBVO> assistMap,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, String> jituanSubMap,YntCpaccountVO[] accVOs
 			,String tradeCode,String newrule,List<AuxiliaryAccountBVO> chFzhsBodyVOs) throws DZFWarpException {
-		CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		String pk_curr = yntBoPubUtil.getCNYPk();
 		
 		checkisGroup(list, pk_corp);//校验
@@ -5918,7 +5919,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	}
 	
 	private void sortVoucherEntry(List<TzpzBVO> bvos, String pk_corp) {
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		String taxCode = null;
 		if ("00000100AA10000000000BMD".equals(corpVO.getCorptype())
 				|| "00000100AA10000000000BMF".equals(corpVO.getCorptype())) {
@@ -6842,7 +6843,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	}
 	private List<OcrInvoiceVO> changeToOcr(List<BankStatementVO2> bList,String pk_corp){
 		List<OcrInvoiceVO> list = new ArrayList<OcrInvoiceVO>();
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		for (BankStatementVO2 bvo : bList) {
 			OcrInvoiceVO ovo = new OcrInvoiceVO();
 			String randomUUID = UUID.randomUUID().toString();
@@ -6896,7 +6897,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	private List<BankStatementVO2> changeToBank(List<BankStatementVO2> bList,String pk_corp){
 		boolean lock = false;
 		String requestid = null;
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		List<OcrInvoiceVO> olist = changeToOcr(bList, pk_corp);
 		if (olist != null&& olist.size() > 0) {	
 			Map<String, List<OcrInvoiceVO>> map = DZfcommonTools.hashlizeObject(olist,

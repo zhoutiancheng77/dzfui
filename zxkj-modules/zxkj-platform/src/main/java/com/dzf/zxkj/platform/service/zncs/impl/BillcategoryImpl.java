@@ -21,12 +21,12 @@ import com.dzf.zxkj.platform.model.image.OcrInvoiceVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetcardVO;
 import com.dzf.zxkj.platform.model.zncs.*;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.IBillcategory;
 import com.dzf.zxkj.platform.service.zncs.IParaSet;
 import com.dzf.zxkj.platform.service.zncs.IPrebillService;
 import com.dzf.zxkj.platform.service.zncs.ISchedulCategoryService;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,8 @@ public class BillcategoryImpl implements IBillcategory {
 	IPrebillService iPrebillService;
 	@Autowired
 	ISchedulCategoryService iSchedulCategoryService;
+	@Autowired
+	protected ICorpService corpService;
 	@Override
 	public List<BillCategoryVO> queryCategoryTree(BillcategoryQueryVO paramVO) throws DZFWarpException {
 		String categorycode=paramVO.getCategorycode();
@@ -395,7 +397,7 @@ public class BillcategoryImpl implements IBillcategory {
 	 * @throws DZFWarpException
 	 */
 	public List<InvoiceCategoryVO> queryInvoiceCategoryVOs(BillcategoryQueryVO paramVO)throws DZFWarpException{
-		String unitName= SystemUtil.queryCorp(paramVO.getPk_corp()).getUnitname();
+		String unitName= corpService.queryByPk(paramVO.getPk_corp()).getUnitname();
 		StringBuffer sb=new StringBuffer();
 		SQLParameter sp=new SQLParameter();
 		sb.append("select a.truthindent,a.istate,d.crelationid as pk_image_library,a.ntotaltax,a.nmny,a.ntaxnmny,a.dinvoicedate,a.taxrate,a.pk_invoice,a.vpurchname,a.vpurchtaxno,a.vsalename,a.vsaletaxno,a.pk_billcategory,c.categoryname,c.categorycode,a.billtitle,a.errordesc,a.errordesc2,a.rowcount,b.pk_image_group from ynt_interface_invoice a,ynt_image_group b,ynt_billcategory c");
@@ -507,7 +509,7 @@ public class BillcategoryImpl implements IBillcategory {
 	}
 	
 	public List<CheckOcrInvoiceVO> queryErrorInvoiceCategoryVOs(BillcategoryQueryVO paramVO)throws DZFWarpException{
-		String unitName=SystemUtil.queryCorp(paramVO.getPk_corp()).getUnitname();
+		String unitName=corpService.queryByPk(paramVO.getPk_corp()).getUnitname();
 		StringBuffer sb=new StringBuffer();
 		SQLParameter sp=new SQLParameter();
 		sb.append("select a.webid,a.ntotaltax,a.dinvoicedate,a.nmny,a.ntaxnmny,a.taxrate,a.pk_invoice,a.vpurchname,a.vpurchtaxno,a.vsalename,a.vsaletaxno,a.pk_billcategory,c.categoryname,c.categorycode,a.billtitle,a.errordesc,a.errordesc2,a.rowcount,b.pk_image_group from ynt_interface_invoice a,ynt_image_group b,ynt_billcategory c");
@@ -695,7 +697,7 @@ public class BillcategoryImpl implements IBillcategory {
 	}
 	@Override
 	public List<OcrInvoiceVO> queryBankInvoiceVOs(BillcategoryQueryVO paramVO)throws DZFWarpException{
-		String unitName= SystemUtil.queryCorp(paramVO.getPk_corp()).getUnitname();
+		String unitName= corpService.queryByPk(paramVO.getPk_corp()).getUnitname();
 		StringBuffer sb=new StringBuffer();
 		SQLParameter sp=new SQLParameter();
 		sb.append("select a.* from ynt_interface_invoice a,ynt_image_group b,ynt_billcategory c");
@@ -772,7 +774,7 @@ public class BillcategoryImpl implements IBillcategory {
 	 * @throws DZFWarpException
 	 */
 	private Map<String, Object[]> queryBankInvoiceCategoryVOs(BillcategoryQueryVO paramVO)throws DZFWarpException{
-		String unitName=SystemUtil.queryCorp(paramVO.getPk_corp()).getUnitname();
+		String unitName=corpService.queryByPk(paramVO.getPk_corp()).getUnitname();
 		StringBuffer sb=new StringBuffer();
 		SQLParameter sp=new SQLParameter();
 		sb.append("select a.* from ynt_interface_invoice a,ynt_image_group b");
@@ -1087,7 +1089,7 @@ public class BillcategoryImpl implements IBillcategory {
 //					}
 //				} else {// 按客户
 					// 客户找不是自己的另一方
-				String unitName = SystemUtil.queryCorp(pk_corp).getUnitname();// 自己的名字
+				String unitName = corpService.queryByPk(pk_corp).getUnitname();// 自己的名字
 				BillCategoryVO newVO = null;
 				for (int i = 0; i < vos.length; i++) {
 					String vpurchname = vos[i].getVpurchname();
@@ -1243,7 +1245,7 @@ public class BillcategoryImpl implements IBillcategory {
 	 * @throws DZFWarpException
 	 */
 	private DZFBoolean isNeedStudy(String pk_corp,OcrInvoiceVO invoiceVO,BillCategoryVO treeVO)throws DZFWarpException{
-		String unitName =SystemUtil.queryCorp(pk_corp).getUnitname();// 自己的名字
+		String unitName =corpService.queryByPk(pk_corp).getUnitname();// 自己的名字
 		String vpurchname = invoiceVO.getVpurchname();
 		String vsalename = StringUtil.isEmpty(invoiceVO.getVsalename())?"":invoiceVO.getVsalename();
 		int flag=treeVO.getInoutflag()==null?0:treeVO.getInoutflag();
@@ -1585,7 +1587,7 @@ public class BillcategoryImpl implements IBillcategory {
 				deleteCategory(bankinoutList);
 			}
 		}
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);//当前公司信息
+		CorpVO corpVO = corpService.queryByPk(pk_corp);//当前公司信息
 		//删除票头和票体上的pk_category_keyword
 		iPrebillService.updateInvoiceById(ocrlist);
 		iPrebillService.updateInvoiceDetailByInvId(ocrlist);
@@ -1652,7 +1654,7 @@ public class BillcategoryImpl implements IBillcategory {
 //			}
 //		}
 //		return pk_categorys.substring(0,pk_categorys.length()-1);
-		String unitName=SystemUtil.queryCorp(ocrVO.getPk_corp()).getUnitname();
+		String unitName=corpService.queryByPk(ocrVO.getPk_corp()).getUnitname();
 		Map<String, String> categoryMap=queryCategoryMap(ocrVO.getPeriod(), ocrVO.getPk_corp());
 		if(DZFBoolean.TRUE.equals(isyh)&&categorycode.startsWith(ZncsConst.FLCODE_YHPJ)){
 			String vpurchname=ocrVO.getVpurchname();//购方名称
@@ -2056,7 +2058,7 @@ public class BillcategoryImpl implements IBillcategory {
 		}
 		List<OcrInvoiceVO> list=(List<OcrInvoiceVO>)singleObjectBO.executeQuery(sb.toString(), sp, new BeanListProcessor(OcrInvoiceVO.class));
 		if(list!=null&&list.size()>0){
-			String unitName=SystemUtil.queryCorp(paramVO.getPk_corp()).getUnitname();
+			String unitName=corpService.queryByPk(paramVO.getPk_corp()).getUnitname();
 			Map<String, String> categoryMap=queryCategoryMap2(paramVO.getPeriod(), paramVO.getPk_corp());
 			List<ParaSetVO> listParas=iParaSet.queryParaSet(paramVO.getPk_corp());
 			DZFBoolean isyh=listParas.get(0).getBankbillbyacc();

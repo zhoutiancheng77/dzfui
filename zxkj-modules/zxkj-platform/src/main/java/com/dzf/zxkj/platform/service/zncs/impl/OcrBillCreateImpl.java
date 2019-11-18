@@ -26,9 +26,11 @@ import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zncs.*;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IDcpzService;
 import com.dzf.zxkj.platform.service.zncs.IOcrBillCreate;
 import com.dzf.zxkj.platform.util.BeanUtils;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,8 @@ public class OcrBillCreateImpl implements IOcrBillCreate {
 	private SingleObjectBO singleObjectBO;
 	@Autowired
 	protected IDcpzService dcpzjmbserv;
+	@Autowired
+	private ICorpService corpService;
 	// @Autowired
 	// private IVoucherService gl_tzpzserv;
 
@@ -57,7 +61,7 @@ public class OcrBillCreateImpl implements IOcrBillCreate {
 			log.info(moduleName, "WebID:" + invvo.getWebid() + "changBillCorpInfo不需要匹配,结束",log);
 			return null;
 		}
-		CorpVO corpvo = SystemUtil.queryCorp(imagevo.getPk_custcorp());
+		CorpVO corpvo = corpService.queryByPk(imagevo.getPk_custcorp());
 		if(isMarch(corpvo, invvo)){
 			log.info(moduleName, "WebID:" + invvo.getWebid() + "changBillCorpInfo与导入一致,结束",log);
 			return null;
@@ -126,7 +130,7 @@ public class OcrBillCreateImpl implements IOcrBillCreate {
 	@Override
 	public void createBill(OcrInvoiceVO invvo, ImageGroupVO grpvo,ImageLibraryVO imglibvo,VATInComInvoiceVO2 incomvos[]) throws DZFWarpException {
 		log.info(moduleName, "WebID:" + invvo.getWebid() + "开始生成业务数据",log);
-		CorpVO corpvo = SystemUtil.queryCorp(invvo.getPk_corp());
+		CorpVO corpvo = corpService.queryByPk(invvo.getPk_corp());
 		String tradesource=null;//回写出库入库单
 		log.info(moduleName, "WebID:" + invvo.getWebid() + "公司名称:"+corpvo.getUnitname(),log);
 		log.info(moduleName, "WebID:" + invvo.getWebid() + "购方名称:"+invvo.getVpurchname(),log);
@@ -491,7 +495,7 @@ public class OcrBillCreateImpl implements IOcrBillCreate {
 //		}
 //		vo.setPeriod(period);
 		vo.setPeriod(vo.getInperiod());
-		CorpVO corpvo = SystemUtil.queryCorp(invvo.getPk_corp());
+		CorpVO corpvo = corpService.queryByPk(invvo.getPk_corp());
 		int fply = getFp_style(invvo.getPk_corp(), invvo);
 		List<ParaSetVO> paravo = queryParaSet(invvo.getPk_corp());
 		
@@ -928,7 +932,7 @@ public class OcrBillCreateImpl implements IOcrBillCreate {
 		// 发票类型 如果 无发票类型
 		String invoicetype = vo.getInvoicetype();
 		if (StringUtil.isEmpty(invoicetype)) {
-			CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+			CorpVO corpvo = corpService.queryByPk(pk_corp);
 
 			String chargedeptname = StringUtil.isEmpty(corpvo.getChargedeptname()) ? "小规模纳税人"
 					: corpvo.getChargedeptname();
@@ -950,7 +954,7 @@ public class OcrBillCreateImpl implements IOcrBillCreate {
 					|| invoicetype.equals(ImageTypeConst.SPECIA_INVOICE_CODE)) {// 增值税专用发票：01
 				return VATInvoiceTypeConst.VAT_SPECIA_INVOICE;
 			} else {
-				CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+				CorpVO corpvo = corpService.queryByPk(pk_corp);
 
 				String chargedeptname = StringUtil.isEmpty(corpvo.getChargedeptname()) ? "小规模纳税人"
 						: corpvo.getChargedeptname();

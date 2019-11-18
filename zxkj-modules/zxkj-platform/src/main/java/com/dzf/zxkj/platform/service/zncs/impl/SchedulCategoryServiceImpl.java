@@ -27,9 +27,9 @@ import com.dzf.zxkj.platform.model.sys.BdtradeAccountSchemaVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zncs.*;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +62,8 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 	private IAuxiliaryAccountService iAuxiliaryAccountService;
 	@Autowired
 	private IZncsNewTransService iZncsNewTransService;
+	@Autowired
+	private ICorpService corpService;
 
 	@Override
 	public List<BillCategoryVO> queryTree(BillcategoryQueryVO paramVO) throws DZFWarpException {
@@ -184,7 +186,7 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 	 * @return
 	 */
 	private Integer getAccountSchema(String pk_corp) throws DZFWarpException {
-		CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		if (corpVO != null) {
 			if (!StringUtil.isEmptyWithTrim(corpVO.getCorptype())) {
 				BdtradeAccountSchemaVO schemaVO = (BdtradeAccountSchemaVO) singleObjectBO.queryVOByID(corpVO.getCorptype(), BdtradeAccountSchemaVO.class);
@@ -1908,7 +1910,7 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 		
 		List<CheckOcrInvoiceVO> checkvoList = new ArrayList<CheckOcrInvoiceVO>();
 		if(list!=null&&list.size()>0){
-			CorpVO corpVO = SystemUtil.queryCorp(pk_corp);
+			CorpVO corpVO = corpService.queryByPk(pk_corp);
 			//
 			List<ParaSetVO> listParas=iParaSet.queryParaSet(pk_corp);
 			DZFBoolean isyh=listParas.get(0).getBankbillbyacc();

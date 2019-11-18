@@ -42,14 +42,15 @@ import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IDcpzService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import com.dzf.zxkj.platform.util.ReportUtil;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ICaiFangTongConstant;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -106,6 +107,8 @@ public class VATInComInvoice2Controller extends BaseController {
     private IInterfaceBill ocrinterface;
     @Autowired
     private IAccountService accountService;
+    @Autowired
+    private ICorpService corpService;
 
     @RequestMapping("queryInfo")
     public ReturnData<Json> queryInfo(@RequestParam("para") String head, String sort, String order,
@@ -1041,7 +1044,7 @@ public class VATInComInvoice2Controller extends BaseController {
             String userid  = SystemUtil.getLoginUserId();
 
             VatInvoiceSetVO setvo = queryRuleByType();
-            CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo = corpService.queryByPk(pk_corp);
 
             List<VATInComInvoiceVO2> storeList = gl_vatincinvact2.construcComInvoice(vos, pk_corp);
 
@@ -1487,7 +1490,7 @@ public class VATInComInvoice2Controller extends BaseController {
                 Map<String, VATInComInvoiceVO2> pzMap = new HashMap<String, VATInComInvoiceVO2>();
                 Map<String, VATInComInvoiceVO2> icMap = new HashMap<String, VATInComInvoiceVO2>();
                 dealFirst(repMap, pzMap, icMap);
-                CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+                CorpVO corpvo = corpService.queryByPk(pk_corp);
                 String bbuildic = corpvo.getBbuildic();
                 Integer icstyle = corpvo.getIbuildicstyle();
 
@@ -1811,7 +1814,7 @@ public class VATInComInvoice2Controller extends BaseController {
     //处理存货
     public String processGoods(List<VATInComInvoiceVO2> list,String pk_corp,String userid ){
 
-        CorpVO corpVo = SystemUtil.queryCorp(pk_corp);
+        CorpVO corpVo = corpService.queryByPk(pk_corp);
         //处理存货匹配yinyx1
         try {
             if(IcCostStyle.IC_INVTENTORY.equals(corpVo.getBbuildic())){
@@ -1958,7 +1961,7 @@ public class VATInComInvoice2Controller extends BaseController {
 //                return ReturnData.ok().data(json);
 //            }
 
-            CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo = corpService.queryByPk(pk_corp);
             checkBeforeIC(corpvo);
 
             body = body.replace("}{", "},{");
@@ -2250,7 +2253,7 @@ public class VATInComInvoice2Controller extends BaseController {
         if(goods != null && goods.length > 0){
             Map<String, VatGoosInventoryRelationVO> map = DZfcommonTools.hashlizeObjectByPk(
                     Arrays.asList(goods), new String[]{ "spmc", "invspec","unit" });
-            CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo = corpService.queryByPk(pk_corp);
             String newrule = gl_cpacckmserv.queryAccountRule(pk_corp);
             if(corpvo.getBbuildic().equals(IcCostStyle.IC_ON)){
                 Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(pk_corp);
@@ -2914,7 +2917,7 @@ public class VATInComInvoice2Controller extends BaseController {
 //			if(relvos.size() == 0){
 //				total = newRelvos == null ? 0L : newRelvos.size();
 //			}
-                CorpVO corp = SystemUtil.queryCorp(pk_corp);
+                CorpVO corp = corpService.queryByPk(pk_corp);
 //			if(relvos.size() == 0){
 //				total = newRelvos == null ? 0L : newRelvos.size();
 //			}
@@ -2943,7 +2946,7 @@ public class VATInComInvoice2Controller extends BaseController {
                                                             String pk_corp){
 
         if(relvos==null) return null;
-        CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+        CorpVO corpvo = corpService.queryByPk(pk_corp);
         if(!corpvo.getBbuildic().equals(IcCostStyle.IC_OFF)){
             YntCpaccountVO[] cpavos = accountService.queryByPk(pk_corp);
 

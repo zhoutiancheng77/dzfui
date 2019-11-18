@@ -13,9 +13,9 @@ import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zncs.*;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.IBillcategory;
 import com.dzf.zxkj.platform.service.zncs.IEditDirectory;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,8 @@ public class EditDirectoryImpl implements IEditDirectory {
 	SingleObjectBO singleObjectBO ;
 	@Autowired
 	private IBillcategory iBillcategory;
+	@Autowired
+    private ICorpService corpService;
 	@Override
 	public List<AuxiliaryAccountHVO> queryAuxiliaryAccountHVOs(String pk_corp) throws DZFWarpException {
 		StringBuffer sb=new StringBuffer();
@@ -239,7 +241,7 @@ public class EditDirectoryImpl implements IEditDirectory {
 	 * @throws DZFWarpException
 	 */
 	private String queryDefaultZy(String pk_basecategory,String pk_corp)throws DZFWarpException{
-		CorpVO corp= SystemUtil.queryCorp(pk_corp);
+		CorpVO corp= corpService.queryByPk(pk_corp);
 		StringBuffer sb=new StringBuffer();
 		sb.append("select * from ynt_accset where nvl(dr,0)=0 and pk_corp=? and pk_basecategory=? and pk_accountschema=? and (pk_trade=? or pk_trade is null) and nvl(useflag,'N')='Y' order by pk_trade");
 		SQLParameter sp=new SQLParameter();

@@ -39,12 +39,13 @@ import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IDcpzService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ICaiFangTongConstant;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -87,6 +88,8 @@ public class VATSaleInvoice2Controller extends BaseController {
     private IParameterSetService parameterserv;
     @Autowired
     private IDcpzService dcpzjmbserv;
+    @Autowired
+    private ICorpService corpService;
 //	@Autowired
 //	private ICbComconstant gl_cbconstant;
 
@@ -671,7 +674,7 @@ public class VATSaleInvoice2Controller extends BaseController {
             String key;
             String period = null;
 
-            CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo = corpService.queryByPk(pk_corp);
             Map<String, YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
             YntCpaccountVO[] accVOs = accountService.queryByPk(corpvo.getPk_corp());
             Map<String, Object> paramMap = null;
@@ -836,7 +839,7 @@ public class VATSaleInvoice2Controller extends BaseController {
     private void goodsToVatBVO(List<VATSaleInvoiceVO2> list, VatGoosInventoryRelationVO[] goods, String pk_corp, String userid) {
         if (goods != null && goods.length > 0) {
 
-            CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo = corpService.queryByPk(pk_corp);
 
             if (corpvo.getBbuildic().equals(IcCostStyle.IC_ON)) {
 
@@ -1008,7 +1011,7 @@ public class VATSaleInvoice2Controller extends BaseController {
 
 
         if (relvos == null) return null;
-        CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+        CorpVO corpvo = corpService.queryByPk(pk_corp);
         if (!corpvo.getBbuildic().equals(IcCostStyle.IC_OFF)) {
             YntCpaccountVO[] cpavos = accountService.queryByPk(pk_corp);
 
@@ -1150,7 +1153,7 @@ public class VATSaleInvoice2Controller extends BaseController {
             String kplx = null;
             String period;
 
-            CorpVO corpvo=SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo=corpService.queryByPk(pk_corp);
             Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
             YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
             Map<String, Object> paramMap=null;
@@ -1818,7 +1821,7 @@ public class VATSaleInvoice2Controller extends BaseController {
             GxhszVO gxh = gl_gxhszserv.query(pk_corp);
             Integer yjqpway = gxh.getYjqp_gen_vch();//0自动 1 手工
             if(repMap != null && repMap.size() > 0 && yjqpway == 0){
-                CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+                CorpVO corpvo = corpService.queryByPk(pk_corp);
                 String bbuildic = corpvo.getBbuildic();
                 Integer icstyle = SystemUtil.getLoginCorpVo().getIbuildicstyle();
 
@@ -1932,7 +1935,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         }
 
         key = null;
-        CorpVO corpvo=SystemUtil.queryCorp(pk_corp);
+        CorpVO corpvo=corpService.queryByPk(pk_corp);
         Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
         YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
         Map<String, Object> paramMap=null;
@@ -2121,7 +2124,7 @@ public class VATSaleInvoice2Controller extends BaseController {
 
         IntradeHVO ihvo = null;
         List<IntradeHVO> ihvoList = null;
-        CorpVO corpvo=SystemUtil.queryCorp(pk_corp);
+        CorpVO corpvo=corpService.queryByPk(pk_corp);
         Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
         YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
         Map<String, Object> paramMap=null;
@@ -2237,7 +2240,7 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
     public String processGoods(List<VATSaleInvoiceVO2> list,String pk_corp,String userid ){
 
-        CorpVO corpVo = SystemUtil.queryCorp(pk_corp);
+        CorpVO corpVo = corpService.queryByPk(pk_corp);
         //处理存货匹配yinyx1
         try {
             if(IcCostStyle.IC_INVTENTORY.equals(corpVo.getBbuildic())){
@@ -2385,7 +2388,7 @@ public class VATSaleInvoice2Controller extends BaseController {
 //            }
 
 
-            CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo = corpService.queryByPk(pk_corp);
             checkBeforeIC(corpvo);
 
             body = body.replace("}{", "},{");

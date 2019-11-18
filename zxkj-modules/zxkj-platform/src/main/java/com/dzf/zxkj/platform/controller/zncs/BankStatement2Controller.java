@@ -28,9 +28,10 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zncs.*;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.*;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.OutputStream;
 import java.util.*;
 
@@ -69,6 +69,8 @@ public class BankStatement2Controller extends BaseController {
     private IVATInComInvoice2Service gl_vatincinvact2;
     @Autowired
     private IAccountService accountService;
+    @Autowired
+    private ICorpService corpService;
 //	@Autowired
 //	private IParameterSetService parameterserv;
 
@@ -504,7 +506,7 @@ public class BankStatement2Controller extends BaseController {
             List<String> periodSet = new ArrayList<String>();
             String key = "";
             String period = "";
-            CorpVO corpvo = SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo = corpService.queryByPk(pk_corp);
             Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
             YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
             Map<String, Object> paramMap=null;
@@ -935,7 +937,7 @@ public class BankStatement2Controller extends BaseController {
                     combineMap.put(key, combineList);
                 }
             }
-            CorpVO corpvo=SystemUtil.queryCorp(pk_corp);
+            CorpVO corpvo=corpService.queryByPk(pk_corp);
             Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
             YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
             Map<String, Object> paramMap=null;

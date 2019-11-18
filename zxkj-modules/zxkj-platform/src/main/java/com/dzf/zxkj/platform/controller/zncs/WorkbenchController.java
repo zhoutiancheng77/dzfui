@@ -1,12 +1,10 @@
 package com.dzf.zxkj.platform.controller.zncs;
 
-import com.alibaba.cloud.dubbo.http.HttpServerRequest;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
 import com.dzf.zxkj.common.base.IOperatorLogService;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.entity.Grid;
@@ -49,10 +47,11 @@ import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.ReportUtil;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -120,6 +119,8 @@ public class WorkbenchController extends BaseController {
     private IQmclService gl_qmclserv;
     @Autowired
     private IAccountService accountService;
+    @Autowired
+    private ICorpService corpService;
     /**
      * 查询分类+票据树
      */
@@ -369,7 +370,7 @@ public class WorkbenchController extends BaseController {
         Json json = new Json();
         try{
 
-            String pk_corp=SystemUtil.getLoginCorpId();
+            String pk_corp= SystemUtil.getLoginCorpId();
             iBlackList.deleteBlackListVO(pk_corp, pk_blacklist);
             json.setSuccess(true);
             json.setMsg("删除成功");
@@ -1985,7 +1986,7 @@ public class WorkbenchController extends BaseController {
             }
 
             OcrInvoiceVO vos[]=iInterfaceBill.updateChangeBillCorp(bills.split(","), corpid, period);
-            CorpVO corpvo = SystemUtil.queryCorp(corpid);
+            CorpVO corpvo = corpService.queryByPk(corpid);
             StringBuffer buff = new StringBuffer();
             buff.append("票据工作台-期间:").append(period).append("图片ID(").append(vos[0].getWebid()).append(")等");
             buff.append(vos.length).append("张票据跨至").append(corpvo.getUnitname());

@@ -17,8 +17,9 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.image.IPjsjManageService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
+import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
-import com.dzf.zxkj.platform.util.zncs.SystemUtil;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +46,8 @@ public class VoucherPicController extends BaseController {
     private IQmgzService qmgzService;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private ICorpService corpService;
     @Autowired
     private IPjsjManageService ipjsjmanageServ;
     @Autowired
@@ -142,7 +145,7 @@ public class VoucherPicController extends BaseController {
                 }
             }
 
-            corpvo = SystemUtil.queryCorp(pk_corp);
+            corpvo = corpService.queryByPk(pk_corp);
             //((MultiPartRequestWrapper) getRequest()).getParameterMap();
 //            File[] infiles = ((MultiPartRequestWrapper) getRequest())
 //                    .getFiles("file");
