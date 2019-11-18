@@ -1,23 +1,16 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
-import com.alibaba.fastjson.JSON;
-import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.controller.PrintAndExcelExportController;
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
-import com.dzf.zxkj.base.utils.FieldMapping;
-import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
-import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -193,7 +186,7 @@ public class QmgzController  extends PrintAndExcelExportController {
         return ReturnData.ok().data(json);
     }
 
-    @GetMapping("sort")
+    @GetMapping("phCheck")
     public ReturnData phCheck( String corpid,  String qj ) {
         Json grid = new Json();
         try {
@@ -214,7 +207,7 @@ public class QmgzController  extends PrintAndExcelExportController {
         return ReturnData.ok().data(grid);
     }
 
-    @PostMapping("sort")
+    @PostMapping("onGz")
     public ReturnData onGz(@MultiRequestBody QmclVO[] list) {
         Json grid = new Json();
         QmclVO[] bodyvos = list;
@@ -262,7 +255,7 @@ public class QmgzController  extends PrintAndExcelExportController {
         return ReturnData.ok().data(grid);
     }
 
-    @PostMapping("sort")
+    @PostMapping("bgGz")
     public ReturnData bgGz(@MultiRequestBody QmclVO votemp ){
         Json grid = new Json();
         String logmsg = "";
