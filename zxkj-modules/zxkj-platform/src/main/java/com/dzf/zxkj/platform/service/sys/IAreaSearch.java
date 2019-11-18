@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.sys;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.platform.model.sys.AreaVO;
 import com.dzf.zxkj.platform.model.sys.ComboBoxVO;
 import com.dzf.zxkj.platform.model.sys.YntArea;
 
@@ -52,6 +53,8 @@ public interface IAreaSearch {
      * @throws DZFWarpException
      */
     ArrayList<ComboBoxVO> queryComboxArea(String parenter_id) throws DZFWarpException;
+
+    List<AreaVO> queryArea() throws DZFWarpException;
 
     /**
      * 查询地区：下拉框使用

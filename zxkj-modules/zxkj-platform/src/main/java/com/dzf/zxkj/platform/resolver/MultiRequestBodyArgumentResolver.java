@@ -1,7 +1,6 @@
 package com.dzf.zxkj.platform.resolver;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISysConstant;
@@ -131,9 +130,9 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
         Object result;
         try {
             result = JsonUtils.deserialize(jsonObject.toString(), parameterType);
-        } catch (JSONException jsonException) {
+        } catch (Exception jsonException) {
             // TODO:: 异常处理返回null是否合理？
-            result = null;
+            return null;
         }
 
         // 如果非必要参数直接返回，否则如果没有一个属性有值则报错

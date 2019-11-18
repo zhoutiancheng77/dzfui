@@ -1,13 +1,14 @@
 package com.dzf.zxkj.platform.service.sys.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.tree.AccTreeCreateStrategyByID;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.IDefaultValue;
+import com.dzf.zxkj.platform.model.sys.AreaVO;
 import com.dzf.zxkj.platform.model.sys.ComboBoxVO;
 import com.dzf.zxkj.platform.model.sys.ResponAreaVO;
 import com.dzf.zxkj.platform.model.sys.YntArea;
@@ -137,7 +138,20 @@ public class AreaSearchServiceImpl implements IAreaSearch {
         return list;
     }
 
-    @Override
+	@Override
+	public List<AreaVO> queryArea() throws DZFWarpException {
+		StringBuffer sql = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+		sql.append("select * ");
+		sql.append("  from ynt_area ");
+		sql.append(" where nvl(dr, 0) = 0 ");
+		sql.append("   order by region_id asc ");
+		ArrayList<AreaVO> list = (ArrayList<AreaVO>) singleObjectBO.executeQuery(sql.toString(), sp,
+				new BeanListProcessor(AreaVO.class));
+		return list;
+	}
+
+	@Override
     public ArrayList<ComboBoxVO> queryComArea(String parenter_id) throws DZFWarpException {
 
         StringBuffer sql = new StringBuffer();
