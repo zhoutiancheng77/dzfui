@@ -2,13 +2,17 @@ package com.dzf.zxkj.report.dubbo;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.report.service.IZxkjReportService;
 import com.dzf.zxkj.report.service.cwbb.*;
+import com.dzf.zxkj.report.service.cwzb.IAgeBalanceReportService;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
+import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.service.cwzb.INummnyReport;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +23,8 @@ import java.util.Map;
 @Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
 public class ZxkjReportServiceImpl implements IZxkjReportService {
 
+    @Autowired
+    private IKMMXZReport gl_rep_kmmxjserv;
     @Autowired
     private IFsYeReport fsYeReport;
     @Autowired
@@ -33,9 +39,41 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     private IXjllbQuarterlyReport xjlyquarbReport;
     @Autowired
     INummnyReport gl_rep_nmdtserv;
+    @Autowired
+    private  IRptSetService rptsetser;
+
+    @Autowired
+    private IAgeBalanceReportService gl_rep_zlyeb;
     @Override
     public FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction) {
         return fsYeReport.getFsJyeVOs(vo, direction);
+    }
+
+    @Override
+    public Map<String, LrbquarterlyVO[]> getLRBquarterlyVOs(QueryParamVO vo,Object[] objs) throws DZFWarpException{
+        return lrbQuarterlyReport.getLRBquarterlyVOs(vo, objs);
+    }
+
+    @Override
+    public FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Object[] qryobjs) throws DZFWarpException {
+        return fsYeReport.getFsJyeVOs(vo,qryobjs);
+    }
+
+    public AgeReportResultVO query(AgeReportQueryVO param) throws DZFWarpException {
+        return gl_rep_zlyeb.query(param);
+    }
+    @Override
+    public Object[] getEveryPeriodFsJyeVOs(DZFDate startdate, DZFDate enddate, String pk_corp, Object[] objs, String rptsource, DZFBoolean ishasjz) throws DZFWarpException {
+        return fsYeReport.getEveryPeriodFsJyeVOs( startdate, enddate, pk_corp, objs, rptsource, ishasjz);
+    }
+
+    public Object[] getKMMXZVOs1(QueryParamVO vo,boolean  b) throws  DZFWarpException{
+        return gl_rep_kmmxjserv.getKMMXZVOs1(vo,b);
+    }
+
+    @Override
+    public List<String> queryLrbKmsFromDaima(String pk_corp,List<String> xmid) throws DZFWarpException {
+        return rptsetser.queryLrbKmsFromDaima(pk_corp, xmid);
     }
 
     @Override

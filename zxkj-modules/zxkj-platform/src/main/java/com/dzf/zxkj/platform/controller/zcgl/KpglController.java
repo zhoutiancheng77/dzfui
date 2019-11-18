@@ -3,6 +3,8 @@ package com.dzf.zxkj.platform.controller.zcgl;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.base.utils.DzfTypeUtils;
+import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
@@ -380,11 +382,48 @@ public class KpglController extends BaseController {
         }
         return ReturnData.ok().data(json);
     }
-@PostMapping("updateMultAssetClear")
-    public ReturnData updateMultAssetClear(@MultiRequestBody List<AssetcardVO> list, @MultiRequestBody CorpVO corp) {
+
+
+    // 删除
+    @PostMapping("delete")
+    public ReturnData delete(@MultiRequestBody AssetcardVO data,@MultiRequestBody CorpVO corp,@MultiRequestBody AssetcardVO[] list) {
         Json json = new Json();
-        if (list != null && list.size() > 0) {
-            AssetcardVO[] vos = list.toArray(new AssetcardVO[0]);
+        try {
+//            if (data != null) {
+//                checkCorp(corp.getPk_corp(), data);
+//                am_kpglserv.delete(new AssetcardVO[]{data});
+////                writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL.getValue(), "删除资产卡片:" + data.getPeriod() + "，卡片编码:" + data.getAssetcode(), ISysConstants.SYS_2);
+//            } else {
+                deleteMult(list, corp);
+//            }
+            json.setSuccess(true);
+            json.setMsg("删除成功!");
+        } catch (Exception e) {
+            printErrorLog(json, e, "删除失败");
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    public void deleteMult(AssetcardVO[] list, CorpVO corpVO) {
+        if (list == null || list.length == 0) {
+            throw new BusinessException("删除失败,请选中数据");
+        } else {
+            AssetcardVO[] vos = list;
+            list = null;
+            List<String> ids = new ArrayList<String>();
+            for (AssetcardVO vo1 : vos) {
+                ids.add(vo1.getPk_assetcard());
+            }
+            am_kpglserv.checkCorp(corpVO.getPk_corp(), ids);
+            am_kpglserv.delete(vos);
+        }
+    }
+
+    @PostMapping("updateMultAssetClear")
+    public ReturnData updateMultAssetClear(@MultiRequestBody AssetcardVO[] list, @MultiRequestBody CorpVO corp) {
+        Json json = new Json();
+        if (list != null && list.length > 0) {
+            AssetcardVO[] vos = list;
             try {
                 for (AssetcardVO vo1 : vos) {
                     checkCorp(corp.getPk_corp(), vo1);
@@ -921,13 +960,13 @@ public class KpglController extends BaseController {
     /**
      * 使用年限调整
      */
-    @PostMapping("adjustLimit")
-    public ReturnData adjustLimit(String id, String assetcode, String newlimit) {
+    @GetMapping("adjustLimit")
+    public ReturnData adjustLimit(String id, String assetcode, Integer newlimit) {
         Json json = new Json();
 
         try {
-            Integer limit = new Integer(newlimit);
-            am_kpglserv.updateAdjustLimit(id, limit);
+//            Integer limit = new Integer(newlimit);
+            am_kpglserv.updateAdjustLimit(id, newlimit);
             json.setSuccess(true);
             json.setMsg("调整成功");
         } catch (Exception e) {
