@@ -1,9 +1,9 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static com.dzf.zxkj.platform.util.SystemUtil.getRequest;
 
 /**
  * 
@@ -98,26 +96,21 @@ public class MeasureController{
 
 	// 修改保存
     @PostMapping("/onUpdate")
-	public ReturnData onUpdate(@RequestBody Map<String, String[]> param) {
+	public ReturnData onUpdate(@RequestBody Map<String, String> param) {
 		Json json = new Json();
-        String[] strArr = param.get("strArr[]");
         List<MeasureVO> list = new ArrayList<>();
         DZFBoolean isAddNew = DZFBoolean.FALSE;
-        MeasureVO lastVo = JsonUtils.convertValue(strArr[strArr.length - 1], MeasureVO.class);
+        MeasureVO lastVo = JsonUtils.convertValue(param, MeasureVO.class);
         if (StringUtil.isEmpty(lastVo.getPrimaryKey())) {
             isAddNew = DZFBoolean.TRUE;
         }
-        MeasureVO vo = null;
-        for (String str : strArr) {
-            vo =  JsonUtils.convertValue(str, MeasureVO.class);
-            list.add(vo);
-        }
+        list.add(lastVo);
         if (!isAddNew.booleanValue()) {
             securityserv.checkSecurityForSave(list.get(0).getPk_corp(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
         }
-        String spInfo = getRequest().getParameter("action"); // 获得前台传进来的
+//        String spInfo = getRequest().getParameter("action"); // 获得前台传进来的
         // 参照新增保存
-        if (!StringUtil.isEmpty(spInfo) && "add".equals(spInfo)) {
+        if (isAddNew.booleanValue()) {
             MeasureVO[] rtndata = ims.savenNewVOArr(SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), list);
             json.setData(rtndata);
         } else {
