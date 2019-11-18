@@ -45,7 +45,6 @@ import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
-import com.dzf.zxkj.platform.service.pjgl.IVATSaleInvoiceService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
@@ -4770,8 +4769,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 	@Autowired
 	private IZncsNewTransService iZncsNewTransService;
-	@Autowired
-	private IVATSaleInvoiceService gl_vatsalinvserv;
+//	@Autowired
+//	private IVATSaleInvoiceService gl_vatsalinvserv;
 	@Override
 	public IntradeHVO createIC(VATSaleInvoiceVO2 vo, YntCpaccountVO[] accounts, CorpVO corpvo, String userid,List<List<Object[]>> levelList,Map<String, Object[]> categoryMap,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Set<String> zyFzhsList
 			,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,InventorySetVO inventorySetVO,CorpVO corp,Map<String, InventoryAliasVO> fzhsBMMap
@@ -4850,7 +4849,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		singleObjectBO.update(ivo);
 
 		// 如果来源于销项
-		gl_vatsalinvserv.updatePZH(headvo);
+//		gl_vatsalinvserv.updatePZH(headvo);
 	}
 	
 	private int getSettlement(VATSaleInvoiceVO2 vo,CategorysetVO setVO){
