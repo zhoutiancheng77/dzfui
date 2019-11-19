@@ -577,6 +577,122 @@ public class QmclController {
     }
 
 
+    @PostMapping("/onsyjz")
+    public ReturnData<Grid> onsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            String userid = userVO.getCuserid();
+            // 重复调用接口，公司+月份
+            Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
+            for (QmclVO votemp : qmvos) {
+                String pk_corp = votemp.getPk_corp();
+                if (qmclmap.containsKey(pk_corp)) {
+                    qmclmap.get(pk_corp).add(votemp);
+                } else {
+                    List<QmclVO> listtemp = new ArrayList<QmclVO>();
+                    listtemp.add(votemp);
+                    qmclmap.put(pk_corp, listtemp);
+                }
+            }
+            StringBuffer tips = new StringBuffer();
+            List<QmclVO> resqmcl = new ArrayList<QmclVO>();
+            // 先按照公司
+            for (String str : qmclmap.keySet()) {
+                List<QmclVO> listtemp = qmclmap.get(str);
+                QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
+                for (QmclVO votemp : qmclvos) {
+                    try {
+                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), "不能损益结转!");
+                        votemp.setCoperatorid(userid);
+                        QmclVO resvos = gl_qmclserv.updateQiJianSunYiJieZhuan(votemp, userid);
+                        resqmcl.add(resvos);
+                    } catch (BusinessException e) {
+                        tips.append(e.getMessage() + "<br>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    } catch (Exception e) {
+                        tips.append("损益结转失败<br/>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    }
+                }
+            }
+            if (tips.toString().length() > 0) {
+                grid.setMsg(tips.toString());
+                grid.setSuccess(false);
+            } else {
+                grid.setMsg("损益结转成功！");
+                grid.setSuccess(true);
+            }
+            grid.setTotal((long) resqmcl.size());
+            grid.setRows(resqmcl);
+        } catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "损益结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("/cancelsyjz")
+    public ReturnData<Grid> cancelsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+        Grid grid = new Grid();
+        try {
+            // 重复调用接口，公司+月份
+            Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
+            for (int i = qmvos.length - 1; i >= 0; i--) {
+                QmclVO votemp = qmvos[i];
+                String pk_corp = votemp.getPk_corp();
+                if (qmclmap.containsKey(pk_corp)) {
+                    qmclmap.get(pk_corp).add(votemp);
+                } else {
+                    List<QmclVO> listtemp = new ArrayList<QmclVO>();
+                    listtemp.add(votemp);
+                    qmclmap.put(pk_corp, listtemp);
+                }
+            }
+            StringBuffer tips = new StringBuffer();
+            List<QmclVO> resqmcl = new ArrayList<QmclVO>();
+            // 先按照公司
+            for (String str : qmclmap.keySet()) {
+                List<QmclVO> listtemp = qmclmap.get(str);
+                QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+                for (QmclVO votemp : qmclvos) {
+                    try {
+                        QmclVO resvos = gl_qmclserv.updateFanQiJianSunYiJieZhuan(votemp);
+                        resqmcl.add(resvos);
+                    } catch (BusinessException e) {
+                        tips.append(e.getMessage() + "<br>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    } catch (Exception e) {
+                        tips.append("反损益结转失败<br/>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    }
+                }
+            }
+            if (tips.toString().length() > 0) {
+                grid.setMsg(tips.toString());
+                grid.setSuccess(false);
+            } else {
+                grid.setMsg("反损益结转成功");
+                grid.setSuccess(true);
+            }
+            grid.setTotal((long) resqmcl.size());
+            grid.setRows(resqmcl);
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反损益结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
     private QmclVO[] sortQmclByPeriod(List<QmclVO> listtemp, final String ordervalue) {
         QmclVO[] qmclvos = listtemp.toArray(new QmclVO[0]);
         // 先对集合排序
