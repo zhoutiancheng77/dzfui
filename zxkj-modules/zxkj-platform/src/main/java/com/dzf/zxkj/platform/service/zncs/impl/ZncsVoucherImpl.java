@@ -867,7 +867,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 					tzpzBVOs[j].setTmpfullname(showKm.toString());
 				}
 			}
-			returnList.get(i).setChildren(DZfcommonTools.convertToSuperVO(tzpzBVOs));
+			returnList.get(i).setChildren(tzpzBVOs);
 		}
 	}
 	
