@@ -1186,7 +1186,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/expExcelData")
-    public void expExcelData(@RequestParam("daterows")String strrows,@RequestParam("opdate")String opdate,HttpServletResponse response ){
+    public void expExcelData(@RequestParam("daterows")String strrows,HttpServletResponse response ){
 
         JSONArray array = JSON.parseArray(strrows);
         OutputStream toClient = null;
@@ -1229,7 +1229,7 @@ public class BankStatement2Controller extends BaseController {
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                "导出银行对账单" + (StringUtil.isEmpty(opdate) ? "" : "：" + opdate), ISysConstants.SYS_2);
+                "导出银行对账单" , ISysConstants.SYS_2);
     }
 
     /**
