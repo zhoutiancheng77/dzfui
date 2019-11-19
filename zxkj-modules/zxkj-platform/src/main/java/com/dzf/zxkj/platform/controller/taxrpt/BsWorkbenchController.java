@@ -323,7 +323,7 @@ public class BsWorkbenchController extends BaseController {
      * 提醒
      */
     @PostMapping("saveRemind")
-    public ReturnData saveRemind(@MultiRequestBody String body, @MultiRequestBody BsWorkbenchVO[] bsVOs, @MultiRequestBody String msgtype, @MultiRequestBody String qj, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
+    public ReturnData saveRemind(@MultiRequestBody BsWorkbenchVO[] bsVOs, @MultiRequestBody String msgtype, @MultiRequestBody String qj, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO) {
         Json json = new Json();
         try {
             if (StringUtil.isEmpty(msgtype)) {
