@@ -13,7 +13,6 @@ import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,11 +38,11 @@ public class LoginServiceImpl implements ILoginService {
         }
 
         LoginUser loginUser = null;
-        if(flag){//校验用户(后期改成对接公司用户中心)
-            loginUser = getLoginUserInter(username, password);
-        }else{
+//        if(flag){//校验用户(后期改成对接公司用户中心)
+//            loginUser = getLoginUserInter(username, password);
+//        }else{
             loginUser = getLoginUserSelf(username, password);
-        }
+//        }
 
         return loginUser;
     }
@@ -98,7 +97,8 @@ public class LoginServiceImpl implements ILoginService {
     }
 
     private LoginUser getLoginUserInter(String username, String password){
-        Result<UserVO> rs = userService.loginByUserName("zxkj", username, password);
+
+        Result<UserVO> rs = userService.loginByLoginName("zxkj", username, password);
         if(rs.getData() != null){
             return transfer(rs.getData());
         }
