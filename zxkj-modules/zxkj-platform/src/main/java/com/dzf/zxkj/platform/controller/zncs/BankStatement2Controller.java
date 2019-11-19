@@ -46,7 +46,7 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("gl/gl_yhdzdact2")
+@RequestMapping("/gl/gl_yhdzdact2")
 public class BankStatement2Controller extends BaseController {
 
     // 获取前台传来的文件
@@ -74,7 +74,7 @@ public class BankStatement2Controller extends BaseController {
 //	@Autowired
 //	private IParameterSetService parameterserv;
 
-    @RequestMapping("queryInfo")
+    @RequestMapping("/queryInfo")
     public ReturnData<Json> queryInfo(BankStatementVO2 bvo,String sort,String order,Integer page,Integer rows,String flag){
 //		Grid grid = new Grid();
         Json json = new Json();
@@ -190,7 +190,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     //修改保存
-    @RequestMapping("onUpdate")
+    @RequestMapping("/onUpdate")
     public ReturnData<Json> onUpdate(BankStatementVO2 bvo,String adddoc,String deldoc,@RequestParam("upddoc") String uptdoc){
         Json json = new Json();
 //		String[] strArr = getRequest().getParameterValues("strArr[]");
@@ -327,7 +327,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     //删除记录
-    @RequestMapping("onDelete")
+    @RequestMapping("/onDelete")
     public ReturnData<Json> onDelete(@RequestParam("head") String body){
         Json json = new Json();
         StringBuffer strb = new StringBuffer();
@@ -391,7 +391,7 @@ public class BankStatement2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("impExcel")
+    @RequestMapping("/impExcel")
     public ReturnData<Json> impExcel(@RequestParam("impForce")String flag, MultipartFile file, BankStatementVO2 bvo, Integer sourcetem){
         Json json = new Json();
         json.setSuccess(false);
@@ -451,7 +451,7 @@ public class BankStatement2Controller extends BaseController {
     /**
      * 生成凭证
      */
-    @RequestMapping("createPZ")
+    @RequestMapping("/createPZ")
     public ReturnData<Json> createPZ(String body){
         Json json = new Json();
         BankStatementVO2[] vos = null;
@@ -702,7 +702,7 @@ public class BankStatement2Controller extends BaseController {
 //        writeJson(json);
 //    }
 
-    @RequestMapping("setBusiperiod")
+    @RequestMapping("/setBusiperiod")
     public ReturnData<Json> setBusiperiod(@RequestParam("rows")String data,String period){
         Json json = new Json();
         json.setSuccess(false);
@@ -766,7 +766,7 @@ public class BankStatement2Controller extends BaseController {
         return arr;
     }
 
-    @RequestMapping("checkBeforPZ")
+    @RequestMapping("/checkBeforPZ")
     public ReturnData<Json> checkBeforPZ(@RequestParam("row")String str){
         Json json = new Json();
         String pk_corp = SystemUtil.getLoginCorpId();
@@ -814,7 +814,7 @@ public class BankStatement2Controller extends BaseController {
         return hvo;
     }
 
-    @RequestMapping("getTzpzHVOByID")
+    @RequestMapping("/getTzpzHVOByID")
     public ReturnData<Json> getTzpzHVOByID(@RequestParam("row")String str){
         Json json = new Json();
 
@@ -847,7 +847,7 @@ public class BankStatement2Controller extends BaseController {
         return  ReturnData.ok().data(json);
     }
 
-    @RequestMapping("combinePZ_long")
+    @RequestMapping("/combinePZ_long")
     public void combinePZ_long(@RequestParam("head")String body){
         VatInvoiceSetVO setvo = queryRuleByType();
         if(setvo == null
@@ -1185,7 +1185,7 @@ public class BankStatement2Controller extends BaseController {
         return vo;
     }
 
-    @RequestMapping("expExcelData")
+    @RequestMapping("/expExcelData")
     public void expExcelData(@RequestParam("daterows")String strrows,@RequestParam("opdate")String opdate,HttpServletResponse response ){
 
         JSONArray array = JSON.parseArray(strrows);
@@ -1250,7 +1250,7 @@ public class BankStatement2Controller extends BaseController {
         return map;
     }
 
-    @RequestMapping("queryRule")
+    @RequestMapping("/queryRule")
     public ReturnData<Json> queryRule(){
         Json json = new Json();
         try {
@@ -1273,7 +1273,7 @@ public class BankStatement2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("combineRule")
+    @RequestMapping("/combineRule")
     public ReturnData<Json> combineRule(String pzrq,String pzrule,String flrule,String zy,@RequestParam("setid") String setId,String bk){
         Json json = new Json();
         try {
@@ -1314,7 +1314,7 @@ public class BankStatement2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("queryCategoryRef")
+    @RequestMapping("/queryCategoryRef")
     public ReturnData<Grid> queryCategoryRef(String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
@@ -1358,7 +1358,7 @@ public class BankStatement2Controller extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @RequestMapping("queryCategoryset")
+    @RequestMapping("/queryCategoryset")
     public ReturnData<Grid> queryCategoryset(String id,String period){
         Grid grid = new Grid();
         try {
@@ -1386,7 +1386,7 @@ public class BankStatement2Controller extends BaseController {
     /*
      * 入账设置
      */
-    @RequestMapping("updateCategoryset")
+    @RequestMapping("/updateCategoryset")
     public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busitypetempname,String pk_basecategory,
                                   String zdyzy,String rzkm,String rows){
         Grid grid = new Grid();
