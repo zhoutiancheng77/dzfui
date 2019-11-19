@@ -50,4 +50,27 @@ public class AreaController {
         }
         return ReturnData.ok().data(json);
     }
+
+    @GetMapping("/queryAllArea")
+    public ReturnData<Json> queryAllArea() {
+        Json json = new Json();
+        ArrayList list = null;
+        try {
+            //查全部
+            list = (ArrayList) areaService.queryArea();
+            if (list != null && list.size() > 0) {
+                json.setMsg("查询成功");
+                json.setSuccess(true);
+                json.setRows(list);
+            } else {
+                json.setSuccess(false);
+                json.setMsg("查询失败");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            json.setSuccess(false);
+            json.setMsg("查询失败");
+        }
+        return ReturnData.ok().data(json);
+    }
 }
