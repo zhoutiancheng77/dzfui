@@ -66,7 +66,7 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("gl/gl_vatincinvact2")
+@RequestMapping("/gl/gl_vatincinvact2")
 public class VATInComInvoice2Controller extends BaseController {
 
     @Autowired
@@ -110,7 +110,7 @@ public class VATInComInvoice2Controller extends BaseController {
     @Autowired
     private ICorpService corpService;
 
-    @RequestMapping("queryInfo")
+    @RequestMapping("/queryInfo")
     public ReturnData<Json> queryInfo(@RequestParam("para") String head, String sort, String order,
                                       Integer page,Integer rows){
         Json json = new Json();
@@ -151,7 +151,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("queryInfoByID")
+    @RequestMapping("/queryInfoByID")
     public ReturnData<Json> queryInfoByID(String id){
         Json json = new Json();
 
@@ -202,7 +202,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     //修改保存
-    @RequestMapping("saveOrUpdate")
+    @RequestMapping("/saveOrUpdate")
     public ReturnData<Json> saveOrUpdate(@RequestParam("adddoc[header]") String head,@RequestParam("adddoc[body]") String body){
         String msg = "";//记录日志
         Json json = new Json();
@@ -475,7 +475,7 @@ public class VATInComInvoice2Controller extends BaseController {
 	}*/
 
     //删除记录
-    @RequestMapping("onDelete")
+    @RequestMapping("/onDelete")
     public ReturnData<Json> onDelete(@RequestParam("head")String body){
         Json json = new Json();
         json.setSuccess(false);
@@ -563,7 +563,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return  ReturnData.ok().data(json);
     }
 
-    @RequestMapping("impExcel")
+    @RequestMapping("/impExcel")
     public ReturnData<Json> impExcel(MultipartFile infiles,VATInComInvoiceVO2 vvo){
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
@@ -830,7 +830,7 @@ public class VATInComInvoice2Controller extends BaseController {
                 corpVO.getPk_corp(), new String[]{"入账期间", "inperiod", ruzperiod});
     }
 
-    @RequestMapping("setBusiperiod")
+    @RequestMapping("/setBusiperiod")
     public ReturnData<Json> setBusiperiod(@RequestParam("rows")String data,@RequestParam("ruzper")String ruzperiod,
                               @RequestParam("rezper")String rezperiod){
         Json json = new Json();
@@ -907,7 +907,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return arr;
     }
 
-    @RequestMapping("checkBeforPZ")
+    @RequestMapping("/checkBeforPZ")
     public ReturnData<Json> checkBeforPZ(@RequestParam("row") String str){
         Json json = new Json();
         String pk_corp = SystemUtil.getLoginCorpId();
@@ -960,7 +960,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return hvo;
     }
 
-    @RequestMapping("getTzpzHVOByID")
+    @RequestMapping("/getTzpzHVOByID")
     public ReturnData<Json> getTzpzHVOByID(@RequestParam("row") String str){
         Json json = new Json();
         try {
@@ -995,7 +995,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("combinePZ_long")
+    @RequestMapping("/combinePZ_long")
     public ReturnData<Json> combinePZ_long(@RequestParam("lwflag")String lwstr,@RequestParam("head")String body,String goods){
         ReturnData<Json> returnData = null;
         VatInvoiceSetVO setvo = queryRuleByType();
@@ -1339,7 +1339,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return vo;
     }
 
-    @RequestMapping("expExcelData")
+    @RequestMapping("/expExcelData")
     public void expExcelData(@RequestParam("daterows")String strrows, HttpServletResponse response){
 
         JSONArray array = JSON.parseArray(strrows);
@@ -1437,7 +1437,7 @@ public class VATInComInvoice2Controller extends BaseController {
     serType 选择开票日期，认证日期
      rzPeriod   认证所属日期
      */
-    @RequestMapping("onTicket")
+    @RequestMapping("/onTicket")
     public ReturnData<Json> onTicket(String ccrecode,String f2,String begindate3,String enddate3,String serType,String rzPeriod){
         Json json = new Json();
 
@@ -1858,7 +1858,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return list;
     }
 
-    @RequestMapping("queryTaxItems")
+    @RequestMapping("/queryTaxItems")
     public ReturnData<Grid> queryTaxItems(){
         Grid grid = new Grid();
         try{
@@ -1875,7 +1875,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @RequestMapping("queryRule")
+    @RequestMapping("/queryRule")
     public ReturnData<Json> queryRule(){
         Json json = new Json();
         try {
@@ -1898,7 +1898,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("combineRule")
+    @RequestMapping("/combineRule")
     public ReturnData<Json> combineRule(String pzrq,String pzrule,String flrule,String zy,
                                         @RequestParam("setid") String setId, String bk){
         Json json = new Json();
@@ -1943,7 +1943,7 @@ public class VATInComInvoice2Controller extends BaseController {
     /**
      * 生成入库
      */
-    @RequestMapping("createIC")
+    @RequestMapping("/createIC")
     public ReturnData<Json> createIC(@RequestParam("head")String body,String goods ){
         Json json = new Json();
         VATInComInvoiceVO2[] vos = null;
@@ -2086,7 +2086,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
 
-    @RequestMapping("matchInventoryData_long")
+    @RequestMapping("/matchInventoryData_long")
     public ReturnData<Grid> matchInventoryData_long(@RequestParam("head")String body,String isshow,String goods) {
         Grid grid = new Grid();
         try {
@@ -2203,7 +2203,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @RequestMapping("saveInventoryData")
+    @RequestMapping("/saveInventoryData")
     public ReturnData<Grid> saveInventoryData(String goods) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
@@ -2326,7 +2326,7 @@ public class VATInComInvoice2Controller extends BaseController {
         }
     }
 
-    @RequestMapping("createPzData_long")
+    @RequestMapping("/createPzData_long")
     public ReturnData<Grid> createPzData_long(String sourcename,@RequestParam("head")String body,String jsfs,
                                               String inperiod,String goods) {
         Grid grid = new Grid();
@@ -2738,7 +2738,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return list;
     }
 
-    @RequestMapping("chooseTicketWay")
+    @RequestMapping("/chooseTicketWay")
     public ReturnData<Json> chooseTicketWay(){
         Json json = new Json();
         json.setSuccess(false);
@@ -2770,7 +2770,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
             writeJson(json);
         }*/
-    @RequestMapping("queryCategoryRef")
+    @RequestMapping("/queryCategoryRef")
     public ReturnData<Grid> queryCategoryRef(String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
@@ -2815,7 +2815,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @RequestMapping("queryCategoryset")
+    @RequestMapping("/queryCategoryset")
     public ReturnData<Grid> queryCategoryset(String id,String period){
         Grid grid = new Grid();
         try {
@@ -2840,7 +2840,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @RequestMapping("updateCategoryset")
+    @RequestMapping("/updateCategoryset")
     public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busisztypecode,String pk_basecategory,
                                   String pk_category_keyword,String rzkm,String jskm,String shkm,String zdyzy){
         Grid grid = new Grid();
@@ -2869,7 +2869,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
 
 
-    @RequestMapping("getGoodsInvenRela_long")
+    @RequestMapping("/getGoodsInvenRela_long")
     public ReturnData<Grid> getGoodsInvenRela_long(@RequestParam("head")String body){
         Grid grid = new Grid();
         try{
@@ -3024,7 +3024,7 @@ public class VATInComInvoice2Controller extends BaseController {
         gl_vatincinvact2.saveOrUpdateCorpReference(vo);
     }
 
-    @RequestMapping("queryCorpReference")
+    @RequestMapping("/queryCorpReference")
     public ReturnData<Json> queryCorpReference(){
         Json json = new Json();
         try {
@@ -3041,7 +3041,7 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("queryB")
+    @RequestMapping("/queryB")
     public ReturnData<Json> queryB(@RequestParam("id") String hid,String kmid,String pk_corp) {
         Json json = new Json();
         try {

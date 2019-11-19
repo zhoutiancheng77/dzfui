@@ -74,7 +74,7 @@ import java.util.zip.ZipOutputStream;
 
 
 @RestController
-@RequestMapping("zncs/workbench")
+@RequestMapping("/zncs/workbench")
 public class WorkbenchController extends BaseController {
 
 
@@ -124,7 +124,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 查询分类+票据树
      */
-    @RequestMapping("queryCategory")
+    @RequestMapping("/queryCategory")
     public ReturnData<Grid> queryCategory(String period,String billstate,@RequestParam("id") String pk_category,
                                           @RequestParam("code")String categorycode,String pk_parent,String oldperiod,
                                           String pk_bankcode,String billtype,String invoicetype,String remark,
@@ -168,7 +168,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 树参照
      */
-    @RequestMapping("queryTree")
+    @RequestMapping("/queryTree")
     public ReturnData<Grid> queryTree(String period){
         Grid grid = new Grid();
         try {
@@ -190,7 +190,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 参数查询
      */
-    @RequestMapping("quertParaSet")
+    @RequestMapping("/quertParaSet")
     public ReturnData<Grid> quertParaSet(){
         Grid grid = new Grid();
         try {
@@ -207,7 +207,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 参数保存
      */
-    @RequestMapping("saveParaSet")
+    @RequestMapping("/saveParaSet")
     public ReturnData<Json> saveParaSet(String pType,String pValue){
         Json json = new Json();
         try{
@@ -246,7 +246,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 表头移动到
      */
-    @RequestMapping("saveNewCategory")
+    @RequestMapping("/saveNewCategory")
     public ReturnData<Json> saveNewCategory(@RequestParam("ids") String bills,String treeid,String period){
         Json json = new Json();
         try{
@@ -316,7 +316,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 查询黑名单
      */
-    @RequestMapping("queryBlackList")
+    @RequestMapping("/queryBlackList")
     public ReturnData<Grid> queryBlackList(){
         Grid grid = new Grid();
         try {
@@ -334,7 +334,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 保存黑名单关键字
      */
-    @RequestMapping("saveBlackList")
+    @RequestMapping("/saveBlackList")
     public ReturnData<Json> saveBlackList(@RequestParam("names")String blackListnames){
         Json json = new Json();
 
@@ -365,7 +365,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 删除黑名单关键字
      */
-    @RequestMapping("deleteBlackList")
+    @RequestMapping("/deleteBlackList")
     public ReturnData<Json> deleteBlackList(@RequestParam("id")String pk_blacklist){
         Json json = new Json();
         try{
@@ -384,7 +384,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 获取辅助核算项
      */
-    @RequestMapping("queryFzhsItem")
+    @RequestMapping("/queryFzhsItem")
     public ReturnData<Grid> queryFzhsItem(){
         Grid grid = new Grid();
         try {
@@ -399,7 +399,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @RequestMapping("queryFzhsValue")
+    @RequestMapping("/queryFzhsValue")
     public ReturnData<Grid> queryFzhsValue(@RequestParam("id")String pk_head){
         Grid grid = new Grid();
         try {
@@ -416,7 +416,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 右键编辑目录保存
      */
-    @RequestMapping("saveEditDirectory")
+    @RequestMapping("/saveEditDirectory")
     public ReturnData<Json> saveEditDirectory(String head,String body){
         Json json = new Json();
         try{
@@ -462,7 +462,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 查询票据信息
      */
-    @RequestMapping("queryBillInfo")
+    @RequestMapping("/queryBillInfo")
     public ReturnData<Json> queryBillInfo(@RequestParam("id")String billid){
         Json json = new Json();
         try{
@@ -480,7 +480,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 查询票据信息s
      */
-    @RequestMapping("queryBillInfos")
+    @RequestMapping("/queryBillInfos")
     public ReturnData<Json> queryBillInfos(@RequestParam("ids")String billids,String period){
         Json json = new Json();
         try{
@@ -499,7 +499,7 @@ public class WorkbenchController extends BaseController {
      * 作废票据
      */
 
-    @RequestMapping("invalidBill")
+    @RequestMapping("/invalidBill")
     public ReturnData<Json>  invalidBill(@RequestParam("id")String ids){
         //iInterfaceBill
         Json json = new Json();
@@ -519,7 +519,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 批量按照分类作废票据
      */
-    @RequestMapping("invalidBatchBill")
+    @RequestMapping("/invalidBatchBill")
     public ReturnData<Json> invalidBatchBill(String period,String billstate,String pk_category,String categorycode,
                                              String pk_parent,String oldperiod,String pk_bankcode,String billtype,
                                              String invoicetype,String remark,String billtitle,String vpurchname,
@@ -544,7 +544,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 票据重传
      */
-    @RequestMapping("updateRetransBill")
+    @RequestMapping("/updateRetransBill")
     public ReturnData<Json> updateRetransBill(String ids,String period,String billstate,String pk_category,String categorycode,
                                               String pk_parent,String oldperiod,String pk_bankcode,String billtype,
                                               String invoicetype,String remark,String billtitle,String vpurchname,
@@ -570,7 +570,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 导出下载票据
      */
-    @RequestMapping("exportBill")
+    @RequestMapping("/exportBill")
     public ReturnData<Json>  exportBill(@RequestParam("ids")String ids, String period, String categoryid,
                                         HttpServletResponse response){
         //iInterfaceBill
@@ -617,7 +617,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 跨期
      */
-    @RequestMapping("changePeorid_long")
+    @RequestMapping("/changePeorid_long")
     public ReturnData<Json>  changePeorid_long(String period,String ids){
         //iInterfaceBill
         Json json = new Json();
@@ -651,7 +651,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 查询作废票据
      */
-    @RequestMapping("queryInvalidBillInfo")
+    @RequestMapping("/queryInvalidBillInfo")
     public ReturnData<Grid> queryInvalidBillInfo(String period){
         Grid grid = new Grid();
         try {
@@ -748,7 +748,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 创建目录
      */
-    @RequestMapping("createDirectory")
+    @RequestMapping("/createDirectory")
     public ReturnData<Json> createDirectory(@RequestParam("name")String dirName,String period,
                                             @RequestParam("pid")String pk_parent){
         Json json = new Json();
@@ -768,7 +768,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 删除目录
      */
-    @RequestMapping("deleteDirectory")
+    @RequestMapping("/deleteDirectory")
     public ReturnData<Json> deleteDirectory(String period,String id,@RequestParam("pid")String pk_parent){
         Json json = new Json();
         checkPeriod(period, true);		//检查期间合法性
@@ -880,7 +880,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 自定义凭证模板保存
      */
-    @RequestMapping("saveVoucherTemplet")
+    @RequestMapping("/saveVoucherTemplet")
     public ReturnData<Json> saveVoucherTemplet(String templet){
         Json json = new Json();
         try{
@@ -899,7 +899,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 自定义模板查询
      */
-    @RequestMapping("quertVoucherTemplet")
+    @RequestMapping("/quertVoucherTemplet")
     public ReturnData<Grid> quertVoucherTemplet(@RequestParam("categoryid")String pk_category){
         Grid grid = new Grid();
         try {
@@ -916,7 +916,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 整理分类
      */
-    @RequestMapping("updateCategoryAgain")
+    @RequestMapping("/updateCategoryAgain")
     public ReturnData<Grid> updateCategoryAgain(@RequestParam("categoryid")String pk_category,String pk_parent,
                                                 String period){
         Grid grid = new Grid();
@@ -972,7 +972,7 @@ public class WorkbenchController extends BaseController {
     /*
      * 检测分类
      */
-    @RequestMapping("checkCategory")
+    @RequestMapping("/checkCategory")
     public ReturnData<Grid> checkCategory(String period) {
         Grid grid = new Grid();
 
@@ -994,7 +994,7 @@ public class WorkbenchController extends BaseController {
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "票据工作台-检测分类:期间："+period, ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
-    @RequestMapping("changeBatchPeorid_long")
+    @RequestMapping("/changeBatchPeorid_long")
     public ReturnData<Json> changeBatchPeorid_long(String period,String billstate,String pk_category,String categorycode,
                                                    String pk_parent,String oldperiod,String pk_bankcode,String billtype,
                                                    String invoicetype,String remark,String billtitle,String vpurchname,
@@ -1027,7 +1027,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(json);
 
     }
-    @RequestMapping("saveOcrInvoiceVO")
+    @RequestMapping("/saveOcrInvoiceVO")
     public ReturnData<Json> saveOcrInvoiceVO(String head,String body){
         Json json = new Json();
         String webid=null;
@@ -1059,7 +1059,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(json);
 
     }
-    @RequestMapping("queryRule")
+    @RequestMapping("/queryRule")
     public ReturnData<Json> queryRule(){
         Json json = new Json();
         try {
@@ -1082,7 +1082,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("combineRule")
+    @RequestMapping("/combineRule")
     public ReturnData<Json> combineRule(String pzrule,String flrule,String zy,@RequestParam("setid") String setId,String bk){
         Json json = new Json();
         try {
@@ -1130,7 +1130,7 @@ public class WorkbenchController extends BaseController {
      * String isforce=getRequest().getParameter("isforce" );//强制制单(忽略掉提示性质错误)N是检查，Y是忽略错误
      * String pk_bankcode=getRequest().getParameter("pk_bankcode" );
      */
-    @RequestMapping("makeAccount_long")
+    @RequestMapping("/makeAccount_long")
     public ReturnData<Json> makeAccount_long(String period,@RequestParam("categoryid") String pk_category,
                                              @RequestParam("parentid")String pk_parent,@RequestParam("ids")String pk_bills,
                                              String isforce,String pk_bankcode){
@@ -1200,7 +1200,7 @@ public class WorkbenchController extends BaseController {
     @Autowired
     private CheckInventorySet inventory_setcheck;
 
-    @RequestMapping("getInventroyType")
+    @RequestMapping("/getInventroyType")
     public ReturnData<Json> getInventroyType(){
         Json json = new Json();
         try{
@@ -1215,7 +1215,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(json);
     }
     //保存总账存货
-    @RequestMapping("saveInventoryData_long")
+    @RequestMapping("/saveInventoryData_long")
     public ReturnData<Grid> saveInventoryData_long(String goods) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
@@ -1279,7 +1279,7 @@ public class WorkbenchController extends BaseController {
         return vos;
     }
     //匹配总账存货的
-    @RequestMapping("matchInventoryData_long")
+    @RequestMapping("/matchInventoryData_long")
     public ReturnData<Json> matchInventoryData_long(String isshow,String period,@RequestParam("categoryid") String category,
                                                     @RequestParam("ids")String bills){
         //启用存货的
@@ -1375,7 +1375,7 @@ public class WorkbenchController extends BaseController {
     }
 
 
-    @RequestMapping("getGoodsInvenRela_long")
+    @RequestMapping("/getGoodsInvenRela_long")
     public ReturnData<Grid> getGoodsInvenRela_long(String period,String ids,@RequestParam("categoryid")String category){
         Grid grid = new Grid();
         try{
@@ -1424,7 +1424,7 @@ public class WorkbenchController extends BaseController {
 
         return ReturnData.ok().data(grid);
     }
-    @RequestMapping("saveVatGoosInventory_long")
+    @RequestMapping("/saveVatGoosInventory_long")
     public ReturnData<Grid> saveVatGoosInventory_long(String goods){
         Grid grid = new Grid();
         try{
@@ -1508,7 +1508,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 凭证保存
      */
-    @RequestMapping("saveTzpzHVOs")
+    @RequestMapping("/saveTzpzHVOs")
     public ReturnData<Json> saveTzpzHVOs(String vouchers){
         Json json = new Json();
         try{
@@ -1656,7 +1656,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 手动凭证
      */
-    @RequestMapping("handVoucher")
+    @RequestMapping("/handVoucher")
     public ReturnData<Json> handVoucher(@RequestParam("categoryid") String pk_category,@RequestParam("parentid")String pk_parent,
                                         @RequestParam("ids")String pk_bills,String period,String pk_bankcode){
         Json json = new Json();
@@ -1680,7 +1680,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 手动凭证保存
      */
-    @RequestMapping("saveHandTzpzHVOs")
+    @RequestMapping("/saveHandTzpzHVOs")
     public ReturnData<Json> saveHandTzpzHVOs(String vouchers){
         Json json = new Json();
         try{
@@ -1695,7 +1695,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("queryBatchBillByState")
+    @RequestMapping("/queryBatchBillByState")
     public ReturnData<Json> queryBatchBillByState(@RequestParam("istate") String state,String period){
         Json json = new Json();
         try{
@@ -1715,7 +1715,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 查票的表体
      */
-    @RequestMapping("queryInvoicDetails")
+    @RequestMapping("/queryInvoicDetails")
     public ReturnData<Json> queryInvoicDetails(@RequestParam("pk_bill")String pk_invoice){
         Json json = new Json();
         try{
@@ -1733,7 +1733,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 表体移动到
      */
-    @RequestMapping("saveNewCategoryBody")
+    @RequestMapping("/saveNewCategoryBody")
     public ReturnData<Json> saveNewCategoryBody(@RequestParam("ids") String bills,String treeid,String period){
         Json json = new Json();
         try{
@@ -1753,7 +1753,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 点分类感叹号
      */
-    @RequestMapping("queryErrorDetails")
+    @RequestMapping("/queryErrorDetails")
     public ReturnData<Grid> queryErrorDetails(String period,String billstate,String pk_category,String categorycode,
                                               String pk_parent,String oldperiod,String pk_bankcode,String billtype,
                                               String invoicetype,String remark,String billtitle,String vpurchname,
@@ -1773,7 +1773,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @RequestMapping("queryBankInfo")
+    @RequestMapping("/queryBankInfo")
     public ReturnData<Grid> queryBankInfo(String account,String bperiod,String eperiod,String type,
                                           @RequestParam("ismust") String ismr,String accountcode){
         Grid grid = new Grid();
@@ -1792,7 +1792,7 @@ public class WorkbenchController extends BaseController {
 
     }
 
-    @RequestMapping("matchBankInfo")
+    @RequestMapping("/matchBankInfo")
     public ReturnData<Grid> matchBankInfo(String pk_bankdzd,String pk_bankhd){
         Grid grid = new Grid();
         try {
@@ -1811,7 +1811,7 @@ public class WorkbenchController extends BaseController {
 
     }
 
-    @RequestMapping("queryB")
+    @RequestMapping("/queryB")
     public ReturnData<Json> queryB(Integer page,Integer rows,@RequestParam("id")String hid,String kmid,
                                    String billtype,String isfenye,String pk_corp) {
         Json json = new Json();
@@ -1908,7 +1908,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(json);
     }
     //统计分析
-    @RequestMapping("queryBillCount")
+    @RequestMapping("/queryBillCount")
     public ReturnData<Grid> queryBillCount(String period){
         Grid grid = new Grid();
         try {
@@ -1928,7 +1928,7 @@ public class WorkbenchController extends BaseController {
 
     }
     //跨期到本期，跨期至其他期间票据查询
-    @RequestMapping("queryIntertemporal")
+    @RequestMapping("/queryIntertemporal")
     public ReturnData<Grid> queryIntertemporal(String period,String flag){
         Grid grid = new Grid();
         try {
@@ -1951,7 +1951,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 条件查询票据
      */
-    @RequestMapping("queryBillsByWhere")
+    @RequestMapping("/queryBillsByWhere")
     public ReturnData<Grid> queryBillsByWhere(String period,String billstate,String pk_category,String categorycode,
                                               String pk_parent,String oldperiod,String pk_bankcode,String billtype,
                                               String invoicetype,String remark,String billtitle,String vpurchname,
@@ -1974,7 +1974,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 跨公司
      */
-    @RequestMapping("changeCorp_long")
+    @RequestMapping("/changeCorp_long")
     public ReturnData<Grid> changeCorp_long(@RequestParam("ids")String bills,String corpid,String period){
         Grid grid = new Grid();
         try {
@@ -2016,7 +2016,7 @@ public class WorkbenchController extends BaseController {
     /**
      * 批量保存凭证
      */
-    @RequestMapping("saveVouchers_long")
+    @RequestMapping("/saveVouchers_long")
     public ReturnData<Json> saveVouchers_long(String vchData,VoucherParamVO paramvo){
         //ZncsVoucherSaveInfo
         Json json = new Json();

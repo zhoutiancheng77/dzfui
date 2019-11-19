@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("gl/gl_imgview")
+@RequestMapping("/gl/gl_imgview")
 public class ImageViewController extends BaseController {
 
 
@@ -56,7 +56,7 @@ public class ImageViewController extends BaseController {
     }
 
     //根据条件查询图片,以流的形式显示
-    @RequestMapping("search")
+    @RequestMapping("/search")
     public ReturnData<Grid> search(@RequestParam("id") String Pk_image_library, @RequestParam("pk_corp")String pk_cprp_ser,
                                    @RequestParam("name")String imgname, String isSmall, String isMiddle,
                                    HttpServletResponse response, HttpSession session){
@@ -224,7 +224,7 @@ public class ImageViewController extends BaseController {
         return dir;
     }
 
-    @RequestMapping("getPicStatistics")
+    @RequestMapping("/getPicStatistics")
     public ReturnData<Json> getPicStatistics(String pk_corp,String beginDate,String endDate,String serdate) {
         Json json = new Json();
         try {
@@ -249,7 +249,7 @@ public class ImageViewController extends BaseController {
         return ReturnData.ok().data(json);
     }
     // 拆分图片组
-    @RequestMapping("splitGroup")
+    @RequestMapping("/splitGroup")
     public ReturnData<Json> splitGroup(String pk_image_group,String pk_corp) {
         Json json = new Json();
         try {

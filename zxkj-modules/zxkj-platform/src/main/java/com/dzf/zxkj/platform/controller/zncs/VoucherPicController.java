@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("gl/gl_imageuplad")
+@RequestMapping("/gl/gl_imageuplad")
 public class VoucherPicController extends BaseController {
 
 
@@ -59,7 +59,7 @@ public class VoucherPicController extends BaseController {
     public void setQmgzService(IQmgzService qmgzService) {
         this.qmgzService = qmgzService;
     }
-    @RequestMapping("uploadMultiFile")
+    @RequestMapping("/uploadMultiFile")
     public ReturnData<Json> uploadMultiFile(MultipartFile[] infiles) {
         Json json = new Json();
         try {
@@ -125,7 +125,7 @@ public class VoucherPicController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("uploadSingleFile")
+    @RequestMapping("/uploadSingleFile")
     public ReturnData<Json> uploadSingleFile(String selMon,String selYear,String pk_corp,@RequestParam("pjlx") String pjlxType,
                                              String msgkey,String g_id,MultipartFile[] infiles) {
         Json json = new Json();
@@ -153,7 +153,6 @@ public class VoucherPicController extends BaseController {
             if (infiles == null||infiles.length==0) {
                 throw new BusinessException("文件为空");
             }
-            //MultipartFile转file
 
             String period = selYear+"-"+selMon;
             ImageLibraryVO il = gl_pzimageserv.uploadSingFile(corpvo, userVo, infiles,
@@ -238,7 +237,7 @@ public class VoucherPicController extends BaseController {
         }
     }
 
-    @RequestMapping("queryPjlxTypes")
+    @RequestMapping("/queryPjlxTypes")
     public ReturnData<Json> queryPjlxTypes(@RequestParam("custid") String custid){
         Json json = new Json();
         try {
@@ -254,7 +253,7 @@ public class VoucherPicController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("beforeCheck")
+    @RequestMapping("/beforeCheck")
     public ReturnData<Json> beforeCheck(String selMon,String selYear,String pk_corp){
         Json json = new Json();
         try {
