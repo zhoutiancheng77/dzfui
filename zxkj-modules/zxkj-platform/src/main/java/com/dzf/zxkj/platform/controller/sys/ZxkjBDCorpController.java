@@ -10,6 +10,8 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.sys.IBDCorpTaxService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.service.sys.IZxkjTaxService;
+import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/sys/sys_zxkj_corpact")
@@ -31,6 +30,8 @@ public class ZxkjBDCorpController {
     private IBDCorpTaxService sys_corp_tax_serv;
     @Autowired
     private IUserService userService;
+    @Autowired
+    private IZxkjTaxService zxkj_taxserv;
 
     /**
      * 公司查询
@@ -100,6 +101,23 @@ public class ZxkjBDCorpController {
             }
         }
         return setlist;
+    }
+    @GetMapping("/queryUser")
+    public ReturnData<Grid> queryUser() throws Exception {
+        Grid grid = new Grid();
+        try {
+            UserVO[] resvos = zxkj_taxserv.queryUser(SystemUtil.getLoginCorpId());
+            resvos = (UserVO[]) QueryDeCodeUtils.decKeyUtils(new String[] { "user_name" }, resvos, 1);
+            grid.setMsg("查询成功!");
+            grid.setRows(Arrays.asList(resvos));
+            grid.setTotal((long) resvos.length);
+            grid.setSuccess(true);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败");
+        }
+        return ReturnData.ok().data(grid);
     }
 
 }
