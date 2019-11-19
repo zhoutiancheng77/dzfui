@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/gl/gl_imageuplad")
+@RequestMapping("/zncs/gl_imageuplad")
 public class VoucherPicController extends BaseController {
 
 

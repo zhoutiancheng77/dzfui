@@ -66,7 +66,7 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/gl/gl_vatincinvact2")
+@RequestMapping("/zncs/gl_vatincinvact2")
 public class VATInComInvoice2Controller extends BaseController {
 
     @Autowired

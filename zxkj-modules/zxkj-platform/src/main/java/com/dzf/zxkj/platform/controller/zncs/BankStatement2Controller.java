@@ -46,7 +46,7 @@ import java.util.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/gl/gl_yhdzdact2")
+@RequestMapping("/zncs/gl_yhdzdact2")
 public class BankStatement2Controller extends BaseController {
 
     // 获取前台传来的文件
@@ -1388,13 +1388,12 @@ public class BankStatement2Controller extends BaseController {
      */
     @RequestMapping("/updateCategoryset")
     public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busitypetempname,String pk_basecategory,
-                                  String zdyzy,String rzkm,String rows){
+                                  String zdyzy,String rzkm){
         Grid grid = new Grid();
         try {
 
 //            JSONObject jsonObject= JSONObject.fromObject(rows);
 //            BankStatementVO2 vo=(BankStatementVO2)JSONObject.toBean(jsonObject, BankStatementVO2.class);
-            BankStatementVO2 vo = JSON.parseObject(rows,BankStatementVO2.class);
             String pk_corp = SystemUtil.getLoginCorpId();
             List<BankStatementVO2> list=gl_yhdzdserv2.updateVO(id , pk_model_h,busitypetempname,pk_corp,rzkm,pk_basecategory,zdyzy);
 //			gl_vatincinvact2.updateCategoryset(pk_model_h,null,pk_basecategory,pk_corp,rzkm,null,zdyzy);

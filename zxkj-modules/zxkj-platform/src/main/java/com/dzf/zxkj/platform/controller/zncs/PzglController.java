@@ -22,7 +22,7 @@ import java.util.Set;
 
 @Slf4j
 @RestController
-@RequestMapping("/gl/gl_pzglact")
+@RequestMapping("/zncs/gl_pzglact")
 public class PzglController extends BaseController {
     @Autowired
     private IUserService userService;
