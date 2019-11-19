@@ -121,7 +121,6 @@
                     <include>param.txt</include>
                     <include>bootstrap.yml</include>
                 </includes>
-                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
