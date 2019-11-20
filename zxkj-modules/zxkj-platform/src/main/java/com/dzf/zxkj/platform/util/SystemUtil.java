@@ -58,7 +58,12 @@ public class SystemUtil {
     }
 
     public static String getLoginDate(){
-        return getRequest().getHeader(ISysConstant.LOGIN_DATE);
+        HttpServletRequest request = getRequest();
+        String date = request.getHeader(ISysConstant.LOGIN_DATE);
+        if (date == null) {
+            date = request.getParameter(ISysConstant.LOGIN_DATE);
+        }
+        return date;
     }
 
 }
