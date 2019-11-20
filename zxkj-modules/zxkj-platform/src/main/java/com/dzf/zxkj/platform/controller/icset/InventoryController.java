@@ -364,8 +364,7 @@ public class InventoryController {
 		}
 		String body = param.get("body"); // 子表
 		body = body.replace("}{", "},{");
-		body = "[" + body + "]";
-		InventoryVO[] bodyvos = JsonUtils.convertValue(body, InventoryVO[].class);
+		InventoryVO[] bodyvos = JsonUtils.deserialize(body, InventoryVO[].class);
 		if (DZFValueCheck.isEmpty(bodyvos)) {
 			throw new BusinessException("被合并的存货不允许为空!");
 		}
@@ -500,8 +499,8 @@ public class InventoryController {
 
 		String body = param.get("body"); // 子表
 		body = body.replace("}{", "},{");
-		body = "[" + body + "]";
-		InventoryVO[] bodyvos = JsonUtils.convertValue(body, InventoryVO[].class);
+//		body = "[" + body + "]";
+		InventoryVO[] bodyvos = JsonUtils.deserialize(body, InventoryVO[].class);
 		if (DZFValueCheck.isEmpty(bodyvos)) {
 			throw new BusinessException("生成结算价的存货不允许为空!");
 		}
