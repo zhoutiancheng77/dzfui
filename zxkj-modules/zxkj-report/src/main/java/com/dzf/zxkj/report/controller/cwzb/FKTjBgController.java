@@ -117,15 +117,18 @@ public class FKTjBgController extends BaseController {
      * 增值税查询
      */
     @PostMapping("queryZzs")
-    public ReturnData queryZzs(@MultiRequestBody CorpVO cpvo, DZFDateTime idate) {
+    public ReturnData queryZzs(@MultiRequestBody CorpVO cpvo, @MultiRequestBody String idate) {
+
+        DZFDate date = new DZFDate(idate);
+
         Grid json = new Grid();
 
         try {
-            DZFDate enddate = DateUtils.getPeriodEndDate(idate.getYear() + "-12");
+            DZFDate enddate = DateUtils.getPeriodEndDate(date.getYear() + "-12");
             if (enddate.before(cpvo.getBegindate())) {
                 throw new BusinessException("查询开始日期不能在建账日期前");
             }
-            String period = idate.toString().substring(0, 7);
+            String period = date.toString().substring(0, 7);
             Object[] zzsvos = gl_fktjbgserv.queryZzsBg(period, cpvo);
             json.setRows(zzsvos[1]);
             json.setMsg((String) zzsvos[0]);
@@ -141,14 +144,15 @@ public class FKTjBgController extends BaseController {
      * 所得税查询
      */
     @PostMapping("querySds")
-    public ReturnData querySds(@MultiRequestBody CorpVO cpvo, DZFDateTime idate) {
+    public ReturnData querySds(@MultiRequestBody CorpVO cpvo, @MultiRequestBody String idate) {
+        DZFDate date = new DZFDate(idate);
         Grid grid = new Grid();
         try {
-            DZFDate enddate = DateUtils.getPeriodEndDate(idate.getYear() + "-12");
+            DZFDate enddate = DateUtils.getPeriodEndDate(date.getYear() + "-12");
             if (enddate.before(cpvo.getBegindate())) {
                 throw new BusinessException("查询开始日期不能在建账日期前");
             }
-            String year = idate.toString().substring(0, 7);
+            String year = idate.substring(0, 7);
             Object[] sdsvos = gl_fktjbgserv.querySdsBg(year, cpvo);
             grid.setRows(sdsvos[1]);
             grid.setSuccess(true);
