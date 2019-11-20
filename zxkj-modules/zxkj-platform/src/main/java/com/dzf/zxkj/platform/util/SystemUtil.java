@@ -32,11 +32,21 @@ public class SystemUtil {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     }
     public static String getLoginCorpId(){
-        return getRequest().getHeader(ISysConstant.LOGIN_PK_CORP);
+        HttpServletRequest request = getRequest();
+        String id = request.getHeader(ISysConstant.LOGIN_PK_CORP);
+        if (id == null) {
+            id = request.getParameter(ISysConstant.LOGIN_PK_CORP);
+        }
+        return id;
     }
 
     public static String getLoginUserId(){
-        return getRequest().getHeader(ISysConstant.LOGIN_USER_ID);
+        HttpServletRequest request = getRequest();
+        String id = request.getHeader(ISysConstant.LOGIN_USER_ID);
+        if (id == null) {
+            id = request.getParameter(ISysConstant.LOGIN_USER_ID);
+        }
+        return id;
     }
 
     public static CorpVO getLoginCorpVo(){
