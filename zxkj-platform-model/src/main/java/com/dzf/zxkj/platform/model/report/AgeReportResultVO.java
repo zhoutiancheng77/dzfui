@@ -1,5 +1,8 @@
 package com.dzf.zxkj.platform.model.report;
 
+import com.dzf.zxkj.common.model.SuperVO;
+
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -8,7 +11,7 @@ import java.util.List;
  * @author liubj
  *
  */
-public class AgeReportResultVO {
+public class AgeReportResultVO implements Serializable {
 	private Object result;
 	private List<String> periods;
 	private List<String> period_names;

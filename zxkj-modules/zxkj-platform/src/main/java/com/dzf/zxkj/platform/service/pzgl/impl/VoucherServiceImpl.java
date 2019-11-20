@@ -1957,10 +1957,13 @@ public class VoucherServiceImpl implements IVoucherService {
 		StringBuffer sf = new StringBuffer();
 		for (int i = 0; i < bodyvos.length; i++) {
 			TzpzBVO v = bodyvos[i];
+			if (v.getPk_currency() == null) {
+				v.setPk_currency(IGlobalConstants.RMB_currency_id);
+			}
 			DZFBoolean isCur = v.getPk_currency().equals(IGlobalConstants.RMB_currency_id) ? DZFBoolean.FALSE
 					: DZFBoolean.TRUE;
-			DZFDouble nrate = v.getNrate();
 			if (isCur != null && isCur.booleanValue()) {
+				DZFDouble nrate = v.getNrate();
 				if (nrate == null) {
 					sf.append("第 【" + (i + 1) + "】行， 汇率不能为空! \n");
 				}

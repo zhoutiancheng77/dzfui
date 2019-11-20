@@ -51,7 +51,7 @@ public class FastDfsUtil {
 
 	public static synchronized FastDfsUtil getInstance(){
 		if(fastutil == null){
-			fastutil = (FastDfsUtil) SpringUtils.getBean("connectionPool");
+			fastutil = new FastDfsUtil() ;// (FastDfsUtil) SpringUtils.getBean("connectionPool");
 		}
 		return fastutil;
 	}

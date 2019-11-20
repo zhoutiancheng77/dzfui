@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
@@ -16,6 +17,10 @@ import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
+import com.dzf.zxkj.platform.model.image.ImageGroupVO;
+import com.dzf.zxkj.platform.model.image.ImageParamVO;
+import com.dzf.zxkj.platform.model.jzcl.QmclVO;
+import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pzgl.PzglPageVo;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
@@ -24,8 +29,12 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.voucher.CopyParam;
 import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
+import com.dzf.zxkj.platform.service.bdset.IPzmbhService;
+import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
+import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.pzgl.impl.CaclTaxMny;
+import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -49,6 +58,14 @@ public class VoucherController {
     private IBDCurrencyService sys_currentserv;
     @Autowired
     private IPersonalSetService gl_gxhszserv;
+    @Autowired
+    private IYntBoPubUtil yntBoPubUtil;
+    @Autowired
+    private IQmclService gl_qmclserv;
+    @Autowired
+    private CheckInventorySet inventory_setcheck;
+    @Autowired
+    private IPzmbhService pzmbhService;
 
     // 查询
     @GetMapping("/query")
@@ -235,14 +252,14 @@ public class VoucherController {
     public ReturnData queryById(@RequestParam String id) {
         Json json = new Json();
         TzpzHVO tzpzH = gl_tzpzserv.queryHeadVoById(id);
-        if(tzpzH == null || !tzpzH.getPk_corp().equals(tzpzH.getPk_corp())){
+        if (tzpzH == null || !tzpzH.getPk_corp().equals(tzpzH.getPk_corp())) {
             json.setSuccess(false);
             json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
             json.setMsg("凭证不存在，请刷新重试");
         } else {
             GxhszVO gxh = gl_gxhszserv.query(tzpzH.getPk_corp());
             Integer kmShow = gxh.getPzSubject();
-            if(tzpzH.getChildren() != null){
+            if (tzpzH.getChildren() != null) {
                 if (kmShow == 0) {
                     TzpzBVO[] bvos = (TzpzBVO[]) tzpzH.getChildren();
                     for (TzpzBVO bvo : bvos) {
@@ -266,11 +283,11 @@ public class VoucherController {
                     tzpzH.setSh_user(CodeUtils1.deCode(tzpzH.getSh_user()));
                 if (tzpzH.getJz_user() != null)
                     tzpzH.setJz_user(CodeUtils1.deCode(tzpzH.getJz_user()));
-                if (tzpzH.getCn_user() != null){
+                if (tzpzH.getCn_user() != null) {
                     tzpzH.setCn_user(CodeUtils1.deCode(tzpzH.getCn_user()));
                 }
-                if("HP80".equals(tzpzH.getSourcebilltype())
-                        && StringUtils.isEmpty(tzpzH.getZd_user())){
+                if ("HP80".equals(tzpzH.getSourcebilltype())
+                        && StringUtils.isEmpty(tzpzH.getZd_user())) {
                     tzpzH.setZd_user("大账房系统");
                 }
             } catch (Exception e) {
@@ -382,6 +399,241 @@ public class VoucherController {
         json.setHead(subjectRule);
         json.setRows(items);
         json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/getNewCode")
+    public ReturnData getNewCode(String pk_corp, String date) {
+        Json json = new Json();
+        if (pk_corp == null) {
+            pk_corp = SystemUtil.getLoginCorpId();
+        }
+        if (date == null) {
+            date = SystemUtil.getLoginDate();
+        }
+        json.setData(yntBoPubUtil.getNewVoucherNo(pk_corp, new DZFDate(date)));
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/save")
+    public ReturnData save(@RequestBody TzpzHVO headvo) {
+        Json json = new Json();
+        try {
+            CorpVO corpvo = SystemUtil.getLoginCorpVo();
+
+            headvo.setPk_corp(corpvo.getPk_corp());
+            headvo.setIshasjz(DZFBoolean.FALSE);
+            headvo.setTs(new DZFDateTime(Calendar.getInstance().getTime().getTime()));
+            headvo.setDr(0);
+            boolean isNew = false;
+            if (StringUtils.isEmpty(headvo.getPk_tzpz_h())) {
+                if ((headvo.getPreserveCode() == null || !headvo.getPreserveCode().booleanValue())
+                        && !StringUtils.isEmpty(headvo.getSourcebilltype()) && !"Y".equals(headvo.getIsInsert())) {
+                    if (!headvo.getSourcebilltype().endsWith("gzjt") & !headvo.getSourcebilltype().endsWith("gzff")) {
+                        headvo.setPzh(yntBoPubUtil.getNewVoucherNo(corpvo.getPk_corp(), headvo.getDoperatedate()));
+                    }
+                }
+                isNew = true;
+                headvo.setIsfpxjxm(DZFBoolean.FALSE);
+                headvo.setVbillstatus(8);
+                headvo.setCoperatorid(SystemUtil.getLoginUserId());
+            } else {
+                if (Integer.valueOf(headvo.getPzh()) > 9999) {
+                    throw new BusinessException("凭证号最大允许9999");
+                }
+            }
+            TzpzBVO[] bodyvos = headvo.getChildren();
+            for (int i = 0; i < bodyvos.length; i++) {
+                bodyvos[i].setPk_corp(corpvo.getPk_corp());
+                bodyvos[i].setTs(new DZFDateTime());
+            }
+            //数据中心与在线会计平台针对直接生单方式使用抢占模式,所以保存之前先检验
+            if (!StringUtils.isEmpty(headvo.getPk_image_group())) {
+                checkIsCreated(headvo);
+            }
+            checkVoucherData(headvo);
+
+            gl_tzpzserv.checkQjsy(headvo);
+            //校验总账存货，提示性
+            checkInventorySet(headvo, corpvo);
+
+            headvo = gl_tzpzserv.saveVoucher(corpvo, headvo);
+            String msg = getMsgOnSave(headvo, corpvo);
+            json.setMsg(msg);
+            json.setStatus(200);
+            json.setSuccess(true);
+            json.setRows(headvo);
+        } catch (BusinessException e) {
+            String errorMsg = e.getMessage();
+            json.setMsg(errorMsg);
+            if (IVoucherConstants.EXE_RECONFM_CODE.equals(errorMsg)) {
+                json.setStatus(IVoucherConstants.STATUS_RECONFM_CODE);
+            }
+            if (errorMsg.startsWith(IVoucherConstants.EXE_INVGL_CODE)) {
+                errorMsg = errorMsg.replaceAll(IVoucherConstants.EXE_INVGL_CODE, "");
+                errorMsg = errorMsg + "点击[<font color='blue'>确定</font>]按钮，该凭证继续保存，影响成本核算，请后续修改！<br>点击[<font color='blue'>取消</font>]按钮，即取消本次保存操作！";
+                json.setStatus(IVoucherConstants.STATUS_INVGL_CODE);
+                json.setMsg(errorMsg);
+            }
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 校验上传图片是否已生单
+     *
+     * @param headvo
+     * @return
+     * @throws BusinessException
+     */
+    private void checkIsCreated(TzpzHVO headvo) {
+        if (StringUtils.isEmpty(headvo.getPk_tzpz_h())) {//如是修改则跳过
+            ImageGroupVO groupVO = (ImageGroupVO) gl_tzpzserv.queryImageGroupByPrimaryKey(headvo.getPk_image_group());
+            if (groupVO == null)
+                return;
+            if (DZFBoolean.TRUE == groupVO.getIsuer() && PhotoState.state101 != groupVO.getIstate()) {
+                throw new BusinessException("图片组" + groupVO.getGroupcode() + "已直接生单,不能再次生单!");
+            }
+        }
+    }
+
+    private void checkVoucherData(TzpzHVO headvo) {
+        String pk_corp = headvo.getPk_corp();
+        if (!StringUtils.isEmpty(headvo.getPk_tzpz_h())) {
+//			修改时的验证
+            TzpzHVO old_hvo = gl_tzpzserv.queryVoucherById(headvo.getPk_tzpz_h());
+            if (old_hvo == null) {
+                throw new BusinessException("凭证不存在，请刷新重试");
+            }
+            if (!old_hvo.getPk_corp().equals(pk_corp)) {
+                throw new BusinessException("无权操作！");
+            }
+            if (old_hvo != null && old_hvo.getIshasjz() != null && old_hvo.getIshasjz().booleanValue()) {
+                throw new BusinessException("修改失败,已记账凭证不能修改！");
+            }
+            if (old_hvo != null && old_hvo.getVbillstatus() != 8 && old_hvo.getVbillstatus() != -1) {//-1状态为转会计生成凭证使用
+                throw new BusinessException("修改失败,已审核凭证不能修改！");
+            }
+            if ((headvo.getPreserveCode() == null || !headvo.getPreserveCode().booleanValue())
+                    && !headvo.getDoperatedate().toString().substring(0, 7).equals(old_hvo.getDoperatedate().toString().substring(0, 7))) {
+                headvo.setPzh(yntBoPubUtil.getNewVoucherNo(headvo.getPk_corp(), headvo.getDoperatedate()));
+            }
+            headvo.setIsfpxjxm(old_hvo.getIsfpxjxm());
+        } else {
+//			新增时验证
+            if (!headvo.getPk_corp().equals(pk_corp)) {
+                throw new BusinessException("无权操作！");
+            }
+        }
+
+//		验证凭证分录，必需与登录公司pk相同
+        if (headvo.getChildren() != null && headvo.getChildren().length > 0) {
+            TzpzBVO bvo = null;
+            for (int i = 0; i < headvo.getChildren().length; i++) {
+                bvo = headvo.getChildren()[i];
+                if (!bvo.getPk_corp().equals(pk_corp)) {
+                    throw new BusinessException("分录无权操作！");
+                }
+            }
+        }
+
+    }
+
+    //总账存货 保存提示性校验
+    private void checkInventorySet(TzpzHVO headvo, CorpVO cpvo) throws BusinessException {
+        if (headvo == null
+                || (headvo.getIsglicsave() != null
+                && headvo.getIsglicsave().booleanValue()))
+            return;
+        String error = inventory_setcheck.checkInventorySetByPZ(null, cpvo, headvo);
+        if (!StringUtils.isEmpty(error)) {
+            throw new BusinessException(IVoucherConstants.EXE_INVGL_CODE + error);
+        }
+    }
+
+    private String getMsgOnSave(TzpzHVO hvo, CorpVO corpVO) {
+        StringBuilder msg = new StringBuilder();
+        int jflag = 0;
+        int dflag = 0;
+        TzpzBVO[] bodyvos = (TzpzBVO[]) hvo.getChildren();
+        boolean hasIncome = false;
+        String incomeCode = null;
+        boolean isCbjz = false;
+        try {
+            QmclVO qmclVO = gl_qmclserv.queryQmclVO(hvo.getPk_corp(), hvo.getPeriod());
+            // 成本结转
+            isCbjz = qmclVO != null && qmclVO.getIscbjz() != null && qmclVO.getIscbjz().booleanValue();
+        } catch (Exception e) {
+            log.error("获取成本结转状态失败", e);
+        }
+        if ("00000100AA10000000000BMD".equals(corpVO.getCorptype())) {
+            incomeCode = "^5001\\d+$";
+        } else if ("00000100AA10000000000BMF".equals(corpVO.getCorptype())) {
+            incomeCode = "^6001\\d+$";
+        } else if ("00000100000000Ig4yfE0005".equals(corpVO.getCorptype())) {
+            incomeCode = "^5101\\d+$";
+        }
+        for (int i = 0; i < bodyvos.length; i++) {
+            Integer fx = bodyvos[i].getVdirect();
+            jflag += fx != null && fx == 0 ? 1 : 0;
+            dflag += fx != null && fx == 1 ? 1 : 0;
+            String code = bodyvos[i].getVcode();
+            if (isCbjz && !hasIncome && code != null
+                    && incomeCode != null && code.matches(incomeCode)) {
+                hasIncome = true;
+            }
+        }
+        if (hvo.getAutoAnaly() != null && hvo.getAutoAnaly().booleanValue()) {
+            if (jflag > 1 && dflag > 1) {//多借多贷提示语修改,原因为多借多贷现金流量自动分析不准确
+                msg.append("现金流量已自动分析,多借多贷凭证请手工确认<br>");
+            } else {
+                msg.append("保存凭证成功,现金流量已自动分析<br>");
+            }
+        }
+        if (hasIncome) {
+            msg.append("销售收入数据已变更，请重新进行成本结转<br>");
+        }
+        if (msg.length() == 0) {
+            msg.append("保存凭证成功");
+
+        }
+        return msg.toString();
+    }
+
+    @GetMapping("/queryPicture")
+    public ReturnData queryPicture(String imgIds, String corp_id,
+                                   String begindate, String enddate) {
+        if (StringUtils.isEmpty(corp_id)) {
+            corp_id = SystemUtil.getLoginCorpId();
+        }
+        String currentdate = new DZFDate().toString();
+        if (begindate == null) {
+            begindate = currentdate;
+        }
+        if (enddate == null) {
+            enddate = currentdate;
+        }
+        Json json = new Json();
+        ImageParamVO param = new ImageParamVO();
+        if (!StringUtils.isEmpty(imgIds)) {
+            param.setImgIds(imgIds);
+        } else {
+            param.setBegindate(begindate);
+            param.setEnddate(enddate);
+            param.setPk_corp(corp_id);
+        }
+        List<ImageGroupVO> list = gl_tzpzserv.queryImageGroupByPicture(param);
+        if (list == null || list.size() == 0) {
+            json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
+            json.setSuccess(false);
+            json.setMsg("没找到图片！");
+        } else {
+            json.setData(list);
+            json.setStatus(200);
+            json.setSuccess(true);
+            json.setMsg("成功");
+        }
         return ReturnData.ok().data(json);
     }
 }

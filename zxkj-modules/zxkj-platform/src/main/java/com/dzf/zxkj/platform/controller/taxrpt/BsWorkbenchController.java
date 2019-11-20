@@ -32,15 +32,14 @@ import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
 
 @RestController
@@ -921,5 +920,83 @@ public class BsWorkbenchController extends BaseController {
         pamvo.setCoperatorid(SystemUtil.getLoginUserId());
         pamvo.setDoperatedate(new DZFDate());
         pamvo.setDr(0);
+    }
+
+    /**
+     * 上传附件
+     */
+    @RequestMapping("uploadFile")
+    @ResponseBody
+    public ReturnData uploadFile(@RequestParam("files") MultipartFile[] files, HttpServletRequest req) {
+        Json json = new Json();
+        try {
+            List<MultipartFile> filestt = ((MultipartHttpServletRequest) req).getFiles("files");
+            String fathercorp = SystemUtil.getLoginCorpVo().getFathercorp();
+            UserVO uservo = SystemUtil.getLoginUserVo();
+            if (files == null) {
+                throw new BusinessException("附件不能为空");
+            }
+            List<String> filenames = new ArrayList<String>();
+            List<byte[]> filebytes =  new ArrayList<>();
+            for (MultipartFile tfile : files) {
+                filenames.add(tfile.getOriginalFilename());
+                filebytes.add(readFileData(tfile));
+            }
+            String pk_corpperiod = req.getParameter("cpperiod");
+            String pk_corp = req.getParameter("khid");
+            String period = req.getParameter("period");
+            bs_workbenchserv.uploadFile(fathercorp, pk_corpperiod, filenames.toArray(new String[0]), filebytes, uservo, pk_corp, period);
+            json.setRows(0);
+            json.setSuccess(true);
+            json.setMsg("保存成功");
+        } catch (Exception e) {
+            printErrorLog(json, e, "上传失败");
+        }
+        return ReturnData.ok().data(json);
+    }
+
+
+    /**
+     * 读取vo数据
+     *
+     */
+    private byte[] readFileData(MultipartFile tfile) {
+
+        //读取文件
+        InputStream in = null;
+        ByteArrayOutputStream baos = null;
+        byte[] byteData = null;
+        try {
+            // 一次读多个字节
+            byte[] tempbytes = new byte[100];
+            baos = new ByteArrayOutputStream();
+            int byteread = 0;
+            in = tfile.getInputStream();
+            // 读入多个字节到字节数组中，byteread为一次读入的字节数
+            while ((byteread = in.read(tempbytes)) != -1) {
+                baos.write(tempbytes, 0, byteread);
+            }
+            byteData = baos.toByteArray();
+        } catch (Exception e1) {
+            log.error("错误",e1);
+            throw new BusinessException("读取纳税申报数据出错，该文件不存在！");
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e1) {
+
+                }
+            }
+            if (baos != null) {
+                try {
+                    baos.close();
+                } catch (IOException e) {
+                    log.error("错误",e);
+                }
+            }
+        }
+
+        return byteData;
     }
 }

@@ -58,6 +58,7 @@ public class KcCbbController extends GlicReportController{
     private List<IcDetailVO> getPagedMXZVos(Map<String, IcDetailVO> result, int page, int rows,
                                             ReportDataGrid grid){
         List<IcDetailVO> spList = new ArrayList<>();
+        List<IcDetailVO> spList1 = new ArrayList<>();
         Set<Map.Entry<String, IcDetailVO>> entrySet = result.entrySet();
         Iterator<Map.Entry<String, IcDetailVO>> iter = entrySet.iterator();
         while (iter.hasNext()) {
@@ -67,13 +68,13 @@ public class KcCbbController extends GlicReportController{
         if(spList != null && spList.size() > 0){
             int start= (page-1)*rows;
             for(int i = start ; i < page * rows && i < spList.size(); i++){
-                spList.add(spList.get(i));
+                spList1.add(spList.get(i));
             }
-            grid.setTotal((long)spList.size());
+            grid.setTotal((long)spList1.size());
         }else{
             grid.setTotal(0L);
         }
-        return spList;
+        return spList1;
     }
     @GetMapping("/showzg")
     public ReturnData<Json> showzg(){

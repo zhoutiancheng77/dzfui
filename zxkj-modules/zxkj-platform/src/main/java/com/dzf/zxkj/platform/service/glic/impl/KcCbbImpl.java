@@ -90,7 +90,7 @@ public class KcCbbImpl implements IKcCbb {
 		result = createResult(qcMap, fsMap, paramvo);
 		
 		//汇总金额数量到上级
-		addParents(result, cpaMap);
+//		addParents(result, cpaMap);
 		
 		calSpmc(corpvo, result, pk_corp, cpaMap);
 		
@@ -293,7 +293,7 @@ public class KcCbbImpl implements IKcCbb {
 		IcDetailVO icvo;
 		YntCpaccountVO cpavo;
 		for(AuxiliaryAccountBVO bvo : bvos){
-			key = bvo.getPk_auacount_b() + "_" + bvo.getKmclassify();
+			key = bvo.getPk_auacount_b();
 			
 			if(result.containsKey(key)){
 				icvo = result.get(key);
@@ -417,18 +417,11 @@ public class KcCbbImpl implements IKcCbb {
 		if (fzrs == null || fzrs.size() == 0) {
 			return result;
 		}
-
 		String key = null;
-		InventoryQcVO tempvo = null;
 		for (InventoryQcVO vo : fzrs) {
-			key = vo.getPk_inventory() + "_" + vo.getChlb();
-
+			key = vo.getPk_inventory();
 			if (!result.containsKey(key)) {
 				result.put(key, vo);
-			}else{
-				tempvo = result.get(key);
-				tempvo.setThismonthqc(SafeCompute.add(vo.getThismonthqc(), tempvo.getThismonthqc()));
-				tempvo.setMonthqmnum(SafeCompute.add(vo.getMonthqmnum(), tempvo.getMonthqmnum()));
 			}
 		}
 
@@ -472,7 +465,7 @@ public class KcCbbImpl implements IKcCbb {
 	 */
 	private void sumDetail(Map<String, IcDetailVO> sumMap, IcDetailVO vo) {
 
-		String key = vo.getPk_sp() + "_" + vo.getSpfl(); 
+		String key = vo.getPk_sp();
 
 		IcDetailVO icdvo = sumMap.get(key);
 		if (icdvo == null) {
@@ -503,7 +496,7 @@ public class KcCbbImpl implements IKcCbb {
 		keySet.addAll(qcMap.keySet());
 		keySet.addAll(PeriodBeforeFs.keySet());
 		keySet.addAll(PeriodFs.keySet());
-
+//		fsMap =hashlizeObjectByPeriod(fsMap);
 		if (keySet.size() > 0) {
 			InventoryQcVO qcvo;
 			IcDetailVO periodBf;
@@ -513,7 +506,7 @@ public class KcCbbImpl implements IKcCbb {
 				qcvo = qcMap.get(key);
 				periodBf = PeriodBeforeFs.get(key);
 				period = PeriodFs.get(key);
-				
+
 				rs = calculateAll(key, qcvo, periodBf, period);
 				result.put(key, rs);
 			}
@@ -577,6 +570,25 @@ public class KcCbbImpl implements IKcCbb {
 		vo.setJcje(jcje);
 		
 		return vo;
+	}
+
+	private Map<String, List<IcDetailVO>> hashlizeObjectByPeriod(List<IcDetailVO> objs) {
+		Map<String, List<IcDetailVO>> result = new HashMap<String, List<IcDetailVO>>();
+		if (objs == null || objs.isEmpty())
+			return result;
+		String key = null;
+		List<IcDetailVO> zlist = null;
+		for (int i = 0; i < objs.size(); i++) {
+			key = DateUtils.getPeriod(objs.get(i).getDbilldate());
+			if (result.containsKey(key)) {
+				result.get(key).add(objs.get(i));
+			} else {
+				zlist = new ArrayList<>();
+				zlist.add(objs.get(i));
+				result.put(key, zlist);
+			}
+		}
+		return result;
 	}
 
 	/**

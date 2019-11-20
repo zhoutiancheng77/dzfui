@@ -160,6 +160,7 @@
                     <include>bootstrap.yml</include>
                     <include>logback-spring.xml</include>
                     <include>param.txt</include>
+                    <include>fdfs_client.conf</include>
                 </includes>
             </resource>
         </resources>

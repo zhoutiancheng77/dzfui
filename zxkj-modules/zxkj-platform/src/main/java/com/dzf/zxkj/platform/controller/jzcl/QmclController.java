@@ -5,9 +5,11 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -15,9 +17,7 @@ import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -519,6 +519,175 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反计提所得税失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+
+    @PostMapping("/queryqmLoss")
+    public ReturnData<Grid> queryqmLoss(@RequestBody Map<String, String> param) {
+        Grid grid = new Grid();
+        String begindate = param.get("begindate");
+        String pk_corp = param.get("pk_corp");
+        try {
+            //查询登录公司 和 登录日期
+            QmLossesVO lossvo = gl_qmclserv.queryLossmny(new DZFDate(begindate), pk_corp);
+            grid.setRows(lossvo);
+            grid.setSuccess(true);
+            grid.setMsg("查询弥补金额成功！");
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "查询弥补金额失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("/updateqmLoss")
+    public ReturnData<Grid> updateqmLoss(@RequestBody Map<String, String> param) {
+        Grid grid = new Grid();
+        String begindate = param.get("begindate");
+        String pk_corp = param.get("pk_corp");
+        String lossvalue = param.get("lossvalue");
+        if (StringUtil.isEmpty(pk_corp)) {
+            throw new BusinessException("公司为空!");
+        }
+        if (StringUtil.isEmpty(begindate)) {
+            throw new BusinessException("期间为空!");
+        }
+        if (StringUtil.isEmpty(lossvalue)) {
+            throw new BusinessException("可弥补亏损额为空!");
+        }
+        String year = begindate.substring(0, 4);
+        try {
+            QmLossesVO lossvo = gl_qmclserv.updateLossmny(new DZFDate(begindate), pk_corp, new DZFDouble(lossvalue));
+            grid.setRows(lossvo);
+            grid.setSuccess(true);
+            grid.setMsg("更新" + year + "年度弥补金额成功！");
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "更新" + year + "年度弥补金额失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("/onsyjz")
+    public ReturnData<Grid> onsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            String userid = userVO.getCuserid();
+            // 重复调用接口，公司+月份
+            Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
+            for (QmclVO votemp : qmvos) {
+                String pk_corp = votemp.getPk_corp();
+                if (qmclmap.containsKey(pk_corp)) {
+                    qmclmap.get(pk_corp).add(votemp);
+                } else {
+                    List<QmclVO> listtemp = new ArrayList<QmclVO>();
+                    listtemp.add(votemp);
+                    qmclmap.put(pk_corp, listtemp);
+                }
+            }
+            StringBuffer tips = new StringBuffer();
+            List<QmclVO> resqmcl = new ArrayList<QmclVO>();
+            // 先按照公司
+            for (String str : qmclmap.keySet()) {
+                List<QmclVO> listtemp = qmclmap.get(str);
+                QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
+                for (QmclVO votemp : qmclvos) {
+                    try {
+                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), "不能损益结转!");
+                        votemp.setCoperatorid(userid);
+                        QmclVO resvos = gl_qmclserv.updateQiJianSunYiJieZhuan(votemp, userid);
+                        resqmcl.add(resvos);
+                    } catch (BusinessException e) {
+                        tips.append(e.getMessage() + "<br>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    } catch (Exception e) {
+                        tips.append("损益结转失败<br/>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    }
+                }
+            }
+            if (tips.toString().length() > 0) {
+                grid.setMsg(tips.toString());
+                grid.setSuccess(false);
+            } else {
+                grid.setMsg("损益结转成功！");
+                grid.setSuccess(true);
+            }
+            grid.setTotal((long) resqmcl.size());
+            grid.setRows(resqmcl);
+        } catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "损益结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("/cancelsyjz")
+    public ReturnData<Grid> cancelsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+        Grid grid = new Grid();
+        try {
+            // 重复调用接口，公司+月份
+            Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
+            for (int i = qmvos.length - 1; i >= 0; i--) {
+                QmclVO votemp = qmvos[i];
+                String pk_corp = votemp.getPk_corp();
+                if (qmclmap.containsKey(pk_corp)) {
+                    qmclmap.get(pk_corp).add(votemp);
+                } else {
+                    List<QmclVO> listtemp = new ArrayList<QmclVO>();
+                    listtemp.add(votemp);
+                    qmclmap.put(pk_corp, listtemp);
+                }
+            }
+            StringBuffer tips = new StringBuffer();
+            List<QmclVO> resqmcl = new ArrayList<QmclVO>();
+            // 先按照公司
+            for (String str : qmclmap.keySet()) {
+                List<QmclVO> listtemp = qmclmap.get(str);
+                QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+                for (QmclVO votemp : qmclvos) {
+                    try {
+                        QmclVO resvos = gl_qmclserv.updateFanQiJianSunYiJieZhuan(votemp);
+                        resqmcl.add(resvos);
+                    } catch (BusinessException e) {
+                        tips.append(e.getMessage() + "<br>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    } catch (Exception e) {
+                        tips.append("反损益结转失败<br/>");
+                        resqmcl.add(votemp);
+                        log.error("错误", e);
+                    }
+                }
+            }
+            if (tips.toString().length() > 0) {
+                grid.setMsg(tips.toString());
+                grid.setSuccess(false);
+            } else {
+                grid.setMsg("反损益结转成功");
+                grid.setSuccess(true);
+            }
+            grid.setTotal((long) resqmcl.size());
+            grid.setRows(resqmcl);
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反损益结转失败！");
         }
         return ReturnData.ok().data(grid);
     }

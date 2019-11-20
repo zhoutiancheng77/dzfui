@@ -126,9 +126,9 @@ public class SaleoutController{
 			String body = param.get("body");
 			String repeat = param.get("repeat");
 			body = body.replace("}{", "},{");
-			body = "[" + body + "]";
-			headvo = JsonUtils.convertValue(head, IntradeHVO.class);
-			IntradeoutVO[] bodyvos =JsonUtils.convertValue(body,IntradeoutVO[].class); // 表体
+//			body = "[" + body + "]";
+			headvo = JsonUtils.deserialize(head, IntradeHVO.class);
+			IntradeoutVO[] bodyvos =JsonUtils.deserialize(body,IntradeoutVO[].class); // 表体
 			// 赋默认值
 			// setDefaultValue(headvo, bodyvos);
 			if (StringUtil.isEmpty(headvo.getPk_ictrade_h())) {
@@ -227,8 +227,8 @@ public class SaleoutController{
 		try {
 			String body = param.get("head"); //
 			body = body.replace("}{", "},{");
-			body = "[" + body + "]";
-			bodyvos = JsonUtils.convertValue(param, IntradeHVO[].class);
+//			body = "[" + body + "]";
+			bodyvos = JsonUtils.deserialize(body, IntradeHVO[].class);
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,删除失败!!");
 			}
@@ -283,7 +283,7 @@ public class SaleoutController{
 			String body = param.get("head"); //
 			body = body.replace("}{", "},{");
 			body = "[" + body + "]";
-			IntradeHVO[] bodyvos =bodyvos = JsonUtils.convertValue(param, IntradeHVO[].class);
+			IntradeHVO[] bodyvos = JsonUtils.deserialize(body, IntradeHVO[].class);
 
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,转总账失败!");
@@ -342,7 +342,7 @@ public class SaleoutController{
 			String body = param.get("head"); //
 			body = body.replace("}{", "},{");
 			body = "[" + body + "]";
-            IntradeHVO[]  bodyvos = JsonUtils.convertValue(param, IntradeHVO[].class);
+            IntradeHVO[]  bodyvos = JsonUtils.deserialize(body, IntradeHVO[].class);
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,转总账失败!");
 			}
@@ -523,8 +523,8 @@ public class SaleoutController{
 		try {
 			String body = param.get("head"); //
 			body = body.replace("}{", "},{");
-			body = "[" + body + "]";
-			IntradeHVO[] bodyvos =  JsonUtils.convertValue(body,IntradeHVO[].class);
+//			body = "[" + body + "]";
+			IntradeHVO[] bodyvos =  JsonUtils.deserialize(body,IntradeHVO[].class);
 
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,取消转总账失败!");

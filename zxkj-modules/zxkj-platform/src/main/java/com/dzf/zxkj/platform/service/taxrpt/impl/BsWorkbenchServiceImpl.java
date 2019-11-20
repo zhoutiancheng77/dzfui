@@ -2071,4 +2071,53 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
 		return null;
 	}
 
+	@Override
+	public void uploadFile(String fathercorp, String pk_corpperiod, String[] filenames, List<byte[]>  files, UserVO uservo,
+						   String pk_corp, String period) throws DZFWarpException {
+		List<BsWorkDocVO> list = new ArrayList<BsWorkDocVO>();
+		BsWorkDocVO docvo = null;
+		int i = 0;
+		String vfilepath = "";
+		for (byte[] bytes : files) {
+			i = 0;
+			docvo = new BsWorkDocVO();
+			docvo.setPk_corpperiod(pk_corpperiod);
+			docvo.setFathercorp(fathercorp);
+			docvo.setPk_corp(pk_corp);
+			docvo.setPeriod(period);
+			docvo.setDocname(filenames[i]);
+			vfilepath = upload(bytes, filenames[i]);
+			docvo.setVfilepath(vfilepath);
+			docvo.setCoperatorid(uservo.getCuserid());
+			docvo.setDoperatetime(new DZFDateTime());
+			docvo.setDr(0);
+			list.add(docvo);
+			i++;
+		}
+		if (list != null && list.size() > 0) {
+			singleObjectBO.insertVOArr(fathercorp, list.toArray(new BsWorkDocVO[0]));
+		} else {
+			throw new BusinessException("附件上传失败");
+		}
+	}
+
+	/**
+	 * 上传附件到文件服务器
+	 * @param filename
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	private String upload(byte[] bytes, String filename) throws DZFWarpException {
+		String filepath = "";
+		try {
+			filepath = FastDfsUtil.getInstance().upload(bytes, filename, null);
+		} catch (AppException e) {
+			throw new BusinessException("附件上传错误");
+		}
+		if (StringUtil.isEmpty(filepath)) {
+			throw new BusinessException("附件上传错误");
+		}
+		return filepath.substring(1);
+	}
+
 }

@@ -187,4 +187,11 @@ public interface IbsWorkbenchService {
 	 * @throws DZFWarpException
 	 */
 	public ColumnSetupVO queryCol(ColumnSetupVO pamvo) throws DZFWarpException;
+
+	/**
+	 * 上传附件
+	 * @throws DZFWarpException
+	 */
+	public void uploadFile(String fathercorp, String pk_corpperiod, String[] filenames, List<byte[]> files, UserVO uservo,
+						   String pk_corp, String period) throws DZFWarpException;
 }
