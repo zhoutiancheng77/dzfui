@@ -898,32 +898,39 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 	}
 
 	private void calOldData(SalaryReportVO vo, String billtype, String opdate) {
-		double kcnum = getkcnum(billtype, opdate, VoUtils.getDZFDouble(vo.getYfgz()).doubleValue());
-		DZFDouble d1 = SafeCompute.sub(VoUtils.getDZFDouble(vo.getYfgz()), VoUtils.getDZFDouble(vo.getYanglaobx()));
-		DZFDouble d2 = SafeCompute.sub(d1, VoUtils.getDZFDouble(vo.getYiliaobx()));
-		DZFDouble d3 = SafeCompute.sub(d2, VoUtils.getDZFDouble(vo.getShiyebx()));
-		DZFDouble ynssde = SafeCompute.sub(d3, VoUtils.getDZFDouble(vo.getZfgjj()));
-		if (ynssde.doubleValue() <= 0) {
-			ynssde = DZFDouble.ZERO_DBL;
+		DZFDouble yfgz = VoUtils.getDZFDouble(vo.getYfgz());
+		double kcnum = getkcnum(billtype, opdate, yfgz.doubleValue());
+
+		DZFDouble[] dous = new DZFDouble[] { yfgz, VoUtils.getDZFDouble(vo.getYanglaobx()),
+				VoUtils.getDZFDouble(vo.getYiliaobx()), VoUtils.getDZFDouble(vo.getShiyebx()),
+				VoUtils.getDZFDouble(vo.getZfgjj()) };
+		DZFDouble ynssde1 = subByDZFDouble(dous).setScale(2, 0);
+		DZFDouble ynssde =DZFDouble.ZERO_DBL;
+		if (ynssde1.doubleValue() <= 0) {
+			ynssde1 = DZFDouble.ZERO_DBL;
+		}else{
+			ynssde =SafeCompute.sub(ynssde1, new DZFDouble(kcnum));
 		}
-		DZFDouble grsds = new DZFDouble(getTax(ynssde.doubleValue(), kcnum, billtype, opdate)).setScale(2,
-				DZFDouble.ROUND_HALF_UP);
+		if (ynssde.doubleValue() <= 0)
+			ynssde = DZFDouble.ZERO_DBL;
+		vo.setYnssde(ynssde);
+
+		double[] taxs = getTax(ynssde.doubleValue(), billtype, opdate);
+		// 计算税率 =应纳税所得额对应的税率
+		DZFDouble shuilv = new DZFDouble(taxs[0]);
+		vo.setShuilv(shuilv);
+
+		// 计算速算扣除数
+		DZFDouble quickdeduction = new DZFDouble(taxs[1]);
+		// 累计应纳税额 =应纳税所得额×税率 -速算扣除数
+		DZFDouble grsds = SafeCompute.sub(SafeCompute.multiply(ynssde, SafeCompute.div(shuilv, new DZFDouble(100))),
+				quickdeduction).setScale(2, 0);
 		if (grsds.doubleValue() <= 0) {
 			grsds = DZFDouble.ZERO_DBL;
 		}
-		DZFDouble shuilv = new DZFDouble(getShuilv(ynssde.doubleValue(), kcnum, billtype, opdate));
-
-		DZFDouble sfgz = SafeCompute.sub(ynssde, grsds);
-		vo.setShuilv(shuilv);
-		DZFDouble taxbase = SafeCompute.sub(ynssde, new DZFDouble(kcnum));
-		if (taxbase.doubleValue() <= 0)// 低于个税起征点
-		{
-			vo.setYnssde(DZFDouble.ZERO_DBL);
-		} else {
-			vo.setYnssde(taxbase);
-		}
-
 		vo.setGrsds(grsds);
+
+		DZFDouble sfgz = SafeCompute.sub(ynssde1, grsds);
 		if (sfgz.doubleValue() <= 0) {
 			vo.setSfgz(DZFDouble.ZERO_DBL);
 		} else {
@@ -1118,11 +1125,11 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 			}
 		} else if (billtype.equals(SalaryTypeEnum.REMUNERATION.getValue())) {
 			if (taxbase <= 800) {
-				kcnum = 0;
+				kcnum = 800;
 			} else if (taxbase < 4000) {
-				kcnum = (taxbase - 800) * 0.2;
+				kcnum = 800;
 			} else {
-				kcnum = taxbase * 0.2;
+				kcnum = SafeCompute.multiply(new DZFDouble(taxbase), new DZFDouble(0.2)).setScale(2, 0).doubleValue();
 			}
 		}
 		return kcnum;
@@ -1180,97 +1187,19 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 
 	}
 
-	public double getShuilv(double salaryBeforeTax, double kcnum, String billtype, String qj) {
-		double taxbase = 0;
+	private double[] getTax(double salaryBeforeTax, String billtype, String qj) {
+		double[] taxbase = new double[2];
 		if (StringUtil.isEmpty(billtype) || billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())) {
-			taxbase = getPersonShuilv(salaryBeforeTax, kcnum, qj);
+			taxbase = getPersonTax(salaryBeforeTax, qj);
 		} else if (billtype.equals(SalaryTypeEnum.FOREIGNSALARY.getValue())) {
-			taxbase = getPersonShuilv(salaryBeforeTax, kcnum, qj);
+			taxbase = getPersonTax(salaryBeforeTax, qj);
 		} else if (billtype.equals(SalaryTypeEnum.REMUNERATION.getValue())) {
-			taxbase = getRemunerationShuilv(salaryBeforeTax, kcnum);
+			taxbase = getRemunerationTax(salaryBeforeTax);
 		}
 		return taxbase;
 	}
 
-	private double getPersonShuilv(double salaryBeforeTax, double kcnum, String qj) {
-		double taxbase = salaryBeforeTax - kcnum;
-		double Taxrate = 0;// 这里税率没有除以百分比；
-		if ("2018-10".compareTo(qj) <= 0) {
-			if (taxbase <= 0)// 低于个税起征点
-			{
-				return 0;
-			} else if (taxbase <= 3000) {
-				Taxrate = 3;
-			} else if (taxbase <= 12000) {
-				Taxrate = 10;
-			} else if (taxbase <= 25000) {
-				Taxrate = 20;
-			} else if (taxbase <= 35000) {
-				Taxrate = 25;
-			} else if (taxbase <= 55000) {
-				Taxrate = 30;
-			} else if (taxbase <= 80000) {
-				Taxrate = 35;
-			} else {
-				Taxrate = 45;
-			}
-		} else {
-			if (taxbase <= 0)// 低于个税起征点
-			{
-				return 0;
-			} else if (taxbase <= 1500) {
-				Taxrate = 3;
-			} else if (taxbase <= 4500) {
-				Taxrate = 10;
-			} else if (taxbase <= 9000) {
-				Taxrate = 20;
-			} else if (taxbase <= 35000) {
-				Taxrate = 25;
-			} else if (taxbase <= 55000) {
-				Taxrate = 30;
-			} else if (taxbase <= 80000) {
-				Taxrate = 35;
-			} else {
-				Taxrate = 45;
-			}
-		}
-		return Taxrate;
-	}
-
-	private double getRemunerationShuilv(double salaryBeforeTax, double kcnum) {
-		double taxbase = salaryBeforeTax - kcnum;
-		if (taxbase <= 0)// 低于个税起征点
-		{
-			return 0;
-		} else if (taxbase <= 800) {
-			taxbase = 0;
-		} else if (taxbase <= 4000) {
-			taxbase = 20;
-		} else if (taxbase <= 20000) {
-			taxbase = 20;
-		} else if (taxbase <= 50000) {
-			taxbase = 30;
-		} else {
-			taxbase = 40;
-		}
-		return taxbase;
-	}
-
-	public double getTax(double salaryBeforeTax, double kcnum, String billtype, String qj) {
-		double taxbase = 0;
-
-		if (StringUtil.isEmpty(billtype) || billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())) {
-			taxbase = getPersonTax(salaryBeforeTax, kcnum, qj);
-		} else if (billtype.equals(SalaryTypeEnum.FOREIGNSALARY.getValue())) {
-			taxbase = getPersonTax(salaryBeforeTax, kcnum, qj);
-		} else if (billtype.equals(SalaryTypeEnum.REMUNERATION.getValue())) {
-			taxbase = getRemunerationTax(salaryBeforeTax, kcnum);
-		}
-		return taxbase;
-	}
-
-	private double getRemunerationTax(double salaryBeforeTax, double kcnum) {
-		double taxbase = 0;
+	private double[] getRemunerationTax(double taxbase) {
 		// 应纳税所得额 = 劳务报酬（少于4000元） - 800元
 		//
 		// 应纳税所得额 = 劳务报酬（超过4000元） × （1 - 20%）
@@ -1280,41 +1209,40 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		// 1 不超过20,000元 20% 0
 		// 2 超过20,000元至50,000元的部分 30% 2,000
 		// 3 超过50,000元的部分 40% 7,000
-		taxbase = salaryBeforeTax;
 		double Taxrate = 0;// 这里税率没有除以百分比；
 		double Quickdeduction = 0;
 		if (taxbase <= 0)// 低于个税起征点
 		{
-			return 0;
-		} else if (taxbase <= 800) {
-			return 0;
-		} else if (taxbase < 4000) {
-			return (taxbase - 800) * 0.2;
-		} else if (taxbase < 20000) {
+			Taxrate = 0;
+			Quickdeduction = 0;
+		} else if (taxbase <= 20000) {
 			Taxrate = 20;
-		} else if (taxbase < 50000) {
+			Quickdeduction = 0;
+		} else if (taxbase <= 50000) {
 			Taxrate = 30;
 			Quickdeduction = 2000;
 		} else {
 			Taxrate = 40;
 			Quickdeduction = 7000;
 		}
-		taxbase = (taxbase * (1 - 0.2) * Taxrate / 100 - Quickdeduction);
-		return taxbase;
+		double[] dous = new double[2];
+		dous[0] = Taxrate;
+		dous[1] = Quickdeduction;
+		return dous;
 	}
 
-	private double getPersonTax(double salaryBeforeTax, double kcnum, String qj) {
+	private double[] getPersonTax(double taxbase, String qj) {
 		// （3W-3.5K）*25%-1005
 		// 扣税公式是：
 		// （扣除社保医保公积金后薪水-个税起征点）*税率-速算扣除数
-		double taxbase = salaryBeforeTax - kcnum;
 		double Taxrate = 0;// 这里税率没有除以百分比；
 		double Quickdeduction = 0;
 
 		if ("2018-10".compareTo(qj) <= 0) {
 			if (taxbase <= 0)// 低于个税起征点
 			{
-				return 0;
+				Taxrate = 0;
+				Quickdeduction = 0;
 			} else if (taxbase <= 3000) {
 				Taxrate = 3;
 				Quickdeduction = 0;
@@ -1340,7 +1268,8 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		} else {
 			if (taxbase <= 0)// 低于个税起征点
 			{
-				return 0;
+				Taxrate = 0;
+				Quickdeduction = 0;
 			} else if (taxbase <= 1500) {
 				Taxrate = 3;
 				Quickdeduction = 0;
@@ -1364,8 +1293,10 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				Quickdeduction = 13505;
 			}
 		}
-
-		return ((salaryBeforeTax - kcnum) * Taxrate / 100 - Quickdeduction);
+		double[] dous = new double[2];
+		dous[0] = Taxrate;
+		dous[1] = Quickdeduction;
+		return dous;
 	}
 
 	private double[] getNewNormalTax(double taxbase) {
