@@ -242,10 +242,12 @@ public class QmgzController  extends PrintAndExcelExportController {
 
             if(tips.toString().length()>0){
                 grid.setMsg(tips.toString());
+                grid.setSuccess(false);
             }else{
-                grid.setMsg("1");
+                grid.setMsg("关账成功");
+                grid.setSuccess(true);
             }
-            grid.setSuccess(true);
+
         } catch (Exception e) {
             printErrorLog(grid, e, "关账失败！");
         }
@@ -370,11 +372,13 @@ public class QmgzController  extends PrintAndExcelExportController {
                 }
                 if(tips.toString().length()>0){
                     grid.setMsg(tips.toString());
+                    grid.setSuccess(false);
                 }else{
-                    grid.setMsg("1");
+                    grid.setMsg("反关账成功");
+                    grid.setSuccess(true);
                 }
             }
-            grid.setSuccess(true);
+
         } catch (Exception e) {
             printErrorLog(grid, e, "反关账失败！");
         }
