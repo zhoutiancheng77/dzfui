@@ -1,9 +1,9 @@
 package com.dzf.zxkj.platform.util.taxrpt;
 
+import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.base.utils.fastdfs.FastDfsUtil;
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 import java.io.File;

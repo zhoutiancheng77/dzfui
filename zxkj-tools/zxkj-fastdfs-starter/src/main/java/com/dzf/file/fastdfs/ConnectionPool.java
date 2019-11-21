@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.utils.fastdfs;
+package com.dzf.file.fastdfs;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;

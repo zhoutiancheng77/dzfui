@@ -52,9 +52,9 @@ public class DeclaraQueryController {
             grid.setRows(list);
 
         } catch (Exception e) {
-//            printErrorLog(grid, log, e, "查询失败");
+            log.error(e.getMessage(), e);
             grid.setSuccess(false);
-            grid.setMsg("查询失败");
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败");
         }
         return ReturnData.ok().data(grid);
     }
@@ -94,9 +94,9 @@ public class DeclaraQueryController {
                 grid.setTotal(0l);
             }
         } catch (Exception e) {
-//            printErrorLog(grid, log, e, "查询子表失败");
+            log.error(e.getMessage(), e);
             grid.setSuccess(false);
-            grid.setMsg("查询子表失败");
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询子表失败");
         }
         return ReturnData.ok().data(grid);
     }
@@ -127,9 +127,9 @@ public class DeclaraQueryController {
             }
 
         } catch (Exception e) {
-//            printErrorLog(json, log, e, "获取报表模板数据异常");
+            log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("获取报表模板数据异常");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "获取报表模板数据异常");
         }
         return ReturnData.ok().data(json);
     }

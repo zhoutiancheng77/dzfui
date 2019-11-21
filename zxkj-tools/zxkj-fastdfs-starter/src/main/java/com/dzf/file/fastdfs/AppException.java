@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.utils.fastdfs;
+package com.dzf.file.fastdfs;
 
 /**
  * 系统通用异常

@@ -1,4 +1,4 @@
-package com.dzf.zxkj.base.utils.fastdfs;
+package com.dzf.file.fastdfs;
 
 /**
  * 

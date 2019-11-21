@@ -1,19 +1,5 @@
-package com.dzf.zxkj.base.utils.fastdfs;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.SocketTimeoutException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+package com.dzf.file.fastdfs;
 
-import javax.imageio.ImageIO;
-
-import com.dzf.zxkj.base.utils.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -21,6 +7,14 @@ import org.csource.common.NameValuePair;
 import org.csource.fastdfs.StorageClient1;
 import org.csource.fastdfs.StorageServer;
 import org.csource.fastdfs.TrackerServer;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.SocketTimeoutException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  *

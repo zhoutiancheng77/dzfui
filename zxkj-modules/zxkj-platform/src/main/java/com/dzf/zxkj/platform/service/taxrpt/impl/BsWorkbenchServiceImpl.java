@@ -1,5 +1,7 @@
 package com.dzf.zxkj.platform.service.taxrpt.impl;
 
+import com.dzf.file.fastdfs.AppException;
+import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -9,8 +11,6 @@ import com.dzf.zxkj.base.framework.processor.ArrayListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.base.utils.fastdfs.AppException;
-import com.dzf.zxkj.base.utils.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.common.constant.IMsgConstant;
 import com.dzf.zxkj.common.constant.IRoleCodeCont;
 import com.dzf.zxkj.common.constant.ISysConstants;
