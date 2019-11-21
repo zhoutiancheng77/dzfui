@@ -167,6 +167,7 @@
                     <include>logback-spring.xml</include>
                     <include>param.txt</include>
                     <include>fdfs_client.conf</include>
+                    <include>font/*</include>
                 </includes>
             </resource>
         </resources>

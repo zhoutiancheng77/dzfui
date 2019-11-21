@@ -21,15 +21,14 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -126,8 +125,14 @@ public class VoucherPicController extends BaseController {
     }
 
     @RequestMapping("/uploadSingleFile")
-    public ReturnData<Json> uploadSingleFile(String selMon,String selYear,String pk_corp,@RequestParam("pjlx") String pjlxType,
-                                             String msgkey,String g_id,MultipartFile[] infiles) {
+    public ReturnData<Json> uploadSingleFile(@RequestBody Map<String, String> param,MultipartFile[] infiles) {
+
+        String selMon = param.get("selMon");
+        String selYear = param.get("selYear");
+        String pk_corp = param.get("pk_corp");
+        String pjlxType = param.get("pjlx");
+        String msgkey = param.get("msgkey");
+        String g_id = param.get("g_id");
         Json json = new Json();
         json.setSuccess(false);
 //		json.setStatus(-200);
@@ -253,8 +258,11 @@ public class VoucherPicController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @RequestMapping("/beforeCheck")
-    public ReturnData<Json> beforeCheck(String selMon,String selYear,String pk_corp){
+    @PostMapping("/beforeCheck")
+    public ReturnData<Json> beforeCheck(@RequestBody Map<String, String> param){
+        String selMon =  param.get("selMon");
+        String selYear =  param.get("selYear");
+        String pk_corp =  param.get("pk_corp");
         Json json = new Json();
         try {
             gl_pzimageserv.isQjSyJz(pk_corp, selYear + "-" + selMon);

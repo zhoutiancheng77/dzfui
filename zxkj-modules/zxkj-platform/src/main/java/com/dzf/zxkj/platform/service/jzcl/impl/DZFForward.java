@@ -1,18 +1,18 @@
 package com.dzf.zxkj.platform.service.jzcl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ObjectProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
-import com.dzf.zxkj.common.constant.QmjzByDzfInfo;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.DzfUtil;
+import com.dzf.zxkj.platform.config.QmjzByDzfConfig;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -50,6 +50,8 @@ public class DZFForward {
 	private IAuxiliaryAccountService gl_fzhsserv;
 
 	private IAccountService accountService;
+
+	private QmjzByDzfConfig qmjzByDzfConfig;
 	
 	public DZFForward(IYntBoPubUtil yntBoPubUtil, SingleObjectBO singleObjectBO, IVoucherService voucher,
                       ICpaccountService gl_cpacckmserv, ICpaccountCodeRuleService gl_accountcoderule,
@@ -61,6 +63,7 @@ public class DZFForward {
 		this.gl_accountcoderule = gl_accountcoderule;
 		this.gl_fzhsserv = gl_fzhsserv;
 		this.accountService = SpringUtils.getBean(IAccountService.class);
+		this.qmjzByDzfConfig = SpringUtils.getBean(QmjzByDzfConfig.class);
 	}
 
 	/**
@@ -126,7 +129,7 @@ public class DZFForward {
 			AuxiliaryAccountHVO hvo = gl_fzhsserv.queryHByName(pk_corp, "产品项目");
 			if(hvo != null){
 				bvo = gl_fzhsserv.queryBByCode(pk_corp,
-						QmjzByDzfInfo.projcode, hvo.getPrimaryKey());
+						qmjzByDzfConfig.projcode, hvo.getPrimaryKey());
 				if(bvo != null){
 					entry.setFzhsx9(bvo.getPk_auacount_b());
 				}
@@ -137,7 +140,7 @@ public class DZFForward {
 		//部门 0000100000
 		if(cpavo.getIsfzhs().charAt(4) == '1'){
 			bvo = gl_fzhsserv.queryBByCode(pk_corp, 
-					QmjzByDzfInfo.deptcode, AuxiliaryConstant.ITEM_DEPARTMENT);
+					qmjzByDzfConfig.deptcode, AuxiliaryConstant.ITEM_DEPARTMENT);
 			
 			if(bvo != null){
 				entry.setFzhsx5(bvo.getPk_auacount_b());
@@ -152,11 +155,11 @@ public class DZFForward {
 		try{
 			String newrule = gl_cpacckmserv.queryAccountRule(pk_corp);
 			//借方科目
-			String jfcode = gl_accountcoderule.getNewRuleCode(QmjzByDzfInfo.jfcode, 
+			String jfcode = gl_accountcoderule.getNewRuleCode(qmjzByDzfConfig.jfcode, 
 					DZFConstant.ACCOUNTCODERULE, newrule);
 			
 			//贷方科目
-			String dfcode = gl_accountcoderule.getNewRuleCode(QmjzByDzfInfo.dfcode, 
+			String dfcode = gl_accountcoderule.getNewRuleCode(qmjzByDzfConfig.dfcode, 
 					DZFConstant.ACCOUNTCODERULE, newrule);
 			
 			Map<String, YntCpaccountVO> map = getAccountMap(pk_corp);

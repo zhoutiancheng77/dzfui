@@ -1,13 +1,17 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.SafeCompute;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.SubjectCollectGrid;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwzb.IKmHzReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.management.Query;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 科目汇总表
@@ -28,7 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("gl_rep_kmhzbact")
 @Slf4j
-public class KmhzReportController {
+public class KmhzReportController extends ReportBaseController {
 
     @Autowired
     private IKmHzReport gl_rep_kmhzbserv;
@@ -37,12 +37,12 @@ public class KmhzReportController {
      * 查询科目明细数据
      */
     @GetMapping("/queryAction")
-    public ReturnData<Grid> queryAction(@RequestParam Map<String, String> param) {
+    public ReturnData<Grid> queryAction(@RequestParam Map<String, String> param, @MultiRequestBody CorpVO corpVO) {
         SubjectCollectGrid grid = new SubjectCollectGrid();
         QueryParamVO vo = JsonUtils.convertValue(param, QueryParamVO.class);
         try {
             /** 验证权限 */
-//            checkPowerDate(vo);
+            checkPowerDate(vo, corpVO);
             /** 查询 */
             List<Object> kmmxvos = gl_rep_kmhzbserv.getKMHzVOs(vo);
             /** 获取rows */
@@ -58,10 +58,8 @@ public class KmhzReportController {
             grid.setRows(new ArrayList<FseJyeVO>());
             log.error(e.getMessage(), e);
             grid.setSuccess(false);
-            grid.setMsg("查询失败！");
+            grid.setMsg(e instanceof BusinessException? e.getMessage() : "查询失败！");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "科目汇总表查询:"+vo.getBegindate1() +"-"+ vo.getEnddate(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -120,8 +118,6 @@ public class KmhzReportController {
 
         }
     }
-
-
 
 
 }
