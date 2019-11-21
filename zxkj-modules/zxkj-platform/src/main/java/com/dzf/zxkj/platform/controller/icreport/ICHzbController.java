@@ -1,32 +1,42 @@
 package com.dzf.zxkj.platform.controller.icreport;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DZFMapUtil;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.excel.IcHzbExcelField;
 import com.dzf.zxkj.platform.model.report.IcDetailVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.icreport.IICHzb;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -48,6 +58,8 @@ public class ICHzbController {
 	private IParameterSetService parameterserv;
 	@Autowired
 	private ICorpService corpService;
+    @Autowired
+    private IZxkjPlatformService zxkjPlatformService;
 
 	// 查询
 	@GetMapping("/query")
@@ -172,88 +184,70 @@ public class ICHzbController {
 		return paramvo;
 	}
 
-	public void printAction() {
-//		try {
-//			String strlist = getRequest().getParameter("list");
-//			String type = getRequest().getParameter("type");
-//			String pageOrt = getRequest().getParameter("pageOrt");
-//			String left = getRequest().getParameter("left");
-//			String top = getRequest().getParameter("top");
-//			String printdate = getRequest().getParameter("printdate");
-//			String font = getRequest().getParameter("font");
-//			String pageNum = getRequest().getParameter("pageNum");
-//			Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-//			pmap.put("type", type);
-//			pmap.put("pageOrt", pageOrt);
-//			pmap.put("left", left);
-//			pmap.put("top", top);
-//			pmap.put("printdate", printdate);
-//			pmap.put("font", font);
-//			pmap.put("pageNum", pageNum);
-//			if (strlist == null) {
-//				return;
-//			}
-//			if (pageOrt.equals("Y")) {
-//				setIscross(DZFBoolean.TRUE);// 是否横向
-//			} else {
-//				setIscross(DZFBoolean.FALSE);// 是否横向
-//			}
-//			JSONArray array = (JSONArray) JSON.parseArray(strlist);
-//			Map<String, String> bodymapping = FieldMapping.getFieldMapping(new IcDetailVO());
-//			IcDetailVO[] bodyvos = DzfTypeUtils.cast(array, bodymapping, IcDetailVO[].class,
-//					JSONConvtoJAVA.getParserConfig());
-//
-//			String gs = bodyvos[0].getGs();
-//			String period = bodyvos[0].getTitlePeriod();
-//			String current = getRequest().getParameter("print_curr");
-//			DZFBoolean dboolean = new DZFBoolean(current);
-//			if (!dboolean.booleanValue()) {
-//				bodyvos = queryVos(getQueryParamVO());
-//
-//			}
-//
-//			Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
-//			mxmap = reloadVOs(bodyvos, getQueryParamVO());
-//
-//			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-//			tmap.put("公司", gs);
-//			// tmap.put("存货名称", bodyvos[0].getSpmc());
-//			tmap.put("期间", period);
-//
-//			String corp = (String) getRequest().getSession().getAttribute(IGlobalConstants.login_corp);
-//			CorpVO corpvo = CorpCache.getInstance().get(null, corp);
-//
-//			boolean bisfenye = false;
-//			String isfenye = getRequest().getParameter("isfenye");
-//			if (!StringUtil.isEmpty(isfenye) && isfenye.equals("Y")) {
-//				bisfenye = true;
-//			}
-//			// 老模式 启用库存
-//			if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
-//				String[] columnames = new String[] { "存货编码", "存货名称", "规格(型号)", "计量单位", "期初数量", "期初单价", "期初金额", "收入数量",
-//						"收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
-//				String[] columnkeys = new String[] { "spbm", "spmc", "spgg", "jldw", "qcsl", "qcdj", "qcje", "srsl",
-//						"srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
-//				int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-//				setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//				printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存汇总表", columnkeys, columnames, widths, 60,
-//						type, pmap, tmap);
-//			} else {
-//				String[] columnames = new String[] { "存货编码", "存货名称", "规格(型号)", "计量单位", "期初数量", "期初单价", "期初金额", "收入数量",
-//						"收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
-//				String[] columnkeys = new String[] { "spbm", "spmc", "spgg", "jldw", "qcsl", "qcdj", "qcje", "srsl",
-//						"srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
-//				int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-//				setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//				printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存汇总表", columnkeys, columnames, widths, 60,
-//						type, pmap, tmap);
-//			}
-//
-//		} catch (DocumentException e) {
-//			log.error("打印错误", e);
-//		} catch (IOException e) {
-//			log.error("打印错误", e);
-//		}
+    /**
+     * 打印操作
+     */
+    @PostMapping("print")
+    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
+            PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
+            if (DZFValueCheck.isEmpty(pmap.get("list"))) {
+                return;
+            }
+            if ("Y".equals(pmap.get("pageOrt"))) {
+                printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
+            } else {
+                printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
+            }
+            IcDetailVO[] bodyvos= JsonUtils.convertValue(printParamVO.getList(), IcDetailVO[].class);
+			String gs = bodyvos[0].getGs();
+			String period = bodyvos[0].getTitlePeriod();
+			String current = pmap.get("print_curr");
+            QueryParamVO queryParamvo = JsonUtils.convertValue(pmap, QueryParamVO.class);
+			DZFBoolean dboolean = new DZFBoolean(current);
+			if (!dboolean.booleanValue()) {
+				bodyvos = queryVos(getQueryParamVO(queryParamvo));
+			}
+			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
+			tmap.put("公司", gs);
+			tmap.put("期间", period);
+
+			CorpVO corpvo = SystemUtil.getLoginCorpVo();
+			// 老模式 启用库存
+			if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
+				String[] columnames = new String[] { "存货编码", "存货名称", "规格(型号)", "计量单位", "期初数量", "期初单价", "期初金额", "收入数量",
+						"收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
+				String[] columnkeys = new String[] { "spbm", "spmc", "spgg", "jldw", "qcsl", "qcdj", "qcje", "srsl",
+						"srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
+				int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+                printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+                printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存汇总表", columnkeys, columnames, widths, 60, pmap, tmap);
+			} else {
+				String[] columnames = new String[] { "存货编码", "存货名称", "规格(型号)", "计量单位", "期初数量", "期初单价", "期初金额", "收入数量",
+						"收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
+				String[] columnkeys = new String[] { "spbm", "spmc", "spgg", "jldw", "qcsl", "qcdj", "qcje", "srsl",
+						"srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
+				int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+                printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+                printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存汇总表", columnkeys, columnames, widths, 60, pmap, tmap);
+			}
+
+		} catch (DocumentException e) {
+			log.error("库存汇总表打印错误", e);
+		} catch (IOException e) {
+			log.error("库存汇总表打印错误", e);
+		}catch (Exception e) {
+            log.error("库存汇总表打印错误", e);
+        }finally {
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("库存汇总表打印错误", e);
+            }
+        }
 	}
 
 	private IcDetailVO[] queryVos(QueryParamVO queryParamVO) {
@@ -315,73 +309,74 @@ public class ICHzbController {
 
 	}
 
-	// 导出excel
-	public void excelReport() {
+	/**
+	 * 导出excel
+	 */
+	@PostMapping("/expExcel")
+	public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> param){
+		OutputStream toClient = null;
+		try {
+			String strlist = param.get("list");
+			IcDetailVO[] vo= JsonUtils.convertValue(strlist, IcDetailVO[].class);
+			String gs = vo[0].getGs();
+			String qj = vo[0].getTitlePeriod();
 
-//		HttpServletResponse response = getResponse();
-//		OutputStream toClient = null;
-//		try {
-//			String strlist = getRequest().getParameter("list");
-//			JSONArray array = (JSONArray) JSON.parseArray(strlist);
-//			Map<String, String> bodymapping = FieldMapping.getFieldMapping(new IcDetailVO());
-//			IcDetailVO[] vo = DzfTypeUtils.cast(array, bodymapping, IcDetailVO[].class,
-//					JSONConvtoJAVA.getParserConfig());
-//			String gs = vo[0].getGs();
-//			String qj = vo[0].getTitlePeriod();
-//
-//			String current = getRequest().getParameter("export_curr");
-//			DZFBoolean dboolean = new DZFBoolean(current);
-//			if (!dboolean.booleanValue()) {
-//				vo = queryVos(getQueryParamVO());
-//			}
-//
-//			// vo = reloadExcelData(getQueryParamVO());
-//			Excelexport2003<IcDetailVO> lxs = new Excelexport2003<IcDetailVO>();
-//
-//			String pk_corp = SystemUtil.getLoginCorpId();
-//			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
-//			String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
-//			int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
-//			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
-//			CorpVO corpvo = CorpCache.getInstance().get(null, pk_corp);
-//			IcHzbExcelField xsz = new IcHzbExcelField(num, price);
-//			setExprotInfo(xsz, corpvo);
-//			xsz.setIcDetailVos(vo);
-//			xsz.setQj(qj);
-//			xsz.setCreator(getLoginUserInfo().getUser_name());
-//			xsz.setCorpName(gs);
-//			response.reset();
-//			// String filename = xsz.getExcelport2007Name();
-//			String filename = xsz.getExcelport2003Name();
-//			String formattedName = URLEncoder.encode(filename, "UTF-8");
-//			response.addHeader("Content-Disposition",
-//					"attachment;filename=" + filename + ";filename*=UTF-8''" + formattedName);
-//			// response.addHeader("Content-Disposition",
-//			// "attachment;filename="+new String(filename.getBytes("UTF-8"),
-//			// "ISO8859-1"));
-//			toClient = new BufferedOutputStream(response.getOutputStream());
-//			response.setContentType("application/vnd.ms-excel;charset=gb2312");
-//			lxs.exportExcel(xsz, toClient);
-//			toClient.flush();
-//			response.getOutputStream().flush();
-//		} catch (IOException e) {
-//			log.error("excel导出错误", e);
-//		} finally {
-//			try {
-//				if (toClient != null) {
-//					toClient.close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//			try {
-//				if (response != null && response.getOutputStream() != null) {
-//					response.getOutputStream().close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//		}
+			String current =  param.get("export_curr");
+			DZFBoolean dboolean = new DZFBoolean(current);
+            QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+			if (!dboolean.booleanValue()) {
+				vo = queryVos(getQueryParamVO(queryParamvo));
+			}
+
+			// vo = reloadExcelData(getQueryParamVO());
+			Excelexport2003<IcDetailVO> lxs = new Excelexport2003<IcDetailVO>();
+
+			String pk_corp = SystemUtil.getLoginCorpId();
+			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
+			String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
+			int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
+			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
+			CorpVO corpvo =corpService.queryByPk(pk_corp);
+			IcHzbExcelField xsz = new IcHzbExcelField(num, price);
+			setExprotInfo(xsz, corpvo);
+			xsz.setIcDetailVos(vo);
+			xsz.setQj(qj);
+			xsz.setCreator(SystemUtil.getLoginUserVo().getUser_name());
+			xsz.setCorpName(gs);
+			response.reset();
+			// String filename = xsz.getExcelport2007Name();
+			String filename = xsz.getExcelport2003Name();
+			String formattedName = URLEncoder.encode(filename, "UTF-8");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + filename + ";filename*=UTF-8''" + formattedName);
+			// response.addHeader("Content-Disposition",
+			// "attachment;filename="+new String(filename.getBytes("UTF-8"),
+			// "ISO8859-1"));
+			toClient = new BufferedOutputStream(response.getOutputStream());
+			response.setContentType("application/vnd.ms-excel;charset=gb2312");
+			lxs.exportExcel(xsz, toClient);
+			toClient.flush();
+			response.getOutputStream().flush();
+		} catch (IOException e) {
+			log.error("库存汇总表excel导出错误", e);
+		} catch (Exception e) {
+            log.error("库存汇总表excel导出错误", e);
+        } finally {
+			try {
+				if (toClient != null) {
+					toClient.close();
+				}
+			} catch (IOException e) {
+				log.error("库存汇总表excel导出错误", e);
+			}
+			try {
+				if (response != null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (IOException e) {
+				log.error("库存汇总表excel导出错误", e);
+			}
+		}
 	}
 
 }

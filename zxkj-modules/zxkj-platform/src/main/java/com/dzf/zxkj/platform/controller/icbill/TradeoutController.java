@@ -1,24 +1,33 @@
 package com.dzf.zxkj.platform.controller.icbill;
 
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.icset.AggIcTradeVO;
 import com.dzf.zxkj.platform.model.icset.IntradeoutVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.icbill.ITradeoutService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.itextpdf.text.DocumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 /**
@@ -35,7 +44,8 @@ public class TradeoutController{
 	private ITradeoutService ic_tradeoutserv = null;
 	@Autowired
 	private IParameterSetService parameterserv;
-
+	@Autowired
+	private IZxkjPlatformService zxkjPlatformService;
 	// 查询
 	@GetMapping("/query")
 	public ReturnData query(@RequestParam Map<String, String> param) {
@@ -103,59 +113,47 @@ public class TradeoutController{
 	/**
 	 * 打印操作
 	 */
-	public void printAction() {
-//		try {
-//			// String strlist = getRequest().getParameter("list");
-//			// String type = getRequest().getParameter("type");
-//			// String pageOrt=getRequest().getParameter("pageOrt");
-//			// String left =getRequest().getParameter("left");
-//			// String top =getRequest().getParameter("top");
-//			// String printdate=getRequest().getParameter("printdate");
-//			// String font=getRequest().getParameter("font");
-//			// String pageNum=getRequest().getParameter("pageNum");
-//			PrintParamVO printParamVO = (PrintParamVO) DzfTypeUtils.cast(getRequest(), new PrintParamVO());
-//			Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-//			pmap.put("type", printParamVO.getType());
-//			pmap.put("pageOrt", printParamVO.getPageOrt());
-//			pmap.put("left", printParamVO.getLeft());
-//			pmap.put("top", printParamVO.getTop());
-//			pmap.put("printdate", printParamVO.getPrintdate());
-//			pmap.put("font", printParamVO.getFont());
-//			pmap.put("pageNum", printParamVO.getPageNum());
-//			if (printParamVO.getList() == null) {
-//				return;
-//			}
-//			// JSONArray json = JSONArray.parseArray("["+strlist.substring(1,
-//			// strlist.length()-1)+"]");
-//			if (printParamVO.getPageOrt().equals("Y")) {
-//				setIscross(DZFBoolean.TRUE);// 是否横向
-//			} else {
-//				setIscross(DZFBoolean.FALSE);// 是否横向
-//			}
-//			JSONArray array = (JSONArray) JSON.parseArray(printParamVO.getList());
-//			Map<String, String> bodymapping = FieldMapping.getFieldMapping(new IntradeoutVO());
-//			IntradeoutVO[] bodyvos = DzfTypeUtils.cast(array, bodymapping, IntradeoutVO[].class,
-//					JSONConvtoJAVA.getParserConfig());
-//			// zpm start
-//			// bodyvos = reloadNewValue(bodyvos);
-//			// zpm end
-//			String type = printParamVO.getType();
-//			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
-//			tmap.put("公司", bodyvos[0].getGs());
-//			tmap.put("期间", bodyvos[0].getTitlePeriod());
-//
-//			setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());//为后续设置精度赋值
-//
-//			printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "出 库 单",
-//					new String[] { "kmmc", "invname", "zy", "invspec","measure", "dbilldate", "nnum",
-//							"ncost", "pzh", "memo" },
-//					new String[] { "科目", "存货", "摘要", "规格(型号)", "计量单位", "单据日期", "数量", "成本", "凭证号", "备注" },
-//					new int[] { 2, 3, 4, 4, 2, 2, 3, 2, 3, 2 }, 20, type, pmap, tmap);
-//		} catch (DocumentException e) {
-//			log.error("出库单打印失败", e);
-//		} catch (IOException e) {
-//			log.error("出库单打印失败", e);
-//		}
+	@PostMapping("print")
+    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
+            PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
+            if (DZFValueCheck.isEmpty(pmap.get("list"))) {
+                return;
+            }
+            if ("Y".equals(pmap.get("pageOrt"))) {
+                printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
+            } else {
+                printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
+            }
+			IntradeoutVO[] bodyvos= JsonUtils.convertValue(printParamVO.getList(), IntradeoutVO[].class);
+			String type = printParamVO.getType();
+			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
+			tmap.put("公司", bodyvos[0].getGs());
+			tmap.put("期间", bodyvos[0].getTitlePeriod());
+
+			setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());//为后续设置精度赋值
+
+			printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "出 库 单",
+					new String[] { "kmmc", "invname", "zy", "invspec","measure", "dbilldate", "nnum",
+							"ncost", "pzh", "memo" },
+					new String[] { "科目", "存货", "摘要", "规格(型号)", "计量单位", "单据日期", "数量", "成本", "凭证号", "备注" },
+					new int[] { 2, 3, 4, 4, 2, 2, 3, 2, 3, 2 }, 20, pmap, tmap);
+		} catch (DocumentException e) {
+			log.error("出库单打印失败", e);
+		} catch (IOException e) {
+			log.error("出库单打印失败", e);
+		}catch (Exception e) {
+			log.error("出库单打印失败", e);
+		} finally {
+			try {
+				if (response != null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (IOException e) {
+				log.error("出库单打印错误", e);
+			}
+		}
 	}
 
 	private void setDefaultValue(IntradeoutVO[] bodyvos, String pk_corp){
@@ -166,57 +164,49 @@ public class TradeoutController{
 		}
 	}
 
-	public void expExcel(){
-//		String str = getRequest().getParameter("list");
-//		JSONArray array = JSON.parseArray(str);
-//		Map<String, String> bodymapping = FieldMapping.getFieldMapping(new AggIcTradeVO());
-//		AggIcTradeVO[] aggvos = DzfTypeUtils.cast(array, bodymapping,
-//				AggIcTradeVO[].class, JSONConvtoJAVA.getParserConfig());
-//
-//		HttpServletResponse response = getResponse();
-//		OutputStream toClient = null;
-//
-//		try {
-//			response.reset();
-//			String exName = new String("出库单.xls");
-//			exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
-//			response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
-//			toClient = new BufferedOutputStream(response.getOutputStream());
-//			response.setContentType("application/vnd.ms-excel;charset=gb2312");
-//			byte[] length = null;
-//
-//			Map<String, Integer> preMap = getPreMap();//设置精度
-//
-//			IcBillExport exp = new IcBillExport();
-//			length = exp.exportExcel(aggvos, toClient, 2, false, preMap);
-//			String srt2 = new String(length, "UTF-8");
-//			response.addHeader("Content-Length", srt2);
-//			toClient.flush();
-//			response.getOutputStream().flush();
-//		} catch (IOException e) {
-//			log.error("excel导出错误", e);
-//		} catch (Exception e) {
-//			log.error("excel导出错误", e);
-//		} finally {
-//			try {
-//				if (toClient != null) {
-//					toClient.close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//			try {
-//				if (response!=null && response.getOutputStream() != null) {
-//					response.getOutputStream().close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//		}
-//
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(),
-//				"导出出库单",
-//				ISysConstants.SYS_2);
+	@PostMapping("/expExcel")
+	public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> param){
+		OutputStream toClient = null;
+		try {
+			String str = param.get("list");
+			AggIcTradeVO[] aggvos= JsonUtils.convertValue(str, AggIcTradeVO[].class);
+			response.reset();
+			String exName = new String("出库单.xls");
+			exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
+			response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+			toClient = new BufferedOutputStream(response.getOutputStream());
+			response.setContentType("application/vnd.ms-excel;charset=gb2312");
+			byte[] length = null;
+
+			Map<String, Integer> preMap = getPreMap();//设置精度
+
+			IcBillExport exp = new IcBillExport();
+			length = exp.exportExcel(aggvos, toClient, 2, false, preMap);
+			String srt2 = new String(length, "UTF-8");
+			response.addHeader("Content-Length", srt2);
+			toClient.flush();
+			response.getOutputStream().flush();
+		} catch (IOException e) {
+			log.error("出库单excel导出错误", e);
+		} catch (Exception e) {
+			log.error("出库单excel导出错误", e);
+		} finally {
+			try {
+				if (toClient != null) {
+					toClient.close();
+				}
+			} catch (IOException e) {
+				log.error("出库单excel导出错误", e);
+			}
+			try {
+				if (response!=null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (IOException e) {
+				log.error("出库单excel导出错误", e);
+			}
+		}
+//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(),"导出出库单",ISysConstants.SYS_2);
 	}
 
 	private Map<String, Integer> getPreMap(){
@@ -228,7 +218,6 @@ public class TradeoutController{
 		Map<String, Integer> preMap = new HashMap<String, Integer>();
 		preMap.put(IParameterConstants.DZF009, num);
 		preMap.put(IParameterConstants.DZF010, price);
-
 		return preMap;
 	}
 
