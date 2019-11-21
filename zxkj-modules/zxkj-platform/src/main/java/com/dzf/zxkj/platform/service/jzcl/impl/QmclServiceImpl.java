@@ -7,9 +7,6 @@ import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.*;
@@ -18,7 +15,10 @@ import com.dzf.zxkj.common.enums.SurTaxEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.platform.config.QmjzByDzfConfig;
 import com.dzf.zxkj.platform.exception.ExBusinessException;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
@@ -33,12 +33,13 @@ import com.dzf.zxkj.platform.model.tax.TaxCalculateVO;
 import com.dzf.zxkj.platform.model.tax.TaxEffeHistVO;
 import com.dzf.zxkj.platform.service.bdset.*;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.jzcl.IVoucherTemplate;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.report.*;
+import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IJtsjTemService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
@@ -48,7 +49,7 @@ import com.dzf.zxkj.platform.service.zcgl.IAssetCard;
 import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.util.KmbmUpgrade;
 import com.dzf.zxkj.platform.util.ReportUtil;
-import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.report.service.IZxkjReportService;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.BeanUtils;
@@ -113,6 +114,8 @@ public class QmclServiceImpl implements IQmclService {
 	private IIncomeWarningService incomewarningserv;
 	@Autowired
 	private ICorpService corpService;
+	@Autowired
+	private QmjzByDzfConfig qmjzByDzfConfig;
 
 	public void doQmVO(QmclVO vo) throws DZFWarpException {
 		// 成本结转处理
@@ -2172,7 +2175,7 @@ public class QmclServiceImpl implements IQmclService {
 				}
 			}
 			CorpVO corpVo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, qmvo.getPk_corp());// 防止vo信息有变化
-			boolean dzfflag = QmjzByDzfInfo.dzf_pk_gs.equals(qmvo.getPk_corp());
+			boolean dzfflag = qmjzByDzfConfig.dzf_pk_gs.equals(qmvo.getPk_corp());
 			if(dzfflag){
 				Cbjz_DZF dzf = new Cbjz_DZF(yntBoPubUtil, singleObjectBO, voucher, gl_cpacckmserv, gl_accountcoderule, gl_fzhsserv);
 				result = dzf.save(corpVo, qmvo, userid);
