@@ -18,6 +18,7 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
@@ -35,6 +36,7 @@ import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -75,7 +77,7 @@ public class BankStatement2Controller extends BaseController {
 //	private IParameterSetService parameterserv;
 
     @RequestMapping("/queryInfo")
-    public ReturnData<Json> queryInfo(BankStatementVO2 bvo,String sort,String order,Integer page,Integer rows,String flag){
+    public ReturnData<Json> queryInfo(@RequestBody BankStatementVO2 bvo,String sort,String order,Integer page,Integer rows,String flag){
 //		Grid grid = new Grid();
         Json json = new Json();
         try {
@@ -191,10 +193,16 @@ public class BankStatement2Controller extends BaseController {
 
     //修改保存
     @RequestMapping("/onUpdate")
-    public ReturnData<Json> onUpdate(BankStatementVO2 bvo,String adddoc,String deldoc,@RequestParam("upddoc") String uptdoc){
+    public ReturnData<Json> onUpdate(@RequestBody Map<String,String> param){
         Json json = new Json();
 //		String[] strArr = getRequest().getParameterValues("strArr[]");
         try{
+            BankStatementVO2 bvo = new BankStatementVO2();
+            String bankaccid = param.get("bankaccid");
+            bvo.setPk_bankaccount(bankaccid);
+            String adddoc = param.get("adddoc");
+            String deldoc = param.get("deldoc");
+            String uptdoc = param.get("upddoc");
             String pk_corp = SystemUtil.getLoginCorpId();
             checkValidData(bvo);
 
@@ -202,12 +210,7 @@ public class BankStatement2Controller extends BaseController {
             if(!StringUtil.isEmpty(adddoc)){
                 adddoc = adddoc.replace("}{", "},{");
                 adddoc = "[" + adddoc + "]";
-                JSONArray adddocArray = (JSONArray) JSON.parseArray(adddoc);
-
-//                Map<String, String> adddocMapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//                BankStatementVO2[] adddocvos =  DzfTypeUtils.cast(adddocArray, adddocMapping, BankStatementVO2[].class,
-//                        JSONConvtoJAVA.getParserConfig());
-                BankStatementVO2[] adddocvos =  adddocArray.toArray(new BankStatementVO2[0]);
+                BankStatementVO2[] adddocvos =  JsonUtils.deserialize(adddoc,BankStatementVO2[].class);
                 if (adddocvos != null && adddocvos.length > 0) {
                     for(BankStatementVO2 vo : adddocvos){
                         checkJEValid(vo);
@@ -220,11 +223,7 @@ public class BankStatement2Controller extends BaseController {
             if(!StringUtil.isEmpty(deldoc)){
                 deldoc = deldoc.replace("}{", "},{");
                 deldoc = "[" + deldoc + "]";
-                JSONArray deldocArray = (JSONArray) JSON.parseArray(deldoc);
-//                Map<String, String> deldocMapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//                BankStatementVO2[] deldocvos = DzfTypeUtils.cast(deldocArray, deldocMapping, BankStatementVO2[].class,
-//                        JSONConvtoJAVA.getParserConfig());
-                BankStatementVO2[] deldocvos =  deldocArray.toArray(new BankStatementVO2[0]);
+                BankStatementVO2[] deldocvos =  JsonUtils.deserialize(deldoc,BankStatementVO2[].class);
                 if (deldocvos != null && deldocvos.length > 0) {
                     sendData.put("deldocvos", deldocvos);
                 }
@@ -233,11 +232,7 @@ public class BankStatement2Controller extends BaseController {
             if(!StringUtil.isEmpty(uptdoc)){
                 uptdoc = uptdoc.replace("}{", "},{");
                 uptdoc = "[" + uptdoc + "]";
-                JSONArray uptdocArray = (JSONArray) JSON.parseArray(uptdoc);
-//                Map<String, String> uptdocMapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//                BankStatementVO2[] uptdocvos = DzfTypeUtils.cast (uptdocArray, uptdocMapping, BankStatementVO2[].class,
-//                        JSONConvtoJAVA.getParserConfig());
-                BankStatementVO2[] uptdocvos =  uptdocArray.toArray(new BankStatementVO2[0]);
+                BankStatementVO2[] uptdocvos =  JsonUtils.deserialize(uptdoc,BankStatementVO2[].class);
                 if (uptdocvos != null && uptdocvos.length > 0) {
                     StringBuffer checkKeys=new StringBuffer();
                     for(BankStatementVO2 vo : uptdocvos){
@@ -328,7 +323,8 @@ public class BankStatement2Controller extends BaseController {
 
     //删除记录
     @RequestMapping("/onDelete")
-    public ReturnData<Json> onDelete(@RequestParam("head") String body){
+    public ReturnData<Json> onDelete(@RequestBody Map<String,String> param){
+        String body = param.get("head");
         Json json = new Json();
         StringBuffer strb = new StringBuffer();
         BankStatementVO2[] bodyvos = null;
@@ -345,18 +341,13 @@ public class BankStatement2Controller extends BaseController {
 //
 //                return ReturnData.error().data(json);
 //            }
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
+            body = body.replace("}{", "},{");
+            body = "[" + body + "]";
+            bodyvos = JsonUtils.deserialize(body,BankStatementVO2[].class);
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//            bodyvos = DzfTypeUtils.cast(array, bodymapping, BankStatementVO2[].class, JSONConvtoJAVA.getParserConfig());
-            bodyvos = array.toArray(new BankStatementVO2[0]);
             if (bodyvos == null || bodyvos.length == 0) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
@@ -392,11 +383,11 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData<Json> impExcel(@RequestParam("impForce")String flag, MultipartFile file, BankStatementVO2 bvo, Integer sourcetem){
+    public ReturnData<Json> impExcel(@RequestBody Map<String,String> param, MultipartFile file,BankStatementVO2 bvo,Integer sourcetem){
         Json json = new Json();
         json.setSuccess(false);
         try {
-
+            String flag = param.get("impForce");
             if(bvo == null || sourcetem == 0)
                 throw new BusinessException("未选择上传文档，请检查");
             bvo = getParamVO(bvo, sourcetem);
@@ -465,19 +456,13 @@ public class BankStatement2Controller extends BaseController {
 //
 //                return ReturnData.error().data(json);
 //            }
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,请检查!");
             }
+            body = body.replace("}{", "},{");
+            body = "[" + body + "]";
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//            vos = DzfTypeUtils.cast(array, bodymapping, BankStatementVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
-            vos = array.toArray(new BankStatementVO2[0]);
+            vos = JsonUtils.deserialize(body, BankStatementVO2[].class);
             if(vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,生成凭证失败，请检查");
 
@@ -703,12 +688,13 @@ public class BankStatement2Controller extends BaseController {
 //    }
 
     @RequestMapping("/setBusiperiod")
-    public ReturnData<Json> setBusiperiod(@RequestParam("rows")String data,String period){
+    public ReturnData<Json> setBusiperiod(@RequestBody Map<String,String> param){
         Json json = new Json();
         json.setSuccess(false);
 
         try {
-
+            String data = param.get("rows");
+            String period = param.get("period");
             if(StringUtil.isEmptyWithTrim(data)
                     || StringUtil.isEmptyWithTrim(period)){
                 throw new BusinessException("传入后台参数为空，请检查");
@@ -719,10 +705,7 @@ public class BankStatement2Controller extends BaseController {
                 throw new BusinessException("入账期间解析错误，请检查");
             }
 
-            JSONArray array = (JSONArray) JSON.parseArray(data);
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//            BankStatementVO2[] listvo = DzfTypeUtils.cast(array, bodymapping, BankStatementVO2[].class, JSONConvtoJAVA.getParserConfig());
-            BankStatementVO2[] listvo = array.toArray(new BankStatementVO2[0]);
+            BankStatementVO2[] listvo = JsonUtils.deserialize(data,BankStatementVO2[].class);
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("解析前台参数失败，请检查");
             //处理老数据中的业务类型
@@ -767,15 +750,13 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/checkBeforPZ")
-    public ReturnData<Json> checkBeforPZ(@RequestParam("row")String str){
+    public ReturnData<Json> checkBeforPZ(@RequestBody Map<String,String> param){
         Json json = new Json();
         String pk_corp = SystemUtil.getLoginCorpId();
         try {
+            String str = param.get("row");
             str = "[" + str + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(str);
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//            BankStatementVO2[] listvo = DzfTypeUtils.cast(array, bodymapping, BankStatementVO2[].class, JSONConvtoJAVA.getParserConfig());
-            BankStatementVO2[] listvo = array.toArray(new BankStatementVO2[0]);
+            BankStatementVO2[] listvo = JsonUtils.deserialize(str, BankStatementVO2[].class);
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("解析前台参数失败，请检查");
 
@@ -815,10 +796,10 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/getTzpzHVOByID")
-    public ReturnData<Json> getTzpzHVOByID(@RequestParam("row")String str){
+    public ReturnData<Json> getTzpzHVOByID(@RequestBody Map<String,String> param){
         Json json = new Json();
-
         try {
+            String str = param.get("row");
             str = str.replace("}{", "},{");
             str = "[" + str + "]";
             JSONArray array = (JSONArray) JSON.parseArray(str);
@@ -848,8 +829,9 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/combinePZ_long")
-    public void combinePZ_long(@RequestParam("head")String body){
+    public void combinePZ_long(@RequestBody Map<String,String> param){
         VatInvoiceSetVO setvo = queryRuleByType();
+        String body = param.get("head");
         if(setvo == null
                 || setvo.getValue() == null
                 || setvo.getValue() == IBillManageConstants.HEBING_GZ_01){
@@ -863,19 +845,12 @@ public class BankStatement2Controller extends BaseController {
         Json json = new Json();
         BankStatementVO2[] vos = null;
         try {
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,合并生成凭证失败!");
             }
-
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//            vos = DzfTypeUtils.cast(array, bodymapping, BankStatementVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
-            vos = array.toArray(new BankStatementVO2[0]);
+            body = body.replace("}{", "},{");
+            body = "[" + body + "]";
+            vos = JsonUtils.deserialize(body, BankStatementVO2[].class);
             if(vos == null || vos.length == 0)
                 throw new BusinessException("数据为空，合并生成凭证失败，请检查");
 
@@ -1186,11 +1161,12 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/expExcelData")
-    public void expExcelData(@RequestParam("daterows")String strrows,HttpServletResponse response ){
+    public void expExcelData(@RequestBody Map<String,String> param, HttpServletResponse response ){
 
-        JSONArray array = JSON.parseArray(strrows);
         OutputStream toClient = null;
         try {
+            String strrows = param.get("daterows");
+            JSONArray array = JSON.parseArray(strrows);
             response.reset();
             String exName = new String("银行对账单.xlsx");
             exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
@@ -1274,11 +1250,16 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/combineRule")
-    public ReturnData<Json> combineRule(String pzrq,String pzrule,String flrule,String zy,@RequestParam("setid") String setId,String bk){
+    public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
-
-            if(StringUtil.isEmpty(pzrule)
+            String pzrq = param.get("pzrq");
+            String pzrule = param.get("pzrule");
+            String flrule = param.get("flrule");
+            String zy = param.get("zy");
+            String setId = param.get("setid");
+            String bk = param.get("bk");
+        if(StringUtil.isEmpty(pzrule)
                     || StringUtil.isEmpty(flrule)|| StringUtil.isEmpty(pzrq)){
                 throw new BusinessException("合并规则设置失败，请重试");
             }
@@ -1315,7 +1296,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryRef")
-    public ReturnData<Grid> queryCategoryRef(String period){
+    public ReturnData<Grid> queryCategoryRef(@RequestBody String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
         try {
@@ -1359,9 +1340,11 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryset")
-    public ReturnData<Grid> queryCategoryset(String id,String period){
+    public ReturnData<Grid> queryCategoryset(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String id = param.get("id");
+            String period = param.get("period");
             ArrayList<String> pk_categoryList = new ArrayList<String>();
 
             List<CategorysetVO> list = gl_vatincinvact2.queryIncomeCategorySet(id,SystemUtil.getLoginCorpId());
@@ -1387,10 +1370,15 @@ public class BankStatement2Controller extends BaseController {
      * 入账设置
      */
     @RequestMapping("/updateCategoryset")
-    public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busitypetempname,String pk_basecategory,
-                                  String zdyzy,String rzkm){
+    public ReturnData<Grid> updateCategoryset(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String pk_model_h = param.get("pk_model_h");
+            String id = param.get("id");
+            String busitypetempname = param.get("busitypetempname");
+            String pk_basecategory = param.get("pk_basecategory");
+            String zdyzy = param.get("zdyzy");
+            String rzkm = param.get("rzkm");
 
 //            JSONObject jsonObject= JSONObject.fromObject(rows);
 //            BankStatementVO2 vo=(BankStatementVO2)JSONObject.toBean(jsonObject, BankStatementVO2.class);

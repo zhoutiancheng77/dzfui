@@ -21,6 +21,7 @@ import com.dzf.zxkj.common.utils.DZFMapUtil;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -153,7 +154,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryInfoByID")
-    public ReturnData<Json> queryInfoByID(String id){
+    public ReturnData<Json> queryInfoByID(@RequestBody String id){
         Json json = new Json();
 
         try {
@@ -204,25 +205,16 @@ public class VATInComInvoice2Controller extends BaseController {
 
     //修改保存
     @RequestMapping("/saveOrUpdate")
-    public ReturnData<Json> saveOrUpdate(@RequestParam("adddoc[header]") String head,@RequestParam("adddoc[body]") String body){
+    public ReturnData<Json> saveOrUpdate(@RequestBody Map<String,String> param){
         String msg = "";//记录日志
         Json json = new Json();
         try{
+            String head = param.get("adddoc[header]");
+            String body = param.get("adddoc[body]");
             String pk_corp = SystemUtil.getLoginCorpId();
-
             Map<String, VATInComInvoiceVO2[]> sendData = new HashMap<String, VATInComInvoiceVO2[]>();
-
-//            JSON headjs = (JSON) JSON.parse(head);
-            JSONArray array = JSON.parseArray(body);
-
-//            Map<String, String> headmapping = FieldMapping.getFieldMapping(new VATInComInvoiceVO2());
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATInComInvoiceBVO2());
-//            VATInComInvoiceVO2 headvo = DzfTypeUtils.cast(headjs, headmapping, VATInComInvoiceVO2.class, JSONConvtoJAVA.getParserConfig());
-//            VATInComInvoiceBVO2[] bodyvos = DzfTypeUtils.cast(array, bodymapping, VATInComInvoiceBVO2[].class, JSONConvtoJAVA.getParserConfig());
-//            JSONObject jsonObject= JSONObject.fromObject(head);
-//            VATInComInvoiceVO2 headvo = (VATInComInvoiceVO2)JSONObject.toBean(jsonObject, VATInComInvoiceVO2.class);
-            VATInComInvoiceVO2 headvo = JSON.parseObject(head,VATInComInvoiceVO2.class);
-            VATInComInvoiceBVO2[] bodyvos = array.toArray(new VATInComInvoiceBVO2[0]);
+            VATInComInvoiceVO2 headvo = JsonUtils.deserialize(head,VATInComInvoiceVO2.class);
+            VATInComInvoiceBVO2[] bodyvos = JsonUtils.deserialize(body, VATInComInvoiceBVO2[].class);
             if (!StringUtil.isEmptyWithTrim(headvo.getGhfmc())){
                 //处理特殊字符
                 headvo.setGhfmc(OcrUtil.filterCorpName(headvo.getGhfmc()).trim());
@@ -477,7 +469,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
     //删除记录
     @RequestMapping("/onDelete")
-    public ReturnData<Json> onDelete(@RequestParam("head")String body){
+    public ReturnData<Json> onDelete(@RequestBody Map<String,String> param){
         Json json = new Json();
         json.setSuccess(false);
         StringBuffer strb = new StringBuffer();
@@ -489,6 +481,7 @@ public class VATInComInvoice2Controller extends BaseController {
         List<String> sucHM = new ArrayList<String>();
         List<String> errHM = new ArrayList<String>();
         try{
+            String body = param.get("head");
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
 //            boolean lock = LockUtil.getInstance().addLockKey("jinxiangdel", pk_corp, requestid, 600);// 设置600秒
@@ -497,17 +490,12 @@ public class VATInComInvoice2Controller extends BaseController {
 //                json.setMsg("正在处理中，请稍候刷新界面");
 //               return ReturnData.error().data(json);
 //            }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
-
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATInComInvoiceVO2());
-//            bodyvos = DzfTypeUtils.cast(array, bodymapping, VATInComInvoiceVO2[].class, JSONConvtoJAVA.getParserConfig());
-            bodyvos = array.toArray(new VATInComInvoiceVO2[0]);
+            body = body.replace("}{", "},{");
+            body = "[" + body + "]";
+            bodyvos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
             if (bodyvos == null || bodyvos.length == 0) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
@@ -622,24 +610,14 @@ public class VATInComInvoice2Controller extends BaseController {
 //                return ReturnData.error().data(json);
 //            }
 
-//            String lwstr = getRequest().getParameter("lwflag");
             DZFBoolean lwflag = "Y".equals(lwstr) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
-
-//            String body = getRequest().getParameter("head");
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,生成凭证失败!");
             }
+            body = body.replace("}{", "},{");
+            body = "[" + body + "]";
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATInComInvoiceVO2());
-//            vos = DzfTypeUtils.cast(array, bodymapping, VATInComInvoiceVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
-
-            vos = array.toArray(new VATInComInvoiceVO2[0]);
+            vos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
             if(vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,生成凭证失败，请检查");
 
@@ -832,21 +810,19 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/setBusiperiod")
-    public ReturnData<Json> setBusiperiod(@RequestParam("rows")String data,@RequestParam("ruzper")String ruzperiod,
-                              @RequestParam("rezper")String rezperiod){
+    public ReturnData<Json> setBusiperiod(@RequestBody Map<String,String> param){
         Json json = new Json();
         json.setSuccess(false);
 
         try {
-
+            String data = param.get("rows");
+            String ruzperiod = param.get("ruzper");
+            String rezperiod = param.get("rezper");
             if(StringUtil.isEmptyWithTrim(data)){
                 throw new BusinessException("传入后台参数为空，请检查");
             }
 
-            JSONArray array = (JSONArray) JSON.parseArray(data);
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATInComInvoiceVO2());
-//            VATInComInvoiceVO2[] listvo = DzfTypeUtils.cast(array, bodymapping, VATInComInvoiceVO2[].class, JSONConvtoJAVA.getParserConfig());
-            VATInComInvoiceVO2[] listvo = array.toArray(new VATInComInvoiceVO2[0]);
+            VATInComInvoiceVO2[] listvo = JsonUtils.deserialize(data, VATInComInvoiceVO2[].class);
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("解析前台参数失败，请检查");
 
@@ -997,9 +973,12 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/combinePZ_long")
-    public ReturnData<Json> combinePZ_long(@RequestParam("lwflag")String lwstr,@RequestParam("head")String body,String goods){
+    public ReturnData<Json> combinePZ_long(@RequestBody Map<String,String> param){
         ReturnData<Json> returnData = null;
         VatInvoiceSetVO setvo = queryRuleByType();
+        String lwstr = param.get("lwflag");
+        String body = param.get("head");
+        String goods = param.get("goods");
         if(setvo == null
                 || setvo.getValue() == null
                 || setvo.getValue() == IBillManageConstants.HEBING_GZ_01){//不合并
@@ -1026,19 +1005,13 @@ public class VATInComInvoice2Controller extends BaseController {
 //            }
 
             DZFBoolean lwflag = "Y".equals(lwstr) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,合并生成凭证失败!");
             }
+            body = body.replace("}{", "},{");
+            body = "[" + body + "]";
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATInComInvoiceVO2());
-//            vos = DzfTypeUtils.cast(array, bodymapping, VATInComInvoiceVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
-            vos = array.toArray(new VATInComInvoiceVO2[0]);
+            vos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
             if(vos == null || vos.length == 0)
                 throw new BusinessException("数据为空，合并生成凭证失败，请检查");
 
@@ -1341,8 +1314,8 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/expExcelData")
-    public void expExcelData(@RequestParam("daterows")String strrows, HttpServletResponse response){
-
+    public void expExcelData(@RequestBody Map<String,String> param, HttpServletResponse response){
+        String strrows = param.get("daterows");
         JSONArray array = JSON.parseArray(strrows);
         OutputStream toClient = null;
         try {
@@ -1439,7 +1412,7 @@ public class VATInComInvoice2Controller extends BaseController {
      rzPeriod   认证所属日期
      */
     @RequestMapping("/onTicket")
-    public ReturnData<Json> onTicket(String ccrecode,String f2,String begindate3,String enddate3,String serType,String rzPeriod){
+    public ReturnData<Json> onTicket(@RequestBody String ccrecode,String f2,String begindate3,String enddate3,String serType,String rzPeriod){
         Json json = new Json();
 
         VATInComInvoiceVO2 paramvo = new VATInComInvoiceVO2();
@@ -1900,11 +1873,15 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/combineRule")
-    public ReturnData<Json> combineRule(String pzrq,String pzrule,String flrule,String zy,
-                                        @RequestParam("setid") String setId, String bk){
+    public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
-
+            String pzrq = param.get("pzrq");
+            String pzrule = param.get("pzrule");
+            String flrule = param.get("flrule");
+            String zy = param.get("zy");
+            String setId = param.get("setid");
+            String bk = param.get("bk");
             if(StringUtil.isEmpty(pzrule)
                     || StringUtil.isEmpty(flrule)|| StringUtil.isEmpty(pzrq)){
                 throw new BusinessException("合并规则设置失败，请重试");
@@ -2772,7 +2749,7 @@ public class VATInComInvoice2Controller extends BaseController {
             writeJson(json);
         }*/
     @RequestMapping("/queryCategoryRef")
-    public ReturnData<Grid> queryCategoryRef(String period){
+    public ReturnData<Grid> queryCategoryRef(@RequestBody String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
         try {
@@ -2817,7 +2794,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryset")
-    public ReturnData<Grid> queryCategoryset(String id,String period){
+    public ReturnData<Grid> queryCategoryset(@RequestBody String id,String period){
         Grid grid = new Grid();
         try {
             ArrayList<String> pk_categoryList = new ArrayList<String>();
@@ -2842,11 +2819,18 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/updateCategoryset")
-    public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busisztypecode,String pk_basecategory,
-                                  String pk_category_keyword,String rzkm,String jskm,String shkm,String zdyzy){
+    public ReturnData<Grid> updateCategoryset(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
-
+            String pk_model_h = param.get("pk_model_h");
+            String id = param.get("id");
+            String busisztypecode = param.get("busisztypecode");
+            String pk_basecategory = param.get("pk_basecategory");
+            String pk_category_keyword = param.get("pk_category_keyword");
+            String rzkm = param.get("rzkm");
+            String jskm = param.get("jskm");
+            String shkm = param.get("shkm");
+            String zdyzy = param.get("zdyzy");
             String pk_corp = SystemUtil.getLoginCorpId();
             String[] ids = id.split(",");
 //			for (String pk_vatincominvoice : ids) {
@@ -2871,26 +2855,22 @@ public class VATInComInvoice2Controller extends BaseController {
 
 
     @RequestMapping("/getGoodsInvenRela_long")
-    public ReturnData<Grid> getGoodsInvenRela_long(@RequestParam("head")String body){
+    public ReturnData<Grid> getGoodsInvenRela_long(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try{
 
+            String body = param.get("head");
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
             String pk_corp = corpvo.getPk_corp();
             if(!corpvo.getBbuildic().equals(IcCostStyle.IC_OFF)){
 
-                body = body.replace("}{", "},{");
-                body = "[" + body + "]";
-                JSONArray array = (JSONArray) JSON.parseArray(body);
-
-                if (array == null) {
+                if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
                 }
+                body = body.replace("}{", "},{");
+                body = "[" + body + "]";
 
-//                Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATInComInvoiceVO2());
-//                VATInComInvoiceVO2[] vos = DzfTypeUtils.cast(array, bodymapping, VATInComInvoiceVO2[].class,
-//                        JSONConvtoJAVA.getParserConfig());
-                VATInComInvoiceVO2[] vos = array.toArray(new VATInComInvoiceVO2[0]);
+                VATInComInvoiceVO2[] vos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
                 if(vos == null || vos.length == 0)
                     throw new BusinessException("数据为空,生成凭证失败，请检查");
 
@@ -3043,10 +3023,12 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryB")
-    public ReturnData<Json> queryB(@RequestParam("id") String hid,String kmid,String pk_corp) {
+    public ReturnData<Json> queryB(@RequestBody Map<String,String> param) {
         Json json = new Json();
         try {
-
+            String hid = param.get("id");
+            String kmid = param.get("kmid");
+            String pk_corp = param.get("pk_corp");
             if (StringUtil.isEmpty(hid)) {
                 json.setMsg("参数为空！");
                 json.setSuccess(false);
