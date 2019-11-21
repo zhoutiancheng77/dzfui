@@ -113,7 +113,7 @@ public class PurchInController {
 	}
 
 	@PostMapping("/save")
-	public ReturnData save(@RequestParam Map<String, String> param) {
+	public ReturnData save(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		IntradeHVO headvo = null;
 		boolean isadd = false;
@@ -185,7 +185,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/delete")
-	public ReturnData delete(@RequestParam Map<String, String> param) {
+	public ReturnData delete(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		IntradeHVO[] bodyvos = null;
@@ -250,7 +250,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/saveToZz")
-	public ReturnData saveToZz(@RequestParam Map<String, String> param) {
+	public ReturnData saveToZz(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		IntradeHVO[] bodyvos = null;
@@ -297,7 +297,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/saveToTotalZz")
-	public ReturnData saveToTotalZz(@RequestParam Map<String, String> param) {
+	public ReturnData saveToTotalZz(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		IntradeHVO[] bodyvos = null;
@@ -416,7 +416,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/rollbackToZz")
-	public ReturnData rollbackToZz(@RequestParam Map<String, String> param) {
+	public ReturnData rollbackToZz(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		try {

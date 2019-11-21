@@ -117,7 +117,7 @@ public class SaleoutController{
 	}
 
 	@PostMapping("/saveSale")
-	public ReturnData saveSale(@RequestParam Map<String, String> param) {
+	public ReturnData saveSale(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		IntradeHVO headvo = null;
 		boolean isadd = false;
@@ -220,7 +220,7 @@ public class SaleoutController{
 	 * 删除
 	 */
     @PostMapping("/delSale")
-	public ReturnData delSale(@RequestParam Map<String, String> param) {
+	public ReturnData delSale(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		IntradeHVO[] bodyvos = null;
@@ -275,7 +275,7 @@ public class SaleoutController{
 	 * 转总账
 	 */
     @PostMapping("/togl")
-	public ReturnData togl(@RequestParam Map<String, String> param) {
+	public ReturnData togl(@RequestBody Map<String, String> param) {
 
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
@@ -334,7 +334,7 @@ public class SaleoutController{
 	 * 转总账
 	 */
     @PostMapping("/toTotalGL")
-	public ReturnData toTotalGL(@RequestParam Map<String, String> param) {
+	public ReturnData toTotalGL(@RequestBody Map<String, String> param) {
 
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
@@ -449,7 +449,7 @@ public class SaleoutController{
 	 * 出库红字冲回
 	 */
     @PostMapping("/dashBack")
-	public ReturnData dashBack(@RequestParam Map<String, String> param) {
+	public ReturnData dashBack(@RequestBody Map<String, String> param) {
 		Grid grid = new Grid();
 		StringBuffer strb = new StringBuffer();
 		try {
@@ -516,7 +516,7 @@ public class SaleoutController{
 	 * 取消转总账
 	 */
     @PostMapping("/rollbackTogl")
-	public ReturnData rollbackTogl(@RequestParam Map<String, String> param) {
+	public ReturnData rollbackTogl(@RequestBody Map<String, String> param) {
 
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
