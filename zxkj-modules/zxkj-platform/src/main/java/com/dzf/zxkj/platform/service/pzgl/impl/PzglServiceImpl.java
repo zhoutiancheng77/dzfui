@@ -2478,7 +2478,8 @@ public class PzglServiceImpl implements IPzglService {
 	}
 
 	@Override
-	public String[] processMergeVoucher(String userid,String pk_corp, String[] ids, TzpzHVO param) throws DZFWarpException {
+	public String[] processMergeVoucher(String userid,String pk_corp,
+										String[] ids, String zy) throws DZFWarpException {
 		List<TzpzHVO> vouchers = getVoucherDo(pk_corp, ids);
 		if (vouchers.size() <= 1) {
 			throw new BusinessException("请选择要合并的凭证");
@@ -2487,7 +2488,7 @@ public class PzglServiceImpl implements IPzglService {
 		if (setting == null) {
 			setting = getDefaultMergeSetting();
 		}
-		setting.setZy(param.getMemo());
+		setting.setZy(zy);
 		List<String> strlist = new ArrayList<String>();
 		List<TzpzHVO> toMergeList = new LinkedList<TzpzHVO>();
 //		List<TzpzHVO> list2 = new ArrayList<TzpzHVO>();

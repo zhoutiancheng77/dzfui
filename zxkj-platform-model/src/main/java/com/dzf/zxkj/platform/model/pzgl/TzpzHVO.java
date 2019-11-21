@@ -69,6 +69,7 @@ public class TzpzHVO extends SuperVO<TzpzBVO> {
 	private Integer dr;
 	@JsonProperty("zdrq")
 	private DZFDate doperatedate;
+	// 公司名
 	private String vdef4;
 	@JsonProperty("pzlb")
 	private Integer pzlb;
