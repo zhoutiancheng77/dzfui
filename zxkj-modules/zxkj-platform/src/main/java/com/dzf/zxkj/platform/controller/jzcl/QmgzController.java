@@ -322,7 +322,7 @@ public class QmgzController  extends PrintAndExcelExportController {
 
 
     @PostMapping("fanGz")
-    public ReturnData fanGz(@MultiRequestBody QmclVO[] list ,String laterMonth, String funname) {
+    public ReturnData fanGz(@MultiRequestBody QmclVO[] list ,String laterMonth, @MultiRequestBody String funname) {
         Json grid = new Json();
         if(StringUtil.isEmpty(funname)){
             funname = "总账月末反关账";
