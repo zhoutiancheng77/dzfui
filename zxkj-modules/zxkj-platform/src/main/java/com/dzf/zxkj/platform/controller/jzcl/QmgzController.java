@@ -322,12 +322,12 @@ public class QmgzController  extends PrintAndExcelExportController {
 
 
     @PostMapping("fanGz")
-    public ReturnData fanGz(String list ,String laterMonth, String funname) {
+    public ReturnData fanGz(@MultiRequestBody QmclVO[] list ,String laterMonth, @MultiRequestBody String funname) {
         Json grid = new Json();
         if(StringUtil.isEmpty(funname)){
             funname = "总账月末反关账";
         }
-        QmclVO[] bodyvos = JsonUtils.deserialize(list, QmclVO[].class);
+        QmclVO[] bodyvos = list;
         String logmsg = "";
         try {
             if (bodyvos.length == 1 && "true".equals(laterMonth)) {
