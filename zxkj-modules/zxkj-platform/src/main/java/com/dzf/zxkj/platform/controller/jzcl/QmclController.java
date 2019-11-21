@@ -9,10 +9,12 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.platform.exception.ExBusinessException;
 import com.dzf.zxkj.platform.model.bdset.AdjustExrateVO;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
+import com.dzf.zxkj.platform.model.jzcl.TempInvtoryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
@@ -826,6 +828,162 @@ public class QmclController {
         return ReturnData.ok().data(grid);
     }
 
+    // 该批量成本结转 ，只支持手工结转 和 比例结转
+    @PostMapping("/onbatcbjz")
+    public ReturnData<Grid> onbatcbjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos, @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            String cuserid= userVO.getCuserid();
+            StringBuffer msg = new StringBuffer();
+            String pk_corp;
+            Integer forwardtype;
+            String unitname = null;
+            String period = null;
+            List<QmclVO> list = new ArrayList<QmclVO>();
+            for (QmclVO vo : qmvos) {
+                try {
+                    pk_corp = vo.getPk_corp();
+                    period = vo.getPeriod();
+                    forwardtype = vo.getIcosttype();
+                    unitname = vo.getCorpname();
+                    msg.append("公司：").append(unitname).append(",期间").append(period);
+                    if (forwardtype != null && (forwardtype == 2 || forwardtype == 3)) {
+                        msg.append("<font color='red'>商贸成本、工业成本不允许多公司、多期间批量操作！</font><br>");
+                        continue;
+                    }
+                    if(vo.getIscbjz() != null && vo.getIscbjz().booleanValue()){
+                        msg.append("<font color='red'>已经成本结转，请勿重复结转！</font><br>");
+                        continue;
+                    }
+                    gl_qmclserv.checkTemporaryIsExist(pk_corp, period, "不能批量结转!");
+                    gl_qmclserv.checkQmclForKc(pk_corp, period, "不能批量结转!");
+                    QmclVO vos = gl_qmclserv.saveCbjz(vo, cuserid);
+                    list.add(vos);
+                    msg.append("成本结转成功<br>");
+                } catch (Exception e) {
+                    log.error("成本结转:", e);
+                    msg.append("<font color='red'>");
+                    if (e instanceof BusinessException) {
+                        msg.append(e.getMessage());
+                    } else {
+                        msg.append("成本结转失败");
+                    }
+                    msg.append("</font><br>");
+                }
+            }
+            grid.setRows(list);
+            grid.setMsg(msg.toString());
+            grid.setSuccess(true);
+        } catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 单条成本结转
+    @PostMapping("/onsinglecbjz")
+    public ReturnData<Grid> onsinglecbjz(@MultiRequestBody("qmvo")  QmclVO qmvo, @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            if(qmvo == null)
+                throw new BusinessException("请求参数为空");
+            if(qmvo.getIscbjz() != null && qmvo.getIscbjz().booleanValue())
+                throw new BusinessException("已经成本结转，请勿重复结转");
+            Integer forwardtype = qmvo.getIcosttype();
+            // 调用工业成本结转方法
+            if(forwardtype != null && forwardtype == 3){
+                return onIndustrycbjz(qmvo,userVO);
+            }
+            gl_qmclserv.checkTemporaryIsExist(qmvo.getPk_corp(), qmvo.getPeriod(), "不能批量结转!");
+            gl_qmclserv.checkQmclForKc(qmvo.getPk_corp(), qmvo.getPeriod(), "不能批量结转!");
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            String userid = userVO.getCuserid();
+            QmclVO resvos = gl_qmclserv.saveCbjz(qmvo, userid);
+            grid.setMsg("成本结转成功!");
+            grid.setTotal(Long.valueOf(1));
+            grid.setSuccess(true);
+            grid.setRows(Arrays.asList(resvos));
+        } catch (ExBusinessException ex) {
+            Map<String, List<TempInvtoryVO>> map = ex.getLmap();
+            Collection<List<TempInvtoryVO>> cl = map.values();
+            List<TempInvtoryVO> cvos = addTempInvtoryVO(cl);
+            Grid grid1 = new Grid();
+            grid1.setSuccess(true);
+            grid1.setMsg("暂估");
+            grid1.setRows(cvos.toArray(new TempInvtoryVO[0]));
+            return ReturnData.ok().data(grid1);
+        } catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 工作结转
+    public ReturnData<Grid> onIndustrycbjz(QmclVO qmvo, UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 反成本结转
+    @PostMapping("/cancelCbjz")
+    public ReturnData<Grid> cancelCbjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos, @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            String pk_corp;
+            String period = null;
+            QmclVO qmclvo = null;
+            StringBuffer msg = new StringBuffer();
+            List<QmclVO> list = new ArrayList<QmclVO>();
+            for (int i = qmvos.length - 1; i >= 0; i--) {// 倒序执行
+                try {
+                    qmclvo = qmvos[i];
+                    pk_corp = qmclvo.getPk_corp();
+                    period = qmclvo.getPeriod();
+                    msg.append("公司：").append(qmclvo.getCorpname()).append(",期间").append(period);
+                    if (qmclvo.getIscbjz() == null || !qmclvo.getIscbjz().booleanValue()) {
+                        msg.append("成本结转取消成功!<br>");
+                        continue;
+                    }
+                    qmclvo = gl_qmclserv.rollbackCbjz(qmclvo);
+                    list.add(qmclvo);
+                    msg.append("成本结转取消成功!<br>");
+                } catch (Exception e) {
+                    log.error("反成本结转:", e);
+                    msg.append("<font color='red'>");
+                    if (e instanceof BusinessException) {
+                        msg.append(e.getMessage());
+                    } else {
+                        msg.append("成本结转取消失败!");
+                    }
+                    msg.append("</font><br>");
+                }
+            }
+            grid.setMsg(msg.toString());
+            grid.setRows(list);
+            grid.setSuccess(true);
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "取消成本结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
 
 
     @PostMapping("/checkTemporaryIsExist")
@@ -886,5 +1044,19 @@ public class QmclController {
         }
 
         return value.toString();
+    }
+
+    private List<TempInvtoryVO> addTempInvtoryVO(Collection<List<TempInvtoryVO>> cl) {
+        List<TempInvtoryVO> list = new ArrayList<TempInvtoryVO>();
+        if (cl != null && cl.size() > 0) {
+            for (List<TempInvtoryVO> c : cl) {
+                for (TempInvtoryVO c1 : c) {
+                    // 生成UU-ID
+                    c1.setId(UUID.randomUUID().toString());
+                }
+                list.addAll(c);
+            }
+        }
+        return list;
     }
 }

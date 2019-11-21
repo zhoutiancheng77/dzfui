@@ -2154,7 +2154,7 @@ public class QmclServiceImpl implements IQmclService {
 
 		StringBuffer error = new StringBuffer();
 
-		if(!"不能一键结转!".equals(message)){
+		if(!"不能批量结转!".equals(message)){
 			error.append("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period);
 		}
 
@@ -4106,7 +4106,7 @@ public class QmclServiceImpl implements IQmclService {
 
 		StringBuffer error = new StringBuffer();
 
-		if(!"不能一键结转!".equals(message)){
+		if(!"不能批量结转!".equals(message)){
 			error.append("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period);
 		}
 
