@@ -1,11 +1,9 @@
 package com.dzf.zxkj.platform.controller.taxrpt;
 
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -61,7 +59,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             grid.setSuccess(false);
-            grid.setMsg("数据加载失败");
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "数据加载失败");
         }
 
         return ReturnData.ok().data(grid);
@@ -93,7 +91,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("获取模板数据失败");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "获取模板数据失败");
         }
 
         return ReturnData.ok().data(json);
@@ -130,7 +128,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rsjson.setSuccess(false);
-            rsjson.setMsg("重算失败");
+            rsjson.setMsg(e instanceof BusinessException ? e.getMessage() : "重算失败");
             rsjson.setStatus(-100);
 
         }finally {
@@ -154,7 +152,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rsjson.setSuccess(true);
-            rsjson.setMsg("查询检查条件失败");
+            rsjson.setMsg(e instanceof BusinessException ? e.getMessage() : "查询检查条件失败");
             rsjson.setStatus(-100);
         }
         return ReturnData.ok().data(rsjson);
@@ -189,7 +187,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rsjson.setSuccess(false);
-            rsjson.setMsg("保存失败");
+            rsjson.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败");
             rsjson.setStatus(-100);
         }
 
@@ -229,7 +227,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rsjson.setSuccess(true);
-            rsjson.setMsg("删除失败!");
+            rsjson.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败!");
             rsjson.setStatus(-100);
 
         }
@@ -264,7 +262,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("填写失败");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "填写失败");
         }
         return ReturnData.ok().data(json);
     }
@@ -287,7 +285,7 @@ public class TaxDeclarationController {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("上报失败");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "上报失败");
         }
         return ReturnData.ok().data(json);
     }

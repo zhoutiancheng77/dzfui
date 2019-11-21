@@ -57,6 +57,24 @@ public class ExrateVO extends SuperVO {//
     @JsonProperty("cratename")
     private String creatorname;
 
+    private String currcode;
+    private String currname;
+
+    public String getCurrcode() {
+        return currcode;
+    }
+
+    public void setCurrcode(String currcode) {
+        this.currcode = currcode;
+    }
+
+    public String getCurrname() {
+        return currname;
+    }
+
+    public void setCurrname(String currname) {
+        this.currname = currname;
+    }
 
     public String getPk_currency() {
         return pk_currency;

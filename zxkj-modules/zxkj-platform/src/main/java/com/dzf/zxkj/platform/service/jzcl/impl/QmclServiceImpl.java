@@ -2108,8 +2108,16 @@ public class QmclServiceImpl implements IQmclService {
 		sp.addParam(0);
 		sp.addParam(qmvo.getPk_corp());
 		ExrateVO[] values = (ExrateVO[]) singleObjectBO.queryByCondition(ExrateVO.class, wpex, sp);
-		for (ExrateVO vo : values) {
-			vo.setAdjustrate(vo.getExrate());
+		if(values != null && values.length > 0 ){
+			BdCurrencyVO[] vos = queryCurrency();
+			Map<String,BdCurrencyVO> maps = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(vos),new String[]{"pk_currency"});
+			for (ExrateVO vo : values) {
+				vo.setAdjustrate(vo.getExrate());
+				vo.setCurrcode(maps.get(vo.getPk_currency()).getCurrencycode());
+				vo.setCurrname(maps.get(vo.getPk_currency()).getCurrencyname());
+				vo.setExratecode(maps.get(vo.getPk_currency()).getCurrencycode());
+				vo.setExratename(maps.get(vo.getPk_currency()).getCurrencyname());
+			}
 		}
 		return values;
 	}

@@ -21,22 +21,27 @@ import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 import com.dzf.zxkj.platform.model.image.ImageParamVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
-import com.dzf.zxkj.platform.model.pzgl.PzglPageVo;
-import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
-import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
-import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
+import com.dzf.zxkj.platform.model.pzgl.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.voucher.CopyParam;
+import com.dzf.zxkj.platform.model.voucher.PzglmessageVO;
 import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
 import com.dzf.zxkj.platform.service.bdset.IPzmbhService;
 import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
+import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
+import com.dzf.zxkj.platform.service.jzcl.ITerminalSettle;
+import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.pzgl.impl.CaclTaxMny;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,6 +50,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RestController
 @RequestMapping("/voucher-manage/voucher")
@@ -66,6 +74,16 @@ public class VoucherController {
     private CheckInventorySet inventory_setcheck;
     @Autowired
     private IPzmbhService pzmbhService;
+    @Autowired
+    private IPzglService gl_pzglserv;
+    @Autowired
+    private IParameterSetService sys_parameteract;
+    @Autowired
+    private IUserService userService;
+    @Autowired
+    private ITerminalSettle gl_qmjzserv;
+    @Autowired
+    private IQmgzService qmgzService;
 
     // 查询
     @GetMapping("/query")
@@ -463,7 +481,7 @@ public class VoucherController {
             json.setMsg(msg);
             json.setStatus(200);
             json.setSuccess(true);
-            json.setRows(headvo);
+            json.setData(headvo);
         } catch (BusinessException e) {
             String errorMsg = e.getMessage();
             json.setMsg(errorMsg);
@@ -635,5 +653,534 @@ public class VoucherController {
             json.setMsg("成功");
         }
         return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/audit")
+    public ReturnData audit(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String ids = param.get("ids");
+        String mode = param.get("mode");
+        if (StringUtils.isEmpty(ids)) {
+            throw new BusinessException("请选择凭证");
+        }
+        String[] idsArray = ids.split(",");
+        String pk_corp = SystemUtil.getLoginCorpId();
+        DZFDate loginDate = DZFDate.getDate(SystemUtil.getLoginDate());
+        String userid = SystemUtil.getLoginUserId();
+        Set<String> corpSet = userService.querypowercorpSet(userid);
+        YntParameterSet setvo = sys_parameteract.queryParamterbyCode(pk_corp, "dzf003");
+
+        int fail = 0;
+        Map<String, Boolean> statusMap = new HashMap<>();
+        StringBuilder msg = new StringBuilder();
+        StringBuilder datePz = new StringBuilder();
+        StringBuilder auditPz = new StringBuilder();
+        String errMsg = "";
+        boolean cnqz = setvo != null && setvo.getPardetailvalue() == 0;
+        List<TzpzHVO> hvos = gl_tzpzserv.queryVoucherByIds(Arrays.asList(idsArray), cnqz,
+                false, false);
+        if (hvos == null) {
+            throw new BusinessException("凭证信息为空!");
+        }
+        List<TzpzHVO> updateList = new ArrayList<>();
+        for (TzpzHVO hvo : hvos) {
+            if (!corpSet.contains(hvo.getPk_corp())) {
+                if ("".equals(errMsg)) {
+                    errMsg = "无权操作！";
+                }
+                fail++;
+                continue;
+            }
+            if (hvo.getVbillstatus() == IVoucherConstants.TEMPORARY && hvo.getIautorecognize() != 1) {
+                // 暂存态且未识别不能审核
+                fail++;
+                if ("".equals(errMsg)) {
+                    errMsg = "暂存态不能进行审核！";
+                }
+                continue;
+            }
+            if (hvo.getVbillstatus() == IVoucherConstants.AUDITED) {// 审核通过
+                auditPz.append(hvo.getPzh() + "，");
+                fail++;
+                if ("".equals(errMsg)) {
+                    errMsg = "不能重复审核！";
+                }
+                continue;
+            }
+            if (cnqz) {// 需要出纳签字
+                TzpzBVO[] bvos = hvo.getChildren();
+                DZFBoolean iszj = DZFBoolean.FALSE;
+                if (bvos != null && bvos.length > 0 && (hvo.getBsign() == null || !hvo.getBsign().booleanValue())) {
+                    for (TzpzBVO bvo : bvos) {
+                        if (bvo.getVcode().startsWith("1001") || bvo.getVcode().startsWith("1002")
+                                || bvo.getVcode().startsWith("1012")) {
+                            iszj = DZFBoolean.TRUE;
+                        }
+                    }
+                    if (iszj.booleanValue()) {
+                        auditPz.append(hvo.getPzh() + "，");
+                        fail++;
+                        if ("".equals(errMsg)) {
+                            errMsg = "暂未签字，不能审核！";
+                        }
+                        continue;
+                    }
+                }
+            }
+            DZFDate auditdate = loginDate;
+            if (auditdate.before(hvo.getDoperatedate())) {
+                if ("0".equals(mode)) {
+                    auditdate = hvo.getDoperatedate();
+                } else {
+                    datePz.append(hvo.getPzh() + "，");
+                    fail++;
+                    if ("".equals(errMsg)) {
+                        errMsg = "审核时间不能小于制单日期！";
+                    }
+                    continue;
+                }
+
+            }
+            hvo.setDapprovedate(auditdate);
+            updateList.add(hvo);
+            statusMap.put(hvo.getPk_tzpz_h(), true);
+        }
+        if (updateList.size() > 0) {
+            gl_pzglserv.updateAudit(updateList, userid);
+        }
+        if (fail > 0) {
+            json.setStatus(2);
+            msg.append("成功：" + updateList.size() + "，失败：" + fail + ("".equals(errMsg) ? "" : (",原因：" + errMsg)));
+        } else {
+            json.setStatus(0);
+            msg.append("审核成功" + updateList.size() + "条");
+        }
+        json.setData(statusMap);
+        json.setSuccess(true);
+        json.setMsg(msg.toString());
+
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/unAudit")
+    public ReturnData unAudit(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String ids = param.get("ids");
+        if (StringUtils.isEmpty(ids)) {
+            throw new BusinessException("请选择凭证");
+        }
+        String[] idsArray = ids.split(",");
+        List<TzpzHVO> updateList = new ArrayList<TzpzHVO>();
+        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+
+        int fail = 0;
+        Map<String, Boolean> statusMap = new HashMap<String, Boolean>();
+        StringBuilder msg = new StringBuilder();
+        String reason = "";
+
+        List<TzpzHVO> hvos = gl_tzpzserv.queryVoucherByIds(Arrays.asList(idsArray),
+                false, false, false);
+        if (hvos == null) {
+            throw new BusinessException("凭证信息为空!");
+        }
+        Map<String, Boolean> closeStatus = new HashMap<>();
+        for (TzpzHVO hvo : hvos) {
+            if (checkCloseStatus(hvo.getPk_corp(), hvo.getPeriod(), closeStatus)) {
+                fail++;
+                if (reason.equals("")) {
+                    reason = " 原因：已年结不能取消审核";
+                }
+                continue;
+            }
+            if (hvo.getIshasjz() != null && hvo.getIshasjz().booleanValue()) {
+                fail++;
+                continue;
+            }
+            if (hvo.getVbillstatus() == IVoucherConstants.TEMPORARY) {// 暂存态不能反审核
+                fail++;
+                continue;
+            }
+            if (hvo.getVbillstatus() == IVoucherConstants.FREE) {// 自由态(8)
+                fail++;
+                continue;
+            }
+            if (!corpSet.contains(hvo.getPk_corp())) {
+                fail++;
+                continue;
+            }
+            updateList.add(hvo);
+            statusMap.put(hvo.getPk_tzpz_h(), true);
+        }
+        int success = updateList.size();
+        if (success > 0) {
+            gl_pzglserv.updateUnAudit(updateList);
+        }
+        if (fail > 0) {
+            json.setStatus(2);
+            msg.append("成功：" + success + "，失败：" + fail + reason);
+        } else {
+            json.setStatus(0);
+            msg.append("反审核成功" + success + "条");
+        }
+        json.setData(statusMap);
+        json.setSuccess(true);
+        json.setMsg(msg.toString());
+
+        return ReturnData.ok().data(json);
+    }
+
+    // 记账
+    @PostMapping("/account")
+    public ReturnData account(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+
+        String ids = param.get("ids");
+        String mode = param.get("mode");
+        if (StringUtils.isEmpty(ids)) {
+            throw new BusinessException("请选择凭证");
+        }
+        String[] idsArray = ids.split(",");
+        DZFDate loginDate = new DZFDate(SystemUtil.getLoginDate());
+        String userid = SystemUtil.getLoginUserId();
+        Set<String> corpSet = userService.querypowercorpSet(userid);
+        int fail = 0;
+        Map<String, Boolean> statusMap = new HashMap<String, Boolean>();
+        StringBuilder datePz = new StringBuilder();
+        StringBuilder auditPz = new StringBuilder();
+        StringBuilder jzPz = new StringBuilder();
+        StringBuilder msg = new StringBuilder();
+
+        List<TzpzHVO> hvos = gl_tzpzserv.queryVoucherByIds(Arrays.asList(idsArray), false, false, false);
+        if (hvos == null) {
+            throw new BusinessException("凭证信息为空!");
+        }
+
+        List<TzpzHVO> updateList = new ArrayList<>();
+        for (TzpzHVO hvo : hvos) {
+            if (hvo.getVbillstatus() != IVoucherConstants.AUDITED) {
+                auditPz.append(hvo.getPzh()).append("，");
+                fail++;
+                continue;
+            }
+            DZFDate jzdate = loginDate;
+            if (loginDate.before(hvo.getDapprovedate())) {
+                if (mode.equals("0")) {
+                    jzdate = hvo.getDoperatedate();
+                } else {
+                    datePz.append(hvo.getPzh()).append("，");
+                    fail++;
+                    continue;
+                }
+            }
+            if (hvo.getIshasjz() != null && hvo.getIshasjz().booleanValue()) {
+                jzPz.append(hvo.getPzh()).append("，");
+                fail++;
+                continue;
+            }
+            if (!corpSet.contains(hvo.getPk_corp())) {
+                fail++;
+                continue;
+            }
+            hvo.setDjzdate(jzdate);
+            updateList.add(hvo);
+            statusMap.put(hvo.getPk_tzpz_h(), true);
+        }
+        if (updateList.size() > 0) {
+            gl_pzglserv.updateAccounting(updateList, userid);
+        }
+        if (fail > 0) {
+            json.setStatus(2);
+            msg.append("成功：" + updateList.size() + "，失败：" + fail);
+        } else {
+            json.setStatus(0);
+            msg.append("记账成功" + updateList.size() + "条");
+        }
+        json.setData(statusMap);
+        json.setSuccess(true);
+        json.setMsg(msg.toString());
+        return ReturnData.ok().data(json);
+    }
+
+    // 取消记账
+    @PostMapping("/unAccount")
+    public ReturnData unAccount(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String ids = param.get("ids");
+        if (StringUtils.isEmpty(ids)) {
+            throw new BusinessException("请选择凭证");
+        }
+        String[] idsArray = ids.split(",");
+        List<TzpzHVO> updateList = new ArrayList<>();
+        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+        int fail = 0;
+        Map<String, Boolean> statusMap = new HashMap<>();
+        StringBuilder msg = new StringBuilder();
+        StringBuilder jzPz = new StringBuilder();
+        String reason = "";
+        String period = null;
+        // 关账
+        Map<String, Boolean> gzStatus = new HashMap<>();
+        // 年结
+        Map<String, Boolean> closeStatus = new HashMap<>();
+        List<TzpzHVO> hvos = gl_tzpzserv.queryVoucherByIds(Arrays.asList(idsArray), false, false, false);
+        if (hvos == null) {
+            throw new BusinessException("凭证信息为空!");
+        }
+
+        for (TzpzHVO hvo : hvos) {
+            if (checkGzStatus(hvo.getPk_corp(), hvo.getPeriod(), gzStatus)) {
+                fail++;
+                if (reason.equals("")) {
+                    reason = " 原因：已关账不能取消记账";
+                }
+                continue;
+            }
+            if (checkCloseStatus(hvo.getPk_corp(), hvo.getPeriod(), closeStatus)) {
+                fail++;
+                if (reason.equals("")) {
+                    reason = " 原因：已年结不能取消记账";
+                }
+                continue;
+            }
+            if (hvo.getIshasjz() != null && !hvo.getIshasjz().booleanValue()) {
+                jzPz.append(hvo.getPzh()).append("，");
+                fail++;
+                continue;
+            }
+            if (!corpSet.contains(hvo.getPk_corp())) {
+                fail++;
+                continue;
+            }
+            updateList.add(hvo);
+            statusMap.put(hvo.getPk_tzpz_h(), true);
+        }
+        int success = updateList.size();
+        if (success > 0) {
+            gl_pzglserv.updateUnAccounting(updateList);
+        }
+        if (fail > 0) {
+            json.setStatus(2);
+            msg.append("成功：").append(success).append("，失败：").append(fail).append(reason);
+        } else {
+            json.setStatus(0);
+            msg.append("取消记账成功").append(success).append("条");
+        }
+        json.setData(statusMap);
+        json.setSuccess(true);
+        json.setMsg(msg.toString());
+        return ReturnData.ok().data(json);
+    }
+
+    // 自动整理
+    @PostMapping("/sort")
+    public ReturnData sort(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String corpIds = param.get("companys");
+        if (StringUtils.isEmpty(corpIds)) {
+            corpIds = SystemUtil.getLoginCorpId();
+        }
+        String[] companys = corpIds.split(",");
+        String beginPeriod = param.get("begindate");
+        String endPeriod = param.get("enddate");
+        DZFDate bdate = DateUtils.getPeriodStartDate(beginPeriod);
+        DZFDate edate = DateUtils.getPeriodEndDate(endPeriod);
+        String sort_type = param.get("sort_type");
+        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+        if (companys != null && companys.length > 0) {
+            for (String pk_corp : companys) {
+                if (!corpSet.contains(pk_corp)) {
+                    throw new BusinessException("整理失败,公司错误！");
+                }
+            }
+        }
+        String msg = null;
+        if ("auto_date".equals(sort_type)) {
+            msg = gl_pzglserv.updateNumByDate(companys, bdate, edate);
+        } else if ("auto_number".equals(sort_type)) {
+            msg = gl_pzglserv.doVoucherOrder(companys, bdate, edate);
+        } else if ("auto_uploadpic".equals(sort_type)) {
+            msg = gl_pzglserv.pzsortByuploadpic(companys, bdate, edate);
+        } else if ("auto_churukubillcode".equals(sort_type)) {
+            msg = gl_pzglserv.savechurukubillcodesort(companys, bdate, edate);
+        }
+        json.setSuccess(true);
+        json.setMsg(msg);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/delete")
+    public ReturnData delete(@RequestBody TzpzHVO[] dataArray) {
+        Json json = new Json();
+        Set<String> powerCorpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+        Map<String, List<TzpzHVO>> groupData = new HashMap<>();
+
+        List<String> corpInfos = new ArrayList<>(groupData.keySet());
+        Collections.sort(corpInfos);
+        // 选择线程安全的
+        List<PzglmessageVO> errorlist = new Vector<>();
+        ExecutorService pool = null;
+        try {
+            pool = Executors.newFixedThreadPool(Math.min(100, dataArray.length));
+            List<Future<String>> vc = new Vector<>();
+            for (TzpzHVO obj : dataArray) {
+                Future<String> future = pool.submit(new VoucherDeleteTask(obj, powerCorpSet,
+                        errorlist, gl_pzglserv, gl_tzpzserv));
+                vc.add(future);
+            }
+            // 默认执行 线程池操作结果，等待本组数据执行完成
+            for (Future<String> fu : vc) {
+                fu.get();
+            }
+            pool.shutdown();
+        } catch (Exception e) {
+            log.error("凭证删除错误", e);
+        } finally {
+            try {
+                if (pool != null) {
+                    pool.shutdown();
+                }
+            } catch (Exception e) {
+            }
+        }
+        String msg = getResultMsg(errorlist);
+        json.setMsg(msg);
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/checkChannelContract")
+    public ReturnData checkChannelContract(@RequestParam String pk_corp) {
+        Json json = new Json();
+        String msg = gl_tzpzserv.checkChannelContract(pk_corp);
+        json.setMsg(msg);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    // 查询对当前登录公司有权限的用户
+    @GetMapping("/queryPowerUser")
+    public ReturnData queryPowerUser() {
+        Json json = new Json();
+        List<UserVO> users = gl_pzglserv.queryPowerUser(SystemUtil.getLoginCorpId());
+        if (users != null && users.size() > 0) {
+            for (UserVO userVO : users) {
+                try {
+                    userVO.setUser_name(CodeUtils1.deCode(userVO.getUser_name()));
+                } catch (Exception e) {
+                }
+            }
+        }
+        json.setRows(users);
+        json.setMsg("查询成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    // 修改制单人
+    @PostMapping("/modifyCreator")
+    public ReturnData modifyCreator(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String ids = param.get("ids");
+        if (StringUtils.isEmpty(ids)) {
+            throw new BusinessException("请选择凭证");
+        }
+        String newCreator = param.get("creator");
+        if (StringUtils.isEmpty(newCreator)) {
+            throw new BusinessException("请选择制单人");
+        }
+        String[] pklist = ids.split(",");
+        gl_pzglserv.updateCreator(Arrays.asList(pklist), newCreator);
+        json.setSuccess(true);
+        json.setMsg("修改成功！");
+        return ReturnData.ok().data(json);
+    }
+
+    // 凭证合并
+    @PostMapping("/mergeVoucher")
+    public ReturnData mergeVoucher(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String pk_corp = param.get("pk_corp");
+        String ids = param.get("ids");
+        String zy = param.get("zy");
+        String[] rs = gl_pzglserv.processMergeVoucher(SystemUtil.getLoginUserId(),
+                pk_corp, ids.split(","), zy);
+        json.setSuccess(true);
+        json.setMsg("合并成功");
+        String msg = rs[1];
+        if (!StringUtils.isEmpty(msg)) {
+            json.setMsg(msg);
+        }
+        // 合并后的凭证ID
+        json.setData(rs[0]);
+        /*String logMsg = rs[2];
+        if (StringUtils.isEmpty(logMsg)) {
+            logMsg = "无合并成功凭证";
+        }*/
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 查询合并规则
+     */
+    @GetMapping("/queryMergeSetting")
+    public ReturnData queryMergeSetting() {
+        Json json = new Json();
+        VoucherMergeSettingVO setting = gl_pzglserv.queryMergeSetting(SystemUtil.getLoginCorpId());
+        json.setData(setting);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 保存合并规则
+     */
+    @PostMapping("/saveMergeSetting")
+    public ReturnData saveMergeSetting(@RequestBody VoucherMergeSettingVO setting) {
+        Json json = new Json();
+        setting.setPk_corp(SystemUtil.getLoginCorpId());
+        gl_pzglserv.saveMergeSetting(setting.getPk_corp(), setting);
+        json.setMsg("设置成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    private String getResultMsg(List<PzglmessageVO> errorlist) {
+        if (errorlist == null || errorlist.size() == 0) {
+            return "删除凭证完成！";
+        }
+        Collections.sort(errorlist);// 排序
+        StringBuilder sf = new StringBuilder();
+        String error = "删除失败！";
+        for (PzglmessageVO vo : errorlist) {
+            if (!StringUtils.isEmpty(vo.getErrorinfo())) {
+                error = vo.getErrorinfo();
+            }
+            sf.append("<font color = 'red'>公司:" + vo.getGsname() + "，期间:" + vo.getPeriod() + "，凭证号:" + vo.getPzh() + "，"
+                    + error + "</font><br>");
+        }
+        return sf.toString();
+    }
+
+    private boolean checkCloseStatus(String pk_corp, String period, Map<String, Boolean> statusMap) {
+        String key = pk_corp + period.substring(0, 4);
+        boolean status = false;
+        if (statusMap.containsKey(key)) {
+            status = statusMap.get(key);
+        } else {
+            status = gl_qmjzserv.checkIsYearClose(pk_corp, period);
+            statusMap.put(key, status);
+        }
+        return status;
+    }
+
+    private boolean checkGzStatus(String pk_corp, String period, Map<String, Boolean> statusMap) {
+        String key = pk_corp + period;
+        boolean status = false;
+        if (statusMap.containsKey(key)) {
+            status = statusMap.get(key);
+        } else {
+            status = qmgzService.isGz(pk_corp, period);
+            statusMap.put(key, status);
+        }
+        return status;
     }
 }

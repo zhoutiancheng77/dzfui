@@ -151,6 +151,12 @@
             <artifactId>ikanalyzer</artifactId>
             <version>2012_u6</version>
         </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-fastdfs-starter</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
     <build>
         <resources>
@@ -161,6 +167,7 @@
                     <include>logback-spring.xml</include>
                     <include>param.txt</include>
                     <include>fdfs_client.conf</include>
+                    <include>font/*</include>
                 </includes>
             </resource>
         </resources>

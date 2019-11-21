@@ -55,6 +55,7 @@ import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -111,8 +112,8 @@ public class VATInComInvoice2Controller extends BaseController {
     private ICorpService corpService;
 
     @RequestMapping("/queryInfo")
-    public ReturnData<Json> queryInfo(@RequestParam("para") String head, String sort, String order,
-                                      Integer page,Integer rows){
+    public ReturnData<Json> queryInfo(@RequestBody InvoiceParamVO paramvo, String sort, String order,
+                                      Integer page, Integer rows){
         Json json = new Json();
         try {
             //查询并分页
@@ -120,7 +121,7 @@ public class VATInComInvoice2Controller extends BaseController {
                 throw new BusinessException("出现数据无权问题！");
             }
 
-            InvoiceParamVO paramvo = getQueryParamVO(head);
+//            InvoiceParamVO paramvo = getQueryParamVO(head);
 
             List<VATInComInvoiceVO2> list = gl_vatincinvact2.quyerByPkcorp(paramvo, sort, order);
             //list变成数组
@@ -564,7 +565,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData<Json> impExcel(MultipartFile infiles,VATInComInvoiceVO2 vvo){
+    public ReturnData<Json> impExcel(MultipartFile infiles,@RequestBody VATInComInvoiceVO2 vvo){
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);

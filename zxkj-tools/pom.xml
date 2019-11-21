@@ -20,5 +20,6 @@
         <module>zxkj-redis-cache-starter</module>
         <module>zxkj-operate-log-starter</module>
         <module>zxkj-excel-export-tool</module>
+        <module>zxkj-fastdfs-starter</module>
     </modules>
 </project>

@@ -62,12 +62,7 @@
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.2</version>
         </dependency>
-        <dependency>
-            <groupId>org.csource</groupId>
-            <artifactId>fastdfs-client-java</artifactId>
-            <version>1.27</version>
-            <scope>compile</scope>
-        </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
