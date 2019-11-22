@@ -197,7 +197,7 @@ public class DZFStringUtil {
 		if (DZFValueCheck.isEmpty(str))
 			return new String[0];
 		String strss[] = str.split(split);
-		return strss;
+		return removeNull(strss);
 
 	}
 	

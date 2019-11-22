@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.util.zncs;
 
 import com.alibaba.fastjson.JSONArray;
+import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +62,7 @@ public class VatExportUtils {
 		if (fieldColumn == null || fieldColumn.size() == 0 || StringUtil.isEmpty(excelName)) {
 			return null;
 		}
-		Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + excelName);
+		Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + excelName);
 		
 		InputStream is = null;
 		HSSFWorkbook workbook = null;
@@ -194,7 +195,7 @@ public class VatExportUtils {
 		if (fieldColumn == null || fieldColumn.size() == 0 || StringUtil.isEmpty(excelName)) {
 			return null;
 		}
-		Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + excelName);
+		Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + excelName);
 		
 		InputStream is = null;
 		XSSFWorkbook workbook = null;

@@ -9,6 +9,7 @@ import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.ValueUtils;
+import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
@@ -809,7 +810,7 @@ public class SalaryReportController {
         InputStream is = null;
         try {
 
-            Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + fileName);
+            Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
             is = exportTemplate.getInputStream();
             bos = new ByteArrayOutputStream();
             int byteRead = 0;
@@ -847,7 +848,7 @@ public class SalaryReportController {
         ByteArrayOutputStream bos = null;
         InputStream is = null;
         try {
-            Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + fileName);
+            Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
             is = exportTemplate.getInputStream();
             bos = new ByteArrayOutputStream();
             if (fileName.indexOf(".xlsx") > 0) {

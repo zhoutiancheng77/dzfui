@@ -1775,7 +1775,7 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/queryBankInfo")
-    public ReturnData<Grid> queryBankInfo(@RequestBody Map<String,String> param){
+    public ReturnData<Grid> queryBankInfo(Map<String,String> param){
         Grid grid = new Grid();
         try {
             String account = param.get("account");
@@ -1799,7 +1799,7 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/matchBankInfo")
-    public ReturnData<Grid> matchBankInfo(@RequestBody Map<String,String> param){
+    public ReturnData<Grid> matchBankInfo( Map<String,String> param){
         Grid grid = new Grid();
         try {
             String pk_bankdzd = param.get("pk_bankdzd");

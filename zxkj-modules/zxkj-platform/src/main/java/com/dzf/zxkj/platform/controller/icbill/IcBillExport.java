@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.icbill;
 
+import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -72,7 +73,7 @@ public class IcBillExport {
 		Integer price = preMap.get(IParameterConstants.DZF010);// 单价
 		Map<Integer, Short> styleMap = new HashMap<Integer, Short>();
 
-		Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + excelName);
+		Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + excelName);
 		InputStream is = null;
 		HSSFWorkbook workbook = null;
 		ByteArrayOutputStream bos = null;

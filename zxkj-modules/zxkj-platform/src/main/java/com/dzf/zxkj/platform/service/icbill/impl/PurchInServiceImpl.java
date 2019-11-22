@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.icbill.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -8,15 +9,11 @@ import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
-import com.dzf.zxkj.base.utils.DZFValueCheck;
-import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.base.utils.VOUtil;
+import com.dzf.zxkj.base.utils.*;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.IcBillTypeEnum;
 import com.dzf.zxkj.common.enums.IcPayWayEnum;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -39,6 +36,7 @@ import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.icset.IInvAccSetService;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
@@ -47,7 +45,6 @@ import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.pjgl.IVATInComInvoiceService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -2010,7 +2007,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		if (StringUtil.isEmpty(pk_ictrade_h)) {
 			return null;
 		}
-		String strids = SqlUtil.buildSqlConditionForIn(pk_ictrade_h.split(","));
+		String strids = SqlUtil.buildSqlConditionForIn(DZFStringUtil.getString2Array(pk_ictrade_h, ","));
 		StringBuffer sf = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
 		sf.append(" select y.*,t.*,fb.name vcustname,ry.code invcode,ry.name invname, ");

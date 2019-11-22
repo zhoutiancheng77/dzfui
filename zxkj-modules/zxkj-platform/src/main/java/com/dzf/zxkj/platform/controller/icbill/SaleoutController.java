@@ -218,7 +218,7 @@ public class SaleoutController{
 	/**
 	 * 查询子表信息
 	 */
-    @GetMapping("/querySub")
+    @PostMapping("/querySub")
 	public ReturnData querySub(@RequestParam Map<String, String> param) {
 		Grid grid = new Grid();
         IntradeHVO  data= JsonUtils.convertValue(param, IntradeHVO.class);
@@ -772,8 +772,8 @@ public class SaleoutController{
 				aggvos[0] = aggvo;
 				isexp = true;
 			} else {
-				String where = list.substring(2, list.length() - 1);
-				aggvos = ic_saleoutserv.queryAggIntradeVOByID(where, SystemUtil.getLoginCorpId());
+//				String where = list.substring(2, list.length() - 1);
+				aggvos = ic_saleoutserv.queryAggIntradeVOByID(list, SystemUtil.getLoginCorpId());
 				exName = new String("出库单.xls");
 				List<AggIcTradeVO> tlist = calTotalRow(aggvos);
 				aggvos = tlist.toArray(new AggIcTradeVO[tlist.size()]);
