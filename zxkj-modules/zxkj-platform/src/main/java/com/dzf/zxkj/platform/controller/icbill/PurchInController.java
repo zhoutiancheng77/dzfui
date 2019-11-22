@@ -1,32 +1,42 @@
 package com.dzf.zxkj.platform.controller.icbill;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.constant.IcConst;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.AggIcTradeVO;
 import com.dzf.zxkj.platform.model.icset.IctradeinVO;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
 import com.dzf.zxkj.platform.model.icset.IntradeParamVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.VoUtils;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +44,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 
 /**
@@ -56,6 +70,10 @@ public class PurchInController {
 	private ISecurityService securityserv;
     @Autowired
     private ICorpService corpService;
+	@Autowired
+	private IZxkjPlatformService zxkjPlatformService;
+    @Autowired
+    private IAuxiliaryAccountService gl_fzhsserv;
 
     // 查询
     @GetMapping("/query")
@@ -113,7 +131,7 @@ public class PurchInController {
 	}
 
 	@PostMapping("/save")
-	public ReturnData save(@RequestParam Map<String, String> param) {
+	public ReturnData save(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		IntradeHVO headvo = null;
 		boolean isadd = false;
@@ -185,7 +203,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/delete")
-	public ReturnData delete(@RequestParam Map<String, String> param) {
+	public ReturnData delete(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		IntradeHVO[] bodyvos = null;
@@ -250,7 +268,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/saveToZz")
-	public ReturnData saveToZz(@RequestParam Map<String, String> param) {
+	public ReturnData saveToZz(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		IntradeHVO[] bodyvos = null;
@@ -297,7 +315,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/saveToTotalZz")
-	public ReturnData saveToTotalZz(@RequestParam Map<String, String> param) {
+	public ReturnData saveToTotalZz(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		IntradeHVO[] bodyvos = null;
@@ -416,7 +434,7 @@ public class PurchInController {
 	}
 
     @PostMapping("/rollbackToZz")
-	public ReturnData rollbackToZz(@RequestParam Map<String, String> param) {
+	public ReturnData rollbackToZz(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		StringBuffer strb = new StringBuffer();
 		try {
@@ -512,7 +530,7 @@ public class PurchInController {
 	}
 
     @GetMapping("/getbillno")
-	public ReturnData getbillno(@RequestParam Map<String, String[]> param) {
+	public ReturnData getbillno(@RequestParam Map<String, String> param) {
 		Json json = new Json();
         IntradeHVO data = JsonUtils.convertValue(param, IntradeHVO.class);// form提交保存
         if (data == null || data.getDbilldate() == null) {
@@ -528,143 +546,135 @@ public class PurchInController {
 	/**
 	 * 打印操作
 	 */
-	public void printAction() {
-//		try {
-//
-//			// String hhead = param.get("list"); //
-//			PrintParamVO printParamVO = (PrintParamVO) DzfTypeUtils.cast(getRequest(), new PrintParamVO());
-//			Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-//
-//			if (printParamVO == null)
-//				return;
-//			pmap.put("type", printParamVO.getType());
-//			pmap.put("pageOrt", printParamVO.getPageOrt());
-//			pmap.put("left", printParamVO.getLeft());
-//			pmap.put("top", printParamVO.getTop());
-//			pmap.put("printdate", printParamVO.getPrintdate());
-//			pmap.put("font", printParamVO.getFont());
-//			pmap.put("pageNum", printParamVO.getPageNum());
-//			if (StringUtil.isEmpty(printParamVO.getList())) {
-//				return;
-//			}
-//			if (printParamVO.getPageOrt().equals("Y")) {
-//				setIscross(DZFBoolean.TRUE);// 是否横向
-//			} else {
-//				setIscross(DZFBoolean.FALSE);// 是否横向
-//			}
-//
-//			String list = printParamVO.getList();
-//
-//			String[] strs = list.split(",");
-//
-//			Map<String, List<SuperVO>> vomap = new LinkedHashMap<>();
-//			AuxiliaryAccountBVO[] fzvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_SUPPLIER, SystemUtil.getLoginCorpId(), null);
-//			Map<String, AuxiliaryAccountBVO> aumap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(fzvos),
-//					new String[] { "pk_auacount_b" });
-//			for (String id : strs) {
-//
-//				if (StringUtil.isEmpty(id))
-//					continue;
-//				IntradeHVO head = ic_purchinserv.queryIntradeHVOByID(id, SystemUtil.getLoginCorpId());
-//				if (head == null)
-//					continue;
-//				SuperVO[] bodyvos = head.getChildren();
-//				AuxiliaryAccountBVO custvo = aumap.get(head.getPk_cust());
-//				List<SuperVO> alist = new ArrayList<>();
-//				for (SuperVO body : bodyvos) {
-//					IctradeinVO ivo = (IctradeinVO) body;
-//					if (DZFValueCheck.isNotEmpty(custvo)) {
-//						ivo.setCustname(custvo.getName());
-//					}
-//
-//					ivo.setCreator(head.getCreator());
-//					ivo.setDbillid(head.getDbillid());
-//					// 如果子表凭证id和凭证号无，则从主表获取
-//					if (StringUtil.isEmpty(ivo.getPk_voucher())) {
-//						ivo.setPk_voucher(head.getPzid());
-//					}
-//					if (StringUtil.isEmpty(ivo.getPzh())) {
-//						ivo.setPzh(head.getPzh());
-//					}
-//					String cbusitype = ivo.getCbusitype();
-//					if (StringUtil.isEmpty(cbusitype)) {
-//						ivo.setCbusitype("采购入库");
-//					} else {
-//						if (cbusitype.equalsIgnoreCase(IcConst.WGTYPE)) {
-//							ivo.setCbusitype("完工入库");
-//						} else if (cbusitype.equalsIgnoreCase(IcConst.QTRTYPE)) {
-//							ivo.setCbusitype("其他入库");
-//						} else {
-//							ivo.setCbusitype("采购入库");
-//						}
-//					}
-//					alist.add(ivo);
-//				}
-//
-//				IctradeinVO nvo = calTotal(bodyvos);
-//				alist.add(nvo);
-//				vomap.put(id, alist);
-//			}
-//			String type = printParamVO.getType();
-//			CorpVO corpvo = CorpCache.getInstance().get(null, SystemUtil.getLoginCorpId());
-//			// tmap.put("单据号", head.getDbillid());
-//			// tmap.put("公司", CodeUtils1.deCode(corpvo.getUnitname()));
-//			// String speriod = DateUtils.getPeriod(bodyvos[0].getDbilldate());
-//			// tmap.put("期间", speriod);
-//			// UserVO user = UserCache.getInstance().get(head.getCreator(),
-//			// SystemUtil.getLoginCorpId());
-//			// tmap.put("制单人", user.getUser_name());
-//
-//			String chargedeptname = corpvo.getChargedeptname();
-//			setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//
-//			String title = "入 库 单";
-//
-//			String[] columns = null;
-//			String[] columnnames = null;
-//			int[] widths = null;
-//			Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存title
-//			if ("一般纳税人".equals(chargedeptname)) {
-//				columns = new String[] { "cbusitype", "invclassname", "invname", "invspec", "measure", "nnum", "nprice",
-//						"nymny" };
-//				columnnames = new String[] { "入库类型", "存货分类", "存货名称", "规格(型号)", "计量单位", "数量", "单价", "金额" };
-//				widths = new int[] { 1, 1, 4, 2, 1, 2, 2, 2 };
-//			} else {
-//				columns = new String[] { "cbusitype", "invclassname", "invname", "invspec", "measure", "nnum", "nprice",
-//						"nymny" };
-//				columnnames = new String[] { "入库类型", "存货分类", "存货名称", "规格(型号)", "计量单位", "数量", "单价", "金额" };
-//				widths = new int[] { 1, 1, 4, 2,1, 2, 2, 2 };
-//			}
-//			boolean isCombin = false;
-//
-//			if (printParamVO != null && !StringUtil.isEmpty(printParamVO.getIsmerge())
-//					&& printParamVO.getIsmerge().equals("Y")) {
-//				isCombin = true;
-//			}
-//			setLineheight(22f);
-//			Map<String, String> invmaps = new HashMap<>();
-//			invmaps.put("isHiddenPzh", printParamVO.getIshidepzh());
-//			if (pmap.get("type").equals("3")) {// 发票纸模板打印
-//				printICInvoice(vomap, null, title, columns, columnnames, widths, 20, invmaps, pmap, tmap);
-//			} else {
-//				if (!isCombin) {
-//					printHz(vomap, null, title, columns, columnnames, widths, 20, type, invmaps, pmap, tmap);
-//				} else {
-//					if (pmap.get("type").equals("1"))
-//						printGroupCombin(vomap, title, columns, columnnames, null, widths, 20, pmap, invmaps); // A4纸张打印
-//					else if (pmap.get("type").equals("2"))
-//						printB5Combin(vomap, title, columns, columnnames, null, widths, 20, pmap, invmaps);
-//				}
-//			}
-//		} catch (DocumentException e) {
-//			log.error("入库单打印失败", e);
-//		} catch (IOException e) {
-//			log.error("入库单打印失败", e);
-//		} catch (Exception e) {
-//			log.error("入库单打印失败", e);
-//		}
+	@PostMapping("print")
+	public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+		try {
+			PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
+            PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
+			if (DZFValueCheck.isEmpty(pmap.get("list"))) {
+				return;
+			}
+			if ("Y".equals(pmap.get("pageOrt"))) {
+				printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
+			} else {
+				printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
+			}
+			CorpVO corpvo = corpService.queryByPk(SystemUtil.getLoginCorpId());
+			String chargedeptname = corpvo.getChargedeptname();
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+			String title = "入 库 单";
+
+			String[] columns = null;
+			String[] columnnames = null;
+			int[] widths = null;
+			Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存title
+			if ("一般纳税人".equals(chargedeptname)) {
+				columns = new String[] { "cbusitype", "invclassname", "invname", "invspec", "measure", "nnum", "nprice",
+						"nymny" };
+				columnnames = new String[] { "入库类型", "存货分类", "存货名称", "规格(型号)", "计量单位", "数量", "单价", "金额" };
+				widths = new int[] { 1, 1, 4, 2, 1, 2, 2, 2 };
+			} else {
+				columns = new String[] { "cbusitype", "invclassname", "invname", "invspec", "measure", "nnum", "nprice",
+						"nymny" };
+				columnnames = new String[] { "入库类型", "存货分类", "存货名称", "规格(型号)", "计量单位", "数量", "单价", "金额" };
+				widths = new int[] { 1, 1, 4, 2,1, 2, 2, 2 };
+			}
+			boolean isCombin = false;
+
+			if (printParamVO != null && !StringUtil.isEmpty(printParamVO.getIsmerge())
+					&& printParamVO.getIsmerge().equals("Y")) {
+				isCombin = true;
+			}
+            printReporUtil.setLineheight(22f);
+			Map<String, String> invmaps = new HashMap<>();
+			invmaps.put("isHiddenPzh", printParamVO.getIshidepzh());
+
+            Map<String, List<SuperVO>> vomap = getVoMap(printParamVO);
+			if (pmap.get("type").equals("3")) {// 发票纸模板打印
+                printReporUtil.printICInvoice(vomap, null, title, columns, columnnames, widths, 20, invmaps, pmap, tmap);
+			} else {
+				if (!isCombin) {
+                    printReporUtil.printHz(vomap, null, title, columns, columnnames, widths, 20, pmap.get("type"), invmaps, pmap, tmap);
+				} else {
+					if (pmap.get("type").equals("1"))
+                        printReporUtil.printGroupCombin(vomap, title, columns, columnnames, null, widths, 20, pmap, invmaps); // A4纸张打印
+					else if (pmap.get("type").equals("2"))
+                        printReporUtil.printB5Combin(vomap, title, columns, columnnames, null, widths, 20, pmap, invmaps);
+				}
+			}
+		} catch (DocumentException e) {
+			log.error("入库单打印失败", e);
+		} catch (IOException e) {
+			log.error("入库单打印失败", e);
+		} catch (Exception e) {
+			log.error("入库单打印失败", e);
+		}finally {
+			try {
+				if (response != null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (IOException e) {
+				log.error("入库单打印错误", e);
+			}
+		}
 //		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "打印入库单", ISysConstants.SYS_2);
 	}
+
+    private Map<String, List<SuperVO>> getVoMap(PrintParamVO printParamVO) {
+        String list = printParamVO.getList();
+
+        String[] strs = list.split(",");
+
+        Map<String, List<SuperVO>> vomap = new LinkedHashMap<>();
+        AuxiliaryAccountBVO[] fzvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_SUPPLIER, SystemUtil.getLoginCorpId(), null);
+        Map<String, AuxiliaryAccountBVO> aumap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(fzvos),
+                new String[] { "pk_auacount_b" });
+        for (String id : strs) {
+
+            if (StringUtil.isEmpty(id))
+                continue;
+            IntradeHVO head = ic_purchinserv.queryIntradeHVOByID(id, SystemUtil.getLoginCorpId());
+            if (head == null)
+                continue;
+            SuperVO[] bodyvos = head.getChildren();
+            AuxiliaryAccountBVO custvo = aumap.get(head.getPk_cust());
+            List<SuperVO> alist = new ArrayList<>();
+            for (SuperVO body : bodyvos) {
+                IctradeinVO ivo = (IctradeinVO) body;
+                if (DZFValueCheck.isNotEmpty(custvo)) {
+                    ivo.setCustname(custvo.getName());
+                }
+
+                ivo.setCreator(head.getCreator());
+                ivo.setDbillid(head.getDbillid());
+                // 如果子表凭证id和凭证号无，则从主表获取
+                if (StringUtil.isEmpty(ivo.getPk_voucher())) {
+                    ivo.setPk_voucher(head.getPzid());
+                }
+                if (StringUtil.isEmpty(ivo.getPzh())) {
+                    ivo.setPzh(head.getPzh());
+                }
+                String cbusitype = ivo.getCbusitype();
+                if (StringUtil.isEmpty(cbusitype)) {
+                    ivo.setCbusitype("采购入库");
+                } else {
+                    if (cbusitype.equalsIgnoreCase(IcConst.WGTYPE)) {
+                        ivo.setCbusitype("完工入库");
+                    } else if (cbusitype.equalsIgnoreCase(IcConst.QTRTYPE)) {
+                        ivo.setCbusitype("其他入库");
+                    } else {
+                        ivo.setCbusitype("采购入库");
+                    }
+                }
+                alist.add(ivo);
+            }
+
+            IctradeinVO nvo = calTotal(bodyvos);
+            alist.add(nvo);
+            vomap.put(id, alist);
+        }
+        return vomap;
+    }
 
 	private IctradeinVO calTotal(SuperVO[] bodyvos) {
 		// 计算合计行数据
@@ -683,77 +693,75 @@ public class PurchInController {
 		return nvo;
 	}
 
-	public void expExcel() {
+    @PostMapping("/expExcel")
+    public void expExcel(HttpServletResponse response,  @RequestParam Map<String, String> pmap) {
+		OutputStream toClient = null;
+		try {
 
-//		HttpServletResponse response = getResponse();
-//		OutputStream toClient = null;
-//
-//		try {
-//
-//			PrintParamVO printParamVO = (PrintParamVO) DzfTypeUtils.cast(getRequest(), new PrintParamVO());
-//			if (StringUtil.isEmpty(printParamVO.getList())) {
-//				return;
-//			}
-//			String list = printParamVO.getList();
-//			AggIcTradeVO[] aggvos = null;
-//			String exName = null;
-//			boolean isexp = false;
-//			if (list.contains("download")) {
-//				aggvos = new AggIcTradeVO[1];
-//				exName = new String("入库单导入模板.xls");
-//				AggIcTradeVO aggvo = new AggIcTradeVO();
-//				aggvo.setVcorpname(SystemUtil.getLoginCorpVo().getUnitname());
-//				DZFDate billdate = new DZFDate(getLoginDate());
-//				aggvo.setDbilldate(billdate.toString());
-//				aggvo.setDbillid(ic_purchinserv.getNewBillNo(SystemUtil.getLoginCorpId(), billdate, null));
-//				aggvos[0] = aggvo;
-//				isexp = true;
-//			} else {
-//				String where = list.substring(2, list.length() - 1);
-//				aggvos = ic_purchinserv.queryAggIntradeVOByID(where, SystemUtil.getLoginCorpId());
-//				exName = new String("入库单.xls");
-//				List<AggIcTradeVO> tlist = calTotalRow(aggvos);
-//				aggvos = tlist.toArray(new AggIcTradeVO[tlist.size()]);
-//			}
-//
-//			Map<String, Integer> preMap = getPreMap();// 设置精度
-//
-//			response.reset();
-//
-//			exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
-//			response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
-//			toClient = new BufferedOutputStream(response.getOutputStream());
-//			response.setContentType("application/vnd.ms-excel;charset=gb2312");
-//			byte[] length = null;
-//			Map<String, Integer> tabidsheetmap = new HashMap<String, Integer>();
-//			tabidsheetmap.put("B100000", 0);
-//			IcBillExport exp = new IcBillExport();
-//			length = exp.exportExcel(aggvos, toClient, 1, isexp, preMap);
-//			String srt2 = new String(length, "UTF-8");
-//			response.addHeader("Content-Length", srt2);
-//			toClient.flush();
-//			response.getOutputStream().flush();
-//		} catch (IOException e) {
-//			log.error("excel导出错误", e);
-//		} catch (Exception e) {
-//			log.error("excel导出错误", e);
-//		} finally {
-//			try {
-//				if (toClient != null) {
-//					toClient.close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//			try {
-//				if (response != null && response.getOutputStream() != null) {
-//					response.getOutputStream().close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//		}
-//
+            PrintParamVO printParamVO =  JsonUtils.convertValue(pmap,PrintParamVO.class);
+            if (StringUtil.isEmpty(printParamVO.getList())) {
+                return;
+            }
+			String list = printParamVO.getList();
+			AggIcTradeVO[] aggvos = null;
+			String exName = null;
+			boolean isexp = false;
+			if (list.contains("download")) {
+				aggvos = new AggIcTradeVO[1];
+				exName = new String("入库单导入模板.xls");
+				AggIcTradeVO aggvo = new AggIcTradeVO();
+				aggvo.setVcorpname(SystemUtil.getLoginCorpVo().getUnitname());
+				DZFDate billdate = new DZFDate(SystemUtil.getLoginDate());
+				aggvo.setDbilldate(billdate.toString());
+				aggvo.setDbillid(ic_purchinserv.getNewBillNo(SystemUtil.getLoginCorpId(), billdate, null));
+				aggvos[0] = aggvo;
+				isexp = true;
+			} else {
+				String where = list.substring(2, list.length() - 1);
+				aggvos = ic_purchinserv.queryAggIntradeVOByID(where, SystemUtil.getLoginCorpId());
+				exName = new String("入库单.xls");
+				List<AggIcTradeVO> tlist = calTotalRow(aggvos);
+				aggvos = tlist.toArray(new AggIcTradeVO[tlist.size()]);
+			}
+
+			Map<String, Integer> preMap = getPreMap();// 设置精度
+
+			response.reset();
+
+			exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
+			response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+			toClient = new BufferedOutputStream(response.getOutputStream());
+			response.setContentType("application/vnd.ms-excel;charset=gb2312");
+			byte[] length = null;
+			Map<String, Integer> tabidsheetmap = new HashMap<String, Integer>();
+			tabidsheetmap.put("B100000", 0);
+			IcBillExport exp = new IcBillExport();
+			length = exp.exportExcel(aggvos, toClient, 1, isexp, preMap);
+			String srt2 = new String(length, "UTF-8");
+			response.addHeader("Content-Length", srt2);
+			toClient.flush();
+			response.getOutputStream().flush();
+		} catch (IOException e) {
+			log.error("入库单excel导出错误", e);
+		} catch (Exception e) {
+			log.error("入库单excel导出错误", e);
+		} finally {
+			try {
+				if (toClient != null) {
+					toClient.close();
+				}
+			} catch (IOException e) {
+				log.error("入库单excel导出错误", e);
+			}
+			try {
+				if (response != null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (IOException e) {
+				log.error("入库单excel导出错误", e);
+			}
+		}
+
 //		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "导出入库单", ISysConstants.SYS_2);
 	}
 

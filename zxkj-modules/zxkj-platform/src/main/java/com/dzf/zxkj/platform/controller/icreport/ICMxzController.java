@@ -1,36 +1,46 @@
 package com.dzf.zxkj.platform.controller.icreport;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DZFMapUtil;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.excel.IcMxExcelField;
 import com.dzf.zxkj.platform.model.report.IcDetailFzVO;
 import com.dzf.zxkj.platform.model.report.IcDetailVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.icreport.IICMxz;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 import static com.dzf.zxkj.platform.util.SystemUtil.getRequest;
@@ -56,6 +66,8 @@ public class ICMxzController {
 	private IParameterSetService parameterserv;
 	@Autowired
 	private ICorpService corpService;
+	@Autowired
+	private IZxkjPlatformService zxkjPlatformService;
 
 	@GetMapping("/queryAction")
 	public ReturnData queryAction(@RequestParam Map<String, String> param) {
@@ -397,149 +409,136 @@ public class ICMxzController {
 		return listsps;
 	}
 
-	public void printAction() {
-//		try {
-//			String strlist = getRequest().getParameter("list");
-//			String type = getRequest().getParameter("type");
-//			String pageOrt = getRequest().getParameter("pageOrt");
-//			String left = getRequest().getParameter("left");
-//			String top = getRequest().getParameter("top");
-//			String printdate = getRequest().getParameter("printdate");
-//			String font = getRequest().getParameter("font");
-//			String pageNum = getRequest().getParameter("pageNum");
-//			Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-//			pmap.put("type", type);
-//			pmap.put("pageOrt", pageOrt);
-//			pmap.put("left", left);
-//			pmap.put("top", top);
-//			pmap.put("printdate", printdate);
-//			pmap.put("font", font);
-//			pmap.put("pageNum", pageNum);
-//			if (strlist == null) {
-//				return;
-//			}
-//			if (pageOrt.equals("Y")) {
-//				setIscross(DZFBoolean.TRUE);// 是否横向
-//			} else {
-//				setIscross(DZFBoolean.FALSE);// 是否横向
-//			}
-//			JSONArray array = (JSONArray) JSON.parseArray(strlist);
-//			Map<String, String> bodymapping = FieldMapping.getFieldMapping(new IcDetailVO());
-//			IcDetailVO[] bodyvos = DzfTypeUtils.cast(array, bodymapping, IcDetailVO[].class,
-//					JSONConvtoJAVA.getParserConfig());
-//
-//			String gs = bodyvos[0].getGs();
-//			String period = bodyvos[0].getTitlePeriod();
-//			String current = getRequest().getParameter("print_curr");
-//			if("N".equals(current)){
-//				bodyvos = queryVos(getQueryParamVO());
-//
-//			}
-//
-//			Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
-//			mxmap = reloadVOs(bodyvos, getQueryParamVO());
-//
-//			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-//			tmap.put("公司", gs);
-//			// tmap.put("存货名称", bodyvos[0].getSpmc());
-//			tmap.put("期间", period);
-//
-//			String corp = (String) getRequest().getSession().getAttribute(IGlobalConstants.login_corp);
-//			CorpVO corpvo = CorpCache.getInstance().get(null, corp);
-//
-//			boolean bisfenye = false;
-//			String isfenye = getRequest().getParameter("isfenye");
-//			if (!StringUtil.isEmpty(isfenye) && isfenye.equals("Y")) {
-//				bisfenye = true;
-//			}
-//
-//			if (!bisfenye) {
-//				// 老模式 启用库存
-//				if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
-//					String[] columnames = new String[] { "科目", "存货分类", "存货编码", "存货名称", "规格(型号)", "计量单位", "日期", "摘要",
-//							"收入数量", "收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
-//					String[] columnkeys = new String[] { "km", "spfl", "spbm", "spmc", "spgg", "jldw", "dbilldate",
-//							"zy", "srsl", "srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
-//					setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//					int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-//					setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//					printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存明细账", columnkeys, columnames, widths, 60,
-//							type, pmap, tmap);
-//				} else {
-//					String[] columnames = new String[] { "科目", "存货分类", "存货编码", "存货名称", "规格(型号)", "计量单位", "日期", "单据号",
-//							"摘要", "收入数量", "收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
-//					String[] columnkeys = new String[] { "km", "spfl","spbm", "spmc", "spgg", "jldw", "dbilldate", "dbillid", "zy",
-//							"srsl", "srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
-//					int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
-//					setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//					printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存明细账", columnkeys, columnames, widths, 60,
-//							type, pmap, tmap);
-//				}
-//			} else {
-//				// 老模式 启用库存
-//				if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
-//					String[] columnames = new String[] { "科目", "存货分类", "规格(型号)", "计量单位", "日期", "摘要", "收入", "发出", "结存",
-//							"数量", "单价", "金额", "数量", "单价", "金额", "数量", "单价", "金额" };
-//					String[] columnkeys = new String[] { "km", "spfl", "spgg", "jldw", "dbilldate", "zy", "srsl",
-//							"srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
-//					LinkedList<ColumnCellAttr> columnlist = new LinkedList<>();
-//					for (int i = 0; i < columnames.length; i++) {
-//						ColumnCellAttr attr = new ColumnCellAttr();
-//						attr.setColumname(columnames[i]);
-//						if (i == 0 || i == 1 || i == 2 || i == 3 || i == 4 || i == 5) {
-//							attr.setRowspan(2);
-//						} else if (i == 6 || i == 7 || i == 8) {
-//							attr.setColspan(3);
-//						}
-//
-//						columnlist.add(attr);
-//					}
-//					setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//					if (type.equals("1"))
-//						printGroup(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
-//								new int[] { 3, 3, 4, 3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);// A4纸张打印
-//					else if (type.equals("2")) {
-//						printB5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
-//								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
-//					} else if (pmap.get("type").equals("4")) {// A5纸张{
-//						printA5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
-//								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
-//					}
-//				} else {
-//					String[] columnames = new String[] { "科目", "存货分类", "规格(型号)", "计量单位", "日期", "单据号", "摘要", "收入", "发出",
-//							"结存", "数量", "单价", "金额", "数量", "单价", "金额", "数量", "单价", "金额" };
-//					String[] columnkeys = new String[] { "km", "spfl", "spgg", "jldw", "dbilldate", "dbillid", "zy",
-//							"srsl", "srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
-//					LinkedList<ColumnCellAttr> columnlist = new LinkedList<>();
-//					for (int i = 0; i < columnames.length; i++) {
-//						ColumnCellAttr attr = new ColumnCellAttr();
-//						attr.setColumname(columnames[i]);
-//						if (i == 0 || i == 1 || i == 2 || i == 3 || i == 4 || i == 5 || i == 6) {
-//							attr.setRowspan(2);
-//						} else if (i == 7 || i == 8 || i == 9) {
-//							attr.setColspan(3);
-//						}
-//
-//						columnlist.add(attr);
-//					}
-//					setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//					if (type.equals("1"))
-//						printGroup(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
-//								new int[] { 3, 3, 4, 3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);// A4纸张打印
-//					else if (type.equals("2")) {
-//						printB5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
-//								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
-//					} else if (pmap.get("type").equals("4")) {// A5纸张
-//						printA5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
-//								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
-//					}
-//				}
-//			}
-//		} catch (DocumentException e) {
-//			log.error("打印错误", e);
-//		} catch (IOException e) {
-//			log.error("打印错误", e);
-//		}
+	@PostMapping("print")
+	public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+		try {
+			PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
+			PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
+			if (DZFValueCheck.isEmpty(pmap.get("list"))) {
+				return;
+			}
+			if ("Y".equals(pmap.get("pageOrt"))) {
+				printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
+			} else {
+				printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
+			}
+			IcDetailVO[] bodyvos= JsonUtils.convertValue(printParamVO.getList(), IcDetailVO[].class);
+			String gs = bodyvos[0].getGs();
+			String period = bodyvos[0].getTitlePeriod();
+			String current = pmap.get("print_curr");
+			QueryParamVO queryParamvo = JsonUtils.convertValue(pmap, QueryParamVO.class);
+			if("N".equals(current)){
+				bodyvos = queryVos(getQueryParamVO(queryParamvo));
+
+			}
+			Map<String, List<SuperVO>> mxmap = new HashMap<>();
+			mxmap = reloadVOs(bodyvos, getQueryParamVO(queryParamvo));
+
+			Map<String, String> tmap = new HashMap<>();// 声明一个map用来存前台传来的设置参数
+			tmap.put("公司", gs);
+			tmap.put("期间", period);
+			CorpVO corpvo =SystemUtil.getLoginCorpVo();
+			boolean bisfenye = false;
+			String isfenye = getRequest().getParameter("isfenye");
+			if (!StringUtil.isEmpty(isfenye) && isfenye.equals("Y")) {
+				bisfenye = true;
+			}
+
+			if (!bisfenye) {
+				// 老模式 启用库存
+				if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
+					String[] columnames = new String[] { "科目", "存货分类", "存货编码", "存货名称", "规格(型号)", "计量单位", "日期", "摘要",
+							"收入数量", "收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
+					String[] columnkeys = new String[] { "km", "spfl", "spbm", "spmc", "spgg", "jldw", "dbilldate",
+							"zy", "srsl", "srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
+					printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+					int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+					printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+					printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存明细账", columnkeys, columnames, widths, 60, pmap, tmap);
+				} else {
+					String[] columnames = new String[] { "科目", "存货分类", "存货编码", "存货名称", "规格(型号)", "计量单位", "日期", "单据号",
+							"摘要", "收入数量", "收入单价", "收入金额", "发出数量", "发出单价", "发出金额", "结存数量", "结存单价", "结存金额" };
+					String[] columnkeys = new String[] { "km", "spfl","spbm", "spmc", "spgg", "jldw", "dbilldate", "dbillid", "zy",
+							"srsl", "srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
+					int[] widths = new int[] { 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+					printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+					printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存明细账", columnkeys, columnames, widths, 60, pmap, tmap);
+				}
+			} else {
+				// 老模式 启用库存
+				if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
+					String[] columnames = new String[] { "科目", "存货分类", "规格(型号)", "计量单位", "日期", "摘要", "收入", "发出", "结存",
+							"数量", "单价", "金额", "数量", "单价", "金额", "数量", "单价", "金额" };
+					String[] columnkeys = new String[] { "km", "spfl", "spgg", "jldw", "dbilldate", "zy", "srsl",
+							"srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
+					LinkedList<ColumnCellAttr> columnlist = new LinkedList<>();
+					for (int i = 0; i < columnames.length; i++) {
+						ColumnCellAttr attr = new ColumnCellAttr();
+						attr.setColumname(columnames[i]);
+						if (i == 0 || i == 1 || i == 2 || i == 3 || i == 4 || i == 5) {
+							attr.setRowspan(2);
+						} else if (i == 6 || i == 7 || i == 8) {
+							attr.setColspan(3);
+						}
+
+						columnlist.add(attr);
+					}
+					printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+					if (pmap.get("type").equals("1"))
+						printReporUtil.printGroup(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
+								new int[] { 3, 3, 4, 3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);// A4纸张打印
+					else if (pmap.get("type").equals("2")) {
+						printReporUtil.printB5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
+								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
+					} else if (pmap.get("type").equals("4")) {// A5纸张{
+						printReporUtil.printA5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
+								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
+					}
+				} else {
+					String[] columnames = new String[] { "科目", "存货分类", "规格(型号)", "计量单位", "日期", "单据号", "摘要", "收入", "发出",
+							"结存", "数量", "单价", "金额", "数量", "单价", "金额", "数量", "单价", "金额" };
+					String[] columnkeys = new String[] { "km", "spfl", "spgg", "jldw", "dbilldate", "dbillid", "zy",
+							"srsl", "srdj", "srje", "fcsl", "fcdj", "fcje", "jcsl", "jcdj", "jcje" };
+					LinkedList<ColumnCellAttr> columnlist = new LinkedList<>();
+					for (int i = 0; i < columnames.length; i++) {
+						ColumnCellAttr attr = new ColumnCellAttr();
+						attr.setColumname(columnames[i]);
+						if (i == 0 || i == 1 || i == 2 || i == 3 || i == 4 || i == 5 || i == 6) {
+							attr.setRowspan(2);
+						} else if (i == 7 || i == 8 || i == 9) {
+							attr.setColspan(3);
+						}
+
+						columnlist.add(attr);
+					}
+					printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+					if (pmap.get("type").equals("1"))
+						printReporUtil.printGroup(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
+								new int[] { 3, 3, 4, 3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);// A4纸张打印
+					else if (pmap.get("type").equals("2")) {
+						printReporUtil.printB5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
+								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
+					} else if (pmap.get("type").equals("4")) {// A5纸张
+						printReporUtil.printA5(mxmap, null, bodyvos[0].getSpmc() + "库存明细账", columnkeys, columnames, columnlist,
+								new int[] { 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
+					}
+				}
+			}
+		} catch (DocumentException e) {
+			log.error("库存明细账打印错误", e);
+		} catch (IOException e) {
+			log.error("库存明细账打印错误", e);
+		}catch (Exception e) {
+            log.error("库存明细账打印失败", e);
+        }finally {
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("库存明细账打印错误", e);
+            }
+        }
 	}
 
 	private IcDetailVO[] queryVos(QueryParamVO queryParamVO) {
@@ -658,115 +657,63 @@ public class ICMxzController {
 	}
 
 	// 导出excel
-	public void excelReport() {
+    @PostMapping("/expExcel")
+    public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> param){
+		OutputStream toClient = null;
+		try {
+			String strlist = param.get("list");
+            IcDetailVO[] vo= JsonUtils.convertValue(strlist, IcDetailVO[].class);
+			String gs = vo[0].getGs();
+			String qj = vo[0].getTitlePeriod();
 
-//		HttpServletResponse response = getResponse();
-//		OutputStream toClient = null;
-//		try {
-//			String strlist = getRequest().getParameter("list");
-//			JSONArray array = (JSONArray) JSON.parseArray(strlist);
-//			Map<String, String> bodymapping = FieldMapping.getFieldMapping(new IcDetailVO());
-//			IcDetailVO[] vo = DzfTypeUtils.cast(array, bodymapping, IcDetailVO[].class,
-//					JSONConvtoJAVA.getParserConfig());
-//			String gs = vo[0].getGs();
-//			String qj = vo[0].getTitlePeriod();
-//
-//			String current = getRequest().getParameter("export_curr");
-//			if("N".equals(current)){
-//				vo = queryVos(getQueryParamVO());
-//			}
-//
-//			// vo = reloadExcelData(getQueryParamVO());
-//			Excelexport2003<IcDetailVO> lxs = new Excelexport2003<IcDetailVO>();
-//
-//			String pk_corp = SystemUtil.getLoginCorpId();
-//			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
-//			String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
-//			int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
-//			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
-//			CorpVO corpvo = CorpCache.getInstance().get(null, pk_corp);
-//			IcMxExcelField xsz = new IcMxExcelField(num, price);
-//			setExprotInfo(xsz, corpvo);
-//			xsz.setIcDetailVos(vo);
-//			xsz.setQj(qj);
-//			xsz.setCreator(getLoginUserInfo().getUser_name());
-//			xsz.setCorpName(gs);
-//			response.reset();
-//			// String filename = xsz.getExcelport2007Name();
-//			String filename = xsz.getExcelport2003Name();
-//			String formattedName = URLEncoder.encode(filename, "UTF-8");
-//			response.addHeader("Content-Disposition",
-//					"attachment;filename=" + filename + ";filename*=UTF-8''" + formattedName);
-//			// response.addHeader("Content-Disposition",
-//			// "attachment;filename="+new String(filename.getBytes("UTF-8"),
-//			// "ISO8859-1"));
-//			toClient = new BufferedOutputStream(response.getOutputStream());
-//			response.setContentType("application/vnd.ms-excel;charset=gb2312");
-//			lxs.exportExcel(xsz, toClient);
-//			toClient.flush();
-//			response.getOutputStream().flush();
-//		} catch (IOException e) {
-//			log.error("excel导出错误", e);
-//		} finally {
-//			try {
-//				if (toClient != null) {
-//					toClient.close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//			try {
-//				if (response != null && response.getOutputStream() != null) {
-//					response.getOutputStream().close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//		}
-	}
-
-	private IcDetailVO[] reloadExcelData(QueryParamVO paramvo) {
-		Map<String, IcDetailVO> icMap = ic_rep_mxzserv.queryDetail(paramvo, SystemUtil.getLoginCorpVo());
-		if (icMap == null || icMap.isEmpty()) {
-			return null;
-		}
-
-		icMap = filter(icMap, paramvo);
-		List<IcDetailVO> list = new ArrayList<IcDetailVO>();
-		IcDetailVO icv = null;
-		for (Map.Entry<String, IcDetailVO> entry : icMap.entrySet()) {
-			icv = entry.getValue();
-			if (icv != null && (!StringUtil.isEmpty(icv.getSpbm()) || !StringUtil.isEmpty(icv.getSpmc()))) {
-				list.add(icv);
+            QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+			String current = getRequest().getParameter("export_curr");
+			if("N".equals(current)){
+				vo = queryVos(getQueryParamVO(queryParamvo));
 			}
-		}
-
-		Collections.sort(list, new Comparator<IcDetailVO>() {
-			@Override
-			public int compare(IcDetailVO o1, IcDetailVO o2) {
-				int i = 0;
-				String key1 = o1.getSpbm() + " " + o1.getSpmc();
-				String key2 = o2.getSpbm() + " " + o2.getSpmc();
-				i = key1.compareTo(key2);
-				if (i == 0) {
-					i = o1.getDbilldate().compareTo(o2.getDbilldate());
-					if (i == 0) {
-						if (("本期合计".equals(o1.getZy()) && ReportUtil.bSysZy(o1))
-								|| ("期初余额".equals(o2.getZy()) && ReportUtil.bSysZy(o2)))
-							i = 1;
-						else if (("本期合计".equals(o2.getZy()) && ReportUtil.bSysZy(o2))
-								|| ("期初余额".equals(o1.getZy()) && ReportUtil.bSysZy(o1))) {
-							i = -1;
-						} else if (!StringUtil.isEmpty(o1.getDbillid()) && !StringUtil.isEmpty(o2.getDbillid())) {
-							i = o1.getDbillid().compareTo(o2.getDbillid());
-						}
-					}
+			Excelexport2003<IcDetailVO> lxs = new Excelexport2003<>();
+			String pk_corp = SystemUtil.getLoginCorpId();
+			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
+			String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
+			int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
+			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
+			CorpVO corpvo = corpService.queryByPk(pk_corp);
+			IcMxExcelField xsz = new IcMxExcelField(num, price);
+			setExprotInfo(xsz, corpvo);
+			xsz.setIcDetailVos(vo);
+			xsz.setQj(qj);
+			xsz.setCreator(SystemUtil.getLoginUserVo().getUser_name());
+			xsz.setCorpName(gs);
+			response.reset();
+			// String filename = xsz.getExcelport2007Name();
+			String filename = xsz.getExcelport2003Name();
+			String formattedName = URLEncoder.encode(filename, "UTF-8");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + filename + ";filename*=UTF-8''" + formattedName);
+			toClient = new BufferedOutputStream(response.getOutputStream());
+			response.setContentType("application/vnd.ms-excel;charset=gb2312");
+			lxs.exportExcel(xsz, toClient);
+			toClient.flush();
+			response.getOutputStream().flush();
+		}  catch (IOException e) {
+            log.error("库存明细账excel导出错误", e);
+        } catch (Exception e) {
+            log.error("库存明细账excel导出错误", e);
+        } finally {
+			try {
+				if (toClient != null) {
+					toClient.close();
 				}
-				return i;
+			} catch (IOException e) {
+				log.error("库存明细账excel导出错误", e);
 			}
-		});
-
-		return list.toArray(new IcDetailVO[0]);
+			try {
+				if (response != null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (IOException e) {
+				log.error("库存明细账excel导出错误", e);
+			}
+		}
 	}
-
 }

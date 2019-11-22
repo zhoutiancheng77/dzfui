@@ -242,10 +242,12 @@ public class QmgzController  extends PrintAndExcelExportController {
 
             if(tips.toString().length()>0){
                 grid.setMsg(tips.toString());
+                grid.setSuccess(false);
             }else{
-                grid.setMsg("1");
+                grid.setMsg("关账成功");
+                grid.setSuccess(true);
             }
-            grid.setSuccess(true);
+
         } catch (Exception e) {
             printErrorLog(grid, e, "关账失败！");
         }
@@ -322,12 +324,12 @@ public class QmgzController  extends PrintAndExcelExportController {
 
 
     @PostMapping("fanGz")
-    public ReturnData fanGz(String list ,String laterMonth, String funname) {
+    public ReturnData fanGz(@MultiRequestBody QmclVO[] list ,String laterMonth, @MultiRequestBody String funname) {
         Json grid = new Json();
         if(StringUtil.isEmpty(funname)){
             funname = "总账月末反关账";
         }
-        QmclVO[] bodyvos = JsonUtils.deserialize(list, QmclVO[].class);
+        QmclVO[] bodyvos = list;
         String logmsg = "";
         try {
             if (bodyvos.length == 1 && "true".equals(laterMonth)) {
@@ -370,11 +372,13 @@ public class QmgzController  extends PrintAndExcelExportController {
                 }
                 if(tips.toString().length()>0){
                     grid.setMsg(tips.toString());
+                    grid.setSuccess(false);
                 }else{
-                    grid.setMsg("1");
+                    grid.setMsg("反关账成功");
+                    grid.setSuccess(true);
                 }
             }
-            grid.setSuccess(true);
+
         } catch (Exception e) {
             printErrorLog(grid, e, "反关账失败！");
         }

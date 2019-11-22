@@ -62,6 +62,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -1774,10 +1775,15 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/queryBankInfo")
-    public ReturnData<Grid> queryBankInfo(String account,String bperiod,String eperiod,String type,
-                                          @RequestParam("ismust") String ismr,String accountcode){
+    public ReturnData<Grid> queryBankInfo(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String account = param.get("account");
+            String type = param.get("type");
+            String accountcode = param.get("accountcode");
+            String bperiod = param.get("bperiod");
+            String eperiod = param.get("eperiod");
+            String ismr = param.get("ismust");
             String pk_corp=SystemUtil.getLoginCorpId();
 
             List<BankStatementVO2> list = iInterfaceBill.queryBankInfo(pk_corp, bperiod,eperiod, account, type, accountcode,ismr);
@@ -1793,10 +1799,11 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/matchBankInfo")
-    public ReturnData<Grid> matchBankInfo(String pk_bankdzd,String pk_bankhd){
+    public ReturnData<Grid> matchBankInfo(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
-
+            String pk_bankdzd = param.get("pk_bankdzd");
+            String pk_bankhd = param.get("pk_bankhd");
             String pk_corp=SystemUtil.getLoginCorpId();
 
             iInterfaceBill.updateMatchBankInfo(pk_bankdzd, pk_bankhd);

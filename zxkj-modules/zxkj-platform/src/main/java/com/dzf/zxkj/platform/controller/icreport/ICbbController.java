@@ -1,19 +1,26 @@
 package com.dzf.zxkj.platform.controller.icreport;
 
 
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.excel.KccbExcelField;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -21,13 +28,17 @@ import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -49,7 +60,8 @@ public class ICbbController  {
 	private IUserService userService;
     @Autowired
     private ICorpService corpService;
-
+	@Autowired
+	private IZxkjPlatformService zxkjPlatformService;
 	// 查询
     @GetMapping("/query")
 	public ReturnData query(@RequestParam Map<String, String> param) {
@@ -193,74 +205,52 @@ public class ICbbController  {
 	/**
 	 * 打印操作
 	 */
-	public void printAction() {
-//		try {
-//			// String strlist = getRequest().getParameter("list");
-//			// String type = getRequest().getParameter("type");
-//			// String pageOrt=getRequest().getParameter("pageOrt");
-//			// String left =getRequest().getParameter("left");
-//			// String top =getRequest().getParameter("top");
-//			// String printdate=getRequest().getParameter("printdate");
-//			// String font=getRequest().getParameter("font");
-//			// String pageNum=getRequest().getParameter("pageNum");
-//			PrintParamVO printParamVO = (PrintParamVO) DzfTypeUtils.cast(getRequest(), new PrintParamVO());
-//			Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-//			String type = printParamVO.getType();
-//			pmap.put("type", type);
-//			pmap.put("pageOrt", printParamVO.getType());
-//			pmap.put("left", printParamVO.getLeft());
-//			pmap.put("top", printParamVO.getTop());
-//			pmap.put("printdate", printParamVO.getPrintdate());
-//			pmap.put("font", printParamVO.getFont());
-//			pmap.put("pageNum", printParamVO.getPageNum());
-//
-//			String curr_print = getRequest().getParameter("curr_print");
-//			IcbalanceVO[] bodyvos = null;
-//			DZFBoolean dboolean = new DZFBoolean(curr_print);
-//			if (dboolean.booleanValue()) {// 是否当前显示页
-//				String strlist = printParamVO.getList();
-//				if (strlist == null) {
-//					bodyvos = new IcbalanceVO[0];
-//				} else {
-//					JSONArray array = (JSONArray) JSON.parseArray(strlist);
-//					Map<String, String> bodymapping = FieldMapping.getFieldMapping(new IcbalanceVO());
-//					bodyvos = DzfTypeUtils.cast(array, bodymapping, IcbalanceVO[].class,
-//							JSONConvtoJAVA.getParserConfig());
-//				}
-//
-//			} else {
-//				String qryDate = data.getDbilldate();
-//				String pk_invtory = data.getPk_inventory();
-//				String xsyye = getRequest().getParameter("xsyye");
-//				String pk_subjectname = data.getPk_subjectname();
-//				String priceStr = parameterserv.queryParamterValueByCode(SystemUtil.getLoginCorpId(), IParameterConstants.DZF010);
-//				int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
-//				List<IcbalanceVO> flist = queryList(qryDate, pk_invtory, xsyye, pk_subjectname, price);
-//				bodyvos = flist.toArray(new IcbalanceVO[flist.size()]);
-//				bodyvos[0].setGs(getLoginCorpInfo().getUnitname());
-//				bodyvos[0].setDjrq(qryDate);
-//			}
-//
-//			if (bodyvos == null || bodyvos.length == 0)
-//				return;
-//
-//			Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存title
-//			tmap.put("公司", bodyvos[0].getGs());
-//			tmap.put("查询日期", bodyvos[0].getDjrq());
-//			setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
-//
-//			setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());// 为后续设置精度赋值
-//
-//			printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "库存成本表",
-//					new String[] { "inventorycode", "inventoryname", "invspec", "measurename", "inventorytype",
-//							"pk_subjectname", "nnum", "nprice", "ncost" },
-//					new String[] { "存货编码", "存货名称", "规格(型号)", "计量单位", "存货分类", "科目名称", "结存数量", "结存单价", "结存成本" },
-//					new int[] { 2, 2, 2, 2, 2, 2, 2, 2, 2 }, 20, type, pmap, tmap);
-//		} catch (DocumentException e) {
-//			log.error("库存报表打印失败", e);
-//		} catch (IOException e) {
-//			log.error("库存报表打印失败", e);
-//		}
+    @PostMapping("print")
+    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
+            if (DZFValueCheck.isEmpty(pmap.get("list"))) {
+                return;
+            }
+            if ("Y".equals(pmap.get("pageOrt"))) {
+                printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
+            } else {
+                printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
+            }
+			String pk_corp = SystemUtil.getLoginCorpId();
+			String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
+			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
+			String curr_print = pmap.get("curr_print");
+			IcbalanceVO[] listVo = getData(pmap,curr_print,price);
+			if (listVo == null || listVo.length == 0)
+				return;
+			Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存title
+			tmap.put("公司", listVo[0].getGs());
+			tmap.put("查询日期", listVo[0].getDjrq());
+			printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+
+			setDefaultValue(listVo, SystemUtil.getLoginCorpId());// 为后续设置精度赋值
+
+			printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), listVo, "库存成本表",
+					new String[] { "inventorycode", "inventoryname", "invspec", "measurename", "inventorytype",
+							"pk_subjectname", "nnum", "nprice", "ncost" },
+					new String[] { "存货编码", "存货名称", "规格(型号)", "计量单位", "存货分类", "科目名称", "结存数量", "结存单价", "结存成本" },
+					new int[] { 2, 2, 2, 2, 2, 2, 2, 2, 2 }, 20, pmap, tmap);
+		} catch (DocumentException e) {
+			log.error("库存成本表打印失败", e);
+		} catch (IOException e) {
+			log.error("库存成本表打印失败", e);
+		}catch (Exception e) {
+            log.error("库存成本表打印失败", e);
+        }finally {
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("库存成本表打印错误", e);
+            }
+        }
 	}
 
 	private void setDefaultValue(IcbalanceVO[] bodyvos, String pk_corp) {
@@ -274,80 +264,83 @@ public class ICbbController  {
 	/**
 	 * 导出excel
 	 */
-	public void excelReport() {
-//		HttpServletRequest request = getRequest();
-//
-//		HttpServletResponse response = getResponse();
-//		OutputStream toClient = null;
-//
-//		try {
-//
-//			response.reset();
-//			Excelexport2003<IcbalanceVO> lxs = new Excelexport2003<IcbalanceVO>();
-//
-//			String pk_corp = SystemUtil.getLoginCorpId();
-//			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
-//			String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
-//			int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
-//			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
-//
-//			String curr_excel = request.getParameter("curr_excel");
-//			IcbalanceVO[] listVo = null;
-//			DZFBoolean dboolean = new DZFBoolean(curr_excel);
-//			if (dboolean.booleanValue()) {// 是否当前显示页
-//				String strlist = request.getParameter("list");
-//				JSONArray array = (JSONArray) JSON.parseArray(strlist);
-//				Map<String, String> bodymapping = FieldMapping.getFieldMapping(new IcbalanceVO());
-//				listVo = DzfTypeUtils.cast(array, bodymapping, IcbalanceVO[].class, JSONConvtoJAVA.getParserConfig());
-//			} else {
-//				String qryDate = data.getDbilldate();
-//				String pk_invtory = data.getPk_inventory();
-//				String xsyye = getRequest().getParameter("xsyye");
-//				String pk_subjectname = data.getPk_subjectname();
-//
-//				List<IcbalanceVO> flist = queryList(qryDate, pk_invtory, xsyye, pk_subjectname, price);
-//				listVo = flist.toArray(new IcbalanceVO[flist.size()]);
-//				listVo[0].setGs(getLoginCorpInfo().getUnitname());
-//				listVo[0].setDjrq(qryDate);
-//			}
-//
-//			if (listVo == null || listVo.length == 0)
-//				return;
-//
-//			String gs = listVo[0].getGs();
-//			String qj = listVo[0].getDjrq();
-//
-//			KccbExcelField field = new KccbExcelField(num, price);
-//			field.setExpvos(listVo);
-//			field.setQj(qj);
-//			field.setCreator(getLoginUserInfo().getUser_name());
-//			field.setCorpName(gs);
-//			String fileName = field.getExcelport2003Name();
-//			String formattedName = URLEncoder.encode(fileName, "UTF-8");
-//			response.addHeader("Content-Disposition",
-//					"attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
-//			toClient = new BufferedOutputStream(response.getOutputStream());
-//			lxs.exportExcel(field, toClient);
-//			toClient.flush();
-//			response.getOutputStream().flush();
-//		} catch (IOException e) {
-//			log.error("错误", e);
-//		} finally {
-//			try {
-//				if (toClient != null) {
-//					toClient.close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//			try {
-//				if (response != null && response.getOutputStream() != null) {
-//					response.getOutputStream().close();
-//				}
-//			} catch (IOException e) {
-//				log.error("excel导出错误", e);
-//			}
-//		}
+	@PostMapping("/expExcel")
+	public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> param){
+		OutputStream toClient = null;
+		try {
+			response.reset();
+			Excelexport2003<IcbalanceVO> lxs = new Excelexport2003<>();
+
+			String pk_corp = SystemUtil.getLoginCorpId();
+			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
+			String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
+			int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
+			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
+
+			String curr_excel = param.get("curr_excel");
+			IcbalanceVO[] listVo = getData(param,curr_excel,price);
+			if (listVo == null || listVo.length == 0)
+				return;
+			String gs = listVo[0].getGs();
+			String qj = listVo[0].getDjrq();
+
+			KccbExcelField field = new KccbExcelField(num, price);
+			field.setExpvos(listVo);
+			field.setQj(qj);
+			field.setCreator(SystemUtil.getLoginUserVo().getUser_name());
+			field.setCorpName(gs);
+			String fileName = field.getExcelport2003Name();
+			String formattedName = URLEncoder.encode(fileName, "UTF-8");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
+			toClient = new BufferedOutputStream(response.getOutputStream());
+			lxs.exportExcel(field, toClient);
+			toClient.flush();
+			response.getOutputStream().flush();
+		} catch (IOException e) {
+			log.error("库存成本表excel导出错误", e);
+		} catch (Exception e) {
+            log.error("库存成本表excel导出错误", e);
+        }finally {
+			try {
+				if (toClient != null) {
+					toClient.close();
+				}
+			} catch (IOException e) {
+				log.error("库存成本表excel导出错误", e);
+			}
+			try {
+				if (response != null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (IOException e) {
+				log.error("库存成本表excel导出错误", e);
+			}
+		}
+	}
+
+
+	private IcbalanceVO[] getData( Map<String, String> param,String curr_excel,int price ){
+		DZFBoolean dboolean = new DZFBoolean(curr_excel);
+		IcbalanceVO[] bodyvos = null;
+		if (dboolean.booleanValue()) {// 是否当前显示页
+			String strlist = param.get("list");
+			if (strlist == null) {
+				bodyvos = new IcbalanceVO[0];
+			} else {
+				bodyvos= JsonUtils.convertValue(strlist, IcbalanceVO[].class);
+			}
+		} else {
+			String qryDate =  param.get("djrqa");
+			String pk_invtory =  param.get("spid");
+			String xsyye = param.get("xsyye");
+			String pk_subjectname =  param.get("kmmc");
+			List<IcbalanceVO> flist = queryList(qryDate, pk_invtory, xsyye, pk_subjectname, price);
+			bodyvos = flist.toArray(new IcbalanceVO[flist.size()]);
+			bodyvos[0].setGs(SystemUtil.getLoginCorpVo().getUnitname());
+			bodyvos[0].setDjrq(qryDate);
+		}
+		return bodyvos;
 	}
 
 }

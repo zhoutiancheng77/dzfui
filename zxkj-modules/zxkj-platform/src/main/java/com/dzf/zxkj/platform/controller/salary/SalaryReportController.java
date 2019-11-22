@@ -16,18 +16,22 @@ import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.gzgl.SalaryBaseVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportColumn;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryBaseService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryReportExcel;
@@ -40,6 +44,7 @@ import com.dzf.zxkj.platform.util.ExcelReport;
 import com.dzf.zxkj.platform.util.JsonErrorUtil;
 import com.dzf.zxkj.platform.util.NationalAreaUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.itextpdf.text.DocumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -86,6 +91,8 @@ public class SalaryReportController {
     private ICorpService corpService;
     @Autowired
     private SingleObjectBO singleObjectBO;
+    @Autowired
+    private IZxkjPlatformService zxkjPlatformService;
 
     @GetMapping("/query")
     public ReturnData<Json> query(@RequestParam("page") int page, @RequestParam("rows") int rows, @RequestParam("opdate") String qj,
@@ -435,20 +442,17 @@ public class SalaryReportController {
         return arrNew;
     }
 
-    @PostMapping("/printAction")
-    public void printAction(Map<String, String> map) {
-        String qijian = null;
+    /**
+     * 打印操作
+     */
+    @PostMapping("print")
+    public void printAction(PrintParamVO printParamVO, @RequestBody Map<String, String> map, HttpServletResponse response) {
         try {
-            String type = map.get("type");
-            String pageOrt = map.get("pageOrt");
-            String left = map.get("left");
-            String top = map.get("top");
-            String printdate = map.get("printdate");
-            String font = map.get("font");
-            String pageNum = map.get("pageNum");
-            String hiddenphone = map.get("hiddenphone");
-            String zbr = map.get("zbr");
-
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
+            Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            if (printParamVO.getList() == null) {
+                return;
+            }
             String billtype = map.get("billtype");
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("类型为空");
@@ -458,16 +462,6 @@ public class SalaryReportController {
             String opdate = map.get("opdate");
             if (StringUtil.isEmpty(opdate))
                 throw new BusinessException("期间为空");
-
-            Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-            pmap.put("type", type);
-            pmap.put("pageOrt", pageOrt);
-            pmap.put("left", left);
-            pmap.put("top", top);
-            pmap.put("printdate", printdate);
-            pmap.put("font", font);
-            pmap.put("pageNum", pageNum);
-
 //            setIscross(DZFBoolean.TRUE);// 是否横向
             // 查询工资表数据
             SalaryReportVO[] bodyvos = gl_gzbserv.query(pk_corp, opdate, billtype);
@@ -476,13 +470,15 @@ public class SalaryReportController {
             for (SalaryReportVO vo : bodyvos) {
                 vo.setZjlx(SalaryReportEnum.getTypeEnumByValue(vo.getZjlx()).getName());
             }
-            qijian = bodyvos[0].getQj();
+//            qijian = bodyvos[0].getQj();
             CorpVO cvo = corpService.queryByPk(pk_corp);
             bodyvos[0].setPk_corp(cvo.getUnitname());// 用pk_corp属性传递
             // 公司名称
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title参数
             tmap.put("公司", cvo.getUnitname());
             tmap.put("期间", bodyvos[0].getQj());
+            String hiddenphone = pmap.get("hiddenphone");
+            String zbr = pmap.get("zbr");
             if (!StringUtil.isEmpty(zbr) && new DZFBoolean(zbr).booleanValue()) {
                 tmap.put("制表人", SystemUtil.getLoginUserVo().getUser_name());
             }
@@ -513,17 +509,24 @@ public class SalaryReportController {
             if (pmap.get("type").equals("4")) {
 //                rotate = DZFBoolean.TRUE;
             }
+            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), list.toArray(new SalaryReportVO[list.size()]),
+                    "工 资 表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")", columns, columnNames,
+                    widths, 60, pmap, tmap);
 
-//            printHz(new HashMap<String, List<SuperVO>>(), list.toArray(new SalaryReportVO[list.size()]),
-//                    "工 资 表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")", columns, columnNames,
-//                    widths, 60, type, pmap, tmap);
-
-//        } catch (DocumentException e) {
-//            log.error("操作失败!", e);
-//        } catch (IOException e) {
-//            log.error("操作失败!", e);
+        } catch (DocumentException e) {
+            log.error("工资表打印失败!", e);
+        } catch (IOException e) {
+            log.error("工资表打印失败!", e);
         } catch (Exception e) {
-            log.error("操作失败!", e);
+            log.error("工资表打印失败!", e);
+        }finally {
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("工资表打印错误", e);
+            }
         }
 //        if (!StringUtil.isEmpty(qijian)) {
 //            DZFDate from = new DZFDate(qijian + "-01");
@@ -629,7 +632,7 @@ public class SalaryReportController {
     }
 
     @PostMapping("/expExcelData")
-    public void expExcelData(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
+    public void expExcelData(HttpServletResponse response, @RequestParam Map<String, String> pmap) {
 
         String billtype = pmap.get("billtype");
         if (StringUtil.isEmpty(billtype))
@@ -732,7 +735,7 @@ public class SalaryReportController {
     }
 
     @PostMapping("/expExcel")
-    public void expExcel(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
+    public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> pmap) {
         OutputStream toClient = null;
         try {
             String billtype = pmap.get("billtype");
@@ -883,7 +886,7 @@ public class SalaryReportController {
     }
 
     @PostMapping("/expNSSBB")
-    public void expNSSBB(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
+    public void expNSSBB(HttpServletResponse response,  @RequestParam Map<String, String> pmap) {
         OutputStream toClient = null;
         String period = pmap.get("period");
         try {
@@ -962,11 +965,26 @@ public class SalaryReportController {
         }
     }
 
-    @PostMapping("/expPerson")
-    public ReturnData expPerson(HttpServletResponse response, @RequestBody Map<String, String> pmap) {
+
+    @PostMapping("/expPersonCheck")
+    public ReturnData expPersonCheck(@RequestParam Map<String, String> pmap) {
         Json json = new Json();
+        List<SalaryReportVO>  list = getSalaryDataList(pmap);
         String period = pmap.get("period");
-        String isexp = null;
+        if ("2019-01".compareTo(period) > 0) {
+        } else {
+            for (SalaryReportVO vo : list) {
+                checkPersonInfo(vo);
+            }
+        }
+        json.setMsg("excel导出校验成功");
+        json.setSuccess(true);
+        return ReturnData.ok();
+    }
+
+    private List<SalaryReportVO>  getSalaryDataList(Map<String, String> pmap){
+
+        String period = pmap.get("period");
         if (StringUtil.isEmpty(period))
             throw new BusinessException("期间为空");
         String billtype = pmap.get("billtype");
@@ -976,20 +994,20 @@ public class SalaryReportController {
         String pk_corp = pmap.get("pk_corp");
         if (StringUtil.isEmpty(pk_corp))
             throw new BusinessException("公司为空");
-        isexp = pmap.get("isexp");
 
+        List<SalaryReportVO> list = new ArrayList<>();
         securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
         // 查询工资表数据
         SalaryReportVO[] vos = gl_gzbserv.queryAllType(pk_corp, period);
         if (vos == null || vos.length == 0)
-            return ReturnData.ok();
+            return list;
         Map<String, List<String>> map = gl_gzbserv.queryAllTypeBeforeCurr(pk_corp, period);
         String qj = vos[0].getQj();
 
         String preqj = DateUtils.getPreviousPeriod(qj);
         SalaryReportVO[] vos1 = gl_gzbserv.queryAllType(vos[0].getPk_corp(), preqj);// 查询上一个月工资表数据
 
-        List<SalaryReportVO> list = new ArrayList<>();
+
         List<String> slist = new ArrayList<>();
         for (SalaryReportVO vo : vos) {
             String minqj = null;
@@ -1028,23 +1046,16 @@ public class SalaryReportController {
                 }
             }
         }
-        if (StringUtil.isEmpty(isexp) || "N".equals(isexp)) {
-            if ("2019-01".compareTo(period) > 0) {
-            } else {
-                for (SalaryReportVO vo : list) {
-                    checkPersonInfo(vo);
-                }
-            }
-        } else {
-            expPerson(response, list, pk_corp, period, billtype);
-        }
-        json.setMsg("excel导出成功");
-        json.setSuccess(true);
+       return list;
+    }
 
-        if (StringUtil.isEmpty(isexp) || "N".equals(isexp)) {
-            return ReturnData.ok().data(json);
-        }
-        return ReturnData.ok();
+    @PostMapping("/expPerson")
+    public void expPerson(HttpServletResponse response, @RequestParam Map<String, String> pmap) {
+        List<SalaryReportVO>  list = getSalaryDataList(pmap);
+        String billtype = pmap.get("billtype");
+        String period = pmap.get("period");
+        String pk_corp = pmap.get("pk_corp");
+        expPerson(response,list,pk_corp,period,billtype);
     }
 
     private void expPerson(HttpServletResponse response, List<SalaryReportVO> list, String pk_corp, String period,
@@ -1105,26 +1116,26 @@ public class SalaryReportController {
 
     private void checkPersonInfo(SalaryReportVO vo) {
         if (StringUtil.isEmpty(vo.getZjlx())) {
-            throw new BusinessException("证件类型不能为空");
+            throw new BusinessException("职员信息证件类型不能为空");
         } else {
             if (!SalaryReportEnum.IDCARD.getValue().equals(vo.getZjlx())) {
                 if (StringUtil.isEmpty(vo.getYgname())) {
-                    throw new BusinessException("姓名不能为空");
+                    throw new BusinessException("职员信息姓名不能为空");
                 }
                 if (StringUtil.isEmpty(vo.getVarea())) {
-                    throw new BusinessException("国籍不能为空");
+                    throw new BusinessException("职员信息国籍不能为空");
                 }
                 if (StringUtil.isEmpty(vo.getVdef1())) {
-                    throw new BusinessException("任职受雇日期不能为空");
+                    throw new BusinessException("职员信息任职受雇日期不能为空");
                 }
 //				if (StringUtil.isEmpty(vo.getVdef2())) {
 //					throw new BusinessException("离职日期不能为空");
 //				}
                 if (StringUtil.isEmpty(vo.getVdef3())) {
-                    throw new BusinessException("出生日期不能为空");
+                    throw new BusinessException("职员信息出生日期不能为空");
                 }
                 if (StringUtil.isEmpty(vo.getVdef4())) {
-                    throw new BusinessException(" 性别不能为空");
+                    throw new BusinessException("职员信息性别不能为空");
                 }
             }
         }

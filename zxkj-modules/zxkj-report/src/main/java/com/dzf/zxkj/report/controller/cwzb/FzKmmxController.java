@@ -57,6 +57,12 @@ public class FzKmmxController extends ReportBaseController {
             Object[] objs = gl_rep_fzkmmxjrptserv.getFzkmmxVos(queryparamvo, DZFBoolean.FALSE);
             List<FzKmmxVO> rsfzvos = (List<FzKmmxVO>) objs[0];
             List<FzKmmxVO> fzkmms = (objs[1] == null)? new ArrayList<FzKmmxVO>() :(List<FzKmmxVO>) objs[1];
+            if (fzkmms.size() > 0) {
+                FzKmmxVO allfzkm = new FzKmmxVO();
+                allfzkm.setId("all");
+                allfzkm.setText("全选");
+                fzkmms.add(0,allfzkm);
+            }
             if (rsfzvos == null || rsfzvos.size() == 0) {
                 grid.setRows(new ArrayList<FzKmmxVO>());
                 grid.setSuccess(true);

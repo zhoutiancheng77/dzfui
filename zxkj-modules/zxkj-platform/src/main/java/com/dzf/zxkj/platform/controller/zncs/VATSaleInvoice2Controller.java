@@ -50,6 +50,7 @@ import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -1779,7 +1780,7 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/onTicket")
-    public ReturnData<Json> onTicket(String ccrecode,String f2,String period){
+    public ReturnData<Json> onTicket(@RequestBody String ccrecode, String f2, String period){
         Json json = new Json();
 
         VATSaleInvoiceVO2 paramvo = new VATSaleInvoiceVO2();
