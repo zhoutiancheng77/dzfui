@@ -36,10 +36,7 @@ import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
@@ -76,7 +73,7 @@ public class BankStatement2Controller extends BaseController {
 //	@Autowired
 //	private IParameterSetService parameterserv;
 
-    @RequestMapping("/queryInfo")
+    @PostMapping("/queryInfo")
     public ReturnData<Json> queryInfo(@RequestBody BankStatementVO2 bvo,String sort,String order,Integer page,Integer rows,String flag){
 //		Grid grid = new Grid();
         Json json = new Json();
@@ -1250,7 +1247,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/combineRule")
-    public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
+    public ReturnData<Json> combineRule( Map<String,String> param){
         Json json = new Json();
         try {
             String pzrq = param.get("pzrq");
@@ -1296,7 +1293,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryRef")
-    public ReturnData<Grid> queryCategoryRef(@RequestBody String period){
+    public ReturnData<Grid> queryCategoryRef(String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
         try {
@@ -1340,7 +1337,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryset")
-    public ReturnData<Grid> queryCategoryset(@RequestBody Map<String,String> param){
+    public ReturnData<Grid> queryCategoryset( Map<String,String> param){
         Grid grid = new Grid();
         try {
             String id = param.get("id");
@@ -1370,7 +1367,7 @@ public class BankStatement2Controller extends BaseController {
      * 入账设置
      */
     @RequestMapping("/updateCategoryset")
-    public ReturnData<Grid> updateCategoryset(@RequestBody Map<String,String> param){
+    public ReturnData<Grid> updateCategoryset(Map<String,String> param){
         Grid grid = new Grid();
         try {
             String pk_model_h = param.get("pk_model_h");

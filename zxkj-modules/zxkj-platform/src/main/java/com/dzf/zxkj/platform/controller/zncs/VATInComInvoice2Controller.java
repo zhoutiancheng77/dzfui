@@ -154,7 +154,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryInfoByID")
-    public ReturnData<Json> queryInfoByID(@RequestBody String id){
+    public ReturnData<Json> queryInfoByID(String id){
         Json json = new Json();
 
         try {
@@ -1412,7 +1412,7 @@ public class VATInComInvoice2Controller extends BaseController {
      rzPeriod   认证所属日期
      */
     @RequestMapping("/onTicket")
-    public ReturnData<Json> onTicket(@RequestBody String ccrecode,String f2,String begindate3,String enddate3,String serType,String rzPeriod){
+    public ReturnData<Json> onTicket( String ccrecode,String f2,String begindate3,String enddate3,String serType,String rzPeriod){
         Json json = new Json();
 
         VATInComInvoiceVO2 paramvo = new VATInComInvoiceVO2();
@@ -2749,7 +2749,7 @@ public class VATInComInvoice2Controller extends BaseController {
             writeJson(json);
         }*/
     @RequestMapping("/queryCategoryRef")
-    public ReturnData<Grid> queryCategoryRef(@RequestBody String period){
+    public ReturnData<Grid> queryCategoryRef(String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
         try {
@@ -2794,7 +2794,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryset")
-    public ReturnData<Grid> queryCategoryset(@RequestBody String id,String period){
+    public ReturnData<Grid> queryCategoryset(String id,String period){
         Grid grid = new Grid();
         try {
             ArrayList<String> pk_categoryList = new ArrayList<String>();
@@ -3023,7 +3023,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryB")
-    public ReturnData<Json> queryB(@RequestBody Map<String,String> param) {
+    public ReturnData<Json> queryB( Map<String,String> param) {
         Json json = new Json();
         try {
             String hid = param.get("id");

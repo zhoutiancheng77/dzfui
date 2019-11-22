@@ -1780,7 +1780,7 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/onTicket")
-    public ReturnData<Json> onTicket(@RequestBody String ccrecode, String f2, String period){
+    public ReturnData<Json> onTicket( String ccrecode, String f2, String period){
         Json json = new Json();
 
         VATSaleInvoiceVO2 paramvo = new VATSaleInvoiceVO2();
