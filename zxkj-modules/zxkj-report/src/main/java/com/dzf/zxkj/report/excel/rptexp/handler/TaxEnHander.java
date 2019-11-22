@@ -20,6 +20,15 @@ import java.util.Map;
 @Slf4j
 public class TaxEnHander{
 
+    private String period;
+
+    public String getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(String period) {
+        this.period = period;
+    }
 
     private String[] monthEn = {"January","February","March","April","May","June","July","August","September","October","November","December"};
 
@@ -36,7 +45,6 @@ public class TaxEnHander{
 
             for(int i = 0; i < listZcfzBvos.size(); i++){
                 ZcFzBVO[] zcFzBVO = listZcfzBvos.get(i);
-                String period = zcFzBVO[0].getTitlePeriod() != null ? zcFzBVO[0].getTitlePeriod() : zcFzBVO[0].getPeriod();
                 String month = period.substring(5,7);
                 Sheet newSheet = workbook_zcfz.createSheet(monthEn[Integer.parseInt(month)-1]);
                 CopySheetUtil.copySheets(newSheet,sheet);
@@ -84,7 +92,6 @@ public class TaxEnHander{
 
             for(int i = 0; i < listLrbBvos.size(); i++){
                 LrbVO[] lrbVOs = listLrbBvos.get(i);
-                String period = lrbVOs[0].getTitlePeriod() != null ? lrbVOs[0].getTitlePeriod() : lrbVOs[0].getPeriod();
                 String month = period.substring(5,7);
                 Sheet newSheet = workbook_lrb.createSheet(monthEn[Integer.parseInt(month)-1]);
                 CopySheetUtil.copySheets(newSheet,sheet);

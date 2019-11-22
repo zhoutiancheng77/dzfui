@@ -420,10 +420,10 @@ public class ZcfzController extends ReportBaseController {
     @PostMapping("export/excelEn")
     public void excelReportEn(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
-        String qj = listVo[0].getTitlePeriod();
-        String gs = listVo[0].getGs();
+        String qj = excelExportVO.getPeriod();
+        String gs = excelExportVO.getCorpName();
         CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
-
+        queryParamvo.setBegindate1(new DZFDate(qj.substring(0, 7) + "-01"));
         List<ZcFzBVO[]> listZcfzBvos = getListZcfzBvos(excelExportVO, queryParamvo, listVo, gs, qj, cpvo);
         List<LrbVO[]> listLrbBvos = getListLrbBvos(excelExportVO, queryParamvo, qj, cpvo);
 
@@ -439,6 +439,7 @@ public class ZcfzController extends ReportBaseController {
         }
 
         TaxEnHander taxHander = new TaxEnHander();
+        taxHander.setPeriod(qj);
         Map<String, Workbook> workbookMap = taxHander.handle(listZcfzBvos, taxvo, cpvo.unitname, listLrbBvos);
 
         exportExcelToZip(response, workbookMap, "资产负债表、利润表(" + qj + ")");
