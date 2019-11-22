@@ -14,5 +14,6 @@ public class DZFConstant {
 	public static final String ZCLBRULE = "2/2/2/2/2";
 	
 	public static final String DZF_KJ_UPLOAD_BASE = "D:/Apache/tomcat-7.0.54/webapps/DZF_KJ";
+	public static final String DZF_KJ_EXCEL_TEMPLET = "template/";
 
 }

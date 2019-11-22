@@ -61,7 +61,7 @@ public class VatExportUtils {
 		if (fieldColumn == null || fieldColumn.size() == 0 || StringUtil.isEmpty(excelName)) {
 			return null;
 		}
-		Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + excelName);
+		Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + excelName);
 		
 		InputStream is = null;
 		HSSFWorkbook workbook = null;
@@ -194,7 +194,7 @@ public class VatExportUtils {
 		if (fieldColumn == null || fieldColumn.size() == 0 || StringUtil.isEmpty(excelName)) {
 			return null;
 		}
-		Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + excelName);
+		Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + excelName);
 		
 		InputStream is = null;
 		XSSFWorkbook workbook = null;

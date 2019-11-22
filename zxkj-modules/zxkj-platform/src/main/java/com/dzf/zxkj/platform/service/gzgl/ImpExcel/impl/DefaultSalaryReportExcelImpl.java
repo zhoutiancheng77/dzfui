@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.service.gzgl.ImpExcel.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -82,7 +83,7 @@ public class DefaultSalaryReportExcelImpl implements ISalaryReportExcel {
 		try {
 
 			String excelName = getExcelModelName(billtype);
-			Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + excelName);
+			Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + excelName);
 			is = exportTemplate.getInputStream();
 			HSSFWorkbook workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);
@@ -717,7 +718,7 @@ public class DefaultSalaryReportExcelImpl implements ISalaryReportExcel {
 		try {
 			HSSFWorkbook workbook = null;
 
-			Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + fileName + ".xls");
+			Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName + ".xls");
 			is = exportTemplate.getInputStream();
 			workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);

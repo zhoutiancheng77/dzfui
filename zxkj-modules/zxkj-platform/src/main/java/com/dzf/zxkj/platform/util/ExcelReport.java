@@ -114,7 +114,7 @@ public class ExcelReport<T> {
 					put(19, "grsds");
 				}
 			};
-			Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/salary_NSSBreport11.xls");
+			Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET+"salary_NSSBreport11.xls");
 			is = exportTemplate.getInputStream();
 			workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);
@@ -279,7 +279,7 @@ public class ExcelReport<T> {
 					put(3, "zjbm");
 				}
 			};
-			Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + fileName + ".xls");
+			Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName + ".xls");
 			is = exportTemplate.getInputStream();
 			workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);

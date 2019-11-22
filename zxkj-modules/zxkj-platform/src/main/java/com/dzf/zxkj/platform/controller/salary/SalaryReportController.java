@@ -809,7 +809,7 @@ public class SalaryReportController {
         InputStream is = null;
         try {
 
-            Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + fileName);
+            Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
             is = exportTemplate.getInputStream();
             bos = new ByteArrayOutputStream();
             int byteRead = 0;
@@ -847,7 +847,7 @@ public class SalaryReportController {
         ByteArrayOutputStream bos = null;
         InputStream is = null;
         try {
-            Resource exportTemplate = new ClassPathResource("template/report/taxdeclaration/" + fileName);
+            Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
             is = exportTemplate.getInputStream();
             bos = new ByteArrayOutputStream();
             if (fileName.indexOf(".xlsx") > 0) {
