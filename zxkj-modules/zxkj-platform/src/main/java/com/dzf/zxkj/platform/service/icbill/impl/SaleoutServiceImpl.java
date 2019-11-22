@@ -1,12 +1,14 @@
 package com.dzf.zxkj.platform.service.icbill.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
+import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.VOUtil;
@@ -14,7 +16,6 @@ import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.IcBillTypeEnum;
 import com.dzf.zxkj.common.enums.IcPayWayEnum;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
@@ -2191,7 +2192,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		if (StringUtil.isEmpty(pk_ictrade_h)) {
 			return null;
 		}
-		String strids = SqlUtil.buildSqlConditionForIn(pk_ictrade_h.split(","));
+		String strids = SqlUtil.buildSqlConditionForIn( DZFStringUtil.getString2Array(pk_ictrade_h, ","));
 		StringBuffer sf = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
 		sf.append(" select y.*,t.*,fb.name vcustname,ry.code invcode,ry.name invname, ");

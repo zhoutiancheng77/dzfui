@@ -717,8 +717,8 @@ public class PurchInController {
 				aggvos[0] = aggvo;
 				isexp = true;
 			} else {
-				String where = list.substring(2, list.length() - 1);
-				aggvos = ic_purchinserv.queryAggIntradeVOByID(where, SystemUtil.getLoginCorpId());
+//				String where = list.substring(2, list.length() - 1);
+				aggvos = ic_purchinserv.queryAggIntradeVOByID(list, SystemUtil.getLoginCorpId());
 				exName = new String("入库单.xls");
 				List<AggIcTradeVO> tlist = calTotalRow(aggvos);
 				aggvos = tlist.toArray(new AggIcTradeVO[tlist.size()]);
