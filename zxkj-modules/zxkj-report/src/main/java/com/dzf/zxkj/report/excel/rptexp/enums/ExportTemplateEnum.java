@@ -69,7 +69,7 @@ public enum ExportTemplateEnum {
         for (ExportTemplateEnum e : ExportTemplateEnum.values()) {
             if (e.fileType.equals("1") && e.areaType.equals(areaType)) {
                 try {
-                    tzxExportHander = (TaxExportHander) Class.forName("com.dzf.service.gl.gl_cwreport.rptexp.handler." + e.hander).newInstance();
+                    tzxExportHander = (TaxExportHander) Class.forName("com.dzf.zxkj.report.excel.rptexp.handler." + e.hander).newInstance();
                 } catch (Exception ex) {
                 }
                 break;
@@ -93,7 +93,7 @@ public enum ExportTemplateEnum {
 
         ExcelExportHander excelExportHander = null;
         try {
-            excelExportHander = (ExcelExportHander) Class.forName("com.dzf.service.gl.gl_cwreport.rptexp.handler." + handlerName).newInstance();
+            excelExportHander = (ExcelExportHander) Class.forName("com.dzf.zxkj.report.excel.rptexp.handler." + handlerName).newInstance();
         } catch (Exception ex) {
         }
         return excelExportHander;

@@ -2,12 +2,14 @@ package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.lang.DZFBoolean;
-import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
@@ -23,7 +25,11 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.ZcfzExcelField;
+import com.dzf.zxkj.report.excel.rptexp.ExcelExportHander;
+import com.dzf.zxkj.report.excel.rptexp.enums.ExportTemplateEnum;
+import com.dzf.zxkj.report.excel.rptexp.handler.ExcelExportPubHandler;
 import com.dzf.zxkj.report.excel.rptexp.handler.TaxEnHander;
+import com.dzf.zxkj.report.excel.rptexp.handler.TaxExportHander;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.service.cwbb.IXjllbReport;
 import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
@@ -34,19 +40,25 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.dom4j.Document;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 @RestController
 @RequestMapping("gl_rep_zcfzact")
 @Slf4j
-public class ZcfzController  extends ReportBaseController {
+public class ZcfzController extends ReportBaseController {
 
     @Autowired
     private IZcFzBReport gl_rep_zcfzserv;
@@ -70,7 +82,7 @@ public class ZcfzController  extends ReportBaseController {
     @PostMapping("/queryAction")
     public ReturnData queryAction(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         ReportDataGrid grid = new ReportDataGrid();
-        QueryParamVO queryParamvo = getQueryParamVO(queryvo,corpVO);
+        QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
             String begindate = DateUtils.getPeriod(queryParamvo.getBegindate1());
             String ishajz = "N";
@@ -87,14 +99,14 @@ public class ZcfzController  extends ReportBaseController {
             }
             /** 全局记忆 按往来科目明细分析填列 */
 //            getSession().setAttribute("ishasye", ishasye);
-            checkPowerDate(queryParamvo,corpVO);
+            checkPowerDate(queryParamvo, corpVO);
             ZcFzBVO[] kmmxvos = null;
             Object[] objs = null;
             if ("Y".equals(ishasye)) {
-                String[] yes = new String[]{ishasye, hasye1, hasye2, hasye3,hasye4};
+                String[] yes = new String[]{ishasye, hasye1, hasye2, hasye3, hasye4};
                 objs = gl_rep_zcfzserv.getZCFZBVOsConMsg(begindate, queryParamvo.getPk_corp(), ishajz, yes);
             } else {
-                objs = gl_rep_zcfzserv.getZCFZBVOsConMsg(begindate, queryParamvo.getPk_corp(), ishajz, new String[]{ishasye, "N", "N", "N","N"});
+                objs = gl_rep_zcfzserv.getZCFZBVOsConMsg(begindate, queryParamvo.getPk_corp(), ishajz, new String[]{ishasye, "N", "N", "N", "N"});
             }
 
             kmmxvos = (ZcFzBVO[]) objs[0];
@@ -128,16 +140,15 @@ public class ZcfzController  extends ReportBaseController {
     }
 
 
-
     private String isBlance2(ZcfzMsgVo zcfzmsgvo) {
         DZFDouble zcvalue = VoUtils.getDZFDouble(zcfzmsgvo.getZcvalue());
-        DZFDouble fzvalue =  VoUtils.getDZFDouble(zcfzmsgvo.getFzvalue());
-        DZFDouble qyvale =  VoUtils.getDZFDouble(zcfzmsgvo.getQyvalue());
+        DZFDouble fzvalue = VoUtils.getDZFDouble(zcfzmsgvo.getFzvalue());
+        DZFDouble qyvale = VoUtils.getDZFDouble(zcfzmsgvo.getQyvalue());
         if (zcvalue.sub(fzvalue).sub(qyvale).doubleValue() != 0) {
             return "N";
         }
-        DZFDouble wfpvalue =  VoUtils.getDZFDouble(zcfzmsgvo.getWfpvlaue());
-        DZFDouble jlrvalue =  VoUtils.getDZFDouble(zcfzmsgvo.getJlrvalue());
+        DZFDouble wfpvalue = VoUtils.getDZFDouble(zcfzmsgvo.getWfpvlaue());
+        DZFDouble jlrvalue = VoUtils.getDZFDouble(zcfzmsgvo.getJlrvalue());
         if (wfpvalue.sub(jlrvalue).doubleValue() != 0) {
             return "N";
         }
@@ -153,7 +164,7 @@ public class ZcfzController  extends ReportBaseController {
         //如果是村集体，则lastvo 不是最后一个
         Integer corpschema = zxkjPlatformService.getAccountSchema(pk_corp);
         if (corpschema == DzfUtil.VILLAGECOLLECTIVE.intValue()
-                || corpschema == DzfUtil.RURALCOOPERATIVE.intValue() ) {
+                || corpschema == DzfUtil.RURALCOOPERATIVE.intValue()) {
             for (int i = dataVOS.length - 1; i >= 0; i--) {
                 if (dataVOS[i].getZc().indexOf("资产总计") >= 0) {
                     lastbvo = dataVOS[i];
@@ -191,12 +202,10 @@ public class ZcfzController  extends ReportBaseController {
     }
 
 
-
     @Override
     public String getPrintTitleName() {
         return "资 产 负 债 表";
     }
-
 
 
     /**
@@ -204,8 +213,8 @@ public class ZcfzController  extends ReportBaseController {
      */
     @PostMapping("export/excel")
     public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
-        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),ZcFzBVO[].class);
-        String qj = listVo[0].getTitlePeriod();
+        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
+        String qj = excelExportVO.getPeriod();
 
         //获取利润表数据
         String corpIds = queryparamvo.getPk_corp();
@@ -213,12 +222,12 @@ public class ZcfzController  extends ReportBaseController {
             corpIds = corpVO.getPk_corp();
         }
         CorpVO cpvo = zxkjPlatformService.queryCorpByPk(corpIds);
-        String gs = listVo[0].getGs();
+        String gs = excelExportVO.getCorpName();
         Excelexport2003<ZcFzBVO> lxs = new Excelexport2003<ZcFzBVO>();
-        ZcfzExcelField zcfz = getExcelField(excelExportVO,queryparamvo,userVO,listVo, gs, qj);
+        ZcfzExcelField zcfz = getExcelField(excelExportVO, queryparamvo, userVO, listVo, gs, qj);
         zcfz.setCorptype(cpvo.getCorptype());
 
-        baseExcelExport(response,lxs,zcfz);
+        baseExcelExport(response, lxs, zcfz);
 
 //        String excelsel = getRequest().getParameter("excelsel");
 //        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
@@ -229,6 +238,106 @@ public class ZcfzController  extends ReportBaseController {
 //                "资产负债导出:" + qj, ISysConstants.SYS_2);
     }
 
+    /**
+     * @return []
+     * @Author gzx
+     * @Description 税局报表导出
+     * @Date 14:56 2018/12/21
+     * @Param void
+     */
+    @PostMapping("exportSj/excel")
+    public void excelReportSj(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
+        String qj = excelExportVO.getPeriod();
+
+        //获取利润表数据
+        String corpIds = queryparamvo.getPk_corp();
+        if (StringUtil.isEmpty(corpIds)) {
+            corpIds = corpVO.getPk_corp();
+        }
+        CorpVO cpvo = zxkjPlatformService.queryCorpByPk(corpIds);
+        String corpType = cpvo.getCorptype();
+
+        //获取利润表数据
+        LrbVO[] lrbvos = gl_rep_lrbserv.getLrbDataForCwBs(qj, corpIds, excelExportVO.getQjlx());
+        //获取现金流量数据
+        XjllbVO[] xjllbvos = gl_rep_xjlybserv.getXjllDataForCwBs(qj, corpIds, excelExportVO.getQjlx());
+
+        //税局模式
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(excelExportVO.getAreaType());
+        sp.addParam(corpType);
+        LrbTaxVo[] lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
+        ZcfzTaxVo[] zcfztaxvos = (ZcfzTaxVo[]) singleObjectBO.queryByCondition(ZcfzTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype =?   order by ordernum", sp);
+        XjllTaxVo[] xjlltaxvos = (XjllTaxVo[]) singleObjectBO.queryByCondition(XjllTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
+
+        String fileType = ExportTemplateEnum.getFileType(excelExportVO.getAreaType());
+
+        if ("1".equals(fileType)) {
+            TaxExportHander taxExportHander = ExportTemplateEnum.getTaxHander(excelExportVO.getAreaType());
+
+            Document doc = taxExportHander.writeZcfzXMLFile(listVo, lrbvos, xjllbvos, lrbtaxvos, zcfztaxvos, xjlltaxvos, cpvo, Integer.parseInt(excelExportVO.getAreaType()));
+
+            exportTax(response, doc, "资产负债表、利润表、现金流量表(" + qj + ").tax");
+        } else {
+            ExcelExportHander excelExportHander = ExportTemplateEnum.getExcelHandler(excelExportVO.getAreaType());
+            //设置地区、单/多、会计制度等
+            excelExportHander.init(excelExportVO.getAreaType(), corpType);
+
+            //设置上下文，用于Excel填值时取数用
+            excelExportHander.setCpvo(cpvo);
+            excelExportHander.setQj(qj);
+            excelExportHander.setQjlx(excelExportVO.getQjlx());
+
+            Map<String, Workbook> workBookMap = null;
+            if (excelExportHander instanceof ExcelExportPubHandler)
+                workBookMap = excelExportHander.handleCommon(corpType, lrbtaxvos, zcfztaxvos, xjlltaxvos, lrbvos, xjllbvos, listVo);
+            else
+                workBookMap = excelExportHander.handle(corpType, lrbtaxvos, zcfztaxvos, xjlltaxvos, lrbvos, xjllbvos, listVo);
+
+            exportExcelToZip(response, workBookMap, "资产负债表、利润表、现金流量表(" + qj + ")");
+        }
+
+        qj = qj.substring(0, 4);
+        //日志记录
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "财务报表税局模式导出:" + qj, ISysConstants.SYS_2);
+    }
+
+
+    private void exportTax(HttpServletResponse response, Document doc, String taxfilename) {
+        OutputStream toClient = null;
+        XMLWriter writer = null;
+        try {
+            String formattedName = URLEncoder.encode(taxfilename, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + taxfilename + ";filename*=UTF-8''" + formattedName);
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream;charset=gb2312");
+            // 用于格式化xml内容和设置头部标签
+            OutputFormat format = OutputFormat.createPrettyPrint();
+            // 设置xml文档的编码为utf-8
+            format.setEncoding("utf-8");
+            format.setIndent(true); //设置是否缩进
+            format.setIndent("    "); //以四个空格方式实现缩进
+            format.setNewlines(true); //设置是否换行
+            writer = new XMLWriter(toClient, format);
+            writer.write(doc);
+            writer.close();
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (Exception e) {
+            log.error("导出错误", e);
+            ;
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException e) {
+                log.error("导出tax错误", e);
+            }
+        }
+    }
 
     private ZcfzExcelField getExcelField(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, UserVO userVO, ZcFzBVO[] listVo, String gs, String qj) {
         ZcfzExcelField zcfz = new ZcfzExcelField();
@@ -310,13 +419,13 @@ public class ZcfzController  extends ReportBaseController {
      */
     @PostMapping("export/excelEn")
     public void excelReportEn(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
-        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),ZcFzBVO[].class);
+        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = listVo[0].getTitlePeriod();
         String gs = listVo[0].getGs();
         CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
 
-        List<ZcFzBVO[]> listZcfzBvos = getListZcfzBvos(excelExportVO,queryParamvo,listVo, gs, qj, cpvo);
-        List<LrbVO[]> listLrbBvos = getListLrbBvos(excelExportVO,queryParamvo,qj, cpvo);
+        List<ZcFzBVO[]> listZcfzBvos = getListZcfzBvos(excelExportVO, queryParamvo, listVo, gs, qj, cpvo);
+        List<LrbVO[]> listLrbBvos = getListLrbBvos(excelExportVO, queryParamvo, qj, cpvo);
 
         LrbTaxVo[] lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = '1314'", new SQLParameter());
 
@@ -338,7 +447,7 @@ public class ZcfzController  extends ReportBaseController {
 //                "财务报表英文模式导出:" + qj, ISysConstants.SYS_2);
     }
 
-    private List<LrbVO[]> getListLrbBvos(ReportExcelExportVO excelExportVO,KmReoprtQueryParamVO queryParamvo, String qj,  CorpVO cpvo) {
+    private List<LrbVO[]> getListLrbBvos(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, String qj, CorpVO cpvo) {
         List<LrbVO[]> lrbvos = new ArrayList<LrbVO[]>();
         String excelsel = excelExportVO.getExcelsel();
         // 按照年来查询
@@ -371,7 +480,7 @@ public class ZcfzController  extends ReportBaseController {
         return lrbvos;
     }
 
-    private List<ZcFzBVO[]> getListZcfzBvos(ReportExcelExportVO excelExportVO,KmReoprtQueryParamVO queryParamvo, ZcFzBVO[] listVo, String gs, String qj, CorpVO cpvo) {
+    private List<ZcFzBVO[]> getListZcfzBvos(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, ZcFzBVO[] listVo, String gs, String qj, CorpVO cpvo) {
         List<ZcFzBVO[]> listZcfzBvos = new ArrayList<>();
         String excelsel = excelExportVO.getExcelsel();
         if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
@@ -383,7 +492,7 @@ public class ZcfzController  extends ReportBaseController {
             String ishasye = queryParamvo.getIshasye();
             String hasye1 = queryParamvo.getHasye1();
             String hasye2 = queryParamvo.getHasye2();
-            String hasye3 =queryParamvo.getHasye3();
+            String hasye3 = queryParamvo.getHasye3();
             if (ishasye == null || "".equals(ishasye)) {
                 ishasye = "N";
             }
@@ -418,7 +527,7 @@ public class ZcfzController  extends ReportBaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(String corpName, String period, PrintParamVO printParamVO, QueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+    public void printAction(String corpName, String period, PrintParamVO printParamVO, QueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
@@ -437,13 +546,13 @@ public class ZcfzController  extends ReportBaseController {
             QueryParamVO paramvo = new QueryParamVO();
             paramvo.setPk_corp(corpVO.getPk_corp());
             List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
-            if(listVos != null && listVos.size() > 0){
-                Optional<CorpTaxVo> optional = listVos.stream().filter(v-> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
-                optional.ifPresent(corpTaxVo ->{
-                    if(!StringUtil.isEmpty(corpTaxVo.getLegalbodycode())){
+            if (listVos != null && listVos.size() > 0) {
+                Optional<CorpTaxVo> optional = listVos.stream().filter(v -> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
+                optional.ifPresent(corpTaxVo -> {
+                    if (!StringUtil.isEmpty(corpTaxVo.getLegalbodycode())) {
                         pmap.put("单位负责人", corpTaxVo.getLegalbodycode());
                     }
-                    if(!StringUtil.isEmpty(corpTaxVo.getLinkman1())){
+                    if (!StringUtil.isEmpty(corpTaxVo.getLinkman1())) {
                         pmap.put("财务负责人", corpTaxVo.getLinkman1());
                     }
                     pmap.put("制表人", userVO.getUser_name());
@@ -466,7 +575,7 @@ public class ZcfzController  extends ReportBaseController {
         }
     }
 
-    private Map<String, List<SuperVO>> getZcfzMap(QueryParamVO queryParamvo ) {
+    private Map<String, List<SuperVO>> getZcfzMap(QueryParamVO queryParamvo) {
         Map<String, List<SuperVO>> resmap = new LinkedHashMap<String, List<SuperVO>>();
 
         String ishajz = "N";
@@ -474,7 +583,7 @@ public class ZcfzController  extends ReportBaseController {
             ishajz = "Y";
         }
 
-        String ishasye = queryParamvo.getIshasye() ;
+        String ishasye = queryParamvo.getIshasye();
         String hasye1 = queryParamvo.getHasye1();
         String hasye2 = queryParamvo.getHasye2();
         String hasye3 = queryParamvo.getHasye3();
@@ -485,9 +594,9 @@ public class ZcfzController  extends ReportBaseController {
         String[] yes = null;
 
         if ("Y".equals(ishasye)) {
-            yes = new String[]{ishasye, hasye1, hasye2, hasye3,hasye4};
+            yes = new String[]{ishasye, hasye1, hasye2, hasye3, hasye4};
         } else {
-            yes = new String[]{"N", "N", "N", "N","N"};
+            yes = new String[]{"N", "N", "N", "N", "N"};
         }
 
         CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
@@ -540,9 +649,4 @@ public class ZcfzController  extends ReportBaseController {
     }
 
 
-
-
-
-
-
-    }
+}
