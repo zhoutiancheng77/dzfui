@@ -830,7 +830,7 @@ public class ExcelReport<T> {
 				cell = sheet.getRow(firstrow).getCell(x); // sheet.getRow(firstrow).createCell(x);
 				cell.setCellValue(new HSSFRichTextString(column));
 				// cell.setRowspan(headrowcount); //headrowcount-i;
-				sheet.addMergedRegion(new CellRangeAddress(firstrow, firstrow + headrowcount - 1, x, x));
+//				sheet.addMergedRegion(new CellRangeAddress(firstrow, firstrow + headrowcount - 1, x, x));
 				prevcells.set(0, cell);
 			} else {
 

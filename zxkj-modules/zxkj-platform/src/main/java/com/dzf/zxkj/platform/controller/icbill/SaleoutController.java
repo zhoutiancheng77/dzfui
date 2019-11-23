@@ -219,7 +219,7 @@ public class SaleoutController{
 	 * 查询子表信息
 	 */
     @PostMapping("/querySub")
-	public ReturnData querySub(@RequestParam Map<String, String> param) {
+	public ReturnData querySub(@RequestBody Map<String, String> param) {
 		Grid grid = new Grid();
         IntradeHVO  data= JsonUtils.convertValue(param, IntradeHVO.class);
         List<IntradeoutVO> list = ic_saleoutserv.querySub(data);
@@ -228,7 +228,9 @@ public class SaleoutController{
             grid.setTotal((long) list.size());
             grid.setRows(list);
             grid.setMsg("查询成功！");
-        }
+        }else{
+			grid.setMsg("查询失败！");
+		}
         return ReturnData.ok().data(grid);
 	}
 

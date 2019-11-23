@@ -29,6 +29,7 @@ import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -38,9 +39,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -604,4 +604,105 @@ public class AuxiliaryAccountController {
         return ReturnData.ok().data(json);
     }
 
+
+    @PostMapping("/expExcel")
+    public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> pmap) {
+        OutputStream toClient = null;
+        try {
+            response.reset();
+            String  fileName = "fztemplate.xls";
+            // 设置response的Header
+            String date = "自定义辅助模板";
+            String hid = pmap.get("hid");
+            if (AuxiliaryConstant.ITEM_INVENTORY.equals(hid)) {
+                fileName = "fztemplateCH.xls";
+                date="存货模板";
+            } else  if (AuxiliaryConstant.ITEM_CUSTOMER.equals(hid)){
+                fileName = "fztemplateTax.xls";
+                date="客户模板";
+            }  else  if (AuxiliaryConstant.ITEM_SUPPLIER.equals(hid)){
+                fileName = "fztemplateTax.xls";
+                date="供应商模板";
+            } else  if (AuxiliaryConstant.ITEM_STAFF.equals(hid)){
+                fileName = "fztemplateZY.xls";
+                date="职员模板";
+            } else  if (AuxiliaryConstant.ITEM_PROJECT.equals(hid)){
+                fileName = "fztemplate.xls";
+                date="项目模板";
+            } else  if (AuxiliaryConstant.ITEM_DEPARTMENT.equals(hid)){
+                fileName = "fztemplate.xls";
+                date="部门模板";
+            }
+
+            String exName = new String(date.getBytes("GB2312"), "ISO_8859_1");
+            response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName + ".xls"));
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/vnd.ms-excel;charset=gb2312");
+            byte[] length = expExcel(toClient, fileName);
+
+            String srt2 = new String(length, "UTF-8");
+            response.addHeader("Content-Length", srt2);
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("excel导出错误", e);
+        } catch (Exception e) {
+            log.error("excel导出错误", e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (Exception e) {
+                log.error("excel导出错误", e);
+            }
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (Exception e) {
+                log.error("excel导出错误", e);
+            }
+        }
+    }
+
+    private byte[] expExcel(OutputStream out, String fileName) throws Exception {
+        ByteArrayOutputStream bos = null;
+        InputStream is = null;
+        try {
+            Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
+            is = exportTemplate.getInputStream();
+            bos = new ByteArrayOutputStream();
+            if (fileName.indexOf(".xlsx") > 0) {
+                XSSFWorkbook xworkbook = new XSSFWorkbook(is);
+                is.close();
+                bos = new ByteArrayOutputStream();
+                xworkbook.write(bos);
+            } else {
+                HSSFWorkbook gworkbook = new HSSFWorkbook(is);
+                is.close();
+                bos = new ByteArrayOutputStream();
+                gworkbook.write(bos);
+            }
+            bos.writeTo(out);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                }
+            }
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
 }
