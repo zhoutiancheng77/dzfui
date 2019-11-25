@@ -1,8 +1,11 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
+import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -35,7 +38,7 @@ import java.util.*;
 @RequestMapping("gl_qmjzact")
 @Slf4j
 @SuppressWarnings("all")
-public class QmjzController {
+public class QmjzController extends BaseController {
 
     @Autowired
     private ITerminalSettle gl_qmjzserv;
@@ -49,13 +52,15 @@ public class QmjzController {
     public ReturnData<Grid> query(@MultiRequestBody QueryParamVO queryParamVO) {
         Grid grid = new Grid();
         try {
+            if(queryParamVO.getCorpslist() == null || queryParamVO.getCorpslist().size() == 0){
+                queryParamVO.setCorpslist(Arrays.asList(new String[]{SystemUtil.getLoginCorpId()}));
+            }
             QmJzVO[] qmjzvo = gl_qmjzserv.initQueryQmJzVO(queryParamVO);
             grid.setSuccess(true);
             grid.setRows(qmjzvo);
             grid.setMsg("查询成功!");
         } catch (Exception e) {
-            grid.setSuccess(false);
-            grid.setMsg(e instanceof BusinessException ? "查询失败" : e.getMessage());
+            printErrorLog(grid, e, "查询失败!");
             log.error("查询失败!", e);
         }
         return ReturnData.ok().data(grid);
@@ -82,10 +87,10 @@ public class QmjzController {
         } else {
             log.info("数据为空");
             grid.setMsg("数据为空");
+            logmsg = "数据为空";
             grid.setSuccess(false);
         }
-
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), logmsg, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, logmsg, ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -112,7 +117,7 @@ public class QmjzController {
             grid.setSuccess(false);
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), logmsg, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, logmsg);
         return ReturnData.ok().data(grid);
     }
 
@@ -267,8 +272,7 @@ public class QmjzController {
             grid = getGrid(grid, "数据为空!", new QmJzVO[0], DZFBoolean.FALSE);
         }
 
-
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), logmsg, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, logmsg, ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -356,7 +360,7 @@ public class QmjzController {
         } else {
             grid = getGrid(grid, "数据为空!", new QmJzVO[0], DZFBoolean.FALSE);
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), logmsg, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, logmsg, ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -398,15 +402,11 @@ public class QmjzController {
                     new String[]{"period", "corpname", "pzhasjz", "gdzchasjz", "sykmwye", "vdef10", "qmph",
                             "jzfinish"},
                     new String[]{"期间", "公司", "凭证都已记账", "固定资产已结账", "期间损益已结转", "利润结转", "期末试算平衡", "结账完成"},
-                    new int[]{2, 5, 3, 3, 3, 3, 3, 2}, 20,  pmap, tmap);
+                    new int[]{2, 5, 3, 3, 3, 3, 3, 2}, 20, pmap, tmap);
         } catch (DocumentException e) {
-            log.error("打印错误",e);
+            log.error("打印错误", e);
         } catch (IOException e) {
-            log.error("打印错误",e);
+            log.error("打印错误", e);
         }
-
     }
-
-
-
 }
