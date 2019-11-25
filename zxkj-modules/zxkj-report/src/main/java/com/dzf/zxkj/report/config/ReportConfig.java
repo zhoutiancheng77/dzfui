@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Data
 public class ReportConfig {
-    @Value("${report.template.local.path}")
+    @Value("${report.template.local.path:''}")
     private String path;
 }

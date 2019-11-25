@@ -14,6 +14,7 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -23,6 +24,7 @@ import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.util.ExcelReport;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 import static com.dzf.zxkj.platform.util.SystemUtil.getRequest;
@@ -511,5 +518,42 @@ public class InventoryController {
 		return ReturnData.ok().data(json);
 	}
 
-
+	@PostMapping("/expExcel")
+	public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> pmap) {
+		OutputStream toClient = null;
+		try {
+			response.reset();
+			String  fileName = "shangpin.xls";
+			// 设置response的Header
+			String date = "存货";
+			String formattedName = URLEncoder.encode(date, "UTF-8");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName+ ".xls");
+			toClient = new BufferedOutputStream(response.getOutputStream());
+			response.setContentType("application/vnd.ms-excel;charset=gb2312");
+			ExcelReport<AuxiliaryAccountBVO> ex = new ExcelReport<>();
+			ex.expFile(toClient, fileName);
+			toClient.flush();
+			response.getOutputStream().flush();
+		} catch (IOException e) {
+			log.error("excel导出错误", e);
+		} catch (Exception e) {
+			log.error("excel导出错误", e);
+		} finally {
+			try {
+				if (toClient != null) {
+					toClient.close();
+				}
+			} catch (Exception e) {
+				log.error("excel导出错误", e);
+			}
+			try {
+				if (response != null && response.getOutputStream() != null) {
+					response.getOutputStream().close();
+				}
+			} catch (Exception e) {
+				log.error("excel导出错误", e);
+			}
+		}
+	}
 }

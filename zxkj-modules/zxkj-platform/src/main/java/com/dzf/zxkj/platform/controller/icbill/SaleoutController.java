@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -219,7 +220,7 @@ public class SaleoutController{
 	 * 查询子表信息
 	 */
     @PostMapping("/querySub")
-	public ReturnData querySub(@RequestParam Map<String, String> param) {
+	public ReturnData querySub(@RequestBody Map<String, String> param) {
 		Grid grid = new Grid();
         IntradeHVO  data= JsonUtils.convertValue(param, IntradeHVO.class);
         List<IntradeoutVO> list = ic_saleoutserv.querySub(data);
@@ -228,7 +229,9 @@ public class SaleoutController{
             grid.setTotal((long) list.size());
             grid.setRows(list);
             grid.setMsg("查询成功！");
-        }
+        }else{
+			grid.setMsg("查询失败！");
+		}
         return ReturnData.ok().data(grid);
 	}
 
@@ -762,7 +765,7 @@ public class SaleoutController{
 			String exName = null;
 			boolean isexp = false;
 			if (list.contains("download")) {
-				exName = new String("出库单导入模板.xls");
+				exName = "出库单导入模板.xls";
 				aggvos = new AggIcTradeVO[1];
 				AggIcTradeVO aggvo = new AggIcTradeVO();
 				aggvo.setVcorpname(SystemUtil.getLoginCorpVo().getUnitname());
@@ -774,7 +777,7 @@ public class SaleoutController{
 			} else {
 //				String where = list.substring(2, list.length() - 1);
 				aggvos = ic_saleoutserv.queryAggIntradeVOByID(list, SystemUtil.getLoginCorpId());
-				exName = new String("出库单.xls");
+				exName = "出库单.xls";
 				List<AggIcTradeVO> tlist = calTotalRow(aggvos);
 				aggvos = tlist.toArray(new AggIcTradeVO[tlist.size()]);
 			}
@@ -782,17 +785,18 @@ public class SaleoutController{
 			Map<String, Integer> preMap = getPreMap();// 设置精度
 
 			response.reset();
-			exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
-			response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+			String formattedName = URLEncoder.encode(exName, "UTF-8");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + exName + ";filename*=UTF-8''" + formattedName);
 			toClient = new BufferedOutputStream(response.getOutputStream());
 			response.setContentType("application/vnd.ms-excel;charset=gb2312");
 			byte[] length = null;
 			Map<String, Integer> tabidsheetmap = new HashMap<String, Integer>();
 			tabidsheetmap.put("B100000", 0);
 			IcBillExport exp = new IcBillExport();
-			length = exp.exportExcel(aggvos, toClient, 0, isexp, preMap);
-			String srt2 = new String(length, "UTF-8");
-			response.addHeader("Content-Length", srt2);
+			exp.exportExcel(aggvos, toClient, 0, isexp, preMap);
+//			String srt2 = new String(length, "UTF-8");
+//			response.addHeader("Content-Length", srt2);
 			toClient.flush();
 			response.getOutputStream().flush();
 		} catch (IOException e) {

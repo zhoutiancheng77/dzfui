@@ -168,6 +168,7 @@
                     <include>param.txt</include>
                     <include>fdfs_client.conf</include>
                     <include>font/*</include>
+                    <include>template/*</include>
                 </includes>
             </resource>
         </resources>

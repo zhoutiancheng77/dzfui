@@ -103,6 +103,7 @@ public class PzmbhController {
                 }
             }
             grid.setRows(listSummaryVo);
+            grid.setSuccess(true);
         } else {
             if ("Y".equals(withBody)) {
                 list = pzmbhService.queryWithBody(pk_corp);
@@ -110,6 +111,7 @@ public class PzmbhController {
                 list = pzmbhService.query(pk_corp);
             }
             grid.setRows(list);
+            grid.setSuccess(true);
         }
         if (list == null || list.size() == 0) {
             grid.setTotal(Long.valueOf(0));

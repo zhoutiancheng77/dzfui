@@ -35,10 +35,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -622,11 +619,11 @@ public class DcpzServiceImpl implements IDcpzService {
 	}
 
 	@Override
-	public String saveImp(File file, String fileType, String userid, String pk_corp) throws DZFWarpException {
+	public String saveImp(InputStream is, String fileType, String userid, String pk_corp) throws DZFWarpException {
 		String msg = "";
-		FileInputStream is = null;
+//		FileInputStream is = null;
 		try {
-			is = new FileInputStream(file);
+//			is = new FileInputStream(inss);
 			Workbook impBook = null;
 			if("xls".equals(fileType)) {
 				impBook = new HSSFWorkbook(is);

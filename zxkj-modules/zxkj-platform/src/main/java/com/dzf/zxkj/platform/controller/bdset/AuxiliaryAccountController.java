@@ -24,6 +24,7 @@ import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.util.ExcelReport;
 import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +39,9 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -604,4 +605,63 @@ public class AuxiliaryAccountController {
         return ReturnData.ok().data(json);
     }
 
+
+    @PostMapping("/expExcel")
+    public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> pmap) {
+        OutputStream toClient = null;
+        try {
+            response.reset();
+            String  fileName = "fztemplate.xls";
+            // 设置response的Header
+            String date = "自定义辅助模板";
+            String hid = pmap.get("hid");
+            if (AuxiliaryConstant.ITEM_INVENTORY.equals(hid)) {
+                fileName = "fztemplateCH.xls";
+                date="存货模板";
+            } else  if (AuxiliaryConstant.ITEM_CUSTOMER.equals(hid)){
+                fileName = "fztemplateTax.xls";
+                date="客户模板";
+            }  else  if (AuxiliaryConstant.ITEM_SUPPLIER.equals(hid)){
+                fileName = "fztemplateTax.xls";
+                date="供应商模板";
+            } else  if (AuxiliaryConstant.ITEM_STAFF.equals(hid)){
+                fileName = "fztemplateZY.xls";
+                date="职员模板";
+            } else  if (AuxiliaryConstant.ITEM_PROJECT.equals(hid)){
+                fileName = "fztemplate.xls";
+                date="项目模板";
+            } else  if (AuxiliaryConstant.ITEM_DEPARTMENT.equals(hid)){
+                fileName = "fztemplate.xls";
+                date="部门模板";
+            }
+            String formattedName = URLEncoder.encode(date, "UTF-8");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName+ ".xls");
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/vnd.ms-excel;charset=gb2312");
+            ExcelReport<AuxiliaryAccountBVO> ex = new ExcelReport<>();
+            ex.expFile(toClient, fileName);
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("excel导出错误", e);
+        } catch (Exception e) {
+            log.error("excel导出错误", e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (Exception e) {
+                log.error("excel导出错误", e);
+            }
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (Exception e) {
+                log.error("excel导出错误", e);
+            }
+        }
+    }
 }

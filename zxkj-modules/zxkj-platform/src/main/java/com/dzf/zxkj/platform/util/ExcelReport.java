@@ -22,6 +22,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
@@ -830,7 +831,7 @@ public class ExcelReport<T> {
 				cell = sheet.getRow(firstrow).getCell(x); // sheet.getRow(firstrow).createCell(x);
 				cell.setCellValue(new HSSFRichTextString(column));
 				// cell.setRowspan(headrowcount); //headrowcount-i;
-				sheet.addMergedRegion(new CellRangeAddress(firstrow, firstrow + headrowcount - 1, x, x));
+//				sheet.addMergedRegion(new CellRangeAddress(firstrow, firstrow + headrowcount - 1, x, x));
 				prevcells.set(0, cell);
 			} else {
 
@@ -2189,5 +2190,53 @@ public class ExcelReport<T> {
 		number[9] = "企业所得税弥补亏损明细表";
 		number[10] = "减免所得税优惠明细表";
 		return number;
+	}
+
+	public byte[] expFile(OutputStream out, String fileName) throws Exception {
+		ByteArrayOutputStream bos = null;
+		InputStream is = null;
+		try {
+			Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
+			is = exportTemplate.getInputStream();
+			bos = new ByteArrayOutputStream();
+			if(fileName.indexOf(".docx") > 0){
+				int byteRead = 0;
+				byte[] buffer = new byte[512];
+				while ((byteRead = is.read(buffer)) != -1) {
+					out.write(buffer, 0, byteRead);
+				}
+				is.close();
+				bos = new ByteArrayOutputStream();
+			}else if (fileName.indexOf(".xlsx") > 0) {
+				XSSFWorkbook xworkbook = new XSSFWorkbook(is);
+				is.close();
+				bos = new ByteArrayOutputStream();
+				xworkbook.write(bos);
+			} else {
+				HSSFWorkbook gworkbook = new HSSFWorkbook(is);
+				is.close();
+				bos = new ByteArrayOutputStream();
+				gworkbook.write(bos);
+			}
+			bos.writeTo(out);
+			return bos.toByteArray();
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+				}
+			}
+			if (bos != null) {
+				try {
+					bos.close();
+				} catch (IOException e) {
+				}
+			}
+		}
 	}
 }

@@ -4,7 +4,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.image.DcModelBVO;
 import com.dzf.zxkj.platform.model.image.DcModelHVO;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 public interface IDcpzService {
@@ -38,7 +38,7 @@ public interface IDcpzService {
     /**
      * excel导入保存
      */
-    String saveImp(File file, String fileType, String userid, String pk_corp) throws DZFWarpException;
+    String saveImp(InputStream is, String fileType, String userid, String pk_corp) throws DZFWarpException;
 
 
     /**
