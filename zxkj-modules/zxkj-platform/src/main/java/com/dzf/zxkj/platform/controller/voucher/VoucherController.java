@@ -4,30 +4,34 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
+import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
-import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
-import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
-import com.dzf.zxkj.platform.model.bdset.GxhszVO;
+import com.dzf.zxkj.platform.model.bdset.*;
+import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
+import com.dzf.zxkj.platform.model.image.ImageLibraryVO;
 import com.dzf.zxkj.platform.model.image.ImageParamVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pzgl.*;
+import com.dzf.zxkj.platform.model.report.XjllVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
 import com.dzf.zxkj.platform.model.voucher.CopyParam;
 import com.dzf.zxkj.platform.model.voucher.PzglmessageVO;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
 import com.dzf.zxkj.platform.service.bdset.IPzmbhService;
 import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
@@ -38,10 +42,8 @@ import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.pzgl.impl.CaclTaxMny;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
-import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
-import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.platform.service.sys.IParameterSetService;
-import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.service.sys.*;
+import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +51,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -84,6 +91,10 @@ public class VoucherController {
     private ITerminalSettle gl_qmjzserv;
     @Autowired
     private IQmgzService qmgzService;
+    @Autowired
+    private IAccountService accountService;
+    @Autowired
+    private IAuxiliaryAccountService gl_fzhsserv;
 
     // 查询
     @GetMapping("/query")
@@ -619,38 +630,45 @@ public class VoucherController {
         return msg.toString();
     }
 
-    @GetMapping("/queryPicture")
-    public ReturnData queryPicture(String imgIds, String corp_id,
-                                   String begindate, String enddate) {
-        if (StringUtils.isEmpty(corp_id)) {
-            corp_id = SystemUtil.getLoginCorpId();
+    @GetMapping("/queryImage")
+    public ReturnData queryImage(String imgIds, String corpId,
+                                 String beginDate, String endDate) {
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
         }
-        String currentdate = new DZFDate().toString();
-        if (begindate == null) {
-            begindate = currentdate;
+        String currentDate = new DZFDate().toString();
+        if (beginDate == null) {
+            beginDate = currentDate;
         }
-        if (enddate == null) {
-            enddate = currentdate;
+        if (endDate == null) {
+            endDate = currentDate;
         }
         Json json = new Json();
         ImageParamVO param = new ImageParamVO();
         if (!StringUtils.isEmpty(imgIds)) {
             param.setImgIds(imgIds);
         } else {
-            param.setBegindate(begindate);
-            param.setEnddate(enddate);
-            param.setPk_corp(corp_id);
+            param.setBegindate(beginDate);
+            param.setEnddate(endDate);
+            param.setPk_corp(corpId);
         }
         List<ImageGroupVO> list = gl_tzpzserv.queryImageGroupByPicture(param);
-        if (list == null || list.size() == 0) {
-            json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
-            json.setSuccess(false);
-            json.setMsg("没找到图片！");
-        } else {
-            json.setData(list);
-            json.setStatus(200);
+        json.setRows(list);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/getImageById")
+    public ReturnData getImageById(@RequestParam String id) {
+        Json json = new Json();
+        ImageLibraryVO[] imageArray = gl_tzpzserv.queryImageVO(id);
+        if (imageArray != null && imageArray.length > 0) {
+            ImageGroupVO groupVo = gl_tzpzserv.queryImageGroupByPrimaryKey(id);
+            groupVo.setChildren(imageArray);
+            json.setData(groupVo);
             json.setSuccess(true);
-            json.setMsg("成功");
+        } else {
+            throw new BusinessException("无图片信息");
         }
         return ReturnData.ok().data(json);
     }
@@ -1139,6 +1157,176 @@ public class VoucherController {
         setting.setPk_corp(SystemUtil.getLoginCorpId());
         gl_pzglserv.saveMergeSetting(setting.getPk_corp(), setting);
         json.setMsg("设置成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/getTempById")
+    public ReturnData getTempById(@RequestParam String tempId, String mny) {
+        Json json = new Json();
+        DZFDouble amount = null;
+        if (!StringUtils.isEmpty(mny)) {
+            try {
+                amount = new DZFDouble(mny);
+            } catch (Exception e) {
+                throw new BusinessException("金额错误");
+            }
+        }
+        CorpVO loginCorp = SystemUtil.getLoginCorpVo();
+        List<TzpzBVO> tzpzBList = new ArrayList<TzpzBVO>();
+        List<PzmbbVO> list = pzmbhService.queryB(tempId);
+        if (list != null && list.size() > 0) {
+            TzpzBVO tzpzBVO = null;
+            String pk_corp = list.get(0).getPk_corp();
+            Map<String, YntCpaccountVO> kmMap = accountService.queryMapByPk(pk_corp);
+            Map<String, AuxiliaryAccountBVO> auxMap = gl_fzhsserv.queryMap(pk_corp);
+            // 10个辅助核算项属性名
+            String[] fzhsAttNames = new String[10];
+            for (int i = 1; i <= 10; i++) {
+                fzhsAttNames[i - 1] = "fzhsx" + i;
+            }
+            for (PzmbbVO pvo : list) {
+                if (!pvo.getPk_corp().equals(loginCorp.getPk_corp())) {
+                    throw new BusinessException("无权使用该模板！");
+                }
+
+                tzpzBVO = new TzpzBVO();
+                tzpzBVO.setPk_accsubj(pvo.getPk_accsubj());
+                tzpzBVO.setZy(pvo.getAbstracts());
+                tzpzBVO.setVdirect(pvo.getDirection());
+                tzpzBVO.setPk_corp(pvo.getPk_corp());
+                tzpzBVO.setSubj_name(pvo.getVname());
+                tzpzBVO.setPk_taxitem(pvo.getPk_taxitem());
+                tzpzBVO.setTaxcode(pvo.getTaxcode());
+                tzpzBVO.setTaxname(pvo.getTaxname());
+                tzpzBVO.setTaxratio(pvo.getTaxratio());
+
+                YntCpaccountVO cpaccount = kmMap.get(pvo.getPk_accsubj());
+                if (cpaccount != null) {
+                    tzpzBVO.setVname(cpaccount.getAccountname());
+                    tzpzBVO.setSubj_allname(cpaccount.getFullname());
+                    tzpzBVO.setKmmchie(cpaccount.getFullname());
+                    tzpzBVO.setVcode(cpaccount.getAccountcode());
+                    tzpzBVO.setSubj_code(cpaccount.getAccountcode());
+                    tzpzBVO.setVdirect(cpaccount.getDirection());
+                    if (cpaccount.getIswhhs() != null && cpaccount.getIswhhs().booleanValue()) {
+                        List<BdCurrencyVO> bzList = cpaccount.getExc_cur_array();
+                        if (bzList != null && bzList.size() > 0) {
+                            tzpzBVO.setExc_cur_array(bzList);
+                            String pk_currency = pvo.getPk_currency() == null ? bzList.get(0).getPk_currency() : pvo.getPk_currency();
+                            tzpzBVO.setPk_currency(pk_currency);
+                        }
+                    }
+                    // 启用库存的话，凭证模板没有保存存货，显示数量有问题
+                    if (cpaccount.getIsnum() != null && cpaccount.getIsnum().booleanValue()) {
+                        tzpzBVO.setIsnum(DZFBoolean.TRUE);
+                        tzpzBVO.setMeaname(cpaccount.getMeasurename());
+                        if (IcCostStyle.IC_ON.equals(loginCorp.getBbuildic())) {
+                            tzpzBVO.setMeacode(pvo.getMeacode());
+                            tzpzBVO.setMeaname(pvo.getMeaname());
+                            tzpzBVO.setPk_inventory(pvo.getPk_inventory());
+                            tzpzBVO.setInvcode(pvo.getInvcode());
+                            tzpzBVO.setInvname(pvo.getInvname());
+                        }
+                    }
+                }
+                tzpzBVO.setNnumber(pvo.getNnumber());
+                tzpzBVO.setNprice(pvo.getNprice());
+                tzpzBVO.setNrate(pvo.getNrate());
+                for (String attName : fzhsAttNames) {
+                    // 复制辅助核算项属性
+                    tzpzBVO.setAttributeValue(attName, pvo.getAttributeValue(attName));
+                }
+                List<AuxiliaryAccountBVO> fzhsList = ReportUtil.getFzhsList(pvo.getPk_corp(), pvo, auxMap);
+                if (fzhsList.size() > 0)
+                    tzpzBVO.setFzhs_list(fzhsList);
+                if (pvo.getDirection() == 0) {
+                    // 借方金额
+                    tzpzBVO.setJfmny(pvo.getMny() == null ? amount : pvo.getMny());
+                    tzpzBVO.setYbjfmny(pvo.getYbmny());
+                } else {
+                    tzpzBVO.setDfmny(pvo.getMny() == null ? amount : pvo.getMny());
+                    tzpzBVO.setYbdfmny(pvo.getYbmny());
+                }
+                tzpzBList.add(tzpzBVO);
+            }
+        } else {
+            throw new BusinessException("模板内容为空！");
+        }
+
+        json.setRows(tzpzBList);
+        json.setSuccess(true);
+        json.setStatus(200);
+        json.setMsg("成功！");
+        return ReturnData.ok().data(json);
+    }
+
+
+    @GetMapping("/img")
+    public void readImage(@RequestParam String corpCode, @RequestParam String path,
+                          HttpServletResponse response, HttpSession session) {
+
+        ServletOutputStream sos = null;
+        FileInputStream fis = null;
+        try {
+            File imgFile = null;
+            String dateFolder = path.substring(0, 8);
+            if (path.startsWith("ImageOcr")) {
+                String folder = ImageCommonPath.getDataCenterPhotoPath() + "/" + path;
+                imgFile = new File(folder);
+
+            } else {
+                if (path.indexOf("/") < 0 && path.indexOf("\\") < 0) {
+                    String imgfolder = ImageCommonPath.getDataCenterPhotoPath() + "/" + corpCode + "/" + dateFolder;
+                    String folder = imgfolder + "/" + path;
+                    imgFile = new File(folder);
+                } else {
+                    String folder = ImageCommonPath.getDataCenterPhotoPath() + "/" + path;
+                    imgFile = new File(folder);
+                }
+            }
+
+            if (!imgFile.exists()) {
+                String pathNoExist = session.getServletContext().getRealPath("/")
+                        + "img" + File.separator + "picnoexist.jpg";
+                imgFile = new File(pathNoExist);
+            }
+            fis = new FileInputStream(imgFile);
+            sos = response.getOutputStream();
+
+            //读取文件流
+            int i = 0;
+            byte[] buffer = new byte[1024];
+            while ((i = fis.read(buffer)) != -1) {
+                //写文件流
+                sos.write(buffer, 0, i);
+            }
+            sos.flush();
+            fis.close();
+        } catch (Exception e) {
+            log.error("查询图片失败！", e);
+        } finally {
+            if (sos != null) {
+                try {
+                    sos.close();
+                } catch (Exception e) {
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (Exception e) {
+                }
+            }
+        }
+
+    }
+
+    @GetMapping("/getVoucherCashFlow")
+    public ReturnData getVoucherCashFlow(String id) {
+        Json json = new Json();
+        XjllVO[] xjVos = gl_tzpzserv.queryCashFlow(id, SystemUtil.getLoginCorpId());
+        json.setRows(xjVos);
         json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
