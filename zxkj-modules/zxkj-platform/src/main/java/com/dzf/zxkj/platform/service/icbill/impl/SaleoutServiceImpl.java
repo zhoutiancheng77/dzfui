@@ -43,13 +43,13 @@ import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
-import com.dzf.zxkj.platform.service.pjgl.IVATSaleInvoiceService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.pzgl.impl.CaclTaxMny;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.service.zncs.IVATSaleInvoice2Service;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -99,9 +99,8 @@ public class SaleoutServiceImpl implements ISaleoutService {
 
 	@Autowired
 	IAuxiliaryAccountService gl_fzhsserv;
-
-	@Autowired(required = false)
-	private IVATSaleInvoiceService gl_vatsalinvserv;
+	@Autowired
+	private IVATSaleInvoice2Service gl_vatsalinvserv;
 	@Autowired
 	IReferenceCheck refcheck;
 	@Autowired

@@ -43,12 +43,12 @@ import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
-import com.dzf.zxkj.platform.service.pjgl.IVATInComInvoiceService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.service.zncs.IVATInComInvoice2Service;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -100,8 +100,8 @@ public class PurchInServiceImpl implements IPurchInService {
 	private IYHZHService gl_yhzhserv;
 	@Autowired
 	IAuxiliaryAccountService gl_fzhsserv;
-	@Autowired(required = false)
-	private IVATInComInvoiceService vatincomserv;
+	@Autowired
+	private IVATInComInvoice2Service vatincomserv;
 	@Autowired
 	IReferenceCheck refcheck;
 	@Autowired
