@@ -1,13 +1,16 @@
 package com.dzf.zxkj.platform.controller.zncs;
 
 import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
+import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.image.ImageParamVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pjgl.PictureBrowseVO;
+import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -28,6 +32,8 @@ public class PzglController extends BaseController {
     private IUserService userService;
     @Autowired
     private IPzglService gl_pzglserv;
+    @Autowired
+    private IImageGroupService img_groupserv;
 
     // 根据条件查询图片
     @RequestMapping("/search")
@@ -64,5 +70,60 @@ public class PzglController extends BaseController {
             printErrorLog(grid,  e, "查询图片失败！");
         }
         return ReturnData.ok().data(grid);
+    }
+
+    // 图片删除操作,与重传不一样
+    @RequestMapping("delImage")
+    public ReturnData<Json> delImage(@RequestBody Map<String,String> param) {
+        String desc = param.get("desc");
+        String delTelGrpDataString = param.get("delTelData");
+        String delOthDataString = param.get("delOthData");
+        String clzPidDateString = param.get("clzBidDate");
+        Json json = new Json();
+        json.setSuccess(false);
+        try {
+            if(StringUtil.isEmpty(delTelGrpDataString)&&StringUtil.isEmpty(delOthDataString)
+                    &&StringUtil.isEmpty(clzPidDateString)){
+                throw new BusinessException("请选择要作废的票据");
+            }
+            String[] delTelGrpData = null;
+            String[] delOthData = null;
+            String[] clzPidDate = null;
+            if(!StringUtil.isEmpty(delTelGrpDataString)){
+                delTelGrpData = delTelGrpDataString.split(",");
+            }
+            if(!StringUtil.isEmpty(delTelGrpDataString)){
+                delOthData = delOthDataString.split(",");
+            }
+            if(!StringUtil.isEmpty(delTelGrpDataString)){
+                clzPidDate = clzPidDateString.split(",");
+            }
+            String pk_corp = SystemUtil.getLoginCorpId();
+            Set<String> corpSet = userService.querypowercorpSet(pk_corp);
+            if (pk_corp != null && pk_corp.trim().length() > 0) {
+                if (!corpSet.contains(pk_corp)) {
+                    json.setSuccess(false);
+                    json.setMsg("作废图片失败,公司错误！");
+                    return ReturnData.error().data(json);
+                }
+            }
+
+            int tellength = delTelGrpData == null ? 0 : delTelGrpData.length;
+            int othlength = delOthData == null ? 0 : delOthData.length;
+            int alllength = tellength + othlength;
+            if (alllength == 0) {
+                throw new BusinessException("没有选择图片，请确认！");
+            }
+            log.info("开始进行图片作废操作：" + alllength);
+
+            img_groupserv.deleteImgFromTpll(pk_corp, SystemUtil.getLoginUserId(), desc, delTelGrpData, delOthData);
+            json.setRows("");
+            json.setMsg("图片作废成功");
+            json.setSuccess(true);
+            log.info(alllength + "图片作废成功!");
+        } catch (Exception e) {
+            printErrorLog(json, e, "图片作废失败！");
+        }
+        return ReturnData.ok().data(json);
     }
 }

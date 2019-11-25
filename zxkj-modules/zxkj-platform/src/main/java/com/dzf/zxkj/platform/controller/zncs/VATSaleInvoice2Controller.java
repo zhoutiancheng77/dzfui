@@ -21,6 +21,7 @@ import com.dzf.zxkj.common.utils.DZFMapUtil;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
@@ -106,9 +107,22 @@ public class VATSaleInvoice2Controller extends BaseController {
     private IAccountService accountService;
 
     @RequestMapping("/queryInfo")
-    public ReturnData<Json> queryInfo(@RequestParam("para") String head, String sort, String order, Integer page, Integer rows) {
+    public ReturnData<Json> queryInfo(@RequestBody Map<String,String> param) {
         Json json = new Json();
         try {
+            String head = param.get("para");
+            String sort = param.get("sort");
+            String order = param.get("order");
+            String spage = param.get("page");
+            String srows = param.get("rows");
+            Integer page = null;
+            Integer rows = null;
+            if(!StringUtil.isEmpty(spage)&&!StringUtil.isEmpty(srows)){
+                page = Integer.parseInt(spage);
+                rows = Integer.parseInt(srows);
+            }else{
+                throw new BusinessException("请输入查询页数和条数");
+            }
             //查询并分页
             if (StringUtil.isEmpty(SystemUtil.getLoginCorpId())) {//corpVo.getPrimaryKey()
                 throw new BusinessException("出现数据无权问题！");
@@ -164,14 +178,7 @@ public class VATSaleInvoice2Controller extends BaseController {
     private InvoiceParamVO getQueryParamVO(String head) {
 
 
-//        JSON headjs = (JSON) JSON.parse(head);
-//
-//        Map<String, String> headmaping = FieldMapping.getFieldMapping(new InvoiceParamVO());
-//        InvoiceParamVO paramvo = DzfTypeUtils.cast(headjs, headmaping, InvoiceParamVO.class,
-//                JSONConvtoJAVA.getParserConfig());
-//        JSONObject jsonObject= JSONObject.fromObject(head);
-//        InvoiceParamVO paramvo=(InvoiceParamVO)JSONObject.toBean(jsonObject, InvoiceParamVO.class);
-        InvoiceParamVO paramvo = JSON.parseObject(head, InvoiceParamVO.class);
+        InvoiceParamVO paramvo = JsonUtils.deserialize(head, InvoiceParamVO.class);
         if (paramvo == null) {
             paramvo = new InvoiceParamVO();
         }
@@ -193,26 +200,16 @@ public class VATSaleInvoice2Controller extends BaseController {
 
     //修改保存
     @RequestMapping("/saveOrUpdate")
-    public ReturnData<Json> saveOrUpdate(@RequestParam("adddoc[header]") String head, @RequestParam("adddoc[body]") String body) {
+    public ReturnData<Json> saveOrUpdate(@RequestBody Map<String,String> param) {
         String msg = "";//记录日志
         Json json = new Json();
         try {
+            String head = param.get("adddoc[header]");
+            String body = param.get("adddoc[body]");
             String pk_corp = SystemUtil.getLoginCorpId();
-
             Map<String, VATSaleInvoiceVO2[]> sendData = new HashMap<String, VATSaleInvoiceVO2[]>();
-
-//            JSON headjs = (JSON) JSON.parse(head);
-            JSONArray array = JSON.parseArray(body);
-
-//            Map<String, String> headmapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceBVO2());
-//
-//            VATSaleInvoiceVO2 headvo = DzfTypeUtils.cast(headjs, headmapping, VATSaleInvoiceVO2.class, JSONConvtoJAVA.getParserConfig());
-//            VATSaleInvoiceBVO2[] bodyvos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceBVO2[].class, JSONConvtoJAVA.getParserConfig());
-//            JSONObject jsonObject= JSONObject.fromObject(head);
-//            VATSaleInvoiceVO2 headvo = (VATSaleInvoiceVO2)JSONObject.toBean(jsonObject, VATSaleInvoiceVO2.class);
-            VATSaleInvoiceVO2 headvo = JSON.parseObject(head, VATSaleInvoiceVO2.class);
-            VATSaleInvoiceBVO2[] bodyvos = array.toArray(new VATSaleInvoiceBVO2[0]);
+            VATSaleInvoiceVO2 headvo = JsonUtils.deserialize(head, VATSaleInvoiceVO2.class);
+            VATSaleInvoiceBVO2[] bodyvos = JsonUtils.deserialize(body, VATSaleInvoiceBVO2[].class);
             if (!StringUtil.isEmptyWithTrim(headvo.getKhmc())) {
                 //处理特殊字符
                 headvo.setKhmc(OcrUtil.filterCorpName(headvo.getKhmc()).trim());
@@ -520,12 +517,12 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData<Json> impExcel(@RequestParam("impForce") String flag, MultipartFile file, VATSaleInvoiceVO2 bvo) {
+    public ReturnData<Json> impExcel(@RequestBody MultipartFile file,String impForce) {
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
         try {
-            DZFBoolean isFlag = "Y".equals(flag) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
+            DZFBoolean isFlag = "Y".equals(impForce) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
 
             if (file == null || file.getSize() == 0) {
                 throw new BusinessException("请选择导入文件!");
@@ -551,7 +548,7 @@ public class VATSaleInvoice2Controller extends BaseController {
             json.setSuccess(paramvo.getCount() == 0 ? false : true);
 
             writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入销项发票：" + (bvo != null && bvo.getBeginrq() != null ? bvo.getBeginrq() : ""), ISysConstants.SYS_2);
+                    "导入销项发票：" + (paramvo != null && paramvo.getBeginrq() != null ? paramvo.getBeginrq() : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             if (e instanceof BusinessException
                     && IBillManageConstants.ERROR_FLAG.equals(((BusinessException) e).getErrorCodeString())) {
@@ -942,25 +939,20 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/getGoodsInvenRela_long")
-    public ReturnData<Grid> getGoodsInvenRela_long(@RequestParam("head") String body) {
+    public ReturnData<Grid> getGoodsInvenRela_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         try {
+            String body = param.get("head");
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
             String pk_corp = corpvo.getPk_corp();
             if (!corpvo.getBbuildic().equals(IcCostStyle.IC_OFF)) {
-
-                body = body.replace("}{", "},{");
-                body = "[" + body + "]";
-                JSONArray array = (JSONArray) JSON.parseArray(body);
-
-                if (array == null) {
+                if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
                 }
+                body = body.replace("}{", "},{");
+                body = "[" + body + "]";
 
-//                Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//                VATSaleInvoiceVO2[] vos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class,
-//                        JSONConvtoJAVA.getParserConfig());
-                VATSaleInvoiceVO2[] vos = array.toArray(new VATSaleInvoiceVO2[0]);
+                VATSaleInvoiceVO2[] vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
                 if (vos == null || vos.length == 0)
                     throw new BusinessException("数据为空,生成凭证失败，请检查");
 
@@ -1682,11 +1674,9 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/expExcelData")
-    public void expExcelData(@RequestParam("daterows")String strrows,HttpServletResponse response){
-
+    public void expExcelData(@RequestBody Map<String,String> param,HttpServletResponse response){
+        String strrows = param.get("daterows");
         JSONArray array = JSON.parseArray(strrows);
-//        Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//        VATSaleInvoiceVO2[] listvo = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class, JSONConvtoJAVA.getParserConfig());
         VATSaleInvoiceVO2[] listvo = array.toArray(new VATSaleInvoiceVO2[0]);
         OutputStream toClient = null;
         try {
@@ -2326,7 +2316,7 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/combineRule")
-    public ReturnData<Json> combineRule(String pzrq,String pzrule,String flrule,String zy,@RequestParam("setid") String setId,String bk){
+    public ReturnData<Json> combineRule(@RequestBody String pzrq,String pzrule,String flrule,String zy,@RequestParam("setid") String setId,String bk){
         Json json = new Json();
         try {
 
@@ -3208,11 +3198,18 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/updateCategoryset")
-    public ReturnData<Grid> updateCategoryset(String pk_model_h,String busisztypecode,String pk_basecategory,
-                                              String pk_category_keyword,String rzkm,String jskm,String shkm,
-                                              String zdyzy,String id){
+    public ReturnData<Grid> updateCategoryset(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String pk_model_h = param.get("pk_model_h");
+            String busisztypecode = param.get("busisztypecode");
+            String pk_basecategory = param.get("pk_basecategory");
+            String pk_category_keyword = param.get("pk_category_keyword");
+            String rzkm = param.get("rzkm");
+            String jskm = param.get("jskm");
+            String shkm = param.get("shkm");
+            String zdyzy = param.get("zdyzy");
+            String id = param.get("id");
             String pk_corp = SystemUtil.getLoginCorpId();
             String[] ids = id.split(",");
 //			for (String pk_vatsaleinvoice : ids) {
