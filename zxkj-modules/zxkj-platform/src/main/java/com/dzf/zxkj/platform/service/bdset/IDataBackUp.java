@@ -5,6 +5,7 @@ import com.dzf.zxkj.platform.model.bdset.BackupVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -64,7 +65,7 @@ public interface IDataBackUp {
 	public void delete(BackupVO vo) throws DZFWarpException;
 
 	
-	public void saveUpFile(File file, String fileName, CorpVO corp) throws DZFWarpException;
+	public void saveUpFile(InputStream is, String fileName, CorpVO corp) throws DZFWarpException;
 
 	
 }

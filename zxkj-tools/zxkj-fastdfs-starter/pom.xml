@@ -30,12 +30,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.csource</groupId>
-            <artifactId>fastdfs-client-java</artifactId>
-            <version>1.27</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-persistent-framework-starter</artifactId>
             <version>1.0</version>

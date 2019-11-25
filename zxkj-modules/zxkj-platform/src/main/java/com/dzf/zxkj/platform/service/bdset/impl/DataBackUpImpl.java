@@ -845,10 +845,10 @@ public class DataBackUpImpl implements IDataBackUp {
 	}
 
 	@Override
-	public void saveUpFile(File file, String fileName, CorpVO corp) throws DZFWarpException {
+	public void saveUpFile(InputStream is, String fileName, CorpVO corp) throws DZFWarpException {
 		BufferedInputStream bufferIn = null;
 		BufferedOutputStream bufferOut = null;
-		FileInputStream is = null;
+//		FileInputStream is = null;
 		FileOutputStream os = null;
 		try {
 			BackupVO backvo = new BackupVO();
@@ -875,7 +875,7 @@ public class DataBackUpImpl implements IDataBackUp {
 				dir.mkdirs();
 			}
 			File saveFile = new File(basePath + fileName);
-			is =new FileInputStream(file);
+//			is =new FileInputStream(file);
 			os=new FileOutputStream(saveFile);
 			bufferIn = new BufferedInputStream(is);
 			bufferOut = new BufferedOutputStream(os);

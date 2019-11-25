@@ -7,6 +7,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.BackupVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -18,7 +19,14 @@ import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -51,16 +59,17 @@ public class BackupAndRestoreController {
 			json.setMsg("查询成功");
 			json.setSuccess(true);
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			json.setSuccess(false);
-			json.setMsg("查询失败！");
-			//printErrorLog(json, log, e, "查询失败！");
-			//TODO
+			json.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败！");
 		}
 		return ReturnData.ok().data(json);
 	}
 
 	@PostMapping("/save")
-	public ReturnData<Json> save(@RequestParam("listvalue") String strlist) {
+	public ReturnData<Json> save(@MultiRequestBody String listvalue) {
+		String strlist = listvalue;
+//		String strlist = param.get("listvalue"); @RequestParam Map<String, String> param
 		Json json = new Json();
 		StringBuffer tips = new StringBuffer();
 		if (StringUtil.isEmpty(strlist)) {
@@ -197,9 +206,9 @@ public class BackupAndRestoreController {
 			json.setSuccess(true);
 			json.setMsg("保存成功");
 		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			json.setSuccess(false);
-			json.setMsg("更新失败");
-//			printErrorLog(json, log, e, "更新失败");
+			json.setMsg(e instanceof BusinessException ? e.getMessage() : "更新失败");
 		}
 //		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "数据备注更新", ISysConstants.SYS_2);
 
@@ -207,9 +216,10 @@ public class BackupAndRestoreController {
 	}
 
 	@PostMapping("/multiRestore")
-	public ReturnData<Json> multiRestore(@RequestParam("listvalue") String strlist) {
+	public ReturnData<Json> multiRestore(@MultiRequestBody String listvalue) {
 		Json json = new Json();
 		StringBuffer tips = new StringBuffer();
+		String strlist = listvalue;
 		if (StringUtil.isEmpty(strlist)) {
 			tips.append("请选择数据!");
 		}
@@ -249,8 +259,9 @@ public class BackupAndRestoreController {
 			json.setMsg("恢复成功");
 			json.setSuccess(true);
 		} catch (Exception e) {
-			//TODO
-//			printErrorLog(json, log, e, "恢复失败！");
+			log.error(e.getMessage(), e);
+			json.setSuccess(false);
+			json.setMsg(e instanceof BusinessException ? e.getMessage() : "恢复失败！");
 		}
 //		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "数据恢复", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
@@ -258,7 +269,7 @@ public class BackupAndRestoreController {
 
 
 	@PostMapping("/delete")
-	public ReturnData<Json> delete(String fid) {
+	public ReturnData<Json> delete(@MultiRequestBody String fid) {
 		Json json = new Json();
 		try {
 			String pk_corp = SystemUtil.getLoginCorpId();
@@ -268,77 +279,81 @@ public class BackupAndRestoreController {
 			json.setMsg("删除成功");
 			json.setSuccess(true);
 		} catch (Exception e) {
-			//TODO
-//			printErrorLog(json, log, e, "删除失败！");
+			log.error(e.getMessage(), e);
+			json.setSuccess(false);
+			json.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败！");
 		}
 //		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "备份删除", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
-//	public void download () {
-//		FileInputStream fileis = null;
-//		ServletOutputStream out = null;
-//		Json json = new Json();
-//		try {
+
+    @PostMapping("/download")
+	public void download (HttpServletRequest request, HttpServletResponse response,  @RequestParam Map<String, String> pmap) {
+		FileInputStream fileis = null;
+		ServletOutputStream out = null;
+		Json json = new Json();
+		try {
 //			String fid = getRequest().getParameter("fid");
-//			String pk_corp = getLogincorppk();
-//			BackupVO oldvo = gl_databackup.queryByID(fid);
-//			checkData(oldvo, pk_corp);
-//			fileis = new FileInputStream(oldvo.getFilePath());
-//			getResponse().setContentType("application/octet-stream");
-//		    String filename = null;
-//		    if(getRequest().getHeader("User-Agent").toUpperCase().indexOf("MSIE") > 0 || getRequest().getHeader("User-Agent").toUpperCase().indexOf("RV:11") > 0){
-//		        filename = URLEncoder.encode(oldvo.getFileName(), "UTF-8");
-//		    }else{
-//		        filename = new String(oldvo.getFileName().getBytes("UTF-8"),"ISO8859-1");
-//		    }
-//    		getResponse().addHeader("Content-Disposition", "attachment;filename=" + filename);
-//    		out = getResponse().getOutputStream();
-//			byte[] buf = new byte[4 * 1024];  // 4K buffer
-//			int bytesRead;
-//			while ((bytesRead = fileis.read(buf)) != -1) {
-//				out.write(buf, 0, bytesRead);
-//			}
-//			out.flush();
-//		} catch (Exception e) {
-//			json.setMsg(e.getMessage());
-//			json.setSuccess(false);
-//		} finally {
-//			if (fileis != null) {
-//				try {
-//					fileis.close();
-//				} catch (IOException e) {
-//					log.error("错误",e);
-//				}
-//			}
-//
-//			if (out != null) {
-//				try {
-//					out.close();
-//				} catch (IOException e) {
-//					log.error("错误",e);
-//				}
-//			}
-//		}
-//		writeJson(json);
-//	}
-//
-//	public void upload() {
-//		Json json = new Json();
-//		try {
-//			CorpVO corp = getLoginCorpInfo();
-//			((MultiPartRequestWrapper) getRequest()).getParameterMap();
-//			File[] upfiles = ((MultiPartRequestWrapper) getRequest()).getFiles("impfile");
-//			if (upfiles != null) {
-//				String[] fileNames = ((MultiPartRequestWrapper) getRequest()).getFileNames("impfile");
-//				gl_databackup.saveUpFile(upfiles[0], fileNames[0], corp);
-//			}
-//			json.setMsg("上传成功");
-//			json.setSuccess(true);
-//		} catch (Exception e) {
-//			printErrorLog(json, log, e, "上传失败！");
-//		}
-//		writeJson(json);
-//	}
+            String fid = pmap.get("fid");
+			String pk_corp = SystemUtil.getLoginCorpId();
+			BackupVO oldvo = gl_databackup.queryByID(fid);
+			checkData(oldvo, pk_corp);
+			fileis = new FileInputStream(oldvo.getFilePath());
+            response.setContentType("application/octet-stream");
+
+		    String filename = null;
+		    if(request.getHeader("User-Agent").toUpperCase().indexOf("MSIE") > 0 || request.getHeader("User-Agent").toUpperCase().indexOf("RV:11") > 0){
+		        filename = URLEncoder.encode(oldvo.getFileName(), "UTF-8");
+		    }else{
+		        filename = new String(oldvo.getFileName().getBytes("UTF-8"),"ISO8859-1");
+		    }
+            response.addHeader("Content-Disposition", "attachment;filename=" + filename);
+    		out = response.getOutputStream();
+			byte[] buf = new byte[4 * 1024];  // 4K buffer
+			int bytesRead;
+			while ((bytesRead = fileis.read(buf)) != -1) {
+				out.write(buf, 0, bytesRead);
+			}
+			out.flush();
+		} catch (Exception e) {
+			json.setMsg(e.getMessage());
+			json.setSuccess(false);
+		} finally {
+			if (fileis != null) {
+				try {
+					fileis.close();
+				} catch (IOException e) {
+					log.error("错误",e);
+				}
+			}
+
+			if (out != null) {
+				try {
+					out.close();
+				} catch (IOException e) {
+					log.error("错误",e);
+				}
+			}
+		}
+	}
+    @PostMapping("/upload")
+	public ReturnData<Json> upload(@RequestParam("impfile") MultipartFile file) {
+		Json json = new Json();
+		try {
+			CorpVO corp = SystemUtil.getLoginCorpVo();
+			if (file != null) {
+				String filename = file.getOriginalFilename();
+				gl_databackup.saveUpFile(file.getInputStream(), filename, corp);
+			}
+			json.setMsg("上传成功");
+			json.setSuccess(true);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			json.setSuccess(false);
+			json.setMsg(e instanceof BusinessException ? e.getMessage() : "上传失败！");
+		}
+        return ReturnData.ok().data(json);
+	}
 
 	private void checkData(BackupVO vo, String pk_corp) {
 		if (vo == null)
@@ -395,10 +410,11 @@ public class BackupAndRestoreController {
 
 		} catch (Exception e) {
 			log.error("错误",e);
+			json.setSuccess(false);
+			json.setMsg(e instanceof BusinessException ? e.getMessage() : "操作失败");
 		}
 
 		return ReturnData.ok().data(json);
 	}
-
 
 }

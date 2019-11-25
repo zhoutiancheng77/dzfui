@@ -5,7 +5,6 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.report.CwgyInfoVO;
 import com.dzf.zxkj.platform.model.report.LrbVO;
 import com.dzf.zxkj.report.service.cwbb.ICwgyInfoReport;
@@ -34,7 +33,7 @@ public class CwgyInfoController {
      * 查询
      */
     @GetMapping("/queryAction")
-    public ReturnData<Grid> queryAction(@MultiRequestBody QueryParamVO queryParamVO) {
+    public ReturnData<Grid> queryAction(QueryParamVO queryParamVO) {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryParamVO);
         try {
@@ -60,8 +59,10 @@ public class CwgyInfoController {
             grid.setSuccess(true);
 
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            grid.setSuccess(false);
             grid.setRows(new ArrayList<LrbVO>());
-//            printErrorLog(grid, log, e, "查询失败！");
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败！");
         }
 
         // 日志记录接口

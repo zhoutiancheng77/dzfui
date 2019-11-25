@@ -1,14 +1,12 @@
 package com.dzf.zxkj.platform.controller.sys;
 
-import com.dzf.zxkj.base.utils.FieldMapping;
-import com.dzf.zxkj.base.utils.FieldMappingCache;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.FieldConstant;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -22,6 +20,7 @@ import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -37,11 +36,13 @@ public class DcPzmbController {
 
     //保存
     @PostMapping("/save")
-    public ReturnData<Json> save(String head, String body){
+    public ReturnData<Json> save(@RequestBody Map<String, String> map){
         Json json = new Json();
         String tips = null;
         try{
             String corpid = SystemUtil.getLoginCorpId();
+            String head = map.get("head");
+            String body = map.get("body");
             body = body.replace("}{", "},{");
             body = "[" + body + "]";
 
@@ -69,9 +70,9 @@ public class DcPzmbController {
                 json.setMsg(errorinfo);
             }
         }catch(Exception e){
-//            printErrorLog(json, log, e, "保存失败!");
+            log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("保存失败!");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败!");
         }
 //        writeLogRecord(LogRecordEnum.OPE_JITUAN_PZMB.getValue(), tips, ISysConstants.SYS_0);
 
@@ -140,22 +141,22 @@ public class DcPzmbController {
                 grid.setSuccess(false);
             }
         } catch (Exception e) {
-//            printErrorLog(grid, log, e, "查询失败！");
+            log.error(e.getMessage(), e);
             grid.setSuccess(false);
-            grid.setMsg("查询失败！");
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败！");
         }
         return ReturnData.ok().data(grid);
     }
 
     //查询
     @GetMapping("/queryChildByID")
-    public ReturnData<Json> queryChildByID(@RequestBody DcModelHVO data){
+    public ReturnData<Json> queryChildByID(String pk_model_h){
         Grid grid = new Grid();
         grid.setTotal(Long.valueOf(0));
         grid.setSuccess(false);
         try {
             String pk_corp = SystemUtil.getLoginCorpId();
-            List<DcModelBVO> list = dcpzjmbserv.queryByPId(data.getPrimaryKey(), pk_corp);
+            List<DcModelBVO> list = dcpzjmbserv.queryByPId(pk_model_h, pk_corp);
             if(list != null && list.size() > 0){
                 grid.setTotal(Long.valueOf(list.size()));
                 grid.setSuccess(true);
@@ -179,9 +180,9 @@ public class DcPzmbController {
             json.setSuccess(true);
             json.setMsg("删除成功!");
         }catch(Exception e){
-//            printErrorLog(json, log, e, "删除失败!");
+            log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("删除失败!");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败!");
         }
 
 //        writeLogRecord(LogRecordEnum.OPE_JITUAN_PZMB.getValue(), "删除数据中心凭证模板", ISysConstants.SYS_0);
@@ -208,11 +209,13 @@ public class DcPzmbController {
      * 复制到其它公司，只有会计端才调用
      */
     @PostMapping("/copyTocorp")
-    public ReturnData<Json> copyTocorp(@RequestParam("corps") String gs, @RequestParam("parentid") String ids){
+    public ReturnData<Json> copyTocorp(@RequestBody Map<String, String> map){
         Json json = new Json();
         json.setSuccess(false);
         json.setMsg("复制失败");
         try{
+            String gs = map.get("corps");
+            String ids = map.get("parentid");
             if(!StringUtil.isEmpty(ids)
                     && !StringUtil.isEmpty(gs)){
                 String[] gsss = gs.split(",");
@@ -227,9 +230,9 @@ public class DcPzmbController {
                 json.setMsg(msg);
             }
         }catch(Exception e){
-//            printErrorLog(json, log, e, "复制失败!");
+            log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("复制失败!");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "复制失败!");
         }
 //        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "复制业务模板到其它公司", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
@@ -260,9 +263,9 @@ public class DcPzmbController {
                 grid.setSuccess(false);
             }
         } catch (Exception e) {
-//            printErrorLog(grid, log, e, "查询失败！");
+            log.error(e.getMessage(), e);
             grid.setSuccess(false);
-            grid.setMsg("查询失败！");
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败！");
         }
 
         return ReturnData.ok().data(grid);
@@ -517,32 +520,33 @@ public class DcPzmbController {
 //        writeJsonByFilter(o,m);
 //    }
 
-
-//    public void impExcel(){
-//        String userid = getLoginUserid();
-//        Json json = new Json();
-//        json.setSuccess(false);
-//        try {
+    @PostMapping("/impExcel")
+    public ReturnData<Json> impExcel(@RequestParam("impfile") MultipartFile file){
+        String userid = SystemUtil.getLoginUserId();
+        Json json = new Json();
+        json.setSuccess(false);
+        try {
 //            File[] infiles = ((MultiPartRequestWrapper) getRequest()).getFiles("impfile");
-//            if(infiles == null || infiles.length==0){
-//                throw new BusinessException("请选择导入文件!");
-//            }
+            if(file == null){
+                throw new BusinessException("请选择导入文件!");
+            }
 //            String[] fileNames = ((MultiPartRequestWrapper) getRequest()).getFileNames("impfile");
-//            String fileType = null;
-//            if (fileNames != null && fileNames.length > 0) {
-//                String fileName = fileNames[0];
-//                fileType = fileNames[0].substring(fileName.indexOf(".") + 1, fileName.length());
-//            }
-//            String pk_corp = getLogincorppk();
-//            //
-//            String msg = dcpzjmbserv.saveImp(infiles[0],fileType, userid, pk_corp);
-//            json.setMsg(msg);
-//            json.setSuccess(true);
-//        } catch (Exception e) {
-//            printErrorLog(json, log, e, "导入失败!");
-//        }
-//
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(),"导入业务类型模板", ISysConstants.SYS_2);
-//        writeJson(json);
-//    }
+            String fileName = file.getOriginalFilename();
+            String fileType = null;
+            if (!StringUtil.isEmpty(fileName)) {
+                fileType = fileName.substring(fileName.indexOf(".") + 1, fileName.length());
+            }
+            String pk_corp = SystemUtil.getLoginCorpId();
+            //
+            String msg = dcpzjmbserv.saveImp(file.getInputStream(), fileType, userid, pk_corp);
+            json.setMsg(msg);
+            json.setSuccess(true);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            json.setSuccess(false);
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "导入失败!");
+        }
+
+        return ReturnData.ok().data(json);
+    }
 }
