@@ -13,6 +13,7 @@ import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,87 +29,84 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
 
-//    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private com.dzf.auth.api.service.ILoginService userService;
 
-    public LoginUser login(String username, String password, boolean flag) {
+    private String platformName = "zxkj";
 
+    public LoginUser login(String username, String password) {
         if (StringUtils.isAnyBlank(username, password)) {
             return null;
         }
+        try {
+            UserVO userVO = getRemoteLoginUser(username, password);
+            if (userVO != null) {
+                return transfer(userVO);
+            }
+        } catch (Exception e) {
+            log.error("用户中心异常", e);
+        }
 
-        LoginUser loginUser = null;
-//        if(flag){//校验用户(后期改成对接公司用户中心)
-//            loginUser = getLoginUserInter(username, password);
-//        }else{
-            loginUser = getLoginUserSelf(username, password);
-//        }
+        return getLocalLoginUser(username, password);
+    }
 
-        return loginUser;
+    //获取用户中心用户信息
+    private UserVO getRemoteLoginUser(String username, String password) {
+        Result<UserVO> rs = userService.loginByLoginName(platformName, username, password);
+        if (rs.getData() != null) {
+            return rs.getData();
+        }
+        return null;
     }
 
     @Override
-    public LoginUser exchange(String resource) {
+    public LoginUser exchange(String resource) throws Exception {
         Result<UserVO> rs = userService.exchangeResource(resource);
-        if(rs.getCode() == 200){
+        if (rs.getCode() == 200) {
             return transfer(rs.getData());
         }
         return null;
     }
 
-    private LoginUser transfer(UserVO uservo){
-        LoginUser loginUser = null;
-        Set<PlatformVO> list = uservo.getCanJumpPlatforms();
-        if(list != null && list.size() > 0){
-            loginUser = new LoginUser();
-            loginUser.setUsername(uservo.getUserName());
-            loginUser.setToken(uservo.getUserToken());
-            loginUser.setUserid(uservo.getPlatformUserId());
-            loginUser.setUsername(uservo.getUserName());
-            for(PlatformVO pvo : list){
-                if("zxkj".equals(pvo.getPlatformTag())){
-//                    loginUser.setUserid(pvo.getPlatformUserId());
-//                    loginUser.setUsername(pvo.getUserName());
-                }
-            }
-        }
-        return loginUser;
-    }
-
-    private LoginUser getLoginUserSelf(String username, String password){
+    //获取本地用户信息
+    private LoginUser getLocalLoginUser(String username, String password) {
         LoginUser loginUser = queryLoginUser(username);
-
-        if(loginUser == null){
+        if (loginUser == null) {
             return null;
         }
-
         if (new Encode().encode(password).equals(loginUser.getPassword())) {
             String token = null;
             try {
-                token = JWTUtil.generateToken(new JWTInfo(loginUser.getUsername(), loginUser.getUserid()), rsaKeyConfig.getUserPriKey(), 60 * 24 * 60 * 60);
+                createToken(loginUser);
             } catch (Exception e) {
                 log.info("用户名密码错误！");
             }
-            loginUser.setToken(token);
             return loginUser;
         }
-
         return null;
     }
 
-    private LoginUser getLoginUserInter(String username, String password){
-
-        Result<UserVO> rs = userService.loginByLoginName("zxkj", username, password);
-        if(rs.getData() != null){
-            return transfer(rs.getData());
-        }
-        return null;
+    private void createToken(LoginUser loginUser) throws Exception {
+        String token = JWTUtil.generateToken(new JWTInfo(loginUser.getUsername(), loginUser.getUserid()), rsaKeyConfig.getUserPriKey(), 60 * 24 * 60 * 60);
+        loginUser.setToken(token);
     }
 
     private LoginUser queryLoginUser(String username) {
         QueryWrapper<LoginUser> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(LoginUser::getUsername, username).and(condition -> condition.eq(LoginUser::getDr, "0").or().isNull(LoginUser::getDr));
         return loginUserMapper.selectOne(queryWrapper);
+    }
+
+    private LoginUser transfer(UserVO uservo) throws Exception {
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUsername(uservo.getUserName());
+        loginUser.setToken(uservo.getUserToken());
+        loginUser.setUserid(uservo.getPlatformUserId());
+        loginUser.setUsername(uservo.getUserName());
+        Set<PlatformVO> list = uservo.getCanJumpPlatforms();
+        loginUser.setPlatformVOSet(list);
+        createToken(loginUser);
+        return loginUser;
     }
 
     @Override
