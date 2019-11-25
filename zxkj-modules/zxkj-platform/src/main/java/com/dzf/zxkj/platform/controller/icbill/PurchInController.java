@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -708,7 +709,7 @@ public class PurchInController {
 			boolean isexp = false;
 			if (list.contains("download")) {
 				aggvos = new AggIcTradeVO[1];
-				exName = new String("入库单导入模板.xls");
+				exName = "入库单导入模板.xls";
 				AggIcTradeVO aggvo = new AggIcTradeVO();
 				aggvo.setVcorpname(SystemUtil.getLoginCorpVo().getUnitname());
 				DZFDate billdate = new DZFDate(SystemUtil.getLoginDate());
@@ -719,7 +720,7 @@ public class PurchInController {
 			} else {
 //				String where = list.substring(2, list.length() - 1);
 				aggvos = ic_purchinserv.queryAggIntradeVOByID(list, SystemUtil.getLoginCorpId());
-				exName = new String("入库单.xls");
+				exName = "入库单.xls";
 				List<AggIcTradeVO> tlist = calTotalRow(aggvos);
 				aggvos = tlist.toArray(new AggIcTradeVO[tlist.size()]);
 			}
@@ -728,17 +729,17 @@ public class PurchInController {
 
 			response.reset();
 
-			exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
-			response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+			String formattedName = URLEncoder.encode(exName, "UTF-8");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + exName + ";filename*=UTF-8''" + formattedName);
 			toClient = new BufferedOutputStream(response.getOutputStream());
 			response.setContentType("application/vnd.ms-excel;charset=gb2312");
-			byte[] length = null;
 			Map<String, Integer> tabidsheetmap = new HashMap<String, Integer>();
 			tabidsheetmap.put("B100000", 0);
 			IcBillExport exp = new IcBillExport();
-			length = exp.exportExcel(aggvos, toClient, 1, isexp, preMap);
-			String srt2 = new String(length, "UTF-8");
-			response.addHeader("Content-Length", srt2);
+			exp.exportExcel(aggvos, toClient, 1, isexp, preMap);
+//			String srt2 = new String(length, "UTF-8");
+//			response.addHeader("Content-Length", srt2);
 			toClient.flush();
 			response.getOutputStream().flush();
 		} catch (IOException e) {

@@ -9,7 +9,6 @@ import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.ValueUtils;
-import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
@@ -52,8 +51,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -61,6 +58,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -666,7 +664,7 @@ public class SalaryReportController {
         StringBuffer sb = new StringBuffer();
         sb.append(qjval[0]).append("年").append(qjval[1])
                 .append("月工资表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ").xls");
-        ExcelReport<SalaryReportVO> ex = new ExcelReport<SalaryReportVO>();
+        ExcelReport<SalaryReportVO> ex = new ExcelReport<>();
         String hiddenphone = pmap.get("hiddenphone");
 
         List<Integer> hiddenColList = getHiddenColumn(billtype);
@@ -700,15 +698,15 @@ public class SalaryReportController {
         try {
             response.reset();
             String exName = sb.toString();
-            exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");
-            String date = DateUtils.getDate(udate.toDate());
-            response.addHeader("Content-Disposition", "attachment;filename=" + exName);
+            String formattedName = URLEncoder.encode(exName, "UTF-8");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename=" + exName + ";filename*=UTF-8''" + formattedName);
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
-            byte[] length = ex.exportExcel("工 资 表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")",
+            ex.exportExcel("工 资 表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")",
                     cnFields, enFields, list, SystemUtil.getLoginCorpVo().getUnitname(), qj, toClient, userServiceImpl);
-            String srt2 = new String(length, "UTF-8");
-            response.addHeader("Content-Length", srt2);
+//            String srt2 = new String(length, "UTF-8");
+//            response.addHeader("Content-Length", srt2);
             toClient.flush();
             response.getOutputStream().flush();
         } catch (IOException e) {
@@ -747,7 +745,7 @@ public class SalaryReportController {
                 type = "1";
             response.reset();
             String fileName = null;
-            byte[] length = null;
+            ExcelReport<SalaryReportVO> ex = new ExcelReport<>();
             if ("1".equals(type)) {
                 if (billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())) {
                     fileName = "salarytemplate.xlsx";
@@ -761,26 +759,28 @@ public class SalaryReportController {
 
                 // 设置response的Header
                 String date = "工资表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")";
-                String exName = new String(date.getBytes("GB2312"), "ISO_8859_1");
+                String formattedName = URLEncoder.encode(date, "UTF-8");
+
                 if (billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())) {
-                    response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName + ".xlsx"));
+                    response.addHeader("Content-Disposition",
+                            "attachment;filename=" + date + ";filename*=UTF-8''" + formattedName+ ".xlsx");
                 } else {
-                    response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName + ".xls"));
+                    response.addHeader("Content-Disposition",
+                            "attachment;filename=" + date + ";filename*=UTF-8''" + formattedName+ ".xls");
                 }
                 toClient = new BufferedOutputStream(response.getOutputStream());
                 response.setContentType("application/vnd.ms-excel;charset=gb2312");
-                length = expExcel(toClient, fileName);
+                ex.expFile(toClient, fileName);
             } else {
                 // 设置response的Header
-                String exName = new String("操作说明".getBytes("GB2312"), "ISO_8859_1");
-                response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName + ".docx"));
+                String formattedName = URLEncoder.encode("操作说明", "UTF-8");
+                response.addHeader("Content-Disposition",
+                        "attachment;filename=操作说明;filename*=UTF-8''" + formattedName+ ".docx");
                 toClient = new BufferedOutputStream(response.getOutputStream());
                 response.setContentType("application/vnd.ms-excel;charset=gb2312");
                 fileName = "instructions.docx";
-                length = expDoc(toClient, fileName);
+                ex.expFile(toClient, fileName);
             }
-            String srt2 = new String(length, "UTF-8");
-            response.addHeader("Content-Length", srt2);
             toClient.flush();
             response.getOutputStream().flush();
         } catch (IOException e) {
@@ -801,87 +801,6 @@ public class SalaryReportController {
                 }
             } catch (Exception e) {
                 log.error("excel导出错误", e);
-            }
-        }
-    }
-
-    private byte[] expDoc(OutputStream out, String fileName) throws Exception {
-        ByteArrayOutputStream bos = null;
-        InputStream is = null;
-        try {
-
-            Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
-            is = exportTemplate.getInputStream();
-            bos = new ByteArrayOutputStream();
-            int byteRead = 0;
-            byte[] buffer = new byte[512];
-            while ((byteRead = is.read(buffer)) != -1) {
-                out.write(buffer, 0, byteRead);
-            }
-            is.close();
-            bos = new ByteArrayOutputStream();
-            bos.writeTo(out);
-            return bos.toByteArray();
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-
-                }
-            }
-            if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e) {
-
-                }
-            }
-        }
-    }
-
-    private byte[] expExcel(OutputStream out, String fileName) throws Exception {
-        ByteArrayOutputStream bos = null;
-        InputStream is = null;
-        try {
-            Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + fileName);
-            is = exportTemplate.getInputStream();
-            bos = new ByteArrayOutputStream();
-            if (fileName.indexOf(".xlsx") > 0) {
-                XSSFWorkbook xworkbook = new XSSFWorkbook(is);
-                is.close();
-                bos = new ByteArrayOutputStream();
-                xworkbook.write(bos);
-            } else {
-                HSSFWorkbook gworkbook = new HSSFWorkbook(is);
-                is.close();
-                bos = new ByteArrayOutputStream();
-                gworkbook.write(bos);
-            }
-            bos.writeTo(out);
-            return bos.toByteArray();
-        } catch (IOException e) {
-            throw e;
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-
-                }
-            }
-            if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e) {
-
-                }
             }
         }
     }
@@ -929,17 +848,16 @@ public class SalaryReportController {
             if (StringUtil.isEmpty(salExcel.getAreaName(corptaxvo))) {
                 exName = new String(SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ".xls");
             }
-            exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
-            response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+
+            String formattedName = URLEncoder.encode(exName, "UTF-8");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename=" + exName + ";filename*=UTF-8''" + formattedName);
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             byte[] length = null;
             Map<String, Integer> tabidsheetmap = new HashMap<String, Integer>();
             tabidsheetmap.put("B100000", 0);
-
-            length = salExcel.exportExcel(jsonArray, toClient, billtype, corptaxvo, SystemUtil.getLoginUserVo());
-            String srt2 = new String(length, "UTF-8");
-            response.addHeader("Content-Length", srt2);
+            salExcel.exportExcel(jsonArray, toClient, billtype, corptaxvo, SystemUtil.getLoginUserVo());
             toClient.flush();
             response.getOutputStream().flush();
         } catch (Exception e) {
@@ -1082,14 +1000,12 @@ public class SalaryReportController {
             JSONArray jsonArray = (JSONArray) JSON.parseArray(json);
             response.reset();
             String exName = new String("人员信息.xls");
-            exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
-            response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+            String formattedName = URLEncoder.encode(exName, "UTF-8");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename=" + exName + ";filename*=UTF-8''" + formattedName);
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
-            byte[] length = null;
-            length = salExcel.expPerson(jsonArray, response.getOutputStream(), billtype);
-            String srt2 = new String(length, "UTF-8");
-            response.addHeader("Content-Length", srt2);
+            salExcel.expPerson(jsonArray, response.getOutputStream(), billtype);
             toClient.flush();
             response.getOutputStream().flush();
         } catch (Exception e) {
