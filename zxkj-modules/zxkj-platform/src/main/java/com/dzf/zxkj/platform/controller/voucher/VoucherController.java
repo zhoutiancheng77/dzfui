@@ -1331,6 +1331,38 @@ public class VoucherController {
         return ReturnData.ok().data(json);
     }
 
+    @PostMapping("/deleteVoucherCashFlow")
+    public ReturnData deleteVoucherCashFlow(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String id = param.get("id");
+        if (StringUtils.isEmpty(id)) {
+            throw new BusinessException("凭证id为空");
+        }
+        gl_tzpzserv.deleteCashFlow(id, SystemUtil.getLoginCorpId());
+        json.setSuccess(true);
+        json.setMsg("删除成功");
+        return ReturnData.ok().data(json);
+    }
+
+    //现金流量分配
+    @PostMapping("/saveVoucherCashFlow")
+    public ReturnData saveVoucherCashFlow(@RequestBody XjllVO[] xjllvos) {
+        Json json = new Json();
+        DZFDate date = new DZFDate();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        String userid = SystemUtil.getLoginUserId();
+        for (XjllVO vo : xjllvos) {
+            vo.setPk_corp(pk_corp);
+            vo.setCoperatorid(userid);
+            vo.setDoperatedate(date);
+        }
+        List<XjllVO> rs = gl_tzpzserv.addCashFlow(xjllvos);
+        json.setMsg("保存成功");
+        json.setSuccess(true);
+        json.setRows(rs);
+        return ReturnData.ok().data(json);
+    }
+
     private String getResultMsg(List<PzglmessageVO> errorlist) {
         if (errorlist == null || errorlist.size() == 0) {
             return "删除凭证完成！";
