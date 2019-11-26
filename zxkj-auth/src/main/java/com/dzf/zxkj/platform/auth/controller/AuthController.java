@@ -93,7 +93,6 @@ public class AuthController {
             return ReturnData.ok().data(grid);
         }
 
-
         if (loginUser == null) {
             grid.setSuccess(false);
             grid.setMsg("用户名或密码不正确！");
