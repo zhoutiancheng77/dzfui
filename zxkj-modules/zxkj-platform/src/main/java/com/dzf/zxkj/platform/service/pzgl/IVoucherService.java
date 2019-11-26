@@ -75,7 +75,7 @@ public interface IVoucherService {
     /**
      * 现金流量删除
      */
-    void deleteCashFlow(XjllVO[] xjllvos) throws DZFWarpException;
+    void deleteCashFlow(String pk_tzpz_h, String pk_corp) throws DZFWarpException;
 
     /**
      * 已期间损益则抛出-150异常

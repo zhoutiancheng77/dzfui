@@ -19,14 +19,13 @@ import com.dzf.zxkj.platform.model.zncs.CorpReferenceVO;
 import com.dzf.zxkj.platform.model.zncs.VATInComInvoiceVO2;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 public interface IVATInComInvoice2Service {
 
 	/**
-	 * 查询
+	 * 查询updatePZH
 	 * @param paramvo
 	 * @param sort
 	 * @param order

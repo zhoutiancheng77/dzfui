@@ -2763,56 +2763,20 @@ public class VoucherServiceImpl implements IVoucherService {
 		}
 	}
 
-	@Override
-	public void deleteCashFlow(XjllVO[] xjllvos) throws DZFWarpException {
-		// 删除
+    @Override
+    public void deleteCashFlow(String pk_tzpz_h, String pk_corp) throws DZFWarpException {
+        // 删除
+        String updateCashFlow = "update ynt_xjll set dr = 1" +
+                " where pk_tzpz_h = ? and pk_corp = ? and nvl(dr,0) = 0 ";
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(pk_tzpz_h);
+        sp.addParam(pk_corp);
+        singleObjectBO.executeUpdate(updateCashFlow, sp);
 
-		if (xjllvos == null || xjllvos.length < 1) {
-			throw new BusinessException("现金流量数据为空");
-		}
-
-		try {
-			// String pk_tzpz_b = xjllvos[0].getPk_tzpz_b();
-			String pk_tzpz_h = xjllvos[0].getPk_tzpz_h();
-			String pk_corp = xjllvos[0].getPk_corp();
-			// if (pk_tzpz_h == null || pk_tzpz_h.length() <= 0 || pk_corp ==
-			// null
-			// || pk_tzpz_h.length() <= 0)
-			if (StringUtil.isEmpty(pk_tzpz_h) || StringUtil.isEmpty(pk_corp))
-				throw new BusinessException("没有凭证数据，请刷新后重新编辑提交!");
-
-			String cd = new String("pk_tzpz_h=? and pk_corp=? and nvl(dr,0) = 0 ");
-			SQLParameter sp = new SQLParameter();
-			sp.addParam(pk_tzpz_h);
-			sp.addParam(pk_corp);
-			XjllVO[] oldvos = (XjllVO[]) singleObjectBO.queryByCondition(XjllVO.class, cd, sp);
-
-			if (oldvos == null || oldvos.length <= 0 || oldvos.length != xjllvos.length) {
-				throw new BusinessException("数据被更新，请刷新后重新编辑");
-			}
-			for (int i = 0; i < oldvos.length; i++) {
-				if (!oldvos[i].getPk_xjll().equals(xjllvos[i].getPk_xjll()))
-					throw new BusinessException("数据被更新，请刷新后重新编辑");
-			}
-
-			singleObjectBO.deleteVOArray(xjllvos);
-
-			// 反写凭证的是否已分配现金流量
-			TzpzHVO pzHeadVO = (TzpzHVO) singleObjectBO.queryByPrimaryKey(TzpzHVO.class, pk_tzpz_h);
-			if (!pzHeadVO.getPk_corp().equals(pk_corp)) {
-				throw new BusinessException("无权操作！");
-			}
-			pzHeadVO.setIsfpxjxm(DZFBoolean.FALSE);
-			// 没有现金项目，标错
-			pzHeadVO.setError_cash_analyse(true);
-			singleObjectBO.update(pzHeadVO, new String[] { "isfpxjxm", "error_cash_analyse" });
-
-		} catch (Exception e1) {
-			log.error(e1.getMessage(), e1);
-			throw new BusinessException("删除现金流量数据出错" + e1.getMessage());
-		}
-
-	}
+        String updateVoucher = "update ynt_tzpz_h set isfpxjxm = 'N', error_cash_analyse = '0' " +
+                " where pk_tzpz_h = ? and pk_corp = ? and nvl(dr,0) = 0 ";
+        singleObjectBO.executeUpdate(updateVoucher, sp);
+    }
 
 	@Override
 	public XjllVO[] queryCashFlow(String pk_tzpz_h, String pk_corp) throws DZFWarpException {

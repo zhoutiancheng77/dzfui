@@ -10,6 +10,7 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.image.ImageParamVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pjgl.PictureBrowseVO;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -73,7 +75,7 @@ public class PzglController extends BaseController {
     }
 
     // 图片删除操作,与重传不一样
-    @RequestMapping("delImage")
+    @RequestMapping("/delImage")
     public ReturnData<Json> delImage(@RequestBody Map<String,String> param) {
         String desc = param.get("desc");
         String delTelGrpDataString = param.get("delTelData");
@@ -126,4 +128,5 @@ public class PzglController extends BaseController {
         }
         return ReturnData.ok().data(json);
     }
+
 }

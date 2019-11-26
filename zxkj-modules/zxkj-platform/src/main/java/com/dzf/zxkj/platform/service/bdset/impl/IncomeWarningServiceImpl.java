@@ -177,7 +177,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 //		return ivos;
 //	}
 	@Override
-	public void save(String[] isLoginRemind,String[] isInputRemind,IncomeWarningVO vo, String pk_corp) throws DZFWarpException {
+	public void save(String isLoginRemind, String isInputRemind,IncomeWarningVO vo, String pk_corp) throws DZFWarpException {
 		IncomeWarningVO ivo = new IncomeWarningVO();
 		ivo.setPk_sryj(vo.getPk_sryj());
 //		ivo.setDr(0);
@@ -195,13 +195,13 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 		ivo.setHas_history(vo.getHas_history());
 		ivo.setPeriod_type(vo.getPeriod_type());
 		ivo.setSpeflg(vo.getSpeflg());
-		if(isLoginRemind!=null){
-			ivo.setIsloginremind(isLoginRemind[0]);
+		if(!StringUtil.isEmpty(isLoginRemind)){
+			ivo.setIsloginremind(isLoginRemind);
 		}else{
 			ivo.setIsloginremind("N");
 		}
-		if(isInputRemind!=null){
-			ivo.setIsinputremind(isInputRemind[0]);
+		if(!StringUtil.isEmpty(isInputRemind)){
+			ivo.setIsinputremind(isInputRemind);
 		}else{
 			ivo.setIsinputremind("N");
 		}
