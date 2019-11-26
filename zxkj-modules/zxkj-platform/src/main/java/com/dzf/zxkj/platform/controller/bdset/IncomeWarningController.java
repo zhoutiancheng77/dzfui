@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/gl/gl_incomewarning")
@@ -34,9 +35,9 @@ public class IncomeWarningController{
             List<IncomeWarningVO> list = Arrays.asList(ivos);
             grid.setRows(list);
         } catch (Exception e) {
-//            printErrorLog(grid, log, e, "查询失败！");
+            log.error(e.getMessage(), e);
             grid.setSuccess(false);
-            grid.setMsg("查询失败！");
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败！");
         }
         //日志记录
 //        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(),
@@ -58,65 +59,64 @@ public class IncomeWarningController{
 
             json.setRows(incomeWarningVOS);
         } catch (Exception e) {
-//            e.printStackTrace();
-//            printErrorLog(json, log, e, "查询失败!");
+            log.error(e.getMessage(), e);
             json.setSuccess(false);
-            json.setMsg("查询失败!");
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败!");
         }
         return ReturnData.ok().data(json);
     }
 
     @PostMapping("/save")
-    public ReturnData<Json> save(@RequestBody IncomeWarningVO data, String[] isLoginRemind,
-                                 String[] isInputRemind, @RequestParam(name = "history", required = false) String his) {
+    public ReturnData<Json> save(@RequestBody Map<String, Object> param) {
+
         Json json = new Json();
-        if (data != null) {
-            try {
-                String pk_corp = SystemUtil.getLoginCorpId();
+        try {
+            IncomeWarningVO data = JsonUtils.convertValue(param, IncomeWarningVO.class);
+                    String pk_corp = SystemUtil.getLoginCorpId();
 //                HttpServletRequest request = getRequest();
-                IncomeWarningVO[] ivos = iw_serv.query(pk_corp);
-                Integer period_type = data.getPeriod_type();
-                if (period_type == null) {
-                    period_type = 3;
-                    data.setPeriod_type(period_type);
-                }
-
-                for (IncomeWarningVO ivo : ivos) {
-                    if (ivo.getXmmc().equals(data.getXmmc())
-                            && period_type.equals(ivo.getPeriod_type() == null ? 3 : ivo.getPeriod_type())
-                            && !ivo.getPk_sryj().equals(data.getPk_sryj())) {
-                        json.setMsg("相同预警周期项目名称不可重复");
-                        json.setRows(data);
-                        json.setSuccess(false);
-                        return ReturnData.ok().data(json);
-                    }
-                }
-
-                if(IDefaultValue.DefaultGroup.equals(data.getPk_corp())){
-                    data.setPk_corp(pk_corp);
-                    data.setPk_sryj(null);
-                }
-
-                if (!StringUtil.isEmpty(his)) {
-                    IncomeHistoryVo[] hisVos = JsonUtils.deserialize(his, IncomeHistoryVo[].class);
-                    for (int i = 0; i < hisVos.length; i++) {
-                        IncomeHistoryVo hisVo = hisVos[i];
-                        hisVo.setDr(0);
-                        hisVo.setTs(new DZFDateTime());
-                        hisVo.setPk_corp(pk_corp);
-                        hisVo.setPk_sryj(data.getPk_sryj());
-                    }
-                    data.setChildren(hisVos);
-                }
-                iw_serv.save(isLoginRemind, isInputRemind, data, pk_corp);
-                json.setMsg("保存成功");
-                json.setRows(data);
-                json.setSuccess(true);
-            } catch (Exception e) {
-//                printErrorLog(json, log, e, "保存失败!");
-                json.setSuccess(false);
-                json.setMsg("保存失败!");
+            IncomeWarningVO[] ivos = iw_serv.query(pk_corp);
+            Integer period_type = data.getPeriod_type();
+            if (period_type == null) {
+                period_type = 3;
+                data.setPeriod_type(period_type);
             }
+
+            for (IncomeWarningVO ivo : ivos) {
+                if (ivo.getXmmc().equals(data.getXmmc())
+                        && period_type.equals(ivo.getPeriod_type() == null ? 3 : ivo.getPeriod_type())
+                        && !ivo.getPk_sryj().equals(data.getPk_sryj())) {
+                    json.setMsg("相同预警周期项目名称不可重复");
+                    json.setRows(data);
+                    json.setSuccess(false);
+                    return ReturnData.ok().data(json);
+                }
+            }
+
+            if(IDefaultValue.DefaultGroup.equals(data.getPk_corp())){
+                data.setPk_corp(pk_corp);
+                data.setPk_sryj(null);
+            }
+
+            String his = (String) param.get("history");
+            if (!StringUtil.isEmpty(his)) {
+                IncomeHistoryVo[] hisVos = JsonUtils.deserialize(his, IncomeHistoryVo[].class);
+                for (int i = 0; i < hisVos.length; i++) {
+                    IncomeHistoryVo hisVo = hisVos[i];
+                    hisVo.setDr(0);
+                    hisVo.setTs(new DZFDateTime());
+                    hisVo.setPk_corp(pk_corp);
+                    hisVo.setPk_sryj(data.getPk_sryj());
+                }
+                data.setChildren(hisVos);
+            }
+            iw_serv.save(data.getIsloginremind(), data.getIsinputremind(), data, pk_corp);
+            json.setMsg("保存成功");
+            json.setRows(data);
+            json.setSuccess(true);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            json.setSuccess(false);
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败!");
         }
         //日志记录
 //        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(),
@@ -145,9 +145,9 @@ public class IncomeWarningController{
                 json.setRows(bavo);
                 json.setMsg("删除成功！");
             } catch (Exception e) {
-//                printErrorLog(json, log, e, "删除失败！");
+                log.error(e.getMessage(), e);
                 json.setSuccess(false);
-                json.setMsg("删除失败！");
+                json.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败！");
             }
         } else {
             json.setSuccess(false);

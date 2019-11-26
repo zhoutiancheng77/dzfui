@@ -8,7 +8,7 @@ import com.dzf.zxkj.platform.model.report.FseJyeVO;
 public interface IIncomeWarningService {
 
 
-    void save(String[] isLoginRemind, String[] isInputRemind, IncomeWarningVO vo, String pk_corp)
+    void save(String isLoginRemind, String isInputRemind, IncomeWarningVO vo, String pk_corp)
             throws DZFWarpException;
 
     IncomeWarningVO[] query(String pk_corp) throws DZFWarpException;
