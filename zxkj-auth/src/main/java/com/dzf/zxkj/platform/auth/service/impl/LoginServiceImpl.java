@@ -1,5 +1,8 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.CreateCache;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.auth.api.model.user.UserVO;
@@ -17,11 +20,17 @@ import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class LoginServiceImpl implements ILoginService {
+
+    @CreateCache(name = "zxkj-platform-user", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.DAYS)
+    private Cache<String, LoginUser> platformUserCache;
 
     @Autowired
     private LoginUserMapper loginUserMapper;
@@ -63,7 +72,7 @@ public class LoginServiceImpl implements ILoginService {
     public LoginUser exchange(String resource) throws Exception {
         Result<UserVO> rs = userService.exchangeResource(resource);
         if (rs.getCode() == 200) {
-            return transfer(rs.getData());
+            return transferToZxkjUser(rs.getData());
         }
         return null;
     }
@@ -89,6 +98,7 @@ public class LoginServiceImpl implements ILoginService {
     private void createToken(LoginUser loginUser) throws Exception {
         String token = JWTUtil.generateToken(new JWTInfo(loginUser.getUsername(), loginUser.getUserid()), rsaKeyConfig.getUserPriKey(), 60 * 24 * 60 * 60);
         loginUser.setToken(token);
+        platformUserCache.put(loginUser.getUserid(), loginUser);
     }
 
     private LoginUser queryLoginUser(String username) {
@@ -97,15 +107,39 @@ public class LoginServiceImpl implements ILoginService {
         return loginUserMapper.selectOne(queryWrapper);
     }
 
-    private LoginUser transfer(UserVO uservo) throws Exception {
+
+    private LoginUser transferToZxkjUser(UserVO uservo) {
+        LoginUser loginUser = new LoginUser();
+        Optional<UserVO> userVOOptional = uservo.getBindUsers().stream().filter(v -> v.getPlatformTag().equals("zxkj")).findFirst();
+        userVOOptional.ifPresent(v -> {
+            loginUser.setUsername(v.getUserName());
+            loginUser.setDzfAuthToken(uservo.getUserToken());
+            loginUser.setUserid(v.getPlatformUserId());
+            loginUser.setUsername(v.getUserName());
+            Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow()).collect(Collectors.toSet());
+            loginUser.setPlatformVOSet(list);
+            try {
+                createToken(loginUser);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return userVOOptional.isPresent() ? loginUser : null;
+    }
+
+    private LoginUser transfer(UserVO uservo) {
         LoginUser loginUser = new LoginUser();
         loginUser.setUsername(uservo.getUserName());
-        loginUser.setToken(uservo.getUserToken());
+        loginUser.setDzfAuthToken(uservo.getUserToken());
         loginUser.setUserid(uservo.getPlatformUserId());
         loginUser.setUsername(uservo.getUserName());
-        Set<PlatformVO> list = uservo.getCanJumpPlatforms();
+        Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(v -> v.isShow()).collect(Collectors.toSet());
         loginUser.setPlatformVOSet(list);
-        createToken(loginUser);
+        try {
+            createToken(loginUser);
+        } catch (Exception e) {
+            return null;
+        }
         return loginUser;
     }
 

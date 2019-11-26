@@ -5,17 +5,18 @@ import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
+import com.dzf.zxkj.platform.auth.model.jwt.IJWTInfo;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.util.RSAUtils;
+import com.dzf.zxkj.platform.auth.utils.JWTUtil;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -24,13 +25,20 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RestController
+@Slf4j
 public class AuthController {
     //redis缓存 过期时间5分钟
 //    @CreateCache(name = "zxkj-check-code", cacheType = CacheType.REMOTE, expire = 5 * 60)
     @CreateCache(name = "zxkj-check-code", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.MINUTES)
     private Cache<String, String> checkCodeCache;
+
+    @CreateCache(name = "zxkj-platform-user", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.DAYS)
+    private Cache<String, LoginUser> platformUserCache;
+
     @Autowired
     private ILoginService loginService;
+    @Autowired
+    private RsaKeyConfig rsaKeyConfig;
 
     @RequestMapping("/captcha")
     public ReturnData captcha() throws Exception {
@@ -60,8 +68,6 @@ public class AuthController {
     @PostMapping("/login")
     public ReturnData<Grid> login(@RequestBody LoginUser loginUser) {
         Grid<LoginUser> grid = new Grid<>();
-        String token = loginUser.getToken();
-
         String verify = checkCodeCache.get(loginUser.getKey());
 
         if (verify == null || !verify.equals(loginUser.getVerify())) {
@@ -91,6 +97,25 @@ public class AuthController {
         if (loginUser == null) {
             grid.setSuccess(false);
             grid.setMsg("用户名或密码不正确！");
+            return ReturnData.ok().data(grid);
+        }
+        grid.setSuccess(true);
+        grid.setRows(loginUser);
+        return ReturnData.ok().data(grid);
+    }
+
+    @GetMapping("loginByToken")
+    public ReturnData loginByToken(@RequestParam("token") String token) {
+        log.info("token登录---------------->", token);
+        Grid<LoginUser> grid = new Grid<>();
+        LoginUser loginUser = null;
+        try {
+            IJWTInfo jwtInfo = JWTUtil.getInfoFromToken(token, rsaKeyConfig.getUserPubKey());
+            loginUser = platformUserCache.get(jwtInfo.getBody());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (loginUser == null) {
             return ReturnData.ok().data(grid);
         }
         grid.setSuccess(true);
