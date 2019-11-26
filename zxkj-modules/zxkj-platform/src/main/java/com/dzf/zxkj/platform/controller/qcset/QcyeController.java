@@ -242,10 +242,10 @@ public class QcyeController extends BaseController {
         return list.toArray(new QcYeVO[0]);
     }
     @PostMapping("verifySave")
-    public ReturnData verifySave (HttpServletRequest request, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
+    public ReturnData verifySave (HttpServletRequest request) {
         Json json = new Json();
         try {
-            CorpVO corp = corpVO;
+            CorpVO corp = SystemUtil.getLoginCorpVo();
             DZFDate jzDate = corp.getBegindate();
             int year = jzDate.getYear();
             List<QmclVO> qmcls = qmgzService.yearhasGz(corp.getPk_corp(),
@@ -266,7 +266,7 @@ public class QcyeController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @PostMapping("queryVerifyBegin")
+    @GetMapping("queryVerifyBegin")
     public ReturnData queryVerifyBegin (HttpServletRequest request, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
         Json json = new Json();
         try {
@@ -281,7 +281,7 @@ public class QcyeController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @PostMapping("queryVerifyBeginAccounts")
+    @GetMapping("queryVerifyBeginAccounts")
     public ReturnData queryVerifyBeginAccounts (HttpServletRequest request, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO userVO) {
         Json json = new Json();
         try {
