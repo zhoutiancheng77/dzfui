@@ -2,38 +2,32 @@ package com.dzf.zxkj.platform.util.zncs;
 
 import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangDataVO;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangHVO;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangInvoiceVO;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangVO;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.jboss.logging.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 
 public class PiaoTongJinXiang2 {
 
+
+	private static String ptjxurl=null;
 	private static Logger logger = Logger.getLogger(RemoteClient.class);
 	private static String SUCCESS = "200";//成功标识
-	
-	private static String ptjxurl = null;
-	
-//	private static int i = 0;
-	
-	static{
-		ResourceBundle bundle = PropertyResourceBundle.getBundle("caifangtong");
-		
-		ptjxurl = bundle.getString("ptjxurl");
-	}
 	
 	private String taxNum;//税号
 	private String taxDiscPassword;//税盘口令
 	private String f2;//绑定码
-//	private String lastRequestTime;//上次请求时间
-//	private String period;//开票期间
 	private String invoiceDateEnd;  //开票开始日期
 	private String invoiceDateStart; //开票截止日期
 	private String serType;//请求日期类型     yjqpDay开票日期    yjqpDay1认证日期
@@ -100,9 +94,15 @@ public class PiaoTongJinXiang2 {
     	
     	return hList;
     }
-    
+    private String getPtjxurl(){
+		if(StringUtils.isEmpty(ptjxurl)){
+			ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig)SpringUtils.getBean(ZncsUrlConfig.class);
+			ptjxurl = zncsUrlConfig.ptjx_ptjxurl;
+		}
+		return ptjxurl;
+	}
     private PiaoTongJinXiangHVO getInvoiceDetail(PiaoTongJinXiangInvoiceVO invo, String token){
-    	String url = ptjxurl + "/invoice/getInvoiceDetails";
+    	String url = getPtjxurl() + "/invoice/getInvoiceDetails";
     	
     	Map<String, String> paramMap = new HashMap<String, String>();
     	paramMap.put("token", getQuotes(token));
@@ -172,7 +172,7 @@ public class PiaoTongJinXiang2 {
     public List<PiaoTongJinXiangInvoiceVO> getInvoiceListByKp(String token){
 //    	String url = ptjxurl + "/invoice/getInvoiceCollection.pt";
 //    	String url = ptjxurl + "/invoice/getInvoiceCollectionByMonth";
-    	String url = ptjxurl + "/invoice/getInvoicesByInvoiceDate";
+    	String url = getPtjxurl() + "/invoice/getInvoicesByInvoiceDate";
     	
     	Map<String, String> paramMap = new HashMap<String, String>();
     	paramMap.put("token", getQuotes(token));
@@ -217,7 +217,7 @@ public class PiaoTongJinXiang2 {
     public List<PiaoTongJinXiangInvoiceVO> getInvoiceListByRz(String token){
 //    	String url = ptjxurl + "/invoice/getInvoiceCollection.pt";
 //    	String url = ptjxurl + "/invoice/getDeductedInvoiceCollection";
-    	String url = ptjxurl + "/invoice/getInvoicesByTaxPeriod";
+    	String url = getPtjxurl() + "/invoice/getInvoicesByTaxPeriod";
     	
     	Map<String, String> paramMap = new HashMap<String, String>();
     	paramMap.put("token", getQuotes(token));
@@ -311,7 +311,7 @@ public class PiaoTongJinXiang2 {
      */
     
     public String getToken(){
-    	String url = ptjxurl + "/company/getToken";
+    	String url = getPtjxurl() + "/company/getToken";
     	String token = null;
     	Map<String, String> paramMap = new HashMap<String, String>();
     	paramMap.put("taxNum", getQuotes(taxNum));

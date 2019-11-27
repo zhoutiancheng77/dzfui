@@ -1,8 +1,10 @@
 package com.dzf.zxkj.platform.util.zncs;
 
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -75,26 +77,26 @@ public class CommonXml {
 	//根据短信验证码获取token
 	public static String ACCESS_TOKEN = "ACCESS_TOKEN";
 	static {
-		ResourceBundle bundle = PropertyResourceBundle.getBundle("ticket");
-		ocrurl =  bundle.getString("ocrurl");
-		busiurl = bundle.getString("busiurl");
-		authurl = bundle.getString("authurl");
+		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
+		ocrurl =  zncsUrlConfig.fpcy_ocrurl;
+		busiurl = zncsUrlConfig.fpcy_busiurl;
+		authurl = zncsUrlConfig.fpcy_authurl;
 		
-		fpcyurl = bundle.getString("fpcyurl");
+		fpcyurl = zncsUrlConfig.fpcy_fpcyurl;
 		
-		version = bundle.getString("version");
-		appKey = bundle.getString("appKey");
-		appSecret = bundle.getString("appSecret");
-		uid = bundle.getString("uid");
-		randnum = bundle.getString("randnum");
-		unzip = bundle.getString("unzip");
-		unencry = bundle.getString("unencry");
-		endes = bundle.getString("endes");
-		enca = bundle.getString("enca");
-		codeType = bundle.getString("codeType");
-		standardtime = bundle.getString("standardtime");
-		regpwd = bundle.getString("regpwd");
-		pagesize = bundle.getString("pagesize");
+		version = zncsUrlConfig.fpcy_version;
+		appKey = zncsUrlConfig.fpcy_appKey;
+		appSecret = zncsUrlConfig.fpcy_appSecret;
+		uid = zncsUrlConfig.fpcy_uid;
+		randnum = zncsUrlConfig.fpcy_randnum;
+		unzip = zncsUrlConfig.fpcy_unzip;
+		unencry = zncsUrlConfig.fpcy_unencry;
+		endes = zncsUrlConfig.fpcy_endes;
+		enca = zncsUrlConfig.fpcy_enca;
+		codeType = zncsUrlConfig.fpcy_codeType;
+		standardtime = zncsUrlConfig.fpcy_standardtime;
+		regpwd = zncsUrlConfig.fpcy_regpwd;
+		pagesize = zncsUrlConfig.fpcy_pagesize;
 	}
 	
 	public static String getCurDate(){

@@ -2,9 +2,11 @@ package com.dzf.zxkj.platform.util.zncs;
 
 import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.piaotong.*;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,21 +36,21 @@ public class CaiFangTong {
 	private static String encryptCode = null;
 	
 	static{
-		ResourceBundle bundle = PropertyResourceBundle.getBundle("caifangtong");
+		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
 		
-		busiurl = bundle.getString("busiurl");
+		busiurl = zncsUrlConfig.cft_busiurl;
 		
-		getcorpnameurl = bundle.getString("getcorpnameurl");
+		getcorpnameurl = zncsUrlConfig.cft_getcorpnameurl;
 		
-		appId = bundle.getString("appId");
+		appId = zncsUrlConfig.cft_appId;
 		
-		version = bundle.getString("version");
+		version = zncsUrlConfig.cft_version;
 		
-		randnum = bundle.getString("randnum");
+		randnum = zncsUrlConfig.cft_randnum;
 		
-		regpwd = bundle.getString("regpwd");
+		regpwd = zncsUrlConfig.cft_regpwd;
 		
-		encryptCode = bundle.getString("encryptCode");
+		encryptCode = zncsUrlConfig.cft_encryptCode;
 	}
 	
 	//请求参数
