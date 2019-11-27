@@ -13,10 +13,12 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.piaotong.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -60,17 +62,17 @@ public class PiaotongKp1 {
 	private int ly;
 	
 	static{
-		ResourceBundle bundle = PropertyResourceBundle.getBundle("caifangtong");
-		ptxxurl = bundle.getString("ptxxurl");
-		xxptbm = bundle.getString("xxptbm");
-		platformCode = bundle.getString("platformCode");
-		signType = bundle.getString("signType");
-		format = bundle.getString("format");
-		xxversion = bundle.getString("xxversion");
-		xxpwd = bundle.getString("xxpwd");
-		xxsize = bundle.getString("xxsize");
-		privateKey = bundle.getString("privateKey");
-		publicKey = bundle.getString("publicKey");
+		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
+		ptxxurl = zncsUrlConfig.ptb_ptxxurl;
+		xxptbm = zncsUrlConfig.ptb_xxptbm;
+		platformCode = zncsUrlConfig.ptb_platformCode;
+		signType = zncsUrlConfig.ptb_signType;
+		format = zncsUrlConfig.ptb_format;
+		xxversion = zncsUrlConfig.ptb_xxversion;
+		xxpwd = zncsUrlConfig.ptb_xxpwd;
+		xxsize = zncsUrlConfig.ptb_xxsize;
+		privateKey = zncsUrlConfig.ptb_privateKey;
+		publicKey = zncsUrlConfig.ptb_publicKey;
 	}
 
 	public PiaotongKp1(String taxpayerNum,

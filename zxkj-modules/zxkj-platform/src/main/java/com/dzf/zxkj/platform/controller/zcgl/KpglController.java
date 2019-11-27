@@ -14,7 +14,9 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.excel.util.ExportExcel;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.sys.BdTradeAssetCheckVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -25,11 +27,9 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.service.zcgl.IworkloadManagement;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import jdk.internal.util.xml.impl.Input;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFDateUtil;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.*;
@@ -37,13 +37,14 @@ import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -558,79 +559,78 @@ public class KpglController extends BaseController {
     }
 
 
-//    public void expExcel() {
-//        String ids = getRequest().getParameter("id");
-//        String lx = getRequest().getParameter("lx");//模板导出类型0 是默认导出，1按照导入格式导出
-//        List<AssetcardVO> listVo = am_kpglserv.queryByIds(ids);
-//        HttpServletResponse response = getResponse();
-//
-//        ExportExcel<AssetcardVO> ex = new ExportExcel<AssetcardVO>();
-//        Map<String, String> map = getExpFieldMap(lx);
-//        String[] enFields = new String[map.size()];
-//        String[] cnFields = new String[map.size()];
-//        // 填充普通字段数组
-//        int count = 0;
-//        for (Map.Entry<String, String> entry : map.entrySet()) {
-//            enFields[count] = entry.getKey();
-//            cnFields[count] = entry.getValue();
-//            count++;
-//        }
-//        OutputStream toClient = null;
-//        try {
-//            for (AssetcardVO vo : listVo) {
-//                if (vo.getZjtype() != null && vo.getZjtype().intValue() == 0) {
-//                    vo.setZjtypestr("平均年限法");
-//                } else if (vo.getZjtype() != null
-//                        && vo.getZjtype().intValue() == 1) {
-//                    vo.setZjtypestr("工作量法");
-//                } else if (vo.getZjtype() != null
-//                        && vo.getZjtype().intValue() == 2) {
-//                    vo.setZjtypestr("双倍余额递减法");
-//                } else if (vo.getZjtype() != null
-//                        && vo.getZjtype().intValue() == 3) {
-//                    vo.setZjtypestr("年数总和法");
-//                }
-//                checkCorp(getLogincorppk(), vo);
-//            }
-//            // OutputStream out = new FileOutputStream(path);
-//            response.reset();
-//            // 设置response的Header
-//            response.setCharacterEncoding("UTF-8");
-//            response.setContentType("application/ms-excel; charset=UTF-8");
-//            String date = DateUtils.getDate(new Date());
-//            String fileName = "资产卡片" + date + ".xls";
-//            String formattedName = URLEncoder.encode(fileName, "UTF-8");
-//            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
-//            toClient = new BufferedOutputStream(response.getOutputStream());
-//            if ("1".equals(lx)) {
-//                Workbook workBook = createWorkBook(enFields, listVo);
-//                workBook.write(toClient);
-//            } else {
-//                ex.exportExcel("资产卡片", cnFields, enFields, listVo,
-//                        toClient);
-//            }
-//            toClient.flush();
-//            response.getOutputStream().flush();
+    @PostMapping("export/excel")
+    public void expExcel(HttpServletRequest request, HttpServletResponse response) {
+        String ids = request.getParameter("id");
+        String lx = request.getParameter("lx");//模板导出类型0 是默认导出，1按照导入格式导出
+        List<AssetcardVO> listVo = am_kpglserv.queryByIds(ids);
+
+        ExportExcel<AssetcardVO> ex = new ExportExcel<AssetcardVO>();
+        Map<String, String> map = getExpFieldMap(lx);
+        String[] enFields = new String[map.size()];
+        String[] cnFields = new String[map.size()];
+        // 填充普通字段数组
+        int count = 0;
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            enFields[count] = entry.getKey();
+            cnFields[count] = entry.getValue();
+            count++;
+        }
+        OutputStream toClient = null;
+        try {
+            for (AssetcardVO vo : listVo) {
+                if (vo.getZjtype() != null && vo.getZjtype().intValue() == 0) {
+                    vo.setZjtypestr("平均年限法");
+                } else if (vo.getZjtype() != null
+                        && vo.getZjtype().intValue() == 1) {
+                    vo.setZjtypestr("工作量法");
+                } else if (vo.getZjtype() != null
+                        && vo.getZjtype().intValue() == 2) {
+                    vo.setZjtypestr("双倍余额递减法");
+                } else if (vo.getZjtype() != null
+                        && vo.getZjtype().intValue() == 3) {
+                    vo.setZjtypestr("年数总和法");
+                }
+                checkCorp(SystemUtil.getLoginCorpId(), vo);
+            }
+            // OutputStream out = new FileOutputStream(path);
+            response.reset();
+            // 设置response的Header
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/ms-excel; charset=UTF-8");
+            String date = DateUtils.getDate(new Date());
+            String fileName = "资产卡片" + date + ".xls";
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            if ("1".equals(lx)) {
+                Workbook workBook = createWorkBook(enFields, listVo);
+                workBook.write(toClient);
+            } else {
+                ex.exportExcel("资产卡片", cnFields, enFields, listVo,toClient);
+            }
+            toClient.flush();
+            response.getOutputStream().flush();
 //            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL.getValue(), "导出资产卡片", ISysConstants.SYS_2);
-//        } catch (Exception e) {
-//            log.error("资产卡片EXCEL导出错误", e);
-//        } finally {
-//            try {
-//                if (toClient != null) {
-//                    toClient.close();
-//                }
-//            } catch (IOException e) {
-//                log.error("资产卡片EXCEL导出错误", e);
-//            }
-//            try {
-//                if (response.getOutputStream() != null) {
-//                    response.getOutputStream().close();
-//                }
-//            } catch (IOException e) {
-//                log.error("资产卡片EXCEL导出错误", e);
-//            }
-//        }
-//    }
+        } catch (Exception e) {
+            log.error("资产卡片EXCEL导出错误", e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                log.error("资产卡片EXCEL导出错误", e);
+            }
+            try {
+                if (response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("资产卡片EXCEL导出错误", e);
+            }
+        }
+    }
 
     private Map<String, String> getExpFieldMap(String lx) {
         if ("1".equals(lx)) {//按照导入格式导出
@@ -748,82 +748,83 @@ public class KpglController extends BaseController {
             {19, "pk_zjfykm", "折旧(摊销)费用科目"} // 折旧(摊销)费用科目
     };
 
-//    public void impExcel() {
-//        Json json = new Json();
-//        try {
+    @PostMapping("importExcel")
+    public ReturnData impExcel(@RequestParam("impfile") MultipartFile file, HttpServletRequest request) {
+        Json json = new Json();
+        try {
 //            ((MultiPartRequestWrapper) getRequest()).getParameterMap();
 //            File[] infiles = ((MultiPartRequestWrapper) getRequest())
 //                    .getFiles("file");
 //            String[] filenames = ((MultiPartRequestWrapper) getRequest())
 //                    .getFileNames("file");
-//            if (infiles == null) {
-//                throw new Exception("导入文件为空");
-//            }
+            if (file == null) {
+                throw new Exception("导入文件为空");
+            }
 //            File infile = infiles[0];
 //            String filename = filenames[0];
-//            if (!filename.endsWith(".xls")) {
-//                throw new Exception("文件格式不正确");
-//            }
-//            Object[] vos = onBoImp(infile);
-//            json.setRows(vos[0]);
-//            json.setSuccess(true);
-//            String tips1 = (String) vos[1];
-//            String tips2 = (String) vos[2];
-//            if (tips1.length() != 0 || tips2.length() != 0) {
-//                json.setMsg(tips1 + "<br/>" + tips2);
-//            }
-//        } catch (Exception e) {
-//            printErrorLog(json, log, e, "文件导入失败");
-//            if (e instanceof BusinessException) {
-//                json.setMsg(e.getMessage());
-//            }
-//        }
-//        writeJson(json);
-//    }
-//
-//    private Object[] onBoImp(File infile) throws DZFWarpException {
+            if (!file.getName().endsWith(".xls")) {
+                throw new Exception("文件格式不正确");
+            }
+            Object[] vos = onBoImp(file.getInputStream());
+            json.setRows(vos[0]);
+            json.setSuccess(true);
+            String tips1 = (String) vos[1];
+            String tips2 = (String) vos[2];
+            if (tips1.length() != 0 || tips2.length() != 0) {
+                json.setMsg(tips1 + "<br/>" + tips2);
+            }
+        } catch (Exception e) {
+            printErrorLog(json, e, "文件导入失败");
+            if (e instanceof BusinessException) {
+                json.setMsg(e.getMessage());
+            }
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    private Object[] onBoImp(InputStream is) throws DZFWarpException {
 //        FileInputStream is = null;
-//        try {
+        try {
 //            is = new FileInputStream(infile);
-////			XSSFWorkbook rwb = new XSSFWorkbook(is);
-//            HSSFWorkbook rwb = new HSSFWorkbook(is);
-//            int sheetno = rwb.getNumberOfSheets();
-//            if (sheetno == 0) {
-//                throw new BusinessException("需要导入的数据为空。");
-//            }
-////			XSSFSheet sheets = rwb.getSheetAt(0);// 取第2个工作簿
-//            HSSFSheet sheets = rwb.getSheetAt(0);
-//            return doImport(infile, sheets);
-//        } catch (FileNotFoundException e2) {
-//            throw new BusinessException("文件未找到");
-//        } catch (IOException e2) {
-//            throw new BusinessException("文件格式不正确，请选择导入文件");
-//        } finally {
-//            if (is != null) {
-//                try {
-//                    is.close();
-//                } catch (IOException e) {
-//                    log.error("资产卡片导入关闭流失败", e);
-//                }
-//            }
-//        }
-//    }
-//
-//    private Object[] doImport(File excelfile, HSSFSheet sheets)
-//            throws DZFWarpException {
-//        AssetcardVO[] vos = getDataByExcel(excelfile.getPath(), sheets);
-//        if (vos == null || vos.length <= 0) {
-//            throw new BusinessException("导入文件数据为空，请检查。");
-//        }
-//
-//        Object[] objs = am_kpglserv.impExcel(getLoginDate(),
-//                getLoginUserid(), getLoginCorpInfo(), vos);
-//        //导账
+//			XSSFWorkbook rwb = new XSSFWorkbook(is);
+            HSSFWorkbook rwb = new HSSFWorkbook(is);
+            int sheetno = rwb.getNumberOfSheets();
+            if (sheetno == 0) {
+                throw new BusinessException("需要导入的数据为空。");
+            }
+//			XSSFSheet sheets = rwb.getSheetAt(0);// 取第2个工作簿
+            HSSFSheet sheets = rwb.getSheetAt(0);
+            return doImport(sheets);
+        } catch (FileNotFoundException e2) {
+            throw new BusinessException("文件未找到");
+        } catch (IOException e2) {
+            throw new BusinessException("文件格式不正确，请选择导入文件");
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    log.error("资产卡片导入关闭流失败", e);
+                }
+            }
+        }
+    }
+
+    private Object[] doImport(HSSFSheet sheets)
+            throws DZFWarpException {
+        AssetcardVO[] vos = getDataByExcel( sheets);
+        if (vos == null || vos.length <= 0) {
+            throw new BusinessException("导入文件数据为空，请检查。");
+        }
+
+        Object[] objs = am_kpglserv.impExcel(SystemUtil.getLoginDate(),
+                SystemUtil.getLoginUserId(), SystemUtil.getLoginCorpVo(), vos);
+        //导账
 //        for (AssetcardVO vo : vos) {
 //            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL.getValue(), "导入资产卡片:" + vo.getPeriod() + "，卡片编码:" + vo.getAssetcode(), ISysConstants.SYS_2);
 //        }
-//        return objs;
-//    }
+        return objs;
+    }
 
     /**
      * 读取Excel公司数据
@@ -832,7 +833,7 @@ public class KpglController extends BaseController {
      * @return
      * @throws BusinessException
      */
-    private AssetcardVO[] getDataByExcel(String filepath, HSSFSheet sheets1)
+    private AssetcardVO[] getDataByExcel( HSSFSheet sheets1)
             throws DZFWarpException {
         List<AssetcardVO> clist = null;
         AssetcardVO[] vos = null;
