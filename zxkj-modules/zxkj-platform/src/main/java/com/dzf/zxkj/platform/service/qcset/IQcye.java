@@ -9,6 +9,7 @@ import com.dzf.zxkj.platform.model.qcset.VerifyBeginVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public interface IQcye {
      */
     byte[] exportFzExcel(String pk_corp, String pk_accsubj, String tempPath, boolean showQuantity) throws DZFWarpException;
 
-    void processImportExcel(String pk_corp, DZFDate jzdate, File file) throws DZFWarpException;
+    void processImportExcel(String pk_corp, DZFDate jzdate, InputStream file) throws DZFWarpException;
 
     /**
      * 导入辅助期初
@@ -79,7 +80,7 @@ public interface IQcye {
      * @throws DZFWarpException
      */
     void processFzImportExcel(CorpVO corpVo, String userId,
-                              String pk_accsubj, DZFDate jzdate, File file)
+                              String pk_accsubj, DZFDate jzdate, InputStream file)
             throws DZFWarpException;
 
     void saveKc2GLSync(String userid, String pk_corp) throws DZFWarpException;

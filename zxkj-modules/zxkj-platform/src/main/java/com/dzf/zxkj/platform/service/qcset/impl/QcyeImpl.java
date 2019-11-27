@@ -1412,11 +1412,11 @@ public class QcyeImpl implements IQcye {
 	}
 
 	@Override
-	public void processImportExcel(String pk_corp, DZFDate jzdate, File file) throws DZFWarpException {
+	public void processImportExcel(String pk_corp, DZFDate jzdate, InputStream is) throws DZFWarpException {
 		// TODO Auto-generated method stub
-		FileInputStream is = null;
+//		FileInputStream is = null;
 		try {
-			is = new FileInputStream(file);
+//			is = new FileInputStream();
 			HSSFWorkbook workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);
 			
@@ -1808,12 +1808,12 @@ public class QcyeImpl implements IQcye {
 
 	@Override
 	public void processFzImportExcel(CorpVO corpVo, String userId,
-			String pk_accsubj, DZFDate jzdate, File file)
+			String pk_accsubj, DZFDate jzdate, InputStream is)
 			throws DZFWarpException {
 		if (pk_accsubj == null) {
 			throw new BusinessException("未选择科目");
 		}
-		FileInputStream is = null;
+//		FileInputStream is = null;
 		try {
 			String pk_corp = corpVo.getPk_corp();
 			YntCpaccountVO accountVo = (YntCpaccountVO) singleObjectBO
@@ -1828,7 +1828,7 @@ public class QcyeImpl implements IQcye {
 				throw new BusinessException("该科目暂不支持导入辅助期初");
 			}
 			
-			is = new FileInputStream(file);
+//			is = new FileInputStream(file_in);
 			HSSFWorkbook workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);
 

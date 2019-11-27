@@ -1,9 +1,9 @@
 package com.dzf.zxkj.platform.controller.qcset;
 
-import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.FieldMapping;
+import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.QcYeCurJson;
@@ -31,13 +31,18 @@ import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 @RestController
@@ -382,92 +387,88 @@ public class QcyeController extends BaseController {
         json.setSuccess(false);
     }
 
-//    public void exportExcel() {
-//        HttpServletResponse response = getResponse();
-//        OutputStream toClient = null;
-//        try {
-//            String isFzqc = getRequest().getParameter("fzqc");
-//            boolean showQuantity = Boolean.valueOf(getRequest().getParameter("showQuantity"));
-//
-//            byte[] excelData = null;
-//            String fileName = null;
-//            if ("Y".equals(isFzqc)) {
-//                fileName = "辅助期初导入.xls";
-//                String pk_km = getRequest().getParameter("pk_km");
-//                String tempName = getRequest().getParameter("tempName");
-//                String tempPath = getSession().getServletContext().getRealPath("/") + "files" + File.separator + "template"
-//                        + File.separator + tempName;
-//                excelData = gl_qcyeserv.exportFzExcel(getLogincorppk(), pk_km, tempPath, showQuantity);
-//            } else {
-//                fileName = "科目期初导入" + new DZFDate() + ".xls";
-//                excelData = gl_qcyeserv.exportExcel(getLogincorppk(), showQuantity);
-//            }
-//
-//            String formattedName = URLEncoder.encode(fileName, "UTF-8");
-//            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
-//            response.setContentType("application/vnd.ms-excel");
-//            toClient = new BufferedOutputStream(response.getOutputStream());
-//            toClient.write(excelData);
-//            toClient.flush();
-//            response.getOutputStream().flush();
-//
-//        } catch (IOException e) {
-//            log.error("excel导出错误",e);
-//        } finally {
-//            try {
-//                if (toClient != null) {
-//                    toClient.close();
-//                }
-//            } catch (IOException e) {
-//                log.error("excel导出错误",e);
-//            }
-//            try {
-//                if(response!=null && response.getOutputStream() != null){
-//                    response.getOutputStream().close();
-//                }
-//            } catch (IOException e) {
-//                log.error("excel导出错误",e);
-//            }
-//        }
-//    }
-//
-//    public void importExcel() {
-//        Json json = new Json();
-//        String isFzqc = getRequest().getParameter("fzqc");
-//        String pk_km = getRequest().getParameter("pk_km");
+    @PostMapping("export/excel")
+    public void exportExcel(HttpServletRequest request, HttpServletResponse response) {
+        OutputStream toClient = null;
+        try {
+            String isFzqc = request.getParameter("fzqc");
+            boolean showQuantity = Boolean.valueOf(request.getParameter("showQuantity"));
+
+            byte[] excelData = null;
+            String fileName = null;
+            if ("Y".equals(isFzqc)) {
+                fileName = "辅助期初导入.xls";
+                String pk_km = request.getParameter("pk_km");
+                String tempName = request.getParameter("tempName");
+                Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + tempName);
+                excelData = gl_qcyeserv.exportFzExcel(SystemUtil.getLoginCorpId(), pk_km, ((ClassPathResource) exportTemplate).getPath(), showQuantity);
+            } else {
+                fileName = "科目期初导入" + new DZFDate() + ".xls";
+                excelData = gl_qcyeserv.exportExcel(SystemUtil.getLoginCorpId(), showQuantity);
+            }
+
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
+            response.setContentType("application/vnd.ms-excel");
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            toClient.write(excelData);
+            toClient.flush();
+            response.getOutputStream().flush();
+
+        } catch (IOException e) {
+            log.error("excel导出错误",e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误",e);
+            }
+            try {
+                if(response!=null && response.getOutputStream() != null){
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误",e);
+            }
+        }
+    }
+
+    @PostMapping("importExcel")
+    public ReturnData importExcel(@RequestParam("impfile") MultipartFile file,  HttpServletRequest request) {
+        Json json = new Json();
+        String isFzqc = request.getParameter("fzqc");
+        String pk_km = request.getParameter("pk_km");
 //        File[] infiles = ((MultiPartRequestWrapper) getRequest()).getFiles("impfile");
 //        String[] fileNames = ((MultiPartRequestWrapper) getRequest()).getFileNames("impfile");
-////		String fileType = null;
-//        if (fileNames == null || fileNames.length == 0) {
-////			String fileName = fileNames[0];
-////			fileType = fileNames[0].substring(fileName.indexOf(".") + 1, fileName.length());
-////		} else {
-//            throw new BusinessException("请选择要导入的文件");
-//        }
-//        try {
-//            CorpVO corp = getLoginCorpInfo();
-//            DZFDate jzDate = corp.getBegindate();
-//            int year = jzDate.getYear();
-//            List<QmclVO> qmcls = qmgzService.yearhasGz(corp.getPk_corp(),
-//                    String.valueOf(year));
-//            for (QmclVO qmvo : qmcls) {
-//                if (qmvo.getIsgz().booleanValue()) {
-//                    throw new BusinessException("导入失败，已经存在关账的月份");
-//                }
-//            }
-//            jzDate = DZFDate.getDate(DateUtils.getPeriod(jzDate) + "-01");
-//            if ("Y".equals(isFzqc)) {
-//                gl_qcyeserv.processFzImportExcel(corp, getLoginUserid(), pk_km, jzDate, infiles[0]);
-//            } else {
-//                gl_qcyeserv.processImportExcel(corp.getPk_corp(), jzDate, infiles[0]);
-//            }
-//            json.setSuccess(true);
-//            json.setMsg("导入成功");
-//        } catch (Exception e) {
-//            printErrorLog(json, log, e, "导入失败");
-//        }
-//        writeJson(json);
-//    }
+        if (file == null) {
+            throw new BusinessException("请选择要导入的文件");
+        }
+        try {
+            CorpVO corp = SystemUtil.getLoginCorpVo();
+            DZFDate jzDate = corp.getBegindate();
+            int year = jzDate.getYear();
+            List<QmclVO> qmcls = qmgzService.yearhasGz(corp.getPk_corp(),
+                    String.valueOf(year));
+            for (QmclVO qmvo : qmcls) {
+                if (qmvo.getIsgz().booleanValue()) {
+                    throw new BusinessException("导入失败，已经存在关账的月份");
+                }
+            }
+            jzDate = DZFDate.getDate(DateUtils.getPeriod(jzDate) + "-01");
+            if ("Y".equals(isFzqc)) {
+                gl_qcyeserv.processFzImportExcel(corp, SystemUtil.getLoginUserId(), pk_km, jzDate, file.getInputStream());
+            } else {
+                gl_qcyeserv.processImportExcel(corp.getPk_corp(), jzDate,  file.getInputStream());
+            }
+            json.setSuccess(true);
+            json.setMsg("导入成功");
+        } catch (Exception e) {
+            printErrorLog(json, e, "导入失败");
+        }
+        return ReturnData.ok().data(json);
+    }
 
     @GetMapping("queryCur")
     public ReturnData<QcYeCurJson> queryCur() {
