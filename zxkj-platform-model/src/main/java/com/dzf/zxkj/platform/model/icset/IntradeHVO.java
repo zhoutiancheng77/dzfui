@@ -68,7 +68,7 @@ public class IntradeHVO extends SuperVO {
 	private DZFDate modifydate;// 最后修改日期
 	@JsonProperty("isczg")
 	private DZFBoolean isczg;// 冲暂估
-	@JsonProperty("isrz")
+	@JsonProperty("isrz1")
 	private DZFBoolean isrz;// 认证
 
 	private String custname;// 客户名称
