@@ -50,12 +50,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -690,7 +691,6 @@ public class VoucherController {
 
         int fail = 0;
         Map<String, Boolean> statusMap = new HashMap<>();
-        StringBuilder msg = new StringBuilder();
         StringBuilder datePz = new StringBuilder();
         StringBuilder auditPz = new StringBuilder();
         String errMsg = "";
@@ -766,16 +766,30 @@ public class VoucherController {
         if (updateList.size() > 0) {
             gl_pzglserv.updateAudit(updateList, userid);
         }
-        if (fail > 0) {
-            json.setStatus(2);
-            msg.append("成功：" + updateList.size() + "，失败：" + fail + ("".equals(errMsg) ? "" : (",原因：" + errMsg)));
+        if (idsArray.length == 1) {
+            if (fail > 0) {
+                json.setMsg(errMsg);
+                json.setSuccess(false);
+            } else {
+                json.setMsg("审核成功");
+                json.setSuccess(true);
+            }
         } else {
-            json.setStatus(0);
-            msg.append("审核成功" + updateList.size() + "条");
+            StringBuilder msg = new StringBuilder();
+            if (fail > 0) {
+                json.setStatus(2);
+                msg.append("成功：")
+                        .append(updateList.size())
+                        .append("，失败：").append(fail)
+                        .append("".equals(errMsg) ? "" : (",原因：" + errMsg));
+            } else {
+                json.setStatus(0);
+                msg.append("审核成功").append(updateList.size()).append("条");
+            }
+            json.setMsg(msg.toString());
+            json.setSuccess(true);
         }
         json.setData(statusMap);
-        json.setSuccess(true);
-        json.setMsg(msg.toString());
 
         return ReturnData.ok().data(json);
     }
@@ -1360,6 +1374,149 @@ public class VoucherController {
         json.setMsg("保存成功");
         json.setSuccess(true);
         json.setRows(rs);
+        return ReturnData.ok().data(json);
+    }
+
+    //导出Excel
+    @PostMapping("/exportExcel")
+    public void exportExcel(@RequestParam String ids, HttpServletResponse response) {
+//        boolean bexport = checkExcelExport();
+//        if(!bexport){
+//            return;
+//        }
+        OutputStream toClient = null;
+        try {
+            String fileName = "凭证导出" + new DZFDate() + ".xls";
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename*=UTF-8''" + formattedName + ";filename=" + fileName + "");
+            response.setContentType("application/vnd.ms-excel");
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            toClient.write(gl_pzglserv.exportExcel(ids));
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("凭证导出错误", e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                log.error("凭证导出错误", e);
+            }
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("凭证导出错误", e);
+            }
+        }
+    }
+
+    @PostMapping("/importVoucher")
+    public ReturnData importVoucher(String checkNum, MultipartFile impfile) {
+        Json json = new Json();
+        json.setSuccess(false);
+        try {
+            String fileName = impfile.getOriginalFilename();
+            String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+            List<TzpzHVO> imported = gl_pzglserv.saveImportVoucher(SystemUtil.getLoginCorpVo(),
+                    SystemUtil.getLoginUserId(), fileType, impfile.getInputStream(),
+                    !"N".equals(checkNum));
+            if (imported != null && imported.size() > 0) {
+                String periodBegin = null;
+                String periodEnd = null;
+                for (int i = 0; i < imported.size(); i++) {
+                    TzpzHVO hvo = imported.get(i);
+                    if (i == 0) {
+                        periodBegin = hvo.getPeriod();
+                        periodEnd = hvo.getPeriod();
+                    } else {
+                        if (hvo.getPeriod().compareTo(periodBegin) < 0) {
+                            periodBegin = hvo.getPeriod();
+                        } else if (hvo.getPeriod().compareTo(periodEnd) > 0) {
+                            periodEnd = hvo.getPeriod();
+                        }
+                    }
+                }
+                Map<String, String> periodData = new HashMap<String, String>();
+                periodData.put("periodBegin", periodBegin);
+                periodData.put("periodEnd", periodEnd);
+                json.setData(periodData);
+            }
+
+            json.setMsg("导入成功");
+            json.setSuccess(true);
+        } catch (Exception e) {
+            json.setSuccess(false);
+            if ("-150".equals(e.getMessage())) {
+                json.setStatus(-150);
+            } else {
+                log.error("导入失败", e);
+                json.setMsg("导入失败");
+            }
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/downloadTemplate")
+    public void downloadTemplate(HttpServletResponse response) {
+        OutputStream toClient = null;
+        try {
+            String tempPath = "/template/凭证模板-导入.xls";
+            byte[] data = gl_pzglserv.exportTemplate(SystemUtil.getLoginCorpId(), tempPath);
+
+            String fileName = "凭证模板-导入.xls";
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename*=UTF-8''" + formattedName + ";filename=" + fileName + "");
+            response.setContentType("application/vnd.ms-excel");
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            toClient.write(data);
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (BusinessException e) {
+            try {
+                response.setContentType("String");
+                response.getOutputStream().write(e.getMessage().getBytes());
+            } catch (IOException e1) {
+            }
+        } catch (IOException e) {
+            log.error("Export Error", e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                log.error("Export Error", e);
+            }
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("Export Error", e);
+            }
+        }
+    }
+
+    @GetMapping("/queryAssistPrintSetting")
+    public ReturnData queryAssistPrintSetting() {
+        Json json = new Json();
+        VoucherPrintAssitSetVO[] vos = gl_pzglserv.queryPrintAssistSetting(SystemUtil.getLoginCorpId());
+        json.setRows(vos);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/saveAssistPrintSetting")
+    public ReturnData saveAssistPrintSetting(@RequestBody VoucherPrintAssitSetVO[] settingArray) {
+        Json json = new Json();
+        gl_pzglserv.savePrintAssistSetting(SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), settingArray);
+        json.setSuccess(true);
+        json.setMsg("保存成功");
         return ReturnData.ok().data(json);
     }
 

@@ -1472,17 +1472,15 @@ public class PzglServiceImpl implements IPzglService {
 	}
 
 	@Override
-	public List<TzpzHVO> saveImportVoucher(CorpVO corp, String user_id, String fileType, File impFile,
+	public List<TzpzHVO> saveImportVoucher(CorpVO corp, String user_id, String fileType, InputStream inputStream,
 			boolean checkVoucherNumber) throws DZFWarpException {
 		List<TzpzHVO> vouchers = new ArrayList<TzpzHVO>();
-		FileInputStream is = null;
 		try {
-			is = new FileInputStream(impFile);
 			Workbook impBook = null;
 			if ("xls".equals(fileType)) {
-				impBook = new HSSFWorkbook(is);
+				impBook = new HSSFWorkbook(inputStream);
 			} else if ("xlsx".equals(fileType)) {
-				impBook = new XSSFWorkbook(is);
+				impBook = new XSSFWorkbook(inputStream);
 			} else {
 				throw new BusinessException("不支持的文件格式 ");
 			}
@@ -1808,13 +1806,6 @@ public class PzglServiceImpl implements IPzglService {
 			throw new BusinessException("导入文件未找到 ");
 		} catch (IOException e) {
 			throw new BusinessException("导入文件格式错误");
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-				}
-			}
 		}
 		return vouchers;
 	}
@@ -2141,9 +2132,9 @@ public class PzglServiceImpl implements IPzglService {
 	@Override
 	public byte[] exportTemplate(String pk_corp, String tempPath) throws DZFWarpException {
 		byte[] byteArray = null;
-		FileInputStream is = null;
+		InputStream is = null;
 		try {
-			is = new FileInputStream(tempPath);
+			is = this.getClass().getResourceAsStream("/template/凭证模板-导入.xls");
 			Workbook impBook = new HSSFWorkbook(is);
 			
 			// 处理精度
