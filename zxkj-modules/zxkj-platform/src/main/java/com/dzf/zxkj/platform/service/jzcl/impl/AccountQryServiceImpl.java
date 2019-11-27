@@ -827,6 +827,9 @@ public class AccountQryServiceImpl implements IAccountQryService {
 				for(String accsubj : pk_accsubj.split(",")){
 					if(codeMap.containsKey(accsubj)){
 						Map<String, DZFDouble> fse = fseMap.get(pk_corp+"_"+codeMap.get(accsubj));
+						if(fse == null || fse.size() == 0){
+							continue;
+						}
 						for(String thisPriod : periods){
 							if(DZFNumberUtil.isNotNullAndNotZero(fse.get(thisPriod))){
 								fs = SafeCompute.add(fs, fse.get(thisPriod));
