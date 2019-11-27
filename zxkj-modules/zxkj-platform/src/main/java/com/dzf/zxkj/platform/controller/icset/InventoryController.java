@@ -415,8 +415,8 @@ public class InventoryController {
 		}
 		securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
 		String errmsg = iservice.deleteBatch(pkss, SystemUtil.getLoginCorpId());
-		json.setSuccess(true);
 		if (StringUtil.isEmpty(errmsg)) {
+			json.setSuccess(true);
 			json.setMsg("删除成功!");
 		} else {
 			json.setMsg(errmsg);

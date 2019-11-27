@@ -517,6 +517,7 @@ public class PurchInController {
                 vo.setSourcebilltype(null);
                 SuperVO[] childs = vo.getChildren();
                 for (SuperVO child : childs) {
+					child.setPrimaryKey(null);
                     child.setAttributeValue("pk_voucher", null);
                     child.setAttributeValue("imppzh", null);
                     child.setAttributeValue("pzh", null);
