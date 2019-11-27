@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.controller.sys;
 
 import com.dzf.zxkj.common.entity.Grid;
+import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -8,11 +9,11 @@ import com.dzf.zxkj.platform.model.bdset.PrintSettingVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.bdset.IPrintSettingService;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("gl_printsetting")
@@ -20,6 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class PrintSettingController {
     @Autowired
     private IPrintSettingService gl_print_setting_serv;
+
+    @GetMapping("/query")
+    public ReturnData<Json> query(@RequestParam String nodeName, String corpId) {
+        Json json = new Json();
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
+        }
+        PrintSettingVO vo = gl_print_setting_serv.query(corpId, SystemUtil.getLoginUserId(), nodeName);
+        json.setData(vo);
+        json.setMsg("查询成功");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
 
     @PostMapping("query")
     public ReturnData<Grid> query(@MultiRequestBody String nodeName, @MultiRequestBody String pk_corp, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
