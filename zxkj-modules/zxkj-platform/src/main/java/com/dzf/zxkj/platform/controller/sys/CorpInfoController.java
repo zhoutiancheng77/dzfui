@@ -33,7 +33,7 @@ public class CorpInfoController extends BaseController {
         Json json = new Json();
         try {
             String userid = SystemUtil.getLoginUserId();
-            CorpVO fatherCorp =corpService.queryByPk(corpVo.getFathercorp());
+            CorpVO fatherCorp = corpService.queryByPk(corpVo.getFathercorp());
             Map<String, Object> info = new HashMap<>();
             info.put("RULE", "4-2-2-2");
             info.put("CURRENCYID", IGlobalConstants.RMB_currency_id);
@@ -44,9 +44,9 @@ public class CorpInfoController extends BaseController {
             info.put("UserName", userVo.getUser_name());
             info.put("RealName", userVo.getUser_name());
             info.put("vchPeopleId", userid);
-            info.put("ischannel", fatherCorp.getIschannel()!=null && fatherCorp.getIschannel().booleanValue()?"Y":"N");
-            info.put("isic", IcCostStyle.IC_ON.equals(corpVo.getBbuildic())?"Y":"N");
-            info.put("iszongzhangch", IcCostStyle.IC_INVTENTORY.equals(corpVo.getBbuildic())?"Y":"N");
+            info.put("ischannel", fatherCorp.getIschannel() != null && fatherCorp.getIschannel().booleanValue() ? "Y" : "N");
+            info.put("isic", IcCostStyle.IC_ON.equals(corpVo.getBbuildic()) ? "Y" : "N");
+            info.put("iszongzhangch", IcCostStyle.IC_INVTENTORY.equals(corpVo.getBbuildic()) ? "Y" : "N");
             info.put("Mobile", "");
             info.put("myCompany", corpVo.getUnitname());
             info.put("chname", corpVo.getChargedeptname() == null ? "" : corpVo.getChargedeptname());
