@@ -15,12 +15,15 @@ import com.dzf.zxkj.platform.config.QmjzByDzfConfig;
 import com.dzf.zxkj.platform.exception.ExBusinessException;
 import com.dzf.zxkj.platform.model.bdset.AdjustExrateVO;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
+import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.jzcl.QMJzsmNoICVO;
 import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.jzcl.TempInvtoryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
+import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
 import com.dzf.zxkj.platform.service.jzcl.IQmclNoicService;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -53,6 +56,10 @@ public class QmclController {
     private QmjzByDzfConfig qmjzByDzfConfig;
     @Autowired
     private IQmclNoicService gl_qmclnoicserv;
+    @Autowired
+    private CheckInventorySet inventory_setcheck;
+    @Autowired
+    private IInventoryAccSetService gl_ic_invtorysetserv;
 
     @PostMapping("/query")
     public ReturnData<Grid> query(@MultiRequestBody QueryParamVO queryParamvo) {
@@ -952,14 +959,22 @@ public class QmclController {
         String userid = userVO.getCuserid();
         QmclVO resvos = null;
         try {
+            // 上一期成本是否结转校验
+            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(qmvo.getIcosttype()));
             CorpVO cpvo = corpService.queryByPk(qmvo.getPk_corp());
-            if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){ //启用进销存的
+            if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){ // 启用进销存的
                 resvos = gl_qmclserv.saveCbjz(qmvo, userid);
                 grid.setMsg("成本结转成功!");
                 grid.setTotal(Long.valueOf(1));
                 grid.setSuccess(true);
                 grid.setRows(Arrays.asList(resvos));
-            } else if(IcCostStyle.IC_INVTENTORY.equals(cpvo.getBbuildic())){//启用总账存货
+            } else if(IcCostStyle.IC_INVTENTORY.equals(cpvo.getBbuildic())){ // 启用总账存货
+                InventorySetVO setvo = gl_ic_invtorysetserv.query(qmvo.getPk_corp());
+                String error = inventory_setcheck.checkInventorySet(userid, qmvo.getPk_corp(),setvo);
+                if (!StringUtil.isEmpty(error)) {
+                    error = error.replaceAll("<br>", " ");
+                    throw new BusinessException("成本结转失败！"+error);
+                }
                 grid.setSuccess(true);
                 grid.setMsg("总账存货结转期末销售成本");
                 grid.setTotal(Long.valueOf(1));
@@ -994,12 +1009,21 @@ public class QmclController {
     // 工业成本结转
     public ReturnData<Grid> onIndustrycbjz(QmclVO qmvo, UserVO userVO) {
         Grid grid = new Grid();
+        String userid = userVO.getCuserid();
         try {
+            // 上一期成本是否结转校验
+            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(qmvo.getIcosttype()));
             CorpVO cpvo = corpService.queryByPk(qmvo.getPk_corp());
             if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){ //启用进销存的
 
             } else if(IcCostStyle.IC_INVTENTORY.equals(cpvo.getBbuildic())){//启用总账存货
-
+                InventorySetVO setvo = gl_ic_invtorysetserv.query(qmvo.getPk_corp());
+                String error = inventory_setcheck.checkInventorySet(userid, qmvo.getPk_corp(),setvo);
+                if (!StringUtil.isEmpty(error)) {
+                    error = error.replaceAll("<br>", " ");
+                    throw new BusinessException("成本结转失败！"+error);
+                }
+                throw new BusinessException("总账存货模式暂不支持工业结转！");
             } else {//不启用进销存的
 
             }
