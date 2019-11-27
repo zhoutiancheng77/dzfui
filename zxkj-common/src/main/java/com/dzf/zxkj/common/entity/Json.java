@@ -1,94 +1,96 @@
 package com.dzf.zxkj.common.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
- * 
  * JSON模型
- * 
+ * <p>
  * 用户后台向前台返回的JSON对象
- * 
+ *
  * @author 孙宇
- * 
  */
 public class Json implements java.io.Serializable {
 
-	private boolean success = false;
-	
-	private int status = 200;
+    private boolean success = false;
 
-	private String msg = "";
+    private int status = 200;
 
-	private Object rows = null;
+    private String msg = "";
 
-	private Object data = null;
-	
-	private Object childs = null;
-	
-	private Object head = null;
-	
-	private Long total = 0L;
+    // 允许序列化空集合
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Object rows = null;
 
-	public boolean isSuccess() {
-		return success;
-	}
+    private Object data = null;
 
-	public void setSuccess(boolean success) {
-		this.success = success;
-	}
+    private Object childs = null;
 
-	public String getMsg() {
-		return msg;
-	}
+    private Object head = null;
 
-	public void setMsg(String msg) {
-		this.msg = msg;
-	}
+    private Long total = 0L;
 
-	public Object getRows() {
-		return rows;
-	}
+    public boolean isSuccess() {
+        return success;
+    }
 
-	public void setRows(Object rows) {
-		this.rows = rows;
-	}
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
 
-	public int getStatus() {
-		return status;
-	}
+    public String getMsg() {
+        return msg;
+    }
 
-	public void setStatus(int status) {
-		this.status = status;
-	}
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 
-	public Object getChilds() {
-		return childs;
-	}
+    public Object getRows() {
+        return rows;
+    }
 
-	public void setChilds(Object childs) {
-		this.childs = childs;
-	}
+    public void setRows(Object rows) {
+        this.rows = rows;
+    }
 
-	public Object getHead() {
-		return head;
-	}
+    public int getStatus() {
+        return status;
+    }
 
-	public void setHead(Object head) {
-		this.head = head;
-	}
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-	public Object getData() {
-		return data;
-	}
+    public Object getChilds() {
+        return childs;
+    }
 
-	public void setData(Object data) {
-		this.data = data;
-	}
+    public void setChilds(Object childs) {
+        this.childs = childs;
+    }
 
-	public Long getTotal() {
-		return total;
-	}
+    public Object getHead() {
+        return head;
+    }
 
-	public void setTotal(Long total) {
-		this.total = total;
-	}
-	
+    public void setHead(Object head) {
+        this.head = head;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
+
+    public Long getTotal() {
+        return total;
+    }
+
+    public void setTotal(Long total) {
+        this.total = total;
+    }
+
 }
