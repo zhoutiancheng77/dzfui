@@ -36,7 +36,10 @@ public class PrintSettingController {
     }
 
     @PostMapping("query")
-    public ReturnData<Grid> query(@MultiRequestBody String nodeName, @MultiRequestBody String pk_corp, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
+    public ReturnData<Grid> query(@MultiRequestBody String nodeName,
+                                  @MultiRequestBody String pk_corp,
+                                  @MultiRequestBody CorpVO corpVO,
+                                  @MultiRequestBody UserVO userVO) {
         Grid<PrintSettingVO> json = new Grid();
         try {
             if (StringUtil.isEmpty(pk_corp)) {
@@ -55,13 +58,17 @@ public class PrintSettingController {
     }
 
     @PostMapping("save")
-    public ReturnData<Grid> save(@MultiRequestBody PrintSettingVO printSettingVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
+    public ReturnData<Grid> save(@RequestBody PrintSettingVO printSettingVO) {
         Grid json = new Grid();
         try {
+            String loginCorp = SystemUtil.getLoginCorpId();
             if (StringUtil.isEmpty(printSettingVO.getCorpids())) {
-                printSettingVO.setCorpids(corpVO.getPk_corp());
+                printSettingVO.setCorpids(loginCorp);
             }
-            printSettingVO.setCuserid(userVO.getCuserid());
+            if (StringUtil.isEmpty(printSettingVO.getPk_corp())) {
+                printSettingVO.setPk_corp(loginCorp);
+            }
+            printSettingVO.setCuserid(SystemUtil.getLoginUserId());
             gl_print_setting_serv.save(printSettingVO);
             json.setMsg("保存成功");
             json.setRows(printSettingVO);
