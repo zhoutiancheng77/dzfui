@@ -1,7 +1,10 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.DzfTypeUtils;
+import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -10,6 +13,7 @@ import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.jzcl.SetJz;
 import com.dzf.zxkj.platform.model.jzcl.YJJZSetVO;
@@ -20,10 +24,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -261,6 +262,52 @@ public class YJJZController {
             jz.setCk(jzresult[i][2]);
             list.add(jz);
         }
+    }
+
+    /**
+     * 保存一键结转设置
+     */
+    @PostMapping("/savejzSet")
+    public ReturnData<Grid> savejzSet(@RequestBody Map<String, String> map){
+        Grid grid = new Grid();
+        String pk_corp = map.get("corpid");
+        try {
+            if (StringUtil.isEmpty(pk_corp))
+                throw new BusinessException("查询公司为空！");
+            String res = map.get("res");
+            if(StringUtil.isEmpty(res))
+                throw new BusinessException("参数为空，保存失败！");
+            SetJz[] bodyvos = JsonUtils.deserialize(res, SetJz[].class);
+            if(bodyvos == null || bodyvos.length == 0)
+                throw new BusinessException("请选择数据，保存失败！");
+            String z = "";
+            for(SetJz jz : bodyvos){
+                if(z.length()>0){
+                    z = z +","+jz.getId();
+                }else{
+                    z = jz.getId();
+                }
+            }
+            List<YJJZSetVO> zlist = new ArrayList<YJJZSetVO>();
+            String[] args = pk_corp.split(",");
+            for(String pkgs : args){
+                if(!StringUtil.isEmpty(pkgs)){
+                    YJJZSetVO vo = new YJJZSetVO();
+                    vo.setPk_corp(pkgs);
+                    vo.setResult1(z);
+                    zlist.add(vo);
+                }
+            }
+            gl_yjjzserv.savejzset(zlist);
+            grid.setSuccess(true);
+            grid.setMsg("保存成功！");
+        } catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<YJJZSetVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败！");
+        }
+        return ReturnData.ok().data(grid);
     }
 
 }
