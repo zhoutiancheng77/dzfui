@@ -112,10 +112,9 @@ public class LoginServiceImpl implements ILoginService {
         LoginUser loginUser = new LoginUser();
         Optional<UserVO> userVOOptional = uservo.getBindUsers().stream().filter(v -> v.getPlatformTag().equals("zxkj")).findFirst();
         userVOOptional.ifPresent(v -> {
-            loginUser.setUsername(v.getUserName());
+            loginUser.setUsername(v.getLoginName());
             loginUser.setDzfAuthToken(uservo.getUserToken());
             loginUser.setUserid(v.getPlatformUserId());
-            loginUser.setUsername(v.getUserName());
             Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow()).collect(Collectors.toSet());
             loginUser.setPlatformVOSet(list);
             try {
@@ -129,10 +128,9 @@ public class LoginServiceImpl implements ILoginService {
 
     private LoginUser transfer(UserVO uservo) {
         LoginUser loginUser = new LoginUser();
-        loginUser.setUsername(uservo.getUserName());
+        loginUser.setUsername(uservo.getLoginName());
         loginUser.setDzfAuthToken(uservo.getUserToken());
         loginUser.setUserid(uservo.getPlatformUserId());
-        loginUser.setUsername(uservo.getUserName());
         Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(v -> v.isShow()).collect(Collectors.toSet());
         loginUser.setPlatformVOSet(list);
         try {
