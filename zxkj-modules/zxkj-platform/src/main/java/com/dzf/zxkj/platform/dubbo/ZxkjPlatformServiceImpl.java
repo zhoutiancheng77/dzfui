@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@org.apache.dubbo.config.annotation.Service(version = "2.0.0", timeout = Integer.MAX_VALUE)
+@org.apache.dubbo.config.annotation.Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
 public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
