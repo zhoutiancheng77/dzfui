@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.sun.xml.internal.ws.encoding.soap.SerializationException;
+import org.apache.commons.lang3.SerializationException;
 
 import java.text.SimpleDateFormat;
 
