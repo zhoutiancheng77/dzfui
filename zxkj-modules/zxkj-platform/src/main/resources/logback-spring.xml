@@ -1,63 +1,107 @@
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-    <appender name="CONSOLE-LOG" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <pattern>[%d{yyyy-MM-dd' 'HH:mm:ss.sss}] [%C] [%t] [%L] [%-5p] %m%n</pattern>
-        </layout>
-    </appender>
-    <!--获取比info级别高(包括info级别)但除error级别的日志-->
-    <appender name="INFO-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>ERROR</level>
-            <onMatch>DENY</onMatch>
-            <onMismatch>ACCEPT</onMismatch>
-        </filter>
-        <encoder>
-            <pattern>[%d{yyyy-MM-dd' 'HH:mm:ss.sss}] [%C] [%t] [%L] [%-5p] %m%n</pattern>
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
+    <property name="LOG_LEVEL" value="@dzf.mvn.logging.level@"/>
+    <property name="LOG_HOME" value="@dzf.mvn.logging.home@/${APP_NAME}"/>
+    <property name="KAKFA_ADDRESS" value="@dzf.mvn.kafka.addr@"/>
+    <!-- 日志输出格式 -->
+    <property name="ENCODER_PATTERN"
+              value="%d{yyyy-MM-dd  HH:mm:ss.SSS} [%thread] %-5level %logger{80} - %msg%n"/>
+    <contextName>${APP_NAME}</contextName>
+    <property name="maxHistory" value="7"/>
+    <!-- 控制台日志：输出全部日志到控制台 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%red(%d{yyyy-MM-dd HH:mm:ss}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger) - %cyan(%msg%n)</Pattern>
         </encoder>
-
-        <!--滚动策略-->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!--路径-->
-            <fileNamePattern>log//info//%d.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
     </appender>
-    <appender name="ERROR-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+    <!-- 文件日志：输出全部日志到文件 -->
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/output.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.dzf.cloud.log.layout.JsonLogLayout"/>
+        </encoder>
+    </appender>
+
+    <!-- 错误日志：用于将错误日志输出到独立文件 -->
+    <appender name="ERROR_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${ENCODER_PATTERN}</pattern>
+        </encoder>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
+            <level>WARN</level>
         </filter>
-        <encoder>
-            <pattern>[%d{yyyy-MM-dd' 'HH:mm:ss.sss}] [%C] [%t] [%L] [%-5p] %m%n</pattern>
-        </encoder>
-        <!--滚动策略-->
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!--路径-->
-            <fileNamePattern>log//error//%d.log</fileNamePattern>
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>
     </appender>
-    <!-- 异步输出 -->
-    <appender name="ASYNC-INFO" class="ch.qos.logback.classic.AsyncAppender">
-        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
-        <discardingThreshold>0</discardingThreshold>
-        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
-        <queueSize>256</queueSize>
-        <!-- 添加附加的appender,最多只能添加一个 -->
-        <appender-ref ref="INFO-LOG"/>
+    <appender name="kafkaAppender" class="com.dzf.cloud.log.appender.KafkaAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.dzf.cloud.log.layout.JsonLogLayout"/>
+        </encoder>
+        <topic>${APP_NAME}-logs-hjd</topic>
+        <keyingStrategy class="com.dzf.cloud.log.appender.kafka.keying.ThreadNameKeyingStrategy"/>
+        <sendStrategy class="com.dzf.cloud.log.appender.kafka.sender.AsyncSendCallableStrategy"/>
+        <producerConfig>bootstrap.servers=${KAKFA_ADDRESS}</producerConfig>
+        <appender-ref ref="FILE"/>
+    </appender>
+    <logger name="kafkaLogger" additivity="false">
+        <appender-ref ref="kafkaAppender"/>
+    </logger>
+    <appender name="NACOS_CONFIG_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/nacos_config.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/nacos_config.log.%i</fileNamePattern>
+            <maxIndex>${JM.LOG.RETAIN.COUNT:-7}</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${JM.LOG.FILE.SIZE:-10MB}</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%-5t:%c{2}] %m%n</pattern>
+        </encoder>
     </appender>
 
-    <appender name="ASYNC-ERROR" class="ch.qos.logback.classic.AsyncAppender">
-        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
-        <discardingThreshold>0</discardingThreshold>
-        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
-        <queueSize>256</queueSize>
-        <!-- 添加附加的appender,最多只能添加一个 -->
-        <appender-ref ref="ERROR-LOG"/>
+    <appender name="NACOS_NAMING_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/nacos_naming.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/nacos_naming.log.%i</fileNamePattern>
+            <maxIndex>${JM.LOG.RETAIN.COUNT:-7}</maxIndex>
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${JM.LOG.FILE.SIZE:-10MB}</maxFileSize>
+        </triggeringPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%-5t:%c{2}] %m%n</pattern>
+        </encoder>
     </appender>
-    <root level="info">
-        <appender-ref ref="CONSOLE-LOG"/>
-        <appender-ref ref="INFO-LOG"/>
-        <appender-ref ref="ERROR-LOG"/>
+    <logger name="com.alibaba.nacos.client" level="${LOG_LEVEL}"
+            additivity="false">
+        <appender-ref ref="NACOS_CONFIG_LOG_FILE"/>
+    </logger>
+
+    <logger name="com.alibaba.nacos.client.config" level="${LOG_LEVEL}"
+            additivity="false">
+        <appender-ref ref="NACOS_CONFIG_LOG_FILE"/>
+    </logger>
+
+    <logger name="com.alibaba.nacos.client.naming" level="${LOG_LEVEL}"
+            additivity="false">
+        <appender-ref ref="NACOS_NAMING_LOG_FILE"/>
+    </logger>
+    <root>
+        <level value="${LOG_LEVEL}"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
     </root>
 </configuration>
