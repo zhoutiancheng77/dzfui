@@ -440,16 +440,6 @@ public class InventoryServiceImpl implements IInventoryService {
 	// 批量删除 ， 被引用的存货不能被删除
 	public String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException {
 		String strids = SqlUtil.buildSqlConditionForIn(ids);
-		StringBuffer sf = new StringBuffer();
-		sf.append("select 1 from ynt_inventory where nvl(dr,0) = 0 and pk_corp <> ? and pk_inventory in ( ")
-				.append(strids).append(" ) ");
-		SQLParameter param = new SQLParameter();
-		param.addParam(pk_corp);
-		boolean b = singleObjectBO.isExists(pk_corp, sf.toString(), param);
-		if (b) {
-			throw new BusinessException("出现数据无权问题，无法删除！");
-		}
-
 		InventoryVO[] invos = (InventoryVO[]) singleObjectBO.queryByCondition(InventoryVO.class,
 				" pk_inventory in ( " + strids + " ) ", null);
 

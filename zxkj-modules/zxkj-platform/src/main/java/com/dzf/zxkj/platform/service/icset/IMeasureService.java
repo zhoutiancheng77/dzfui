@@ -12,18 +12,20 @@ public interface IMeasureService {
 	MeasureVO queryByPrimaryKey(String primaryKey) throws DZFWarpException;
 
 	void delete(MeasureVO vo) throws DZFWarpException;
+
+	String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException;
+
+	List<MeasureVO> quyerByPkcorp(String pk_corp, String sort, String order) throws DZFWarpException;
 	
-	public List<MeasureVO> quyerByPkcorp(String pk_corp, String sort, String order) throws DZFWarpException;
+	void updateVOArr(String pk_corp, String cuserid, List<MeasureVO> list) throws DZFWarpException;
 	
-	public void updateVOArr(String pk_corp, String cuserid, List<MeasureVO> list) throws DZFWarpException;
+	String saveImp(MultipartFile file, String pk_corp, String fileType, String userid) throws DZFWarpException;
 	
-	public String saveImp(MultipartFile file, String pk_corp, String fileType, String userid) throws DZFWarpException;
+	List<MeasureVO> query(String pk_corp) throws DZFWarpException;
 	
-	public List<MeasureVO> query(String pk_corp) throws DZFWarpException;
+	MeasureVO saveVO(MeasureVO vo) throws DZFWarpException;
 	
-	public MeasureVO saveVO(MeasureVO vo) throws DZFWarpException;
-	
-	public MeasureVO[] savenNewVOArr(String pk_corp, String cuserid, List<MeasureVO> list)throws DZFWarpException;
+	MeasureVO[] savenNewVOArr(String pk_corp, String cuserid, List<MeasureVO> list)throws DZFWarpException;
 
 	MeasureVO save(MeasureVO data) throws DZFWarpException;
 }

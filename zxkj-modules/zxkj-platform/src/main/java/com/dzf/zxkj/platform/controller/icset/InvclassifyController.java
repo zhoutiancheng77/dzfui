@@ -1,13 +1,18 @@
 package com.dzf.zxkj.platform.controller.icset;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.DZFStringUtil;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
+import com.dzf.zxkj.platform.model.icset.MeasureVO;
+import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.util.ExcelReport;
@@ -24,6 +29,8 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +44,8 @@ public class InvclassifyController {
 
 	@Autowired
 	private IInvclassifyService ic_inclsserv = null;
-
+    @Autowired
+    private ISecurityService securityserv;
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
 
@@ -86,44 +94,58 @@ public class InvclassifyController {
 	}
 
 	@GetMapping("/query")
-	public ReturnData query() {
+	public ReturnData query(@RequestParam Map<String, String> param) {
 		Grid grid = new Grid();
 		List<InvclassifyVO> list;
+        QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
 		list = ic_inclsserv.query(SystemUtil.getLoginCorpId());
 		if (list != null && list.size() > 0) {
-			grid.setTotal((long) list.size());
-			grid.setSuccess(true);
-			grid.setRows(list);
+			grid.setTotal((long) (list == null ? 0 : list.size()));
+            InvclassifyVO[] vos = null;
+            String isfenye = param.get("isfenye");
+            if ("Y".equals(isfenye)) {// 分页
+                vos = getPagedZZVOs(list.toArray(new InvclassifyVO[0]), queryParamvo.getPage(), queryParamvo.getRows());
+                grid.setRows(vos == null ? new ArrayList<MeasureVO>() : Arrays.asList(vos));
+            }else{
+                grid.setRows(list);
+            }
+            grid.setSuccess(true);
+            grid.setMsg("查询成功");
 		} else {
+			grid.setTotal(0L);
 			log.info("查询数据为空");
 			grid.setSuccess(false);
 		}
 		return ReturnData.ok().data(grid);
 	}
 
+    private InvclassifyVO[] getPagedZZVOs(InvclassifyVO[] vos, int page, int rows) {
+        int beginIndex = rows * (page - 1);
+        int endIndex = rows * page;
+        if (endIndex >= vos.length) {// 防止endIndex数组越界
+            endIndex = vos.length;
+        }
+        vos = Arrays.copyOfRange(vos, beginIndex, endIndex);
+        return vos;
+    }
+
 	@PostMapping("/delete")
 	public ReturnData delete(@RequestBody Map<String, String> param) {
 		Json json = new Json();
-		InvclassifyVO data = JsonUtils.convertValue(param, InvclassifyVO.class);
-		if (data != null) {
-			// InvclassifyVO vo = (InvclassifyVO)data;
-			// 验证 根据主键校验为当前公司的记录
-			if (!data.getPk_corp().equals(SystemUtil.getLoginCorpId())) {
-				throw new BusinessException("无权操作！");
-			}
-			// 删除前数据安全验证
-			InvclassifyVO getvo = ic_inclsserv.queryByPrimaryKey(data.getPrimaryKey());
-			if (getvo != null && !SystemUtil.getLoginCorpId().equals(getvo.getPk_corp())) {
-				throw new BusinessException("出现数据无权问题，无法删除！");
-			}
-			ic_inclsserv.delete(data);
-			json.setSuccess(true);
-			json.setRows(data);
-			json.setMsg("成功");
-		} else {
-			json.setSuccess(false);
-			json.setMsg("失败");
-		}
+        String paramValues = param.get("ids");
+
+        String[] pkss = DZFStringUtil.getString2Array(paramValues, ",");
+        if (DZFValueCheck.isEmpty(pkss)){
+            throw new BusinessException("数据为空,删除失败!");
+        }
+        securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
+        String errmsg = ic_inclsserv.deleteBatch(pkss, SystemUtil.getLoginCorpId());
+        if (StringUtil.isEmpty(errmsg)) {
+            json.setSuccess(true);
+        } else {
+            json.setSuccess(true);
+            json.setMsg(errmsg);
+        }
 //		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "删除存货分类", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
