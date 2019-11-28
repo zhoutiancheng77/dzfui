@@ -1,13 +1,14 @@
 package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
+import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.base.utils.VOUtil;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.SqlUtil;
@@ -29,10 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+
 @Slf4j
 @Service("ic_meausreserv")
 public class MeasureServiceImpl implements IMeasureService {
@@ -89,6 +88,69 @@ public class MeasureServiceImpl implements IMeasureService {
 			throw new BusinessException("计量单位被引用，不能删除！");
 		} else {
 			singleObjectBO.deleteObjectByID(vo.getPrimaryKey(), new Class[] { MeasureVO.class });
+		}
+	}
+
+	@Override
+	// 批量删除 ， 被引用的计量单位不能被删除
+	public String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException {
+		String strids = SqlUtil.buildSqlConditionForIn(ids);
+		MeasureVO[] invos = (MeasureVO[]) getSingleObjectBO().queryByCondition(MeasureVO.class,
+				" pk_measure in ( " + strids + " ) ", null);
+
+		if (invos == null || invos.length == 0)
+			throw new BusinessException("计量单位不存在，或已经删除！");
+
+		Map<String, MeasureVO> map = new HashMap<String, MeasureVO>();
+		for (MeasureVO invo : invos) {
+			String pk_inventory = invo.getPk_measure();
+			if (!map.containsKey(pk_inventory)) {
+				map.put(pk_inventory, invo);
+			}
+		}
+		StringBuffer errmsg = new StringBuffer();
+		List<String> errlist = new ArrayList<>();
+		checkInventoryRef(strids, pk_corp, errmsg, errlist, map, "ynt_inventory", "存货档案");
+		if (errlist != null && errlist.size() > 0) {
+
+			for (String str : errlist) {
+				if (map.containsKey(str))
+					map.remove(str);
+			}
+		}
+
+		if (map != null && map.size() > 0) {
+			String[] pks = map.keySet().toArray(new String[0]);
+			getSingleObjectBO().deleteByPKs(MeasureVO.class, pks);
+		}
+
+		if (errmsg != null && errmsg.length() > 0) {
+			return errmsg.toString();
+		} else {
+			return null;
+		}
+
+	}
+	private void checkInventoryRef(String strids, String pk_corp, StringBuffer errmsg, List<String> errlist,
+								   Map<String, MeasureVO> map, String tablename, String msg) {
+
+		StringBuffer sf = new StringBuffer();
+		sf.append("select distinct pk_invclassify from " + tablename
+				+ " where pk_corp=? and nvl(dr,0) = 0 and pk_invclassify in ( ").append(strids).append(" ) ");
+		SQLParameter param = new SQLParameter();
+		param.addParam(pk_corp);
+		List<String> list = (List<String>) getSingleObjectBO().executeQuery(sf.toString(), param, new ColumnListProcessor());
+		if (list != null && list.size() > 0) {
+			for (String str : list) {
+				MeasureVO invo = map.get(str);
+				if (invo != null) {
+					if (!errlist.contains(invo.getPk_measure())) {
+						errmsg.append(
+								"<p><font color = 'red'>计量单位[" + invo.getCode() + "]已被" + msg + "引用,不能删除!</font></p>");
+						errlist.add(invo.getPk_measure());
+					}
+				}
+			}
 		}
 	}
 

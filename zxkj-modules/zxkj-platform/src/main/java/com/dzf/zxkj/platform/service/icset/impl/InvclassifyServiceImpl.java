@@ -1,10 +1,12 @@
 package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
 import com.dzf.zxkj.platform.service.common.impl.BgPubServiceImpl;
@@ -36,7 +38,6 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 	public SingleObjectBO getSingleObjectBO() {
 		return super.getSingleObjectBO();
 	}
-
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
 
@@ -92,6 +93,69 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 			getSingleObjectBO().deleteObject(vo);
 		}
 		
+	}
+
+	@Override
+	// 批量删除 ， 被引用的存货分类不能被删除
+	public String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException {
+		String strids = SqlUtil.buildSqlConditionForIn(ids);
+        InvclassifyVO[] invos = (InvclassifyVO[]) getSingleObjectBO().queryByCondition(InvclassifyVO.class,
+				" pk_invclassify in ( " + strids + " ) ", null);
+
+		if (invos == null || invos.length == 0)
+			throw new BusinessException("存货分类不存在，或已经删除！");
+
+		Map<String, InvclassifyVO> map = new HashMap<String, InvclassifyVO>();
+		for (InvclassifyVO invo : invos) {
+			String pk_inventory = invo.getPk_invclassify();
+			if (!map.containsKey(pk_inventory)) {
+				map.put(pk_inventory, invo);
+			}
+		}
+		StringBuffer errmsg = new StringBuffer();
+		List<String> errlist = new ArrayList<>();
+		checkInventoryRef(strids, pk_corp, errmsg, errlist, map, "ynt_inventory", "存货档案");
+		if (errlist != null && errlist.size() > 0) {
+
+			for (String str : errlist) {
+				if (map.containsKey(str))
+					map.remove(str);
+			}
+		}
+		if (map != null && map.size() > 0) {
+			String[] pks = map.keySet().toArray(new String[0]);
+			getSingleObjectBO().deleteByPKs(InvclassifyVO.class, pks);
+		}
+
+		if (errmsg != null && errmsg.length() > 0) {
+			return errmsg.toString();
+		} else {
+			return null;
+		}
+
+	}
+
+	private void checkInventoryRef(String strids, String pk_corp, StringBuffer errmsg, List<String> errlist,
+								   Map<String, InvclassifyVO> map, String tablename, String msg) {
+
+		StringBuffer sf = new StringBuffer();
+		sf.append("select distinct pk_invclassify from " + tablename
+				+ " where pk_corp=? and nvl(dr,0) = 0 and pk_invclassify in ( ").append(strids).append(" ) ");
+		SQLParameter param = new SQLParameter();
+		param.addParam(pk_corp);
+		List<String> list = (List<String>) getSingleObjectBO().executeQuery(sf.toString(), param, new ColumnListProcessor());
+		if (list != null && list.size() > 0) {
+			for (String str : list) {
+                InvclassifyVO invo = map.get(str);
+				if (invo != null) {
+					if (!errlist.contains(invo.getPk_invclassify())) {
+						errmsg.append(
+								"<p><font color = 'red'>存货分类[" + invo.getCode() + "]已被" + msg + "引用,不能删除!</font></p>");
+						errlist.add(invo.getPk_invclassify());
+					}
+				}
+			}
+		}
 	}
 
 	private void update(InvclassifyVO vo) throws DZFWarpException {

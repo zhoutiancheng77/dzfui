@@ -279,165 +279,158 @@ public class FsYeController  extends ReportBaseController {
         }
     }
 
-    @PostMapping("/queryYearAction")
-    public ReturnData<Grid> queryYearAction(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
+    @PostMapping("/queryYear")
+    public ReturnData<Grid> queryYear(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         Map<String,FseJyeVO[]> map = new HashMap<String,FseJyeVO[]>();
-        Grid grid = new Grid();
-        try {
-            QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
-            String accountrule = zxkjPlatformService.queryAccountRule(vo.getPk_corp());
-            /** 进项税额 */
-            String jxkm = "22210101";
-            /** 销项税额 */
-            String xxkm = "22210102";
-            /** 未交增值税 */
-            String wjzzs = "222109";
-            /** 减免税款 */
-            String jmsk = "22210106";
-            if(accountrule.startsWith("4/3/3")){
-                jxkm = "2221001001";
-                xxkm = "2221001002";
-                wjzzs = "2221009";
-                jmsk = "2221001006";
-            }else if(accountrule.startsWith("4/3/2")){
-                jxkm = "222100101";
-                xxkm = "222100102";
-                wjzzs = "2221009";
-                jmsk = "222100106";
-            }
-            String kms = "1001,1002,1012," + jxkm + "," + xxkm + "," + wjzzs
-                    + "," + jmsk + ",5001,5051,6001,6051";
-            vo.setKms(kms);
-            vo.setKmcodelist(Arrays.asList(kms.split(",")));
+        QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
+        String accountrule = zxkjPlatformService.queryAccountRule(vo.getPk_corp());
+        /** 进项税额 */
+        String jxkm = "22210101";
+        /** 销项税额 */
+        String xxkm = "22210102";
+        /** 未交增值税 */
+        String wjzzs = "222109";
+        /** 减免税款 */
+        String jmsk = "22210106";
+        if(accountrule.startsWith("4/3/3")){
+            jxkm = "2221001001";
+            xxkm = "2221001002";
+            wjzzs = "2221009";
+            jmsk = "2221001006";
+        }else if(accountrule.startsWith("4/3/2")){
+            jxkm = "222100101";
+            xxkm = "222100102";
+            wjzzs = "2221009";
+            jmsk = "222100106";
+        }
+        String kms = "1001,1002,1012," + jxkm + "," + xxkm + "," + wjzzs
+                + "," + jmsk + ",5001,5051,6001,6051";
+        vo.setKms(kms);
+        vo.setKmcodelist(Arrays.asList(kms.split(",")));
 
-            vo.setCjq(1);
-            vo.setCjz(6);
-            vo.setIshasjz(DZFBoolean.FALSE);
-            vo.setXswyewfs(DZFBoolean.FALSE);
-            /** 验证 查询范围应该在当前登录人的权限范围内 */
-            DZFDate bdate = vo.getBegindate1();
-            DZFDate jzdate = corpVO.getBegindate();
-            int jzyear = jzdate.getYear();
-            int year = bdate.getYear();
-            int jzmonth = jzdate.getMonth();
-            if(jzyear == year){
-                vo.setBegindate1(jzdate);
-            }else{
-                jzmonth = 1;
-            }
-            vo.setEnddate(new DZFDate(year+"-12-01"));
-            KmMxZVO[] kmmxvos = gl_rep_kmmxjserv.getKMMXZVOs(vo,null);
-            String m =null;
-            FseJyeVO fsevo =null;
-            FseJyeVO fsevo1 =null;
-            FseJyeVO fsevo2 =null;
-            FseJyeVO fsevo3 =null;
-            FseJyeVO fsevo4 =null;
-            FseJyeVO fsevo5 =null;
-            FseJyeVO fsevo6 =null;
-            FseJyeVO fsevo7 =null;
-            if(kmmxvos!=null && kmmxvos.length>0){
-                for(int i =jzmonth;i<13;i++){
-                    m = i<10?"0"+i : ""+i;
-                    fsevo = new FseJyeVO();
-                    fsevo1 = new FseJyeVO();
-                    fsevo2 = new FseJyeVO();
-                    fsevo3 = new FseJyeVO();
-                    fsevo4 = new FseJyeVO();
-                    fsevo5 = new FseJyeVO();
-                    fsevo6 = new FseJyeVO();
-                    fsevo7 = new FseJyeVO();
-                    fsevo.setKmmc("进项税额");
-                    fsevo1.setKmmc("主营业务收入");
-                    fsevo2.setKmmc("销项税额");
-                    fsevo3.setKmmc("未交增值税");
-                    fsevo4.setKmmc("货币资金净发生");
-                    fsevo5.setKmmc("货币资金余额");
-                    fsevo6.setKmmc("其他业务收入");
-                    fsevo7.setKmmc("减免税款");
-                    for(KmMxZVO kmvo : kmmxvos){
-                        if(kmvo.getRq().substring(0, 7).equals(year+"-"+m)){
-                            if(kmvo.getKmbm().equals(jxkm)){
-                                if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
-                                    fsevo.setFsdf(kmvo.getDf());
-                                    fsevo.setFsjf(kmvo.getJf());
-                                }
-                                if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
-                                    fsevo.setDftotal(kmvo.getDf());
-                                    fsevo.setJftotal(kmvo.getJf());
-                                }
-                            } else if(kmvo.getKmbm().equals(xxkm)){
-                                if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
-                                    fsevo2.setFsdf(kmvo.getDf());
-                                    fsevo2.setFsjf(kmvo.getJf());
-                                }
-                                if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
-                                    fsevo2.setDftotal(kmvo.getDf());
-                                    fsevo2.setJftotal(kmvo.getJf());
-                                }
-                            } else if(kmvo.getKmbm().equals(jmsk)){
-                                if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
-                                    fsevo7.setFsdf(kmvo.getDf());
-                                    fsevo7.setFsjf(kmvo.getJf());
-                                }
-                                if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
-                                    fsevo7.setDftotal(kmvo.getDf());
-                                    fsevo7.setJftotal(kmvo.getJf());
-                                }
-                            } else if (kmvo.getKmbm().equals(wjzzs)) {
-                                if("期初余额".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo3.setQcdf(kmvo.getYe());
-                                }
-                                if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo3.setFsdf(kmvo.getDf());
-                                    fsevo3.setFsjf(kmvo.getJf());
-                                }
-                                if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo3.setQmdf(kmvo.getYe());
-                                    fsevo3.setDftotal(kmvo.getDf());
-                                    fsevo3.setJftotal(kmvo.getJf());
-                                }
-                            } else if((kmvo.getKmbm().equals("6001")||kmvo.getKmbm().equals("5001"))){
-                                if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo1.setFsdf(kmvo.getDf());
-                                    fsevo1.setFsjf(kmvo.getJf());
-                                }
-                                if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo1.setDftotal(kmvo.getDf());
-                                    fsevo1.setJftotal(kmvo.getJf());
-                                }
-                            } else if((kmvo.getKmbm().equals("6051")||kmvo.getKmbm().equals("5051"))){
-                                if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo6.setFsdf(kmvo.getDf());
-                                    fsevo6.setFsjf(kmvo.getJf());
-                                }
-                                if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo6.setDftotal(kmvo.getDf());
-                                    fsevo6.setJftotal(kmvo.getJf());
-                                }
-                            } else if ("1001".equals(kmvo.getKmbm())
-                                    || "1002".equals(kmvo.getKmbm())
-                                    || "1012".equals(kmvo.getKmbm())) {
-                                if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    DZFDouble mny = SafeCompute.sub(kmvo.getJf(), kmvo.getDf());
-                                    fsevo4.setFsjf(SafeCompute.add(fsevo4.getFsjf(), mny));
-                                }
-                                if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
-                                    fsevo5.setQmjf(SafeCompute.add(fsevo5.getQmjf(), kmvo.getYe()));
-                                }
+        vo.setCjq(1);
+        vo.setCjz(6);
+        vo.setIshasjz(DZFBoolean.FALSE);
+        vo.setXswyewfs(DZFBoolean.FALSE);
+        /** 验证 查询范围应该在当前登录人的权限范围内 */
+        DZFDate bdate = vo.getBegindate1();
+        DZFDate jzdate = corpVO.getBegindate();
+        int jzyear = jzdate.getYear();
+        int year = bdate.getYear();
+        int jzmonth = jzdate.getMonth();
+        if(jzyear == year){
+            vo.setBegindate1(jzdate);
+        }else{
+            jzmonth = 1;
+        }
+        vo.setEnddate(new DZFDate(year+"-12-01"));
+        KmMxZVO[] kmmxvos = gl_rep_kmmxjserv.getKMMXZVOs(vo,null);
+        String m =null;
+        FseJyeVO fsevo =null;
+        FseJyeVO fsevo1 =null;
+        FseJyeVO fsevo2 =null;
+        FseJyeVO fsevo3 =null;
+        FseJyeVO fsevo4 =null;
+        FseJyeVO fsevo5 =null;
+        FseJyeVO fsevo6 =null;
+        FseJyeVO fsevo7 =null;
+        if(kmmxvos!=null && kmmxvos.length>0){
+            for(int i =jzmonth;i<13;i++){
+                m = i<10?"0"+i : ""+i;
+                fsevo = new FseJyeVO();
+                fsevo1 = new FseJyeVO();
+                fsevo2 = new FseJyeVO();
+                fsevo3 = new FseJyeVO();
+                fsevo4 = new FseJyeVO();
+                fsevo5 = new FseJyeVO();
+                fsevo6 = new FseJyeVO();
+                fsevo7 = new FseJyeVO();
+                fsevo.setKmmc("进项税额");
+                fsevo1.setKmmc("主营业务收入");
+                fsevo2.setKmmc("销项税额");
+                fsevo3.setKmmc("未交增值税");
+                fsevo4.setKmmc("货币资金净发生");
+                fsevo5.setKmmc("货币资金余额");
+                fsevo6.setKmmc("其他业务收入");
+                fsevo7.setKmmc("减免税款");
+                for(KmMxZVO kmvo : kmmxvos){
+                    if(kmvo.getRq().substring(0, 7).equals(year+"-"+m)){
+                        if(kmvo.getKmbm().equals(jxkm)){
+                            if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
+                                fsevo.setFsdf(kmvo.getDf());
+                                fsevo.setFsjf(kmvo.getJf());
+                            }
+                            if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
+                                fsevo.setDftotal(kmvo.getDf());
+                                fsevo.setJftotal(kmvo.getJf());
+                            }
+                        } else if(kmvo.getKmbm().equals(xxkm)){
+                            if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
+                                fsevo2.setFsdf(kmvo.getDf());
+                                fsevo2.setFsjf(kmvo.getJf());
+                            }
+                            if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
+                                fsevo2.setDftotal(kmvo.getDf());
+                                fsevo2.setJftotal(kmvo.getJf());
+                            }
+                        } else if(kmvo.getKmbm().equals(jmsk)){
+                            if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
+                                fsevo7.setFsdf(kmvo.getDf());
+                                fsevo7.setFsjf(kmvo.getJf());
+                            }
+                            if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo)){
+                                fsevo7.setDftotal(kmvo.getDf());
+                                fsevo7.setJftotal(kmvo.getJf());
+                            }
+                        } else if (kmvo.getKmbm().equals(wjzzs)) {
+                            if("期初余额".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo3.setQcdf(kmvo.getYe());
+                            }
+                            if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo3.setFsdf(kmvo.getDf());
+                                fsevo3.setFsjf(kmvo.getJf());
+                            }
+                            if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo3.setQmdf(kmvo.getYe());
+                                fsevo3.setDftotal(kmvo.getDf());
+                                fsevo3.setJftotal(kmvo.getJf());
+                            }
+                        } else if((kmvo.getKmbm().equals("6001")||kmvo.getKmbm().equals("5001"))){
+                            if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo1.setFsdf(kmvo.getDf());
+                                fsevo1.setFsjf(kmvo.getJf());
+                            }
+                            if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo1.setDftotal(kmvo.getDf());
+                                fsevo1.setJftotal(kmvo.getJf());
+                            }
+                        } else if((kmvo.getKmbm().equals("6051")||kmvo.getKmbm().equals("5051"))){
+                            if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo6.setFsdf(kmvo.getDf());
+                                fsevo6.setFsjf(kmvo.getJf());
+                            }
+                            if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo6.setDftotal(kmvo.getDf());
+                                fsevo6.setJftotal(kmvo.getJf());
+                            }
+                        } else if ("1001".equals(kmvo.getKmbm())
+                                || "1002".equals(kmvo.getKmbm())
+                                || "1012".equals(kmvo.getKmbm())) {
+                            if("本月合计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                DZFDouble mny = SafeCompute.sub(kmvo.getJf(), kmvo.getDf());
+                                fsevo4.setFsjf(SafeCompute.add(fsevo4.getFsjf(), mny));
+                            }
+                            if("本年累计".equals(kmvo.getZy()) && ReportUtil.bSysZy(kmvo) ){
+                                fsevo5.setQmjf(SafeCompute.add(fsevo5.getQmjf(), kmvo.getYe()));
                             }
                         }
                     }
-                    map.put(year+"-"+m, new FseJyeVO[]{fsevo,fsevo1,fsevo2, fsevo3,
-                            fsevo4, fsevo5, fsevo6, fsevo7});
                 }
+                map.put(year+"-"+m, new FseJyeVO[]{fsevo,fsevo1,fsevo2, fsevo3,
+                        fsevo4, fsevo5, fsevo6, fsevo7});
             }
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-            printErrorLog(grid, e, "查询失败！");
         }
-
-        return ReturnData.ok().data(grid);
+        return ReturnData.ok().data(map);
     }
 
     @Override

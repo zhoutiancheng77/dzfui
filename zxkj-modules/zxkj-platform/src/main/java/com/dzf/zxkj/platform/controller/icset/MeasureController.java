@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.controller.icset;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.DZFStringUtil;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -43,11 +45,10 @@ import java.util.Map;
 public class MeasureController{
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
-
+    @Autowired
+    private ISecurityService securityserv;
 	@Autowired
 	private IMeasureService ims;
-	@Autowired
-	private ISecurityService securityserv;
 
 	@GetMapping("/query")
 	public ReturnData queryInv(@RequestParam Map<String, String> param) {
@@ -83,7 +84,6 @@ public class MeasureController{
         if (list != null && list.size() > 0) {
             vos = getPagedZZVOs(list.toArray(new MeasureVO[0]), queryParamvo.getPage(), queryParamvo.getRows());
         }
-        log.info("查询成功！");
         grid.setRows(vos == null ? new ArrayList<MeasureVO>() : Arrays.asList(vos));
         grid.setSuccess(true);
         grid.setMsg("查询成功");
@@ -135,23 +135,23 @@ public class MeasureController{
 	// 删除记录
     @PostMapping("/onDelete")
 	public ReturnData onDelete(@RequestBody Map<String, String> param) {
-		// MeasureVO msvo = super.getActionVO(MeasureVO.class);
-		Json json = new Json();
-        String pk_corp = SystemUtil.getLoginCorpId();
-        // 验证 根据主键校验为当前公司的记录
-        MeasureVO data = JsonUtils.convertValue(param, MeasureVO.class);
-        if (!data.getPk_corp().equals(pk_corp)) {
-            throw new BusinessException("无权操作！");
+        Json json = new Json();
+        String paramValues = param.get("ids");
+
+        String[] pkss = DZFStringUtil.getString2Array(paramValues, ",");
+        if (DZFValueCheck.isEmpty(pkss)){
+            throw new BusinessException("数据为空,删除失败!");
         }
-        securityserv.checkSecurityForDelete(MeasureVO.class, data.getPrimaryKey(), data.getPk_corp(), pk_corp,
-                SystemUtil.getLoginUserId());
-        ims.delete(data);
-        json.setSuccess(true);
-        json.setStatus(200);
-        json.setRows(data);
-        json.setMsg("成功");
-        return ReturnData.ok().data(json);
+        securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
+        String errmsg = ims.deleteBatch(pkss, SystemUtil.getLoginCorpId());
+        if (StringUtil.isEmpty(errmsg)) {
+            json.setSuccess(true);
+        } else {
+            json.setSuccess(true);
+            json.setMsg(errmsg);
+        }
 //		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "删除计量单位", ISysConstants.SYS_2);
+        return ReturnData.ok().data(json);
 	}
     @PostMapping("/impExcel")
 	public ReturnData impExcel(HttpServletRequest request) {

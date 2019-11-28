@@ -16,6 +16,8 @@ public interface IInvclassifyService extends IBgPubService {
 
 	 void delete(InvclassifyVO vo)throws DZFWarpException;
 
+	 String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException;
+
 	 InvclassifyVO queryByPrimaryKey(String primaryKey) throws DZFWarpException;
 
 	 String saveImp(MultipartFile file, String pk_corp, String fileType) throws DZFWarpException;

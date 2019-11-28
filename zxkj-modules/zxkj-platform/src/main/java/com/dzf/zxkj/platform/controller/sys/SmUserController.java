@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
+import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.Page;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -49,23 +51,23 @@ public class SmUserController {
             json.setMsg("当前用户被锁定，请联系管理员!");
         } else {
             CorpVO corpVo = corpService.queryByPk(pk_corp);
-            Set<String> corps=  userService.querypowercorpSet(userVO.getPrimaryKey());
-            if(!corps.contains(corpVo.getPk_corp())){
+            Set<String> corps = userService.querypowercorpSet(userVO.getPrimaryKey());
+            if (!corps.contains(corpVo.getPk_corp())) {
                 json.setMsg("公司不存在!");
             } else {
-                if(corpVo == null){
+                if (corpVo == null) {
                     json.setMsg("公司不存在!");
-                }else if(corpVo.getBegindate() == null){
+                } else if (corpVo.getBegindate() == null) {
                     json.setMsg("请初始化公司开账日期!");
                 }/*else if(corpVo.getBegindate().compareTo(optDate) > 0){
 							json.setMsg("登录日期不能小于开账日期!");
-						}*/else if(corpVo.getBegindate().compareTo(loginDate) > 0){
+						}*/ else if (corpVo.getBegindate().compareTo(loginDate) > 0) {
                     json.setMsg("登录日期不能小于开账日期!");
                 }/*else if(userVo.getDisable_time() != null && userVo.getDisable_time().compareTo(optDate) < 0){
 							json.setMsg("登录日期不能大于用户失效日期!");
-						}*/else{
+						}*/ else {
                     //List<SysFunNodeVO> lfunnode = sysFunnodeService.querySysnodeByUserAndCorp(userVo, corpVo, IGlobalConstants.DZF_KJ);
-                    List<SysFunNodeVO> lfunnode = sysFunnodeService.querySysnodeByUser1(userVO, IGlobalConstants.DZF_KJ,corpVo.getPk_corp());
+                    List<SysFunNodeVO> lfunnode = sysFunnodeService.querySysnodeByUser1(userVO, IGlobalConstants.DZF_KJ, corpVo.getPk_corp());
 
                     json.setSuccess(true);
                     LoginLogVo loginLogVo = getLoginVo(IGlobalConstants.DZF_KJ);
@@ -83,14 +85,30 @@ public class SmUserController {
         return ReturnData.ok().data(json);
     }
 
-    private LoginLogVo getLoginVo(String project){
-        LoginLogVo loginLogVo =  new LoginLogVo();
-        try{
+    @GetMapping("/switchCorp")
+    public ReturnData switchCorp(String corpId, String date) {
+        Json json = new Json();
+        CorpVO corpVo = corpService.queryByPk(corpId);
+        DZFDate loginDate = new DZFDate(date);
+        if (corpVo.getBegindate() == null) {
+            throw new BusinessException("请初始化公司开账日期!");
+        } else if (corpVo.getBegindate().after(loginDate)) {
+            throw new BusinessException("登录日期不能小于开账日期!");
+        }
+        json.setData(corpVo);
+        json.setSuccess(true);
+        json.setMsg("切换成功");
+        return ReturnData.ok().data(json);
+    }
+
+    private LoginLogVo getLoginVo(String project) {
+        LoginLogVo loginLogVo = new LoginLogVo();
+        try {
             loginLogVo.setLogindate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
             loginLogVo.setLoginstatus(0);
             loginLogVo.setProject_name(project);
-        }catch(Exception e){
-            log.error("错误",e);
+        } catch (Exception e) {
+            log.error("错误", e);
         }
         return loginLogVo;
     }
