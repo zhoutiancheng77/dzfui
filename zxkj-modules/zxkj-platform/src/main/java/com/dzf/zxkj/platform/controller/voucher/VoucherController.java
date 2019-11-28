@@ -19,6 +19,7 @@ import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
@@ -1045,6 +1046,9 @@ public class VoucherController {
 
     @PostMapping("/delete")
     public ReturnData delete(@RequestBody TzpzHVO[] dataArray) {
+        if (dataArray.length == 1) {
+            return deleteSingleVoucher(dataArray[0]);
+        }
         Json json = new Json();
         Set<String> powerCorpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
         Map<String, List<TzpzHVO>> groupData = new HashMap<>();
@@ -1079,6 +1083,28 @@ public class VoucherController {
         }
         String msg = getResultMsg(errorlist);
         json.setMsg(msg);
+        return ReturnData.ok().data(json);
+    }
+
+    private ReturnData deleteSingleVoucher(TzpzHVO data) {
+        Json json = new Json();
+        data = gl_tzpzserv.queryVoucherById(data.getPk_tzpz_h());
+
+        data.setIsqxsy(DZFBoolean.TRUE);
+
+        if (data != null) {
+            try {
+                gl_tzpzserv.deleteVoucher(data);
+                json.setMsg("删除成功");
+                json.setSuccess(true);
+            } catch (Exception e) {
+                json.setSuccess(false);
+                json.setMsg("删除失败");
+                if (IVoucherConstants.EXE_RECONFM_CODE.equals(e.getMessage())) {
+                    json.setStatus(IVoucherConstants.STATUS_RECONFM_CODE);
+                }
+            }
+        }
         return ReturnData.ok().data(json);
     }
 
@@ -1278,6 +1304,98 @@ public class VoucherController {
         return ReturnData.ok().data(json);
     }
 
+    @PostMapping("/saveAsTemplate")
+    public ReturnData saveAsTemplate(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String childrenStr = param.get("children");
+        String tempCode = param.get("tempCode");
+        String tempName = param.get("tempName");
+        String saveMny = param.get("saveMny");
+        //检查模板编码和模板名称是否重复query
+        List<PzmbhVO> pzmbList = pzmbhService.query(SystemUtil.getLoginCorpId());
+        if (!StringUtil.isEmpty(tempCode) && !StringUtil.isEmpty(tempName)) {
+            for (PzmbhVO pzmbVo : pzmbList) {
+                if (tempCode.equals(pzmbVo.getVtemplatecode())) {
+                    json.setMsg("模板编码不能重复");
+                    json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
+                    json.setSuccess(false);
+                    json.setRows(new PzmbhVO());
+                    throw new BusinessException("模板编码不能重复");
+                }
+            }
+        } else {
+            json.setMsg("模板编码或名称不能为空！");
+            json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
+            json.setSuccess(false);
+            json.setRows(new PzmbhVO());
+            throw new BusinessException("模板编码或名称不能为空！");
+        }
+        TzpzBVO[] voucherBodyVos = JsonUtils.deserialize(childrenStr, TzpzBVO[].class);
+        PzmbbVO[] templateBodyVos = JsonUtils.deserialize(childrenStr, PzmbbVO[].class);
+
+        PzmbhVO pzmbHead = new PzmbhVO();
+        //给模板设置默认值
+        setTempDefaultInfo(pzmbHead, templateBodyVos, voucherBodyVos, Boolean.valueOf(saveMny));
+
+        pzmbHead.setVtemplatename(tempName);//模板编码
+        pzmbHead.setVtemplatecode(tempCode);//模板名称
+
+        pzmbHead.setChildren(templateBodyVos);
+
+        pzmbhService.save(pzmbHead);
+        json.setMsg("保存凭证模板成功");
+        json.setStatus(200);
+        json.setSuccess(true);
+        json.setRows(pzmbHead);
+        return ReturnData.ok().data(json);
+    }
+
+    private void setTempDefaultInfo(PzmbhVO pzmbHead, PzmbbVO[] bodyvos, TzpzBVO[] Tbodyvos, boolean saveMny) {
+        String pk_corp = SystemUtil.getLoginCorpId();
+        int len = Tbodyvos == null ? 0 : Tbodyvos.length;
+        // 给凭证模板赋凭证数据的值
+        for (int i = 0; i < len; i++) {
+            PzmbbVO mb = bodyvos[i];
+            TzpzBVO pz = Tbodyvos[i];
+            mb.setPk_corp(pk_corp);
+            mb.setTs(new DZFDateTime());
+            mb.setDr(0);
+            if (pz.getJfmny() != null
+                    && pz.getJfmny().doubleValue() != 0) {
+                mb.setDirection(0);// 有借方金额为0
+                if (saveMny) {
+                    mb.setMny(pz.getJfmny());
+                    mb.setYbmny(pz.getYbjfmny());
+                }
+            } else if (pz.getDfmny() != null
+                    && pz.getDfmny().doubleValue() != 0) {
+                mb.setDirection(1);// 有贷方金额为1
+                if (saveMny) {
+                    mb.setMny(pz.getDfmny());
+                    mb.setYbmny(pz.getYbdfmny());
+                }
+            }
+            if (saveMny) {
+                mb.setPk_currency(pz.getPk_currency());
+                mb.setNnumber(pz.getNnumber());
+                mb.setNprice(pz.getNprice());
+                mb.setNrate(pz.getNrate());
+            } else {
+                mb.setNnumber(null);
+                mb.setNprice(null);
+            }
+            mb.setAbstracts(pz.getZy());// 摘要
+            mb.setVcode(pz.getVcode());
+            mb.setPk_taxitem(pz.getPk_taxitem());
+            mb.setVname(pz.getVname());
+            mb.setPk_accsubj(pz.getPk_accsubj());
+        }
+        pzmbHead.setPk_corp(pk_corp);
+        pzmbHead.setTs(new DZFDateTime());
+        pzmbHead.setDr(0);
+        pzmbHead.setCoperatorid(SystemUtil.getLoginUserId());
+        pzmbHead.setDoperatedate(new DZFDate());
+    }
 
     @GetMapping("/img")
     public void readImage(@RequestParam String corpCode, @RequestParam String path,
@@ -1563,8 +1681,9 @@ public class VoucherController {
         }
         return status;
     }
+
     @RequestMapping("/quickCreateVoucher")
-    public ReturnData<Json> quickCreateVoucher (@RequestBody String data) {
+    public ReturnData<Json> quickCreateVoucher(@RequestBody String data) {
         Json json = new Json();
         try {
             JSONObject rawData = JSON.parseObject(data);
@@ -1576,11 +1695,11 @@ public class VoucherController {
             json.setStatus(-200);
             log.error("Export Error", e);
 
-            if(e instanceof BusinessException){
-                if("当月已结转损益，不能操作！".equals(e.getMessage())){
+            if (e instanceof BusinessException) {
+                if ("当月已结转损益，不能操作！".equals(e.getMessage())) {
                     json.setStatus(IVoucherConstants.STATUS_RECONFM_CODE);
                 }
-                if("生成凭证失败:借贷方金额不等！".equals(e.getMessage())){
+                if ("生成凭证失败:借贷方金额不等！".equals(e.getMessage())) {
                     log.error("Export Error", e);
                 }
             }
@@ -1593,24 +1712,24 @@ public class VoucherController {
      * 图片浏览使用
      */
     @RequestMapping("/serVoucherByImagePk")
-    public ReturnData<Json> serVoucherByImagePk(@RequestBody VoucherParamVO paramvo){
+    public ReturnData<Json> serVoucherByImagePk(@RequestBody VoucherParamVO paramvo) {
         Json json = new Json();
 
         paramvo.setPk_corp(SystemUtil.getLoginCorpId());
         List<TzpzHVO> tzpzB = new ArrayList<TzpzHVO>();
-        try{
-            if(paramvo == null || StringUtil.isEmpty( paramvo.getPk_tzpz_h()) ){
+        try {
+            if (paramvo == null || StringUtil.isEmpty(paramvo.getPk_tzpz_h())) {
                 throw new BusinessException("联查凭证失败!");
-            }else{
+            } else {
                 //参数： 制单日期和需要回冲的凭证号
                 tzpzB = gl_tzpzserv.serVoucherByImgPk(paramvo);
-                if(tzpzB == null || tzpzB.size()==0){
+                if (tzpzB == null || tzpzB.size() == 0) {
                     log.info("联查凭证失败!");
                     json.setMsg("联查凭证失败!");
                     json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
                     json.setSuccess(false);
                     json.setRows(new TzpzHVO());
-                }else{
+                } else {
                     log.info("联查凭证成功");
                     json.setMsg("联查凭证成功");
                     json.setStatus(200);
@@ -1618,7 +1737,7 @@ public class VoucherController {
                     json.setRows(tzpzB);
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e) {
 //			log.info("联查凭证失败" + e.getMessage());
 //			json.setMsg("联查凭证失败" + e.getMessage());
             json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
