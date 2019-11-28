@@ -48,6 +48,9 @@
         </dependency>
     </dependencies>
     <build>
+        <filters>
+            <filter>src/main/resources/filters/dzf-${env}.properties</filter>
+        </filters>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>

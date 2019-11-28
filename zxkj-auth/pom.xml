@@ -112,6 +112,9 @@
         </dependency>
     </dependencies>
     <build>
+        <filters>
+            <filter>src/main/resources/filters/dzf-${env}.properties</filter>
+        </filters>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -119,8 +122,15 @@
                     <include>mapper/*.xml</include>
                     <include>__RSA_KEY.txt</include>
                     <include>param.txt</include>
-                    <include>bootstrap.yml</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>bootstrap.yml</include>
+                    <include>logback-spring.xml</include>
+                </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>

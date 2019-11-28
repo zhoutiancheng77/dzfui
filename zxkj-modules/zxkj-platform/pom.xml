@@ -159,17 +159,26 @@
         </dependency>
     </dependencies>
     <build>
+        <filters>
+            <filter>src/main/resources/filters/dzf-${env}.properties</filter>
+        </filters>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>bootstrap.yml</include>
                     <include>logback-spring.xml</include>
                     <include>param.txt</include>
                     <include>fdfs_client.conf</include>
                     <include>font/*</include>
                     <include>template/*</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>bootstrap.yml</include>
+                </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
