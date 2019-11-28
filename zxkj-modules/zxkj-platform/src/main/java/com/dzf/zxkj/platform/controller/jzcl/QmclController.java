@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.VOSortUtils;
+import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -9,14 +11,20 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.platform.config.QmjzByDzfConfig;
 import com.dzf.zxkj.platform.exception.ExBusinessException;
 import com.dzf.zxkj.platform.model.bdset.AdjustExrateVO;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
+import com.dzf.zxkj.platform.model.glic.InventorySetVO;
+import com.dzf.zxkj.platform.model.jzcl.QMJzsmNoICVO;
 import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.jzcl.TempInvtoryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
+import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
+import com.dzf.zxkj.platform.service.jzcl.IQmclNoicService;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +52,14 @@ public class QmclController {
     private ICorpService corpService;
     @Autowired
     private IQmclService gl_qmclserv = null;
+    @Autowired
+    private QmjzByDzfConfig qmjzByDzfConfig;
+    @Autowired
+    private IQmclNoicService gl_qmclnoicserv;
+    @Autowired
+    private CheckInventorySet inventory_setcheck;
+    @Autowired
+    private IInventoryAccSetService gl_ic_invtorysetserv;
 
     @PostMapping("/query")
     public ReturnData<Grid> query(@MultiRequestBody QueryParamVO queryParamvo) {
@@ -885,28 +901,92 @@ public class QmclController {
 
     // 单条成本结转
     @PostMapping("/onsinglecbjz")
-    public ReturnData<Grid> onsinglecbjz(@MultiRequestBody("qmvo")  QmclVO qmvo, @MultiRequestBody UserVO userVO) {
+    public ReturnData<Grid> onsinglecbjz(@MultiRequestBody("qmvo")  QmclVO qmvo,
+                                         @MultiRequestBody("zgdata")  TempInvtoryVO[]  zgdata,
+                                         @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        grid.setSuccess(false);
+        grid.setRows(new ArrayList<QmclVO>());
         try {
             if(qmvo == null)
                 throw new BusinessException("请求参数为空");
             if(qmvo.getIscbjz() != null && qmvo.getIscbjz().booleanValue())
                 throw new BusinessException("已经成本结转，请勿重复结转");
-            Integer forwardtype = qmvo.getIcosttype();
-            // 调用工业成本结转方法
-            if(forwardtype != null && forwardtype == 3){
-                return onIndustrycbjz(qmvo,userVO);
+            if(zgdata != null && zgdata.length > 0){
+                qmvo.setZgdata(zgdata);
             }
+            //校验
             gl_qmclserv.checkTemporaryIsExist(qmvo.getPk_corp(), qmvo.getPeriod(), "不能批量结转!");
             gl_qmclserv.checkQmclForKc(qmvo.getPk_corp(), qmvo.getPeriod(), "不能批量结转!");
-            grid.setSuccess(false);
-            grid.setRows(new ArrayList<QmclVO>());
             String userid = userVO.getCuserid();
-            QmclVO resvos = gl_qmclserv.saveCbjz(qmvo, userid);
+            QmclVO resvos = null;
+            // 成本结转方式为手工结转 和 比例结转
+            Integer forwardtype = qmvo.getIcosttype();
+            // 在特殊情况下，大账房公司，这里强制按 0 进行处理
+            boolean dzfflag = qmjzByDzfConfig.dzf_pk_gs.equals(qmvo.getPk_corp());
+            if(dzfflag){
+                forwardtype = 0 ;
+            }
+            switch(forwardtype){
+                case 0:  //手工结转
+                case 1:{ //比例结转
+                    resvos = gl_qmclserv.saveCbjz(qmvo, userid);
+                    break;
+                }
+                case 2:{//商贸
+                    return onBusinessTradeCbjz(qmvo,userVO);
+                }
+                case 3:{//工业
+                    return onIndustrycbjz(qmvo,userVO);
+                }
+            }
             grid.setMsg("成本结转成功!");
             grid.setTotal(Long.valueOf(1));
             grid.setSuccess(true);
             grid.setRows(Arrays.asList(resvos));
+        }  catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 商贸成本结转
+    public ReturnData<Grid> onBusinessTradeCbjz(QmclVO qmvo, UserVO userVO) {
+        Grid grid = new Grid();
+        String userid = userVO.getCuserid();
+        QmclVO resvos = null;
+        try {
+            // 上一期成本是否结转校验
+            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(qmvo.getIcosttype()));
+            CorpVO cpvo = corpService.queryByPk(qmvo.getPk_corp());
+            if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){ // 启用进销存的
+                resvos = gl_qmclserv.saveCbjz(qmvo, userid);
+                grid.setMsg("成本结转成功!");
+                grid.setTotal(Long.valueOf(1));
+                grid.setSuccess(true);
+                grid.setRows(Arrays.asList(resvos));
+            } else if(IcCostStyle.IC_INVTENTORY.equals(cpvo.getBbuildic())){ // 启用总账存货
+                InventorySetVO setvo = gl_ic_invtorysetserv.query(qmvo.getPk_corp());
+                String error = inventory_setcheck.checkInventorySet(userid, qmvo.getPk_corp(),setvo);
+                if (!StringUtil.isEmpty(error)) {
+                    error = error.replaceAll("<br>", " ");
+                    throw new BusinessException("成本结转失败！"+error);
+                }
+                grid.setSuccess(true);
+                grid.setMsg("总账存货结转期末销售成本");
+                grid.setTotal(Long.valueOf(1));
+                grid.setSuccess(true);
+                grid.setRows(Arrays.asList(resvos));
+            } else {//不启用进销存的
+                grid.setSuccess(true);
+                grid.setMsg("普通结转期末销售成本");
+                grid.setTotal(Long.valueOf(1));
+                grid.setSuccess(true);
+                grid.setRows(Arrays.asList(resvos));
+            }
         } catch (ExBusinessException ex) {
             Map<String, List<TempInvtoryVO>> map = ex.getLmap();
             Collection<List<TempInvtoryVO>> cl = map.values();
@@ -925,12 +1005,38 @@ public class QmclController {
         return ReturnData.ok().data(grid);
     }
 
-    // 工作结转
+
+    // 工业成本结转
     public ReturnData<Grid> onIndustrycbjz(QmclVO qmvo, UserVO userVO) {
         Grid grid = new Grid();
+        String userid = userVO.getCuserid();
         try {
+            // 上一期成本是否结转校验
+            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(qmvo.getIcosttype()));
+            CorpVO cpvo = corpService.queryByPk(qmvo.getPk_corp());
+            if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){ //启用进销存的
 
-        }catch (Exception e) {
+            } else if(IcCostStyle.IC_INVTENTORY.equals(cpvo.getBbuildic())){//启用总账存货
+                InventorySetVO setvo = gl_ic_invtorysetserv.query(qmvo.getPk_corp());
+                String error = inventory_setcheck.checkInventorySet(userid, qmvo.getPk_corp(),setvo);
+                if (!StringUtil.isEmpty(error)) {
+                    error = error.replaceAll("<br>", " ");
+                    throw new BusinessException("成本结转失败！"+error);
+                }
+                throw new BusinessException("总账存货模式暂不支持工业结转！");
+            } else {//不启用进销存的
+
+            }
+        } catch (ExBusinessException ex) {
+            Map<String, List<TempInvtoryVO>> map = ex.getLmap();
+            Collection<List<TempInvtoryVO>> cl = map.values();
+            List<TempInvtoryVO> cvos = addTempInvtoryVO(cl);
+            Grid grid1 = new Grid();
+            grid1.setSuccess(true);
+            grid1.setMsg("暂估");
+            grid1.setRows(cvos.toArray(new TempInvtoryVO[0]));
+            return ReturnData.ok().data(grid1);
+        } catch (Exception e) {
             log.error("错误",e);
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
@@ -985,6 +1091,121 @@ public class QmclController {
         return ReturnData.ok().data(grid);
     }
 
+
+    //查询存货、材料相关科目(不启用库存，成本结转对话框)
+    @PostMapping("/queryCBJZKM")
+    public ReturnData<Grid> queryCBJZKM(@MultiRequestBody("jztype")  String jztype,
+                                        @MultiRequestBody("pk_gs")  String pk_gs,
+                                        @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            String userid = userVO.getCuserid();
+            if(!StringUtil.isEmpty(jztype)){
+                if("1".equalsIgnoreCase(jztype) || "3".equalsIgnoreCase(jztype))
+                    gl_qmclnoicserv.checkCbjzmb(pk_gs, jztype);
+            }
+            List<QMJzsmNoICVO> vos = gl_qmclnoicserv.queryCBJZAccountVOS(pk_gs, userid, jztype);
+            if (vos != null && vos.size() > 0) {
+                grid.setRows(vos);
+            }
+            grid.setSuccess(true);
+            grid.setMsg("查询成功!");
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "查询表体加载科目信息失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 计算
+    @PostMapping("/jisuan")
+    public ReturnData<Grid> jisuan(@MultiRequestBody("begindate")  String begindate,
+                                   @MultiRequestBody("enddate")  String enddate,
+                                   @MultiRequestBody("kmbms")  String kmbm,
+                                   @MultiRequestBody("pk_gs")  String pk_gs,
+                                   @MultiRequestBody("jztype")  String jztype, @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        String[] kmbms = null;
+        if (kmbm != null && kmbm.length() > 0) {
+            kmbm = kmbm.replaceAll("\"", "");
+            kmbm = kmbm.substring(1);
+            kmbm = kmbm.substring(0, kmbm.length() - 1);
+            if(kmbm != null && kmbm.length() > 0){
+                kmbms = kmbm.split(",");
+            }
+        }
+        try {
+            String userid = userVO.getCuserid();
+            List<QMJzsmNoICVO> vos = gl_qmclnoicserv.queryCBJZqcpzAccountVOS(pk_gs,userid, begindate, enddate, kmbms, jztype);
+            if (vos != null && vos.size() > 0) {
+                Collections.sort(vos, new Comparator<QMJzsmNoICVO>() {
+                    @Override
+                    public int compare(QMJzsmNoICVO o1, QMJzsmNoICVO o2) {
+                        return VOSortUtils.compareContainsNull(o1.getKmbm(), o2.getKmbm());
+                    }
+                });
+                grid.setRows(vos);
+            }
+            grid.setSuccess(true);
+            grid.setMsg("查询成功!");
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "计算失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 生成凭证
+    @PostMapping("/saveToPz")
+    public ReturnData<Grid> saveToPz(@MultiRequestBody("qmvo")  QmclVO qmvo,
+                                     @MultiRequestBody("noicjzvos")  QMJzsmNoICVO[]  noicjzvos,
+                                     @MultiRequestBody("zgdata")  TempInvtoryVO[]  zgdata,
+                                     @MultiRequestBody("cbjzCount")  String cbjzCount,//不启用库存，(工业结转) 成本结转步骤
+                                     @MultiRequestBody("jztype")  String jztype,//不启用库存，(工业结转)  结转类型[材料成本结转、完工入库结转、销售成本结转]
+                                     @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        Map<QmclVO, List<QMJzsmNoICVO>> map = new HashMap<QmclVO, List<QMJzsmNoICVO>>();
+        if(qmvo != null){
+            qmvo.setZgdata(zgdata);
+            map.put(qmvo,new ArrayList<QMJzsmNoICVO>(Arrays.asList(noicjzvos)));
+        }
+        try {
+            String userid = userVO.getCuserid();
+            QmclVO vos = gl_qmclnoicserv.saveToSalejzVoucher(userid, map, jztype, cbjzCount, "");
+            grid.setSuccess(true);
+            grid.setMsg("成本结转成功!");
+            grid.setTotal((long) 1);
+            grid.setSuccess(true);
+            grid.setRows(Arrays.asList(vos));
+        } catch (ExBusinessException ex) {
+            Map<String, List<TempInvtoryVO>> mapzg = ex.getLmap();
+            Collection<List<TempInvtoryVO>> cl = mapzg.values();
+            List<TempInvtoryVO> cvos = addTempInvtoryVO(cl);
+            if(cvos != null && cvos.size() > 1){
+                Collections.sort(cvos, new Comparator<TempInvtoryVO>() {
+                    @Override
+                    public int compare(TempInvtoryVO o1, TempInvtoryVO o2) {
+                        return VOSortUtils.compareContainsNull(o1.getKmbm(), o2.getKmbm());
+                    }
+                });
+            }
+            Grid grid1 = new Grid();
+            grid1.setSuccess(true);
+            grid1.setMsg("暂估");
+            grid1.setRows(cvos.toArray(new TempInvtoryVO[0]));
+            return ReturnData.ok().data(grid1);
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
 
     @PostMapping("/checkTemporaryIsExist")
     public ReturnData<Grid> checkTemporaryIsExist(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody("type") String type) {

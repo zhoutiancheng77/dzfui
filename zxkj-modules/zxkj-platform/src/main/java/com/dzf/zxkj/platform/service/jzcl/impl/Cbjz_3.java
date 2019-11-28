@@ -64,9 +64,6 @@ public class Cbjz_3 {
 	public QmclVO save(CorpVO corpVo, QmclVO vo, String userid) throws BusinessException {
 		if (vo == null)
 			throw new BusinessException("没有需要成本结转的数据！");
-		//先保存数据
-		Cbjz_1 cb = new Cbjz_1(yntBoPubUtil,singleObjectBO,voucher);
-		cb.save(corpVo,vo);
 		// 处理暂估数据
 		if (vo.getZgdata() != null && vo.getZgdata().length > 0) {
 			ZgVoucher zg = new ZgVoucher(gl_cbconstant,singleObjectBO,yntBoPubUtil,parameterserv);
@@ -108,6 +105,9 @@ public class Cbjz_3 {
 		if (ex.getLmap()!= null && ex.getLmap().size()>0) {
 			throw ex;
 		}
+		// 更新状态
+		Cbjz_1 cb = new Cbjz_1(yntBoPubUtil,singleObjectBO,voucher);
+		cb.save(corpVo,vo);
 		return vo;
 	}
 	
@@ -117,12 +117,7 @@ public class Cbjz_3 {
 	public QmclVO savemode2(CorpVO corpVo, QmclVO vo, String userid) throws BusinessException {
 		if (vo == null)
 			throw new BusinessException("没有需要成本结转的数据！");
-
 		checkIsJz(vo);
-		// 先保存数据
-		Cbjz_1 cb = new Cbjz_1(yntBoPubUtil, singleObjectBO, voucher);
-		cb.save(corpVo, vo);
-
 		// 处理暂估数据
 		if (vo.getZgdata() != null && vo.getZgdata().length > 0) {
 			//调用 生成 暂估入库单  生成凭证
@@ -168,6 +163,9 @@ public class Cbjz_3 {
 		if (ex.getLmap() != null && ex.getLmap().size() > 0) {
 			throw ex;
 		}
+		// 更新状态
+		Cbjz_1 cb = new Cbjz_1(yntBoPubUtil, singleObjectBO, voucher);
+		cb.save(corpVo, vo);
 		return vo;
 	}
 	

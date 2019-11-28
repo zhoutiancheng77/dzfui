@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
@@ -1021,8 +1022,8 @@ public class VoucherPrintController {
 
     @PostMapping("/printCover")
     public void printCover(VoucherPrintParam param,
-                           String corpNames,
-                           String pagenum,
+                           @RequestParam String corpNames,
+                           @RequestParam int page,
                            HttpServletResponse response) {
         VoucherPrintTemplate template = getTemplate(param);
 
@@ -1062,7 +1063,7 @@ public class VoucherPrintController {
             List<String> corpNameList = new ArrayList<>();
 
             for (String corpName : corpNames.split(",")) {
-                for (int i = 0; i < Integer.parseInt(pagenum); i++) {
+                for (int i = 0; i < page; i++) {
                     corpNameList.add(corpName);
                 }
             }
