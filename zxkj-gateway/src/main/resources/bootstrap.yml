@@ -7,4 +7,8 @@ spring:
         server-addr: 172.16.6.124:8848
         file-extension: yaml
         group: dzf-zxkj
-        namespace: bddf255f-a744-4702-9aea-6e6b7016eb75
+        namespace: dffd4f7c-166b-41b1-9ae8-5d24dad3631e
+    zookeeper:
+      enabled: false
+      consul:
+        enabled: false
