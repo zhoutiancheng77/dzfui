@@ -157,6 +157,11 @@
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.dzf.cloud</groupId>
+            <artifactId>dzf-cloud-starter</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <filters>

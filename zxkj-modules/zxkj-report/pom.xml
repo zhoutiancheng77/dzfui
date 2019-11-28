@@ -141,6 +141,11 @@
             <artifactId>zxkj-operate-log-starter</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.dzf.cloud</groupId>
+            <artifactId>dzf-cloud-starter</artifactId>
+            <version>1.0.6-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <filters>
@@ -165,7 +170,7 @@
                     <encoding>UTF-8</encoding>
                     <compilerArguments>
                         <verbose />
-                        <bootclasspath>${java.home}/lib/rt.jar:${java.home}/lib/jce.jar</bootclasspath>
+                        <bootclasspath>${java.home}/lib/rt.jar;${java.home}/lib/jce.jar</bootclasspath>
                     </compilerArguments>
                 </configuration>
             </plugin>
