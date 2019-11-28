@@ -47,9 +47,6 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 
-        String jsonBody = getRequestBody(webRequest);
-
-        JSONObject jsonObject = JSON.parseObject(jsonBody);
         // 根据@MultiRequestBody注解value作为json解析的key
         MultiRequestBody parameterAnnotation = parameter.getParameterAnnotation(MultiRequestBody.class);
 
@@ -58,6 +55,7 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
 
         // 通过注解的value或者参数名解析，能拿到value进行解析
 
+        // 获取CorpVO 和 UserVO
         if(parameterType.getName().equals(CorpVO.class.getName())){
             String pk_corp = webRequest.getHeader(ISysConstant.LOGIN_PK_CORP);
             if(StringUtils.isNoneBlank(pk_corp)){
@@ -65,7 +63,6 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
                 return corpService.queryByPk(pk_corp);
             }
         }
-
         if(parameterType.getName().equals(UserVO.class.getName())){
             String userId = webRequest.getHeader(ISysConstant.LOGIN_USER_ID);
             if(StringUtils.isNoneBlank(userId)){
@@ -73,13 +70,18 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
                 return userService.queryUserById(userId);
             }
         }
+
+        //仍允许使用@RequestBody来获取整个数据，同时使用MultiRequestBody来获取CorpVO、UserVO。如：@RequestBody xxx, @MultiRequestBody CorpVO, ..
+        String jsonBody = getRequestBody(webRequest);
         if(StringUtil.isEmptyWithTrim(jsonBody)){
             return null;
         }
+        JSONObject jsonObject = JSON.parseObject(jsonBody);
+
         //注解的value是JSON的key
         String key = parameterAnnotation.value();
         Object value;
-        // 如果@MultiRequestBody注解没有设置value，则取参数名FrameworkServlet作为json解析的key
+        // 如果@MultiRequestBody注解没有设置value，则取参数名作为json解析的key
         if (StringUtils.isNotEmpty(key)) {
             value = jsonObject.get(key);
             // 如果设置了value但是解析不到，报错
@@ -87,7 +89,7 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
                 throw new IllegalArgumentException(String.format("required param %s is not present", key));
             }
         } else {
-            // 注解为设置value则用参数名当做json的key
+            // 注解未设置value，则尝试使用参数名作为json的key
             key = parameter.getParameterName();
             value = jsonObject.get(key);
         }
@@ -108,7 +110,7 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
             return JsonUtils.deserialize(value.toString(), parameterType);
         }
 
-        // 解析不到则将整个json串解析为当前参数类型
+        // 基本类型，为空，判断是否报必输
         if (isBasicDataTypes(parameterType)) {
             if (parameterAnnotation.required()) {
                 throw new IllegalArgumentException(String.format("required param %s is not present", key));
@@ -117,7 +119,7 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
             }
         }
 
-        // 非基本类型，不允许解析所有字段，必备参数则报错，非必备参数则返回null
+        // 非基本类型，为空，不允许解析所有字段，必备参数则报错，非必备参数则返回null
         if (!parameterAnnotation.parseAllFields()) {
             // 如果是必传参数抛异常
             if (parameterAnnotation.required()) {
@@ -126,16 +128,17 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
             // 否则返回null
             return null;
         }
-        // 非基本类型，允许解析，将外层属性解析
+
+        // 非基本类型，为空，允许解析时，将整个json串解析为当前参数类型
         Object result;
         try {
-            result = JsonUtils.deserialize(jsonObject.toString(), parameterType);
+            result = JsonUtils.deserialize(jsonBody, parameterType); //jsonObject.toString()
         } catch (Exception jsonException) {
             // TODO:: 异常处理返回null是否合理？
             return null;
         }
 
-        // 如果非必要参数直接返回，否则如果没有一个属性有值则报错
+        // 非基本类型（不为null），判断必输：如果非必要参数直接返回，否则如果没有一个属性有值则报错
         if (!parameterAnnotation.required()) {
             return result;
         } else {
