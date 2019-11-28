@@ -1,13 +1,12 @@
 package com.dzf.zxkj.base.utils;
 
+import com.dzf.zxkj.common.lang.*;
 import com.dzf.zxkj.common.model.CircularlyAccessibleValueObject;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.lang.*;
 import com.dzf.zxkj.common.tool.MapList;
 import com.dzf.zxkj.common.utils.DZFArrayUtil;
 import com.dzf.zxkj.common.utils.DZFCollectionUtil;
 import com.dzf.zxkj.common.utils.DZFMapUtil;
-import com.sun.beans.decoder.ValueObject;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
@@ -86,17 +85,6 @@ public class DZFValueCheck {
             CircularlyAccessibleValueObject circularlyAccessibleValueObject) {
         return null == circularlyAccessibleValueObject;
     }
-
-    /**
-     * 判断ValueObject是否为空
-     * 
-     * @param circularlyAccessibleValueObject
-     * @return
-     */
-    public static final boolean isEmpty(ValueObject valueObject) {
-        return null == valueObject;
-    }
-
 
     /**
      * 判断DZFDouble是否为空
