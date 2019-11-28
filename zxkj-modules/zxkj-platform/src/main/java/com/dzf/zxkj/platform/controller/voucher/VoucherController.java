@@ -1,5 +1,7 @@
 package com.dzf.zxkj.platform.controller.voucher;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
@@ -16,6 +18,7 @@ import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
@@ -1559,5 +1562,70 @@ public class VoucherController {
             statusMap.put(key, status);
         }
         return status;
+    }
+    @RequestMapping("/quickCreateVoucher")
+    public ReturnData<Json> quickCreateVoucher (@RequestBody String data) {
+        Json json = new Json();
+        try {
+            JSONObject rawData = JSON.parseObject(data);
+            gl_tzpzserv.createVoucherQuick(SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserId(), rawData);
+            json.setSuccess(true);
+            json.setMsg("制单成功！");
+            json.setStatus(200);
+        } catch (Exception e) {
+            json.setStatus(-200);
+            log.error("Export Error", e);
+
+            if(e instanceof BusinessException){
+                if("当月已结转损益，不能操作！".equals(e.getMessage())){
+                    json.setStatus(IVoucherConstants.STATUS_RECONFM_CODE);
+                }
+                if("生成凭证失败:借贷方金额不等！".equals(e.getMessage())){
+                    log.error("Export Error", e);
+                }
+            }
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 根据图片pk查询出凭证的pk
+     * 图片浏览使用
+     */
+    @RequestMapping("/serVoucherByImagePk")
+    public ReturnData<Json> serVoucherByImagePk(@RequestBody VoucherParamVO paramvo){
+        Json json = new Json();
+
+        paramvo.setPk_corp(SystemUtil.getLoginCorpId());
+        List<TzpzHVO> tzpzB = new ArrayList<TzpzHVO>();
+        try{
+            if(paramvo == null || StringUtil.isEmpty( paramvo.getPk_tzpz_h()) ){
+                throw new BusinessException("联查凭证失败!");
+            }else{
+                //参数： 制单日期和需要回冲的凭证号
+                tzpzB = gl_tzpzserv.serVoucherByImgPk(paramvo);
+                if(tzpzB == null || tzpzB.size()==0){
+                    log.info("联查凭证失败!");
+                    json.setMsg("联查凭证失败!");
+                    json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
+                    json.setSuccess(false);
+                    json.setRows(new TzpzHVO());
+                }else{
+                    log.info("联查凭证成功");
+                    json.setMsg("联查凭证成功");
+                    json.setStatus(200);
+                    json.setSuccess(true);
+                    json.setRows(tzpzB);
+                }
+            }
+        }catch(Exception e){
+//			log.info("联查凭证失败" + e.getMessage());
+//			json.setMsg("联查凭证失败" + e.getMessage());
+            json.setStatus(IVoucherConstants.STATUS_ERROR_CODE);
+//			json.setSuccess(false);
+            json.setRows(new TzpzHVO());
+            log.error("Export Error", e);
+        }
+        return ReturnData.ok().data(json);
     }
 }
