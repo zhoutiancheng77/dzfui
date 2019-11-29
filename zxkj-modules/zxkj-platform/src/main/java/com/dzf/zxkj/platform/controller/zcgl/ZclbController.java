@@ -80,12 +80,12 @@ public class ZclbController extends BaseController {
                 sys_zclbserv.save(vo);
                 json.setSuccess(true);
                 json.setRows(vo);
-                json.setMsg("成功");
+                json.setMsg("保存成功");
             } else {
                 if (msg != null)
                     json.setMsg(msg);
                 else
-                    json.setMsg("失败");
+                    json.setMsg("保存失败");
                 json.setSuccess(false);
             }
         } catch (Exception e) {

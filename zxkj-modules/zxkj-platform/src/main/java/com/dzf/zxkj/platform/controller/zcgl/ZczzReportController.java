@@ -76,6 +76,7 @@ public class ZczzReportController extends BaseController {
             if (zczzvo != null && zczzvo.length > 0) {
                 grid.setRows(Arrays.asList(zczzvo));
             }
+            grid.setMsg("查询成功");
             grid.setSuccess(true);
             writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "资产总账查询", ISysConstants.SYS_2);
         } catch (Exception e) {
