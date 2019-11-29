@@ -11,6 +11,8 @@
 
     <artifactId>zxkj-common</artifactId>
 
+    <packaging>jar</packaging>
+
     <name>zxkj-common</name>
 
     <dependencies>
