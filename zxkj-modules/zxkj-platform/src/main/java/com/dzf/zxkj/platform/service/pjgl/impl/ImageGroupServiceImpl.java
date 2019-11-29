@@ -23,7 +23,7 @@ import com.dzf.zxkj.platform.model.pjgl.FastOcrStateInfoVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.model.sys.MsgAdminVO;
+import com.dzf.zxkj.platform.model.message.MsgAdminVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
 import com.dzf.zxkj.platform.service.image.ICreatePZByFixedService;

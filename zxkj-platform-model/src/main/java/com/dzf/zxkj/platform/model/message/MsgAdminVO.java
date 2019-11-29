@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.model.sys;
+package com.dzf.zxkj.platform.model.message;
 
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.DZFBoolean;
