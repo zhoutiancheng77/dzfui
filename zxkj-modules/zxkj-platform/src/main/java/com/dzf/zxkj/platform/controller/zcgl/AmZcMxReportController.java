@@ -55,6 +55,7 @@ public class AmZcMxReportController extends BaseController {
             grid.setTotal((long) (zcmxvos == null ? 0 : zcmxvos.length));
             grid.setRows(zcmxvos == null ? new ArrayList<ZcMxZVO>() : Arrays.asList(zcmxvos));
             grid.setSuccess(true);
+            grid.setMsg("查询成功");
             writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "资产明细账查询", ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");

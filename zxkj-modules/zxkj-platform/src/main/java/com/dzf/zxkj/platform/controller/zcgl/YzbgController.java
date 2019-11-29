@@ -101,6 +101,7 @@ public class YzbgController extends BaseController {
                     grid.setTotal(0L);
                     grid.setSuccess(true);
                 }
+                grid.setMsg("查询成功");
             }
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");
