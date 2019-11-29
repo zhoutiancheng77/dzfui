@@ -209,8 +209,8 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 		key.append(",");
 		key.append("newtree_unaccount");
 		String requestid = UUID.randomUUID().toString();
-		boolean lock = false;
-
+//		boolean lock = false;
+		boolean lock = true;
 		try {
 			long now = System.currentTimeMillis();
 //			lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key.toString(), requestid, 60);// 设置60秒
