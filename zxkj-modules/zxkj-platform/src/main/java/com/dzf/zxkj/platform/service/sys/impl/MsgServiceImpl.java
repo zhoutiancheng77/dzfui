@@ -20,7 +20,7 @@ import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.JPMessageBean;
-import com.dzf.zxkj.platform.model.sys.MsgAdminVO;
+import com.dzf.zxkj.platform.model.message.MsgAdminVO;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
