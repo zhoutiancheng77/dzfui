@@ -828,8 +828,8 @@ public class BsWorkbenchController extends BaseController {
     /**
      * 获取财务进度
      */
-    @PostMapping("getFinanceProgress")
-    public ReturnData getFinanceProgress(@MultiRequestBody String period) {
+    @GetMapping("getFinanceProgress")
+    public ReturnData getFinanceProgress(String period) {
         Json json = new Json();
         try {
             if (period == null) {

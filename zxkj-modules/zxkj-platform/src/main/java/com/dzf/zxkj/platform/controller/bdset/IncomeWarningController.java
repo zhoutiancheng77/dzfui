@@ -53,10 +53,7 @@ public class IncomeWarningController{
 
             //优化 gzhx
             IncomeWarningVO[] incomeWarningVOS = iw_serv.queryIncomeWaringVos(pk_corp,nowDate, filflg);
-
-//			IncomeWarningVO[] ivos = iw_serv.query(pk_corp);
-//			iw_serv.queryFseInfo(ivos, pk_corp, nowDate);
-
+            json.setSuccess(true);
             json.setRows(incomeWarningVOS);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
