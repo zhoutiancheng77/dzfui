@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="true">
-    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
     <property name="LOG_LEVEL" value="@dzf.mvn.logging.level@"/>
-    <property name="LOG_HOME" value="@dzf.mvn.logging.home@/${APP_NAME}"/>
+    <property name="LOG_HOME" value="@dzf.mvn.logging.home@/zxkj-report"/>
     <property name="KAKFA_ADDRESS" value="@dzf.mvn.kafka.addr@"/>
     <!-- 日志输出格式 -->
     <property name="ENCODER_PATTERN"
               value="%d{yyyy-MM-dd  HH:mm:ss.SSS} [%thread] %-5level %logger{80} - %msg%n"/>
-    <contextName>${APP_NAME}</contextName>
+    <contextName>zxkj-report</contextName>
     <property name="maxHistory" value="7"/>
     <!-- 控制台日志：输出全部日志到控制台 -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -46,7 +45,7 @@
         <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
             <layout class="com.dzf.cloud.log.layout.JsonLogLayout"/>
         </encoder>
-        <topic>${APP_NAME}-logs-hjd</topic>
+        <topic>zxkj-report-logs-hjd</topic>
         <keyingStrategy class="com.dzf.cloud.log.appender.kafka.keying.ThreadNameKeyingStrategy"/>
         <sendStrategy class="com.dzf.cloud.log.appender.kafka.sender.AsyncSendCallableStrategy"/>
         <producerConfig>bootstrap.servers=${KAKFA_ADDRESS}</producerConfig>
