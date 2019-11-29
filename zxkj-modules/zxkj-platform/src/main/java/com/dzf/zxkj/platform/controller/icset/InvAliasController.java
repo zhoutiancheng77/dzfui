@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
@@ -37,16 +37,35 @@ public class InvAliasController {
 		Grid grid = new Grid();
 		String pk_inventory =param.get("pk_inventory");
 		InventoryAliasVO[] vos = ic_invtoryaliasserv.query(SystemUtil.getLoginCorpId(),pk_inventory);
-		if(vos != null && vos.length>0){
-			grid.setRows(new ArrayList<InventoryAliasVO>(Arrays.asList(vos)));
-			grid.setTotal(Long.valueOf(vos.length));
-			grid.setMsg("查询成功");
-		}else{
-			grid.setTotal(0l);
-			grid.setMsg("查询数据为空");
+		String isfenye = param.get("isfenye");
+		QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+		if("Y".equals(isfenye)) {
+			int page = queryParamvo.getPage();
+			int rows = queryParamvo.getRows();
+			if (vos != null && vos.length > 0) {
+				grid.setTotal((long) vos.length );
+				InventoryAliasVO[] PzglPagevos = getPagedZZVOs(vos, page, rows);
+				grid.setRows(Arrays.asList(PzglPagevos));
+			}
+		} else {
+			if (vos != null && vos.length  > 0) {
+				grid.setTotal((long)vos.length );
+				grid.setRows(vos);
+			}
 		}
 		grid.setSuccess(true);
 		return ReturnData.ok().data(grid);
+	}
+
+	// 将查询后的结果分页
+	private InventoryAliasVO[] getPagedZZVOs(InventoryAliasVO[] PzglPagevos, int page, int rows) {
+		int beginIndex = rows * (page - 1);
+		int endIndex = rows * page;
+		if (endIndex >= PzglPagevos.length) {// 防止endIndex数组越界
+			endIndex = PzglPagevos.length;
+		}
+		PzglPagevos = Arrays.copyOfRange(PzglPagevos, beginIndex, endIndex);
+		return PzglPagevos;
 	}
 
 	@PostMapping("/save")
