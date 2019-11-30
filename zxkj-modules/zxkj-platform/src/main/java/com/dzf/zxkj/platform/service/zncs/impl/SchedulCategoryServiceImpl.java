@@ -209,7 +209,7 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 		key.append(",");
 		key.append("newtree_unaccount");
 		String requestid = UUID.randomUUID().toString();
-		boolean lock = false;
+		boolean lock = true;		//调试使用，注意修改！！！！！****！！！！*******
 
 		try {
 			long now = System.currentTimeMillis();
