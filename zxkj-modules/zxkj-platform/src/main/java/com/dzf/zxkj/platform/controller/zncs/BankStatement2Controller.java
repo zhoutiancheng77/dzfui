@@ -74,7 +74,7 @@ public class BankStatement2Controller extends BaseController {
 //	private IParameterSetService parameterserv;
 
     @PostMapping("/queryInfo")
-    public ReturnData<Json> queryInfo(@RequestBody BankStatementVO2 bvo,String sort,String order,Integer page,Integer rows,String flag){
+    public ReturnData<Json> queryInfo(@RequestBody BankStatementVO2 bvo){
 //		Grid grid = new Grid();
         Json json = new Json();
         try {
@@ -83,18 +83,18 @@ public class BankStatement2Controller extends BaseController {
                 throw new BusinessException("出现数据无权问题！");
             }
             List<BankStatementVO2> list = gl_yhdzdserv2.quyerByPkcorp(SystemUtil.getLoginCorpId(),
-                    bvo == null ? new BankStatementVO2() : bvo, sort, order);
+                    bvo == null ? new BankStatementVO2() : bvo, bvo.getSort(), bvo.getOrder());
             //list变成数组
             json.setTotal((long) (list==null ? 0 : list.size()));
 //			grid.setTotal((long) (list==null ? 0 : list.size()));
             //分页
             BankStatementVO2[] vos = null;
             if(list!=null && list.size()>0){
-                vos = getPagedZZVOs(list.toArray(new BankStatementVO2[0]),page,rows);
+                vos = getPagedZZVOs(list.toArray(new BankStatementVO2[0]), bvo.getPage(), bvo.getRows());
             }
 
 
-            vos = filterByBillStatus(vos,flag);
+            vos = filterByBillStatus(vos, bvo.getFlag());
             if (vos != null && vos.length > 0)
             {
                 for (BankStatementVO2 vo : vos)
