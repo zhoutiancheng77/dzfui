@@ -7,10 +7,8 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
-import com.dzf.zxkj.platform.auth.model.jwt.IJWTInfo;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.util.RSAUtils;
-import com.dzf.zxkj.platform.auth.utils.JWTUtil;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import lombok.extern.slf4j.Slf4j;
@@ -107,18 +105,16 @@ public class AuthController {
     public ReturnData loginByToken(@RequestParam("token") String token) {
         log.info("token登录---------------->", token);
         Grid<LoginUser> grid = new Grid<>();
-        LoginUser loginUser = null;
         try {
-            IJWTInfo jwtInfo = JWTUtil.getInfoFromToken(token, rsaKeyConfig.getUserPubKey());
-            loginUser = platformUserCache.get(jwtInfo.getBody());
+            LoginUser loginUser = loginService.exchange(token);
+            if (loginUser == null) {
+                return ReturnData.ok().data(grid);
+            }
+            grid.setSuccess(true);
+            grid.setRows(loginUser);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (loginUser == null) {
-            return ReturnData.ok().data(grid);
-        }
-        grid.setSuccess(true);
-        grid.setRows(loginUser);
         return ReturnData.ok().data(grid);
     }
 
