@@ -8,6 +8,7 @@ import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 
 import java.util.List;
 import java.util.Map;
@@ -558,4 +559,7 @@ public interface ITaxBalaceCcrService {
 	public CorpTaxVo queryCorpTaxVO(String pk_corp) throws DZFWarpException;
 	
 	public List querySpecChargeHis(String pk_corp)  throws DZFWarpException;
+
+	public DZFDouble getTaxValue(CorpVO cpvo, String rptname, String period, int[][] zbs) throws DZFWarpException;
+
 }
