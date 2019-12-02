@@ -134,6 +134,10 @@ public class BankStatementVO2 extends SuperVO implements IGlobalPZVO {
 	private String accountcode;//本分账户显示用
 	
 	private String tradecode;//交易流水号 显示用
+
+
+
+	private String flag;	//原查询时的参数
 	//常量
 	public static final int SOURCE_0 = 0;//手工
 	public static final int SOURCE_1 = 1;//来源通用模板
@@ -924,5 +928,11 @@ public class BankStatementVO2 extends SuperVO implements IGlobalPZVO {
 	public void setPk_settlementaccsubj(String pk_settlementaccsubj) {
 		this.pk_settlementaccsubj = pk_settlementaccsubj;
 	}
+	public String getFlag() {
+		return flag;
+	}
 
+	public void setFlag(String flag) {
+		this.flag = flag;
+	}
 }

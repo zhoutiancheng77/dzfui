@@ -113,24 +113,23 @@ public class VATInComInvoice2Controller extends BaseController {
     private ICorpService corpService;
 
     @RequestMapping("/queryInfo")
-    public ReturnData<Json> queryInfo(@RequestBody InvoiceParamVO paramvo, String sort, String order,
-                                      Integer page, Integer rows){
+    public ReturnData<Json> queryInfo(@RequestBody InvoiceParamVO paramvo){
         Json json = new Json();
         try {
             //查询并分页
             if(StringUtil.isEmpty(SystemUtil.getLoginCorpId())){//corpVo.getPrimaryKey()
                 throw new BusinessException("出现数据无权问题！");
             }
-
+            paramvo.setPk_corp(SystemUtil.getLoginCorpId());
 //            InvoiceParamVO paramvo = getQueryParamVO(head);
 
-            List<VATInComInvoiceVO2> list = gl_vatincinvact2.quyerByPkcorp(paramvo, sort, order);
+            List<VATInComInvoiceVO2> list = gl_vatincinvact2.quyerByPkcorp(paramvo, paramvo.getSort(), paramvo.getOrder());
             //list变成数组
             json.setTotal((long) (list==null ? 0 : list.size()));
             //分页
             VATInComInvoiceVO2[] vos = null;
             if(list!=null && list.size()>0){
-                vos = getPagedZZVOs(list.toArray(new VATInComInvoiceVO2[0]),page,rows);
+                vos = getPagedZZVOs(list.toArray(new VATInComInvoiceVO2[0]),paramvo.getPage(),paramvo.getRows());
                 for (VATInComInvoiceVO2 vo : vos)
                 {
                     if (StringUtil.isEmpty(vo.getPk_tzpz_h()) && !StringUtil.isEmpty(vo.getImgpath()) && (!StringUtil.isEmpty(vo.getPk_model_h()) || !StringUtil.isEmpty(vo.getBusitypetempname())))
@@ -493,8 +492,8 @@ public class VATInComInvoice2Controller extends BaseController {
             if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
+           // body = body.replace("}{", "},{");
+            //body = "[" + body + "]";
             bodyvos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
             if (bodyvos == null || bodyvos.length == 0) {
                 throw new BusinessException("数据为空,删除失败!!");
@@ -2749,7 +2748,7 @@ public class VATInComInvoice2Controller extends BaseController {
             writeJson(json);
         }*/
     @RequestMapping("/queryCategoryRef")
-    public ReturnData<Grid> queryCategoryRef(String period){
+    public ReturnData<Grid> queryCategoryRef(@RequestBody String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
         try {

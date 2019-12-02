@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform.controller.voucher;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
@@ -1745,6 +1745,34 @@ public class VoucherController {
             json.setRows(new TzpzHVO());
             log.error("Export Error", e);
         }
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/getVoucherTaxItem")
+    public ReturnData getVoucherTaxItem(@RequestParam String voucherId) {
+        Json json = new Json();
+        PZTaxItemRadioVO[] items = gl_tzpzserv.getVoucherTaxItem(voucherId, SystemUtil.getLoginCorpId());
+        json.setRows(items);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/saveVoucherTaxItem")
+    public ReturnData saveVoucherTaxItem(@RequestBody PZTaxItemRadioVO[] items) {
+        Json json = new Json();
+        gl_tzpzserv.saveVoucherTaxItem(items, SystemUtil.getLoginCorpId());
+        json.setSuccess(true);
+        json.setMsg("保存成功");
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/deleteVoucherTaxItem")
+    public ReturnData deleteVoucherTaxItem(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String pk_voucher = param.get("voucherId");
+        gl_tzpzserv.deleteVoucherTaxItem(pk_voucher, SystemUtil.getLoginCorpId());
+        json.setSuccess(true);
+        json.setMsg("删除成功");
         return ReturnData.ok().data(json);
     }
 }
