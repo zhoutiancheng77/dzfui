@@ -1411,14 +1411,19 @@ public class VATInComInvoice2Controller extends BaseController {
      rzPeriod   认证所属日期
      */
     @RequestMapping("/onTicket")
-    public ReturnData<Json> onTicket( String ccrecode,String f2,String begindate3,String enddate3,String serType,String rzPeriod){
+    public ReturnData<Json> onTicket(@RequestBody Map<String,String> param){
         Json json = new Json();
 
         VATInComInvoiceVO2 paramvo = new VATInComInvoiceVO2();
         String uuid = UUID.randomUUID().toString();
         String pk_corp = null;
         try{
-
+            String ccrecode = param.get("ccrecode");
+            String f2 = param.get("f2");
+            String begindate3 = param.get("begindate3");
+            String enddate3 = param.get("enddate3");
+            String serType = param.get("serType");
+            String rzPeriod = param.get("rzPeriod");
             paramvo.setKprj(new DZFDate(SystemUtil.getLoginDate()));//参数：当前登录时间
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
@@ -2748,7 +2753,7 @@ public class VATInComInvoice2Controller extends BaseController {
             writeJson(json);
         }*/
     @RequestMapping("/queryCategoryRef")
-    public ReturnData<Grid> queryCategoryRef(@RequestBody String period){
+    public ReturnData<Grid> queryCategoryRef(String period){
         Grid grid = new Grid();
         ArrayList<String> pk_categoryList = new ArrayList<String>();
         try {
@@ -3022,12 +3027,9 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryB")
-    public ReturnData<Json> queryB( Map<String,String> param) {
+    public ReturnData<Json> queryB(@RequestParam("id") String hid,String kmid,String pk_corp) {
         Json json = new Json();
         try {
-            String hid = param.get("id");
-            String kmid = param.get("kmid");
-            String pk_corp = param.get("pk_corp");
             if (StringUtil.isEmpty(hid)) {
                 json.setMsg("参数为空！");
                 json.setSuccess(false);
