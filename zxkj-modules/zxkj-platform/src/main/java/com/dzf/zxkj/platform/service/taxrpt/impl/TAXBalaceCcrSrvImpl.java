@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.taxrpt.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -12,7 +13,6 @@ import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.constant.TaxRptConst;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -21,6 +21,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
@@ -42,6 +43,8 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxDeclarationService;
+import com.dzf.zxkj.platform.service.taxrpt.spreadjs.SpreadTool;
+import com.dzf.zxkj.platform.util.taxrpt.TaxRptemptools;
 import com.dzf.zxkj.report.service.IZxkjReportService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
@@ -51,9 +54,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("gl_tax_formulaimpl")
 @Slf4j
@@ -2567,7 +2568,130 @@ public class TAXBalaceCcrSrvImpl implements ITaxBalaceCcrService {
 		List list = sys_corp_tax_serv.querySpecChargeHis(pk_corp);
 		return list;
 	}
-	
+
+	@Override
+	public DZFDouble getTaxValue(CorpVO cpvo, String rptname, String period, int[][] zbs) throws DZFWarpException {
+		DZFDouble res = DZFDouble.ZERO_DBL;
+		//根据期间，编号，类型，查询对应的主表数据
+		SQLParameter sp = new SQLParameter();
+		List<String> list = getJDListPeriod(period);
+		String wherepart = SqlUtil.buildSqlForIn("periodfrom||periodto", list.toArray(new String[0]));
+		SpreadTool tool = new SpreadTool(this);
+		if(cpvo.getChargedeptname().equals("一般纳税人")){
+			if("增值税纳税申报表（适用于增值税一般纳税人）".equals(rptname)){//按照月查询
+				sp.addParam(cpvo.getPk_corp());
+				sp.addParam(TaxRptConst.SB_ZLBH10101);//一般纳税人增值税
+				sp.addParam(0);//月
+				res = getTaxValue1(rptname, zbs, sp, tool,wherepart);
+			}else if("所得税月(季)度纳税申报表(A类）".equals(rptname)){
+				sp.clearParams();
+				sp.addParam(cpvo.getPk_corp());
+				sp.addParam(TaxRptConst.SB_ZLBH10412);//企业所得税A
+				sp.addParam(1);//季
+				res = getTaxValue1(rptname,zbs, sp, tool," periodfrom||periodto = '"+(list.get(0).substring(0, 10)+list.get(list.size()-1).substring(10))+"'");
+			}
+		}else{
+			if("增值税纳税申报表".equals(rptname)){
+				sp.clearParams();
+				sp.addParam(cpvo.getPk_corp());
+				sp.addParam(TaxRptConst.SB_ZLBH10102);//小规模纳税人增值税
+				sp.addParam(1);//季
+				res = getTaxValue1(rptname, zbs, sp, tool," periodfrom||periodto = '"+(list.get(0).substring(0, 10)+list.get(list.size()-1).substring(10))+"'");
+			}else if("所得税月(季)度纳税申报表(A类）".equals(rptname)){
+				sp.clearParams();
+				sp.addParam(cpvo.getPk_corp());
+				sp.addParam(TaxRptConst.SB_ZLBH10412);//企业所得税A
+				sp.addParam(1);//季
+				res = getTaxValue1(rptname, zbs, sp, tool," periodfrom||periodto = '"+(list.get(0).substring(0, 10)+list.get(list.size()-1).substring(10))+"'");
+			}
+		}
+		return res;
+	}
+
+
+	public static List<String> getJDListPeriod(String period) {
+		String year = period.substring(0, 4);
+		int month = Integer.parseInt(period.substring(5, 7));
+		List<String> list = new ArrayList<String>();
+		String periodtemp = "";
+		String qj = "";
+		for(int i =0;i<3;i++){
+			periodtemp = year+"-"+ String.format("%02d", (month-i));
+			qj = DateUtils.getPeriodStartDate(periodtemp).toString()+DateUtils.getPeriodEndDate(periodtemp).toString();
+			list.add(qj);
+			if((month-i)%3 ==1){
+				break;
+			}
+		}
+		for(int i =1;i<3;i++){
+			if((month+i)>12 || month%3 == 0){
+				break;
+			}
+
+			periodtemp = year+"-"+ String.format("%02d", (month+i));
+			qj = DateUtils.getPeriodStartDate(periodtemp).toString()+DateUtils.getPeriodEndDate(periodtemp).toString();
+			list.add(qj);
+			if((month+i)%3 ==0){
+				break;
+			}
+		}
+
+		Collections.sort(list);
+
+		return list;
+	}
+
+	private DZFDouble getTaxValue1(String rptname, int[][] zbs,  SQLParameter sp,
+								   SpreadTool tool,String periodwherepart) {
+		DZFDouble res = DZFDouble.ZERO_DBL;
+		TaxReportVO[] reportvos = (TaxReportVO[]) singleObjectBO.queryByCondition(TaxReportVO.class,
+				"pk_corp = ? and sb_zlbh=? and nvl(dr,0)=0 and  periodtype = ? "+"and "+periodwherepart, sp);
+		//根据主表查询子表数据
+		if (reportvos != null && reportvos.length > 0) {
+			List<String> list = new ArrayList<String>();
+			for(TaxReportVO vo:reportvos){
+				if(!StringUtil.isEmpty(vo.getPk_taxreport())){
+					list.add(vo.getPk_taxreport());
+				}
+			}
+			sp.clearParams();
+			sp.addParam(rptname);
+			String wherepart = SqlUtil.buildSqlForIn("pk_taxreport", list.toArray(new String[0]));
+			TaxReportDetailVO[] detailvos = (TaxReportDetailVO[]) singleObjectBO.queryByCondition(TaxReportDetailVO.class	,
+					"nvl(dr,0)=0 and "+wherepart+"and reportname =? ", sp);
+			if(detailvos!=null && detailvos.length>0){
+				for(TaxReportDetailVO  bvo:detailvos){
+					if(!StringUtil.isEmpty(bvo.getSpreadfile())){
+						res = SafeCompute.add(res, getTaxValueFromJson(rptname, zbs, tool, bvo));
+					}
+				}
+			}
+		}
+		return res;
+	}
+
+
+	private DZFDouble getTaxValueFromJson(String rptname,int[][] zbs, SpreadTool tool, TaxReportDetailVO bvo) {
+		String strJson  = TaxRptemptools.readFileString(bvo.getSpreadfile());
+		DZFDouble dbSE =DZFDouble.ZERO_DBL;
+		Map objMap = JsonUtils.deserialize(strJson, Map.class);
+		Object objValue;
+		DZFDouble objdouble;
+		for(int[] zb:zbs){
+			objValue= tool.getCellValue(objMap, rptname, zb[0], zb[1]);
+			if (objValue != null && StringUtil.isEmpty(objValue.toString()) == false) {
+				try {
+					objdouble =  new DZFDouble(objValue.toString());
+				} catch (NumberFormatException e) {
+					log.info("内容:"+objValue);
+					objdouble = DZFDouble.ZERO_DBL;
+				}
+				dbSE  = SafeCompute.add(dbSE, objdouble) ;
+			}
+		}
+		return dbSE;
+	}
+
 	public DZFDouble getTaxSale6(String pk_corp) throws DZFWarpException{
 		String item = CaclTaxMny.getTaxItemPercent6(pk_corp);
 		DZFDouble result;
