@@ -9,6 +9,7 @@ import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.result.Result;
 import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
+import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.mapper.LoginUserMapper;
 import com.dzf.zxkj.platform.auth.model.jwt.JWTInfo;
@@ -37,6 +38,9 @@ public class LoginServiceImpl implements ILoginService {
 
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
+
+    @Autowired
+    private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
 
     @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private com.dzf.auth.api.service.ILoginService userService;
@@ -110,12 +114,12 @@ public class LoginServiceImpl implements ILoginService {
 
     private LoginUser transferToZxkjUser(UserVO uservo) {
         LoginUser loginUser = new LoginUser();
-        Optional<UserVO> userVOOptional = uservo.getBindUsers().stream().filter(v -> v.getPlatformTag().equals("zxkj")).findFirst();
+        Optional<UserVO> userVOOptional = uservo.getBindUsers().stream().filter(v -> v.getPlatformTag().equals(zxkjPlatformAuthConfig.getPlatformName())).findFirst();
         userVOOptional.ifPresent(v -> {
             loginUser.setUsername(v.getLoginName());
             loginUser.setDzfAuthToken(uservo.getUserToken());
             loginUser.setUserid(v.getPlatformUserId());
-            Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow()).collect(Collectors.toSet());
+            Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
             loginUser.setPlatformVOSet(list);
             try {
                 createToken(loginUser);
@@ -131,7 +135,7 @@ public class LoginServiceImpl implements ILoginService {
         loginUser.setUsername(uservo.getLoginName());
         loginUser.setDzfAuthToken(uservo.getUserToken());
         loginUser.setUserid(uservo.getPlatformUserId());
-        Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(v -> v.isShow()).collect(Collectors.toSet());
+        Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(v -> v.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(v.getPlatformTag())).collect(Collectors.toSet());
         loginUser.setPlatformVOSet(list);
         try {
             createToken(loginUser);
