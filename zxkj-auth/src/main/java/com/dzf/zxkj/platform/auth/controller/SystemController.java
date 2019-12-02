@@ -50,8 +50,8 @@ public class SystemController {
                 .filter(e -> e.getPlatformTag().equals(platformTag))
                 .findFirst();
         PlatformVO platform = platformOptional.get();
-        StringBuilder sb = new StringBuilder("http://localhost:8084")
-                .append("/external/login")
+        StringBuilder sb = new StringBuilder(platform.getPlatformDomain())
+                .append(platform.getPlatformIndexPage())
                 .append("?token=")
                 .append(vo.getDzfAuthToken());
         try {
