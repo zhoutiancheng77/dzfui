@@ -104,7 +104,9 @@ public class BankStatementVO extends SuperVO implements IGlobalPZVO{
 	private String endyear1;//终止年
 	private String endmonth1;//终止月
 	private String ispz;//是否生成凭证
-	private DZFBoolean isFlag;//是否强制导入 
+	private DZFBoolean isFlag;//是否强制导入
+
+	private String flag;	//原查询时的参数  //flag 2,1  2,0  0
 	
 	//常量
 	public static final int SOURCE_0 = 0;//手工
@@ -693,6 +695,13 @@ public class BankStatementVO extends SuperVO implements IGlobalPZVO{
 	@Override
 	public DZFDouble getSmny() {//获取金额
 		return SafeCompute.add(getSyje(), getZcje());
+	}
+	public String getFlag() {
+		return flag;
+	}
+
+	public void setFlag(String flag) {
+		this.flag = flag;
 	}
 
 }
