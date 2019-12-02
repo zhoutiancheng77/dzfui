@@ -1642,6 +1642,12 @@ public class PrintReporUtil {
     public void setIscross(DZFBoolean iscross) {
         this.iscross = iscross;
     }
+    public DZFBoolean getRotate() {
+        return rotate;
+    }
+    public void setRotate(DZFBoolean rotate) {
+        this.rotate = rotate;
+    }
 
     public Font getTableHeadFount() {
         return tableHeadFount;

@@ -45,6 +45,7 @@ import com.dzf.zxkj.platform.util.JsonErrorUtil;
 import com.dzf.zxkj.platform.util.NationalAreaUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -445,13 +446,11 @@ public class SalaryReportController {
      * 打印操作
      */
     @PostMapping("print")
-    public void printAction(PrintParamVO printParamVO, @RequestBody Map<String, String> map, HttpServletResponse response) {
+    public void printAction(PrintParamVO printParamVO, @RequestParam Map<String, String> map, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
-            if (printParamVO.getList() == null) {
-                return;
-            }
+
             String billtype = map.get("billtype");
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("类型为空");
@@ -506,8 +505,10 @@ public class SalaryReportController {
                 }
             }
             if (pmap.get("type").equals("4")) {
-//                rotate = DZFBoolean.TRUE;
+//                printReporUtil.setRotate(DZFBoolean.TRUE);
             }
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
+            printReporUtil.setIscross(DZFBoolean.TRUE);
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), list.toArray(new SalaryReportVO[list.size()]),
                     "工 资 表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")", columns, columnNames,
                     widths, 60, pmap, tmap);
