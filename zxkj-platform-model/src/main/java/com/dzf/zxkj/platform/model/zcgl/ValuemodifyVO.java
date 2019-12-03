@@ -54,6 +54,7 @@ public class ValuemodifyVO extends SuperVO {
 	private DZFBoolean issettle;
 	@JsonProperty("pk_assetcard_name")
 	private String pk_assetcard_name;
+	private String assetcard_name;// 资产名称
 	@JsonProperty("voucherno")
 	private String voucherno;
 	@JsonProperty("zckm_id")
@@ -109,8 +110,16 @@ public class ValuemodifyVO extends SuperVO {
 	public static final String DOPERATEDATE = "doperatedate";
 	public static final String VDEF4 = "vdef4";
 	public static final String ORIGINALVALUE = "originalvalue";
-	
-	
+
+
+	public String getAssetcard_name() {
+		return assetcard_name;
+	}
+
+	public void setAssetcard_name(String assetcard_name) {
+		this.assetcard_name = assetcard_name;
+	}
+
 	public String getZckm() {
 		return zckm;
 	}

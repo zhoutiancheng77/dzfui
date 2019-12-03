@@ -142,6 +142,8 @@ public class KpglController extends BaseController {
                 if (list != null && list.size() > 0) {
                     grid.setRows(getPagedCardVOs(list, paramvo.getPage(), paramvo.getRows(), grid));
                     grid.setMsg("查询成功！");
+                } else {
+                    grid.setMsg("查询数据为空！");
                 }
                 grid.setSuccess(true);
             }

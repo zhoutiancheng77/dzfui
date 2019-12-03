@@ -33,14 +33,14 @@ public class YzbgController extends BaseController {
 
     // 保存
     @PostMapping("save")
-    public ReturnData<Grid> save(@MultiRequestBody ValuemodifyVO data) {
+    public ReturnData<Grid> save(@MultiRequestBody ValuemodifyVO vo) {
         Grid json = new Grid();
-        if (data != null) {
+        if (vo != null) {
             try {
-                setLoginValue(data);
-                data = am_yzbgserv.save(data);
+                setLoginValue(vo);
+                vo = am_yzbgserv.save(vo);
                 json.setSuccess(true);
-                json.setRows(data);
+                json.setRows(vo);
                 json.setMsg("保存成功");
                 writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"原值变更保存", ISysConstants.SYS_2);
             } catch (Exception e) {

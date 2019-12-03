@@ -297,15 +297,15 @@ public class KpglServiceImpl implements IKpglService {
             sqlParam.addParam(paramvo.getPk_assetcard());
         }
         if (paramvo.getIsqc() != null) {
-            sb.append(" and ynt_assetcard.isperiodbegin = ? ");
+            sb.append(" and nvl(ynt_assetcard.isperiodbegin,'N') = ? ");
             sqlParam.addParam(paramvo.getIsqc());
         }
         if (paramvo.getIstogl() != null) {
-            sb.append(" and ynt_assetcard.istogl = ? ");
+            sb.append(" and nvl(ynt_assetcard.istogl, 'N') = ? ");
             sqlParam.addParam(paramvo.getIstogl());
         }
         if (paramvo.getIsclear() != null) {
-            sb.append(" and ynt_assetcard.isclear = ? ");
+            sb.append(" and nvl(ynt_assetcard.isclear, 'N') = ? ");
             sqlParam.addParam(paramvo.getIsclear());
         }
         sb.append(" order by assetcode ");

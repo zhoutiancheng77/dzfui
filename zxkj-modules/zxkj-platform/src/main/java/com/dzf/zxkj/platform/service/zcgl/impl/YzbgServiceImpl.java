@@ -166,7 +166,7 @@ public class YzbgServiceImpl implements IYzbgService {
 	public String[] getJoinFields(){
 		String[] joinFields = new String[]{
 			"ynt_tzpz_h.pzh as voucherno",
-//			"ynt_assetcard.assetname as pk_assetcard_name"
+			"ynt_assetcard.assetname as assetcard_name",
 			"ynt_assetcard.assetcode as pk_assetcard_name"
 		};
 		return joinFields;
