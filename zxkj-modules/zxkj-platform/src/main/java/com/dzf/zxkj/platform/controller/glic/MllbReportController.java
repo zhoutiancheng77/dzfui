@@ -33,7 +33,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 毛利率统计表
@@ -90,7 +93,7 @@ public class MllbReportController  extends GlicReportController{
     }
 
     @PostMapping("print")
-    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+    public void printAction(@RequestParam Map<String, String> pmap, HttpServletResponse response) {
         String period = "";
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
@@ -104,7 +107,8 @@ public class MllbReportController  extends GlicReportController{
             } else {
                 printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
             }
-            MllDetailVO[] bodyvos= JsonUtils.convertValue(strlist, MllDetailVO[].class);
+            strlist = strlist.replace("}{", "},{");
+            MllDetailVO[] bodyvos =JsonUtils.deserialize(strlist, MllDetailVO[].class);
             if(bodyvos!=null && bodyvos.length>0){
                 for(MllDetailVO vo:bodyvos){
                     vo.setPk_corp(SystemUtil.getLoginCorpId());
@@ -114,11 +118,20 @@ public class MllbReportController  extends GlicReportController{
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("公司", bodyvos[0].getGs());
             tmap.put("期间", period);
-            ColumnCellAttr[] columncellattrvos= JsonUtils.convertValue(printvo.getColumnslist(), ColumnCellAttr[].class);
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
 
+            List<ColumnCellAttr> list = new ArrayList<>();
+            list.add(new ColumnCellAttr("存货编码",null,null,null,"code",1));
+            list.add(new ColumnCellAttr("存货名称",null,null,null,"name",1));
+            list.add(new ColumnCellAttr("规格(型号)",null,null,null,"spec",1));
+            list.add(new ColumnCellAttr("计量单位",null,null,null,"unit",1));
+            list.add(new ColumnCellAttr("存货类别",null,null,null,"vname",1));
+            list.add(new ColumnCellAttr("出库数量",null,null,null,"ckdj",1));
+            list.add(new ColumnCellAttr("出库单价",null,null,null,"code",1));
+            list.add(new ColumnCellAttr("销售单价",null,null,null,"xsdj",1));
+            list.add(new ColumnCellAttr("毛利率",null,null,null,"mll",1));
             //初始化表体列编码和列名称
-            printReporUtil.printReport(bodyvos,"毛利率统计表", Arrays.asList(columncellattrvos),18,pmap.get("type"),pmap,tmap);
+            printReporUtil.printReport(bodyvos,"毛利率统计表", list,18,pmap.get("type"),pmap,tmap);
         } catch (DocumentException e) {
             log.error("毛利率统计表打印错误", e);
         } catch (IOException e) {
@@ -151,7 +164,8 @@ public class MllbReportController  extends GlicReportController{
             if (strlist == null) {
                 return;
             }
-            MllDetailVO[] vo= JsonUtils.convertValue(strlist, MllDetailVO[].class);
+            strlist = strlist.replace("}{", "},{");
+            MllDetailVO[] vo =JsonUtils.deserialize(strlist, MllDetailVO[].class);
             String gs = vo[0].getGs();
             qj = vo[0].getTitlePeriod();
             Excelexport2003<MllDetailVO> lxs = new Excelexport2003<>();

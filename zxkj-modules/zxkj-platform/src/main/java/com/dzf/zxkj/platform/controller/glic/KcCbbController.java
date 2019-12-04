@@ -155,7 +155,7 @@ public class KcCbbController extends GlicReportController{
     }
 
     @PostMapping("print")
-    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+    public void printAction(@RequestParam Map<String, String> pmap, HttpServletResponse response) {
         String period = "";
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
@@ -169,7 +169,8 @@ public class KcCbbController extends GlicReportController{
             } else {
                 printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
             }
-            IcDetailVO[] bodyvos =JsonUtils.convertValue(strlist, IcDetailVO[].class);
+            strlist = strlist.replace("}{", "},{");
+            IcDetailVO[] bodyvos =JsonUtils.deserialize(strlist, IcDetailVO[].class);
             if(bodyvos!=null && bodyvos.length>0){
                 for(IcDetailVO vo:bodyvos){
                     vo.setPk_corp(SystemUtil.getLoginCorpId());
@@ -180,10 +181,38 @@ public class KcCbbController extends GlicReportController{
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("公司", gs);
             tmap.put("期间", period);
-            ColumnCellAttr[] columncellattrvos= JsonUtils.convertValue(printvo.getColumnslist(), ColumnCellAttr[].class);
+//            ColumnCellAttr[] columncellattrvos= JsonUtils.convertValue(printvo.getColumnslist(), ColumnCellAttr[].class);
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));
             //初始化表体列编码和列名称
-            printReporUtil.printReport(bodyvos,"库存成本表", Arrays.asList(columncellattrvos),15,pmap.get("type"),pmap,tmap);
+            List<ColumnCellAttr> list = new ArrayList<>();
+            String strclassif = pmap.get("classif");
+            DZFBoolean flag = new DZFBoolean(strclassif);
+//            if(!flag.booleanValue())
+//             list.add(new ColumnCellAttr("存货类别",null,null,2,"spfl_name",3));
+            list.add(new ColumnCellAttr("存货名称",null,null,2,"spmc",3));
+            list.add(new ColumnCellAttr("规格(型号)",null,null,2,"spgg",3));
+            list.add(new ColumnCellAttr("计量单位",null,null,2,"jldw",2));
+            list.add(new ColumnCellAttr("期初",null,3,null,null,3));
+            list.add(new ColumnCellAttr("入库",null,3,null,null,3));
+            list.add(new ColumnCellAttr("出库",null,3,null,null,3));
+            list.add(new ColumnCellAttr("结存",null,3,null,null,3));
+            list.add(new ColumnCellAttr("数量",null,null,null,"qcsl",3));
+            list.add(new ColumnCellAttr("单价",null,null,null,"qcdj",3));
+            list.add(new ColumnCellAttr("金额",null,null,null,"qcje",3));
+
+            list.add(new ColumnCellAttr("数量",null,null,null,"srsl",3));
+            list.add(new ColumnCellAttr("单价",null,null,null,"srdj",3));
+            list.add(new ColumnCellAttr("金额",null,null,null,"srje",3));
+
+            list.add(new ColumnCellAttr("数量",null,null,null,"fcsl",3));
+            list.add(new ColumnCellAttr("单价",null,null,null,"fcdj",3));
+            list.add(new ColumnCellAttr("金额",null,null,null,"fcje",3));
+
+            list.add(new ColumnCellAttr("数量",null,null,null,"jcsl",3));
+            list.add(new ColumnCellAttr("单价",null,null,null,"jcdj",3));
+            list.add(new ColumnCellAttr("金额",null,null,null,"jcje",3));
+
+            printReporUtil.printReport(bodyvos,"库存成本表",list,15,pmap.get("type"),pmap,tmap);
         } catch (DocumentException e) {
             log.error("库存成本表打印错误", e);
         } catch (IOException e) {
@@ -217,7 +246,8 @@ public class KcCbbController extends GlicReportController{
                 return;
             }
             String strclassif = param.get("classif");
-            IcDetailVO[] vo =JsonUtils.convertValue(strlist, IcDetailVO[].class);
+            strlist = strlist.replace("}{", "},{");
+            IcDetailVO[] vo =JsonUtils.deserialize(strlist, IcDetailVO[].class);
             String gs = vo[0].getGs();
             qj = vo[0].getTitlePeriod();
             Excelexport2003<IcDetailVO> lxs = new Excelexport2003<IcDetailVO>();
