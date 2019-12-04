@@ -135,8 +135,8 @@ public class MeasureServiceImpl implements IMeasureService {
 								   Map<String, MeasureVO> map, String tablename, String msg) {
 
 		StringBuffer sf = new StringBuffer();
-		sf.append("select distinct pk_invclassify from " + tablename
-				+ " where pk_corp=? and nvl(dr,0) = 0 and pk_invclassify in ( ").append(strids).append(" ) ");
+		sf.append("select distinct pk_measure from " + tablename
+				+ " where pk_corp=? and nvl(dr,0) = 0 and pk_measure in ( ").append(strids).append(" ) ");
 		SQLParameter param = new SQLParameter();
 		param.addParam(pk_corp);
 		List<String> list = (List<String>) getSingleObjectBO().executeQuery(sf.toString(), param, new ColumnListProcessor());
