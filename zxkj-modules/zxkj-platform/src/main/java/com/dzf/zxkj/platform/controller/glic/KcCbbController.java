@@ -142,7 +142,7 @@ public class KcCbbController extends GlicReportController{
         if(StringUtil.isEmpty(zg))
             throw new BusinessException("暂估数据不全，请检查");
         zg = zg.replace("}{", "},{");
-        zg = "[" + zg + "]";
+//        zg = "[" + zg + "]";
         TempInvtoryVO[] bodyvos = JsonUtils.deserialize(zg, TempInvtoryVO[].class);
         period = bodyvos[0].getPeriod();
         ic_rep_cbbserv.saveZg(bodyvos, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
