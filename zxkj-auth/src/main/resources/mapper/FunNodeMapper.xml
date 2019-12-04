@@ -6,9 +6,15 @@
     <select id="getFunNodeByUseridAndPkCorp" resultMap="funNode">
         SELECT
             pk_funnode,
+            fun_code as code,
             module,
+            router,
             nodeurl,
-            dr
+            dr,
+            pk_parent_new as pk_parent,
+            file_dir as component,
+            show_order as orderNum,
+            fun_name as name
         FROM
             sm_funnode funnode
         WHERE
@@ -23,6 +29,7 @@
                 AND role.cuserid = #{userid}
                 AND role.pk_corp = #{pk_corp}
             AND func.resource_data_id = funnode.pk_funnode)
-
+            AND nvl(funnode.dr, 0) = 0
+            AND router is not null
     </select>
 </mapper>
