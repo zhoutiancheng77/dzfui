@@ -80,6 +80,7 @@ public class ZczjmxActReportController extends BaseController {
             grid.setTotal(assetdepreciationvos == null ? 0 : (long) Arrays.asList(assetdepreciationvos).size());
             grid.setRows(assetdepreciationvos == null ? null : Arrays.asList(assetdepreciationvos));
             grid.setSuccess(true);
+            grid.setMsg("查询成功");
             writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "折旧明细账查询");
         } catch (Exception e) {
             grid.setRows(new ArrayList<AssetDepreciaTionVO>());

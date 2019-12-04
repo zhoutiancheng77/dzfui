@@ -63,6 +63,7 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
                 grid.setTotal((long) zcmxvos.length);
                 grid.setRows(Arrays.asList(zcmxvos));
             }
+            grid.setMsg("查询成功");
             grid.setSuccess(true);
 //            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL.getValue(),"资产总账对账表查询", ISysConstants.SYS_2);
         } catch (Exception e) {

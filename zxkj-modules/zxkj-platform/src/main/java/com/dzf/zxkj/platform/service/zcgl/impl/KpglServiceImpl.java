@@ -1943,6 +1943,9 @@ public class KpglServiceImpl implements IKpglService {
         //月折旧，和使用年限
         cardvo.setMonthzj(yzj);
 
+        if (yzj.doubleValue() <= 0) {
+            throw new BusinessException("月折旧不能小于等于0");
+        }
 
         singleObjectBO.update(cardvo, new String[]{"uselimit", "monthzj"});
     }
