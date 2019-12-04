@@ -58,7 +58,6 @@ public class QueryVoucher {
         String vname = paramvo.getVname();
         String fzhsxm = paramvo.getFzhsxm();
         String fzhslb = paramvo.getFzhslb();
-        String fzcode = paramvo.getFzcode();
         String sourcebilltype = paramvo.getSourcebilltype();
         String join = "";
         DZFDouble mny1 = paramvo.getMny1();
@@ -159,14 +158,14 @@ public class QueryVoucher {
             if (!StringUtil.isEmptyWithTrim(fzhsxm)) {
                 fzhsxm = fzhsxm.trim();
                 wheresql.append("and( tb.fzhsx");
-                wheresql.append(fzcode);
+                wheresql.append(fzhslb);
                 wheresql.append(" = ? ");
                 wheresql.append(" or tb.pk_inventory = ? ) ");
                 sp.addParam(fzhsxm);
                 sp.addParam(fzhsxm);
             } else {
                 wheresql.append("and (tb.fzhsx");
-                wheresql.append(fzcode);
+                wheresql.append(fzhslb);
                 wheresql.append(" is not null ");
                 wheresql.append(" or tb.pk_inventory is not null ) ");
             }
