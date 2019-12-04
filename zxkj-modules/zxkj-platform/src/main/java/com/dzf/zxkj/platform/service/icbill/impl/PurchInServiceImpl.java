@@ -2137,7 +2137,9 @@ public class PurchInServiceImpl implements IPurchInService {
 
 			if (list != null && list.size() > 0) {
 				for (BankAccountVO spflvo : list) {
-					bankmap.put(replaceBlank(spflvo.getBankname().trim()), spflvo);
+					if(!StringUtil.isEmpty(spflvo.getBankname())){
+						bankmap.put(replaceBlank(spflvo.getBankname().trim()), spflvo);
+					}
 				}
 			}
 

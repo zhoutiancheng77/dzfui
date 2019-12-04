@@ -84,6 +84,9 @@ public class PurchInController {
         int page = data.getPage();
         int rows = data.getRows();
         IntradeParamVO paramvo = getQueryParamVO(data);
+        if(StringUtil.isEmpty(param.get("iszg"))){
+			paramvo.setIszg(null);
+		}
         if (paramvo != null) {
             List<IntradeHVO> list = ic_purchinserv.query(paramvo);
             if (list != null && list.size() > 0) {
@@ -92,8 +95,8 @@ public class PurchInController {
                 grid.setRows(Arrays.asList(PzglPagevos));
             } else {
                 grid.setTotal((long) 0);
+                grid.setRows(new IntradeHVO[0]);
             }
-            grid.setSuccess(true);
             grid.setSuccess(true);
             grid.setMsg("查询成功！");
         }
@@ -851,11 +854,10 @@ public class PurchInController {
         securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
         String msg = ic_purchinserv.saveImp(infile, pk_corp, fileType, SystemUtil.getLoginUserId());
         if (StringUtil.isEmpty(msg)) {
-            json.setMsg("入库单导入成功!");
             json.setSuccess(true);
         } else {
             json.setMsg(msg);
-            json.setSuccess(false);
+            json.setSuccess(true);
         }
         return ReturnData.ok().data(json);
 	}
