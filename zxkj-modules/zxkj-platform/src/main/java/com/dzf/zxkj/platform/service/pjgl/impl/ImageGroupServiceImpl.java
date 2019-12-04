@@ -612,7 +612,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	}
 
 	@Override
-	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO userVo, MultipartFile[] infiles, String g_id,
+	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO userVo, MultipartFile infiles, String g_id,
 										 String period, String pjlxType) throws DZFWarpException {
 
 		// 2017-09-08 去掉自动识别 在ocr服务统一处理
@@ -621,7 +621,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		try {
 			il = uploadSingFile1(corpvo, userVo, infiles, g_id, period, null, pjlxType);
 			// 在线端上传图片
-			imgOcrGropuserv.saveData(corpvo, il, pjlxType, 0, infiles[0].getOriginalFilename());
+			imgOcrGropuserv.saveData(corpvo, il, pjlxType, 0, infiles.getOriginalFilename());
 			pjsj_serv.updateCountByPjlx(corpvo.getPrimaryKey(), period, pjlxType, null, null, userVo, corpvo, 1);
 		} catch (Exception e) {
 			throw new BusinessException(e.getMessage());
@@ -630,10 +630,10 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		return il;
 	}
 
-	private ImageLibraryVO uploadSingFile1(CorpVO corpvo, UserVO userVo, MultipartFile[] infiles,
+	private ImageLibraryVO uploadSingFile1(CorpVO corpvo, UserVO userVo, MultipartFile infiles,
 			String g_id, String period, String invoicedata, String pjlxType) {
 		// 检查该图片是否已上传
-		String imgMD = getUploadImgMD(infiles[0], corpvo);
+		String imgMD = getUploadImgMD(infiles, corpvo);
 
 		// 检查是否关账
 		if (qmgzService.isGz(corpvo.getPk_corp(), period)) {
@@ -693,7 +693,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		if (ig == null) {
 			throw new BusinessException("未找到图片组！");
 		}
-		String nameSuffix = infiles[0].getOriginalFilename().substring(infiles[0].getOriginalFilename().lastIndexOf("."));
+		String nameSuffix = infiles.getOriginalFilename().substring(infiles.getOriginalFilename().lastIndexOf("."));
 		String ds = ""; // getRequest().getRealPath("/").replaceAll("\\\\","/");
 		// ds = ds.substring(0,ds.length() -1);
 		File dir = getImageFolder("vchImg", corpvo, ds);
@@ -727,16 +727,16 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 			imgFileNm = UUID.randomUUID().toString() + nameSuffix;
 			destFile = new File(dir, imgFileNm);
 
-			if (infiles[0].getSize() > THRESHOLD_FILE_SIZE * 1024 / 20)// 5M
+			if (infiles.getSize() > THRESHOLD_FILE_SIZE * 1024 / 20)// 5M
 				throw new BusinessException("上传pdf文件大小超过5M，请检查");
 
 			pdfFileNm = UUID.randomUUID().toString() + nameSuffixTemp;
-			ImageCopyUtil.transPdfToJpg(infiles[0], dir, pdfFileNm, destFile);
+			ImageCopyUtil.transPdfToJpg(infiles, dir, pdfFileNm, destFile);
 		} else {
 			destFile = new File(dir, imgFileNm);
 			try {
-				isComBySale = infiles[0].getSize() > THRESHOLD_FILE_SIZE;
-				ImageCopyUtil.copy(infiles[0], destFile);
+				isComBySale = infiles.getSize() > THRESHOLD_FILE_SIZE;
+				ImageCopyUtil.copy(infiles, destFile);
 
 			} catch (Exception e) {
 				throw new BusinessException("保存图片失败");
@@ -1298,7 +1298,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	}
 
 	@Override
-	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, MultipartFile[] infiles, String[] filenames,
+	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, MultipartFile infiles, String[] filenames,
 			String g_id, String period, String invoicedata,String pjlxType) throws DZFWarpException {
 		ImageLibraryVO il = null;
 		try {

@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -225,9 +226,13 @@ public class ImageViewController extends BaseController {
     }
 
     @RequestMapping("/getPicStatistics")
-    public ReturnData<Json> getPicStatistics(String pk_corp,String beginDate,String endDate,String serdate) {
+    public ReturnData<Json> getPicStatistics(@RequestBody Map<String,String> param) {
         Json json = new Json();
         try {
+            String pk_corp = param.get("pk_corp");
+            String beginDate = param.get("beginDate");
+            String endDate = param.get("endDate");
+            String serdate = param.get("serdate");
             if (StringUtil.isEmpty(pk_corp)) {
                 pk_corp = SystemUtil.getLoginCorpId();
             } else {

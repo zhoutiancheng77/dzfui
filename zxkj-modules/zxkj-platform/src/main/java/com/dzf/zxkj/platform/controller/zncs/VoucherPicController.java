@@ -125,18 +125,17 @@ public class VoucherPicController extends BaseController {
     }
 
     @RequestMapping("/uploadSingleFile")
-    public ReturnData<Json> uploadSingleFile(@RequestBody Map<String, String> param,MultipartFile[] infiles) {
-
-        String selMon = param.get("selMon");
-        String selYear = param.get("selYear");
-        String pk_corp = param.get("pk_corp");
-        String pjlxType = param.get("pjlx");
-        String msgkey = param.get("msgkey");
-        String g_id = param.get("g_id");
+    public ReturnData<Json> uploadSingleFile(MultipartFile infiles,String pjlx,String selMon,String selYear,String pk_corp,String msgkey,String g_id) {
+//        String pjlx = param.get("pjlx");
+//        String selMon= param.get("selMon");
+//        String selYear= param.get("selYear");
+//        String pk_corp= param.get("pk_corp");
+//        String msgkey= param.get("msgkey");
+//        String g_id= param.get("g_id");
         Json json = new Json();
         json.setSuccess(false);
 //		json.setStatus(-200);
-        pjlxType = "-1".equals(pjlxType) ? null : pjlxType;//如果为-1，表明传的业务类型为空
+        pjlx = "-1".equals(pjlx) ? null : pjlx;//如果为-1，表明传的业务类型为空
         UserVO userVo = SystemUtil.getLoginUserVo();
         CorpVO corpvo = null;
         try {
@@ -155,13 +154,13 @@ public class VoucherPicController extends BaseController {
 //                    .getFiles("file");
 //            String[] filenames = ((MultiPartRequestWrapper) getRequest())
 //                    .getFileNames("file");
-            if (infiles == null||infiles.length==0) {
+            if (infiles == null||infiles.getSize()==0) {
                 throw new BusinessException("文件为空");
             }
 
             String period = selYear+"-"+selMon;
             ImageLibraryVO il = gl_pzimageserv.uploadSingFile(corpvo, userVo, infiles,
-                    g_id, period, pjlxType);
+                    g_id, period, pjlx);
             //选择票据类型不在生成临时凭证
 //			gl_pzimageserv.saveCreatePz(il, corpvo, g_id, pjlxType);
 
