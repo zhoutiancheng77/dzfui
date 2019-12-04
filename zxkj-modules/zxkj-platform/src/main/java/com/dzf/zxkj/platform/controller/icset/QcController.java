@@ -129,7 +129,7 @@ public class QcController {
 	}
 	// 删除记录
 	@PostMapping("/onDelete")
-	public ReturnData onDelete(@RequestParam Map<String, String> param) {
+	public ReturnData onDelete(@RequestBody Map<String, String> param) {
 		String paramValues = param.get("ids");
 		String pk_corp = param.get("pk_corp");
 		Json json = new Json();
