@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.service.jzcl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
@@ -10,8 +12,6 @@ import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.constant.IcConst;
 import com.dzf.zxkj.common.entity.ITradeInfo;
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -31,20 +31,22 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.icset.IInventoryService;
-import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.icset.IQcService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
+import com.dzf.zxkj.platform.service.icset.IInventoryService;
+import com.dzf.zxkj.platform.service.icset.IQcService;
+import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.VoUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * 商贸成本结转
@@ -62,8 +64,11 @@ public class NumberForward {
 
 	private IParameterSetService parameterserv;
 
+	@Autowired
+	private IAccountService accountService;
+
 	public NumberForward(IYntBoPubUtil yntBoPubUtil, SingleObjectBO singleObjectBO, IQueryLastNum ic_rep_cbbserv,
-                         IVoucherService voucher, IParameterSetService parameterserv) {
+						 IVoucherService voucher, IParameterSetService parameterserv) {
 		this.yntBoPubUtil = yntBoPubUtil;
 		this.singleObjectBO = singleObjectBO;
 		this.ic_rep_cbbserv = ic_rep_cbbserv;
@@ -72,7 +77,7 @@ public class NumberForward {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param gsmbVOs
 	 *            公司模板
 	 * @param vo
@@ -94,10 +99,14 @@ public class NumberForward {
 		// 暂估数据
 		List<InvCurentVO> listinv = queryInvCurentVOs(gsmbVOs, vo, pk_corp);
 		// mapinv 库存商品
-		List<TempInvtoryVO> listsss = check(listinv, map, mapinv);
-		if (listsss != null && listsss.size() > 0) {
-			return listsss;
+		//支持部分暂估
+		if (vo.getZgdata() == null || vo.getZgdata().length ==0) {
+			List<TempInvtoryVO> listsss = check(listinv, map, mapinv);
+			if (listsss != null && listsss.size() > 0) {
+				return listsss;
+			}
 		}
+
 		Map<String, List<InvCurentVO>> mapivn = DZfcommonTools.hashlizeObject(listinv, new String[] { "pk_accsubj" });
 		for (ITradeInfo gsmbVO : gsmbVOs) {
 			// 借方科目
@@ -141,14 +150,14 @@ public class NumberForward {
 
 	/**
 	 * 库存生成凭证流程 成本结转
-	 * 
+	 *
 	 * @param gsmbVOs
 	 *            公司模板
 	 * @param vo
 	 *            期末处理vo
 	 * @param corpVo
 	 *            公司
-	 * @param mapinv
+	 * @param 'mapinv'
 	 *            库存商品
 	 * @return
 	 * @throws DZFWarpException
@@ -165,14 +174,17 @@ public class NumberForward {
 		// 查询出库单 按照存货主键分装 库存单据 成本
 		List<InvCurentVO> listinv = getInvCurentVOsByQskmIsNull(vo, pk_corp);
 
-		// 自动结转完成，即不生成结转凭证
-		List<TempInvtoryVO> listsss = queryZgVOs(corpVo, vo);
+		//支持部分暂估
+		if (vo.getZgdata() == null || vo.getZgdata().length == 0) {
+			List<TempInvtoryVO> listsss = queryZgVOs(corpVo, vo);
 
-		if (listsss != null && listsss.size() > 0) {
-			return listsss;
+			if (listsss != null && listsss.size() > 0) {
+				return listsss;
+			}
 		}
+
 		if (listinv != null && listinv.size() > 0) {
-			
+
 
 			for (ITradeInfo gsmbVO : gsmbVOs) {
 				// 借方科目
@@ -196,7 +208,7 @@ public class NumberForward {
 
 		return null;
 	}
-	
+
 	private List<String> getDfkm(String accid, String pk_corp, Map<String, YntCpaccountVO> accmap) {
 		List<String> list = new ArrayList<String>();
 
@@ -252,7 +264,7 @@ public class NumberForward {
 		List<InvCurentVO> pzHVOs = (List<InvCurentVO>) singleObjectBO.executeQuery(sf1.toString(), sp,
 				new ResultSetProcessor() {
 					@Override
-					public Object handleResultSet(ResultSet rs) throws SQLException {
+					public Object handleResultSet(java.sql.ResultSet rs) throws SQLException {
 						List<InvCurentVO> list = new ArrayList<InvCurentVO>();
 						String pk_corp = null;
 						String pk_tzpz_h = null;
@@ -464,7 +476,7 @@ public class NumberForward {
 	 * @throws DZFWarpException
 	 */
 	public List<TempInvtoryVO> check(List<InvCurentVO> cvos, Map<String, IcbalanceVO> map,
-			Map<String, TempInvtoryVO> maptmp) throws DZFWarpException {
+									 Map<String, TempInvtoryVO> maptmp) throws DZFWarpException {
 		Map<String, TempInvtoryVO> maps = new HashMap<String, TempInvtoryVO>();
 		Map<String, DZFDouble> netmap = new HashMap<String, DZFDouble>();
 		if (cvos != null && cvos.size() > 0) {
@@ -519,7 +531,7 @@ public class NumberForward {
 
 	// 处理库存map中数量为负的情况
 	private List<TempInvtoryVO> getIcBancesub(Map<String, TempInvtoryVO> maps1, Map<String, IcbalanceVO> map,
-			Map<String, TempInvtoryVO> maptmp) {
+											  Map<String, TempInvtoryVO> maptmp) {
 		if (maps1 != null && maps1.size() > 0) {
 			for (String s : maps1.keySet()) {
 				map.remove(s);
@@ -599,7 +611,7 @@ public class NumberForward {
 	 * 保存结转凭证--库存新模式，不暂估
 	 */
 	private TzpzHVO bulidpzBillMode2(QmclVO vo, String jfkm, String abstracts, List<InvCurentVO> pzHVOs,
-			Map<String, IcbalanceVO> map, CorpVO corpVo, String userid,Map<String, YntCpaccountVO> accmap,List<String> dfkmlist) throws DZFWarpException {
+									 Map<String, IcbalanceVO> map, CorpVO corpVo, String userid,Map<String, YntCpaccountVO> accmap,List<String> dfkmlist) throws DZFWarpException {
 		DZFDouble ye = DZFDouble.ZERO_DBL;
 
 		YntCpaccountVO jvo = accmap.get(jfkm);
@@ -615,6 +627,7 @@ public class NumberForward {
 		Map<String, TzpzBVO>  pzmap = new HashMap<>();
 		String priceStr = parameterserv.queryParamterValueByCode(corpVo.getPk_corp(), IParameterConstants.DZF010);
 		int iprice = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
+		IcbalanceVO balancevo= null;
 		for (InvCurentVO cvo : pzHVOs) {
 
 			// 工业成本结转
@@ -631,7 +644,7 @@ public class NumberForward {
 			if (dvo.getIsleaf() == null || !dvo.getIsleaf().booleanValue()) {
 				dvo = queryNewCpaccountVO(dvo.getAccountcode(), cvo.getPk_corp(), cvo.getPk_inventory());
 			}
-			IcbalanceVO balancevo = map.get(cvo.getPk_inventory());
+			balancevo = map.get(cvo.getPk_inventory());
 
 			if (balancevo == null)
 				balancevo = new IcbalanceVO();
@@ -700,8 +713,8 @@ public class NumberForward {
 			df = vo1.getDfmny();
 			num = vo1.getNnumber();
 //			if (df != null && !df.equals(DZFDouble.ZERO_DBL) && num != null && !num.equals(DZFDouble.ZERO_DBL)) {
-				list1.add(vo1);
-				jfnmny = SafeCompute.add(jfnmny, df);
+			list1.add(vo1);
+			jfnmny = SafeCompute.add(jfnmny, df);
 //			}
 		}
 
@@ -770,8 +783,8 @@ public class NumberForward {
 			lastmap =DZfcommonTools.hashlizeObjectByPk(list, new String[]{"pk_inventory"});
 
 		}else{
-			 lastmap = ic_rep_cbbserv.queryLastBanlanceVOs_byMap1(
-						DateUtils.getPeriodEndDate(DateUtils.getPreviousPeriod(period)).toString(), pk_corp, null, true);// 根据单据日期查询上期结存
+			lastmap = ic_rep_cbbserv.queryLastBanlanceVOs_byMap1(
+					DateUtils.getPeriodEndDate(DateUtils.getPreviousPeriod(period)).toString(), pk_corp, null, true);// 根据单据日期查询上期结存
 		}
 
 		String begindate = DateUtils.getPeriodStartDate(period).toString();
@@ -797,7 +810,7 @@ public class NumberForward {
 		String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
 		int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
 
-		for (Map.Entry<String, IcbalanceVO> entry : map.entrySet()) {
+		for (Entry<String, IcbalanceVO> entry : map.entrySet()) {
 			IcbalanceVO balvo = entry.getValue();
 
 			if (balvo == null || balvo.getNnum() == null || balvo.getNnum().doubleValue() >= 0)
@@ -856,7 +869,7 @@ public class NumberForward {
 	}
 
 	private IcbalanceVO getZgvo(String pk_inventory, Map<String, IcbalanceVO> lastmap, Map<String, IcbalanceVO> outMap,
-			Map<String, IcbalanceVO> inMap,Map<String, IcbalanceVO> inMap_sub) {
+								Map<String, IcbalanceVO> inMap,Map<String, IcbalanceVO> inMap_sub) {
 		// 暂估单价优先取上期结存单价（成本表）、无上期结存取本期购入平均价（该存货入库单未税金
 		// 额相加/数量合计）、无本期购入，取本期发出平均销售价（该存货出库单未税金额相加/数量合计）
 		IcbalanceVO zgvo = lastmap.get(pk_inventory);
@@ -968,7 +981,7 @@ public class NumberForward {
 	 * 保存结转凭证
 	 */
 	private TzpzHVO bulidTZBillVO(QmclVO vo, String jfkm, String dfkm, String abstracts, List<InvCurentVO> pzHVOs,
-			Map<String, IcbalanceVO> map, CorpVO corpVo, String userid) throws DZFWarpException {
+								  Map<String, IcbalanceVO> map, CorpVO corpVo, String userid) throws DZFWarpException {
 		List<TzpzBVO> list = new ArrayList<TzpzBVO>();
 		DZFDouble ye = new DZFDouble(0.0);
 		YntCpaccountVO jvo = (YntCpaccountVO) singleObjectBO.queryByPrimaryKey(YntCpaccountVO.class, jfkm);
@@ -977,8 +990,11 @@ public class NumberForward {
 		String priceStr = parameterserv.queryParamterValueByCode(corpVo.getPk_corp(), IParameterConstants.DZF010);
 		int iprice = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 		List<String> chpks = new ArrayList<String>();
+		IcbalanceVO balancevo = null;
 		for (InvCurentVO cvo : pzHVOs) {
-			IcbalanceVO balancevo = map.get(cvo.getPk_inventory());
+			balancevo = map.get(cvo.getPk_inventory());
+			if(balancevo == null)
+				balancevo = new IcbalanceVO();
 			DZFDouble df = calcAvgnum(balancevo.getNnum(), balancevo.getNcost(), cvo.getNnumber());
 			DZFDouble price = SafeCompute.div(df, cvo.getNnumber());
 			price = price.setScale(iprice, DZFDouble.ROUND_HALF_UP);
@@ -1142,13 +1158,14 @@ public class NumberForward {
 	 * 其它地方调用暂估数据，目前wzn 调用。2018.8.30
 	 */
 	public List<TempInvtoryVO> getReportZGData(QmclVO qmclvo, CorpVO corpVo, List<QMJzsmNoICVO> list1,
-			YntCpaccountVO jfkmvo, String cbjzCount, List<String> listdfkm, DZFBoolean isxjxcf, String userid) {
+											   YntCpaccountVO jfkmvo, String cbjzCount, List<String> listdfkm, DZFBoolean isxjxcf, String userid) {
 		List<TzpzBVO> listTzpzBVO = new ArrayList<TzpzBVO>();
 		Transfervo fervo = new Transfervo();
 		fervo.setYe(DZFDouble.ZERO_DBL);
 		fervo.setZy("");
+		// 暂时传个空 TempDataTransFer
 		List<TempInvtoryVO> zglist = getZGData(fervo, listTzpzBVO, qmclvo, corpVo, list1, jfkmvo, cbjzCount, listdfkm,
-				isxjxcf, userid,null);
+				isxjxcf, userid, new TempDataTransFer());
 		return zglist;
 	}
 
@@ -1171,8 +1188,8 @@ public class NumberForward {
 	}
 
 	private List<TempInvtoryVO> getZGData(Transfervo transfervo, List<TzpzBVO> listTzpzBVO, QmclVO qmclvo,
-			CorpVO corpVo, List<QMJzsmNoICVO> list1, YntCpaccountVO jfkmvo, String cbjzCount, List<String> listdfkm,
-			DZFBoolean isxjxcf, String userid,TempDataTransFer datafer) {
+										  CorpVO corpVo, List<QMJzsmNoICVO> list1, YntCpaccountVO jfkmvo, String cbjzCount, List<String> listdfkm,
+										  DZFBoolean isxjxcf, String userid,TempDataTransFer datafer) {
 		String priceStr = parameterserv.queryParamterValueByCode(qmclvo.getPk_corp(), IParameterConstants.DZF010);
 		Integer pricejingdu = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 
@@ -1403,31 +1420,38 @@ public class NumberForward {
 //				}
 //				price = SafeCompute.div(df, bqfcnum);
 //			} else {
-				df = SafeCompute.multiply(VoUtils.getDZFDouble(cvo.getBqprice()),
-						VoUtils.getDZFDouble(cvo.getBqfcnum()));
-				price = cvo.getBqprice();
-				if (qmclvo.getZgdata() != null && qmclvo.getZgdata().length > 0) {
-					TempInvtoryVO[] zgdata = qmclvo.getZgdata();
-					for (TempInvtoryVO zgvo : zgdata) {
-						boolean flag = StringUtil.isEmpty(cvo.getFzid()) ? cvo.getKmid().equals(zgvo.getKmid())
-								: cvo.getKmid().equals(zgvo.getKmid()) && cvo.getFzid().equals(zgvo.getFzid());
+			df = SafeCompute.multiply(VoUtils.getDZFDouble(cvo.getBqprice()),
+					VoUtils.getDZFDouble(cvo.getBqfcnum()));
+			price = cvo.getBqprice();
+			if (qmclvo.getZgdata() != null && qmclvo.getZgdata().length > 0) {
+				TempInvtoryVO[] zgdata = qmclvo.getZgdata();
+				for (TempInvtoryVO zgvo : zgdata) {
+					boolean flag = StringUtil.isEmpty(cvo.getFzid()) ? cvo.getKmid().equals(zgvo.getKmid())
+							: cvo.getKmid().equals(zgvo.getKmid()) && cvo.getFzid().equals(zgvo.getFzid());
 
-						if (flag) {
-							DZFDouble totalmny = SafeCompute.add(VoUtils.getDZFDouble(cvo.getQcmny()),
-									VoUtils.getDZFDouble(cvo.getBqsrmny()));
-							totalmny = SafeCompute.add(totalmny, VoUtils.getDZFDouble(zgvo.getNmny()));
-							DZFDouble totalnum = SafeCompute.add(VoUtils.getDZFDouble(cvo.getQcnum()),
-									VoUtils.getDZFDouble(cvo.getBqsrnum()));
-							totalnum = SafeCompute.add(totalnum, VoUtils.getDZFDouble(zgvo.getNnumber()));
-							price = SafeCompute.div(VoUtils.getDZFDouble(totalmny), VoUtils.getDZFDouble(totalnum));
-							df = SafeCompute.multiply(VoUtils.getDZFDouble(price),
-									VoUtils.getDZFDouble(cvo.getBqfcnum()));
-							// 将暂估数量放到本期发生数量里面去
-							cvo.setBqsrnum(SafeCompute.add(cvo.getBqsrnum(), zgvo.getNnumber()));
+					if (flag) {
+						DZFDouble totalmny = SafeCompute.add(VoUtils.getDZFDouble(cvo.getQcmny()),
+								VoUtils.getDZFDouble(cvo.getBqsrmny()));
+						totalmny = SafeCompute.add(totalmny, VoUtils.getDZFDouble(zgvo.getNmny()));
+						DZFDouble totalnum = SafeCompute.add(VoUtils.getDZFDouble(cvo.getQcnum()),
+								VoUtils.getDZFDouble(cvo.getBqsrnum()));
+						DZFDouble zgnum = DZFDouble.ZERO_DBL;
+						if(zgvo.getNnumber_old().compareTo(zgvo.getNnumber())>=0){
+							// 按照数量全部暂估   金额部分暂估 重新计算单价
+							zgnum = zgvo.getNnumber_old();
+						}else{
+							zgnum = zgvo.getNnumber();
 						}
-
+						totalnum = SafeCompute.add(totalnum, VoUtils.getDZFDouble(zgnum));
+						price = SafeCompute.div(VoUtils.getDZFDouble(totalmny), VoUtils.getDZFDouble(totalnum));
+						df = SafeCompute.multiply(VoUtils.getDZFDouble(price),
+								VoUtils.getDZFDouble(cvo.getBqfcnum()));
+						// 将暂估数量放到本期发生数量里面去
+						cvo.setBqsrnum(SafeCompute.add(cvo.getBqsrnum(),zgnum));
 					}
+
 				}
+			}
 //			}
 			boolean flag = false;
 			if (df.equals(DZFDouble.ZERO_DBL)) {
@@ -1574,7 +1598,7 @@ public class NumberForward {
 			for(TempInvtoryVO tempvo : zglist){
 				if(cvo.getKmid()!=null && cvo.getKmid().equals(tempvo.getKmid())
 						&& ((!StringUtil.isEmpty(cvo.getFzid())  && cvo.getFzid().equals(tempvo.getFzid()))
-								|| (StringUtil.isEmpty(cvo.getFzid()) && StringUtil.isEmpty(tempvo.getFzid())))){
+						|| (StringUtil.isEmpty(cvo.getFzid()) && StringUtil.isEmpty(tempvo.getFzid())))){
 					lastempvo = tempvo;
 					break;
 				}
@@ -1635,7 +1659,7 @@ public class NumberForward {
 	 * 查询上月成本结转的数据，不能通过
 	 */
 	private DZFDouble queryPrePeriodJzData(CorpVO corpvo, String preperiod, String pk_corp, String pk_inventory,
-			String pk_accsubj) {
+										   String pk_accsubj) {
 		DZFDouble preprice = null;
 		if (StringUtil.isEmptyWithTrim(preperiod) || StringUtil.isEmptyWithTrim(pk_corp)
 				|| StringUtil.isEmptyWithTrim(pk_inventory) || StringUtil.isEmptyWithTrim(pk_accsubj))
@@ -1730,7 +1754,7 @@ public class NumberForward {
 	 * @return
 	 */
 	private TzpzBVO calcRedNumMny(CorpVO corpvo, QMJzsmNoICVO cvo, String zy, String pk_corp, QmclVO qmclvo,
-			Integer pricejingdu) {
+								  Integer pricejingdu) {
 		if (cvo == null)
 			return null;
 		// 取上期成本结转凭证的,如果销售退回 上上上个月的，一直往上找，直到找到。如果还是没有，就去辅助期初里面找。
@@ -1770,7 +1794,7 @@ public class NumberForward {
 	// }
 
 	private void saveCBJZVoucher(List<TzpzBVO> listTzpzBVO, DZFDouble ye, YntCpaccountVO jfkmvo, String zy,
-			CorpVO corpVo, QmclVO qmclvo, String userid, String cbjzCount) {
+								 CorpVO corpVo, QmclVO qmclvo, String userid, String cbjzCount) {
 		if (listTzpzBVO == null || listTzpzBVO.size() == 0) {
 			return;
 		}
@@ -1801,18 +1825,18 @@ public class NumberForward {
 		//zpm 注掉
 		//这种情况。也要生成凭证。
 		//比如说
-	    //借 成本   0
-	    //贷 商品A    8个   800
-	    //贷 商品B   -6个  -800
+		//借 成本   0
+		//贷 商品A    8个   800
+		//贷 商品B   -6个  -800
 		//此种情况也需要生成凭证 ，这是两个不同的存货。
 		//-----------------------------------------
 		//如果为同一个存货，由于合并。
-	    //借 成本   0
-	    //贷 商品A   8个    800
-	    //贷 商品A   -8个  -800
+		//借 成本   0
+		//贷 商品A   8个    800
+		//贷 商品A   -8个  -800
 		//合并后
-	    //借 成本   0
-	    //贷 商品A   0个    0，这种情况无法成本分摊。建议此种情况不与处理了。
+		//借 成本   0
+		//贷 商品A   0个    0，这种情况无法成本分摊。建议此种情况不与处理了。
 
 //		if (ye != null && ye.doubleValue() == 0) {// 空结
 //			return;
@@ -1990,12 +2014,12 @@ public class NumberForward {
 
 	/**
 	 * 不启用库存，完工入库，凭证保存
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public void saveWgrkVouchernoic(CpcosttransVO mbvo, QmclVO qmclvo, CorpVO corpVo, List<CostForwardInfo> list1,
-			List<YntCpaccountVO> dfkmvos, String cbjzCount, String clcode, String rgcode, String zzfycode,
-			String userid) {
+									List<YntCpaccountVO> dfkmvos, String cbjzCount, String clcode, String rgcode, String zzfycode,
+									String userid) {
 		// int a = 1;
 		if (list1 == null) {
 			return;
@@ -2006,6 +2030,7 @@ public class NumberForward {
 			}
 		}
 		List<TzpzBVO> listTzpzBVO = new ArrayList<TzpzBVO>();
+		List<TzpzBVO> dflistTzpzBVO = new ArrayList<TzpzBVO>();
 		String zy = mbvo.getAbstracts();
 		zy = getJzPzZy(zy, qmclvo);
 
@@ -2013,8 +2038,8 @@ public class NumberForward {
 		// getAuxiliaryAccount(corpVo.getPk_corp());
 		//
 		// int s = (list1.size()-1)*2;
-		IAccountService accountService = SpringUtils.getBean(IAccountService.class);
-		Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(corpVo.getPk_corp());
+
+		Map<String, YntCpaccountVO> accmap =accountService.queryMapByPk(corpVo.getPk_corp());
 
 		List<String>  list = new ArrayList<>();
 		DZFDouble ye = DZFDouble.ZERO_DBL;
@@ -2055,7 +2080,7 @@ public class NumberForward {
 					dfbodyVO.setNrate(new DZFDouble(1));
 					dfbodyVO.setPk_corp(corpVo.getPk_corp());
 					if (dfbodyVO.getDfmny() != null && dfbodyVO.getDfmny().doubleValue() != 0) {
-						listTzpzBVO.add(dfbodyVO);
+						dflistTzpzBVO.add(dfbodyVO);
 					}
 
 				}
@@ -2065,14 +2090,14 @@ public class NumberForward {
 				jfbodyVO.setPk_accsubj(info.getKmid());// 借方科目
 				jfbodyVO.setVcode(info.getKmbm());
 				jfbodyVO.setVname(info.getKmmc());
-				
+
 				YntCpaccountVO account = accmap.get(info.getKmid());
 				if(account != null){
 					if (account.getIsfzhs().charAt(5) == '1') {
 						jfbodyVO.setFzhsx6(info.getFzid());
 					}
 				}
-				
+
 				jfbodyVO.setJfmny(SafeCompute.add(info.getNcailiao_wg(),
 						SafeCompute.add(info.getNrengong_wg(), info.getNzhizao_wg())));
 				if (jfbodyVO.getJfmny() == null || jfbodyVO.getJfmny().doubleValue() == 0) {
@@ -2113,7 +2138,7 @@ public class NumberForward {
 		headVO.setPeriod(qmclvo.getPeriod());
 		headVO.setVyear(Integer.valueOf(qmclvo.getPeriod().substring(0, 4)));
 		headVO.setIsfpxjxm(new DZFBoolean("N"));
-
+		listTzpzBVO.addAll(dflistTzpzBVO);
 		headVO.setChildren(listTzpzBVO.toArray(new TzpzBVO[0]));
 
 		if (ye.doubleValue() == 0) {// 空结

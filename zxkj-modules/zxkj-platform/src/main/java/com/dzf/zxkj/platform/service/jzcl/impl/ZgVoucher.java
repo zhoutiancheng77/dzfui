@@ -35,21 +35,21 @@ import java.util.Map;
 public class ZgVoucher {
 
 	private SingleObjectBO singleObjectBO  ;
-	
+
 	private IYntBoPubUtil yntBoPubUtil = null;
-	
+
 	private ICbComconstant gl_cbconstant;
 	private IParameterSetService parameterserv;
-	public ZgVoucher(ICbComconstant gl_cbconstant, SingleObjectBO singleObjectBO, IYntBoPubUtil yntBoPubUtil, IParameterSetService parameterserv){
+	public ZgVoucher(ICbComconstant gl_cbconstant,SingleObjectBO singleObjectBO,IYntBoPubUtil yntBoPubUtil,IParameterSetService parameterserv){
 		this.singleObjectBO = singleObjectBO;
 		this.yntBoPubUtil = yntBoPubUtil;
 		this.gl_cbconstant = gl_cbconstant;
 		this.parameterserv=parameterserv;
 	}
-	
 
 
-//  查询第一分支的最末级科目
+
+	//  查询第一分支的最末级科目
 	private YntCpaccountVO queryAccount(QmclVO vo, String code) throws BusinessException {
 
 		StringBuffer strb = new StringBuffer();
@@ -79,50 +79,62 @@ public class ZgVoucher {
 		if(zgvos == null || zgvos.length == 0)
 			return null;
 		DZFDouble jf = DZFDouble.ZERO_DBL;
-		TzpzBVO[] bodyvos = new TzpzBVO[zgvos.length+1];
-//		YntCpaccountVO accvo = queryAccount(vo,gl_cbconstant.getKcsp_code());
-		
 		// 根据商品查找对应科目
 		List<String> list = new ArrayList<String>();
 		for(TempInvtoryVO invo:zgvos){
 			list.add(invo.getPk_invtory());
 		}
-		
+
 		Map<String,TempInvtoryVO>  map  =queryInventoryVO(list);
 		String priceStr = parameterserv.queryParamterValueByCode(vo.getPk_corp(), IParameterConstants.DZF010);
 		int iprice = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 		YntCpaccountVO accvo1 = queryAccount(vo,gl_cbconstant.getZg_code());
 		TempInvtoryVO  tempvo = null;
-		for(int i = 0 ;i < zgvos.length; i++){//借库存商品 1405
-			tempvo = map.get(zgvos[i].getPk_invtory());
+		TempInvtoryVO  zgvo = null;
+		int len = zgvos.length;
+		List<TzpzBVO> tlist = new ArrayList<>();
+		TzpzBVO tzpzvo = null;
+		for(int i = 0 ;i < len; i++){//借库存商品 1405
+			zgvo = zgvos[i];
+			tempvo = map.get(zgvo.getPk_invtory());
 			if(tempvo == null){
 				throw new BusinessException("查找商品科目出错!");
 			}
-				
-			bodyvos[i] = new TzpzBVO() ;
-			bodyvos[i].setPk_inventory(zgvos[i].getPk_invtory());
-			bodyvos[i].setNnumber(zgvos[i].getNnumber());
-			bodyvos[i].setVcode(tempvo.getKmbm());
-			bodyvos[i].setVname(tempvo.getKmname());
-			bodyvos[i].setPk_accsubj(tempvo.getKmid()) ;
-			bodyvos[i].setJfmny(zgvos[i].getNmny()) ;
-			bodyvos[i].setNprice(calcPrice(zgvos[i].getNmny(),zgvos[i].getNnumber(),iprice));//单价
-			bodyvos[i].setDfmny(null);
-			bodyvos[i].setZy(vo.getPeriod()+"月暂估") ;
-			bodyvos[i].setPk_currency(yntBoPubUtil.getCNYPk()) ;
-			bodyvos[i].setNrate(new DZFDouble(1));
-			bodyvos[i].setPk_corp(vo.getPk_corp());
-			jf = SafeCompute.add(jf, zgvos[i].getNmny());
+			tzpzvo = new TzpzBVO() ;
+			tzpzvo.setPk_inventory(zgvo.getPk_invtory());
+			tzpzvo.setNnumber(zgvo.getNnumber());
+			tzpzvo.setVcode(tempvo.getKmbm());
+			tzpzvo.setVname(tempvo.getKmname());
+			tzpzvo.setPk_accsubj(tempvo.getKmid()) ;
+			tzpzvo.setJfmny(zgvo.getNmny()) ;
+			tzpzvo.setNprice(calcPrice(zgvo.getNmny(),zgvo.getNnumber(),iprice));//单价
+			tzpzvo.setDfmny(null);
+			tzpzvo.setZy(vo.getPeriod()+"月暂估") ;
+			tzpzvo.setPk_currency(yntBoPubUtil.getCNYPk()) ;
+			tzpzvo.setNrate(new DZFDouble(1));
+			tzpzvo.setPk_corp(vo.getPk_corp());
+			tlist.add(tzpzvo);
+			jf = SafeCompute.add(jf, zgvo.getNmny());
+			if (zgvo.getNnumber_old() != null && zgvo.getNnumber_old().compareTo(zgvo.getNnumber()) > 0) {
+				tzpzvo = (TzpzBVO) tzpzvo.clone();
+				tzpzvo.setNnumber(SafeCompute.sub(zgvo.getNnumber_old(), zgvo.getNnumber()));
+				tzpzvo.setNprice(DZFDouble.ZERO_DBL);
+				tzpzvo.setJfmny(DZFDouble.ZERO_DBL) ;
+				tzpzvo.setNprice(DZFDouble.ZERO_DBL);//单价
+				tzpzvo.setDfmny(null);
+				tlist.add(tzpzvo);
+			}
 		}
 		//
-		bodyvos[zgvos.length] = new TzpzBVO();
-		bodyvos[zgvos.length].setPk_accsubj(accvo1.getPk_corp_account()) ;
-		bodyvos[zgvos.length].setJfmny(null) ;
-		bodyvos[zgvos.length].setDfmny(jf);
-		bodyvos[zgvos.length].setZy(vo.getPeriod()+"月暂估") ;
-		bodyvos[zgvos.length].setPk_currency(yntBoPubUtil.getCNYPk()) ;
-		bodyvos[zgvos.length].setNrate(new DZFDouble(1));
-		bodyvos[zgvos.length].setPk_corp(vo.getPk_corp());
+		tzpzvo = new TzpzBVO();
+		tzpzvo.setPk_accsubj(accvo1.getPk_corp_account()) ;
+		tzpzvo.setJfmny(null) ;
+		tzpzvo.setDfmny(jf);
+		tzpzvo.setZy(vo.getPeriod()+"月暂估") ;
+		tzpzvo.setPk_currency(yntBoPubUtil.getCNYPk()) ;
+		tzpzvo.setNrate(new DZFDouble(1));
+		tzpzvo.setPk_corp(vo.getPk_corp());
+		tlist.add(tzpzvo);
 		//
 		TzpzHVO headVO = new TzpzHVO() ;
 		headVO.setPk_corp(vo.getPk_corp()) ;
@@ -146,18 +158,18 @@ public class ZgVoucher {
 		headVO.setVyear(Integer.valueOf(vo.getPeriod().substring(0, 4)));
 		headVO.setIsfpxjxm(new DZFBoolean("N"));
 		//
-		headVO.setChildren(bodyvos);
+		headVO.setChildren(tlist.toArray(new TzpzBVO[tlist.size()]));
 		return headVO;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 查询库存商品VO
 	 */
 	@SuppressWarnings("unchecked")
 	private Map<String,TempInvtoryVO> queryInventoryVO(List<String> list ){
-		StringBuffer sf = new StringBuffer();	
+		StringBuffer sf = new StringBuffer();
 		sf.append(" select t1.name,t2.accountname,t1.pk_inventory, t2.accountcode,t2.pk_corp_account from ynt_inventory t1 ");
 		sf.append(" join ynt_cpaccount t2 on t1.pk_subject = t2.pk_corp_account ");
 		sf.append(" and  t1.pk_corp = t2.pk_corp and nvl(t1.dr,0) = 0 and nvl(t2.dr,0) = 0 ");
@@ -166,7 +178,7 @@ public class ZgVoucher {
 		Map<String,TempInvtoryVO> map = (Map<String,TempInvtoryVO>)singleObjectBO.executeQuery(sf.toString(), null, new ResultSetProcessor(){
 			@Override
 			public Object handleResultSet(ResultSet rs) throws SQLException {
-				
+
 				Map<String,TempInvtoryVO> map = new HashMap<String,TempInvtoryVO>();
 				TempInvtoryVO vo = null;
 				while(rs.next()){
@@ -184,7 +196,7 @@ public class ZgVoucher {
 				}
 				return map;
 			}
-			
+
 		});
 		return map;
 	}
@@ -197,42 +209,58 @@ public class ZgVoucher {
 		String priceStr = parameterserv.queryParamterValueByCode(vo.getPk_corp(), IParameterConstants.DZF010);
 		int iprice = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 		DZFDouble jf = DZFDouble.ZERO_DBL;
-		TzpzBVO[] bodyvos = new TzpzBVO[zgvos.length+1];
+//		TzpzBVO[] bodyvos = new TzpzBVO[zgvos.length+1];
 //		YntCpaccountVO accvo = queryAccount(vo,gl_cbconstant.getKcsp_code());
 		//zpm修改暂估入账科目
 		String[] zgkms = getZgDataNOic(vo);
 		if(zgkms == null ||zgkms.length ==0 || StringUtil.isEmpty(zgkms[0])){
 			throw new BusinessException("暂估入账科目没有设置！");
 		}
-		for(int i = 0 ;i < zgvos.length; i++){
-			bodyvos[i] = new TzpzBVO() ;
+		int len = zgvos.length;
+		TempInvtoryVO  zgvo = null;
+		List<TzpzBVO> list = new ArrayList<>();
+		TzpzBVO tzpzvo = null;
+		for(int i = 0 ;i < len; i++){
+			tzpzvo = new TzpzBVO() ;
+			zgvo = zgvos[i];
 //			bodyvos[i].setPk_inventory(zgvos[i].getPk_invtory());
-			bodyvos[i].setNnumber(zgvos[i].getNnumber());
-			bodyvos[i].setVcode(zgvos[i].getKmbm());
-			bodyvos[i].setVname(zgvos[i].getKmname());
-			bodyvos[i].setPk_accsubj(zgvos[i].getKmid()) ;
-			bodyvos[i].setFzhsx6(zgvos[i].getFzid());
-			bodyvos[i].setJfmny(zgvos[i].getNmny()) ;
-			bodyvos[i].setNprice(calcPrice(zgvos[i].getNmny(),zgvos[i].getNnumber(),iprice));//单价
-			bodyvos[i].setDfmny(null);
-			bodyvos[i].setZy(vo.getPeriod()+"月暂估") ;
-			bodyvos[i].setPk_currency(yntBoPubUtil.getCNYPk()) ;
-			bodyvos[i].setNrate(new DZFDouble(1));
-			bodyvos[i].setPk_corp(vo.getPk_corp());
-			jf = SafeCompute.add(jf, zgvos[i].getNmny());
+			tzpzvo.setNnumber(zgvo.getNnumber());
+			tzpzvo.setVcode(zgvo.getKmbm());
+			tzpzvo.setVname(zgvo.getKmname());
+			tzpzvo.setPk_accsubj(zgvo.getKmid()) ;
+			tzpzvo.setFzhsx6(zgvo.getFzid());
+			tzpzvo.setJfmny(zgvo.getNmny()) ;
+			tzpzvo.setNprice(calcPrice(zgvo.getNmny(),zgvo.getNnumber(),iprice));//单价
+			tzpzvo.setDfmny(null);
+			tzpzvo.setZy(vo.getPeriod()+"月暂估") ;
+			tzpzvo.setPk_currency(yntBoPubUtil.getCNYPk()) ;
+			tzpzvo.setNrate(new DZFDouble(1));
+			tzpzvo.setPk_corp(vo.getPk_corp());
+			list.add(tzpzvo);
+			jf = SafeCompute.add(jf, zgvo.getNmny());
+			if (zgvo.getNnumber_old() != null && zgvo.getNnumber_old().compareTo(zgvo.getNnumber()) > 0) {
+				tzpzvo = (TzpzBVO) tzpzvo.clone();
+				tzpzvo.setNnumber(SafeCompute.sub(zgvo.getNnumber_old(), zgvo.getNnumber()));
+				tzpzvo.setNprice(DZFDouble.ZERO_DBL);
+				tzpzvo.setJfmny(DZFDouble.ZERO_DBL) ;
+				tzpzvo.setNprice(DZFDouble.ZERO_DBL);//单价
+				tzpzvo.setDfmny(null);
+				list.add(tzpzvo);
+			}
 		}
 		//
-		bodyvos[zgvos.length] = new TzpzBVO();
-		bodyvos[zgvos.length].setPk_accsubj(zgkms[0]) ;
+		tzpzvo = new TzpzBVO();
+		tzpzvo.setPk_accsubj(zgkms[0]) ;
 		if(zgkms.length ==2){
-			bodyvos[zgvos.length].setFzhsx2(zgkms[1]);
+			tzpzvo.setFzhsx2(zgkms[1]);
 		}
-		bodyvos[zgvos.length].setJfmny(null) ;
-		bodyvos[zgvos.length].setDfmny(jf);
-		bodyvos[zgvos.length].setZy(vo.getPeriod()+"月暂估") ;
-		bodyvos[zgvos.length].setPk_currency(yntBoPubUtil.getCNYPk()) ;
-		bodyvos[zgvos.length].setNrate(new DZFDouble(1));
-		bodyvos[zgvos.length].setPk_corp(vo.getPk_corp());
+		tzpzvo.setJfmny(null) ;
+		tzpzvo.setDfmny(jf);
+		tzpzvo.setZy(vo.getPeriod()+"月暂估") ;
+		tzpzvo.setPk_currency(yntBoPubUtil.getCNYPk()) ;
+		tzpzvo.setNrate(new DZFDouble(1));
+		tzpzvo.setPk_corp(vo.getPk_corp());
+		list.add(tzpzvo);
 		//
 		TzpzHVO headVO = new TzpzHVO() ;
 		headVO.setPk_corp(vo.getPk_corp()) ;
@@ -244,7 +272,7 @@ public class ZgVoucher {
 		headVO.setDoperatedate(getPeriodFirst(vo)) ;//暂估凭证放到本月的第一天
 		headVO.setPzh(yntBoPubUtil.getNewVoucherNo(vo.getPk_corp(), nowDatevalue)) ;
 		headVO.setNbills(0);//附单据数
-		
+
 		YntCpaccountVO kmvo = kmsmap.get(zgkms[0]);
 		if(kmvo == null){
 			throw new BusinessException("暂估入账科目没有设置！");
@@ -255,9 +283,9 @@ public class ZgVoucher {
 		}else if(zgkms.length ==2){//zgkms.length == 2 的情况
 			if(kmvo.getIsfzhs() == null || "0000000000".equals(kmvo.getIsfzhs())){
 				headVO.setVbillstatus(8);// 默认自由态
-			}else if(kmvo.getIsfzhs()!=null  
+			}else if(kmvo.getIsfzhs()!=null
 					&& "1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))
-							&& !StringUtil.isEmpty(zgkms[1])){//辅助项目启用了,,供应商
+					&& !StringUtil.isEmpty(zgkms[1])){//辅助项目启用了,,供应商
 				headVO.setVbillstatus(8);// 默认自由态
 			}else{
 				headVO.setVbillstatus(-1);// 默认暂存态
@@ -273,11 +301,11 @@ public class ZgVoucher {
 		headVO.setVyear(Integer.valueOf(vo.getPeriod().substring(0, 4)));
 		headVO.setIsfpxjxm(new DZFBoolean("N"));
 		//
-		headVO.setChildren(bodyvos);
+		headVO.setChildren(list.toArray(new TzpzBVO[list.size()]));
 		return headVO;
 	}
 	public DZFDouble calcPrice(DZFDouble mny,DZFDouble nnum,int iprice){
-		
+
 		if(nnum != null && nnum.doubleValue() != 0){
 			DZFDouble price = SafeCompute.div(mny, nnum);
 			price = price.setScale(iprice, DZFDouble.ROUND_HALF_UP);
@@ -285,8 +313,8 @@ public class ZgVoucher {
 		}
 		return null;
 	}
-	
-	
+
+
 	//不启用库存取得暂估科目
 	private String[] getZgDataNOic(QmclVO vo) throws BusinessException{
 		//从设置表中取
@@ -308,9 +336,9 @@ public class ZgVoucher {
 				}
 				//重新给暂估辅助，，赋值
 				if(!StringUtil.isEmpty(bodys[0].getZgkhfz())){
-					if(kmvo==null 
-						|| StringUtil.isEmpty(kmvo.getIsfzhs())
-						|| !"1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
+					if(kmvo==null
+							|| StringUtil.isEmpty(kmvo.getIsfzhs())
+							|| !"1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
 						bodys[0].setZgkhfz(null);
 					}
 				}
@@ -339,7 +367,7 @@ public class ZgVoucher {
 		period = new DZFDate(vo.getPeriod() + "-" + period.getDaysMonth()) ;
 		return period;
 	}
-	
+
 	/**
 	 * 生成下月冲销暂估凭证，启用库存
 	 */
@@ -352,68 +380,66 @@ public class ZgVoucher {
 		headvo.setPk_tzpz_h(null);
 		headvo.setPzh(yntBoPubUtil.getNewVoucherNo(vo.getPk_corp(), doperatedate)) ;
 		//设置表体
-		TzpzBVO[] newbvo = new TzpzBVO[bodyvos.length];
+		List<TzpzBVO> list = new ArrayList<>();
+		TzpzBVO tzpzvo = null;
 		for(int i= 0 ;i<bodyvos.length;i++){
-//			newbvo[i] = (TzpzBVO)bodyvos[i - 1].clone();
-			newbvo[i] = (TzpzBVO)bodyvos[i].clone();
-			if(newbvo[i].getJfmny() != null){
-				newbvo[i].setJfmny(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getJfmny()), new DZFDouble(-1)));
-				newbvo[i].setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getNnumber()), new DZFDouble(-1)));
-				newbvo[i].setDfmny(null);
-			}else if(newbvo[i].getDfmny() != null){
-				newbvo[i].setDfmny(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getDfmny()), new DZFDouble(-1)));
-				newbvo[i].setJfmny(null);
-				newbvo[i].setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getNnumber()), new DZFDouble(-1)));
+			tzpzvo = (TzpzBVO)bodyvos[i].clone();
+			if(tzpzvo.getJfmny() != null && tzpzvo.getJfmny().doubleValue() !=0 ){
+				tzpzvo.setJfmny(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getJfmny()), new DZFDouble(-1)));
+				tzpzvo.setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getNnumber()), new DZFDouble(-1)));
+				tzpzvo.setZy("冲销"+vo.getPeriod()+"月暂估");
+				tzpzvo.setPk_tzpz_b(null);
+				tzpzvo.setPk_tzpz_h(null);
+				tzpzvo.setDfmny(null);
+				list.add(tzpzvo);
+			}else if(tzpzvo.getDfmny() != null){
+				tzpzvo.setDfmny(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getDfmny()), new DZFDouble(-1)));
+				tzpzvo.setJfmny(null);
+				tzpzvo.setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getNnumber()), new DZFDouble(-1)));
+				tzpzvo.setZy("冲销"+vo.getPeriod()+"月暂估");
+				tzpzvo.setPk_tzpz_b(null);
+				tzpzvo.setPk_tzpz_h(null);
+				list.add(tzpzvo);
 			}
-			newbvo[i].setZy("冲销"+vo.getPeriod()+"月暂估");
-			newbvo[i].setPk_tzpz_b(null);
-			newbvo[i].setPk_tzpz_h(null);
 		}
-		headvo.setChildren(newbvo);
+		headvo.setChildren(list.toArray(new TzpzBVO[list.size()]));
 		return headvo;
 	}
 
 	// 红冲，不启用库存
 	public TzpzHVO queryNextcodeNoIC(QmclVO vo,TzpzHVO billVO) {
 		//设置表头
-				TzpzHVO  headvo = (TzpzHVO)billVO.clone();
-				TzpzBVO[] bodyvos = (TzpzBVO[])billVO.getChildren();
-				DZFDate doperatedate = getPeroidDZFDate(vo).getDateAfter(1);
-				headvo.setDoperatedate(doperatedate);
-				headvo.setPk_tzpz_h(null);
-				headvo.setPzh(yntBoPubUtil.getNewVoucherNo(vo.getPk_corp(), doperatedate)) ;
-				//设置表体
-				TzpzBVO[] newbvo = new TzpzBVO[bodyvos.length];
-				for(int i= 0 ;i<bodyvos.length;i++){
-//					newbvo[i] = (TzpzBVO)bodyvos[i - 1].clone();
-					newbvo[i] = (TzpzBVO)bodyvos[i].clone();
-					if(newbvo[i].getJfmny() != null){
-						newbvo[i].setJfmny(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getJfmny()), new DZFDouble(-1)));
-						newbvo[i].setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getNnumber()), new DZFDouble(-1)));
-						newbvo[i].setDfmny(null);
-					}else if(newbvo[i].getDfmny() != null){
-						newbvo[i].setDfmny(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getDfmny()), new DZFDouble(-1)));
-						newbvo[i].setJfmny(null);
-						newbvo[i].setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[i].getNnumber()), new DZFDouble(-1)));
-					}
-					newbvo[i].setZy("冲销"+vo.getPeriod()+"月暂估");
-					newbvo[i].setPk_tzpz_b(null);
-					newbvo[i].setPk_tzpz_h(null);
-				}
-//				newbvo[0] = (TzpzBVO)bodyvos[0].clone();
-//				newbvo[0] = (TzpzBVO)bodyvos[bodyvos.length - 1].clone();
-//				if(newbvo[0].getJfmny() != null){
-//					newbvo[0].setJfmny(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[0].getJfmny()), new DZFDouble(-1)));
-//					//SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[0].getJfmny()), new DZFDouble(-1))
-//					newbvo[0].setDfmny(null);
-//				}else if(newbvo[0].getDfmny() != null){
-//					newbvo[0].setDfmny(SafeCompute.multiply(VoUtils.getDZFDouble(newbvo[0].getDfmny()), new DZFDouble(-1)));
-//					newbvo[0].setJfmny(null);
-//				}
-//				newbvo[0].setZy("冲销"+vo.getPeriod()+"月暂估");
-//				newbvo[0].setPk_tzpz_b(null);
-//				newbvo[0].setPk_tzpz_h(null);
-				headvo.setChildren(newbvo);
-				return headvo;
+		TzpzHVO  headvo = (TzpzHVO)billVO.clone();
+		TzpzBVO[] bodyvos = (TzpzBVO[])billVO.getChildren();
+		DZFDate doperatedate = getPeroidDZFDate(vo).getDateAfter(1);
+		headvo.setDoperatedate(doperatedate);
+		headvo.setPk_tzpz_h(null);
+		headvo.setPzh(yntBoPubUtil.getNewVoucherNo(vo.getPk_corp(), doperatedate)) ;
+		//设置表体
+		List<TzpzBVO> list = new ArrayList<>();
+		TzpzBVO tzpzvo = null;
+		for(int i= 0 ;i<bodyvos.length;i++){
+			tzpzvo = (TzpzBVO)bodyvos[i].clone();
+			if(tzpzvo.getJfmny() != null && tzpzvo.getJfmny().doubleValue() !=0 ){
+				tzpzvo.setJfmny(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getJfmny()), new DZFDouble(-1)));
+				tzpzvo.setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getNnumber()), new DZFDouble(-1)));
+				tzpzvo.setDfmny(null);
+				tzpzvo.setZy("冲销"+vo.getPeriod()+"月暂估");
+				tzpzvo.setPk_tzpz_b(null);
+				tzpzvo.setPk_tzpz_h(null);
+				list.add(tzpzvo);
+			}else if(tzpzvo.getDfmny() != null){
+				tzpzvo.setDfmny(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getDfmny()), new DZFDouble(-1)));
+				tzpzvo.setJfmny(null);
+				tzpzvo.setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getNnumber()), new DZFDouble(-1)));
+				tzpzvo.setZy("冲销"+vo.getPeriod()+"月暂估");
+				tzpzvo.setPk_tzpz_b(null);
+				tzpzvo.setPk_tzpz_h(null);
+				list.add(tzpzvo);
+			}
+
+		}
+		headvo.setChildren(list.toArray(new TzpzBVO[list.size()]));
+		return headvo;
 	}
 }
