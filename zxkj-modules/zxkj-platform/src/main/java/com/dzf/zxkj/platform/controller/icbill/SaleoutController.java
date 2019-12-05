@@ -909,11 +909,10 @@ public class SaleoutController{
         securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
         String msg = ic_saleoutserv.saveImp(infile, pk_corp, fileType, SystemUtil.getLoginUserId());
         if (StringUtil.isEmpty(msg)) {
-            json.setMsg("出库单导入成功!");
             json.setSuccess(true);
         } else {
             json.setMsg(msg);
-            json.setSuccess(false);
+            json.setSuccess(true);
         }
         return ReturnData.ok().data(json);
 	}
