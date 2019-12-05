@@ -91,19 +91,17 @@ public class ZclbController extends BaseController {
         } catch (Exception e) {
             printErrorLog(json, e, "保存失败");
         }
-        Integer logtype = LogRecordEnum.OPE_JITUAN_BDSET.getValue();
         Integer sysident = ISysConstants.SYS_0;
         if (!IDefaultValue.DefaultGroup.equals(corpVO.getPk_corp())) {
-            logtype = LogRecordEnum.OPE_KJ_ZCGL.getValue();
             sysident = ISysConstants.SYS_2;
         }
-//        if (json.isSuccess()) {
-//            if (isAdd) {
-//                writeLogRecord(logtype,"新增资产类别:" + data.getCatename(), sysident);
-//            } else {
-//                writeLogRecord(logtype, "修改资产类别:" + data.getCatename(), sysident);
-//            }
-//        }
+        if (json.isSuccess()) {
+            if (isAdd) {
+                writeLogRecord( LogRecordEnum.OPE_KJ_ZCGL,"新增资产类别:" + vo.getCatename(), sysident);
+            } else {
+                writeLogRecord( LogRecordEnum.OPE_KJ_ZCGL, "修改资产类别:" + vo.getCatename(), sysident);
+            }
+        }
         return ReturnData.ok().data(json);
     }
 
@@ -125,15 +123,13 @@ public class ZclbController extends BaseController {
             json.setSuccess(false);
             json.setMsg("失败");
         }
-//        Integer logtype = LogRecordEnum.OPE_JITUAN_BDSET.getValue();
-//        Integer sysident = ISysConstants.SYS_0;
-//        if (!IDefaultValue.DefaultGroup.equals(corpVO.getPk_corp())) {
-//            logtype = LogRecordEnum.OPE_KJ_ZCGL.getValue();
-//            sysident = ISysConstants.SYS_2;
-//        }
-//        if (json.isSuccess()) {
-//            writeLogRecord(logtype, "删除资产类别:" + checkVo.getCatename(), sysident);
-//        }
+        Integer sysident = ISysConstants.SYS_0;
+        if (!IDefaultValue.DefaultGroup.equals(corpVO.getPk_corp())) {
+            sysident = ISysConstants.SYS_2;
+        }
+        if (json.isSuccess()) {
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "删除资产类别:" + checkVo.getCatename(), sysident);
+        }
         return ReturnData.ok().data(json);
     }
 

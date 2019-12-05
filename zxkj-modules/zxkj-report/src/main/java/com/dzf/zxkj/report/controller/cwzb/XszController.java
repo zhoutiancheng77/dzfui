@@ -1,5 +1,7 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -66,9 +68,8 @@ public class XszController  extends ReportBaseController {
             log.error(e.getMessage(),e);
         }
         /** 日志记录 */
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "序时账查询:"+queryvo.getBegindate1() +"-"+ queryvo.getEnddate(), ISysConstants.SYS_2);
-//        writeJson(grid);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "序时账查询:"+queryvo.getBegindate1() +"-"+ queryvo.getEnddate(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -145,8 +146,8 @@ public class XszController  extends ReportBaseController {
         baseExcelExport(response,lxs,field);
 
         //日志记录
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "序时账导出:"+queryvo.getBegindate1() +"-"+ queryvo.getEnddate(), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "序时账导出:"+queryparamvo.getBegindate1() +"-"+ queryparamvo.getEnddate(), ISysConstants.SYS_2);
     }
 
     public XsZVO[] reloadNewValue(String titlePeriod,String gs,KmReoprtQueryParamVO queryParamvo,CorpVO corpVO){
