@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -70,8 +71,8 @@ public class LrbQuarterlyController extends ReportBaseController {
         }
 
         //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "利润表季报查询:" + queryParamvo.getBegindate1().toString(), 2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "利润表季报查询:" + queryParamvo.getBegindate1().toString(), 2);
 
         return ReturnData.ok().data(grid);
     }
@@ -142,8 +143,8 @@ public class LrbQuarterlyController extends ReportBaseController {
         baseExcelExport(response,lxs,lrb);
 
         //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "利润表季报导出:"+qj,2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "利润表季报导出:"+qj,2);
     }
 
     /**

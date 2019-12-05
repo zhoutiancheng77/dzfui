@@ -1,5 +1,7 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
@@ -90,8 +92,8 @@ public class YwHdJbController extends ReportBaseController {
             printErrorLog(grid, e, "查询失败！");
         }
         // 日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "业务活动表查询:" + queryParamvo.getBegindate1().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "业务活动表查询:" + queryParamvo.getBegindate1().toString().substring(0, 7), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 

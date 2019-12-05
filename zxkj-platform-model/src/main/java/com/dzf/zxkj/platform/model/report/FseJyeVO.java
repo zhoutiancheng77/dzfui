@@ -29,6 +29,7 @@ public class FseJyeVO extends SuperVO {
     private String kmbm;
     private String kmmc;
     private String fx;
+    private Integer index;
     private DZFDouble ncjf;
     private DZFDouble ncdf;//年初借方
     private DZFDouble qcjf;//年初贷方
@@ -311,6 +312,14 @@ public class FseJyeVO extends SuperVO {
     public String getTableName() {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
     }
 
     public DZFDouble getFsdf() {

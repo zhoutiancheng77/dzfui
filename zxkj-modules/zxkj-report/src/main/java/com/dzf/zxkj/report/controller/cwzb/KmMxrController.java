@@ -1,6 +1,8 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -83,9 +85,9 @@ public class KmMxrController extends ReportBaseController {
             grid.setRows(new ArrayList<KmMxZVO>());
             printErrorLog(grid, e, "查询失败！");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "科目明细账查询:"+queryParamvo.getBegindate1().toString().substring(0, 7)
-//                        +"-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "科目明细账查询:"+queryParamvo.getBegindate1().toString().substring(0, 7)
+                        +"-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -370,9 +372,9 @@ public class KmMxrController extends ReportBaseController {
         Excelexport2003<KmMxZVO> lxs = new Excelexport2003<KmMxZVO>();
         baseExcelExport(response,lxs,field);
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "科目明细账导出:"+queryParamvo.getBegindate1().toString().substring(0, 7)
-//                        +"-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "科目明细账导出:"+queryparamvo.getBegindate1().toString().substring(0, 7)
+                        +"-"+ queryparamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
     }
 
     @PostMapping("print/pdf")

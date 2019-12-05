@@ -1,5 +1,7 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
@@ -84,7 +86,7 @@ public class XjllController extends ReportBaseController {
         }
 
         // 日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(), "现金流量表查询:" + vo.getQjq(), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "现金流量表查询:" + vo.getQjq(), ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -202,12 +204,12 @@ public class XjllController extends ReportBaseController {
 
         baseExcelExport(response,lxs,xjll);
 
-//        String excelsel = getRequest().getParameter("excelsel");
-//        if(!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)){
-//            qj  = qj.substring(0, 4);
-//        }
-//        // 日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(), "现金流量表导出:" +  qj, ISysConstants.SYS_2);
+        String excelsel = excelExportVO.getExcelsel();
+        if(!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)){
+            qj  = qj.substring(0, 4);
+        }
+        // 日志记录接口
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "现金流量表导出:" +  qj, ISysConstants.SYS_2);
     }
 
     //导出Excel
@@ -228,12 +230,12 @@ public class XjllController extends ReportBaseController {
 
         baseExcelExport(response,lxs,xjll);
 
-//        String excelsel = getRequest().getParameter("excelsel");
-//        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
-//            qj = qj.substring(0, 4);
-//        }
-//        // 日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(), "现金流量表明细导出:" + qj, ISysConstants.SYS_2);
+        String excelsel = excelExportVO.getExcelsel();
+        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
+            qj = qj.substring(0, 4);
+        }
+        // 日志记录接口
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "现金流量表明细导出:" + qj, ISysConstants.SYS_2);
     }
 
     private void getXjllExcel(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo,UserVO userVO , XjllbVO[] listVo, String gs, String qj, XjllbExcelField xjllb) {

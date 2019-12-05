@@ -1,7 +1,9 @@
 package com.dzf.zxkj.platform.controller.zcgl;
 
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -65,7 +67,7 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
             }
             grid.setMsg("查询成功");
             grid.setSuccess(true);
-//            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL.getValue(),"资产总账对账表查询", ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"资产总账对账表查询", ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");
         }

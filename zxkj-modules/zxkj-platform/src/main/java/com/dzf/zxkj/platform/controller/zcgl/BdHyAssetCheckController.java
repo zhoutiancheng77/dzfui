@@ -4,6 +4,7 @@ import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -45,7 +46,7 @@ public class BdHyAssetCheckController extends BaseController {
 			printErrorLog(grid, e, "初始化失败");
 		}
 
-//		writeLogRecord(getLogType(), "公司资产与总账对照表操作", getSysIdent());
+		writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "公司资产与总账对照表操作");
 
 //		writeJson(grid);
         return ReturnData.ok().data(grid);
@@ -80,8 +81,8 @@ public class BdHyAssetCheckController extends BaseController {
 			json.setMsg("保存失败");
 		}
 
-//		writeLogRecord(getLogType(),
-//				"新增资产与总账对照表数据", getSysIdent());
+		writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,
+				"新增资产与总账对照表数据");
 
         return ReturnData.ok().data(json);
 	}
@@ -111,25 +112,8 @@ public class BdHyAssetCheckController extends BaseController {
 		}
 
 		//记录日志
-//		writeLogRecord(getLogType(),  "删除资产与总账对照表数据",getSysIdent());
+		writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,  "删除资产与总账对照表数据");
 		return ReturnData.ok().data(json);
 	}
 
-
-
-//	private Integer getLogType(){
-//		Integer logtype = LogRecordEnum.OPE_JITUAN_PZMB.getValue();
-//        if (!IDefaultValue.DefaultGroup.equals(getLogincorppk())) {
-//        	logtype = LogRecordEnum.OPE_KJ_ZCGL.getValue();
-//        }
-//        return logtype;
-//	}
-//
-//	private Integer getSysIdent(){
-//        Integer sysident = ISysConstants.SYS_0;
-//        if (!IDefaultValue.DefaultGroup.equals(getLogincorppk())) {
-//        	sysident = ISysConstants.SYS_2;
-//        }
-//        return sysident;
-//	}
 }

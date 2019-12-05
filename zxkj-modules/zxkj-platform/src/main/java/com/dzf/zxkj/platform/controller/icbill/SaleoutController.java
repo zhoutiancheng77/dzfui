@@ -618,7 +618,7 @@ public class SaleoutController{
 	 * 打印操作
 	 */
     @PostMapping("print")
-    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+    public void printAction(@RequestParam Map<String, String> pmap, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
