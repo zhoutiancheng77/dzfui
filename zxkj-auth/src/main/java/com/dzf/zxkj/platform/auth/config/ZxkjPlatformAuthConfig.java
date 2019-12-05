@@ -14,4 +14,5 @@ public class ZxkjPlatformAuthConfig {
     private String platformName;
     @Value("${platform.external.loginUrl:'http://127.0.0.1:8521/loginByToke'}")
     private String url;
+    private String platformAdminName = "dzfadmin";
 }

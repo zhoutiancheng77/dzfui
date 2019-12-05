@@ -111,23 +111,37 @@ public class LoginServiceImpl implements ILoginService {
         return loginUserMapper.selectOne(queryWrapper);
     }
 
-
     private LoginUser transferToZxkjUser(UserVO uservo) {
         LoginUser loginUser = new LoginUser();
-        Optional<UserVO> userVOOptional = uservo.getBindUsers().stream().filter(v -> v.getPlatformTag().equals(zxkjPlatformAuthConfig.getPlatformName())).findFirst();
-        userVOOptional.ifPresent(v -> {
-            loginUser.setUsername(v.getLoginName());
+
+        if (StringUtils.equalsAny(uservo.getPlatformTag(), zxkjPlatformAuthConfig.getPlatformName(), zxkjPlatformAuthConfig.getPlatformAdminName())) {
+            loginUser.setUsername(uservo.getLoginName());
             loginUser.setDzfAuthToken(uservo.getUserToken());
-            loginUser.setUserid(v.getPlatformUserId());
+            loginUser.setUserid(uservo.getPlatformUserId());
             Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
             loginUser.setPlatformVOSet(list);
             try {
                 createToken(loginUser);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("跳转在线会计生成token失败", e);
             }
-        });
-        return userVOOptional.isPresent() ? loginUser : null;
+        } else {
+            Optional<UserVO> userVOOptional = uservo.getBindUsers().stream().filter(v -> StringUtils.equalsAny(v.getPlatformTag(), zxkjPlatformAuthConfig.getPlatformName(), zxkjPlatformAuthConfig.getPlatformAdminName())).findFirst();
+            userVOOptional.ifPresent(v -> {
+                loginUser.setUsername(v.getLoginName());
+                loginUser.setDzfAuthToken(uservo.getUserToken());
+                loginUser.setUserid(v.getPlatformUserId());
+                Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
+                loginUser.setPlatformVOSet(list);
+                try {
+                    createToken(loginUser);
+                } catch (Exception e) {
+                    log.error("跳转在线会计生成token失败", e);
+                }
+            });
+        }
+
+        return loginUser;
     }
 
     private LoginUser transfer(UserVO uservo) {
@@ -140,6 +154,7 @@ public class LoginServiceImpl implements ILoginService {
         try {
             createToken(loginUser);
         } catch (Exception e) {
+            log.error("在线会计生成token失败", e);
             return null;
         }
         return loginUser;
