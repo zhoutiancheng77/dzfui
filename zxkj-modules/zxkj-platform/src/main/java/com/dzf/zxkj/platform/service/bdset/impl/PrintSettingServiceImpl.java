@@ -1,8 +1,10 @@
 package com.dzf.zxkj.platform.service.bdset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.PrintSettingVO;
@@ -68,7 +70,47 @@ public class PrintSettingServiceImpl implements IPrintSettingService {
 //		}
 		
 	}
-	
+
+
+	@Override
+	public void saveMulColumn(PrintSettingVO vo) throws DZFWarpException {
+		String corpids = vo.getCorpids();
+		String pk_corp = vo.getPk_corp();
+		String nodename= vo.getNodename();
+		corpids = StringUtil.isEmpty(corpids) ? pk_corp : corpids;
+		List<PrintSettingVO> list = new ArrayList<PrintSettingVO>();//公司习惯
+		String[] pks = corpids.split(",");
+		PrintSettingVO vo1;
+		for(String pk : pks){
+			vo1 = (PrintSettingVO) vo.clone();
+			vo1.setPk_corp(pk);
+			list.add(vo1);
+		}
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(nodename);
+		// 直接更新了，不走删除，插入了
+		StringBuffer sf = new StringBuffer();
+		sf.append(" select * from ynt_settings_print y Where nvl(dr,0)=0 and nodename = ? and ");
+		sf.append(SqlUtil.buildSqlForIn("pk_corp", pks));
+		List<PrintSettingVO> qrylist =  (ArrayList<PrintSettingVO>)singleObjectBO.executeQuery(sf.toString(), sp, new BeanListProcessor(PrintSettingVO.class));
+		if (qrylist!=null && qrylist.size()>0) {
+			if (!StringUtil.isEmpty(vo.getUpdatecolumn())){
+				String[] columns = vo.getUpdatecolumn().split(",");
+				for (PrintSettingVO votemp: qrylist) {
+					for (String str:columns) {
+						votemp.setAttributeValue(str, vo.getAttributeValue(str));
+					}
+				}
+				singleObjectBO.updateAry(qrylist.toArray(new PrintSettingVO[0]), columns);
+			}
+		} else {
+			//添加公司级习惯
+			singleObjectBO.insertVOArr(pk_corp,
+					list.toArray(new PrintSettingVO[0]));
+		}
+	}
+
+
 	//多公司习惯设置
 	private void saveMulSetting(PrintSettingVO vo){
 		String corpids = vo.getCorpids();
@@ -81,16 +123,15 @@ public class PrintSettingServiceImpl implements IPrintSettingService {
 		String[] pks = corpids.split(",");
 		PrintSettingVO vo1;
 		for(String pk : pks){
-			
 			vo1 = (PrintSettingVO) vo.clone();
 			vo1.setPk_corp(pk);
 			list.add(vo1);
 		}
-		
+
 		//先将习惯清除，然后设置公司习惯
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(nodename);
-		
+
 		StringBuffer sf = new StringBuffer();
 		sf.append(" delete from ynt_settings_print y Where nvl(dr,0)=0 and nodename = ? and ");
 		sf.append(SqlUtil.buildSqlForIn("pk_corp", pks));

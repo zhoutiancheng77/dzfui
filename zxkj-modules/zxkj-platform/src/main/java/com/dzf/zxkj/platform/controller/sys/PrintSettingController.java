@@ -61,14 +61,7 @@ public class PrintSettingController {
     public ReturnData<Grid> save(@RequestBody PrintSettingVO printSettingVO) {
         Grid json = new Grid();
         try {
-            String loginCorp = SystemUtil.getLoginCorpId();
-            if (StringUtil.isEmpty(printSettingVO.getCorpids())) {
-                printSettingVO.setCorpids(loginCorp);
-            }
-            if (StringUtil.isEmpty(printSettingVO.getPk_corp())) {
-                printSettingVO.setPk_corp(loginCorp);
-            }
-            printSettingVO.setCuserid(SystemUtil.getLoginUserId());
+            setDefaultValue(printSettingVO);
             gl_print_setting_serv.save(printSettingVO);
             json.setMsg("保存成功");
             json.setRows(printSettingVO);
@@ -79,5 +72,42 @@ public class PrintSettingController {
             log.error("保存打印设置失败！", e);
         }
         return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 针对多个设置字段使用，主要用于报表
+     * @param printSettingVO
+     * @return
+     */
+    @PostMapping("saveMulColumn")
+    public ReturnData<Grid> saveMulColumn(@RequestBody PrintSettingVO printSettingVO) {
+        Grid json = new Grid();
+        try {
+            setDefaultValue(printSettingVO);
+            gl_print_setting_serv.saveMulColumn(printSettingVO);
+            json.setMsg("保存成功");
+            json.setRows(printSettingVO);
+            json.setSuccess(true);
+        } catch (Exception e) {
+            json.setMsg("保存打印设置失败！");
+            json.setSuccess(false);
+            log.error("保存打印设置失败！", e);
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 设置默认值
+     * @param printSettingVO
+     */
+    private void setDefaultValue(@RequestBody PrintSettingVO printSettingVO) {
+        String loginCorp = SystemUtil.getLoginCorpId();
+        if (StringUtil.isEmpty(printSettingVO.getCorpids())) {
+            printSettingVO.setCorpids(loginCorp);
+        }
+        if (StringUtil.isEmpty(printSettingVO.getPk_corp())) {
+            printSettingVO.setPk_corp(loginCorp);
+        }
+        printSettingVO.setCuserid(SystemUtil.getLoginUserId());
     }
 }
