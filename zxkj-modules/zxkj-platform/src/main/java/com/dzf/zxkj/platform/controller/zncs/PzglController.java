@@ -94,14 +94,14 @@ public class PzglController extends BaseController {
             if(!StringUtil.isEmpty(delTelGrpDataString)){
                 delTelGrpData = delTelGrpDataString.split(",");
             }
-            if(!StringUtil.isEmpty(delTelGrpDataString)){
+            if(!StringUtil.isEmpty(delOthDataString)){
                 delOthData = delOthDataString.split(",");
             }
-            if(!StringUtil.isEmpty(delTelGrpDataString)){
+            if(!StringUtil.isEmpty(clzPidDateString)){
                 clzPidDate = clzPidDateString.split(",");
             }
             String pk_corp = SystemUtil.getLoginCorpId();
-            Set<String> corpSet = userService.querypowercorpSet(pk_corp);
+            Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
             if (pk_corp != null && pk_corp.trim().length() > 0) {
                 if (!corpSet.contains(pk_corp)) {
                     json.setSuccess(false);

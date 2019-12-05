@@ -30,13 +30,13 @@ import com.dzf.zxkj.platform.service.image.ICreatePZByFixedService;
 import com.dzf.zxkj.platform.service.image.IOcrAutoParseService;
 import com.dzf.zxkj.platform.service.image.IPjsjManageService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
-import com.dzf.zxkj.platform.service.pjgl.IBankStatementService;
 import com.dzf.zxkj.platform.service.pjgl.ICreatePZByRecogService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.pjgl.IOcrImageGroupService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.zncs.IBankStatementService;
 import com.dzf.zxkj.platform.service.zncs.IBillcategory;
 import com.dzf.zxkj.platform.service.zncs.IPrebillService;
 import com.dzf.zxkj.platform.service.zncs.IZncsService;
@@ -81,7 +81,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	private IOcrImageGroupService imgOcrGropuserv;
 	@Autowired(required = false)
 	private ICreatePZByRecogService recogservice;
-	@Autowired(required = false)
+	@Autowired
 	private IBankStatementService bankStateservice;
 	@Autowired
 	private IVoucherService gl_tzpzserv;

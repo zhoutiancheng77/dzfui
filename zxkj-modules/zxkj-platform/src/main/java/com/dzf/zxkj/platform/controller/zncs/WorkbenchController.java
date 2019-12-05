@@ -984,9 +984,9 @@ public class WorkbenchController extends BaseController {
      * 检测分类
      */
     @RequestMapping("/checkCategory")
-    public ReturnData<Grid> checkCategory(@RequestBody  String period) {
+    public ReturnData<Grid> checkCategory(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-
+        String period = param.get("period");
         try {
             String pk_corp = SystemUtil.getLoginCorpId();
             checkPeriod(period, true);		//检查期间合法性
@@ -1944,9 +1944,10 @@ public class WorkbenchController extends BaseController {
     }
     //统计分析
     @RequestMapping("/queryBillCount")
-    public ReturnData<Grid> queryBillCount(@RequestBody String period){
+    public ReturnData<Grid> queryBillCount(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String period = param.get("period");
             String pk_corp=SystemUtil.getLoginCorpId();
             if(StringUtils.isEmpty(period)||StringUtils.isEmpty(pk_corp)){
                 throw new BusinessException("参数有误！");

@@ -74,14 +74,14 @@ public class ImageViewController extends BaseController {
 //        String isMiddle= getRequest().getParameter("isMiddle");
 //        HttpServletResponse response = getResponse();
 
-        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
-        if(pk_corp != null && pk_corp.trim().length() > 0){
-            if(!corpSet.contains(pk_corp)){
-                grid.setSuccess(false);
-                grid.setMsg("查询图片失败,公司错误！");
-                return  ReturnData.error().data(grid);
-            }
-        }
+//        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+//        if(pk_corp != null && pk_corp.trim().length() > 0){
+//            if(!corpSet.contains(pk_corp)){
+//                grid.setSuccess(false);
+//                grid.setMsg("查询图片失败,公司错误！");
+//                return  ReturnData.error().data(grid);
+//            }
+//        }
         ServletOutputStream sos = null;
         FileInputStream fis = null;
         try{
@@ -119,7 +119,8 @@ public class ImageViewController extends BaseController {
 
             response.setContentType("image/jpeg");
 
-            if(corpSet.contains(pk_cprp_ser)){
+//            if(corpSet.contains(pk_cprp_ser)){
+            if(true){
                 if(!file.exists()){
                     String pathNoExist = session.getServletContext().getRealPath("/")
                             + "img" + File.separator + "picnoexist.jpg";
