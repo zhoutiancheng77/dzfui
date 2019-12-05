@@ -33,9 +33,9 @@ public class InvtorySetController {
             json.setSuccess(true);
             json.setMsg("查询成功");
         }else{
-            json.setRows(null);
-            json.setSuccess(false);
-            json.setMsg("查询数据为空");
+//            json.setRows(null);
+            json.setSuccess(true);
+//            json.setMsg("查询数据为空");
         }
         return ReturnData.ok().data(json);
     }

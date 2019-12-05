@@ -13,7 +13,6 @@ import com.dzf.zxkj.platform.auth.mapper.UserCorpRelationMapper;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
 import com.dzf.zxkj.platform.auth.service.impl.fallback.AuthServiceFallBack;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -71,6 +70,8 @@ public class AuthServiceImpl implements IAuthService {
         List<FunNode> funNodeList = funNodeMapper.getFunNodeByUseridAndPkCorp(userid, pk_corp);
         return funNodeList.stream().filter(v -> StringUtils.isNotBlank(v.getNodeurl())).map(FunNode::getNodeurl).flatMap(str -> Stream.of(str.split(","))).collect(Collectors.toSet());
     }
+
+
 
     @Override
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenEx")
