@@ -21,6 +21,7 @@ import com.dzf.zxkj.common.utils.DZFMapUtil;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
@@ -61,8 +62,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
@@ -210,11 +209,11 @@ public class VATInComInvoice2Controller extends BaseController {
         String msg = "";//记录日志
         Json json = new Json();
         try{
-            String header = param.get("header");
-            String body = param.get("body");
+            String head = param.get("adddoc[header]");
+            String body = param.get("adddoc[body]");
             String pk_corp = SystemUtil.getLoginCorpId();
             Map<String, VATInComInvoiceVO2[]> sendData = new HashMap<String, VATInComInvoiceVO2[]>();
-            VATInComInvoiceVO2 headvo = JsonUtils.deserialize(header,VATInComInvoiceVO2.class);
+            VATInComInvoiceVO2 headvo = JsonUtils.deserialize(head,VATInComInvoiceVO2.class);
             VATInComInvoiceBVO2[] bodyvos = JsonUtils.deserialize(body, VATInComInvoiceBVO2[].class);
             if (!StringUtil.isEmptyWithTrim(headvo.getGhfmc())){
                 //处理特殊字符
@@ -2769,7 +2768,7 @@ public class VATInComInvoice2Controller extends BaseController {
             catch (Exception ex)
             {
                 throw new BusinessException("入账期间解析错误，请检查");
-                }
+            }
 
             CorpVO corpVO = SystemUtil.getLoginCorpVo();
             List<BillCategoryVO> list2 = schedulCategoryService.queryBillCategoryByCorpAndPeriod(corpVO.getPk_corp(), period);
