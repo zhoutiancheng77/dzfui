@@ -21,10 +21,32 @@ public class PrintSettingVO extends SuperVO {
     private String nodename;
     // 设置
     private String print_setting;
+
+    // 设置(主要用户非打印框的设置,目前主要是界面设置)
+    private String print_setting1;
+
     private DZFDateTime ts;
     private Integer dr;
 
     private String corpids;//不存库 适用于多公司设置
+
+    private String updatecolumn;//不存库，更改字段的个数，逗号分隔
+
+    public String getUpdatecolumn() {
+        return updatecolumn;
+    }
+
+    public void setUpdatecolumn(String updatecolumn) {
+        this.updatecolumn = updatecolumn;
+    }
+
+    public String getPrint_setting1() {
+        return print_setting1;
+    }
+
+    public void setPrint_setting1(String print_setting1) {
+        this.print_setting1 = print_setting1;
+    }
 
     public String getPk_print_setting() {
         return pk_print_setting;

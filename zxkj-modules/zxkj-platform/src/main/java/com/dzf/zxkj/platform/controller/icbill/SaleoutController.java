@@ -95,6 +95,7 @@ public class SaleoutController{
                 grid.setRows(Arrays.asList(PzglPagevos));
             } else {
                 grid.setTotal((long) 0);
+                grid.setRows(new IntradeHVO[0]);
             }
             grid.setSuccess(true);
             grid.setMsg("查询成功！");
@@ -233,6 +234,51 @@ public class SaleoutController{
 			grid.setMsg("查询失败！");
 		}
         return ReturnData.ok().data(grid);
+	}
+
+	@GetMapping("/copy")
+	public ReturnData copy(@RequestParam Map<String, String> param) {
+		return queryIntradeBillVO(true,param);
+	}
+
+	@GetMapping("/modify")
+	public ReturnData modify(@RequestParam Map<String, String> param) {
+		return queryIntradeBillVO(false,param);
+	}
+
+	private ReturnData queryIntradeBillVO(boolean iscopy,@RequestParam Map<String, String> param) {
+		Json json = new Json();
+		String ignoreCheck = param.get("ignoreCheck");
+		IntradeHVO vo = ic_saleoutserv.queryIntradeHVOByID(param.get("id_ictrade_h"), SystemUtil.getLoginCorpId());
+		if (!"Y".equals(ignoreCheck)) {
+            ic_saleoutserv.check(vo, SystemUtil.getLoginCorpId(), iscopy);
+			if (iscopy) {
+				vo.setPk_ictrade_h(null);
+				vo.setDjzdate(null);
+				vo.setImppzh(null);
+				vo.setIsback(DZFBoolean.FALSE);
+				vo.setIsczg(DZFBoolean.FALSE);
+				vo.setIsjz(DZFBoolean.FALSE);
+				vo.setPk_image_group(null);
+				vo.setPk_image_library(null);
+				vo.setPzid(null);
+				vo.setPzh(null);
+				vo.setSourcebillid(null);
+				vo.setSourcebilltype(null);
+				SuperVO[] childs = vo.getChildren();
+				for (SuperVO child : childs) {
+					child.setPrimaryKey(null);
+					child.setAttributeValue("pk_voucher", null);
+					child.setAttributeValue("imppzh", null);
+					child.setAttributeValue("pzh", null);
+					child.setAttributeValue("pk_voucher_b", null);
+				}
+			}
+		}
+		json.setSuccess(true);
+		json.setData(vo);
+		json.setMsg("查询成功!");
+		return ReturnData.ok().data(json);
 	}
 
 	/**
@@ -472,10 +518,8 @@ public class SaleoutController{
 		Grid grid = new Grid();
 		StringBuffer strb = new StringBuffer();
 		try {
-
             IntradeHVO data =  JsonUtils.convertValue(param,IntradeHVO.class);
 			if (data != null) {
-
 				DZFDate dbdate = data.getDbilldate();
 				if (dbdate != null) {
 					DZFDate lgdate = DateUtils.getPeriodStartDate(SystemUtil.getLoginDate().substring(0, 7));
