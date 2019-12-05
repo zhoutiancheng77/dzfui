@@ -7,6 +7,7 @@ import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
@@ -84,7 +85,8 @@ public class SystemController {
 
         CorpModel corpModel = sysService.queryCorpByPk(SystemUtil.getLoginCorpId());
         //资产是否开启
-        if (!corpModel.getHoldflag().booleanValue()) {
+        DZFBoolean holdflag = corpModel.getHoldflag()==null ?DZFBoolean.FALSE:corpModel.getHoldflag();//holdflag
+        if (!holdflag.booleanValue()) {
             funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.ZC_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
         }
         //根据会计公司制度显示税表
