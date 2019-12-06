@@ -62,9 +62,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Slf4j
@@ -553,16 +557,19 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData<Json> impExcel(MultipartFile infiles,@RequestBody VATInComInvoiceVO2 vvo){
+    public ReturnData<Json> impExcel(HttpServletRequest request){
+        //@RequestBody
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
         try {
-//            File[] infiles = ((MultiPartRequestWrapper) getRequest()).getFiles("impfile");
+//          File[] infiles = ((MultiPartRequestWrapper) getRequest()).getFiles("impfile");
 //            if(infiles == null || infiles.length==0){
 //                throw new BusinessException("请选择导入文件!");
 //            }
 //            String[] fileNames = ((MultiPartRequestWrapper) getRequest()).getFileNames("impfile");
+            MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+            MultipartFile infiles = multipartRequest.getFile("impfile");
             String fileName = infiles.getOriginalFilename();
             if(infiles == null || infiles.getSize()==0||StringUtils.isEmpty(fileName)){
                 throw new BusinessException("请选择导入文件!");
@@ -582,8 +589,8 @@ public class VATInComInvoice2Controller extends BaseController {
             json.setMsg(msg.toString());
             json.setSuccess(paramvo.getCount()==0 ? false : true);
 
-            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入进项发票：" + (vvo != null && vvo.getBeginrq() != null ? vvo.getBeginrq() : ""), ISysConstants.SYS_2);
+           // writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
+                 //   "导入进项发票：" + (vvo != null && vvo.getBeginrq() != null ? vvo.getBeginrq() : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "导入失败!");
         }
@@ -1321,8 +1328,18 @@ public class VATInComInvoice2Controller extends BaseController {
         try {
             response.reset();
             String exName = new String("进项清单.xlsx");
-            exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
-            response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+            //exName = new String(exName.getBytes("UTF-8"), "ISO_8859_1");// 解决中文乱码问题
+           // response.addHeader("Content-Disposition", "attachment;filename=" + new String(exName));
+
+           // String filename = xsz.getExcelport2003Name();
+            String formattedName = URLEncoder.encode(exName, "UTF-8");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename=" + exName + ";filename*=UTF-8''" + formattedName+ ".xlsx");
+          //  toClient = new BufferedOutputStream(response.getOutputStream());
+
+
+
+
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             byte[] length = null;
@@ -1335,7 +1352,8 @@ public class VATInComInvoice2Controller extends BaseController {
                     "jinxiangqingdan2.xlsx", 1, 1, 1, VatExportUtils.EXP_JX,
                     true, 2, busiList, 0, null);
             String srt2 = new String(length, "UTF-8");
-            response.addHeader("Content-Length", srt2);
+           // response.addHeader("Content-Length", srt2);
+           // response.addHeader("Transfer-Encoding", "chunked");
             toClient.flush();
             response.getOutputStream().flush();
         } catch (Exception e) {
@@ -2070,12 +2088,10 @@ public class VATInComInvoice2Controller extends BaseController {
 
 
     @RequestMapping("/matchInventoryData_long")
-    public ReturnData<Grid> matchInventoryData_long(@RequestBody Map<String,String> param) {
+    public ReturnData<Grid> matchInventoryData_long(@RequestParam("head")String body,String isshow,String goods) {
         Grid grid = new Grid();
         try {
-            String body = param.get("head");
-            String isshow = param.get("isshow");
-            String goods = param.get("goods");
+
             body = body.replace("}{", "},{");
             body = "[" + body + "]";
             JSONArray array = (JSONArray) JSON.parseArray(body);
@@ -2189,12 +2205,11 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/saveInventoryData")
-    public ReturnData<Grid> saveInventoryData(@RequestBody Map<String,String> param) {
+    public ReturnData<Grid> saveInventoryData(String goods) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
         try {
-            String goods = param.get("goods");
             pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
 //            boolean lock = LockUtil.getInstance().addLockKey("jx2pp", pk_corp, requestid, 600);// 设置600秒
@@ -2313,12 +2328,8 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/createPzData_long")
-    public ReturnData<Grid> createPzData_long(@RequestBody Map<String,String> param) {
-        String sourcename = param.get("sourcename");
-        String body = param.get("head");
-        String jsfs = param.get("jsfs");
-        String inperiod = param.get("inperiod");
-        String goods = param.get("goods");
+    public ReturnData<Grid> createPzData_long(String sourcename,@RequestParam("head")String body,String jsfs,
+                                              String inperiod,String goods) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
@@ -2879,7 +2890,8 @@ public class VATInComInvoice2Controller extends BaseController {
                 if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
                 }
-
+                body = body.replace("}{", "},{");
+                body = "[" + body + "]";
 
                 VATInComInvoiceVO2[] vos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
                 if(vos == null || vos.length == 0)
