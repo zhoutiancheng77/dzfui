@@ -565,8 +565,11 @@ public class KpglController extends BaseController {
     public void expExcel(HttpServletRequest request, HttpServletResponse response) {
         String ids = request.getParameter("id");
         String lx = request.getParameter("lx");//模板导出类型0 是默认导出，1按照导入格式导出
-        List<AssetcardVO> listVo = am_kpglserv.queryByIds(ids);
 
+        List<AssetcardVO> listVo = new ArrayList<AssetcardVO>();
+        if (!StringUtil.isEmpty(ids)) {
+            listVo = am_kpglserv.queryByIds(ids);
+        }
         ExportExcel<AssetcardVO> ex = new ExportExcel<AssetcardVO>();
         Map<String, String> map = getExpFieldMap(lx);
         String[] enFields = new String[map.size()];
@@ -613,7 +616,7 @@ public class KpglController extends BaseController {
             }
             toClient.flush();
             response.getOutputStream().flush();
-//            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL.getValue(), "导出资产卡片", ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "导出资产卡片", ISysConstants.SYS_2);
         } catch (Exception e) {
             log.error("资产卡片EXCEL导出错误", e);
         } finally {
@@ -764,7 +767,7 @@ public class KpglController extends BaseController {
             }
 //            File infile = infiles[0];
 //            String filename = filenames[0];
-            if (!file.getName().endsWith(".xls")) {
+            if (!file.getOriginalFilename().endsWith(".xls")) {
                 throw new Exception("文件格式不正确");
             }
             Object[] vos = onBoImp(file.getInputStream());
@@ -822,9 +825,9 @@ public class KpglController extends BaseController {
         Object[] objs = am_kpglserv.impExcel(SystemUtil.getLoginDate(),
                 SystemUtil.getLoginUserId(), SystemUtil.getLoginCorpVo(), vos);
         //导账
-//        for (AssetcardVO vo : vos) {
-//            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL.getValue(), "导入资产卡片:" + vo.getPeriod() + "，卡片编码:" + vo.getAssetcode(), ISysConstants.SYS_2);
-//        }
+        for (AssetcardVO vo : vos) {
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "导入资产卡片:" + vo.getPeriod() + "，卡片编码:" + vo.getAssetcode(), ISysConstants.SYS_2);
+        }
         return objs;
     }
 

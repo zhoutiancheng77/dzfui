@@ -48,4 +48,6 @@ public interface ISaleoutService {
 	
 	public StringBuffer buildQmjzMsg(List<String> periodList, String pk_corp) throws DZFWarpException;
 
+	public void check(IntradeHVO hvo, String pk_corp, boolean iscopy) throws DZFWarpException;
+
 }

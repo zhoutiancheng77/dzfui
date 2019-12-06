@@ -58,7 +58,7 @@ public class VoucherDeleteTask implements Callable<String> {
             if (e instanceof BusinessException) {
                 msg = e.getMessage();
             }
-            PzglmessageVO vo = createPzglVO(pzh, pk_corp, tzpzH.getVdef4(), tzpzH.getPeriod(), msg);
+            PzglmessageVO vo = createPzglVO(pzh, pk_corp, delData.getVdef4(), tzpzH.getPeriod(), msg);
             errorlist.add(vo);
             log.error("凭证号：" + pzh + "，pk_corp:" + pk_corp + "，id:" + id + "，删除凭证失败!", e);
         }

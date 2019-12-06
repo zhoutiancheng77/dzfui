@@ -1,6 +1,8 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -67,9 +69,9 @@ public class XjyhrjzController extends ReportBaseController {
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败!");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "现金/银行日记账查询:"+queryParamvo.getBegindate1().toString().substring(0, 7)
-//                        +"-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "现金/银行日记账查询:"+queryParamvo.getBegindate1().toString().substring(0, 7)
+                        +"-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 
     }
@@ -153,10 +155,10 @@ public class XjyhrjzController extends ReportBaseController {
         baseExcelExport(response,lxs,xsz);
 
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "现金/银行日记账导出:" + queryParamvo.getBegindate1().toString().substring(0, 7) + "-"
-//                        + queryParamvo.getEnddate().toString().substring(0, 7),
-//                ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "现金/银行日记账导出:" + queryParamvo.getBegindate1().toString().substring(0, 7) + "-"
+                        + queryParamvo.getEnddate().toString().substring(0, 7),
+                ISysConstants.SYS_2);
     }
     /**
      * 打印操作

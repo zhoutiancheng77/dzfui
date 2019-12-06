@@ -2,9 +2,11 @@ package com.dzf.zxkj.platform.controller.jzcl;
 
 import com.dzf.zxkj.base.controller.PrintAndExcelExportController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -179,9 +181,9 @@ public class QmgzController  extends PrintAndExcelExportController {
         } catch (Exception e) {
             printErrorLog(json, e, "整理失败!");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(),
-//                "凭证整理：" + DateUtils.getPeriod(bdate) + "到" + DateUtils.getPeriod(edate) + "，" + sort_label,
-//                ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE,
+                "凭证整理：" + DateUtils.getPeriod(bdate) + "到" + DateUtils.getPeriod(edate) + "，" + sort_label,
+                ISysConstants.SYS_2);
 
         return ReturnData.ok().data(json);
     }
@@ -252,7 +254,7 @@ public class QmgzController  extends PrintAndExcelExportController {
             printErrorLog(grid, e, "关账失败！");
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), logmsg, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, logmsg, ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -270,7 +272,7 @@ public class QmgzController  extends PrintAndExcelExportController {
             printErrorLog(grid, e, "关账失败！");
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), logmsg, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, logmsg, ISysConstants.SYS_2);
 
 //        writeJson(grid);
         return ReturnData.ok().data(grid);
@@ -383,7 +385,7 @@ public class QmgzController  extends PrintAndExcelExportController {
             printErrorLog(grid, e, "反关账失败！");
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), logmsg, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, logmsg, ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }

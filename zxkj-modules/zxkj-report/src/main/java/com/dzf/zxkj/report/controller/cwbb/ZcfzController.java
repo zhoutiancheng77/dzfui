@@ -133,8 +133,8 @@ public class ZcfzController extends ReportBaseController {
             printErrorLog(grid, e, "查询失败！");
         }
         //日志记录
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "资产负债查询:" + queryParamvo.getBegindate1().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "资产负债查询:" + queryParamvo.getBegindate1().toString().substring(0, 7), ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -229,13 +229,13 @@ public class ZcfzController extends ReportBaseController {
 
         baseExcelExport(response, lxs, zcfz);
 
-//        String excelsel = getRequest().getParameter("excelsel");
-//        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
-//            qj = qj.substring(0, 4);
-//        }
-//        //日志记录
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "资产负债导出:" + qj, ISysConstants.SYS_2);
+        String excelsel = excelExportVO.getExcelsel();
+        if (!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)) {
+            qj = qj.substring(0, 4);
+        }
+        //日志记录
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "资产负债导出:" + qj, ISysConstants.SYS_2);
     }
 
     /**
@@ -444,8 +444,8 @@ public class ZcfzController extends ReportBaseController {
 
         exportExcelToZip(response, workbookMap, "资产负债表、利润表(" + qj + ")");
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "财务报表英文模式导出:" + qj, ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "财务报表英文模式导出:" + qj, ISysConstants.SYS_2);
     }
 
     private List<LrbVO[]> getListLrbBvos(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, String qj, CorpVO cpvo) {

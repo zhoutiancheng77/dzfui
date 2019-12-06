@@ -2186,6 +2186,25 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 	}
 
+	public void check(IntradeHVO hvo, String pk_corp, boolean iscopy) throws DZFWarpException {
+
+		if (!StringUtil.isEmpty(hvo.getPk_corp())) {
+			if (!hvo.getPk_corp().equals(pk_corp)) {
+				throw new BusinessException("没有操作该条数据的权限!");
+			}
+		}
+
+		if (!iscopy) {
+			if (hvo.getIsjz() != null && hvo.getIsjz().booleanValue()) {
+				throw new BusinessException("已经转总账,不允许操作!");
+			}
+				String sourcetype = hvo.getSourcebilltype();
+				if (IBillTypeCode.HP75.equals(sourcetype)) {
+					throw new BusinessException("红字冲回单据,不允许操作!");
+				}
+		}
+	}
+
 	@Override
 	public AggIcTradeVO[] queryAggIntradeVOByID(String pk_ictrade_h, String pk_corp) throws DZFWarpException {
 		if (StringUtil.isEmpty(pk_ictrade_h)) {

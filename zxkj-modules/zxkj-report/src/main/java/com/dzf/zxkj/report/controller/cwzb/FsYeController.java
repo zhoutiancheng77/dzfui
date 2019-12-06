@@ -1,5 +1,7 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -99,9 +101,9 @@ public class FsYeController  extends ReportBaseController {
             printErrorLog(grid, e, "查询失败！");
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "发生额及余额表查询:"+vo.getBegindate1().toString().substring(0, 7) +"-"+
-//                        vo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "发生额及余额表查询:"+vo.getBegindate1().toString().substring(0, 7) +"-"+
+                        vo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -452,9 +454,9 @@ public class FsYeController  extends ReportBaseController {
         FsYeBExcelField fsyebfield =  getFsExcel(excelExportVO,queryparamvo,corpVO);
         baseExcelExport(response,lxs,fsyebfield);
 //        QueryParamVO vo = getQueryParamVO();
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(), "发生额及余额表导出:"
-//                        + vo.getBegindate1().toString().substring(0, 7) + "-" + vo.getEnddate().toString().substring(0, 7),
-//                ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "发生额及余额表导出:"
+                        + queryparamvo.getBegindate1().toString().substring(0, 7) + "-" + queryparamvo.getEnddate().toString().substring(0, 7),
+                ISysConstants.SYS_2);
     }
     private String getCNName(int month) {
         String[] cnnames = new String[] { "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月" };

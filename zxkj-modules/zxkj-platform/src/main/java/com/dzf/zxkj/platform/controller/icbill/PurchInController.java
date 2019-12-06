@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.controller.icbill;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
@@ -552,7 +553,7 @@ public class PurchInController {
 	 * 打印操作
 	 */
 	@PostMapping("print")
-	public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+	public void printAction(@RequestParam Map<String, String> pmap, HttpServletResponse response) {
 		try {
 			PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
@@ -628,7 +629,7 @@ public class PurchInController {
     private Map<String, List<SuperVO>> getVoMap(PrintParamVO printParamVO) {
         String list = printParamVO.getList();
 
-        String[] strs = list.split(",");
+		String[] strs = DZFStringUtil.getString2Array(list, ",");
 
         Map<String, List<SuperVO>> vomap = new LinkedHashMap<>();
         AuxiliaryAccountBVO[] fzvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_SUPPLIER, SystemUtil.getLoginCorpId(), null);

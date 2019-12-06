@@ -1,8 +1,10 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -79,8 +81,8 @@ public class LrbController extends ReportBaseController {
         }
 
         /** 日志记录接口 */
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "利润表查询:"+DateUtils.getPeriod(queryParamvo.getBegindate1()),ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "利润表查询:"+DateUtils.getPeriod(queryParamvo.getBegindate1()), ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -109,8 +111,8 @@ public class LrbController extends ReportBaseController {
         }
 
         /** 日志记录接口 */
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                "分部利润表查询",ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "分部利润表查询",ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 
     }
@@ -174,7 +176,7 @@ public class LrbController extends ReportBaseController {
         }
 
         /** 日志记录接口 */
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(), "所得税查询", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "所得税查询", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -202,13 +204,13 @@ public class LrbController extends ReportBaseController {
         //导出
         baseExcelExport(response,lxs,lrb);
 
-//        String excelsel = getRequest().getParameter("excelsel");
-//        if(!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)){
-//            qj  = qj.substring(0, 4);
-//        }
-//        /** 日志记录接口 */
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(),
-//                title+"导出:"+qj, ISysConstants.SYS_2);
+        String excelsel =  excelExportVO.getExcelsel();
+        if(!StringUtil.isEmpty(excelsel) && "1".equals(excelsel)){
+            qj  = qj.substring(0, 4);
+        }
+        /** 日志记录接口 */
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                title+"导出:"+qj, ISysConstants.SYS_2);
     }
 
     private void getLrbExcel(ReportExcelExportVO excelExportVO,CorpVO corpVO, KmReoprtQueryParamVO queryParamvo,UserVO userVO,LrbVO[] listVo, String gs, String qj, LrbExcelField lrb) {

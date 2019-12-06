@@ -4,10 +4,12 @@ import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.constant.DZFConstant;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.QcYeCurJson;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -45,6 +47,9 @@ import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
 
+/**
+ *  科目期初
+ */
 @RestController
 @RequestMapping("/qcset/gl_qcyeact")
 @Slf4j
@@ -95,7 +100,7 @@ public class QcyeController extends BaseController {
         } catch (Exception e) {
             printErrorLog(json, e, "固定资产同步失败！");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "固定资产同步", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "固定资产同步", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
     @GetMapping("kcsync")
@@ -127,7 +132,7 @@ public class QcyeController extends BaseController {
         } catch (Exception e) {
             printErrorLog(json, e, "库存期初同步失败！");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "库存期初同步", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "库存期初同步", ISysConstants.SYS_2);
         return  ReturnData.ok().data(json);
     }
     @PostMapping("save")
@@ -174,7 +179,7 @@ public class QcyeController extends BaseController {
             printErrorLog(json, e, "保存失败！");
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "期初科目余额编辑", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "期初科目余额编辑", ISysConstants.SYS_2);
 
         return ReturnData.ok().data(json);
     }
@@ -202,10 +207,10 @@ public class QcyeController extends BaseController {
             }
             if("0".equals(atype)){
                 gl_qcyeserv.deleteFs(corpid);
-//                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "科目期初-清除发生", ISysConstants.SYS_2);
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "科目期初-清除发生", ISysConstants.SYS_2);
             }else if("1".equals(atype)){
                 gl_qcyeserv.deleteAll(corpid);
-//                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "科目期初-全部清除", ISysConstants.SYS_2);
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "科目期初-全部清除", ISysConstants.SYS_2);
             }
             json.setSuccess(true);
             json.setMsg("清除所有数据成功！");

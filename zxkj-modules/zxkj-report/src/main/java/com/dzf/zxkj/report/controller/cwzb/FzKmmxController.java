@@ -1,5 +1,7 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -82,9 +84,8 @@ public class FzKmmxController extends ReportBaseController {
             grid.setRows(new ArrayList<FzKmmxVO>());
             printErrorLog(grid, e, "辅助明细账查询失败!");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "辅助明细账查询:"+queryparamvo.getBegindate1().toString().substring(0, 7)
-//                        +"-"+ queryparamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "辅助明细账查询:"+queryparamvo.getBegindate1().toString().substring(0, 7)
+                        +"-"+ queryparamvo.getEnddate().toString().substring(0, 7));
         return ReturnData.ok().data(grid);
     }
 
@@ -142,10 +143,9 @@ public class FzKmmxController extends ReportBaseController {
         zcfz.setCurrencyname(new ReportUtil().getCurrencyByPk(queryparamvo.getPk_currency()));
         baseExcelExport(response,lxs,zcfz);
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "辅助明细账导出:" + queryparamvo.getBegindate1().toString().substring(0, 7) + "-"
-//                        + queryparamvo.getEnddate().toString().substring(0, 7),
-//                ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "辅助明细账导出:" + queryparamvo.getBegindate1().toString().substring(0, 7) + "-"
+                        + queryparamvo.getEnddate().toString().substring(0, 7));
     }
 
     private FzmxMuiltSheetExcelField getExcelField(FzKmmxVO[] listVo, String gs, String qj,String ispage,UserVO uservo) {
