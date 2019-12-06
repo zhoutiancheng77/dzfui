@@ -60,6 +60,7 @@ public class TxAdviceConfig {
         txMap.put("search*", readOnlyTx);
         txMap.put("datagrid*", readOnlyTx);
         txMap.put("query*", readOnlyTx);
+        txMap.put("*", readOnlyTx);
         source.setNameMap( txMap );
         TransactionInterceptor txAdvice = new TransactionInterceptor(transactionManager, source);
         return txAdvice;
