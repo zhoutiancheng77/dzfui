@@ -2890,8 +2890,8 @@ public class VATInComInvoice2Controller extends BaseController {
                 if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
                 }
-                body = body.replace("}{", "},{");
-                body = "[" + body + "]";
+//                body = body.replace("}{", "},{");
+//                body = "[" + body + "]";
 
                 VATInComInvoiceVO2[] vos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
                 if(vos == null || vos.length == 0)
