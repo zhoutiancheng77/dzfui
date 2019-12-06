@@ -171,7 +171,6 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>logback-spring.xml</include>
                     <include>param.txt</include>
                     <include>fdfs_client.conf</include>
                     <include>font/*</include>
@@ -181,6 +180,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
+                    <include>logback-spring.xml</include>
                     <include>bootstrap.yml</include>
                 </includes>
                 <filtering>true</filtering>

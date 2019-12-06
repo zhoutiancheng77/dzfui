@@ -61,8 +61,7 @@ public class WorkloadManagementController extends BaseController {
             paramvo.setBegindate1(begindate);
             paramvo.setEnddate(enddate);
             paramvo.setPk_corp(workloadManagementParamVO.getCorpId());
-            List<WorkloadManagementVO> list1 = am_workloadmagserv
-                    .queryWorkloadManagement(paramvo);
+            List<WorkloadManagementVO> list1 = am_workloadmagserv.queryWorkloadManagement(paramvo);
 
             DZFBoolean iszjjt = checkIsjtzj(begindate, enddate, SystemUtil.getLoginUserId(), queryParamvo);
             String prePeriod = DateUtils.getPreviousPeriod(workloadManagementParamVO.getPeriod());
@@ -122,6 +121,7 @@ public class WorkloadManagementController extends BaseController {
             grid.setRows(list1);
             writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"工作量查询", ISysConstants.SYS_2);
             grid.setSuccess(true);
+            grid.setMsg("查询成功");
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");
             log.error("查询失败", e);
@@ -169,19 +169,20 @@ public class WorkloadManagementController extends BaseController {
 
     // 保存工作量
     @PostMapping("save")
-    public ReturnData<Grid> save(@MultiRequestBody WorkloadManagementVO workloadManagementVO) {
+    public ReturnData<Grid> save(@MultiRequestBody WorkloadManagementVO[] list) {
         Grid json = new Grid();
-        if (workloadManagementVO != null) {
-            if (workloadManagementVO.getBygzl() == null) {
-                json.setSuccess(false);
-                json.setMsg("保存失败，本月工作量不能为空");
-                return ReturnData.ok().data(json);
+        if (list != null && list.length > 0) {
+            for (WorkloadManagementVO workloadManagementVO: list) {
+                if (workloadManagementVO.getBygzl() == null) {
+                    json.setSuccess(false);
+                    json.setMsg("资产名称" + workloadManagementVO.getAssetname() + "，本月工作量不能为空");
+                    return ReturnData.ok().data(json);
+                }
+                workloadManagementVO.setPk_corp(SystemUtil.getLoginCorpId());
             }
             try {
-                workloadManagementVO.setPk_corp(SystemUtil.getLoginCorpId());
-                am_workloadmagserv.save(workloadManagementVO);
+                am_workloadmagserv.save(list);
                 json.setSuccess(true);
-                json.setRows(workloadManagementVO);
                 json.setMsg("保存成功");
                 writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"工作量保存",ISysConstants.SYS_2);
             } catch (Exception e) {
@@ -197,30 +198,25 @@ public class WorkloadManagementController extends BaseController {
 
     // 工作量管理:继承上月
     @PostMapping("inherit")
-    public ReturnData<Grid> inherit(@MultiRequestBody WorkloadManagementVO workloadManagementVO) {
+    public ReturnData<Grid> inherit(@MultiRequestBody QueryParamVO paramvo) {
         Grid json = new Grid();
-        if (workloadManagementVO != null) {
-            String period = workloadManagementVO.getDoperatedate().substring(0, 7);
-            String prePeriod = DateUtils.getPreviousPeriod(period);
-            QueryParamVO paramvo = new QueryParamVO();
-            paramvo.setPk_assetcard(workloadManagementVO.getPk_assetcard());
-            paramvo.setBegindate1(DateUtils.getPeriodStartDate(prePeriod));
-            paramvo.setEnddate(DateUtils.getPeriodEndDate(prePeriod));
-            try {
-                List<WorkloadManagementVO> list = am_workloadmagserv
-                        .queryBypk_assetcard(paramvo);
-                if (list != null && list.size() > 0) {
-                    json.setSuccess(true);
-                    json.setRows(list);
-                } else {
-                    json.setSuccess(false);
-                    json.setMsg("无上月数据,请手工填写");
-                }
-
-            } catch (Exception e) {
-                printErrorLog(json, e, "操作失败");
-                log.error("操作失败", e);
+        String period = paramvo.getPeriod();
+        String prePeriod = DateUtils.getPreviousPeriod(period);
+        paramvo.setBegindate1(DateUtils.getPeriodStartDate(prePeriod));
+        paramvo.setEnddate(DateUtils.getPeriodEndDate(prePeriod));
+        try {
+            List<WorkloadManagementVO> list = am_workloadmagserv.queryBypk_assetcard(paramvo);
+            if (list != null && list.size() > 0) {
+                json.setSuccess(true);
+                json.setRows(list);
+            } else {
+                json.setSuccess(false);
+                json.setMsg("无上月数据,请手工填写");
             }
+
+        } catch (Exception e) {
+            printErrorLog(json, e, "操作失败");
+            log.error("操作失败", e);
         }
         return ReturnData.ok().data(json);
     }

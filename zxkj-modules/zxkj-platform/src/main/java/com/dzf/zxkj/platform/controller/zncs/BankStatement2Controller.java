@@ -827,16 +827,18 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/combinePZ_long")
-    public void combinePZ_long(@RequestBody Map<String,String> param){
+    public ReturnData<Json> combinePZ_long(@RequestBody Map<String,String> param){
         VatInvoiceSetVO setvo = queryRuleByType();
         String body = param.get("head");
+        ReturnData<Json> data=null;
         if(setvo == null
                 || setvo.getValue() == null
                 || setvo.getValue() == IBillManageConstants.HEBING_GZ_01){
-            createPZ(body);
+            data = createPZ(body);
         }else{
-            combinePZ1(setvo,body);
+            data = combinePZ1(setvo,body);
         }
+        return data;
     }
 
     public ReturnData<Json> combinePZ1(VatInvoiceSetVO setvo,String body){

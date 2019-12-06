@@ -564,9 +564,9 @@ public class UserServiceImpl implements IUserService {
 	//验证的时查询
 	@Override
 	public UserVO queryUserById(String id) throws DZFWarpException {
-		UserVO uservo = (UserVO)singleObjectBO.queryVOByID(id, UserVO.class);
-		uservo.setUser_name(SecretCodeUtils.deCode(uservo.getUser_name()));
-		return uservo;
+        UserVO user = (UserVO)singleObjectBO.queryVOByID(id, UserVO.class);
+        user.setUser_name(SecretCodeUtils.deCode(user.getUser_name()));
+		return user;
 	}
 	
 	public CorpVO[] getValidateCorpByUserId(String dsName,

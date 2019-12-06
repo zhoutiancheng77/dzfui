@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -73,14 +74,14 @@ public class ImageViewController extends BaseController {
 //        String isMiddle= getRequest().getParameter("isMiddle");
 //        HttpServletResponse response = getResponse();
 
-        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
-        if(pk_corp != null && pk_corp.trim().length() > 0){
-            if(!corpSet.contains(pk_corp)){
-                grid.setSuccess(false);
-                grid.setMsg("查询图片失败,公司错误！");
-                return  ReturnData.error().data(grid);
-            }
-        }
+//        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+//        if(pk_corp != null && pk_corp.trim().length() > 0){
+//            if(!corpSet.contains(pk_corp)){
+//                grid.setSuccess(false);
+//                grid.setMsg("查询图片失败,公司错误！");
+//                return  ReturnData.error().data(grid);
+//            }
+//        }
         ServletOutputStream sos = null;
         FileInputStream fis = null;
         try{
@@ -118,7 +119,8 @@ public class ImageViewController extends BaseController {
 
             response.setContentType("image/jpeg");
 
-            if(corpSet.contains(pk_cprp_ser)){
+//            if(corpSet.contains(pk_cprp_ser)){
+            if(true){
                 if(!file.exists()){
                     String pathNoExist = session.getServletContext().getRealPath("/")
                             + "img" + File.separator + "picnoexist.jpg";
@@ -225,9 +227,13 @@ public class ImageViewController extends BaseController {
     }
 
     @RequestMapping("/getPicStatistics")
-    public ReturnData<Json> getPicStatistics(String pk_corp,String beginDate,String endDate,String serdate) {
+    public ReturnData<Json> getPicStatistics(@RequestBody Map<String,String> param) {
         Json json = new Json();
         try {
+            String pk_corp = param.get("pk_corp");
+            String beginDate = param.get("beginDate");
+            String endDate = param.get("endDate");
+            String serdate = param.get("serdate");
             if (StringUtil.isEmpty(pk_corp)) {
                 pk_corp = SystemUtil.getLoginCorpId();
             } else {

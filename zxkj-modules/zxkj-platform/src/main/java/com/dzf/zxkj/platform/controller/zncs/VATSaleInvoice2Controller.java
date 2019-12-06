@@ -204,8 +204,8 @@ public class VATSaleInvoice2Controller extends BaseController {
         String msg = "";//记录日志
         Json json = new Json();
         try {
-            String head = param.get("adddoc[header]");
-            String body = param.get("adddoc[body]");
+            String head = param.get("header");
+            String body = param.get("body");
             String pk_corp = SystemUtil.getLoginCorpId();
             Map<String, VATSaleInvoiceVO2[]> sendData = new HashMap<String, VATSaleInvoiceVO2[]>();
             VATSaleInvoiceVO2 headvo = JsonUtils.deserialize(head, VATSaleInvoiceVO2.class);
@@ -949,8 +949,6 @@ public class VATSaleInvoice2Controller extends BaseController {
                 if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
                 }
-                body = body.replace("}{", "},{");
-                body = "[" + body + "]";
 
                 VATSaleInvoiceVO2[] vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
                 if (vos == null || vos.length == 0)
@@ -2316,10 +2314,15 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/combineRule")
-    public ReturnData<Json> combineRule(@RequestBody String pzrq,String pzrule,String flrule,String zy,@RequestParam("setid") String setId,String bk){
+    public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
-
+            String pzrq = param.get("pzrq");
+            String pzrule = param.get("pzrq");
+            String flrule = param.get("pzrq");
+            String zy = param.get("pzrq");
+            String setId = param.get("setid");
+            String bk = param.get("pzrq");
             if(StringUtil.isEmpty(pzrule)
                     || StringUtil.isEmpty(flrule)||StringUtil.isEmpty(pzrq)){
                 throw new BusinessException("合并规则设置失败，请重试");
