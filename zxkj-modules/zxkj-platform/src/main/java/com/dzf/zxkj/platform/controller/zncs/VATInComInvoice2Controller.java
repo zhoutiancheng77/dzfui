@@ -2070,10 +2070,12 @@ public class VATInComInvoice2Controller extends BaseController {
 
 
     @RequestMapping("/matchInventoryData_long")
-    public ReturnData<Grid> matchInventoryData_long(@RequestParam("head")String body,String isshow,String goods) {
+    public ReturnData<Grid> matchInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         try {
-
+            String body = param.get("head");
+            String isshow = param.get("isshow");
+            String goods = param.get("goods");
             body = body.replace("}{", "},{");
             body = "[" + body + "]";
             JSONArray array = (JSONArray) JSON.parseArray(body);
@@ -2187,11 +2189,12 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/saveInventoryData")
-    public ReturnData<Grid> saveInventoryData(String goods) {
+    public ReturnData<Grid> saveInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
         try {
+            String goods = param.get("goods");
             pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
 //            boolean lock = LockUtil.getInstance().addLockKey("jx2pp", pk_corp, requestid, 600);// 设置600秒
@@ -2310,8 +2313,12 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/createPzData_long")
-    public ReturnData<Grid> createPzData_long(String sourcename,@RequestParam("head")String body,String jsfs,
-                                              String inperiod,String goods) {
+    public ReturnData<Grid> createPzData_long(@RequestBody Map<String,String> param) {
+        String sourcename = param.get("sourcename");
+        String body = param.get("head");
+        String jsfs = param.get("jsfs");
+        String inperiod = param.get("inperiod");
+        String goods = param.get("goods");
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
@@ -2872,8 +2879,7 @@ public class VATInComInvoice2Controller extends BaseController {
                 if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
                 }
-                body = body.replace("}{", "},{");
-                body = "[" + body + "]";
+
 
                 VATInComInvoiceVO2[] vos = JsonUtils.deserialize(body, VATInComInvoiceVO2[].class);
                 if(vos == null || vos.length == 0)

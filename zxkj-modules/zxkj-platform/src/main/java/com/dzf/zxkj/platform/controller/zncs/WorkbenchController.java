@@ -126,12 +126,13 @@ public class WorkbenchController extends BaseController {
      * 查询分类+票据树
      */
     @RequestMapping("/queryCategory")
-    public ReturnData<Grid> queryCategory(@RequestBody Map<String,String> param) {
+    public ReturnData<Grid> queryCategory(String period,@RequestParam String billstate) {
 
         Grid grid = new Grid();
         try {
-            checkPeriod(param.get("period"), false);
-            BillcategoryQueryVO paramVO=buildParamVO(param);
+            checkPeriod(period, false);
+            //BillcategoryQueryVO paramVO=buildParamVO(param);
+            BillcategoryQueryVO paramVO= new BillcategoryQueryVO();
             List<BillCategoryVO> list = iBillcategory.queryCategoryTree(paramVO);
             grid.setSuccess(true);
             grid.setTotal((long)caclTotal(list));
@@ -1944,10 +1945,10 @@ public class WorkbenchController extends BaseController {
     }
     //统计分析
     @RequestMapping("/queryBillCount")
-    public ReturnData<Grid> queryBillCount(@RequestBody Map<String,String> param){
+    public ReturnData<Grid> queryBillCount(@RequestBody String period){
         Grid grid = new Grid();
         try {
-            String period = param.get("period");
+//            String period = param.get("period");
             String pk_corp=SystemUtil.getLoginCorpId();
             if(StringUtils.isEmpty(period)||StringUtils.isEmpty(pk_corp)){
                 throw new BusinessException("参数有误！");

@@ -949,8 +949,6 @@ public class VATSaleInvoice2Controller extends BaseController {
                 if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
                 }
-                body = body.replace("}{", "},{");
-                body = "[" + body + "]";
 
                 VATSaleInvoiceVO2[] vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
                 if (vos == null || vos.length == 0)
