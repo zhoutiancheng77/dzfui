@@ -184,6 +184,7 @@ public class KcCbbController extends GlicReportController{
 //            ColumnCellAttr[] columncellattrvos= JsonUtils.convertValue(printvo.getColumnslist(), ColumnCellAttr[].class);
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));
             //初始化表体列编码和列名称
+            printReporUtil.setLineheight(22F);
             List<ColumnCellAttr> list = new ArrayList<>();
             String strclassif = pmap.get("classif");
             DZFBoolean flag = new DZFBoolean(strclassif);

@@ -480,7 +480,7 @@ public class SalaryReportController {
             if (!StringUtil.isEmpty(zbr) && new DZFBoolean(zbr).booleanValue()) {
                 tmap.put("制表人", SystemUtil.getLoginUserVo().getUser_name());
             }
-//            setTableHeadFount(new Font(getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
             List<Integer> hiddenColList = getHiddenColumn(billtype);
             if (!StringUtil.isEmpty(hiddenphone) && new DZFBoolean(hiddenphone).booleanValue()) {
                 // 隐藏手机号
@@ -492,7 +492,7 @@ public class SalaryReportController {
             }
             SalaryReportVO nvo = calTotal(list.toArray(new SalaryReportVO[list.size()]));
             list.add(nvo);
-//            setLineheight(22F);
+            printReporUtil.setLineheight(22F);
             String[] columns = SalaryReportColumn.getCodes(hiddenColList);
             String[] columnNames = SalaryReportColumn.getNames(hiddenColList, billtype);
             int[] widths = SalaryReportColumn.getWidths(hiddenColList);

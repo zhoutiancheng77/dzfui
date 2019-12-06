@@ -206,7 +206,7 @@ public class ICbbController  {
 	 * 打印操作
 	 */
     @PostMapping("print")
-    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+    public void printAction(@RequestParam Map<String, String> pmap, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             if (DZFValueCheck.isEmpty(pmap.get("list"))) {
@@ -328,7 +328,8 @@ public class ICbbController  {
 			if (strlist == null) {
 				bodyvos = new IcbalanceVO[0];
 			} else {
-				bodyvos= JsonUtils.convertValue(strlist, IcbalanceVO[].class);
+				strlist = strlist.replace("}{", "},{");
+				bodyvos= JsonUtils.deserialize(strlist, IcbalanceVO[].class);
 			}
 		} else {
 			String qryDate =  param.get("djrqa");

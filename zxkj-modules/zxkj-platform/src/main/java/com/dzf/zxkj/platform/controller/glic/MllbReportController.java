@@ -119,7 +119,7 @@ public class MllbReportController  extends GlicReportController{
             tmap.put("公司", bodyvos[0].getGs());
             tmap.put("期间", period);
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
-
+            printReporUtil.setLineheight(22F);
             List<ColumnCellAttr> list = new ArrayList<>();
             list.add(new ColumnCellAttr("存货编码",null,null,null,"code",1));
             list.add(new ColumnCellAttr("存货名称",null,null,null,"name",1));

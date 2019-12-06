@@ -188,7 +188,7 @@ public class ICHzbController {
      * 打印操作
      */
     @PostMapping("print")
-    public void printAction(@RequestBody Map<String, String> pmap, HttpServletResponse response) {
+    public void printAction(@RequestParam Map<String, String> pmap, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
@@ -200,7 +200,9 @@ public class ICHzbController {
             } else {
                 printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
             }
-            IcDetailVO[] bodyvos= JsonUtils.convertValue(printParamVO.getList(), IcDetailVO[].class);
+
+			String strlist = printParamVO.getList().replace("}{", "},{");
+            IcDetailVO[] bodyvos= JsonUtils.deserialize(strlist, IcDetailVO[].class);
 			String gs = bodyvos[0].getGs();
 			String period = bodyvos[0].getTitlePeriod();
 			String current = pmap.get("print_curr");
@@ -317,7 +319,7 @@ public class ICHzbController {
 		OutputStream toClient = null;
 		try {
 			String strlist = param.get("list");
-			IcDetailVO[] vo= JsonUtils.convertValue(strlist, IcDetailVO[].class);
+			IcDetailVO[] vo= JsonUtils.deserialize(strlist, IcDetailVO[].class);
 			String gs = vo[0].getGs();
 			String qj = vo[0].getTitlePeriod();
 

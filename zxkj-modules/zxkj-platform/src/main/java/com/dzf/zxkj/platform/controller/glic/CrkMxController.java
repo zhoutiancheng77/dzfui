@@ -276,7 +276,7 @@ public class CrkMxController extends GlicReportController{
             List<ColumnCellAttr> list = new ArrayList<>();
             String strclassif = pmap.get("classif");
             DZFBoolean flag = new DZFBoolean(strclassif);
-
+            printReporUtil.setLineheight(22F);
             list.add(new ColumnCellAttr("日期",null,null,2,"dbilldate",1));
             if(!flag.booleanValue())
                 list.add(new ColumnCellAttr("存货类别",null,null,2,"spfl",1));

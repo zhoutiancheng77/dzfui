@@ -644,6 +644,8 @@ public class ICHzbImpl implements IICHzb {
 		}
 		icq.setQcsl(srsl);
 		icq.setQcje(srje);
+		icq.setJcsl(srsl);
+		icq.setJcje(srje);
 		return icq;
 	}
 

@@ -94,9 +94,9 @@ public class SystemController {
         //库存
         if (IcCostStyle.IC_ON.equals(corpModel.getBbuildic())) {//启用进销存
             if (corpModel.getIbuildicstyle() != null && corpModel.getIbuildicstyle() == 1) {
-                funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
-            } else {
                 funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
+            } else {
+                funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
             }
             funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL2_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
         } else if(IcCostStyle.IC_INVTENTORY.equals(corpModel.getBbuildic())){
