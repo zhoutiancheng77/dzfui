@@ -171,9 +171,9 @@ public class OperatorLogController {
     }
 
 
-//    /**
-//     * 打印
-//     */
+    /**
+     * 打印
+     */
 //    @SuppressWarnings("unchecked")
 //    public void print() {
 //        try{
@@ -193,7 +193,6 @@ public class OperatorLogController {
 //            }
 //
 //            String value =  getObjectMapper().writeValueAsString(recordlists);
-//
 //
 //            JSONArray array = (JSONArray) JSON.parseArray(value);
 //            String qj = paramvo.getBegindate1().toString() +"~"+paramvo.getEnddate().toString();
