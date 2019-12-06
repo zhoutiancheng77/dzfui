@@ -1577,6 +1577,8 @@ public class VoucherController {
             json.setSuccess(false);
             if ("-150".equals(e.getMessage())) {
                 json.setStatus(-150);
+            } else if (e instanceof BusinessException) {
+                json.setMsg(e.getMessage());
             } else {
                 log.error("导入失败", e);
                 json.setMsg("导入失败");
