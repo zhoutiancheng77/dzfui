@@ -9,7 +9,6 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
-import com.dzf.zxkj.platform.model.sys.BDabstractsVO;
 import com.dzf.zxkj.platform.service.bdset.IHLService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,44 +34,45 @@ public class HlServiceImpl implements IHLService {
 
     @Override
     public ExrateVO save(ExrateVO vo) throws DZFWarpException {
+        if (existCheck(vo)) { //判断要新增或要改为的币种是否已存在（在"除了自己的其他汇率行"中是否存在）
+            String sql = "select currencyname from ynt_bd_currency where pk_currency=?";
+            SQLParameter sp = new SQLParameter();
+            sp.addParam(vo.getPk_currency());
+            Object obj = singleObjectBO.executeQuery(sql, sp, new ColumnProcessor());
+            throw new BusinessException((obj != null ? (String) obj : "") + "的汇率已存在，不能重复添加");
+        }
+        //保存（新增或修改）
         ExrateVO svo = (ExrateVO) singleObjectBO.saveObject(vo.getPk_corp(), vo);
         return svo;
     }
 
     /**
      * 是否已经存在该币种的汇率
+     * 用于后台校验等
      *
      * @param vo
      * @throws DZFWarpException
      */
-    private void existCheck(BDabstractsVO vo) throws DZFWarpException {
-        SQLParameter sp1 = new SQLParameter();
-        String code = vo.getAbstractscode();
-        String name = vo.getAbstractsname();
-        String id = "";
-        if (!StringUtil.isEmpty(vo.getPk_abstracts())) {
-            id = vo.getPk_abstracts();
+    private boolean existCheck(ExrateVO vo) throws DZFWarpException {
+        String id_rate = vo.getPk_exrate(); //修改时有id，新增时为空
+
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(vo.getPk_corp());
+        sp.addParam(vo.getPk_currency());
+        StringBuffer sf = new StringBuffer();
+        sf.append("select 1 from ynt_exrate ");
+        sf.append(" where (pk_corp=? or pk_corp='");
+        sf.append(IGlobalConstants.DefaultGroup).append("')");
+        // 要新增或要改为的币种在"除了自己的其他汇率行"中是否已存在
+        sf.append(" and pk_currency=?");
+        if (!StringUtil.isEmpty(id_rate)) {
+            sf.append(" and pk_exrate!=?");
+            sp.addParam(id_rate);
         }
-        sp1.addParam(code);
-        sp1.addParam(name);
-        if (!StringUtil.isEmpty(id)) {
-            sp1.addParam(id);
-            sp1.addParam(id);
-        }
-        sp1.addParam(vo.getPk_corp());
-        sp1.addParam(vo.getPk_corp());
-        String condition1 = " (abstractscode = ? or abstractsname = ?) ";
-        if (StringUtil.isEmpty(id) == false)
-            condition1 = condition1 + " and (pk_abstracts>? or pk_abstracts<?) ";
-        condition1 = condition1 + " and pk_corp  in ((select fathercorp from bd_corp where pk_corp = ? ), ? ) and nvl(dr,0) = 0 ";
-        List<BDabstractsVO> vo1 = (List<BDabstractsVO>) singleObjectBO.retrieveByClause(BDabstractsVO.class, condition1, sp1);
-        int len = vo1 == null ? 0 : vo1.size();
-        if (len > 0) {
-            String str = vo1.get(0).getAbstractscode();
-            if (code.equals(str))
-                throw new BusinessException("摘要编号已存在");
-            else throw new BusinessException("摘要名称已存在");
-        }
+        sf.append(" and nvl(dr,0)=0");
+        boolean isExist = singleObjectBO.isExists(null, sf.toString(), sp);
+        //List<ExrateVO> vo1 = (List<ExrateVO>) singleObjectBO.retrieveByClause(ExrateVO.class, sf.toString(), sp);
+        return isExist;
     }
 
     @Override
@@ -80,13 +80,14 @@ public class HlServiceImpl implements IHLService {
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_corp);
         StringBuffer sf = new StringBuffer();
-        sf.append(" select rate.*,cy.currencyname, er.user_name creatorname from  ynt_exrate rate ");
-        sf.append(" join ynt_bd_currency cy on rate.pk_currency = cy.pk_currency  ");
+        sf.append(" select rate.*, cy.currencyname, er.user_name creatorname from ynt_exrate rate ");
+        sf.append(" join ynt_bd_currency cy on rate.pk_currency = cy.pk_currency ");
         sf.append(" left join sm_user er on rate.creator = er.cuserid ");
         sf.append(" where (rate.pk_corp = ? or rate.pk_corp ='");
         sf.append(IGlobalConstants.DefaultGroup);
         sf.append("'");
-        sf.append(") and nvl(rate.dr,0) = 0");
+        sf.append(") and nvl(rate.dr,0) = 0 ");
+        sf.append(" order by rate.pk_corp, rate.createtime ");
         List<ExrateVO> ancevos = (List<ExrateVO>) singleObjectBO.executeQuery(sf.toString(), sp, new BeanListProcessor(ExrateVO.class));
         if (ancevos == null || ancevos.size() == 0)
             return null;
