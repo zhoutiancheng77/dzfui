@@ -64,7 +64,6 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -126,13 +125,12 @@ public class WorkbenchController extends BaseController {
      * 查询分类+票据树
      */
     @RequestMapping("/queryCategory")
-    public ReturnData<Grid> queryCategory(String period,@RequestParam String billstate) {
+    public ReturnData<Grid> queryCategory(@RequestBody Map<String,String> param) {
 
         Grid grid = new Grid();
         try {
-            checkPeriod(period, false);
-            //BillcategoryQueryVO paramVO=buildParamVO(param);
-            BillcategoryQueryVO paramVO= new BillcategoryQueryVO();
+            checkPeriod(param.get("period"), false);
+            BillcategoryQueryVO paramVO=buildParamVO(param);
             List<BillCategoryVO> list = iBillcategory.queryCategoryTree(paramVO);
             grid.setSuccess(true);
             grid.setTotal((long)caclTotal(list));
@@ -1945,10 +1943,10 @@ public class WorkbenchController extends BaseController {
     }
     //统计分析
     @RequestMapping("/queryBillCount")
-    public ReturnData<Grid> queryBillCount(@RequestBody String period){
+    public ReturnData<Grid> queryBillCount(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
-//            String period = param.get("period");
+            String period = param.get("period");
             String pk_corp=SystemUtil.getLoginCorpId();
             if(StringUtils.isEmpty(period)||StringUtils.isEmpty(pk_corp)){
                 throw new BusinessException("参数有误！");
