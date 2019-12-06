@@ -159,6 +159,8 @@ public class CorpTaxVo extends SuperVO {
     public String unitname;// 公司名称(不存库--从bd_corp获取)
     @JsonProperty("chname")
     public String chargedeptname;// 公司性质(不存库--从bd_corp获取)
+
+    private DZFBoolean ischannel;//是否加盟商
     //----------不存库，需要回写的字段------------------
 
 
@@ -363,6 +365,14 @@ public class CorpTaxVo extends SuperVO {
 //	public void setVprovince(Integer vprovince) {
 //		this.vprovince = vprovince;
 //	}
+
+    public DZFBoolean getIschannel() {
+        return ischannel;
+    }
+
+    public void setIschannel(DZFBoolean ischannel) {
+        this.ischannel = ischannel;
+    }
 
     public Integer getIncomtaxtype() {
         return incomtaxtype;

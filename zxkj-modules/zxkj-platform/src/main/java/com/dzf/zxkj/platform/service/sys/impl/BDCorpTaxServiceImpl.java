@@ -298,7 +298,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 	private String getQuerySql(QueryParamVO queryvo, UserVO uservo) {
 		// 根据查询条件查询公司的信息
 		StringBuffer corpsql = new StringBuffer();
-		corpsql.append("select b1.*,a.innercode,a.begindate,a.createdate,a.vsuperaccount, ");
+		corpsql.append("select b1.*,a.innercode,a.ischannel,a.begindate,a.createdate,a.vsuperaccount, ");
 		corpsql.append(" a.pk_corp,a.vsoccrecode,a.isxrq,a.drdsj, ");
 		corpsql.append(" a.legalbodycode,a.vcorporatephone, t.tradename as indusname,a.industry,a.unitname,a.chargedeptname, ");
 		corpsql.append(" a.icostforwardstyle, a.bbuildic, a.ishasaccount, a.holdflag, a.busibegindate, a.icbegindate, a.corptype, ");
