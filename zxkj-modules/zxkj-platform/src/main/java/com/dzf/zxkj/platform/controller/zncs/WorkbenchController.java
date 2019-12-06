@@ -126,7 +126,6 @@ public class WorkbenchController extends BaseController {
      */
     @RequestMapping("/queryCategory")
     public ReturnData<Grid> queryCategory(@RequestBody Map<String,String> param) {
-
         Grid grid = new Grid();
         try {
             checkPeriod(param.get("period"), false);
