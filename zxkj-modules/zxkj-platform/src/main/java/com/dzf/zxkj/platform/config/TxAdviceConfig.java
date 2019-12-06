@@ -34,7 +34,7 @@ public class TxAdviceConfig {
         requiredTx.setRollbackRules(
                 Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
         requiredTx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-        requiredTx.setTimeout(TX_METHOD_TIMEOUT);
+//        requiredTx.setTimeout(TX_METHOD_TIMEOUT);
         Map<String, TransactionAttribute> txMap = new HashMap<>();
         txMap.put("add*", requiredTx);
         txMap.put("save*", requiredTx);
