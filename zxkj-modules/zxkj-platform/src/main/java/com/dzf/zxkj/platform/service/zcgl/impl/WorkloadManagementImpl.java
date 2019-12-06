@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.zcgl.WorkloadManagementVO;
 import com.dzf.zxkj.platform.service.zcgl.IworkloadManagement;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -56,11 +57,14 @@ public class WorkloadManagementImpl implements IworkloadManagement {
 	public List<WorkloadManagementVO> queryBypk_assetcard(QueryParamVO paramvo)
 			throws DZFWarpException {
 		StringBuilder sql = new StringBuilder();
-		sql.append("select * from ynt_workloadmanagement work ");
-		sql.append(" where nvl(work.dr,0) = 0 and work.pk_assetcard = ? and work.doperatedate = ? ");
 		SQLParameter sp = new SQLParameter();
-		sp.addParam(paramvo.getPk_assetcard());
 		sp.addParam(paramvo.getBegindate1());
+		sql.append("select * from ynt_workloadmanagement work ");
+		sql.append(" where nvl(work.dr,0) = 0  and work.doperatedate = ? ");
+		if (!StringUtil.isEmpty(paramvo.getPk_assetcard())) {
+			sql.append("and work.pk_assetcard = ?");
+			sp.addParam(paramvo.getPk_assetcard());
+		}
 		List<WorkloadManagementVO> listVO = (List<WorkloadManagementVO>) singleObjectBO
 				.executeQuery(sql.toString(), sp, new BeanListProcessor(
 						WorkloadManagementVO.class));
@@ -70,7 +74,17 @@ public class WorkloadManagementImpl implements IworkloadManagement {
 	@Override
 	public void save(WorkloadManagementVO vo) throws DZFWarpException {
 		singleObjectBO.saveObject(vo.getPk_corp(), vo);
-
 	}
+
+	@Override
+	public void save(WorkloadManagementVO[] vo) throws DZFWarpException {
+		if (vo !=null && vo.length > 0) {
+			// 有更新，有新增的
+			for (WorkloadManagementVO tvo: vo) {
+				singleObjectBO.saveObject(tvo.getPk_corp(), tvo);
+			}
+		}
+	}
+
 
 }

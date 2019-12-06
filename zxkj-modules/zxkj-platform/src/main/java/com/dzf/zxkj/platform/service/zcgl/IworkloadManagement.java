@@ -18,4 +18,11 @@ public interface IworkloadManagement {
 	List<WorkloadManagementVO> queryBypk_assetcard(QueryParamVO paramvo)throws DZFWarpException;
 
 	public void save(WorkloadManagementVO data)throws DZFWarpException;
+
+	/**
+	 * 批量保存
+	 * @param data
+	 * @throws DZFWarpException
+	 */
+	public void save(WorkloadManagementVO[] data) throws DZFWarpException;
 }
