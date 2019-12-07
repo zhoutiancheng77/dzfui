@@ -19,8 +19,8 @@ public class PermissionFilter {
     public static final String KJQJ_XZDW = "00000100000000Ig4yfE0008";//行政单位会计制度
     //节点对应pk
     public static final String ZC_FUN_NODE_PK = "WDZF02SS0ESS00000EE00181"; //资产管理
-    public static final String KCGL_FUN_NODE_PK = "WDZF02SS0ESS00000EE00217"; //进销存 新模式
-    public static final String KCGL1_FUN_NODE_PK = "WDZF02SS0ESS00000EE00517";//进销存 老模式
+    public static final String KCGL_FUN_NODE_PK = "WDZF02SS0ESS00000EE00517"; //进销存 新模式
+    public static final String KCGL1_FUN_NODE_PK = "WDZF02SS0ESS00000EE00217";//进销存 老模式
     public static final String KCGL2_FUN_NODE_PK = "WDZF02SS0ESS00000EE00180";//总账核算存货
     public static final String ZCFZB_FUN_NODE_PK = "WDZF02SS0ESS00000EE00145";//资产负债表
     public static final String LRB_FUN_NODE_PK = "WDZF02SS0ESS00000EE00149"; //利润表

@@ -55,7 +55,7 @@ public interface IImageGroupService {
 	// 根据文件MD5查询图片信息
 	public ImageLibraryVO[] queryLibByMD(String pk_corp, String md) throws DZFWarpException;
 
-	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO uservo, MultipartFile[] infiles, String g_id, String period, String pjlxType) throws DZFWarpException;
+	public ImageLibraryVO uploadSingFile(CorpVO corpvo, UserVO uservo, MultipartFile infiles, String g_id, String period, String pjlxType) throws DZFWarpException;
 	
 	public String getUploadImgMD(MultipartFile file, CorpVO corpvo) throws DZFWarpException;
 	
@@ -73,7 +73,7 @@ public interface IImageGroupService {
 	public Map<String, Object> getPicStatistics(String pk_corp,
 												String beginDate, String endDate, String serdate) throws DZFWarpException;
 
-	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, MultipartFile[] infiles, String[] filenames, String g_id, String period, String invoicedata, String pjlxType) throws DZFWarpException;
+	public ImageLibraryVO uploadSingFileByFastTax(CorpVO corpvo, UserVO uservo, MultipartFile infiles, String[] filenames, String g_id, String period, String invoicedata, String pjlxType) throws DZFWarpException;
 
 	/**
 	 * 拆分图片组

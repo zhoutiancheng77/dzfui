@@ -7,9 +7,12 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.DZFArrayUtil;
+import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
@@ -19,7 +22,9 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.icbill.ITradeinService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.platform.util.VoUtils;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -130,14 +135,20 @@ public class TradeinController{
             } else {
                 printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
             }
-            IctradeinVO[] bodyvos= JsonUtils.convertValue(printParamVO.getList(), IctradeinVO[].class);
+			String body = printParamVO.getList();
+			body = body.replace("}{", "},{");
+            IctradeinVO[] bodyvos= JsonUtils.deserialize(body, IctradeinVO[].class);
 			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
 			tmap.put("公司", bodyvos[0].getGs());
 			tmap.put("期间", bodyvos[0].getTitlePeriod());
 
-			setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());//为后续设置精度赋值
+            IctradeinVO nvo = calTotal(bodyvos);
+            bodyvos = DZFArrayUtil.combineArray(bodyvos,new IctradeinVO[]{nvo});
 
-			printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "入 库 单",
+			setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());//为后续设置精度赋值
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
+            printReporUtil.setLineheight(22F);
+            printReporUtil.printHz(new HashMap<>(),bodyvos, "入 库 单",
                     new String[] { "kmmc", "invname", "zy", "invspec","measure", "dbilldate", "nnum",
                             "ncost", "pzh", "memo" },
                     new String[] { "科目", "存货", "摘要", "规格(型号)", "计量单位", "单据日期", "数量", "成本", "凭证号", "备注" },
@@ -160,6 +171,21 @@ public class TradeinController{
 		}
 	}
 
+    private IctradeinVO calTotal(SuperVO[] bodyvos) {
+        // 计算合计行数据
+        DZFDouble d1 = DZFDouble.ZERO_DBL;
+        DZFDouble d2 = DZFDouble.ZERO_DBL;
+        for (SuperVO body : bodyvos) {
+            IctradeinVO ivo = (IctradeinVO) body;
+            d1 = SafeCompute.add(d1, VoUtils.getDZFDouble(ivo.getNcost()).setScale(2, DZFDouble.ROUND_HALF_UP));
+            d2 = SafeCompute.add(d2, VoUtils.getDZFDouble(ivo.getNnum()));
+        }
+        IctradeinVO nvo = new IctradeinVO();
+        nvo.setKmmc("合计");
+        nvo.setNcost(d1);
+        nvo.setNnum(d2);
+        return nvo;
+    }
 	private void setDefaultValue(IctradeinVO[] bodyvos, String pk_corp){
 		if(bodyvos != null && bodyvos.length > 0){
 			for(IctradeinVO vo : bodyvos){
@@ -171,8 +197,9 @@ public class TradeinController{
 	public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> param){
 		OutputStream toClient = null;
 		try {
-			String str = param.get("list");
-			AggIcTradeVO[] aggvos= JsonUtils.convertValue(str, AggIcTradeVO[].class);
+			String body = param.get("list");
+			body = body.replace("}{", "},{");
+			AggIcTradeVO[] bodyvos =JsonUtils.deserialize(body,AggIcTradeVO[].class); // 表体
 			response.reset();
 			String exName = new String("入库单.xls");
 			exName = new String(exName.getBytes("GB2312"), "ISO_8859_1");// 解决中文乱码问题
@@ -184,7 +211,7 @@ public class TradeinController{
 			Map<String, Integer> preMap = getPreMap();//设置精度
 
 			IcBillExport exp = new IcBillExport();
-			length = exp.exportExcel(aggvos, toClient, 3, false, preMap);
+			length = exp.exportExcel(bodyvos, toClient, 3, false, preMap);
 			String srt2 = new String(length, "UTF-8");
 			response.addHeader("Content-Length", srt2);
 			toClient.flush();

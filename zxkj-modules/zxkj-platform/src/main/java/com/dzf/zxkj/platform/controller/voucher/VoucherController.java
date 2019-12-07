@@ -1099,7 +1099,11 @@ public class VoucherController {
                 json.setSuccess(true);
             } catch (Exception e) {
                 json.setSuccess(false);
-                json.setMsg("删除失败");
+                if (e instanceof BusinessException) {
+                    json.setMsg(e.getMessage());
+                } else {
+                    json.setMsg("删除失败");
+                }
                 if (IVoucherConstants.EXE_RECONFM_CODE.equals(e.getMessage())) {
                     json.setStatus(IVoucherConstants.STATUS_RECONFM_CODE);
                 }
@@ -1573,6 +1577,8 @@ public class VoucherController {
             json.setSuccess(false);
             if ("-150".equals(e.getMessage())) {
                 json.setStatus(-150);
+            } else if (e instanceof BusinessException) {
+                json.setMsg(e.getMessage());
             } else {
                 log.error("导入失败", e);
                 json.setMsg("导入失败");

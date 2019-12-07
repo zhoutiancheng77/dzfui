@@ -64,7 +64,6 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -126,17 +125,11 @@ public class WorkbenchController extends BaseController {
      * 查询分类+票据树
      */
     @RequestMapping("/queryCategory")
-    public ReturnData<Grid> queryCategory(String period,String billstate,@RequestParam("id") String pk_category,
-                                          @RequestParam("code")String categorycode,String pk_parent,String oldperiod,
-                                          String pk_bankcode,String billtype,String invoicetype,String remark,
-                                          String billtitle,String vpurchname,String vsalename,String bdate,String edate,
-                                          String bntotaltax,String entotaltax,String truthindent) {
+    public ReturnData<Grid> queryCategory(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         try {
-            checkPeriod(period, false);
-            BillcategoryQueryVO paramVO=buildParamVO(period, billstate, pk_category, categorycode,
-                     pk_parent, oldperiod, pk_bankcode, billtype, invoicetype, remark, billtitle, vpurchname,
-                     vsalename, bdate, edate, bntotaltax, entotaltax, truthindent);
+            checkPeriod(param.get("period"), false);
+            BillcategoryQueryVO paramVO=buildParamVO(param);
             List<BillCategoryVO> list = iBillcategory.queryCategoryTree(paramVO);
             grid.setSuccess(true);
             grid.setTotal((long)caclTotal(list));
@@ -170,7 +163,7 @@ public class WorkbenchController extends BaseController {
      * 树参照
      */
     @RequestMapping("/queryTree")
-    public ReturnData<Grid> queryTree(String period){
+    public ReturnData<Grid> queryTree(@RequestBody String period){
         Grid grid = new Grid();
         try {
             List<CategoryTreeVO> list = iBillcategory.queryCategoryTree(SystemUtil.getLoginCorpId(),period);
@@ -209,9 +202,12 @@ public class WorkbenchController extends BaseController {
      * 参数保存
      */
     @RequestMapping("/saveParaSet")
-    public ReturnData<Json> saveParaSet(String pType,String pValue){
+    public ReturnData<Json> saveParaSet(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pType = param.get("pType");
+        String pValue = param.get("pValue");
         try{
+
             String pk_corp=SystemUtil.getLoginCorpId();
             iParaSet.saveParaSet(pk_corp,pType, pValue);
             json.setSuccess(true);
@@ -248,9 +244,12 @@ public class WorkbenchController extends BaseController {
      * 表头移动到
      */
     @RequestMapping("/saveNewCategory")
-    public ReturnData<Json> saveNewCategory(@RequestParam("ids") String bills,String treeid,String period){
+    public ReturnData<Json> saveNewCategory(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String bills = param.get("ids");
+            String treeid= param.get("treeid");
+            String period= param.get("period");
             checkPeriod(period, true);
             String pk_corp=SystemUtil.getLoginCorpId();
             iBillcategory.saveNewCategory(bills.split(","), treeid, pk_corp, period);
@@ -286,32 +285,26 @@ public class WorkbenchController extends BaseController {
             throw new BusinessException("期间格式 '" + period + "' 非法");
         }
     }
-    private BillcategoryQueryVO buildParamVO(String period,String billstate,String pk_category,String categorycode,
-                                             String pk_parent,String oldperiod,String pk_bankcode,String billtype,
-                                             String invoicetype,String remark,String billtitle,String vpurchname,
-                                             String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,
-                                             String truthindent){
+    private BillcategoryQueryVO buildParamVO(Map<String,String> param){
         BillcategoryQueryVO paramVO=new BillcategoryQueryVO();
-
-        paramVO.setOldperiod(oldperiod);
-        paramVO.setPeriod(period);
-        paramVO.setPk_category(pk_category);
-        paramVO.setBillstate(billstate==null?null:Integer.parseInt(billstate));
-        paramVO.setCategorycode(categorycode);
+        paramVO.setOldperiod(param.get("oldperiod"));
+        paramVO.setPeriod(param.get("period"));
+        paramVO.setPk_category(param.get("id"));
+        paramVO.setBillstate(param.get("billstate")==null?null:Integer.parseInt(param.get("billstate")));
+        paramVO.setCategorycode(param.get("code"));
         paramVO.setPk_corp(SystemUtil.getLoginCorpId());
-        paramVO.setPk_parentcategory(pk_parent);
-        paramVO.setBilltype(billtype);//票据类型
-        paramVO.setInvoicetype(invoicetype);//单据类型
-        paramVO.setRemark(remark);
-        paramVO.setBilltitle(billtitle);//票据名称
-        paramVO.setVpurchname(vpurchname);//付款方
-        paramVO.setVsalename(vsalename);//收款方
-        paramVO.setBdate(bdate);//开票日期开始
-        paramVO.setEdate(edate);//开票日期结束
-        paramVO.setBntotaltax(bntotaltax);//金额开始
-        paramVO.setEntotaltax(entotaltax);//金额结束
-        paramVO.setTruthindent(truthindent);//真伪
-        paramVO.setPk_bankcode(pk_bankcode);
+        paramVO.setPk_parentcategory(param.get("pk_parent"));
+        paramVO.setBilltype(param.get("billtype"));//票据类型
+        paramVO.setInvoicetype(param.get("invoicetype"));//单据类型
+        paramVO.setRemark(param.get("remark"));
+        paramVO.setBilltitle(param.get("billtitle"));//票据名称
+        paramVO.setVpurchname(param.get("vpurchname"));//付款方
+        paramVO.setVsalename(param.get("vsalename"));//收款方
+        paramVO.setBdate(param.get("bdate"));//开票日期开始
+        paramVO.setEdate(param.get("edate"));//开票日期结束
+        paramVO.setBntotaltax(param.get("bntotaltax"));//金额开始
+        paramVO.setTruthindent(param.get("truthindent"));//真伪
+        paramVO.setPk_bankcode(param.get("pk_bankcode"));
         return paramVO;
     }
     /**
@@ -336,10 +329,11 @@ public class WorkbenchController extends BaseController {
      * 保存黑名单关键字
      */
     @RequestMapping("/saveBlackList")
-    public ReturnData<Json> saveBlackList(@RequestParam("names")String blackListnames){
+    public ReturnData<Json> saveBlackList(@RequestBody Map<String,String> param){
         Json json = new Json();
-
+        String blackListnames = param.get("names");
         try{
+
             if (StringUtil.isEmpty(blackListnames))
             {
                 throw new BusinessException("黑名单内容为空");
@@ -367,10 +361,10 @@ public class WorkbenchController extends BaseController {
      * 删除黑名单关键字
      */
     @RequestMapping("/deleteBlackList")
-    public ReturnData<Json> deleteBlackList(@RequestParam("id")String pk_blacklist){
+    public ReturnData<Json> deleteBlackList(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
-
+            String pk_blacklist = param.get("id");
             String pk_corp= SystemUtil.getLoginCorpId();
             iBlackList.deleteBlackListVO(pk_corp, pk_blacklist);
             json.setSuccess(true);
@@ -401,9 +395,10 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/queryFzhsValue")
-    public ReturnData<Grid> queryFzhsValue(@RequestParam("id")String pk_head){
+    public ReturnData<Grid> queryFzhsValue(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String pk_head = param.get("id");
             String pk_corp=SystemUtil.getLoginCorpId();
             List<AuxiliaryAccountBVO> list=iEditDirectory.queryAuxiliaryAccountBVOs(pk_corp,pk_head);
             grid.setSuccess(true);
@@ -418,10 +413,11 @@ public class WorkbenchController extends BaseController {
      * 右键编辑目录保存
      */
     @RequestMapping("/saveEditDirectory")
-    public ReturnData<Json> saveEditDirectory(String head,String body){
+    public ReturnData<Json> saveEditDirectory(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
-
+            String head = param.get("head");
+            String body = param.get("body");
 //            JSON headjs = (JSON) JSON.parse(head);
             JSONArray array = (JSONArray) JSON.parseArray(body);
 //            Map<String,String> headmaping=FieldMapping.getFieldMapping(new CategorysetVO());
@@ -445,10 +441,10 @@ public class WorkbenchController extends BaseController {
      * 编辑目录查询
      */
     @RequestMapping("queryEditDirection")
-    public ReturnData<Json> queryEditDirection(@RequestParam("id")String pk_tree){
+    public ReturnData<Json> queryEditDirection(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
-
+            String pk_tree = param.get("id");
             String pk_corp=SystemUtil.getLoginCorpId();
             CategorysetVO head = iEditDirectory.queryCategorysetVO(pk_tree, pk_corp);
             json.setSuccess(true);
@@ -464,9 +460,10 @@ public class WorkbenchController extends BaseController {
      * 查询票据信息
      */
     @RequestMapping("/queryBillInfo")
-    public ReturnData<Json> queryBillInfo(@RequestParam("id")String billid){
+    public ReturnData<Json> queryBillInfo(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String billid = param.get("id");
             String pk_corp=SystemUtil.getLoginCorpId();
             BillInfoVO billinfo = iInterfaceBill.queryBillInfo(billid);
             json.setSuccess(true);
@@ -482,9 +479,11 @@ public class WorkbenchController extends BaseController {
      * 查询票据信息s
      */
     @RequestMapping("/queryBillInfos")
-    public ReturnData<Json> queryBillInfos(@RequestParam("ids")String billids,String period){
+    public ReturnData<Json> queryBillInfos(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String billids = param.get("ids");
+            String period = param.get("period");
             String pk_corp=SystemUtil.getLoginCorpId();
             List<BillInfoVO> billinfoList = iInterfaceBill.queryBillInfos(billids, period, pk_corp);
             json.setSuccess(true);
@@ -501,11 +500,11 @@ public class WorkbenchController extends BaseController {
      */
 
     @RequestMapping("/invalidBill")
-    public ReturnData<Json>  invalidBill(@RequestParam("id")String ids){
+    public ReturnData<Json>  invalidBill(@RequestBody Map<String,String> param){
         //iInterfaceBill
         Json json = new Json();
         try{
-
+            String ids = param.get("id");
             String[] idArray = ids.split(",");
             iInterfaceBill.updateInvalidBill(idArray,SystemUtil.getLoginCorpId());
             json.setSuccess(true);
@@ -518,18 +517,17 @@ public class WorkbenchController extends BaseController {
 
     }
     /**
+     * String period,String billstate,String pk_category,String categorycode,
+     * String pk_parent,String oldperiod,String pk_bankcode,String billtype,
+     * String invoicetype,String remark,String billtitle,String vpurchname,
+     * String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,String truthindent
      * 批量按照分类作废票据
      */
     @RequestMapping("/invalidBatchBill")
-    public ReturnData<Json> invalidBatchBill(String period,String billstate,String pk_category,String categorycode,
-                                             String pk_parent,String oldperiod,String pk_bankcode,String billtype,
-                                             String invoicetype,String remark,String billtitle,String vpurchname,
-                                             String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,String truthindent){
+    public ReturnData<Json> invalidBatchBill(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
-            BillcategoryQueryVO paramVO=buildParamVO(period, billstate, pk_category, categorycode,
-                    pk_parent, oldperiod, pk_bankcode, billtype,invoicetype, remark, billtitle, vpurchname,
-                    vsalename, bdate, edate, bntotaltax, entotaltax,truthindent);
+            BillcategoryQueryVO paramVO=buildParamVO(param);
             iInterfaceBill.updateInvalidBatchBill(paramVO);
             json.setSuccess(true);
             json.setMsg("作废成功!");
@@ -544,19 +542,19 @@ public class WorkbenchController extends BaseController {
 
     /**
      * 票据重传
+     * String ids,String period,String billstate,String pk_category,String categorycode,
+     * String pk_parent,String oldperiod,String pk_bankcode,String billtype,
+     * String invoicetype,String remark,String billtitle,String vpurchname,
+     * String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,
+     * String truthindent
      */
     @RequestMapping("/updateRetransBill")
-    public ReturnData<Json> updateRetransBill(String ids,String period,String billstate,String pk_category,String categorycode,
-                                              String pk_parent,String oldperiod,String pk_bankcode,String billtype,
-                                              String invoicetype,String remark,String billtitle,String vpurchname,
-                                              String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,
-                                              String truthindent){
+    public ReturnData<Json> updateRetransBill(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
+            String ids=param.get("ids");
             String[] idArray = StringUtil.isEmpty(ids)?null:ids.split(",");
-            BillcategoryQueryVO paramVO=buildParamVO(period, billstate, pk_category, categorycode,
-                    pk_parent, oldperiod, pk_bankcode, billtype,invoicetype, remark, billtitle, vpurchname,
-                    vsalename, bdate, edate, bntotaltax, entotaltax,truthindent);
+            BillcategoryQueryVO paramVO=buildParamVO(param);
             iInterfaceBill.updateRetransBill(idArray, paramVO);
             json.setSuccess(true);
             json.setMsg("重传成功!");
@@ -572,11 +570,13 @@ public class WorkbenchController extends BaseController {
      * 导出下载票据
      */
     @RequestMapping("/exportBill")
-    public ReturnData<Json>  exportBill(@RequestParam("ids")String ids, String period, String categoryid,
-                                        HttpServletResponse response){
+    public ReturnData<Json>  exportBill(@RequestBody Map<String,String> param, HttpServletResponse response){
         //iInterfaceBill
         Json json = new Json();
         try{
+            String ids = param.get("ids");
+            String period = param.get("period");
+            String categoryid = param.get("categoryid");
             String pkcorp=SystemUtil.getLoginCorpId();
             String[] idArray = ids==null?null:ids.split(",");
             CorpVO corpVO2 = SystemUtil.getLoginCorpVo();//图片浏览查询框中公司pk
@@ -619,12 +619,12 @@ public class WorkbenchController extends BaseController {
      * 跨期
      */
     @RequestMapping("/changePeorid_long")
-    public ReturnData<Json>  changePeorid_long(String period,String ids){
+    public ReturnData<Json>  changePeorid_long(@RequestBody Map<String,String> param){
         //iInterfaceBill
         Json json = new Json();
-
+        String period = param.get("period");
         try{
-
+            String ids = param.get("ids");
             checkPeriod(period, true);		//检查期间的合法性
             String[] idArray = ids.split(",");
 
@@ -653,10 +653,10 @@ public class WorkbenchController extends BaseController {
      * 查询作废票据
      */
     @RequestMapping("/queryInvalidBillInfo")
-    public ReturnData<Grid> queryInvalidBillInfo(String period){
+    public ReturnData<Grid> queryInvalidBillInfo(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
-
+            String period = param.get("period");
 //			String pkcorp=StringUtil.isEmpty(getRequest().getParameter("corpid"))?
 //					getLoginCorpInfo().getPk_corp():getRequest().getParameter("corpid");
             String pkcorp=SystemUtil.getLoginCorpId();
@@ -750,9 +750,11 @@ public class WorkbenchController extends BaseController {
      * 创建目录
      */
     @RequestMapping("/createDirectory")
-    public ReturnData<Json> createDirectory(@RequestParam("name")String dirName,String period,
-                                            @RequestParam("pid")String pk_parent){
+    public ReturnData<Json> createDirectory(@RequestBody Map<String,String> param ){
         Json json = new Json();
+        String dirName = param.get("name");
+        String period = param.get("period");
+        String pk_parent = param.get("pk_parent");
         checkPeriod(period, true);		//检查期间合法性
         try{
             String pk_corp=SystemUtil.getLoginCorpId();
@@ -770,8 +772,11 @@ public class WorkbenchController extends BaseController {
      * 删除目录
      */
     @RequestMapping("/deleteDirectory")
-    public ReturnData<Json> deleteDirectory(String period,String id,@RequestParam("pid")String pk_parent){
+    public ReturnData<Json> deleteDirectory(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String period=param.get("period");
+        String id = param.get("id");
+        String pk_parent = param.get("pid");
         checkPeriod(period, true);		//检查期间合法性
         try{
 
@@ -882,7 +887,7 @@ public class WorkbenchController extends BaseController {
      * 自定义凭证模板保存
      */
     @RequestMapping("/saveVoucherTemplet")
-    public ReturnData<Json> saveVoucherTemplet(String templet){
+    public ReturnData<Json> saveVoucherTemplet(@RequestBody String templet){
         Json json = new Json();
         try{
             ArrayList objMap = getObjectMapper().readValue(templet, ArrayList.class);
@@ -901,9 +906,10 @@ public class WorkbenchController extends BaseController {
      * 自定义模板查询
      */
     @RequestMapping("/quertVoucherTemplet")
-    public ReturnData<Grid> quertVoucherTemplet(@RequestParam("categoryid")String pk_category){
+    public ReturnData<Grid> quertVoucherTemplet(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String pk_category = param.get("categoryid");
             String pk_corp=SystemUtil.getLoginCorpId();
             List<VouchertempletHVO> list=iVoucherTemplet.queryVoucherTempletList(pk_corp, pk_category);
             grid.setSuccess(true);
@@ -918,14 +924,15 @@ public class WorkbenchController extends BaseController {
      * 整理分类
      */
     @RequestMapping("/updateCategoryAgain")
-    public ReturnData<Grid> updateCategoryAgain(@RequestParam("categoryid")String pk_category,String pk_parent,
-                                                String period){
+    public ReturnData<Grid> updateCategoryAgain(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         boolean lock = false;
         String requestid = null;
         int count = 0;
         try {
-
+            String pk_category = param.get("categoryid");
+            String pk_parent = param.get("pk_parent");
+            String period = param.get("period");
             checkPeriod(period, true);		//检查期间合法性
             if(StringUtils.isEmpty(period)){
                 throw new BusinessException("参数异常");
@@ -933,7 +940,8 @@ public class WorkbenchController extends BaseController {
             String pk_corp=SystemUtil.getLoginCorpId();
             String key = pk_corp+","+period;
 
-//            requestid = UUID.randomUUID().toString();
+            requestid = UUID.randomUUID().toString();
+            lock = true;
             while (lock == false && count < 10)
             {
 //                lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key, requestid, 60);// 设置60秒
@@ -974,9 +982,9 @@ public class WorkbenchController extends BaseController {
      * 检测分类
      */
     @RequestMapping("/checkCategory")
-    public ReturnData<Grid> checkCategory(String period) {
+    public ReturnData<Grid> checkCategory(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-
+        String period = param.get("period");
         try {
             String pk_corp = SystemUtil.getLoginCorpId();
             checkPeriod(period, true);		//检查期间合法性
@@ -996,15 +1004,9 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(grid);
     }
     @RequestMapping("/changeBatchPeorid_long")
-    public ReturnData<Json> changeBatchPeorid_long(String period,String billstate,String pk_category,String categorycode,
-                                                   String pk_parent,String oldperiod,String pk_bankcode,String billtype,
-                                                   String invoicetype,String remark,String billtitle,String vpurchname,
-                                                   String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,
-                                                   String truthindent){
+    public ReturnData<Json> changeBatchPeorid_long(@RequestBody Map<String,String> param){
         Json json = new Json();
-        BillcategoryQueryVO paramVO=buildParamVO(period, billstate, pk_category, categorycode,
-                pk_parent, oldperiod, pk_bankcode, billtype,invoicetype, remark, billtitle, vpurchname,
-                vsalename, bdate, edate, bntotaltax, entotaltax,truthindent);
+        BillcategoryQueryVO paramVO=buildParamVO(param);
         try {
             CorpVO currcorp = SystemUtil.getLoginCorpVo();
             DZFDate begdate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(currcorp.getBegindate())) ;
@@ -1029,10 +1031,12 @@ public class WorkbenchController extends BaseController {
 
     }
     @RequestMapping("/saveOcrInvoiceVO")
-    public ReturnData<Json> saveOcrInvoiceVO(String head,String body){
+    public ReturnData<Json> saveOcrInvoiceVO(@RequestBody Map<String,String> param){
         Json json = new Json();
         String webid=null;
         try{
+            String head = param.get("head");
+            String body = param.get("body");
             //String headname = getRequest().getParameter("headname");
             body = body.replace("}{", "},{");
             //body = "[" + body + "]";
@@ -1084,15 +1088,18 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/combineRule")
-    public ReturnData<Json> combineRule(String pzrule,String flrule,String zy,@RequestParam("setid") String setId,String bk){
+    public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
-
+            String pzrule = param.get("pzrule");
+            String flrule = param.get("flrule");
+            String zy = param.get("zy");
+            String setId = param.get("setid");
+            String bk = param.get("bk");
             if(StringUtil.isEmpty(pzrule)
                     || StringUtil.isEmpty(flrule)){
                 throw new BusinessException("合并规则设置失败，请重试");
             }
-
             String pk_corp = SystemUtil.getLoginCorpId();
             VatInvoiceSetVO vo = new VatInvoiceSetVO();
             String[] fields = new String[]{ "value", "entry_type", "isbank", "zy" };
@@ -1132,15 +1139,20 @@ public class WorkbenchController extends BaseController {
      * String pk_bankcode=getRequest().getParameter("pk_bankcode" );
      */
     @RequestMapping("/makeAccount_long")
-    public ReturnData<Json> makeAccount_long(String period,@RequestParam("categoryid") String pk_category,
-                                             @RequestParam("parentid")String pk_parent,@RequestParam("ids")String pk_bills,
-                                             String isforce,String pk_bankcode){
+    public ReturnData<Json> makeAccount_long(@RequestBody Map<String,String> param){
+        String period = param.get("period");
+        String pk_category = param.get("categoryid");
+        String pk_parent = param.get("parentid");
+        String pk_bills = param.get("ids");
+        String isforce = param.get("isforce");
+        String pk_bankcode = param.get("pk_bankcode");
         Json json = new Json();
         String pk_corp=SystemUtil.getLoginCorpId();
-//        String requestid = UUID.randomUUID().toString();
+        String requestid = UUID.randomUUID().toString();
         boolean lock = false;
         try{
 //            lock = LockUtil.getInstance().addLockKey("zncsVoucher", pk_corp+period, requestid, 600);// 设置600秒
+            lock = true;
             if(!lock){//处理
                 json.setSuccess(false);
                 json.setMsg("正在处理中，请稍后刷新数据");
@@ -1217,7 +1229,7 @@ public class WorkbenchController extends BaseController {
     }
     //保存总账存货
     @RequestMapping("/saveInventoryData_long")
-    public ReturnData<Grid> saveInventoryData_long(String goods) {
+    public ReturnData<Grid> saveInventoryData_long(@RequestBody String goods) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
@@ -1281,12 +1293,15 @@ public class WorkbenchController extends BaseController {
     }
     //匹配总账存货的
     @RequestMapping("/matchInventoryData_long")
-    public ReturnData<Json> matchInventoryData_long(String isshow,String period,@RequestParam("categoryid") String category,
-                                                    @RequestParam("ids")String bills){
+    public ReturnData<Json> matchInventoryData_long(@RequestBody Map<String,String> param){
         //启用存货的
 
         Json json = new Json();
         try{
+            String isshow = param.get("isshow");
+            String period  = param.get("period");
+            String category = param.get("categoryid");
+            String bills = param.get("ids");
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
             if(StringUtil.isEmpty(isshow)){
                 isshow ="Y";
@@ -1304,12 +1319,10 @@ public class WorkbenchController extends BaseController {
                     throw new BusinessException("不核算存货模式不允许匹配存货!");
                 }
 
-
 //				if (!StringUtil.isEmpty(error)) {
 //					error = error.replaceAll("<br>", " ");
 //					throw new BusinessException("进项发票存货匹配失败:"+error);
 //				}
-
 
                 checkPeriod(period, true);		//检查期间合法性
 //				if(StringUtil.isEmpty(period)){
@@ -1377,9 +1390,12 @@ public class WorkbenchController extends BaseController {
 
 
     @RequestMapping("/getGoodsInvenRela_long")
-    public ReturnData<Grid> getGoodsInvenRela_long(String period,String ids,@RequestParam("categoryid")String category){
+    public ReturnData<Grid> getGoodsInvenRela_long(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try{
+            String period = param.get("period");
+            String ids = param.get("ids");
+            String category = param.get("categoryid");
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
             String pk_corp = corpvo.getPk_corp();
             if(!IcCostStyle.IC_ON.equals(corpvo.getBbuildic())){//启用库存 --匹配存货
@@ -1426,7 +1442,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(grid);
     }
     @RequestMapping("/saveVatGoosInventory_long")
-    public ReturnData<Grid> saveVatGoosInventory_long(String goods){
+    public ReturnData<Grid> saveVatGoosInventory_long(@RequestBody String goods){
         Grid grid = new Grid();
         try{
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
@@ -1510,7 +1526,7 @@ public class WorkbenchController extends BaseController {
      * 凭证保存
      */
     @RequestMapping("/saveTzpzHVOs")
-    public ReturnData<Json> saveTzpzHVOs(String vouchers){
+    public ReturnData<Json> saveTzpzHVOs(@RequestBody String vouchers){
         Json json = new Json();
         try{
             ArrayList objMap = getObjectMapper().readValue(vouchers, ArrayList.class);
@@ -1658,10 +1674,14 @@ public class WorkbenchController extends BaseController {
      * 手动凭证
      */
     @RequestMapping("/handVoucher")
-    public ReturnData<Json> handVoucher(@RequestParam("categoryid") String pk_category,@RequestParam("parentid")String pk_parent,
-                                        @RequestParam("ids")String pk_bills,String period,String pk_bankcode){
+    public ReturnData<Json> handVoucher(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String pk_category = param.get("categoryid");
+            String pk_parent = param.get("parentid");
+            String pk_bills = param.get("ids");
+            String period = param.get("period");
+            String pk_bankcode = param.get("pk_bankcode");
             checkPeriod(period, true);		//检查期间合法性
             if(!StringUtil.isEmpty(pk_bankcode)&&!pk_category.startsWith("bank_")){
                 pk_parent=pk_bankcode;
@@ -1682,7 +1702,7 @@ public class WorkbenchController extends BaseController {
      * 手动凭证保存
      */
     @RequestMapping("/saveHandTzpzHVOs")
-    public ReturnData<Json> saveHandTzpzHVOs(String vouchers){
+    public ReturnData<Json> saveHandTzpzHVOs(@RequestBody String vouchers){
         Json json = new Json();
         try{
             ArrayList objMap = getObjectMapper().readValue(vouchers, ArrayList.class);
@@ -1697,9 +1717,11 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/queryBatchBillByState")
-    public ReturnData<Json> queryBatchBillByState(@RequestParam("istate") String state,String period){
+    public ReturnData<Json> queryBatchBillByState(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String state = param.get("istate");
+            String period = param.get("period");
 //            String state=getRequest().getParameter("istate");//票据IDS
 //            String period=getRequest().getParameter("period");//期间
             if(period==null) throw new BusinessException("期间不能为空");
@@ -1717,9 +1739,10 @@ public class WorkbenchController extends BaseController {
      * 查票的表体
      */
     @RequestMapping("/queryInvoicDetails")
-    public ReturnData<Json> queryInvoicDetails(@RequestParam("pk_bill")String pk_invoice){
+    public ReturnData<Json> queryInvoicDetails(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String pk_invoice = param.get("pk_bill");
 //            String pk_invoice=getRequest().getParameter("pk_bill");//票据主键
             List<OcrInvoiceDetailVO> list=iBillcategory.queryDetailVOs(pk_invoice);
             json.setSuccess(true);
@@ -1735,9 +1758,12 @@ public class WorkbenchController extends BaseController {
      * 表体移动到
      */
     @RequestMapping("/saveNewCategoryBody")
-    public ReturnData<Json> saveNewCategoryBody(@RequestParam("ids") String bills,String treeid,String period){
+    public ReturnData<Json> saveNewCategoryBody(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String bills = param.get("ids");
+            String treeid = param.get("treeid");
+            String period = param.get("period");
             checkPeriod(period, true);		//检查期间合法性
 
             String pk_corp=SystemUtil.getLoginCorpId();
@@ -1755,15 +1781,10 @@ public class WorkbenchController extends BaseController {
      * 点分类感叹号
      */
     @RequestMapping("/queryErrorDetails")
-    public ReturnData<Grid> queryErrorDetails(String period,String billstate,String pk_category,String categorycode,
-                                              String pk_parent,String oldperiod,String pk_bankcode,String billtype,
-                                              String invoicetype,String remark,String billtitle,String vpurchname,
-                                              String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,String truthindent){
+    public ReturnData<Grid> queryErrorDetails(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
-            BillcategoryQueryVO paramVO=buildParamVO(period, billstate, pk_category, categorycode,
-                    pk_parent, oldperiod, pk_bankcode, billtype,invoicetype, remark, billtitle, vpurchname,
-                    vsalename, bdate, edate, bntotaltax, entotaltax,truthindent);
+            BillcategoryQueryVO paramVO=buildParamVO(param);
             List<CheckOcrInvoiceVO> list = iBillcategory.queryErrorDetailVOs(paramVO);
             grid.setSuccess(true);
             grid.setMsg("查询成功!");
@@ -1775,7 +1796,7 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/queryBankInfo")
-    public ReturnData<Grid> queryBankInfo(Map<String,String> param){
+    public ReturnData<Grid> queryBankInfo(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
             String account = param.get("account");
@@ -1819,12 +1840,17 @@ public class WorkbenchController extends BaseController {
     }
 
     @RequestMapping("/queryB")
-    public ReturnData<Json> queryB(Integer page,Integer rows,@RequestParam("id")String hid,String kmid,
-                                   String billtype,String isfenye,String pk_corp) {
+    public ReturnData<Json> queryB(@RequestBody Map<String,String> param) {
         Json json = new Json();
-        page = page ==null?1 :page;
-        rows = rows ==null ?100:rows;
+        String hid = param.get("id");
+        String kmid = param.get("kmid");
+        String billtype = param.get("billtype");
+        String isfenye = param.get("isfenye");
+        String pk_corp = param.get("pk_corp");
+        Integer page = StringUtil.isEmpty(param.get("page"))?1: java.lang.Integer.parseInt(param.get("page"));
+        Integer rows = StringUtil.isEmpty(param.get("rows"))?100: java.lang.Integer.parseInt(param.get("rows"));
         try {
+
             if (StringUtil.isEmpty(hid)) {
                 json.setMsg("参数为空！");
                 json.setSuccess(false);
@@ -1916,9 +1942,10 @@ public class WorkbenchController extends BaseController {
     }
     //统计分析
     @RequestMapping("/queryBillCount")
-    public ReturnData<Grid> queryBillCount(String period){
+    public ReturnData<Grid> queryBillCount(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String period = param.get("period");
             String pk_corp=SystemUtil.getLoginCorpId();
             if(StringUtils.isEmpty(period)||StringUtils.isEmpty(pk_corp)){
                 throw new BusinessException("参数有误！");
@@ -1936,9 +1963,11 @@ public class WorkbenchController extends BaseController {
     }
     //跨期到本期，跨期至其他期间票据查询
     @RequestMapping("/queryIntertemporal")
-    public ReturnData<Grid> queryIntertemporal(String period,String flag){
+    public ReturnData<Grid> queryIntertemporal(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String period = param.get("period");
+            String flag = param.get("flag");
             String pk_corp=SystemUtil.getLoginCorpId();
             if(StringUtils.isEmpty(period)||StringUtils.isEmpty(pk_corp)||StringUtils.isEmpty(flag)){
                 throw new BusinessException("参数有误！");
@@ -1959,15 +1988,10 @@ public class WorkbenchController extends BaseController {
      * 条件查询票据
      */
     @RequestMapping("/queryBillsByWhere")
-    public ReturnData<Grid> queryBillsByWhere(String period,String billstate,String pk_category,String categorycode,
-                                              String pk_parent,String oldperiod,String pk_bankcode,String billtype,
-                                              String invoicetype,String remark,String billtitle,String vpurchname,
-                                              String vsalename,String bdate,String edate,String bntotaltax,String entotaltax,String truthindent) {
+    public ReturnData<Grid> queryBillsByWhere(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         try {
-            BillcategoryQueryVO paramVO=buildParamVO(period, billstate, pk_category, categorycode,
-                    pk_parent, oldperiod, pk_bankcode, billtype,invoicetype, remark, billtitle, vpurchname,
-                    vsalename, bdate, edate, bntotaltax, entotaltax,truthindent);
+            BillcategoryQueryVO paramVO=buildParamVO(param);
             List<OcrInvoiceVO> list = iBillcategory.queryBillsByWhere(paramVO);
             grid.setSuccess(true);
             grid.setMsg("查询成功!");
@@ -1982,10 +2006,12 @@ public class WorkbenchController extends BaseController {
      * 跨公司
      */
     @RequestMapping("/changeCorp_long")
-    public ReturnData<Grid> changeCorp_long(@RequestParam("ids")String bills,String corpid,String period){
+    public ReturnData<Grid> changeCorp_long(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
-
+            String bills = param.get("ids");
+            String corpid = param.get("corpid");
+            String period = param.get("period");
             checkPeriod(period, true);		//检查期间合法性
             boolean isgz = qmgzService.isGz(corpid, new DZFDate(period+"-01").toString());
             if (isgz) {// 是否关账
@@ -2024,10 +2050,9 @@ public class WorkbenchController extends BaseController {
      * 批量保存凭证
      */
     @RequestMapping("/saveVouchers_long")
-    public ReturnData<Json> saveVouchers_long(String vchData,VoucherParamVO paramvo){
+    public ReturnData<Json> saveVouchers_long(@RequestBody String vchData,@RequestBody VoucherParamVO paramvo){
         //ZncsVoucherSaveInfo
         Json json = new Json();
-
         try {
             ZncsVoucherSaveInfo voucherinfo = new ZncsVoucherSaveInfo();
             JSONArray array = JSON.parseArray(vchData);
