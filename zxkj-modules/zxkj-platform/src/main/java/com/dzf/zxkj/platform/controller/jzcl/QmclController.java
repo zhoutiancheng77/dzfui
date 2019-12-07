@@ -1038,7 +1038,11 @@ public class QmclController {
                 }
                 throw new BusinessException("总账存货模式暂不支持工业结转！");
             } else {//不启用进销存的
-
+                grid.setSuccess(true);
+                grid.setMsg("不启用库存工业结转");
+                grid.setTotal(Long.valueOf(1));
+                grid.setSuccess(true);
+                grid.setRows(Arrays.asList(qmvo));
             }
         } catch (ExBusinessException ex) {
             Map<String, List<TempInvtoryVO>> map = ex.getLmap();
@@ -1100,6 +1104,29 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "取消成本结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("/checkCbjzmb")
+    public ReturnData<Grid> checkCbjzmb(@MultiRequestBody("jztype")  String jztype,
+                                        @MultiRequestBody("pk_gs")  String pk_gs,
+                                        @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            String userid = userVO.getCuserid();
+            if(!StringUtil.isEmpty(jztype)){
+                if("1".equalsIgnoreCase(jztype) || "3".equalsIgnoreCase(jztype))
+                    gl_qmclnoicserv.checkCbjzmb(pk_gs, jztype);
+            }
+            grid.setSuccess(true);
+            grid.setMsg("成本模板校验成功!");
+        } catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本模板校验失败！");
         }
         return ReturnData.ok().data(grid);
     }
@@ -1255,48 +1282,7 @@ public class QmclController {
         try {
             String pk_corp = qmvo.getPk_corp();
             if (cbjzPara0 != null && cbjzPara0.length > 0) {
-                List<CostForwardVO> listz = new ArrayList<CostForwardVO>();
-                if (isgy != null && "Y".equals(isgy)) {
-                    String str = gl_cbconstant.getFzcb2007(pk_corp);// 500102
-                    String str1 = gl_cbconstant.getFzcb2013(pk_corp);// 400102
-                    String str3 = gl_cbconstant.getZzfy2007();
-                    String str4 = gl_cbconstant.getZzfy2013();
-                    List<String> mjkmbm = gl_qmclserv.getMjkmbms(str, pk_corp);
-                    List<String> mjkmbm1 = gl_qmclserv.getMjkmbms(str1, pk_corp);
-                    String mjkmbm3 = gl_qmclserv.getMjkmbm(str3, pk_corp);
-                    String mjkmbm4 = gl_qmclserv.getMjkmbm(str4, pk_corp);
-                    for (CostForwardVO v : cbjzPara0) {
-                        CostForwardVO v1 = null;
-                        CostForwardVO v2 = null;
-                        if (mjkmbm.contains(v.getVcode())) {// 辅助成本
-                            v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, mjkmbm3);// 借方
-                            v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, mjkmbm3);// 贷方
-                            listz.add(v1);
-                            listz.add(v2);
-                        } else if (mjkmbm1.contains(v.getVcode())) {// 辅助成本
-                            v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, mjkmbm4);// 借方
-                            v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, mjkmbm4);// 贷方
-                            listz.add(v1);
-                            listz.add(v2);
-                        }
-                    }
-                } else {
-                    for (CostForwardVO v : cbjzPara0) {
-                        CostForwardVO v1 = null;
-                        CostForwardVO v2 = null;
-                        if (gl_cbconstant.getFzcb2007(pk_corp).equals(v.getVcode())) {// 辅助成本
-                            v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, gl_cbconstant.getZzfy2007());// 借方
-                            v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, gl_cbconstant.getZzfy2007());// 贷方
-                            listz.add(v1);
-                            listz.add(v2);
-                        } else if (gl_cbconstant.getFzcb2013(pk_corp).equals(v.getVcode())) {// 辅助成本
-                            v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, gl_cbconstant.getZzfy2013());// 借方
-                            v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, gl_cbconstant.getZzfy2013());// 贷方
-                            listz.add(v1);
-                            listz.add(v2);
-                        }
-                    }
-                }
+                List<CostForwardVO> listz = secondOperate(cbjzPara0,isgy,pk_corp);
                 grid.setMsg("操作成功!");
                 grid.setTotal((long) listz.size());
                 grid.setRows(listz);
@@ -1307,6 +1293,53 @@ public class QmclController {
             log.error("第二步工业结转,结转所有辅助生产成本至制造费用失败!", e);
         }
         return ReturnData.ok().data(grid);
+    }
+
+
+    private List<CostForwardVO> secondOperate(CostForwardVO[] cbjzPara0,String isgy,String pk_corp){
+        List<CostForwardVO> listz = new ArrayList<CostForwardVO>();
+        if (isgy != null && "Y".equals(isgy)) {
+            String str = gl_cbconstant.getFzcb2007(pk_corp);// 500102
+            String str1 = gl_cbconstant.getFzcb2013(pk_corp);// 400102
+            String str3 = gl_cbconstant.getZzfy2007();
+            String str4 = gl_cbconstant.getZzfy2013();
+            List<String> mjkmbm = gl_qmclserv.getMjkmbms(str, pk_corp);
+            List<String> mjkmbm1 = gl_qmclserv.getMjkmbms(str1, pk_corp);
+            String mjkmbm3 = gl_qmclserv.getMjkmbm(str3, pk_corp);
+            String mjkmbm4 = gl_qmclserv.getMjkmbm(str4, pk_corp);
+            for (CostForwardVO v : cbjzPara0) {
+                CostForwardVO v1 = null;
+                CostForwardVO v2 = null;
+                if (mjkmbm.contains(v.getVcode())) {// 辅助成本
+                    v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, mjkmbm3);// 借方
+                    v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, mjkmbm3);// 贷方
+                    listz.add(v1);
+                    listz.add(v2);
+                } else if (mjkmbm1.contains(v.getVcode())) {// 辅助成本
+                    v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, mjkmbm4);// 借方
+                    v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, mjkmbm4);// 贷方
+                    listz.add(v1);
+                    listz.add(v2);
+                }
+            }
+        } else {
+            for (CostForwardVO v : cbjzPara0) {
+                CostForwardVO v1 = null;
+                CostForwardVO v2 = null;
+                if (gl_cbconstant.getFzcb2007(pk_corp).equals(v.getVcode())) {// 辅助成本
+                    v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, gl_cbconstant.getZzfy2007());// 借方
+                    v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, gl_cbconstant.getZzfy2007());// 贷方
+                    listz.add(v1);
+                    listz.add(v2);
+                } else if (gl_cbconstant.getFzcb2013(pk_corp).equals(v.getVcode())) {// 辅助成本
+                    v1 = gl_industryserv.createsecZJVO(pk_corp, v, true, gl_cbconstant.getZzfy2013());// 借方
+                    v2 = gl_industryserv.createsecZJVO(pk_corp, v, false, gl_cbconstant.getZzfy2013());// 贷方
+                    listz.add(v1);
+                    listz.add(v2);
+                }
+            }
+        }
+        return listz;
     }
 
     // 第三步:结转所有制造费用到生产成本--基本生产成本--制造费用
@@ -1323,51 +1356,9 @@ public class QmclController {
             // List<CostForwardVO> list1 = new ArrayList<CostForwardVO>();
             List<CostForwardVO> list2 = new ArrayList<CostForwardVO>(Arrays.asList(cbjzPara1));
             if (list1 != null && list1.size() > 0) {
-                // if(true){
-                if (list2 != null && list2.size() > 0) {
-                    list1.addAll(list2);
-                }
-                // 合并制造费用list1
-                CostForwardVO zzfyvo = null;
-                DZFDouble jfmny = DZFDouble.ZERO_DBL;
-                String str3 = gl_cbconstant.getZzfy2007();
-                String str4 = gl_cbconstant.getZzfy2013();
-                String jbcb_zzfy2007 = gl_cbconstant.getJbcb_zzfy2007(pk_corp);
-                String jbcb_zzfy2013 = gl_cbconstant.getJbcb_zzfy2013(pk_corp);
-                List<String> listzzfy07 = gl_qmclserv.getMjkmbms(str3, pk_corp);
-                List<String> listzzfy13 = gl_qmclserv.getMjkmbms(str4, pk_corp);
-                String jbzzfy07 = gl_qmclserv.getMjkmbm(jbcb_zzfy2007, pk_corp);
-                String jbzzfy13 = gl_qmclserv.getMjkmbm(jbcb_zzfy2013, pk_corp);
-                List<CostForwardVO> listz = new ArrayList<CostForwardVO>();
-                for (CostForwardVO v : list1) {
-                    // if(v.getZy()!=null){
-                    if (listzzfy07.contains(v.getVcode()) || listzzfy13.contains(v.getVcode())) {// 制造费用
-                        // if("结转所有辅助生产成本至制造费用".equals(v.getZy())){
-                        // continue;
-                        // }
-                        zzfyvo = (CostForwardVO) v.clone();
-                        jfmny = jfmny.add(v.getJfmny());
-                        if (listzzfy07.contains(zzfyvo.getVcode())) {// 制造费用
-                            CostForwardVO vo2 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, false, jbzzfy07);// 贷方
-                            listz.add(vo2);
-                        } else if (listzzfy13.contains(zzfyvo.getVcode())) {// 制造费用
-                            CostForwardVO vo2 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, false, jbzzfy13);// 贷方
-                            listz.add(vo2);
-                        }
-                    }
-                    // }
-                }
-                if (zzfyvo != null) {
-                    zzfyvo.setJfmny(jfmny);
-                    if (listzzfy07.contains(zzfyvo.getVcode())) {// 制造费用
-                        CostForwardVO vo1 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, true, jbzzfy07);// 借方
-                        listz.add(0, vo1);
-                    } else if (listzzfy13.contains(zzfyvo.getVcode())) {// 制造费用
-                        CostForwardVO vo1 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, true, jbzzfy13);// 借方
-                        listz.add(0, vo1);
-                    }
-                }
+                List<CostForwardVO> listz = thirdOperate(pk_corp,list1,list2);
                 grid.setMsg("操作成功!");
+                grid.setSuccess(true);
                 grid.setTotal((long) listz.size());
                 grid.setRows(listz);
             }
@@ -1379,6 +1370,54 @@ public class QmclController {
         return ReturnData.ok().data(grid);
     }
 
+    private List<CostForwardVO> thirdOperate(String pk_corp, List<CostForwardVO> list1, List<CostForwardVO> list2){
+        // if(true){
+        if (list2 != null && list2.size() > 0) {
+            list1.addAll(list2);
+        }
+        // 合并制造费用list1
+        CostForwardVO zzfyvo = null;
+        DZFDouble jfmny = DZFDouble.ZERO_DBL;
+        String str3 = gl_cbconstant.getZzfy2007();
+        String str4 = gl_cbconstant.getZzfy2013();
+        String jbcb_zzfy2007 = gl_cbconstant.getJbcb_zzfy2007(pk_corp);
+        String jbcb_zzfy2013 = gl_cbconstant.getJbcb_zzfy2013(pk_corp);
+        List<String> listzzfy07 = gl_qmclserv.getMjkmbms(str3, pk_corp);
+        List<String> listzzfy13 = gl_qmclserv.getMjkmbms(str4, pk_corp);
+        String jbzzfy07 = gl_qmclserv.getMjkmbm(jbcb_zzfy2007, pk_corp);
+        String jbzzfy13 = gl_qmclserv.getMjkmbm(jbcb_zzfy2013, pk_corp);
+        List<CostForwardVO> listz = new ArrayList<CostForwardVO>();
+        for (CostForwardVO v : list1) {
+            // if(v.getZy()!=null){
+            if (listzzfy07.contains(v.getVcode()) || listzzfy13.contains(v.getVcode())) {// 制造费用
+                // if("结转所有辅助生产成本至制造费用".equals(v.getZy())){
+                // continue;
+                // }
+                zzfyvo = (CostForwardVO) v.clone();
+                jfmny = jfmny.add(v.getJfmny());
+                if (listzzfy07.contains(zzfyvo.getVcode())) {// 制造费用
+                    CostForwardVO vo2 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, false, jbzzfy07);// 贷方
+                    listz.add(vo2);
+                } else if (listzzfy13.contains(zzfyvo.getVcode())) {// 制造费用
+                    CostForwardVO vo2 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, false, jbzzfy13);// 贷方
+                    listz.add(vo2);
+                }
+            }
+            // }
+        }
+        if (zzfyvo != null) {
+            zzfyvo.setJfmny(jfmny);
+            if (listzzfy07.contains(zzfyvo.getVcode())) {// 制造费用
+                CostForwardVO vo1 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, true, jbzzfy07);// 借方
+                listz.add(0, vo1);
+            } else if (listzzfy13.contains(zzfyvo.getVcode())) {// 制造费用
+                CostForwardVO vo1 = gl_industryserv.createthirdZJVO(pk_corp, zzfyvo, true, jbzzfy13);// 借方
+                listz.add(0, vo1);
+            }
+        }
+        return listz;
+    }
+
 
     // 第四步：比例分配材料、人工、制造费用
     @PostMapping("/fourthquery")
@@ -1388,34 +1427,7 @@ public class QmclController {
         grid.setSuccess(true);
         grid.setRows(new ArrayList<CostForwardVO>());
         try {
-            // 获取前台数据
-            List<CostForwardInfo> info = (List<CostForwardInfo>) gl_industryserv.queryIndustQCInvtory(qmvo);
-            // 增加CostForwardInfo[0][生产成本-辅助生产成本-制造费用]信息
-            DZFDouble zzfy_zhuanchu = null;
-            if (!DZFValueCheck.isEmpty(cbjzPara2)) {
-                List<CostForwardVO> list3 = new ArrayList<CostForwardVO>(Arrays.asList(cbjzPara2));
-                if (list3 != null && list3.size() > 0) {
-                    String zzfy2007 = gl_cbconstant.getJbcb_zzfy2007(qmvo.getPk_corp());
-                    String zzfy2013 = gl_cbconstant.getJbcb_zzfy2013(qmvo.getPk_corp());
-                    for (CostForwardVO vo : list3) {
-                        if (vo.getVcode().startsWith(zzfy2007) || vo.getVcode().startsWith(zzfy2013)) {
-                            zzfy_zhuanchu = vo.getJfmny();
-                        }
-                    }
-                }
-            }
-            DZFDouble zsum = SafeCompute.add(info.get(0).getNzhizao_fs(), zzfy_zhuanchu);
-            info.get(0).setNzhizao_fs(zsum);
-            info.get(1).setNzhizao_fs(zsum);
-            if (info.get(0).getNcailiao_fs() == null) {
-                info.get(0).setNcailiao_fs(DZFDouble.ZERO_DBL);
-            }
-            if (info.get(0).getNrengong_fs() == null) {
-                info.get(0).setNrengong_fs(DZFDouble.ZERO_DBL);
-            }
-            // info.get(0).setNcailiao_fs(DZFDouble.ZERO_DBL);
-            // info.get(0).setNrengong_fs(DZFDouble.ZERO_DBL);
-            //
+            List<CostForwardInfo> info = forthoperate(qmvo,cbjzPara2,true,"");
             grid.setMsg("操作成功!");
             grid.setTotal((long) info.size());
             grid.setRows(info);
@@ -1426,6 +1438,46 @@ public class QmclController {
         }
         return ReturnData.ok().data(grid);
     }
+
+    private List<CostForwardInfo> forthoperate (QmclVO qmvo,CostForwardVO[] cbjzPara2,boolean isic,String jztype) {
+        // 获取前台数据
+        List<CostForwardInfo> info = null;
+        if(isic){
+            info = (List<CostForwardInfo>) gl_industryserv.queryIndustQCInvtory(qmvo);
+        }else{
+//            info = (List<CostForwardInfo>) gl_industryserv.queryIndustQCInvtoryNOIC(qmvo,jztype);
+            // zpm 先让他走 库存的。都是取总账数据。 2019.12.7
+            info = (List<CostForwardInfo>) gl_industryserv.queryIndustQCInvtory(qmvo);
+        }
+        // 增加CostForwardInfo[0][生产成本-辅助生产成本-制造费用]信息
+        DZFDouble zzfy_zhuanchu = null;
+        if (!DZFValueCheck.isEmpty(cbjzPara2)) {
+            List<CostForwardVO> list3 = new ArrayList<CostForwardVO>(Arrays.asList(cbjzPara2));
+            if (list3 != null && list3.size() > 0) {
+                String zzfy2007 = gl_cbconstant.getJbcb_zzfy2007(qmvo.getPk_corp());
+                String zzfy2013 = gl_cbconstant.getJbcb_zzfy2013(qmvo.getPk_corp());
+                for (CostForwardVO vo : list3) {
+                    if (vo.getVcode().startsWith(zzfy2007) || vo.getVcode().startsWith(zzfy2013)) {
+                        zzfy_zhuanchu = vo.getJfmny();
+                    }
+                }
+            }
+        }
+        DZFDouble zsum = SafeCompute.add(info.get(0).getNzhizao_fs(), zzfy_zhuanchu);
+        info.get(0).setNzhizao_fs(zsum);
+        info.get(1).setNzhizao_fs(zsum);
+        if (info.get(0).getNcailiao_fs() == null) {
+            info.get(0).setNcailiao_fs(DZFDouble.ZERO_DBL);
+        }
+        if (info.get(0).getNrengong_fs() == null) {
+            info.get(0).setNrengong_fs(DZFDouble.ZERO_DBL);
+        }
+        // info.get(0).setNcailiao_fs(DZFDouble.ZERO_DBL);
+        // info.get(0).setNrengong_fs(DZFDouble.ZERO_DBL);
+        //
+        return info;
+    }
+
     // 第五步 :本月完工分配材料及人工制造费用
     @PostMapping("/fivequery")
     public ReturnData<Grid> fivequery(@MultiRequestBody("qmvo")  QmclVO qmvo,
@@ -2491,6 +2543,194 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "校验查询失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    // 不启用进销存，工业结转，取消各种场景下的结转(材料结转、辅助成本、制造费用、完工产品、销售成本)
+    @PostMapping("/canceljiezhuan")
+    public ReturnData<Grid> canceljiezhuan(@MultiRequestBody("qmvo")  QmclVO qmvo,
+                                           @MultiRequestBody("cbjzcount")  String cbjzCount,
+                                           @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            QmclVO resvos = gl_qmclnoicserv.rollbackCbjzNoic(qmvo, cbjzCount);
+            grid.setMsg("反操作成功!");
+            grid.setTotal(Long.valueOf(1));
+            grid.setSuccess(true);
+            grid.setRows(Arrays.asList(resvos));
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "取消结转失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 不启用进销存，工业结转，结转辅助生产成本
+    @PostMapping("/jzfuzhusccb")
+    public ReturnData<Grid> jzfuzhusccb(@MultiRequestBody("qmvo")  QmclVO qmvo,
+                                           @MultiRequestBody("cbjzcount")  String cbjzCount,
+                                           @MultiRequestBody("isgy")  String isgy,
+                                           @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo)));
+        try {
+            boolean isgybool = false;
+            if (isgy != null && "Y".equals(isgy)) {
+                isgybool = true;
+            }
+            List<CostForwardVO> list = gl_industryserv.queryIndustCFVO(qmvo, isgybool);
+            String pk_corp = qmvo.getPk_corp();
+            if(list == null){
+                list = new ArrayList<CostForwardVO>();
+            }
+            List<CostForwardVO> listz = secondOperate(list.toArray(new CostForwardVO[0]),isgy,pk_corp);
+            QmclVO qmvo1 = gl_qmclnoicserv.jzfuzhusccb(qmvo, listz, userVO.getCuserid(), cbjzCount);
+            grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo1)));
+            grid.setMsg("辅助生产成本结转成功!");
+            grid.setTotal(Long.valueOf(1));
+            grid.setSuccess(true);
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "结转辅助生产成本失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 不启用进销存，工业结转，结转制造费用
+    @PostMapping("/jzzhizaofy")
+    public ReturnData<Grid> jzzhizaofy(@MultiRequestBody("qmvo")  QmclVO qmvo,
+                                        @MultiRequestBody("cbjzcount")  String cbjzCount,
+                                        @MultiRequestBody("isgy")  String isgy,
+                                        @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo)));
+        try {
+            boolean isgybool = false;
+            if (isgy != null && "Y".equals(isgy)) {
+                isgybool = true;
+            }
+            List<CostForwardVO> list = gl_industryserv.queryIndustCFVO(qmvo, isgybool);
+            String pk_corp = qmvo.getPk_corp();
+            if(list == null){
+                list = new ArrayList<CostForwardVO>();
+            }
+            List<CostForwardVO> list2 = secondOperate(list.toArray(new CostForwardVO[0]),isgy,pk_corp);
+            List<CostForwardVO> list3 = thirdOperate(pk_corp,list,list2);
+            QmclVO qmvo1 = gl_qmclnoicserv.jzfuzhusccb(qmvo, list3, userVO.getCuserid(), cbjzCount);
+            grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo1)));
+            grid.setMsg("结转制造费用成功!");
+            grid.setTotal(Long.valueOf(1));
+            grid.setSuccess(true);
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "结转制造费用失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+    // 不启用进销存，工业结转，结转完工产品。（产品的成本分摊）
+    @PostMapping("/queryWangong")
+    public ReturnData<Grid> queryWangong(@MultiRequestBody("qmvo")  QmclVO qmvo,
+                                            @MultiRequestBody("isgy")  String isgy,
+                                            @MultiRequestBody("jztype")  String jztype,
+                                            @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo)));
+        try {
+            boolean isgybool = false;
+            if (isgy != null && "Y".equals(isgy)) {
+                isgybool = true;
+            }
+            List<CostForwardVO> list = gl_industryserv.queryIndustCFVO(qmvo, isgybool);
+            String pk_corp = qmvo.getPk_corp();
+            if(list == null){
+                list = new ArrayList<CostForwardVO>();
+            }
+            List<CostForwardVO> list2 = secondOperate(list.toArray(new CostForwardVO[0]),isgy,pk_corp);
+            List<CostForwardVO> list3 = thirdOperate(pk_corp,list,list2);
+            if(list3 != null && list3.size() > 0){
+                List<CostForwardInfo> list4 = forthoperate(qmvo,list3.toArray(new CostForwardVO[0]),false,jztype);
+                grid.setRows(list4);
+                grid.setMsg("操作成功!");
+                grid.setTotal((long) list4.size());
+            }else{
+                grid.setRows(new ArrayList<CostForwardInfo>());
+                grid.setMsg("操作成功!");
+                grid.setTotal(Long.valueOf(1));
+            }
+            grid.setSuccess(true);
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "结转制造费用失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    // 查询存货、材料相关科目，不启用进销存、工业结转，结转完工产品。（产品的成本分摊）
+    @PostMapping("/queryCBJZKMwg")
+    public ReturnData<Grid> queryCBJZKMwg(@MultiRequestBody("jztype")  String jztype,
+                                            @MultiRequestBody("pk_gs")  String pk_gs,
+                                            @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            String userid = userVO.getCuserid();
+            List<CostForwardInfo> vos = gl_qmclnoicserv.queryCBJZAccountVOSwg(pk_gs, userid, jztype);
+            if (vos != null && vos.size() > 0) {
+                grid.setRows(vos);
+            }else{
+                grid.setRows(new ArrayList<CostForwardInfo>());
+            }
+            grid.setSuccess(true);
+            grid.setMsg("查询成功!");
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "查询表体加载科目信息失败！");
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    // 不启用进销存，工业结转，结转完工产品。保存 完工 凭证
+    @PostMapping("/savePzWangong")
+    public ReturnData<Grid> savePzWangong(@MultiRequestBody("qmvo")  QmclVO qmvo,
+                                            @MultiRequestBody("cbjzPara3")  CostForwardInfo[] cbjz3,
+                                            @MultiRequestBody("cbjzCount")  String cbjzCount,
+                                            @MultiRequestBody("jztype")  String jztype,
+                                            @MultiRequestBody UserVO userVO) {
+        Grid grid = new Grid();
+        try {
+            Map<QmclVO, List<CostForwardInfo>> map = new HashMap<QmclVO, List<CostForwardInfo>>();
+            List<CostForwardInfo> list = null;
+            if(cbjz3 == null || cbjz3.length == 0){
+                list = new ArrayList<CostForwardInfo>();
+            }else{
+                list = new ArrayList<CostForwardInfo>(Arrays.asList(cbjz3));
+            }
+            map.put(qmvo,list);
+            QmclVO vos = gl_qmclnoicserv.saveWgVoucherNoic(userVO.getCuserid(), map, jztype, cbjzCount);
+            grid.setSuccess(true);
+            grid.setMsg("操作成功!");
+            grid.setTotal((long) 1);
+            grid.setSuccess(true);
+            grid.setRows(Arrays.asList(vos));
+        }catch (Exception e) {
+            log.error("错误",e);
+            grid.setSuccess(false);
+            grid.setRows(new ArrayList<QmclVO>());
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "完工产品保存失败！");
         }
         return ReturnData.ok().data(grid);
     }
