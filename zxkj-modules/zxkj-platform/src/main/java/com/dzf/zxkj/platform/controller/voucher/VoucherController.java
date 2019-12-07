@@ -1406,7 +1406,7 @@ public class VoucherController {
                           HttpServletResponse response, HttpSession session) {
 
         ServletOutputStream sos = null;
-        FileInputStream fis = null;
+        InputStream fis = null;
         try {
             File imgFile = null;
             String dateFolder = path.substring(0, 8);
@@ -1426,11 +1426,10 @@ public class VoucherController {
             }
 
             if (!imgFile.exists()) {
-                String pathNoExist = session.getServletContext().getRealPath("/")
-                        + "img" + File.separator + "picnoexist.jpg";
-                imgFile = new File(pathNoExist);
+                fis = VoucherController.class.getResourceAsStream("/img/picnoexist.jpg");
+            } else {
+                fis = new FileInputStream(imgFile);
             }
-            fis = new FileInputStream(imgFile);
             sos = response.getOutputStream();
 
             //读取文件流

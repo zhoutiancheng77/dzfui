@@ -175,6 +175,7 @@
                     <include>fdfs_client.conf</include>
                     <include>font/*</include>
                     <include>template/*</include>
+                    <include>img/*</include>
                 </includes>
             </resource>
             <resource>
