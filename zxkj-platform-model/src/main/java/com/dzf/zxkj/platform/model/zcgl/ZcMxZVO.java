@@ -4,6 +4,7 @@ package com.dzf.zxkj.platform.model.zcgl;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 资产明细账VO
@@ -36,9 +37,18 @@ public class ZcMxZVO extends SuperVO {
 	private DZFDouble ljye ;
 	private DZFDouble jzye ;
 	private String pzpk;
-	
-	
-	
+	@JsonProperty("id_assetcard")
+	private String pk_assetcard;
+
+
+	public String getPk_assetcard() {
+		return pk_assetcard;
+	}
+
+	public void setPk_assetcard(String pk_assetcard) {
+		this.pk_assetcard = pk_assetcard;
+	}
+
 	public String getPeriod() {
 		return period;
 	}
