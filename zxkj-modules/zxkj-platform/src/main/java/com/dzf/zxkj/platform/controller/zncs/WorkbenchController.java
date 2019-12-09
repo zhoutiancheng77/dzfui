@@ -1038,17 +1038,11 @@ public class WorkbenchController extends BaseController {
         try{
             String head = param.get("head");
             String body = param.get("body");
-            //String headname = getRequest().getParameter("headname");
             body = body.replace("}{", "},{");
-            //body = "[" + body + "]";
-//            JSON headjs = (JSON) JSON.parse(head);
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-            //String headnames []=headname.replace("{", "").replace("}", "").split(",");
-//            Map<String,String> headmaping=FieldMapping.getFieldMapping(new OcrInvoiceVO());
-//            Map<String,String> bodymapping=FieldMapping.getFieldMapping(new OcrInvoiceDetailVO());
-//            OcrInvoiceVO headvo =DzfTypeUtils.cast(headjs,headmaping, OcrInvoiceVO.class, JSONConvtoJAVA.getParserConfig());
-            OcrInvoiceVO headvo = JSON.parseObject(head, OcrInvoiceVO.class);
-            OcrInvoiceDetailVO[] bodyvos = array.toArray(new OcrInvoiceDetailVO[0]);
+
+
+            OcrInvoiceVO headvo = JsonUtils.deserialize(head, OcrInvoiceVO.class);
+            OcrInvoiceDetailVO[] bodyvos = JsonUtils.deserialize(body,OcrInvoiceDetailVO[].class);
             if(!headvo.getPk_corp().equals(SystemUtil.getLoginCorpId())){
                 throw new BusinessException("无权操作此数据.");
             }
