@@ -70,6 +70,8 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 	private ICorpService corpService;
 	@Autowired
 	private IAccountService accService;
+	@Autowired
+	private IAccountService accountService;
 
 	/**
 	 * 不启用库存，工业结转
@@ -130,7 +132,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		}
 		int jztype = Integer.parseInt(jztype1);
 		CorpVO corpVo = getCorpVOfromQm(qmclvo, userid);
-		CpcosttransVO mbvos[] = getcbmbvos(corpVo.getPk_corp(), jztype);
+		CpcosttransVO mbvos[] = queryCbmbvos(corpVo.getPk_corp(), jztype);
 		// String jfkmid = mbvos[0].getPk_debitaccount();//产成品入库
 		String dfkmid = mbvos[0].getPk_creditaccount();// 设置 成本类的 贷方科目 。可以
 														// 在成本模板上面设置 上级科目
@@ -162,7 +164,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 	public void savewgcpnoic(QmclVO qmclvo, List<CostForwardInfo> list, CorpVO corpVo, CpcosttransVO mbvo,
 			List<YntCpaccountVO> dfkmvos, String cbjzCount, String clcode, String rgcode, String zzfycode,String userid) {
 
-		NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher,parameterserv);
+		NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher,parameterserv,accountService);
 		nf.saveWgrkVouchernoic(mbvo, qmclvo, corpVo, list, dfkmvos, cbjzCount, clcode, rgcode, zzfycode,userid);
 		// 保存期末结转状态
 		saveNoicQmvoIndustry(corpVo, qmclvo, cbjzCount);
@@ -185,7 +187,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		// jztype = 1;
 		// }
 		// String pk_corp = corpVo.getPk_corp();
-		CpcosttransVO mbvos[] = getcbmbvos(corpVo.getPk_corp(), jztype);
+		CpcosttransVO mbvos[] = queryCbmbvos(corpVo.getPk_corp(), jztype);
 		List<QMJzsmNoICVO> list = new ArrayList<QMJzsmNoICVO>();
 		Map<String, AuxiliaryAccountBVO> map = getAuxiliaryAccount(corpVo.getPk_corp());
 
@@ -261,7 +263,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		}
 		int jztype = Integer.parseInt(jztype1);
 		// String pk_corp = corpVo.getPk_corp();
-		CpcosttransVO mbvos[] = getcbmbvos(corpVo.getPk_corp(), jztype);// 3代表销售模板
+		CpcosttransVO mbvos[] = queryCbmbvos(corpVo.getPk_corp(), jztype);// 3代表销售模板
 																		// 1材料
 																		// 2完工
 		boolean flag = true;
@@ -382,7 +384,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		CorpVO corpVo = getCorpVOfromQm(qmclvo, userid);
 		//取得当前公司的科目map..zpm
 		Map<String, YntCpaccountVO> kmsmap = accService.queryMapByPk(corpVo.getPk_corp());
-		CpcosttransVO mbvos[] = getcbmbvos(corpVo.getPk_corp(), jztype);
+		CpcosttransVO mbvos[] = queryCbmbvos(corpVo.getPk_corp(), jztype);
 		for (CpcosttransVO mbvo : mbvos) {
 			String jfkmid = mbvo.getPk_debitaccount();
 			String dfkmid = mbvo.getPk_creditaccount();
@@ -449,7 +451,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		// (CorpVO)singleObjectBO.queryByPrimaryKey(CorpVO.class,
 		// corpVo.getPk_corp());
 		// String pk_corp = corpVo.getPk_corp();
-		CpcosttransVO mbvos[] = getcbmbvos(corpVo.getPk_corp(), jztype);
+		CpcosttransVO mbvos[] = queryCbmbvos(corpVo.getPk_corp(), jztype);
 		CpcosttransVO mbvo = mbvos[0];
 		String jfkmid = mbvo.getPk_debitaccount();
 		// String dfkmid = mbvo.getPk_creditaccount();
@@ -547,7 +549,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		return vo;
 	}
 
-	private CpcosttransVO[] getcbmbvos(String pk_corp, Integer jztype) throws DZFWarpException {
+	private CpcosttransVO[] queryCbmbvos(String pk_corp, Integer jztype) throws DZFWarpException {
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(jztype);
@@ -1860,7 +1862,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 			datafer.setZgdataisave(true);
 		}
 
-		NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher,parameterserv);
+		NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher,parameterserv,accountService);
 		ExBusinessException ex = new ExBusinessException("");
 		List<TempInvtoryVO> zlist = nf.numberForwardNoIC(mbvo, qmclvo, corpVo, list, jfkmvo, cbjzCount, listdfkm,
 				isxjxcf,userid,datafer);
@@ -1887,7 +1889,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 			Map<String, YntCpaccountVO> kmsmap) throws DZFWarpException{
 		
 		List<TempInvtoryVO> invtoryList = null;
-		CpcosttransVO mbvos[] = getcbmbvos(corpVo.getPk_corp(), jztype);
+		CpcosttransVO mbvos[] = queryCbmbvos(corpVo.getPk_corp(), jztype);
 		for (CpcosttransVO mbvo : mbvos) {
 			String jfkmid = mbvo.getPk_debitaccount();
 			String dfkmid = mbvo.getPk_creditaccount();
@@ -1895,7 +1897,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 			YntCpaccountVO jfkmvo = cpaccountService.queryById(jfkmid);
 			
 			List<String> listdfkm = getMjkmbms1(dfkmvo.getAccountcode(), corpVo.getPk_corp());
-			NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher,parameterserv);
+			NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher,parameterserv,accountService);
 			invtoryList = nf.getReportZGData(qmclvo, corpVo, list, jfkmvo, cbjzCount, listdfkm, isxjxcf, userid);
 			if(invtoryList != null && invtoryList.size() > 0)
 				break;

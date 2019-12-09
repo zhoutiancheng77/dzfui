@@ -293,9 +293,11 @@ public class CostForwardImpl implements IndustryForward {
 		}
 		List<CostForwardInfo> listz = new ArrayList<CostForwardInfo>();
 		info.setVcode("账面金额");
+		info.setKmbm("账面金额");
 		listz.add(info);
 		CostForwardInfo  infoclone =(CostForwardInfo)info.clone();
 		infoclone.setVcode("待分配金额");
+		infoclone.setKmbm("待分配金额");
 		listz.add(infoclone);
 		// 查询当期存货
 		List<CostForwardInfo> zlist = queryCostInvtorys(vo);

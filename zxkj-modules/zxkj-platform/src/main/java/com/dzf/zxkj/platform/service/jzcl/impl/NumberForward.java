@@ -40,7 +40,6 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.VoUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -64,16 +63,16 @@ public class NumberForward {
 
 	private IParameterSetService parameterserv;
 
-	@Autowired
 	private IAccountService accountService;
 
 	public NumberForward(IYntBoPubUtil yntBoPubUtil, SingleObjectBO singleObjectBO, IQueryLastNum ic_rep_cbbserv,
-						 IVoucherService voucher, IParameterSetService parameterserv) {
+						 IVoucherService voucher, IParameterSetService parameterserv, IAccountService accountService) {
 		this.yntBoPubUtil = yntBoPubUtil;
 		this.singleObjectBO = singleObjectBO;
 		this.ic_rep_cbbserv = ic_rep_cbbserv;
 		this.voucher = voucher;
 		this.parameterserv = parameterserv;
+		this.accountService = accountService;
 	}
 
 	/**
