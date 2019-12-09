@@ -1230,7 +1230,7 @@ public class WorkbenchController extends BaseController {
     }
     //保存总账存货
     @RequestMapping("/saveInventoryData_long")
-    public ReturnData<Grid> saveInventoryData_long(@RequestBody String goods) {
+    public ReturnData<Grid> saveInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
@@ -1249,7 +1249,7 @@ public class WorkbenchController extends BaseController {
 //                writeJson(grid);
 //                return;
 //            }
-
+            String goods = param.get("goods");
             InventoryAliasVO[] goodvos = getInvAliasData(goods);
             if (goodvos == null || goodvos.length == 0)
                 throw new BusinessException("未找到存货别名数据，请检查");
