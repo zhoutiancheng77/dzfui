@@ -13,6 +13,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
+import com.dzf.zxkj.platform.model.report.FzYebVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
@@ -119,6 +120,29 @@ public class PrintReporUtil {
             printVoucherPage(kmmap, zzvos, title, columns, columnnames, null, widths, pagecount, pmap, tmap);
     }
 
+    public void setDefaultValue(String showbm, FzYebVO[] bodyvos) {
+        if(!"Y".equals(showbm)){
+            if(bodyvos!=null && bodyvos.length>0){
+                for(FzYebVO fzyevo:bodyvos){
+                    if("合计".equals(fzyevo.getFzhsxCode())){
+                        fzyevo.setFzhsxName(fzyevo.getFzhsxCode());
+                    }
+                }
+            }
+        }
+    }
+    public void printHz(Map<String, List<SuperVO>> kmmap, SuperVO[] zzvos, String title, String[] columns,
+                        String[] columnnames, int[] widths, Integer pagecount, String type, Map<String, String> pmap,
+                        Map<String, String> tmap) throws DocumentException, IOException {
+        if (pmap.get("type").equals("1"))//A4纸张
+            printGroup(kmmap, zzvos, title, columns, columnnames, null, widths, pagecount, null, pmap, tmap); // A4纸张打印
+        else if (pmap.get("type").equals("2"))//B5纸张
+            printB5(kmmap, zzvos, title, columns, columnnames, null, widths, pagecount, null, pmap, tmap);
+        else if (pmap.get("type").equals("4")) {//A5纸张
+            printA5(kmmap, zzvos, title, columns, columnnames, null, widths, pagecount, null, pmap, tmap);
+        } else//默认是凭证纸张
+            printVoucherPage(kmmap, zzvos, title, columns, columnnames, null, widths, pagecount, pmap, tmap);
+    }
     /**
      * 打印， 支持多层表头
      * <p>
