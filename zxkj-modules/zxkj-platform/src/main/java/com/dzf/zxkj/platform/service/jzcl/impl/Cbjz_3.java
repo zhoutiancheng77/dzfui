@@ -93,7 +93,7 @@ public class Cbjz_3 {
 				throw new BusinessException("当前公司、行业成本结转模板都为空！请设置！");
 			}
 		}
-		NumberForward nf = new NumberForward(yntBoPubUtil,singleObjectBO,ic_rep_cbbserv,voucher,parameterserv);
+		NumberForward nf = new NumberForward(yntBoPubUtil,singleObjectBO,ic_rep_cbbserv,voucher,parameterserv,null);
 		ExBusinessException ex = new ExBusinessException("");
 		List<TempInvtoryVO> zlist = null;
 		Map<String, List<TempInvtoryVO>> map =null;
@@ -155,7 +155,7 @@ public class Cbjz_3 {
 
 		// 暂估数据
 		Map<String, List<TempInvtoryVO>> map = null;
-		NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher, parameterserv);
+		NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher, parameterserv,null);
 		zlist = nf.numberJizhuanmode2(mbvos,vo, corpVo, userid,accmap);
 
 		// 处理暂估信息
