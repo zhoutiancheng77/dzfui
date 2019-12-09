@@ -920,7 +920,7 @@ public class OcrBillCreateImpl implements IOcrBillCreate {
 	protected String getImgpath(ImageLibraryVO libvo) {
 		String imagepath = null;
 		if (libvo != null) {
-			imagepath = "/gl/gl_imgview!search.action?id=" + libvo.getPk_image_library() + "&name=" + libvo.getImgname()
+			imagepath = "/zncs/gl_imgview/search?id=" + libvo.getPk_image_library() + "&name=" + libvo.getImgname()
 					+ "&pk_corp=" + libvo.getPk_corp() + "";
 
 		}

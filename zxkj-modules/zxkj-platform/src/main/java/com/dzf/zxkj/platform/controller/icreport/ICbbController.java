@@ -185,6 +185,9 @@ public class ICbbController  {
 
 		// 开始日期应该在启用库存日期前
 		CorpVO currcorp = corpService.queryByPk(SystemUtil.getLoginCorpId());
+		if(currcorp.getIcbegindate() == null)
+			throw new BusinessException("启用库存日期为空!");
+
 		DZFDate begdate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(currcorp.getIcbegindate()));
 		if (begdate.after(new DZFDate(vo.getDbilldate()))) {
 			throw new BusinessException("截止日期不能在启用库存日期(" + DateUtils.getPeriod(begdate) + ")前!");
