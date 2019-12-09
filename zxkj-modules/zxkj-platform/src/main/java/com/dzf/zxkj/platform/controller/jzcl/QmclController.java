@@ -1907,6 +1907,8 @@ public class QmclController {
                 if (bodyvos[i].getNzhizao_qc() != null) {
                     z_f_zzfy_qc = numberToZero(bodyvos[i].getNzhizao_qc());
                 }
+            } else if (i == 1) {// zpm 改的两者一致  2019.12.09
+
             } else {
                 if (bodyvos[i].getNcailiao_fs() != null) {
                     f_cailiao_bl = SafeCompute.add(f_cailiao_bl, numberToZero(bodyvos[i].getNcailiao_fs()));
