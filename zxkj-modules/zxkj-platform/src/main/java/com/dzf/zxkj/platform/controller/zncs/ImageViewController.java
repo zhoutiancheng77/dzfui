@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/zncs/gl_imgview")
+@RequestMapping("/gl/gl_imgview")
 public class ImageViewController extends BaseController {
 
 
