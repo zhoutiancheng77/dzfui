@@ -77,8 +77,8 @@ public class KmzzController extends ReportBaseController {
             printErrorLog(grid, e, "查询失败！");
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
-                "科目总账查询:"+queryParamvo.getBegindate1().toString().substring(0, 7) +
-                        "-"+ queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+                "科目总账查询:" + queryParamvo.getBegindate1().toString().substring(0, 7) +
+                        "-" + queryParamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -150,13 +150,13 @@ public class KmzzController extends ReportBaseController {
      * 导出Excel
      */
     @PostMapping("export/excel")
-    public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
-        String gs=  excelExportVO.getCorpName();
-        String qj=  excelExportVO.getTitleperiod();
+    public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        String gs = excelExportVO.getCorpName();
+        String qj = excelExportVO.getTitleperiod();
         String pk_currency = queryparamvo.getPk_currency();
         queryparamvo.setBtotalyear(DZFBoolean.TRUE);
         queryparamvo.setIsnomonthfs(DZFBoolean.TRUE);
-        KmZzVO[] kmmxvos = gl_rep_kmzjserv.getKMZZVOs(queryparamvo,null);
+        KmZzVO[] kmmxvos = gl_rep_kmzjserv.getKMZZVOs(queryparamvo, null);
         ReportUtil.updateKFx(kmmxvos);
         /** 如果有期初余额则不显示下面的 */
         List<KmZzVO> listmx = filterQC(kmmxvos);
@@ -172,17 +172,17 @@ public class KmzzController extends ReportBaseController {
         field.setAllsheetzcvos(results);
 
         Excelexport2003<KmZzVO> lxs = new Excelexport2003<KmZzVO>();
-        baseExcelExport(response,lxs,field);
+        baseExcelExport(response, lxs, field);
         writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
-                "科目总账导出:"+queryparamvo.getBegindate1().toString().substring(0, 7) +
-                        "-"+ queryparamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+                "科目总账导出:" + queryparamvo.getBegindate1().toString().substring(0, 7) +
+                        "-" + queryparamvo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
     }
 
     /**
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+    public void printAction(@MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
@@ -190,18 +190,18 @@ public class KmzzController extends ReportBaseController {
             String lineHeight = pmap.get("lineHeight");
             String font = pmap.get("font");
             String type = pmap.get("type");
-            if(pageOrt.equals("Y")){
+            if (pageOrt.equals("Y")) {
                 printReporUtil.setIscross(DZFBoolean.TRUE);//是否横向
-            }else{
+            } else {
                 printReporUtil.setIscross(DZFBoolean.FALSE);//是否横向
             }
             queryparamvo.setBtotalyear(DZFBoolean.TRUE);
             queryparamvo.setIsnomonthfs(DZFBoolean.TRUE);
-            KmZzVO[] bodyvos = reloadNewValue(printParamVO.getTitleperiod(),printParamVO.getCorpName(),printParamVO.getIsPaging(),queryparamvo);
+            KmZzVO[] bodyvos = reloadNewValue(printParamVO.getTitleperiod(), printParamVO.getCorpName(), printParamVO.getIsPaging(), queryparamvo);
             ReportUtil.updateKFx(bodyvos);
             Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存前台传来的设置参数
 
-            if(bodyvos != null && bodyvos.length > 0){
+            if (bodyvos != null && bodyvos.length > 0) {
                 tmap.put("公司", printParamVO.getCorpName());
                 tmap.put("期间", printParamVO.getTitleperiod());
                 tmap.put("单位", new ReportUtil().getCurrencyByPk(queryparamvo.getPk_currency()));
@@ -210,23 +210,23 @@ public class KmzzController extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = null;
             /** 需要分页打印 */
-            if(bodyvos!=null && bodyvos.length>0 &&  printParamVO.getIsPaging().equals("Y")){
-                List<SuperVO> mxlist=null;
+            if (bodyvos != null && bodyvos.length > 0 && printParamVO.getIsPaging().equals("Y")) {
+                List<SuperVO> mxlist = null;
                 Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
                 String kmfullname;
                 Map<String, YntCpaccountVO> cpamap = zxkjPlatformService.queryMapByPk(queryparamvo.getPk_corp());
-                for(KmZzVO mxvo:bodyvos){
+                for (KmZzVO mxvo : bodyvos) {
                     /** 设置公司名称 */
                     mxvo.setGs(bodyvos[0].getGs());
                     /** map里的key 不包含当前数据科目编码 */
-                    if(!mxmap.containsKey(mxvo.getKmbm())){
+                    if (!mxmap.containsKey(mxvo.getKmbm())) {
                         /**  就 创建一个list  把这条数据 加进去 */
                         mxlist = new ArrayList<SuperVO>();
                         kmfullname = putHeadForKmPage(cpamap, mxvo);
                         mxvo.setKmfullname(kmfullname);
                         mxvo.setTitlePeriod(tmap.get("期间"));
                         mxlist.add(mxvo);
-                    }else{
+                    } else {
                         /** map里的key 包含当前数据科目编码 */
                         mxlist = mxmap.get(mxvo.getKmbm());
                         mxlist.add(mxvo);
@@ -235,81 +235,82 @@ public class KmzzController extends ReportBaseController {
                 }
                 /** 排序--根据key排序 */
                 mxmap = sortMapByKey(mxmap);
-                if(!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)){
+                if (!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)) {
                     obj = getPrintXm(3);
-                }else{
+                } else {
                     obj = getPrintXm(2);
                 }
-                printReporUtil.printHz(mxmap ,new SuperVO[]{},"*科目总账",(String[])obj[0],
-                        (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
-            }else{/** 不需要分页打印 */
-                int len=bodyvos==null?0:bodyvos.length;
-                for(int i=0;i<len;i++){
-                    bodyvos[i].setKm(bodyvos[i].getKmbm()+"_"+bodyvos[i].getKm());
+                printReporUtil.printHz(mxmap, new SuperVO[]{}, "*科目总账", (String[]) obj[0],
+                        (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
+            } else {/** 不需要分页打印 */
+                int len = bodyvos == null ? 0 : bodyvos.length;
+                for (int i = 0; i < len; i++) {
+                    bodyvos[i].setKm(bodyvos[i].getKmbm() + "_" + bodyvos[i].getKm());
                 }
-                if(!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)){
+                if (!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)) {
                     obj = getPrintXm(1);
-                }else{
+                } else {
                     obj = getPrintXm(0);
                 }
-                printReporUtil.printHz(new HashMap<String, List<SuperVO>>() ,bodyvos,"科目总账",
-                        (String[])obj[0], (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
-                for(int i=0;i<len;i++){
-                    bodyvos[i].setKm(bodyvos[i].getKm().substring(bodyvos[i].getKm().lastIndexOf('_')+1));
+                printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "科目总账",
+                        (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
+                for (int i = 0; i < len; i++) {
+                    bodyvos[i].setKm(bodyvos[i].getKm().substring(bodyvos[i].getKm().lastIndexOf('_') + 1));
                 }
             }
         } catch (DocumentException e) {
-            log.error("错误",e);
+            log.error("错误", e);
         } catch (IOException e) {
-            log.error("错误",e);
+            log.error("错误", e);
         }
     }
 
     /**
      * 分页打印 设置科目(标题用)和科目全称(head使用 和公司，期间并列)
+     *
      * @param cpamap
      * @param mxvo
      * @return
      */
     private String putHeadForKmPage(Map<String, YntCpaccountVO> cpamap, KmZzVO mxvo) {
         String kmfullname;
-        if(cpamap.containsKey(mxvo.getPk_accsubj())){
+        if (cpamap.containsKey(mxvo.getPk_accsubj())) {
             mxvo.setKm(cpamap.get(mxvo.getPk_accsubj()).getAccountname());
         }
-        if(mxvo.getPk_accsubj()!=null
-                && (mxvo.getPk_accsubj()).length()>24){//默认有辅助项目
-            kmfullname =mxvo.getKmfullname() + "/"+mxvo.getKm()+"("+ mxvo.getKmbm()+")" ;
-        }else{
-            kmfullname =mxvo.getKmfullname()+"("+ mxvo.getKmbm()+")" ;
+        if (mxvo.getPk_accsubj() != null
+                && (mxvo.getPk_accsubj()).length() > 24) {//默认有辅助项目
+            kmfullname = mxvo.getKmfullname() + "/" + mxvo.getKm() + "(" + mxvo.getKmbm() + ")";
+        } else {
+            kmfullname = mxvo.getKmfullname() + "(" + mxvo.getKmbm() + ")";
         }
         return kmfullname;
     }
 
-    public Object[] getPrintXm(int type){
+    public Object[] getPrintXm(int type) {
         Object[] obj = new Object[4];
         switch (type) {
             case 3:
-                obj[0] = new String[]{"period","zy","ybjf","jf","ybdf","df","fx","ybye","ye"};
-                obj[1] = new String[]{"期间","摘要","借方_原币","借方_本位币","贷方_原币","贷方_本位币","方向","余额_原币","余额_本位币"};
-                obj[2] = new int[]{2,5,3,3,3,3,1,3,3};
+                obj[0] = new String[]{"period", "zy", "ybjf", "jf", "ybdf", "df", "fx", "ybye", "ye"};
+                obj[1] = new String[]{"期间", "摘要", "借方_原币", "借方_本位币", "贷方_原币", "贷方_本位币", "方向", "余额_原币", "余额_本位币"};
+                obj[2] = new int[]{2, 5, 3, 3, 3, 3, 1, 3, 3};
                 obj[3] = 20;
                 break;
             case 2:
-                obj[0] = new String[]{"period","zy","jf","df","fx","ye"};
-                obj[1] = new String[]{"期间","摘要","借方","贷方","方向","余额"};
-                obj[2] = new int[]{2,5,3,3,1,3};
+                obj[0] = new String[]{"period", "zy", "jf", "df", "fx", "ye"};
+                obj[1] = new String[]{"期间", "摘要", "借方", "贷方", "方向", "余额"};
+                obj[2] = new int[]{2, 5, 3, 3, 1, 3};
                 obj[3] = 20;
                 break;
             case 1:
-                obj[0] = new String[]{"km","period","zy","ybjf","jf","ybdf","df","fx","ybye","ye"};
-                obj[1] = new String[]{"科目","期间","摘要","借方_原币","借方_本位币","贷方_原币","贷方_本位币","方向","余额_原币","余额_本位币"};
-                obj[2] = new int[]{7,2,5,3,3,3,3,1,3,3};
+                obj[0] = new String[]{"km", "period", "zy", "ybjf", "jf", "ybdf", "df", "fx", "ybye", "ye"};
+                obj[1] = new String[]{"科目", "期间", "摘要", "借方_原币", "借方_本位币", "贷方_原币", "贷方_本位币", "方向", "余额_原币", "余额_本位币"};
+                obj[2] = new int[]{7, 2, 5, 3, 3, 3, 3, 1, 3, 3};
                 obj[3] = 20;
                 break;
             case 0:
-                obj[0] = new String[]{"km","period","zy","jf","df","fx","ye"};
-                obj[1] = new String[]{"科目","期间","摘要","借方","贷方","方向","余额"};
-                obj[2] = new int[]{7,2,5,3,3,1,3};
+                obj[0] = new String[]{"km", "period", "zy", "jf", "df", "fx", "ye"};
+                obj[1] = new String[]{"科目", "期间", "摘要", "借方", "贷方", "方向", "余额"};
+                obj[2] = new int[]{7, 2, 5, 3, 3, 1, 3};
                 obj[3] = 20;
                 break;
             default:
@@ -317,7 +318,8 @@ public class KmzzController extends ReportBaseController {
         }
         return obj;
     }
-    public KmZzVO[] reloadNewValue(String titlePeriod,String gs, String isPaging ,QueryParamVO queryParamvo) {
+
+    public KmZzVO[] reloadNewValue(String titlePeriod, String gs, String isPaging, QueryParamVO queryParamvo) {
         queryParamvo.setBtotalyear(DZFBoolean.TRUE);
         KmZzVO[] bodyvos = gl_rep_kmzjserv.getKMZZVOs(queryParamvo, null);
         bodyvos = filterQC(bodyvos).toArray(new KmZzVO[0]);
