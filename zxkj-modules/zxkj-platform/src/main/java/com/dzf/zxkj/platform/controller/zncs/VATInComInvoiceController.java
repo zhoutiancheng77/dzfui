@@ -64,7 +64,7 @@ import java.io.OutputStream;
 import java.util.*;
 
 @RestController
-@RequestMapping("/zncs/gl_vatincinvact2")
+@RequestMapping("/zncs/gl_vatincinvact")
 public class VATInComInvoiceController extends BaseController {
 
     private Logger log = Logger.getLogger(this.getClass());
