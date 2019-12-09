@@ -48,6 +48,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IDcpzService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
+import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -57,10 +58,7 @@ import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
@@ -2074,7 +2072,7 @@ public class VATInComInvoice2Controller extends BaseController {
         Grid grid = new Grid();
         try {
             String body = param.get("head");
-            String isshow = param.get("isshow");
+            String isshow = param.get("ishow");
             String goods = param.get("goods");
 
             if (body == null) {
