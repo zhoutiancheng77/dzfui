@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.QyBdExcelField;
 import com.dzf.zxkj.report.print.cwbb.QyBdPdfField;
 import com.dzf.zxkj.report.service.cwbb.IQyBdService;
@@ -62,22 +63,22 @@ public class QyBdController extends ReportBaseController {
     }
 
     @PostMapping("export/excel")
-    public void export(String list, String corpName, String period, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
-        QyBdVO[] listVo = JsonUtils.deserialize(list, QyBdVO[].class);
+    public void export(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
+        QyBdVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), QyBdVO[].class);
 
         Excelexport2003<QyBdVO> lxs = new Excelexport2003<QyBdVO>();
         QyBdExcelField qyBdExcelField = new QyBdExcelField();
         qyBdExcelField.setYwhdvos(listVo);
-        qyBdExcelField.setQj(period);
+        qyBdExcelField.setQj(excelExportVO.getPeriod());
         qyBdExcelField.setCreator(userVO.getCuserid());
-        qyBdExcelField.setCorpName(corpName);
+        qyBdExcelField.setCorpName(excelExportVO.getCorpName());
 
 
         baseExcelExport(response,lxs,qyBdExcelField);
     }
 
     @PostMapping("print/pdf")
-    public void print(String corpName, String period, PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+    public void print(@MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
@@ -85,8 +86,8 @@ public class QyBdController extends ReportBaseController {
             ColumnCellAttr[] columncellattrvos = QyBdPdfField.getColumnCellList();
             //初始化表头
             Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存前台传来的设置参数
-            tmap.put("公司", corpName);
-            tmap.put("期间", period);
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getPeriod());
             tmap.put("单位", "元");
 
             printReporUtil.setIscross(DZFBoolean.FALSE);//是否横向

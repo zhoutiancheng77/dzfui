@@ -18,6 +18,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.YyFpExcelField;
 import com.dzf.zxkj.report.print.cwbb.YyFpPdfField;
 import com.dzf.zxkj.report.service.cwbb.IYyFpService;
@@ -73,15 +74,15 @@ public class YyfpController extends ReportBaseController {
     }
 
     @PostMapping("export/excel")
-    public void export(String list, String corpName, String period, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
-        YyFpVO[] listVo = JsonUtils.deserialize(list, YyFpVO[].class);
+    public void export(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
+        YyFpVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), YyFpVO[].class);
 
         Excelexport2003<YyFpVO> lxs = new Excelexport2003<YyFpVO>();
         YyFpExcelField yhd = new YyFpExcelField();
         yhd.setYwhdvos(listVo);
-        yhd.setQj(period);
+        yhd.setQj(excelExportVO.getPeriod());
         yhd.setCreator(userVO.getCuserid());
-        yhd.setCorpName(corpName);
+        yhd.setCorpName(excelExportVO.getCorpName());
 
         baseExcelExport(response,lxs,yhd);
 

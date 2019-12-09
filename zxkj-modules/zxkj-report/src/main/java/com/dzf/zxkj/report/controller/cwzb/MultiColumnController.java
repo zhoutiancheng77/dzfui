@@ -330,7 +330,7 @@ public class MultiColumnController extends ReportBaseController {
     }
 
     @PostMapping("export/excel")
-    public void export(ReportExcelExportVO exportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void export(@MultiRequestBody ReportExcelExportVO exportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         String data = exportVO.getData();
 

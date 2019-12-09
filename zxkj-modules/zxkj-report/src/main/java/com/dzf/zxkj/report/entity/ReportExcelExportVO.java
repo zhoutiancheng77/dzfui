@@ -23,4 +23,5 @@ public class ReportExcelExportVO {
     private String titleperiod;//查询期间段
     private String areaType;
     private String qjlx;
+    private String fields;
 }
