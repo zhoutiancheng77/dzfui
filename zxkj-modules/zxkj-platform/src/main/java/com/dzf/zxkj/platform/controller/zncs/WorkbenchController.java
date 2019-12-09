@@ -1038,17 +1038,11 @@ public class WorkbenchController extends BaseController {
         try{
             String head = param.get("head");
             String body = param.get("body");
-            //String headname = getRequest().getParameter("headname");
             body = body.replace("}{", "},{");
-            //body = "[" + body + "]";
-//            JSON headjs = (JSON) JSON.parse(head);
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-            //String headnames []=headname.replace("{", "").replace("}", "").split(",");
-//            Map<String,String> headmaping=FieldMapping.getFieldMapping(new OcrInvoiceVO());
-//            Map<String,String> bodymapping=FieldMapping.getFieldMapping(new OcrInvoiceDetailVO());
-//            OcrInvoiceVO headvo =DzfTypeUtils.cast(headjs,headmaping, OcrInvoiceVO.class, JSONConvtoJAVA.getParserConfig());
-            OcrInvoiceVO headvo = JSON.parseObject(head, OcrInvoiceVO.class);
-            OcrInvoiceDetailVO[] bodyvos = array.toArray(new OcrInvoiceDetailVO[0]);
+
+
+            OcrInvoiceVO headvo = JsonUtils.deserialize(head, OcrInvoiceVO.class);
+            OcrInvoiceDetailVO[] bodyvos = JsonUtils.deserialize(body,OcrInvoiceDetailVO[].class);
             if(!headvo.getPk_corp().equals(SystemUtil.getLoginCorpId())){
                 throw new BusinessException("无权操作此数据.");
             }
@@ -1230,7 +1224,7 @@ public class WorkbenchController extends BaseController {
     }
     //保存总账存货
     @RequestMapping("/saveInventoryData_long")
-    public ReturnData<Grid> saveInventoryData_long(@RequestBody String goods) {
+    public ReturnData<Grid> saveInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
@@ -1249,7 +1243,7 @@ public class WorkbenchController extends BaseController {
 //                writeJson(grid);
 //                return;
 //            }
-
+            String goods = param.get("goods");
             InventoryAliasVO[] goodvos = getInvAliasData(goods);
             if (goodvos == null || goodvos.length == 0)
                 throw new BusinessException("未找到存货别名数据，请检查");

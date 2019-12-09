@@ -5,6 +5,7 @@ import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.glic.InventoryQcVO;
@@ -233,5 +234,20 @@ public class InvtoryQcController {
                 }
             }
         }
+    }
+
+    @GetMapping("/getQcDate")
+    public ReturnData updateDate() {
+        Json json = new Json();
+        DZFDate date =gl_ic_invtoryqcserv.queryInventoryQcDate( SystemUtil.getLoginCorpId());
+        if(date == null){
+            date = SystemUtil.getLoginCorpVo().getBegindate();
+        }
+        json.setData(date.toString());
+        json.setMsg("修改成功");
+        json.setSuccess(true);
+//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
+//                "总账存货管理-存货期初，修改启用期间", ISysConstants.SYS_2);
+        return ReturnData.ok().data(json);
     }
 }

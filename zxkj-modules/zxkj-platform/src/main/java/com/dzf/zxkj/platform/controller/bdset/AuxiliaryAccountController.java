@@ -399,10 +399,16 @@ public class AuxiliaryAccountController {
         String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
         int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
         byte[] bytes = exportExcel(fieldColumn, array, "fztemplatezzhsCHup.xls", price);
+        String formattedName = "更新存货档案";
+        try{
+             formattedName = URLEncoder.encode(formattedName, "UTF-8");
+        } catch (IOException e) {
+            log.error("excel导出错误", e);
+        }
 
         HttpHeaders header = new HttpHeaders();
         header.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName);
+        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName+ ".xls");
         header.setContentLength(bytes.length);
         response = new HttpEntity<>(bytes, header);
         return response;
