@@ -1,12 +1,11 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.dzf.zxkj.common.constant.ISysConstants;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
-import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.DzfUtil;
@@ -107,7 +106,7 @@ public class FzKmmxController extends ReportBaseController {
      * 导出Excel
      */
     @PostMapping("export/excel")
-    public void excelReport( ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void excelReport( @MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         FzKmmxVO[] listVo = null;
         queryparamvo = (KmReoprtQueryParamVO)getQueryParamVO(queryparamvo, corpVO);
         String gs = excelExportVO.getCorpName();
@@ -207,7 +206,7 @@ public class FzKmmxController extends ReportBaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+    public void printAction(@MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             String strlist = printParamVO.getList();

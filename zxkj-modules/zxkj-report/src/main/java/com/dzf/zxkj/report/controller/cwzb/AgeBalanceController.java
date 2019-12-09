@@ -1,9 +1,9 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.entity.DynamicAttributeVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.param.Fieldelement;
 import com.dzf.zxkj.excel.util.Excelexport2003;
@@ -13,6 +13,7 @@ import com.dzf.zxkj.platform.model.report.AgeReportResultVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwzb.AgeBalanceExcelField;
 import com.dzf.zxkj.report.service.cwzb.IAgeBalanceReportService;
 import com.dzf.zxkj.report.utils.SystemUtil;
@@ -78,8 +79,8 @@ public class AgeBalanceController {
 
 
     @PostMapping("export/excel")
-    public void excelReport (String data, String fields, AgeBalanceExcelField field, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
-        List<LinkedHashMap<String, Object>>  dataList =  JsonUtils.deserialize(data, List.class, Map.class);
+    public void excelReport (@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody AgeBalanceExcelField field, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        List<LinkedHashMap<String, Object>>  dataList =  JsonUtils.deserialize(excelExportVO.getData(), List.class, Map.class);
 
         DynamicAttributeVO[] dynamicAttributeVOS = new DynamicAttributeVO[dataList.size()];
 
@@ -89,7 +90,7 @@ public class AgeBalanceController {
 
         field.setExpvos(dynamicAttributeVOS);
 
-        Fieldelement[] fieldelements = JsonUtils.deserialize(fields, Fieldelement[].class);
+        Fieldelement[] fieldelements = JsonUtils.deserialize(excelExportVO.getFields(), Fieldelement[].class);
         field.setFields(fieldelements);
         field.setCreator(userVO.getUser_name());
         OutputStream toClient = null;

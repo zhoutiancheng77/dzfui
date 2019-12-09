@@ -347,7 +347,7 @@ public class KmMxrController extends ReportBaseController {
 
 
     @PostMapping("export/excel")
-    public void excelReport(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
+    public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
 
         String gs= excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
@@ -378,7 +378,7 @@ public class KmMxrController extends ReportBaseController {
     }
 
     @PostMapping("print/pdf")
-    public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+    public void printAction(@MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
