@@ -290,7 +290,7 @@ public class MultiColumnController extends ReportBaseController {
     }
 
     @PostMapping("print/pdf")
-    public void print(ReportPrintParamVO printParamVO, MultiColumnPdfField columnPdfField, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void print(@MultiRequestBody ReportPrintParamVO printParamVO, @MultiRequestBody MultiColumnPdfField columnPdfField, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
