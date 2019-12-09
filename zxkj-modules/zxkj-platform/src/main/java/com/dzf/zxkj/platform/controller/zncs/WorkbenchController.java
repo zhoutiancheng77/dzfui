@@ -19,6 +19,7 @@ import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -1280,15 +1281,7 @@ public class WorkbenchController extends BaseController {
         }
         goods = goods.replace("}{", "},{");
         //goods = "[" + goods + "]";
-        JSONArray array = (JSONArray) JSON.parseArray(goods);
-
-        if (array == null)
-            return vos;
-
-//        Map<String, String> goodsmapping = FieldMapping.getFieldMapping(new InventoryAliasVO());
-//
-//        vos = DzfTypeUtils.cast(array, goodsmapping, InventoryAliasVO[].class, JSONConvtoJAVA.getParserConfig());
-        vos = array.toArray(new InventoryAliasVO[0]);
+        vos = JsonUtils.deserialize(goods, InventoryAliasVO[].class);
         return vos;
     }
     //匹配总账存货的
