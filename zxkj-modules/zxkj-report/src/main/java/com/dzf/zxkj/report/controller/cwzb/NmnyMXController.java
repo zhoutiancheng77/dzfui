@@ -1,13 +1,13 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
-import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.report.NumMnyDetailVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -18,6 +18,7 @@ import com.dzf.zxkj.report.utils.VoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,12 +33,13 @@ public class NmnyMXController {
     private INummnyReport gl_rep_nmdtserv;
 
     @PostMapping("/query")
-    public ReturnData query(@MultiRequestBody QueryParamVO paramvo,
-                            String currkmbm, String xsfzhs) {
+    public ReturnData query(@RequestBody Map<String, String> param) {
         ReportDataGrid grid = new ReportDataGrid();
-//        QueryParamVO paramvo = new QueryParamVO();
+        QueryParamVO paramvo = new QueryParamVO();
         try {
-//            paramvo = JsonUtils.convertValue(param, QueryParamVO.class);
+            paramvo = JsonUtils.convertValue(param, QueryParamVO.class);
+            String currkmbm = param.get("currkmbm");
+            String xsfzhs = param.get("xsfzhs");
 
             //判断请求是否联查而来，如是，设置科目参数
             if(!StringUtil.isEmptyWithTrim(currkmbm)){
