@@ -623,7 +623,7 @@ public class PrintReporUtil {
                                 || tilename.equals("出 库 单") || tilename.equals("入 库 单") || tilename.equals("库存成本表")
                                 || tilename.equals("科目期初") || tilename.equals("入 库 单")
                                 || tilename.equals("出 库 单") || tilename.indexOf(
-                                "库存明细账") >= 0 || tilename.equals("出入库明细表") || tilename.equals("毛利率统计表")/*
+                                "库存明细账") >= 0 || tilename.equals("出入库明细表") || tilename.equals("毛利率统计表") || tilename.equals("库存汇总表")/*
                          * || tilename.equals(
                          * "工 资 表")
                          */) {
