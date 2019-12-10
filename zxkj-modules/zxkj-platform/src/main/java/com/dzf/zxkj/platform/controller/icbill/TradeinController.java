@@ -33,7 +33,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 入库单
@@ -69,13 +72,12 @@ public class TradeinController{
         if (paramvo != null) {
             list = ic_tradeinserv.query(paramvo);
         }
-        grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
-
+		IctradeinVO[] vos = null;
         if (list != null && list.size() > 0) {
-            IctradeinVO[] pvos = getPageVOs(list.toArray(new IctradeinVO[list.size()]), page, rows);
-            list = Arrays.asList(pvos);
+			vos = getPageVOs(list.toArray(new IctradeinVO[list.size()]), page, rows);
         }
-        grid.setRows(list == null ? new ArrayList<IctradeinVO>() : list);
+		grid.setTotal(Long.valueOf(vos == null ? 0 : vos.length));
+		grid.setRows(vos == null ? new IctradeinVO[0] : vos);
         grid.setSuccess(true);
         grid.setMsg("查询成功");
 

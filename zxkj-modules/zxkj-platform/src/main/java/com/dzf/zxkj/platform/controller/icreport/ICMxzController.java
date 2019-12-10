@@ -114,8 +114,9 @@ public class ICMxzController {
 			}
 		});
 		grid.setIccombox(listsps);
-		grid.setIcDetail(list);
-		grid.setRows(list);
+		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
+		grid.setRows(list == null ? new ArrayList<>() : list);
+		grid.setIcDetail(list == null ? new ArrayList<>() : list);
 		grid.setSuccess(true);
 		return ReturnData.ok().data(grid);
 	}

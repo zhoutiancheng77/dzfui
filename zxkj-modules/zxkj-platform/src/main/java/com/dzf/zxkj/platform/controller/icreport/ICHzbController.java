@@ -81,7 +81,8 @@ public class ICHzbController {
 		// 将查询后的数据分页展示
 		List<IcDetailVO> list = getPagedMXZVos(result, page, rows, grid);
 
-		grid.setRows(list);
+		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
+		grid.setRows(list == null ? new ArrayList<IcDetailVO>() : list);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功！");
 		return ReturnData.ok().data(grid);

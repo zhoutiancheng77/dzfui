@@ -79,8 +79,8 @@ public class PrintReporUtil {
         this.response = response;
         this.zxkjPlatformService = zxkjPlatformService;
         try {
-            bf = BaseFont.createFont("/data1/webApp/font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);// C:/windows/fonts/simfang.ttf
-            bf_Bold = BaseFont.createFont("/data1/webApp/font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);// IGlobalConstants.FONTPATH;
+            bf = BaseFont.createFont("font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);// C:/windows/fonts/simfang.ttf
+            bf_Bold = BaseFont.createFont("font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);// IGlobalConstants.FONTPATH;
             setLineheight(18f);// 设置行高
             lineheight = 18f;
             basecolor = new BaseColor(167, 167, 167);

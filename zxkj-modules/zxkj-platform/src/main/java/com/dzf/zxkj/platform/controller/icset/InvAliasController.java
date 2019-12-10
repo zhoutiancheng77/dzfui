@@ -39,21 +39,17 @@ public class InvAliasController {
 		InventoryAliasVO[] vos = ic_invtoryaliasserv.query(SystemUtil.getLoginCorpId(),pk_inventory);
 		String isfenye = param.get("isfenye");
 		QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
-		if("Y".equals(isfenye)) {
-			int page = queryParamvo.getPage();
-			int rows = queryParamvo.getRows();
-			if (vos != null && vos.length > 0) {
-				grid.setTotal((long) vos.length );
-				InventoryAliasVO[] PzglPagevos = getPagedZZVOs(vos, page, rows);
-				grid.setRows(Arrays.asList(PzglPagevos));
-			}
-		} else {
-			if (vos != null && vos.length  > 0) {
-				grid.setTotal((long)vos.length );
-				grid.setRows(vos);
+		if (vos != null && vos.length > 0) {
+			if("Y".equals(isfenye)) {
+				int page = queryParamvo.getPage();
+				int rows = queryParamvo.getRows();
+				vos = getPagedZZVOs(vos, page, rows);
 			}
 		}
+        grid.setTotal(vos == null ? 0L : vos.length );
+        grid.setRows(vos == null ? new InventoryAliasVO[0] : vos);
 		grid.setSuccess(true);
+        grid.setMsg("查询成功");
 		return ReturnData.ok().data(grid);
 	}
 

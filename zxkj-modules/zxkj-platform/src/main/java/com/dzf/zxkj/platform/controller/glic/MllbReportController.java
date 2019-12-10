@@ -76,7 +76,7 @@ public class MllbReportController  extends GlicReportController{
 
         if(result == null || result.isEmpty() ){
             grid.setTotal(0L);
-            return new ArrayList<MllDetailVO>();
+            return new ArrayList<>();
         }
         grid.setTotal((long)result.size());
         return result.subList((page-1)*rows, page * rows > result.size() ? result.size() : page * rows);

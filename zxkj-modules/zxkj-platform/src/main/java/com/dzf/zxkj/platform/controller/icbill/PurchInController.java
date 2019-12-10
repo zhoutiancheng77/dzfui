@@ -90,14 +90,12 @@ public class PurchInController {
 		}
         if (paramvo != null) {
             List<IntradeHVO> list = ic_purchinserv.query(paramvo);
-            if (list != null && list.size() > 0) {
-                grid.setTotal((long) list.size());
-                IntradeHVO[] PzglPagevos = getPagedZZVOs(list.toArray(new IntradeHVO[list.size()]), page, rows);
-                grid.setRows(Arrays.asList(PzglPagevos));
-            } else {
-                grid.setTotal((long) 0);
-                grid.setRows(new IntradeHVO[0]);
-            }
+			IntradeHVO[] vos = null;
+			if (list != null && list.size() > 0) {
+				vos = getPagedZZVOs(list.toArray(new IntradeHVO[list.size()]), page, rows);
+			}
+			grid.setTotal(Long.valueOf(vos == null ? 0 : vos.length));
+			grid.setRows(vos == null ? new IntradeHVO[0] : vos);
             grid.setSuccess(true);
             grid.setMsg("查询成功！");
         }
