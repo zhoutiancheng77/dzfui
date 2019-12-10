@@ -11,7 +11,6 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
-import com.dzf.zxkj.platform.model.icset.MeasureVO;
 import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
@@ -29,7 +28,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -99,23 +97,21 @@ public class InvclassifyController {
 		List<InvclassifyVO> list;
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
 		list = ic_inclsserv.query(SystemUtil.getLoginCorpId());
+		InvclassifyVO[] vos = null;
 		if (list != null && list.size() > 0) {
-			grid.setTotal((long) (list == null ? 0 : list.size()));
-            InvclassifyVO[] vos = null;
-            String isfenye = param.get("isfenye");
-            if ("Y".equals(isfenye)) {// 分页
-                vos = getPagedZZVOs(list.toArray(new InvclassifyVO[0]), queryParamvo.getPage(), queryParamvo.getRows());
-                grid.setRows(vos == null ? new ArrayList<MeasureVO>() : Arrays.asList(vos));
-            }else{
-                grid.setRows(list);
-            }
-            grid.setSuccess(true);
-            grid.setMsg("查询成功");
-		} else {
-			grid.setTotal(0L);
-			log.info("查询数据为空");
-			grid.setSuccess(false);
+			String isfenye = param.get("isfenye");
+			if("Y".equals(isfenye)) {
+				int page = queryParamvo.getPage();
+				int rows = queryParamvo.getRows();
+				vos = getPagedZZVOs(list.toArray(new InvclassifyVO[list.size()]),page, rows);
+			}else{
+				vos = list.toArray(new InvclassifyVO[list.size()]);
+			}
 		}
+		grid.setTotal(vos == null ? 0L : vos.length );
+		grid.setRows(vos == null ? new InvclassifyVO[0] : vos);
+		grid.setSuccess(true);
+		grid.setMsg("查询成功");
 		return ReturnData.ok().data(grid);
 	}
 

@@ -45,20 +45,19 @@ public class InvtoryQcController {
         List<InventoryQcVO> list = gl_ic_invtoryqcserv.query(SystemUtil.getLoginCorpId());
         String isfenye = param.get("isfenye");
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
-        if("Y".equals(isfenye)) {
-            int page = queryParamvo.getPage();
-            int rows = queryParamvo.getRows();
-            if (list != null && list.size() > 0) {
-                grid.setTotal((long) list.size());
-                InventoryQcVO[] PzglPagevos = getPagedZZVOs(list.toArray(new InventoryQcVO[list.size()]), page, rows);
-                grid.setRows(Arrays.asList(PzglPagevos));
-            }
-        } else {
-            if (list != null && list.size() > 0) {
-                grid.setTotal((long) list.size());
-                grid.setRows(list);
+        InventoryQcVO[]  vos = null;
+        if (list != null && list.size() > 0) {
+            // 分页
+            if("Y".equals(isfenye)) {
+                int page = queryParamvo.getPage();
+                int rows = queryParamvo.getRows();
+                vos = getPagedZZVOs(list.toArray(new InventoryQcVO[list.size()]), page, rows);
+            }else {
+                vos = list.toArray(new InventoryQcVO[list.size()]);
             }
         }
+        grid.setTotal(vos == null ? 0L : vos.length );
+        grid.setRows(vos == null ? new InventoryQcVO[0] : vos);
         grid.setMsg("查询成功");
         grid.setSuccess(true);
         return ReturnData.ok().data(grid);

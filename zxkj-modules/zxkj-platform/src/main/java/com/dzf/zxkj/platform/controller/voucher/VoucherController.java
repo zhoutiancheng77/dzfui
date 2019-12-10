@@ -757,7 +757,7 @@ public class VoucherController {
                     datePz.append(hvo.getPzh() + "，");
                     fail++;
                     if ("".equals(errMsg)) {
-                        errMsg = "审核时间不能小于制单日期！";
+                        errMsg = "审核时间不能早于制单日期！";
                     }
                     continue;
                 }
@@ -1083,6 +1083,7 @@ public class VoucherController {
         }
         String msg = getResultMsg(errorlist);
         json.setMsg(msg);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 

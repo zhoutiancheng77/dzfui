@@ -81,7 +81,6 @@ public class InventoryController {
 		List<InventoryVO> list = iservice.query(SystemUtil.getLoginCorpId(), queryParamvo.getPk_subject());
 		if (queryParamvo != null && queryParamvo.getIsshow() != null && queryParamvo.getIsshow().booleanValue()) {
 			String vchDate = param.get("vdate");
-
 			DZFDate vDate = new DZFDate();
 			if (!StringUtil.isEmpty(vchDate)) {
 				vDate = new DZFDate(vchDate);
@@ -129,20 +128,20 @@ public class InventoryController {
 		if (data != null && data.getIsshow() != null && data.getIsshow().booleanValue()) {
 			setJcInfo(list);
 		}
-		if (data != null && data.getIspage() != null && data.getIspage().booleanValue()) {
-			int page = data.getPage();
-			int rows = data.getRows();
-			if (list != null && list.size() > 0) {
+		InventoryVO[]  vos = null;
+		if (list != null && list.size() > 0) {
+		    // 分页
+			if (data != null && data.getIspage() != null && data.getIspage().booleanValue()) {
+				int page = data.getPage();
+				int rows = data.getRows();
 				grid.setTotal((long) list.size());
-				InventoryVO[] PzglPagevos = getPagedZZVOs(list.toArray(new InventoryVO[list.size()]), page, rows);
-				grid.setRows(Arrays.asList(PzglPagevos));
-			}
-		} else {
-			if (list != null && list.size() > 0) {
-				grid.setTotal((long) list.size());
-				grid.setRows(list);
+				vos = getPagedZZVOs(list.toArray(new InventoryVO[list.size()]), page, rows);
+			} else {
+				vos = list.toArray(new InventoryVO[list.size()]);
 			}
 		}
+		grid.setTotal(vos == null ? 0L : vos.length );
+		grid.setRows(vos == null ? new InventoryVO[0] : vos);
 		grid.setMsg("查询成功！");
 		grid.setSuccess(true);
 		return ReturnData.ok().data(grid);
