@@ -449,8 +449,6 @@ public class VATInComInvoiceController extends BaseController {
             if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
 
 
             bodyvos = JsonUtils.deserialize(body,  VATInComInvoiceVO[].class);
@@ -565,8 +563,6 @@ public class VATInComInvoiceController extends BaseController {
             if (body == null) {
                 throw new BusinessException("数据为空,生成凭证失败!");
             }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
 
             vos = JsonUtils.deserialize(body, VATInComInvoiceVO[].class);
 
@@ -803,7 +799,6 @@ public class VATInComInvoiceController extends BaseController {
         String pk_corp = SystemUtil.getLoginCorpId();
         try {
             String str = param.get("row");
-            str = "[" + str + "]";
             VATInComInvoiceVO[] listvo = JsonUtils.deserialize(str, VATInComInvoiceVO[].class);
 
             if(listvo == null || listvo.length == 0)
@@ -855,8 +850,6 @@ public class VATInComInvoiceController extends BaseController {
             if (str == null) {
                 throw new BusinessException("数据为空,请检查!");
             }
-            str = str.replace("}{", "},{");
-            str = "[" + str + "]";
 
             VATInComInvoiceVO[] listvo =JsonUtils.deserialize(str, VATInComInvoiceVO[].class);
 
@@ -917,8 +910,6 @@ public class VATInComInvoiceController extends BaseController {
             if (body == null) {
                 throw new BusinessException("数据为空,合并生成凭证失败!");
             }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
 
             vos = JsonUtils.deserialize(body, VATInComInvoiceVO[].class);
 
@@ -1718,8 +1709,6 @@ public class VATInComInvoiceController extends BaseController {
             if (body == null) {
                 throw new BusinessException("数据为空,生成凭证失败!");
             }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
 
             vos = JsonUtils.deserialize(body, VATInComInvoiceVO[].class);
 
@@ -1816,8 +1805,6 @@ public class VATInComInvoiceController extends BaseController {
             if (body == null) {
                 throw new BusinessException("数据为空,存货匹配失败!");
             }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
 
             String isshow = param.get("ishow");
             if(StringUtil.isEmpty(isshow)){
@@ -1969,8 +1956,6 @@ public class VATInComInvoiceController extends BaseController {
             if (body == null) {
                 throw new BusinessException("数据为空,生成凭证失败!");
             }
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
 
             VATInComInvoiceVO[] vos = JsonUtils.deserialize(body, VATInComInvoiceVO[].class);
 
@@ -2091,9 +2076,6 @@ public class VATInComInvoiceController extends BaseController {
         if (StringUtil.isEmpty(goods)) {
             return null;
         }
-
-        goods = goods.replace("}{", "},{");
-        goods = "[" + goods + "]";
 
         vos = JsonUtils.deserialize(goods, InventoryAliasVO[].class);
 
