@@ -7,6 +7,7 @@ import com.dzf.auth.api.result.Result;
 import com.dzf.auth.api.service.ILoginService;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
+import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.entity.UserCorpRelation;
@@ -38,6 +39,9 @@ public class AuthServiceImpl implements IAuthService {
 
     @Autowired
     private FunNodeMapper funNodeMapper;
+
+    @Autowired
+    private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
 
 //    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private ILoginService userService;
@@ -92,7 +96,7 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenByInter")
     public boolean validateTokenByInter(String token) {
-        Result<UserVO> rs = userService.exchangeResource(token);
+        Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(),token);
         if(rs.getData() != null){
            return true;
         }

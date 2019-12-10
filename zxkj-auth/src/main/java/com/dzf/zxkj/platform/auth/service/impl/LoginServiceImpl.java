@@ -71,7 +71,7 @@ public class LoginServiceImpl implements ILoginService {
 
     @Override
     public LoginUser exchange(String resource) throws Exception {
-        Result<UserVO> rs = userService.exchangeResource(resource);
+        Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(),resource);
         if (rs.getCode() == 200) {
             return transferToZxkjUser(rs.getData());
         }
