@@ -1,13 +1,11 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
-import com.alicp.jetcache.Cache;
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.CreateCache;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.result.Result;
 import com.dzf.zxkj.common.utils.Encode;
+import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
@@ -23,15 +21,14 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class LoginServiceImpl implements ILoginService {
 
-    @CreateCache(name = "zxkj-platform-user", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.DAYS)
-    private Cache<String, LoginUser> platformUserCache;
+    @Autowired
+    private AuthCache authCache;
 
     @Autowired
     private LoginUserMapper loginUserMapper;
@@ -102,7 +99,7 @@ public class LoginServiceImpl implements ILoginService {
     private void createToken(LoginUser loginUser) throws Exception {
         String token = JWTUtil.generateToken(new JWTInfo(loginUser.getUsername(), loginUser.getUserid()), rsaKeyConfig.getUserPriKey(), 60 * 24 * 60 * 60);
         loginUser.setToken(token);
-        platformUserCache.put(loginUser.getUserid(), loginUser);
+        authCache.putLoginUser(loginUser.getUserid(), loginUser);
     }
 
     private LoginUser queryLoginUser(String username) {
