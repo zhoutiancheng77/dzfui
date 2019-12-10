@@ -196,7 +196,7 @@ public class ZclbServiceImpl implements IZclbService {
         String condition1 = " (catecode = ? or catename = ?) ";
         if (StringUtil.isEmpty(id) == false)
             condition1 = condition1 + " and (pk_assetcategory<? or pk_assetcategory>?) ";
-        condition1 = condition1 + "  and pk_corp = '" + pk_corp + "' and nvl(dr,0) = 0 ";
+        condition1 = condition1 + "  and (pk_corp = '" + pk_corp + "' or pk_corp = '000001') and nvl(dr,0) = 0 ";
         List<BdAssetCategoryVO> vo1 = (List<BdAssetCategoryVO>) singleObjectBO.retrieveByClause(BdAssetCategoryVO.class, condition1, sp1);
 
         int len = vo1 == null ? 0 : vo1.size();
