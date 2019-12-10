@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
+import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.base.framework.processor.ObjectProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
@@ -6192,7 +6193,6 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		SQLParameter sp=new SQLParameter();
 		if(DZFBoolean.TRUE.equals(flag)){
 			OcrInvoiceVO invoiceVO=(OcrInvoiceVO)singleObjectBO.queryByPrimaryKey(OcrInvoiceVO.class, pk_invoice);
-			
 			falseMap = getFalseMap(falseMap, invoiceVO.getPk_billcategory());
 			trueMap = getTrueMap(falseMap, trueMap, invoiceVO.getPk_billcategory());
 			

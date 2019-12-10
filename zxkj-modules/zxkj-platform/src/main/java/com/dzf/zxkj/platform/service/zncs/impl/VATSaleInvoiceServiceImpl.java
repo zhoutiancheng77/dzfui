@@ -105,7 +105,7 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Service("gl_vatsalinvact")
@@ -1668,8 +1668,8 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 	private static final String suff_xlsx = "xlsx";
 
 	@Override
-	public void saveImp(File file, String filename, VATSaleInvoiceVO paramvo, String pk_corp, String fileType,
-			String userid, StringBuffer msg) throws DZFWarpException {
+	public void saveImp(MultipartFile file, String filename, VATSaleInvoiceVO paramvo, String pk_corp, String fileType,
+						String userid, StringBuffer msg) throws DZFWarpException {
 
 		DZFBoolean isFlag = paramvo.getIsFlag();
 		List<VATSaleInvoiceVO> list = null;
@@ -1679,9 +1679,9 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 			Integer flag = calcName(filename);
 			BufferedReader breader = null;
 			InputStreamReader isreader = null;
-			FileInputStream is = null;
+			InputStream is = null;
 			try {
-				is = new FileInputStream(file);
+				is = file.getInputStream();
 				isreader = new InputStreamReader(is, "GBK");
 				breader = new BufferedReader(isreader);
 				list = new ArrayList<VATSaleInvoiceVO>();
@@ -1969,11 +1969,11 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 		return list;
 	}
 
-	private List<VATSaleInvoiceVO> importExcel(File file, String fileType, String pk_corp, String userid,
+	private List<VATSaleInvoiceVO> importExcel(MultipartFile file, String fileType, String pk_corp, String userid,
 			List<DcModelHVO> dcList, StringBuffer msg) throws DZFWarpException {
-		FileInputStream is = null;
+		InputStream is = null;
 		try {
-			is = new FileInputStream(file);
+			is = file.getInputStream();
 			Workbook impBook = null;
 			try {
 				if (suff_xls.equals(fileType)) {
@@ -1988,7 +1988,7 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 				if (e instanceof BusinessException) {
 					throw new BusinessException(e.getMessage());
 				} else {
-					is = new FileInputStream(file);
+					is = file.getInputStream();
 					impBook = new XSSFWorkbook(is);
 				}
 			}
@@ -2587,20 +2587,20 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 		return result;
 	}
 
-	private List<VATSaleInvoiceVO> readZipFile(File file, String pk_corp, String userid, StringBuffer msg)
+	private List<VATSaleInvoiceVO> readZipFile(MultipartFile file, String pk_corp, String userid, StringBuffer msg)
 			throws DZFWarpException {
 		List<VATSaleInvoiceVO> list = new ArrayList<VATSaleInvoiceVO>();
 		BufferedReader br = null;
 		InputStreamReader is = null;
 		InputStream in = null;
 		ZipInputStream zin = null;
-		FileInputStream fis = null;
+		InputStream fis = null;
 		Integer flag = null;
 		ZipFile zf = null;
 		try {
 
-			zf = new ZipFile(file);
-			fis = new FileInputStream(file);
+			zf = new ZipFile((File) file);
+			fis = file.getInputStream();
 			in = new BufferedInputStream(fis);
 			zin = new ZipInputStream(in);
 

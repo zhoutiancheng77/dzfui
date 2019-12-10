@@ -121,10 +121,11 @@ public class ZcfzController extends ReportBaseController {
             if (blancemsg == null) {
                 grid.setBlancemsg(true);
             } else {
-                String noblance = (String) objs[1];
+                List<String[]> noblance = (List<String[]> ) objs[1];
                 grid.setBlancemsg(false);
                 grid.setZcfz_jyx((ZcfzMsgVo) objs[2]);
-                grid.setMsg(noblance);
+//                grid.setMsg(noblance);
+                grid.setMsglist(noblance);
                 grid.setBlancetitle(blancemsg);
             }
 

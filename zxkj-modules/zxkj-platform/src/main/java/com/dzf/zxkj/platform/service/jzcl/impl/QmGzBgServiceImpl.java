@@ -9,6 +9,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.common.constant.*;
+import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
@@ -16,6 +17,7 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
@@ -778,7 +780,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("资产与总账对账");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/am_zcreport/asst_gl_compr.jsp?"+getPubParam(cpvo));
+		Map<String,Object> map = getPubParam(cpvo);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("zzdz");
+//		bgvo.setUrl("gl/am_zcreport/asst_gl_compr.jsp?"+getPubParam(cpvo));
 		bgvo.setName("总账对账");
 		
 		ZcdzVO[] zcdzvos;
@@ -819,7 +824,11 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("资产负债表是否平衡");
 		bgvo.setVmemo("通过");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
-		bgvo.setUrl("gl/gl_cwreport/gl_rep_zcfz.jsp?"+getPubParam(cpvo)+"&qj="+DateUtils.getPeriodEndDate(period));
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("qj", DateUtils.getPeriodEndDate(period));
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("zcfz-report");
+//		bgvo.setUrl("gl/gl_cwreport/gl_rep_zcfz.jsp?"+getPubParam(cpvo)+"&qj="+DateUtils.getPeriodEndDate(period));
 		bgvo.setName("资产负债表");
 		
 	    String[]  hasyes=new String[]{"N","N","N","N","N"};
@@ -888,7 +897,11 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("期末余额是否平衡");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&qj="+period);
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("qj", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("fsyeb-report");
+//		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&qj="+period);
 		bgvo.setName("发生额及余额表");
 		bgvo.setBz(" *");
 
@@ -933,7 +946,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("年初余额是否平衡");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_qcset/gl_qcye.jsp?"+getPubParam(cpvo));
+		Map<String, Object> map = getPubParam(cpvo);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("km-qc");
+//		bgvo.setUrl("gl/gl_qcset/gl_qcye.jsp?"+getPubParam(cpvo));
 		bgvo.setName("科目期初");
 		bgvo.setBz(" *");
 		try {
@@ -987,7 +1003,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		vo.setIssuccess(DZFBoolean.TRUE);
 		vo.setVmemo("通过");
 		vo.setXm("往来挂账超过一年");
-		vo.setUrl("gl/gl_kmreport/gl_rep_zlyeb.jsp?"+getPubParam(cpvo));
+		Map<String, Object> map = getPubParam(cpvo);
+		vo.setParamstr(JsonUtils.serialize(map));
+		vo.setUrl("wlzlye-report");
+//		vo.setUrl("gl/gl_kmreport/gl_rep_zlyeb.jsp?"+getPubParam(cpvo));
 		vo.setName("往来账龄余额");
 
 		try {
@@ -1291,7 +1310,15 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("库存商品");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1405&kms_last=1405&kms_first_name=库存商品&kms_last_name=库存商品&qj="+period);
+//		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1405&kms_last=1405&kms_first_name=库存商品&kms_last_name=库存商品&qj="+period);
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("kms_first", "1405");
+		map.put("kms_last", "1405");
+		map.put("kms_first_name", "库存商品");
+		map.put("kms_last_name", "库存商品");
+		map.put("qj", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("fsyeb-report");
 		bgvo.setName("发生额及余额表");
 		
 		kmCheck(fsvos, bgvo,"1405");
@@ -1304,7 +1331,15 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("原材料");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1403&kms_last=1403&kms_first_name=原材料&kms_last_name=原材料&qj="+period);
+//		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1403&kms_last=1403&kms_first_name=原材料&kms_last_name=原材料&qj="+period);
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("kms_first", "1403");
+		map.put("kms_last", "1403");
+		map.put("kms_first_name", "原材料");
+		map.put("kms_last_name", "原材料");
+		map.put("qj", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("fsyeb-report");
 		bgvo.setName("发生额及余额表");
 		
 		kmCheck(fsvos, bgvo,"1403");
@@ -1317,7 +1352,15 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("银行存款");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1002&kms_last=1002&kms_first_name=银行存款&kms_last_name=银行存款&qj="+period);
+//		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1002&kms_last=1002&kms_first_name=银行存款&kms_last_name=银行存款&qj="+period);
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("kms_first", "1002");
+		map.put("kms_last", "1002");
+		map.put("kms_first_name", "银行存款");
+		map.put("kms_last_name", "银行存款");
+		map.put("qj", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("fsyeb-report");
 		bgvo.setName("发生额及余额表");
 		
 		kmCheck(fsvos, bgvo,"1002");
@@ -1330,7 +1373,15 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("库存现金");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1001&kms_last=1001&kms_first_name=库存现金&kms_last_name=库存现金&qj="+period);
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("kms_first", "1001");
+		map.put("kms_last", "1001");
+		map.put("kms_first_name", "库存现金");
+		map.put("kms_last_name", "库存现金");
+		map.put("qj", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("fsyeb-report");
+//		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1001&kms_last=1001&kms_first_name=库存现金&kms_last_name=库存现金&qj="+period);
 		bgvo.setName("发生额及余额表");
 		
 		kmCheck(fsvos, bgvo,"1001");
@@ -1409,7 +1460,11 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("票据生成凭证");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("zncs/billworkbench.html?period=" + period); // 链接到票据工作台
+		Map<String,Object> map = new HashMap<>();
+		map.put("period", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("billWorkbench");
+//		bgvo.setUrl("zncs/billworkbench.html?period=" + period); // 链接到票据工作台
 		bgvo.setName("票据工作台");
 		try{
 			Integer count = billcategory.checkInvoiceForGz(pk_corp, period); // 调智能产品线接口，得到检查期未生成凭证的票据张数
@@ -1438,8 +1493,13 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("资产转总账");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("am/am_zcgl/am_kpgl.jsp?startDate=" + DateUtils.getPeriodStartDate(period) + "&endDate="
-				+ DateUtils.getPeriodEndDate(period));
+		Map<String, Object> map = new HashMap<>();
+		map.put("startDate",DateUtils.getPeriodStartDate(period));
+		map.put("endDate",DateUtils.getPeriodEndDate(period));
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("zckp");
+//		bgvo.setUrl("am/am_zcgl/am_kpgl.jsp?startDate=" + DateUtils.getPeriodStartDate(period) + "&endDate="
+//				+ DateUtils.getPeriodEndDate(period));
 		bgvo.setName("资产卡片");
 
 		try {
@@ -1501,7 +1561,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("未记账凭证");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo)+"&pz_status=11&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
+		bgvo.setUrl("voucher-manage");
+		Map<String, Object> parammap = getPubParam(cpvo);
+		parammap.put("pz_status",11);
+		parammap.put("serdate","serDay");
+		parammap.put("pzbegdate",DateUtils.getPeriodStartDate(period));
+		parammap.put("pzenddate",DateUtils.getPeriodEndDate(period));
+		bgvo.setParamstr(JsonUtils.serialize(parammap));
+//		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo)+"&pz_status=11&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
 		bgvo.setName("凭证管理");
 		bgvo.setBz(" *");
 		try{
@@ -1549,7 +1616,13 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("工资薪金计提");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_gzgl/gl_gzb2.jsp?"+getPubParam(cpvo)+"&period="+period+"&billtype=01&pk_corp="+pk_corp);
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("period",period);
+		map.put("billtype", "01");
+		map.put("pk_corp", pk_corp);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("salary-report");
+//		bgvo.setUrl("gl/gl_gzgl/gl_gzb2.jsp?"+getPubParam(cpvo)+"&period="+period+"&billtype=01&pk_corp="+pk_corp);
 		bgvo.setName("工资表");
 		try {
 			qrysql = new StringBuffer();
@@ -1618,14 +1691,23 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		qjsyjz(qmclvo,reslist,pk_corp,period,cpvo);//损益结转
 	}
 
+	private void putQmclBgvo(QmGzBgVo bgvo,String period,CorpVO cpvo) {
+		Map<String, Object> map = getPubParam(cpvo);
+		map.put("rq", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("qmcl");
+	}
+
 	private void qjsyjz(QmclVO qmclvo, List<QmGzBgVo> reslist,String pk_corp,String period,CorpVO cpvo) {
 		QmGzBgVo bgvo = new QmGzBgVo();
 		bgvo.setXm("损益结转");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+//		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
 		bgvo.setName("期末结转");
 		bgvo.setBz(" *");
+		// 赋值url地址
+		putQmclBgvo(bgvo, period, cpvo);
 
 		try {
 			if(qmclvo==null || qmclvo.getIsqjsyjz()== null ||
@@ -1644,8 +1726,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("计提所得税");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+//		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
 		bgvo.setName("期末结转");
+		// 赋值url地址
+		putQmclBgvo(bgvo, period, cpvo);
 		
 		String month = period.substring(5, 7);
 		
@@ -1685,8 +1769,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("计提税金及附加");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+//		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
 		bgvo.setName("期末结转");
+		// 赋值url地址
+		putQmclBgvo(bgvo, period, cpvo);
 		
 		String month = period.substring(5, 7);
 		
@@ -1718,8 +1804,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("增值税结转");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+//		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
 		bgvo.setName("期末结转");
+		// 赋值url地址
+		putQmclBgvo(bgvo, period, cpvo);
 
 		try {
 			if(qmclvo==null || qmclvo.getZzsjz()== null ||
@@ -1743,8 +1831,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("计提折旧");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+//		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
 		bgvo.setName("期末结转");
+		// 赋值url地址
+		putQmclBgvo(bgvo, period, cpvo);
 
 		try {
 			if( qmclvo==null || qmclvo.getIszjjt()== null ||
@@ -1773,7 +1863,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 				bgvo.setXm("期末调汇");
 				bgvo.setIssuccess(DZFBoolean.TRUE);
 				bgvo.setVmemo("通过");
-				bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+//				bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+				// 赋值url地址
+				putQmclBgvo(bgvo, period, cpvo);
 				bgvo.setName("期末结转");
 
 				if(qmclvo==null || qmclvo.getIshdsytz()== null ||
@@ -1794,8 +1886,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("成本结转");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+//		bgvo.setUrl("gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
 		bgvo.setName("期末结转");
+		// 赋值url地址
+		putQmclBgvo(bgvo, period, cpvo);
 
 		try {
 			if(qmclvo==null || qmclvo.getIscbjz() == null ||
@@ -1819,14 +1913,21 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		rkbgvo.setXm("入库单未转总账");
 		rkbgvo.setIssuccess(DZFBoolean.TRUE);
 		rkbgvo.setVmemo("通过");
-		rkbgvo.setUrl("ic/ic_trade/ic_purchin.jsp?"+getPubParam(cpvo)+"&rqq="+DateUtils.getPeriodStartDate(period)+"&rqz="+DateUtils.getPeriodEndDate(period));
+		Map<String,Object> map = getPubParam(cpvo);
+		map.put("rqq",DateUtils.getPeriodStartDate(period));
+		map.put("rqz",DateUtils.getPeriodEndDate(period));
+		rkbgvo.setParamstr(JsonUtils.serialize(map));
+		rkbgvo.setUrl("icbill-tradein");
+//		rkbgvo.setUrl("ic/ic_trade/ic_purchin.jsp?"+getPubParam(cpvo)+"&rqq="+DateUtils.getPeriodStartDate(period)+"&rqz="+DateUtils.getPeriodEndDate(period));
 		rkbgvo.setName("入库单");
 
 		QmGzBgVo  ckbgvo = new QmGzBgVo();
 		ckbgvo.setXm("出库单未转总账");
 		ckbgvo.setIssuccess(DZFBoolean.TRUE);
 		ckbgvo.setVmemo("通过");
-		ckbgvo.setUrl("ic/ic_trade/ic_saleout.jsp?"+getPubParam(cpvo)+"&rqq="+DateUtils.getPeriodStartDate(period)+"&rqz="+DateUtils.getPeriodEndDate(period));
+		ckbgvo.setParamstr(JsonUtils.serialize(map));
+		ckbgvo.setUrl("icbill-tradeout");
+//		ckbgvo.setUrl("ic/ic_trade/ic_saleout.jsp?"+getPubParam(cpvo)+"&rqq="+DateUtils.getPeriodStartDate(period)+"&rqz="+DateUtils.getPeriodEndDate(period));
 		ckbgvo.setName("出库单");
 
 		try {
@@ -1886,7 +1987,11 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("银行对账单生成凭证");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_pjgl/gl_yhdzd2.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
+		Map<String,Object> map = getPubParam(cpvo);
+		map.put("rq", DateUtils.getPeriodStartDate(period));
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("yhdzd");
+//		bgvo.setUrl("gl/gl_pjgl/gl_yhdzd2.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period));
 		bgvo.setName("银行对账单");
 
 		try {
@@ -1948,7 +2053,11 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("进项发票生成凭证");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_pjgl/gl_jxfp2.jsp?"+getPubParam(cpvo)+"&period="+period);
+		Map<String, Object> map =getPubParam(cpvo);
+		map.put("period", period);
+		bgvo.setParamstr(JsonUtils.serialize(map));
+		bgvo.setUrl("incomeBill");
+//		bgvo.setUrl("gl/gl_pjgl/gl_jxfp2.jsp?"+getPubParam(cpvo)+"&period="+period);
 		bgvo.setName("进项发票");
 
 		try {
@@ -1981,7 +2090,11 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("销项发票生成凭证");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_pjgl/gl_xxfp2.jsp?"+getPubParam(cpvo)+"&period="+period);
+		Map<String,Object> parammap = getPubParam(cpvo);
+		parammap.put("period", period);
+		bgvo.setParamstr(JsonUtils.serialize(parammap));
+		bgvo.setUrl("outputBill");
+//		bgvo.setUrl("gl/gl_pjgl/gl_xxfp2.jsp?"+getPubParam(cpvo)+"&period="+period);
 		bgvo.setName("销项发票");
 		
 		StringBuffer qrysql = new StringBuffer();
@@ -2015,7 +2128,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("待处理暂存态凭证");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo)+"&pz_status=-1&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
+		Map<String, Object> parammap = getPubParam(cpvo);
+		parammap.put("pz_status",-1);
+		parammap.put("serdate","serDay");
+		parammap.put("pzbegdate",DateUtils.getPeriodStartDate(period));
+		parammap.put("pzenddate",DateUtils.getPeriodEndDate(period));
+		bgvo.setParamstr(JsonUtils.serialize(parammap));
+		bgvo.setUrl("voucher-manage");
+//		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo)+"&pz_status=-1&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
 		bgvo.setName("凭证管理");
 		bgvo.setBz(" *");
 		try {
@@ -2053,7 +2173,13 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setXm("凭证是否断号");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
-		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo)+"&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
+		bgvo.setUrl("voucher-manage");
+		Map<String, Object> parammap = getPubParam(cpvo);
+		parammap.put("serdate", "serDay");
+		parammap.put("pzbegdate", DateUtils.getPeriodStartDate(period));
+		parammap.put("pzenddate", DateUtils.getPeriodEndDate(period));
+//		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo,parammap)+"&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
+		bgvo.setParamstr(JsonUtils.serialize(parammap));
 		bgvo.setName("凭证管理");
 		bgvo.setBz(" *");
 		try{
@@ -2087,8 +2213,12 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		reslist.add(bgvo);
 	}
 
-	private String getPubParam(CorpVO cpvo) {
-		return "source=gzbg&corpIds="+cpvo.getPk_corp()+"&gsname="+ CodeUtils1.deCode(cpvo.getUnitname());
+	private Map<String ,Object> getPubParam(CorpVO cpvo) {
+		Map<String ,Object> map = new HashMap<>();
+		map.put("source","gzbg");
+		map.put("corpIds",cpvo.getPk_corp());
+		map.put("gsname",CodeUtils1.deCode(cpvo.getUnitname()));
+		return map;
 	}
 
 	/**

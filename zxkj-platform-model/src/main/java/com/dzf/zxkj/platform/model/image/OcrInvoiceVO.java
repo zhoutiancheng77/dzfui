@@ -40,13 +40,13 @@ public class OcrInvoiceVO extends SuperVO {
 	private String pk_corp;// 会计公司
 	private Integer dr;// 删除标志
 	private DZFDateTime ts; // 时间戳
-	private String istate;// 识别状态 
+	private String istate;// 识别状态
 
 	private String drcode; // 二维码
 	private String cycs;// 查验次数
 	private String jqbh;// 机器编号
 	private String jym;// 校验码分分
-	
+
 	private String zfbz;// 作废标志
 	private Integer itype;// 类型
 	//IOCR("IOCR", "ocr自识别", 0),//IWEB("IWEB", "网站接口", 1),//IPT("IPT", "票通接口", 2),//SCA("SCA", "扫描仪识别", 3);
@@ -56,12 +56,12 @@ public class OcrInvoiceVO extends SuperVO {
 	private String vkeywordinfo;// 唯一信息
 
 	private String pk_image_group;// 图片信息组主键
-	
+
 	private String pk_model_h;//匹配业务类型模板pk
 	private String keywords;//关键字
-	
+
 	private String webid;//聂老师网站id
-	
+
 	private String pk_billcategory;//票据类别主键
 	private String billcategoryname;//票据类别名称(不存库  进销项银行对账单分类使用)
 	private String pk_category_keyword;//票据类别分类规则表主键
@@ -72,48 +72,48 @@ public class OcrInvoiceVO extends SuperVO {
 	//手机端使用
 	@JsonProperty("zt")
 	private Integer sb_status ;//识别状态(0 成功 1失败,2识别中)
-	
+
 	private String filepath;//文件路径
-	
+
 	private DZFBoolean res;//识别结果
 	private DZFBoolean zdres;//制单结果
 
 	private String rzjg;//认证结果,只有进项增值税票有此属性
 	private String period;//上传的会计期间
 	private Integer pjlxstatus;
-	
+
 	private String errordesc;	//分组时问题票据描述
 	private String errordesc2;	//检查和第一次入库检查
 	private String taxrate;//税率
-	
+
 	private String corpCode;
 	private String corpName;
-	
+
 	private Integer handflag;//0自动1后台2前台
-	
+
 	private Integer datasource; //数据来源
-	
+
 	private Integer inoutflag;//类别方向
-	
+
 	private String categorycode;//类别编码
-	
-	
+
+
 	private DZFBoolean updateflag;	//更新数据库标志
-	
+
 	private Integer iorder;//ynt_image_ocrlibrary的iorder
-	
+
 	private Integer iprovince;
-	
+
 	private Integer icity;
-	
+
 	private Integer iarea;
-	
+
 	private String truthindent;//真伪标识
-	
+
 	private String staffname;//汽车票姓名
-	
-	private DZFDouble version;
-	
+
+	private  DZFDouble version;
+
 	//下面这三个字段，是为了进项、销项、银行对账单，转invoiceVO用的
 	private String pk_subject;
 	private Integer settlement;
@@ -121,6 +121,7 @@ public class OcrInvoiceVO extends SuperVO {
 	private String pk_taxaccsubj;
 	private String vmxx;//明细项
 	private String cyzt;//查验状态
+
 	private String ocraddress;
 
 
@@ -131,8 +132,7 @@ public class OcrInvoiceVO extends SuperVO {
 	public void setOcraddress(String ocraddress) {
 		this.ocraddress = ocraddress;
 	}
-	
-	
+
 	public String getCyzt() {
 		return cyzt;
 	}
@@ -300,9 +300,9 @@ public class OcrInvoiceVO extends SuperVO {
 	public void setCorpName(String corpName) {
 		this.corpName = corpName;
 	}
-	
-	
-	
+
+
+
 	public String getVsalename_dk() {
 		return vsalename_dk;
 	}
@@ -343,7 +343,7 @@ public class OcrInvoiceVO extends SuperVO {
 		this.rzjg = rzjg;
 	}
 
-	
+
 
 	public String getPeriod() {
 		return period;
@@ -710,7 +710,7 @@ public class OcrInvoiceVO extends SuperVO {
 	public String getVsalebankname() {
 		return vsalebankname;
 	}
-	
+
 	public void setVpurbankname(String vpurbankname) {
 		this.vpurbankname = vpurbankname;
 	}
@@ -773,4 +773,5 @@ public class OcrInvoiceVO extends SuperVO {
 	public void setUpdateflag(DZFBoolean updateflag) {
 		this.updateflag = updateflag;
 	}
+
 }

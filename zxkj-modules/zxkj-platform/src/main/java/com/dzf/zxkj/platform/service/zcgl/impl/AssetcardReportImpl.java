@@ -324,7 +324,7 @@ public class AssetcardReportImpl implements IAssetcardReport {
 		sb.append(" select 1 xh,  a.accountdate rq, substr(a.accountdate, 1, 7) qj,");
 		sb.append("   a.assetcode zcbh, a.assetname zcmc, b.catename zclb, b.assetproperty zcsx, null ywdh, h.pzh pzzh, '资产建账' zy, ");
 		sb.append("   a.accountmny yzjf, null yzdf, a.accountmny yzye, null ljjf, a.initdepreciation ljdf, a.initdepreciation ljye, a.accountmny-nvl(a.initdepreciation,0) jzye,   ");
-		sb.append("   h.pk_tzpz_h as pzpk    ");
+		sb.append("   h.pk_tzpz_h as pzpk ,a.pk_assetcard    ");
 		sb.append(" from ynt_assetcard a inner join ynt_category b on a.assetcategory=b.pk_assetcategory left join ynt_tzpz_h h on a.pk_voucher=h.pk_tzpz_h");
 		sb.append(" where nvl(a.dr,0)=0 and a.pk_corp = ?  and a.accountdate<= ? ");
 		if (StringUtil.isEmptyWithTrim(strWhere) == false) {
@@ -348,7 +348,7 @@ public class AssetcardReportImpl implements IAssetcardReport {
 		sb.append(" union all");
 		sb.append(" select 2 xh, m.businessdate rq,substr(m.businessdate, 1, 7) qj,  a.assetcode zcbh, a.assetname zcmc, b.catename zclb, b.assetproperty zcsx, m.vbillno ywdh, h.pzh pzzh, '资产增加' zy,");
 		sb.append("  m.changevalue yzjf, null yzdf, m.changevalue yzye, null ljjf, null ljdf, null ljye, m.changevalue jzye,  ");
-		sb.append("  h.pk_tzpz_h as pzpk ");
+		sb.append("  h.pk_tzpz_h as pzpk ,a.pk_assetcard ");
 		sb.append(" from ynt_valuemodify m inner join ynt_assetcard a on m.pk_assetcard=a.pk_assetcard and nvl(a.dr,0)=0 inner join ynt_category b on a.assetcategory=b.pk_assetcategory left join ynt_tzpz_h h on m.pk_voucher=h.pk_tzpz_h");
 		sb.append(" where nvl(m.dr,0)=0 and m.changevalue>0 and m.pk_corp= ?  and m.businessdate<= ?");
 		if (StringUtil.isEmptyWithTrim(strWhere) == false) {
@@ -372,7 +372,7 @@ public class AssetcardReportImpl implements IAssetcardReport {
 		sb.append(" union all");
 		sb.append(" select 3 xh, m.businessdate rq,substr(m.businessdate, 1, 7) qj,  a.assetcode zcbh, a.assetname zcmc, b.catename zclb, b.assetproperty zcsx, m.vbillno ywdh, h.pzh pzzh, '资产减少' zy, ");
 		sb.append(" null yzjf, -m.changevalue yzdf, m.changevalue yzye, null ljjf, null ljdf, null ljye, m.changevalue jzye ");
-		sb.append(" , h.pk_tzpz_h as pzpk ");
+		sb.append(" , h.pk_tzpz_h as pzpk,a.pk_assetcard ");
 		sb.append(" from ynt_valuemodify m inner join ynt_assetcard a on m.pk_assetcard=a.pk_assetcard and nvl(a.dr,0)=0 inner join ynt_category b on a.assetcategory=b.pk_assetcategory left join ynt_tzpz_h h on m.pk_voucher=h.pk_tzpz_h");
 		sb.append(" where nvl(m.dr,0)=0 and m.changevalue<0 and m.pk_corp= ?  and m.businessdate<= ? ");
 		if (StringUtil.isEmptyWithTrim(strWhere) == false) {
@@ -395,7 +395,7 @@ public class AssetcardReportImpl implements IAssetcardReport {
 		// 累计折旧
 		sb.append(" union all");
 		sb.append(" select 4 xh, n.businessdate rq,substr(n.businessdate, 1, 7) qj,  a.assetcode zcbh, a.assetname zcmc, b.catename zclb, b.assetproperty zcsx, '' ywdh, h.pzh pzzh, '累计折旧' zy,");
-		sb.append(" null yzjf, null yzdf, null yzye, null ljjf, n.originalvalue ljdf, n.originalvalue ljye, -n.originalvalue jzye, h.pk_tzpz_h as pzpk ");
+		sb.append(" null yzjf, null yzdf, null yzye, null ljjf, n.originalvalue ljdf, n.originalvalue ljye, -n.originalvalue jzye, h.pk_tzpz_h as pzpk ,a.pk_assetcard ");
 		sb.append(" from ynt_depreciation n inner join ynt_assetcard a on n.pk_assetcard=a.pk_assetcard and nvl(a.dr,0)=0 inner join ynt_category b on a.assetcategory=b.pk_assetcategory left join ynt_tzpz_h h on n.pk_voucher=h.pk_tzpz_h");
 		sb.append(" where nvl(n.dr,0)=0 and a.pk_corp= ?  and n.businessdate<= ? ");
 		if (StringUtil.isEmptyWithTrim(strWhere) == false) {
@@ -417,7 +417,7 @@ public class AssetcardReportImpl implements IAssetcardReport {
 		}
 		// 资产清理
 		sb.append(" union all");
-		sb.append(" select 5 xh, l.businessdate rq,substr(l.businessdate, 1, 7) qj,  a.assetcode zcbh, a.assetname zcmc, b.catename zclb, b.assetproperty zcsx, l.vbillno ywdh, h.pzh pzzh, '资产清理' zy, null yzjf, a.assetmny yzdf, -a.assetmny yzye, a.depreciation ljjf, null ljdf, -a.depreciation ljye, -a.assetmny+a.depreciation jzye, h.pk_tzpz_h as pzpk");
+		sb.append(" select 5 xh, l.businessdate rq,substr(l.businessdate, 1, 7) qj,  a.assetcode zcbh, a.assetname zcmc, b.catename zclb, b.assetproperty zcsx, l.vbillno ywdh, h.pzh pzzh, '资产清理' zy, null yzjf, a.assetmny yzdf, -a.assetmny yzye, a.depreciation ljjf, null ljdf, -a.depreciation ljye, -a.assetmny+a.depreciation jzye, h.pk_tzpz_h as pzpk,a.pk_assetcard");
 		sb.append(" from ynt_assetclear l inner join ynt_assetcard a on l.pk_assetcard=a.pk_assetcard inner join ynt_category b on a.assetcategory=b.pk_assetcategory left join ynt_tzpz_h h on l.pk_voucher=h.pk_tzpz_h");
 		sb.append(" where nvl(l.dr,0)=0 and l.pk_corp= ?  and l.businessdate<= ? ");
 		if (StringUtil.isEmptyWithTrim(strWhere) == false) {

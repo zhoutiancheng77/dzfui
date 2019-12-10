@@ -3,6 +3,8 @@ package com.dzf.zxkj.common.entity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * EasyUI DataGrid模型
  *
@@ -16,4 +18,5 @@ public class Grid<T> implements java.io.Serializable {
     private T rows;
     private boolean success;
     private String msg;
+    private List<String[]> msglist;
 }

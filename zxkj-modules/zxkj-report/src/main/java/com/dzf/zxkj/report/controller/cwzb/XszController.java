@@ -60,6 +60,7 @@ public class XszController  extends ReportBaseController {
                 kmmxvos = getPagedXSZVOs(kmmxvos,page,rows);
                 grid.setRows(Arrays.asList(kmmxvos));
             }
+            grid.setMsg("查询成功");
             grid.setSuccess(true);
         } catch (Exception e) {
             grid.setRows(new ArrayList<XsZVO>());

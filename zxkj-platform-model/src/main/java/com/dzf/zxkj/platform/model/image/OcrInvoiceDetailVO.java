@@ -28,7 +28,7 @@ public class OcrInvoiceDetailVO extends SuperVO {
 	private Integer dr;// 删除标志
 	private String txrqq;// 通行日期起
 	private String txrqz;// 通行日期止
-	
+
 	private Integer rowno;  //行号
 	private String pk_category_keyword;//票据类别分类规则表主键
 	private String pk_billcategory;//票据类别主键
@@ -188,7 +188,7 @@ public class OcrInvoiceDetailVO extends SuperVO {
 	public void setDr(Integer dr) {
 		this.dr = dr;
 	}
-	
+
 	public String getPk_inventory() {
 		return pk_inventory;
 	}
@@ -196,7 +196,7 @@ public class OcrInvoiceDetailVO extends SuperVO {
 	public void setPk_inventory(String pk_inventory) {
 		this.pk_inventory = pk_inventory;
 	}
-	
+
 	public String getTxrqq() {
 		return txrqq;
 	}
@@ -227,5 +227,7 @@ public class OcrInvoiceDetailVO extends SuperVO {
 	public String getTableName() {
 		return "ynt_interface_invoice_detail";
 	}
+
+
 
 }

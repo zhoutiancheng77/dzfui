@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
@@ -273,17 +274,23 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 		return list_left;
 	}
 
-	private String getPubParam(CorpVO cpvo) {
-		return "source=gzbg&corpIds="+cpvo.getPk_corp()+"&gsname="+cpvo.getUnitname();
+	private Map<String, String> getPubParam(CorpVO cpvo) {
+		Map<String,String> map = new HashMap<>();
+		map.put("source", "zcfz");
+		map.put("corpIds", cpvo.getPk_corp());
+		map.put("gsname",cpvo.getUnitname());
+		return map;
+//		return JsonUtils.serialize(map);
+//		return "source=gzbg&corpIds="+cpvo.getPk_corp()+"&gsname="+cpvo.getUnitname();
 	}
 	
-	public String getNoBlanceMsg(FseJyeVO[] fvos ,String pk_corp,Map<String, YntCpaccountVO> mapc,String period){
+	public List<String[]>  getNoBlanceMsg(FseJyeVO[] fvos ,String pk_corp,Map<String, YntCpaccountVO> mapc,String period){
 		
 		int index = 0;
 		CorpVO cpvo = zxkjPlatformService.queryCorpByPk(pk_corp);
-		List<String> msglist = new ArrayList<String>();
+		List<String[]> msglist = new ArrayList<String[]>();
 		if(fvos == null || fvos.length ==0){
-			return "";
+			return msglist;
 		}
 		
 		StringBuffer msg = new StringBuffer();
@@ -293,11 +300,14 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 		
 		if(phres!=null && (phres.getYearres().equals("不平衡") || phres.getMonthres().equals("不平衡") )){
 			index++;
-			String url = "gl/gl_qcset/gl_qcye.jsp?"+getPubParam(cpvo);
+//			String url = "gl/gl_qcset/gl_qcye.jsp?"+getPubParam(cpvo);
+			String url = "km-qc";
+			String paramstr = JsonUtils.serialize(getPubParam(cpvo));
 			String name = "科目期初";
 			//msglist.add("期初试算不平衡，请修改科目期初！ <a style=\"display: block; height: 16px;float: right;\" href= \"javascript:void(0)\" onclick = linkUrl(\""+name+"\",\""+url+"\")>查看</a>");
-			
-			msglist.add("<div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、期初试算不平衡，请修改科目期初！<a href=\"javascript:void(0)\" class=\"check\"   onclick=linkUrl(\""+name+"\",\""+url+"\")>查看</a></div>");
+
+			msglist.add(new String[]{index + "、期初试算不平衡，请修改科目期初！", name, url, paramstr});
+//			msglist.add("<div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、期初试算不平衡，请修改科目期初！<a href=\"javascript:void(0)\" class=\"check\"   @click=linkUrl(\""+name+"\",\""+url+"\",\""+paramstr+"\")>查看</a></div>");
 		}
 		
 		//当前损益科目是否有期初余额 ,当前损益科目是否有期末余额
@@ -319,18 +329,28 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 		
 		if(qcsy.booleanValue()){
 			index++;
-			String url = "gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+ DateUtils.getPeriodStartDate(period);
+//			String url = "gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+ DateUtils.getPeriodStartDate(period);
+			String url = "qmcl";
+			Map<String, String> map = getPubParam(cpvo);
+			map.put("rq",period);
+			String paramstr = JsonUtils.serialize(map);
 			String name = "期末结转";
 //			msglist.add("当期损益科目有期初余额！<a style=\"display: block; height: 16px;float: right;\" href= \"javascript:void(0)\"  onclick = linkUrl(\""+name+"\",\""+url+"\")>查看</a>");
-			msglist.add("<div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、当期损益科目有期初余额！<a href=\"javascript:void(0)\" class=\"check\"   onclick=linkUrl(\""+name+"\",\""+url+"\")>查看</a></div>");
+			msglist.add(new String[]{index + "、当期损益科目有期初余额！", name, url, paramstr});
+//			msglist.add("<div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、当期损益科目有期初余额！<a href=\"javascript:void(0)\" class=\"check\"   @click=linkUrl(\""+name+"\",\""+url+"\",\""+paramstr+"\")>查看</a></div>");
 		}
 		
 		if(qmsy.booleanValue()){
 			index++;
-			String url = "gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period);
+//			String url = "gl/gl_jzcl/gl_qmcl.jsp?"+getPubParam(cpvo)+"&rq="+DateUtils.getPeriodStartDate(period);
+			String url = "qmcl";
+			Map<String, String> map = getPubParam(cpvo);
+			map.put("rq",period);
+			String paramstr = JsonUtils.serialize(map);
 			String name = "期末结转";
 			//msglist.add("当前损益科目余额未结转为零！<a style=\"display: block; height: 16px;float: right;\" href= \"javascript:void(0)\"  onclick = linkUrl(\""+name+"\",\""+url+"\")>查看</a>");
-			msglist.add(" <div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、当前损益科目余额未结转为零！  <a href=\"javascript:void(0)\" class=\"check\"   onclick=linkUrl(\""+name+"\",\""+url+"\")>查看</a></div>");
+			msglist.add(new String[]{index + "、当前损益科目余额未结转为零！", name, url, paramstr});
+//			msglist.add(" <div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、当前损益科目余额未结转为零！  <a href=\"javascript:void(0)\" class=\"check\"   @click=linkUrl(\""+name+"\",\""+url+"\",\""+paramstr+"\")>查看</a></div>");
 		}
 		
 		//是否和下级科目是否数据一致
@@ -379,19 +399,22 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 				if(qcvalue.doubleValue()!=0 && qmvalue.doubleValue() != 0){
 					index++;
 					//msglist.add(fvo.getKmmc() +"科目数据与其下级科目汇总的数据不一致，请检查！");
-					msglist.add("<div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、"+fvo.getKmmc() +"科目数据与其下级科目汇总的数据不一致，请检查！  </div>");
+					msglist.add(new String[]{index + "、"+fvo.getKmmc() +"科目数据与其下级科目汇总的数据不一致，请检查！", "", "", ""});
+
+//					msglist.add("<div style=\"font-size: 12px;\">&emsp;&nbsp;"+index+"、"+fvo.getKmmc() +"科目数据与其下级科目汇总的数据不一致，请检查！  </div>");
 					break;
 				}
 			}
 		}
 		
-		if(msglist.size()>0){
-			for(int i =0;i<msglist.size();i++){
-//				msg.append( "<li>" + (i+1)+"、"+msglist.get(i) +"</li>");
-				msg.append(  msglist.get(i) );
-			}
-		}
-		return msg.toString();
+//		if(msglist.size()>0){
+//			for(int i =0;i<msglist.size();i++){
+////				msg.append( "<li>" + (i+1)+"、"+msglist.get(i) +"</li>");
+//				msg.append(  msglist.get(i) );
+//			}
+//		}
+		return msglist;
+//		return msg.toString();
 	}
 
 	public ZcFzBVO[] getZcfzVOs(String pk_corp, String[] hasyes, Map<String, YntCpaccountVO> mapc, FseJyeVO[] fvos) throws DZFWarpException {

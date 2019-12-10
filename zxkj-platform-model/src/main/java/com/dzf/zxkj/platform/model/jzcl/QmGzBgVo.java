@@ -19,6 +19,7 @@ public class QmGzBgVo extends SuperVO {
 	private DZFBoolean issuccess;// 是否通过
 	private String vmemo;// 通过/失败消息内容
 	private String url;//连接url
+	private String paramstr; // 传递的参数
 	private String name;//url名称
 	private DZFDouble value;//金额值
 	private DZFDouble min;//默认值(最小值)
@@ -163,6 +164,14 @@ public class QmGzBgVo extends SuperVO {
 
 	public void setVmemo(String vmemo) {
 		this.vmemo = vmemo;
+	}
+
+	public String getParamstr() {
+		return paramstr;
+	}
+
+	public void setParamstr(String paramstr) {
+		this.paramstr = paramstr;
 	}
 
 	@Override
