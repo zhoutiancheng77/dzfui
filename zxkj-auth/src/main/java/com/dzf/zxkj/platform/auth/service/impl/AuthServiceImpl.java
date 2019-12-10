@@ -75,8 +75,6 @@ public class AuthServiceImpl implements IAuthService {
         return funNodeList.stream().filter(v -> StringUtils.isNotBlank(v.getNodeurl())).map(FunNode::getNodeurl).flatMap(str -> Stream.of(str.split(","))).collect(Collectors.toSet());
     }
 
-
-
     @Override
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenEx")
     public boolean validateTokenEx(String userid) {
@@ -97,5 +95,10 @@ public class AuthServiceImpl implements IAuthService {
            return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean validateMultipleLogin(String userid, String clientid) {
+        return authCache.checkIsMulti(userid, clientid);
     }
 }

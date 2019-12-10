@@ -2,9 +2,6 @@ package com.dzf.zxkj.gateway.filter;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSONObject;
-import com.alicp.jetcache.Cache;
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.common.enums.HttpStatusEnum;
 import com.dzf.zxkj.gateway.config.GatewayConfig;
@@ -36,7 +33,6 @@ import reactor.core.publisher.Mono;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @Auther: dandelion
@@ -62,8 +58,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
-    private Cache<String, String> platformUserOnlineCache;
+
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -124,7 +119,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         //判断是否唯一登录
         String clientId = headers.getFirst(ISysConstant.CLIENT_ID);
 
-        if (StringUtils.isNoneBlank(platformUserOnlineCache.get(useridFormToken)) && !platformUserOnlineCache.get(useridFormToken).equals(clientId)) {
+        if (authService.validateMultipleLogin(useridFormToken, clientId)) {
             return reponse(HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
         }
 

@@ -5,10 +5,12 @@ import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.util.RSAUtils;
+import com.dzf.zxkj.platform.auth.util.SystemUtil;
 import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,9 @@ public class AuthController {
     private ILoginService loginService;
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
+
+    @Autowired
+    private AuthCache authCache;
 
     @RequestMapping("/captcha")
     public ReturnData captcha() throws Exception {
@@ -96,6 +101,12 @@ public class AuthController {
         return ReturnData.ok().data(grid);
     }
 
+
+    @PostMapping("/logout")
+    public void logout() {
+
+    }
+
     @GetMapping("loginByToken")
     public ReturnData loginByToken(@RequestParam("token") String token) {
         log.info("token登录---------------->", token);
@@ -106,6 +117,7 @@ public class AuthController {
                 return ReturnData.ok().data(grid);
             }
             grid.setSuccess(true);
+            authCache.putLoginUnique(loginUser.getUserid(), SystemUtil.getClientId());
             grid.setRows(loginUser);
         } catch (Exception e) {
             e.printStackTrace();

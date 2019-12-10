@@ -48,4 +48,9 @@ public class SystemUtil {
         return date;
     }
 
+    public static String getClientId(){
+        HttpServletRequest request = getRequest();
+        return request.getHeader(ISysConstant.CLIENT_ID);
+    }
+
 }
