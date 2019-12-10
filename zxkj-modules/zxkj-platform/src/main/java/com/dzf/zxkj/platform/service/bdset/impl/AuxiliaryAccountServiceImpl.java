@@ -1129,7 +1129,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
             String dateString = formatter.format(date);
             return dateString;
         } catch (Exception e) {
-            throw new BusinessException("日期" + sdate + "格式不正确，例如:" + new DZFDate().toString());
+            throw new BusinessException("导入数据" + sdate + "格式不正确，应为日期格式，例如:" + new DZFDate().toString());
         } finally {
 
         }
