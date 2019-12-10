@@ -451,17 +451,11 @@ public class VATSaleInvoice2Controller extends BaseController {
                 return ReturnData.error().data(json);
             }
 
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            bodyvos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class, JSONConvtoJAVA.getParserConfig());
-            bodyvos = array.toArray(new VATSaleInvoiceVO2[0]);
+            bodyvos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
             if (bodyvos == null || bodyvos.length == 0) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
@@ -617,19 +611,11 @@ public class VATSaleInvoice2Controller extends BaseController {
 
 
             DZFBoolean lwflag = "Y".equals(lwstr) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,生成凭证失败!");
             }
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            vos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
-            vos = array.toArray(new VATSaleInvoiceVO2[0]);
+            vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
             if (vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,生成凭证失败，请检查");
 
@@ -922,19 +908,7 @@ public class VATSaleInvoice2Controller extends BaseController {
             return null;
         }
 
-        goods = goods.replace("}{", "},{");
-        goods = "[" + goods + "]";
-        JSONArray array = (JSONArray) JSON.parseArray(goods);
-
-        if (array == null)
-            return vos;
-
-//        Map<String, String> goodsmapping = FieldMapping.getFieldMapping(
-//                new VatGoosInventoryRelationVO());
-//
-//        vos = DzfTypeUtils.cast(array, goodsmapping,
-//                VatGoosInventoryRelationVO[].class, JSONConvtoJAVA.getParserConfig());
-        vos = array.toArray(new VatGoosInventoryRelationVO[0]);
+        vos = JsonUtils.deserialize(goods, VatGoosInventoryRelationVO[].class);
         return vos;
     }
 
@@ -1048,8 +1022,10 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/combinePZ_long")
-    public ReturnData<Json> combinePZ_long(@RequestParam("lwflag") String lwstr, @RequestParam("head") String body,
-                                           @RequestParam("goods") String good) {
+    public ReturnData<Json> combinePZ_long(@RequestBody Map<String,String> param) {
+        String lwstr = param.get("lwflag");
+        String body = param.get("head");
+        String good = param.get("goods");
         VatInvoiceSetVO setvo = queryRuleByType();
         ReturnData<Json> returnData = null;
         if (setvo == null
@@ -1081,19 +1057,11 @@ public class VATSaleInvoice2Controller extends BaseController {
 //            }
 
             DZFBoolean lwflag = "Y".equals(lwstr) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,合并生成凭证失败!");
             }
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            vos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
-            vos = array.toArray(new VATSaleInvoiceVO2[0]);
+            vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
             if(vos == null || vos.length == 0)
                 throw new BusinessException("数据为空，合并生成凭证失败，请检查");
 
@@ -1595,11 +1563,8 @@ public class VATSaleInvoice2Controller extends BaseController {
         Json json = new Json();
         String pk_corp = SystemUtil.getLoginCorpId();
         try {
-            str = "[" + str + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(str);
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            VATSaleInvoiceVO2[] listvo = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class, JSONConvtoJAVA.getParserConfig());
-            VATSaleInvoiceVO2[] listvo = array.toArray(new VATSaleInvoiceVO2[0]);
+
+            VATSaleInvoiceVO2[] listvo = JsonUtils.deserialize(str, VATSaleInvoiceVO2[].class);
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("解析前台参数失败，请检查");
 
@@ -1642,8 +1607,6 @@ public class VATSaleInvoice2Controller extends BaseController {
 //			if(StringUtil.isEmptyWithTrim(data.getPrimaryKey()))
 //				throw new BusinessException("获取前台参数失败，请检查");
 
-            str = str.replace("}{", "},{");
-            str = "[" + str + "]";
             JSONArray array = (JSONArray) JSON.parseArray(str);
             if (array == null) {
                 throw new BusinessException("数据为空,请检查!");
@@ -2385,17 +2348,13 @@ public class VATSaleInvoice2Controller extends BaseController {
             CorpVO corpvo = corpService.queryByPk(pk_corp);
             checkBeforeIC(corpvo);
 
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,生成出库单失败!");
             }
 //            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
 //            vos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class,
 //                    JSONConvtoJAVA.getParserConfig());
-            vos = array.toArray(new VATSaleInvoiceVO2[0]);
+            vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
             if(vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,生成出库单失败，请检查");
 
@@ -2535,22 +2494,22 @@ public class VATSaleInvoice2Controller extends BaseController {
 
     }
     @RequestMapping("/matchInventoryData_long")
-    public ReturnData<Grid> matchInventoryData_long(@RequestParam("head")String body,@RequestParam("ishow") String isshow,String goods) {
+    public ReturnData<Grid> matchInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         try {
+            String body = param.get("head");
+            String isshow = param.get("ishow");
+            String goods = param.get("goods");
             String pk_corp = SystemUtil.getLoginCorpId();
 
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,存货匹配失败!");
             }
 
 //            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
 //            VATSaleInvoiceVO2[] vos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class,
 //                    JSONConvtoJAVA.getParserConfig());
-            VATSaleInvoiceVO2[] vos = array.toArray(new VATSaleInvoiceVO2[0]);
+            VATSaleInvoiceVO2[] vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
             if (vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,存货匹配失败，请检查");
             List<VATSaleInvoiceVO2> stoList = gl_vatsalinvserv2.constructVatSale(vos, pk_corp);
@@ -2652,10 +2611,11 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/saveInventoryData")
-    public ReturnData<Grid> saveInventoryData(String goods) {
+    public ReturnData<Grid> saveInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
+        String goods = param.get("goods");
         try {
             pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
@@ -2694,7 +2654,12 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/createPzData_long")
-    public ReturnData<Grid> createPzData_long(String sourcename,@RequestParam("head")String body,String jsfs,String inperiod,String goods) {
+    public ReturnData<Grid> createPzData_long(@RequestBody Map<String,String> param) {
+        String sourcename = param.get("sourcename");
+        String body  = param.get("head");
+        String jsfs = param.get("jsfs");
+        String inperiod = param.get("inperiod");
+        String goods = param.get("goods");
         Grid grid = new Grid();
         String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
@@ -2708,19 +2673,12 @@ public class VATSaleInvoice2Controller extends BaseController {
 //                grid.setMsg("正在处理中，请稍候");
 //                return ReturnData.error().data(grid);
 //            }
-
-            body = body.replace("}{", "},{");
-            body = "[" + body + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-
-            if (array == null) {
+            if (body == null) {
                 throw new BusinessException("数据为空,生成凭证失败!");
             }
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            VATSaleInvoiceVO2[] vos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
-            VATSaleInvoiceVO2[] vos = array.toArray(new VATSaleInvoiceVO2[0]);
+
+            VATSaleInvoiceVO2[] vos = JsonUtils.deserialize(body,VATSaleInvoiceVO2[].class);
             if (vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,生成凭证失败，请检查");
 
@@ -2875,18 +2833,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         if (StringUtil.isEmpty(goods)) {
             return null;
         }
-
-        goods = goods.replace("}{", "},{");
-        goods = "[" + goods + "]";
-        JSONArray array = (JSONArray) JSON.parseArray(goods);
-
-        if (array == null)
-            return vos;
-
-//        Map<String, String> goodsmapping = FieldMapping.getFieldMapping(new InventoryAliasVO());
-//
-//        vos = DzfTypeUtils.cast(array, goodsmapping, InventoryAliasVO[].class, JSONConvtoJAVA.getParserConfig());
-        vos = array.toArray(new InventoryAliasVO[0]);
+        vos = JsonUtils.deserialize(goods,InventoryAliasVO[].class);
         return vos;
     }
 

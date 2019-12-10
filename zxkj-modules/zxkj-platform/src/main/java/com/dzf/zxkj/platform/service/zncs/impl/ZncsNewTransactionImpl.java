@@ -86,7 +86,7 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 		List<BillCategoryVO> addList=getAddList(falseMap, trueMap);
 		if(addList.size()>0){
 			String requestid=null;
-			boolean lock=false;
+			boolean lock=true;
 			try {
 				requestid = UUID.randomUUID().toString();
 //				lock = LockUtil.getInstance().addLockKey("zncs_accounttree", key, requestid, 60);// 设置60秒

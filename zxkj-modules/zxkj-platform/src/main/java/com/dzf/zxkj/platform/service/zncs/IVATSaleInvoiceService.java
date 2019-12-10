@@ -12,6 +12,7 @@ import com.dzf.zxkj.platform.model.pjgl.*;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
@@ -56,7 +57,7 @@ public interface IVATSaleInvoiceService {
 	 * @param userid
 	 * @throws DZFWarpException
 	 */
-	public void saveImp(File file, String filename, VATSaleInvoiceVO paramvo, String pk_corp, String fileType, String userid, StringBuffer msg) throws DZFWarpException;
+	public void saveImp(MultipartFile file, String filename, VATSaleInvoiceVO paramvo, String pk_corp, String fileType, String userid, StringBuffer msg) throws DZFWarpException;
 	
 	/**
 	 * 生成凭证

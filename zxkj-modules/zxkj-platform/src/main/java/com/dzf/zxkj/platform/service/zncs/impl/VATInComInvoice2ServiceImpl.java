@@ -4641,8 +4641,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	}
 	@Autowired
 	private IZncsNewTransService iZncsNewTransService;
-//	@Autowired
-//	private IVATInComInvoiceService vatincomserv;
+	@Autowired
+	private IVATInComInvoiceService vatincomserv;
 	/**
 	 * 1 生成入库单 2 规则入库单规则 生成凭证
 	 */
@@ -4759,7 +4759,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		singleObjectBO.update(ivo);
 
 		// 如果来源于进项
-//		vatincomserv.updatePZH(headvo);
+		vatincomserv.updatePZH(headvo);
 	}
 
 	private int getSettlement(VATInComInvoiceVO2 vo,CategorysetVO setVO){
