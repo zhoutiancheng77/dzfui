@@ -25,13 +25,15 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @Slf4j
 public class AuthController {
-    //redis缓存 过期时间5分钟
-//    @CreateCache(name = "zxkj-check-code", cacheType = CacheType.REMOTE, expire = 5 * 60)
-    @CreateCache(name = "zxkj-check-code", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.MINUTES)
+    //redis缓存 过期时间10分钟
+    @CreateCache(name = "zxkj:check:code", cacheType = CacheType.REMOTE, expire = 10 * 60)
     private Cache<String, String> checkCodeCache;
 
-    @CreateCache(name = "zxkj-platform-user", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.DAYS)
+    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
     private Cache<String, LoginUser> platformUserCache;
+
+    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
+    private Cache<String, String> platformUserOnlineCache;
 
     @Autowired
     private ILoginService loginService;

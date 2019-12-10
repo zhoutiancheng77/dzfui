@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SystemController {
 
-    @CreateCache(name = "zxkj-platform-user", cacheType = CacheType.LOCAL, expire = 5, timeUnit = TimeUnit.DAYS)
+    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
     private Cache<String, LoginUser> platformUserCache;
     @Autowired
     private ILoginService loginService;

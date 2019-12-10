@@ -14,6 +14,7 @@ public enum HttpStatusEnum {
     EX_USER_FORBIDDEN_CODE(40105, "权限不足"),
     MISS_REQUEST_PARAMETER_CODE(422, "缺少参数"),
     INTERNAL_SERVER_ERROR(500, "系统异常"),
+    MULTIPLE_LOGIN_ERROR(40106, "在别处登录"),
     OK(200,"success");
 
 
