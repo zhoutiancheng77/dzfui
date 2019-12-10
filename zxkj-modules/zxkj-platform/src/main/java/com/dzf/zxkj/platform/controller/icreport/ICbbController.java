@@ -134,7 +134,7 @@ public class ICbbController  {
 						}
 					}
 
-					if ("Y".equalsIgnoreCase(xsyye)) {
+					if ("Y".equalsIgnoreCase(xsyye) || "true".equalsIgnoreCase(xsyye) ) {
 						if ((vo.getNnum() == null || vo.getNnum().doubleValue() == 0)
 								&& (vo.getNcost() == null || vo.getNcost().doubleValue() == 0)) {
 							continue;
