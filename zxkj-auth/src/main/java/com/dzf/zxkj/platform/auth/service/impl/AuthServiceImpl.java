@@ -1,12 +1,16 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
 import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.CreateCache;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.result.Result;
 import com.dzf.auth.api.service.ILoginService;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
+import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.entity.UserCorpRelation;
 import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
 import com.dzf.zxkj.platform.auth.mapper.UserCorpRelationMapper;
@@ -19,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,6 +36,9 @@ public class AuthServiceImpl implements IAuthService {
 
     @Autowired
     private UserCorpRelationMapper userCorpRelationMapper;
+
+    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
+    private Cache<String, LoginUser> platformUserCache;
 
     @Autowired
     private FunNodeMapper funNodeMapper;
@@ -75,8 +83,13 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenEx")
-    public boolean validateTokenEx(String token) {
+    public boolean validateTokenEx(String userid) {
         //过期返回true 结合redis实现
+        LoginUser loginUser = platformUserCache.get(userid);
+        if(loginUser == null){
+            return true;
+        }
+        platformUserCache.put(userid, loginUser);
         return false;
     }
 

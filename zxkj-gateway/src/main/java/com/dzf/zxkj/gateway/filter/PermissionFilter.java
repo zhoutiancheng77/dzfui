@@ -2,6 +2,10 @@ package com.dzf.zxkj.gateway.filter;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSONObject;
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.CreateCache;
+import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.common.enums.HttpStatusEnum;
 import com.dzf.zxkj.gateway.config.GatewayConfig;
 import com.dzf.zxkj.platform.auth.model.jwt.IJWTInfo;
@@ -32,7 +36,7 @@ import reactor.core.publisher.Mono;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Auther: dandelion
@@ -58,13 +62,16 @@ public class PermissionFilter implements GlobalFilter, Ordered {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
+    private Cache<String, String> platformUserOnlineCache;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
         //登陆请求不验证权限
         log.info("登录url:" + path);
-        if (true) {
+        if (StringUtils.equalsAnyIgnoreCase(path, "/api/auth/captcha", "/api/auth/login")) {
             return chain.filter(exchange);
         }
 
@@ -83,40 +90,51 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             log.info("token验证失败！");
             return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
         }
+        //校验token内userid与消息头的userid是否一致
+        String useridFormToken = ijwtInfo.getBody();
+        String useridFromHeader = headers.getFirst(ISysConstant.LOGIN_USER_ID);
+        if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
+            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
+        }
+
         //token过期时间校验
-        if (authService.validateTokenEx(token)) {
+        if (authService.validateTokenEx(useridFormToken)) {
             return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
         }
 
-        String currentCorp = headers.getFirst("pk_corp");
+        if(StringUtils.equalsAnyIgnoreCase(path, "/api/zxkj/sm_user/gsQuery", "/api/zxkj/sm_user/gsSelect")){
+            return chain.filter(exchange);
+        }
+
+        String currentCorp = headers.getFirst(ISysConstant.LOGIN_PK_CORP);
         //用户与公司关联校验
-        List<String> corps = authService.getPkCorpByUserId(ijwtInfo.getBody());
+        List<String> corps = authService.getPkCorpByUserId(useridFormToken);
         if (corps == null || corps.contains(currentCorp)) {
             log.info("用户没有操作公司权限！");
             return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
         }
-        //参数中存在pk_corp直接使用参数中的
-        String pk_corp;
-        String queryCorp = request.getQueryParams().getFirst("pk_corp");
-        if (StringUtils.isNotBlank(queryCorp)) {
-            pk_corp = queryCorp;
-        } else {
-            pk_corp = currentCorp;
-        }
+
         //查询公司和用户vo
-        final CorpModel corpModel = sysService.queryCorpByPk(pk_corp);
-        final UserModel userModel = sysService.queryByUserId(ijwtInfo.getBody());
+        final CorpModel corpModel = sysService.queryCorpByPk(currentCorp);
+        final UserModel userModel = sysService.queryByUserId(useridFormToken);
         if (corpModel == null || userModel == null) {
             return reponse(HttpStatusEnum.EX_USER_INVALID_CODE, response);
         }
 
-        //权限校验
-        Set<String> allPermissions = authService.getAllPermission();
-        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(ijwtInfo.getBody(), currentCorp);
+        //判断是否唯一登录
+        String clientId = headers.getFirst(ISysConstant.CLIENT_ID);
 
-        if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
-            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+        if (StringUtils.isNoneBlank(platformUserOnlineCache.get(useridFormToken)) && !platformUserOnlineCache.get(useridFormToken).equals(clientId)) {
+            return reponse(HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
         }
+
+        //权限校验
+//        Set<String> allPermissions = authService.getAllPermission();
+//        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
+//
+//        if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
+//            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+//        }
 
         return chain.filter(exchange);
     }
