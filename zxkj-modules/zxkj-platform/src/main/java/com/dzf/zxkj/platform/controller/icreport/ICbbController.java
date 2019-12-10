@@ -83,12 +83,11 @@ public class ICbbController  {
         String priceStr = parameterserv.queryParamterValueByCode(SystemUtil.getLoginCorpId(), IParameterConstants.DZF010);
         int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
         List<IcbalanceVO> flist = queryList(qryDate, pk_invtory, xsyye, pk_subjectname, price);
-
-        grid.setTotal(Long.valueOf(flist == null ? 0 : flist.size()));
         if (flist != null && flist.size() > 0) {
             IcbalanceVO[] pvos = getPageVOs(flist.toArray(new IcbalanceVO[flist.size()]), page, rows);
             flist = Arrays.asList(pvos);
         }
+		grid.setTotal(Long.valueOf(flist == null ? 0 : flist.size()));
         grid.setRows(flist == null ? new ArrayList<IcbalanceVO>() : flist);
         grid.setSuccess(true);
         grid.setMsg("查询成功");

@@ -88,16 +88,13 @@ public class SaleoutController{
         IntradeParamVO paramvo = getQueryParamVO(data);
         if (paramvo != null) {
             List<IntradeHVO> list = ic_saleoutserv.query(paramvo);
+			IntradeHVO[] vos = null;
             if (list != null && list.size() > 0) {
-                grid.setTotal((long) list.size());
-                // grid.setRows(list);
-                IntradeHVO[] PzglPagevos = getPagedZZVOs(list.toArray(new IntradeHVO[list.size()]), page, rows);
-                grid.setRows(Arrays.asList(PzglPagevos));
-            } else {
-                grid.setTotal((long) 0);
-                grid.setRows(new IntradeHVO[0]);
+				vos = getPagedZZVOs(list.toArray(new IntradeHVO[list.size()]), page, rows);
             }
-            grid.setSuccess(true);
+			grid.setTotal(Long.valueOf(vos == null ? 0 : vos.length));
+			grid.setRows(vos == null ? new IntradeHVO[0] : vos);
+			grid.setSuccess(true);
             grid.setMsg("查询成功！");
         }
         return ReturnData.ok().data(grid);

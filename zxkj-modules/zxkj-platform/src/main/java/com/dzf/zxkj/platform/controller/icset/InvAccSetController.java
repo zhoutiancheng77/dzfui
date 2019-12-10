@@ -29,13 +29,11 @@ public class InvAccSetController {
 		InvAccSetVO vo = ic_chkmszserv.query(SystemUtil.getLoginCorpId());
 		if(vo != null){
 			json.setRows(vo);
-			json.setSuccess(true);
-			json.setMsg("查询成功");
 		}else{
 			json.setRows(null);
-			json.setSuccess(false);
-			json.setMsg("查询数据为空");
 		}
+		json.setSuccess(true);
+		json.setMsg("查询成功");
 		return ReturnData.ok().data(json);
 	}
 

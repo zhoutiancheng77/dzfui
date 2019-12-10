@@ -62,12 +62,8 @@ public class KcCbbController extends GlicReportController{
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
         checkPowerDate(queryParamvo);
         Map<String, IcDetailVO> result = ic_rep_cbbserv.queryDetail(queryParamvo,SystemUtil.getLoginCorpVo());
-        if(result == null || result.size() == 0){
-            throw new BusinessException("查询数据为空");
-        }
         //将查询后的数据分页展示
         List<IcDetailVO> list = getPagedMXZVos( result, queryParamvo.getPage(),queryParamvo.getRows() , grid);
-        grid.setKcDetail(list);
         grid.setRows(list);
         grid.setSuccess(true);
         return ReturnData.ok().data(grid);

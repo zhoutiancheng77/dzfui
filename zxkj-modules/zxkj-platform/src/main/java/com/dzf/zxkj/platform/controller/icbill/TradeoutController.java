@@ -66,12 +66,12 @@ public class TradeoutController{
 		if (paramvo != null) {
 			list = ic_tradeoutserv.query(paramvo);
 		}
-		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
+		IntradeoutVO[] vos = null;
 		if (list != null && list.size() > 0) {
-			IntradeoutVO[] pvos = getPageVOs(list.toArray(new IntradeoutVO[list.size()]), page, rows);
-			list = Arrays.asList(pvos);
+			vos = getPageVOs(list.toArray(new IntradeoutVO[list.size()]), page, rows);
 		}
-		grid.setRows(list == null ? new ArrayList<IntradeoutVO>() : list);
+		grid.setTotal(Long.valueOf(vos == null ? 0 : vos.length));
+		grid.setRows(vos == null ? new IntradeoutVO[0] : vos);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功");
 
