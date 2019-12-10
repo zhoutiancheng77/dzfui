@@ -1083,6 +1083,7 @@ public class VoucherController {
         }
         String msg = getResultMsg(errorlist);
         json.setMsg(msg);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 
