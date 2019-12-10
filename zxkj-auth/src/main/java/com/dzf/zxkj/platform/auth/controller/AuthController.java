@@ -20,7 +20,6 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @Slf4j
@@ -28,12 +27,6 @@ public class AuthController {
     //redis缓存 过期时间10分钟
     @CreateCache(name = "zxkj:check:code", cacheType = CacheType.REMOTE, expire = 10 * 60)
     private Cache<String, String> checkCodeCache;
-
-    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
-    private Cache<String, LoginUser> platformUserCache;
-
-    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
-    private Cache<String, String> platformUserOnlineCache;
 
     @Autowired
     private ILoginService loginService;

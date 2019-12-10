@@ -1,13 +1,11 @@
 package com.dzf.zxkj.platform.auth.controller;
 
-import com.alicp.jetcache.Cache;
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
@@ -30,15 +28,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Controller
 @Slf4j
 public class SystemController {
 
-    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
-    private Cache<String, LoginUser> platformUserCache;
+    @Autowired
+    private AuthCache authCache;
     @Autowired
     private ILoginService loginService;
     @Autowired
@@ -60,7 +57,7 @@ public class SystemController {
     public void jumpToOther(HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "platform") String platformTag, @PathVariable(value = "userid") String userid) {
-        LoginUser vo = platformUserCache.get(userid);
+        LoginUser vo = authCache.getLoginUser(userid);
 
         Optional<PlatformVO> platformOptional = vo.getPlatformVOSet()
                 .stream()
