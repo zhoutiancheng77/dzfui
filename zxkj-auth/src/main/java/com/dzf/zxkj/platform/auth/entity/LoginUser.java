@@ -36,4 +36,7 @@ public class LoginUser implements Serializable {
     private Set<PlatformVO> platformVOSet;
     @TableField(exist = false)
     private String dzfAuthToken;
+    @TableField(exist = false)
+    @JsonProperty("force")
+    private String f;
 }

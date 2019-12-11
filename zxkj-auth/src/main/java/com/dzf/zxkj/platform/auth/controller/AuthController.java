@@ -7,6 +7,7 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
+import com.dzf.zxkj.platform.auth.entity.LoginGrid;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.util.RSAUtils;
@@ -65,6 +66,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ReturnData<Grid> login(@RequestBody LoginUser loginUser) {
+
+        String force = loginUser.getF();
+
         Grid<LoginUser> grid = new Grid<>();
         String verify = checkCodeCache.get(loginUser.getKey());
 
@@ -96,6 +100,18 @@ public class AuthController {
             grid.setMsg("用户名或密码不正确！");
             return ReturnData.ok().data(grid);
         }
+
+        String clientid = SystemUtil.getClientId();
+        //普通登录  多人在线
+        if(StringUtils.isNoneBlank(force) && force.equals("0") && authCache.checkIsMulti(loginUser.getUserid(), clientid)){
+            LoginGrid g = new LoginGrid();
+            g.setSuccess(false);
+            g.setStatus(-100);
+            return ReturnData.ok().data(g);
+        }
+        authCache.putLoginUnique(loginUser.getUserid(), clientid);
+        authCache.putLoginUser(loginUser.getUserid(), loginUser);
+
         grid.setSuccess(true);
         grid.setRows(loginUser);
         return ReturnData.ok().data(grid);
