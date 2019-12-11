@@ -91,9 +91,9 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
             return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
         }
-
+        String clientId = headers.getFirst(ISysConstant.CLIENT_ID);
         //token过期时间校验
-        if (authService.validateTokenEx(useridFormToken)) {
+        if (authService.validateTokenEx(useridFormToken, clientId)) {
             return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
         }
 
@@ -117,8 +117,6 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         }
 
         //判断是否唯一登录
-        String clientId = headers.getFirst(ISysConstant.CLIENT_ID);
-
         if (authService.validateMultipleLogin(useridFormToken, clientId)) {
             return reponse(HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
         }
