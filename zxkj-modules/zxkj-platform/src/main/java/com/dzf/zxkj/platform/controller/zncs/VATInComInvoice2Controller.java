@@ -207,8 +207,8 @@ public class VATInComInvoice2Controller extends BaseController {
         String msg = "";//记录日志
         Json json = new Json();
         try{
-            String head = param.get("adddoc[header]");
-            String body = param.get("adddoc[body]");
+            String head = param.get("header");
+            String body = param.get("body");
             String pk_corp = SystemUtil.getLoginCorpId();
             Map<String, VATInComInvoiceVO2[]> sendData = new HashMap<String, VATInComInvoiceVO2[]>();
             VATInComInvoiceVO2 headvo = JsonUtils.deserialize(head,VATInComInvoiceVO2.class);

@@ -1689,10 +1689,10 @@ public class VoucherController {
     }
 
     @RequestMapping("/quickCreateVoucher")
-    public ReturnData<Json> quickCreateVoucher(@RequestBody String data) {
+    public ReturnData<Json> quickCreateVoucher(@RequestBody Map<String,String> param) {
         Json json = new Json();
         try {
-            JSONObject rawData = JSON.parseObject(data);
+            JSONObject rawData = JSON.parseObject(param.get("data"));
             gl_tzpzserv.createVoucherQuick(SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserId(), rawData);
             json.setSuccess(true);
             json.setMsg("制单成功！");
