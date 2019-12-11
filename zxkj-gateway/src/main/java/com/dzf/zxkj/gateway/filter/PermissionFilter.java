@@ -66,7 +66,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
         String path = request.getURI().getPath();
         //登陆请求不验证权限
         log.info("登录url:" + path);
-        if (true) {
+        if (StringUtils.equalsAnyIgnoreCase(path, "/api/auth/captcha", "/api/auth/login")) {
             return chain.filter(exchange);
         }
 
