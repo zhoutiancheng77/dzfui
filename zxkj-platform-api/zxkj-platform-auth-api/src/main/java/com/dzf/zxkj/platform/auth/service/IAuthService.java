@@ -8,6 +8,7 @@ public interface IAuthService {
     List<String> getPkCorpByUserId(String userid);
     Set<String> getAllPermission();
     Set<String> getPermisssionByUseridAndPkCorp(String userid, String pk_corp);
-    boolean validateTokenEx(String token);
+    boolean validateTokenEx(String token, String clientid);
     boolean validateTokenByInter(String token);//调用统一认证
+    boolean validateMultipleLogin(String userid, String clientid);
 }

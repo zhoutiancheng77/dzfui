@@ -81,13 +81,14 @@ public class AuthServiceImpl implements IAuthService {
 
     @Override
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenEx")
-    public boolean validateTokenEx(String userid) {
+    public boolean validateTokenEx(String userid, String clientId) {
         //过期返回true 结合redis实现
         LoginUser loginUser = authCache.getLoginUser(userid);
         if(loginUser == null){
             return true;
         }
         authCache.putLoginUser(userid, loginUser);
+        authCache.putLoginUnique(userid, clientId);
         return false;
     }
 
