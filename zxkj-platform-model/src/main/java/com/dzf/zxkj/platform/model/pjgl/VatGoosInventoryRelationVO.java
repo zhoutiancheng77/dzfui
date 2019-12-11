@@ -25,7 +25,7 @@ public class VatGoosInventoryRelationVO extends SuperVO {
 	
 	@JsonProperty("chid")
 	private String pk_inventory;//存货主键
-	
+
 	private String code;//存货编码
 	
 	private String name;//存货名称

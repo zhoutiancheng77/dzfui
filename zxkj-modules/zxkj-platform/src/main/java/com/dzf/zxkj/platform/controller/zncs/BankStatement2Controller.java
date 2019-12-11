@@ -798,15 +798,11 @@ public class BankStatement2Controller extends BaseController {
         Json json = new Json();
         try {
             String str = param.get("row");
-            str = str.replace("}{", "},{");
-            str = "[" + str + "]";
-            JSONArray array = (JSONArray) JSON.parseArray(str);
-            if (array == null) {
+            if (str == null) {
                 throw new BusinessException("数据为空,请检查!");
             }
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new BankStatementVO2());
-//            BankStatementVO2[] listvo = DzfTypeUtils.cast(array, bodymapping, BankStatementVO2[].class, JSONConvtoJAVA.getParserConfig());
-            BankStatementVO2[] listvo = array.toArray(new BankStatementVO2[0]);
+
+            BankStatementVO2[] listvo = JsonUtils.deserialize(str,BankStatementVO2[].class);
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("转化后数据为空,请检查!");
 
