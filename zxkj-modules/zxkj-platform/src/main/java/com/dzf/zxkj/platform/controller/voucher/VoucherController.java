@@ -1781,4 +1781,39 @@ public class VoucherController {
         json.setMsg("删除成功");
         return ReturnData.ok().data(json);
     }
+
+    @RequestMapping("/getNewInfo")
+    public ReturnData getNewInfo(@RequestBody Map<String,String> param){
+        Json json = new Json();
+        try {
+            String date = param.get("vchdate");
+            DZFDate doperatedate = null;
+            if (StringUtil.isEmptyWithTrim(date)) {
+                doperatedate = new DZFDate(SystemUtil.getLoginDate());
+            } else {
+                try {
+                    doperatedate = new DZFDate(date);
+                } catch (Exception e) {
+                    log.error("凭证号查询日期解析失败", e);
+                    throw new BusinessException("日期格式错误，获取凭证号失败！");
+                }
+            }
+            Map<String, Object> data = getNewInfoJson(doperatedate);
+            json.setStatus(200);
+            json.setSuccess(true);
+            json.setMsg("获取凭证号成功");
+            json.setData(data);
+        } catch (Exception e) {
+            log.error("获取凭证号失败!",e);
+        }
+        return ReturnData.ok().data(json);
+    }
+    private Map<String, Object> getNewInfoJson(DZFDate vchdate) {
+        String newVoucherNum = yntBoPubUtil.getNewVoucherNo(SystemUtil.getLoginCorpId(), vchdate);
+        Map<String,Object> data = new HashMap<String,Object>();
+        data.put("vchNum", newVoucherNum);
+        data.put("vchYear", vchdate.getYear());
+        data.put("qj", vchdate.getMonth());
+        return data;
+    }
 }
