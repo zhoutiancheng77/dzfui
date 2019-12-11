@@ -13,26 +13,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class VatGoosInventoryRelationVO extends SuperVO {
 	
-	@JsonProperty("rela_id")
+
 	private String pk_goodsinvenrela;
 	
 	private String spmc;//货物或劳务名称
-	@JsonProperty("ggxh")
+
 	private String invspec;//规格型号
 	
-	@JsonProperty("choldid")
+
 	private String pk_inventory_old;//旧的存货主键
 	
-	@JsonProperty("chid")
+
 	private String pk_inventory;//存货主键
 	
 	private String code;//存货编码
 	
 	private String name;//存货名称
-	
-	@JsonProperty("cid")
+
 	private String coperatorid;//操作人
-	@JsonProperty("ddate")
+
 	private DZFDate doperatedate;//操作时间
 	private String pk_corp;//
 	private Integer dr;
