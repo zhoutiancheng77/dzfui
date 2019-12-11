@@ -9,12 +9,15 @@ import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.CustServVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.sys.ICustServService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -27,6 +30,19 @@ public class CorpInfoController extends BaseController {
 
     @Autowired
     private ICorpService corpService;
+    @Autowired
+    private ICustServService custServServiceImpl;
+
+    @RequestMapping("getCorpServiceInfo")
+    public ReturnData getCorpServiceInfo(@RequestParam String corpId) {
+        Json json = new Json();
+        CustServVO csvo = custServServiceImpl.query(corpId);
+        csvo.setCuserid(SystemUtil.getLoginUserId());
+        json.setData(csvo);
+        json.setSuccess(true);
+        json.setMsg("查询成功!");
+        return ReturnData.ok().data(json);
+    }
 
     @RequestMapping("getCorpInfoByHomepage")
     public ReturnData getCorpInfoByHomepage(@MultiRequestBody CorpVO corpVo, @MultiRequestBody UserVO userVo) {
