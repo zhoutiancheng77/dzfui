@@ -277,6 +277,10 @@ public class VATInComInvoice2Controller extends BaseController {
             VATInComInvoiceBVO2 bvo = null;
             for(int i = 0; i < bodyvos.length; i++){
                 bvo = bodyvos[i];
+                //处理前端传过来的空数据
+                if(StringUtils.isEmpty(bvo.getBspmc())&&StringUtils.isEmpty(bvo.getPk_billcategory())){
+                    continue;
+                }
                 if (!StringUtil.isEmptyWithTrim(bvo.getBspmc())){
 
                     bvo.setBspmc(OcrUtil.filterCorpName(bvo.getBspmc()).trim());

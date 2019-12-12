@@ -105,6 +105,10 @@ public class BankStatement2Controller extends BaseController {
                         vo.setPk_model_h(null);
                         vo.setBusitypetempname(null);
                     }
+                    //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
+                    if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
+                        vo.setImgpath(vo.getImgpath().replace("/gl/gl_imgview!search.action","/zncs/gl_imgview/search"));
+                    }
                 }
             }
             log.info("查询成功！");
