@@ -91,18 +91,22 @@ public class AuxiliaryAccountController {
         return ReturnData.ok().data(json);
     }
 
-    @GetMapping("/onSeal")
-    public ReturnData<Json> seal(@RequestParam("id") String id) {
+    @PostMapping("/onSeal")
+    public ReturnData<Json> seal(@RequestBody AuxiliaryAccountBVO data) {
         Json json = new Json();
-        gl_fzhsserv.onSeal(id);
+        data.setSffc(AuxiliaryConstant.SEAL);
+        gl_fzhsserv.onSeal(data.getPk_auacount_b());
+        json.setData(data);
         json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 
-    @GetMapping("/unSeal")
-    public ReturnData<Json> unSeal(@RequestParam("id") String id) {
+    @PostMapping("/unSeal")
+    public ReturnData<Json> unSeal(@RequestBody AuxiliaryAccountBVO data) {
         Json json = new Json();
-        gl_fzhsserv.unSeal(id);
+        data.setSffc(AuxiliaryConstant.UNSEAL);
+        gl_fzhsserv.unSeal(data.getPk_auacount_b());
+        json.setData(data);
         json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
@@ -213,7 +217,7 @@ public class AuxiliaryAccountController {
         }
         bvo = gl_fzhsserv.saveB(bvo);
         json.setMsg("保存成功");
-        json.setRows(bvo);
+        json.setData(bvo);
         json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
