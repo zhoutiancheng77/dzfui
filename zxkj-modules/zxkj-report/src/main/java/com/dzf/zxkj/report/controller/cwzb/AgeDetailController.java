@@ -1,9 +1,9 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.report.AgeReportResultVO;
@@ -12,7 +12,6 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwzb.IAgeDetailReportService;
 import com.dzf.zxkj.report.utils.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +25,7 @@ public class AgeDetailController {
     @Autowired
     private IAgeDetailReportService gl_rep_zlmxb;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     @PostMapping("query")
