@@ -380,16 +380,16 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData<Json> impExcel(@RequestBody Map<String,String> param, MultipartFile file,BankStatementVO2 bvo,Integer sourcetem){
+    public ReturnData<Json> impExcel(MultipartFile file,BankStatementVO2 bvo,Integer sourcetem,String impForce){
         Json json = new Json();
         json.setSuccess(false);
         try {
-            String flag = param.get("impForce");
+
             if(bvo == null || sourcetem == 0)
                 throw new BusinessException("未选择上传文档，请检查");
             bvo = getParamVO(bvo, sourcetem);
 
-            DZFBoolean isFlag = "Y".equals(flag) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
+            DZFBoolean isFlag = "Y".equals(impForce) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
 //			String source = arr[data.getSourcetem() - 1];
             String source = sourcetem == 1 ? arr[0] : arr[1];
 //            File[] infiles = ((MultiPartRequestWrapper) getRequest()).getFiles(source);
