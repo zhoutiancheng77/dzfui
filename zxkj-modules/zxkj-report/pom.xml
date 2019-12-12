@@ -155,6 +155,12 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
+                    <include>font/*</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
                     <include>logback-spring.xml</include>
                     <include>bootstrap.yml</include>
                 </includes>

@@ -139,7 +139,7 @@ public class XszController  extends ReportBaseController {
         String[] periods = new String[]{qj};
         String[] allsheetname = new String[]{"序时账"};
 
-        XszExcelField field = new XszExcelField("序时账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,gs);
+        XszExcelField field = new XszExcelField("序时账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,gs, queryparamvo.getIsxshl());
         List<XsZVO[]> result = new ArrayList<XsZVO[]>();
         result.add(listVo);
         field.setAllsheetzcvos(result);
@@ -174,7 +174,7 @@ public class XszController  extends ReportBaseController {
             ColumnCellAttr[] columncellattrvos = null;
             String isxshl= printParamVO.getIsxshl();
             List<ColumnCellAttr> list = new ArrayList<ColumnCellAttr>();
-            if("Y".equals(isxshl)){
+            if("true".equals(isxshl)){
                 list.add(new ColumnCellAttr("日期",null,null,2,"rq",1));
                 list.add(new ColumnCellAttr("年度",null,null,2,"year",1));
                 list.add(new ColumnCellAttr("期间",null,null,2,"qj",1));
@@ -182,7 +182,7 @@ public class XszController  extends ReportBaseController {
                 list.add(new ColumnCellAttr(" 凭证号",null,null,2,"pzh",1));
                 list.add(new ColumnCellAttr("摘要",null,null,2,"zy",1));
                 list.add(new ColumnCellAttr("科目编码",null,null,2,"kmbm",1));
-                list.add(new ColumnCellAttr("科目名称",null,null,2,"kmmc",3));
+                list.add(new ColumnCellAttr("科目名称",null,null,2,"kmmc",2));
                 list.add(new ColumnCellAttr("币种",null,null,2,"bz",1));
                 list.add(new ColumnCellAttr("汇率",null,null,2,"hl",1));
                 list.add(new ColumnCellAttr("借方",null,2,null,null,4));
@@ -197,7 +197,7 @@ public class XszController  extends ReportBaseController {
                 list.add(new ColumnCellAttr(" 凭证号",null,null,null,"pzh",1));
                 list.add(new ColumnCellAttr("摘要",null,null,null,"zy",1));
                 list.add(new ColumnCellAttr("科目编码",null,null,null,"kmbm",1));
-                list.add(new ColumnCellAttr("科目名称",null,null,null,"kmmc",3));
+                list.add(new ColumnCellAttr("科目名称",null,null,null,"kmmc",2));
                 list.add(new ColumnCellAttr("借方",null,null,null,"jfmny",1));
                 list.add(new ColumnCellAttr("贷方",null,null,null,"dfmny",1));
             }

@@ -309,7 +309,7 @@ public class QcyeController extends BaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(String corpName, String period, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+    public void printAction(String corpName, String period, @MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);

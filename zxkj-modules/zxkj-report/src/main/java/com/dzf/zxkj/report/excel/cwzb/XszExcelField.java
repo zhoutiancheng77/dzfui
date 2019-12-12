@@ -44,6 +44,8 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
 
     private String corpname = null;
 
+    private String isxshl = null ;// 是否显示汇率
+
     public XszExcelField(String nodename, String pk_currency, String currencyname, String qj, String corpname) {
         this.nodename = nodename;
         this.pk_currency = pk_currency;
@@ -52,7 +54,7 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         this.corpname = corpname;
     }
 
-    public XszExcelField(String nodename, String pk_currency, String currencyname, String[] periods, String[] allsheetname, String qj, String corpname) {
+    public XszExcelField(String nodename, String pk_currency, String currencyname, String[] periods, String[] allsheetname, String qj, String corpname,String isxshl) {
         this.nodename = nodename;
         this.pk_currency = pk_currency;
         this.currencyname = currencyname;
@@ -60,6 +62,7 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         this.allsheetname = allsheetname;
         this.qj = qj;
         this.corpname = corpname;
+        this.isxshl = isxshl;
     }
 
     private Fieldelement[] getFileWbs() {
@@ -71,8 +74,8 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         list.add(new Fieldelement("pzh", "凭证号", false, 0, true));
         list.add(new Fieldelement("zy", "摘要", false, 0, true));
         list.add(new Fieldelement("kmbm", "科目编码", false, 0, true));
-        list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,80,false));
-        list.add(new Fieldelement("bz", "币种", false, 0, true,80,false));
+        list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,50,false));
+        list.add(new Fieldelement("bz", "币种", false, 0, true,50,false));
         list.add(new Fieldelement("hl", "汇率", true, 2, true));
         Fieldelement qcelement = new Fieldelement("", "借方", true, 2, true, 1, 2);
         qcelement.setChilds(new Fieldelement[] {
@@ -93,7 +96,7 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         list.add(new Fieldelement("pzh", "凭证号", false, 0, true));
         list.add(new Fieldelement("zy", "摘要", false, 0, true));
         list.add(new Fieldelement("kmbm", "科目编码", false, 0, true));
-        list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,80,false));
+        list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,50,false));
         list.add(new Fieldelement("jfmny", "借方", true, 2, true));
         list.add(new Fieldelement("dfmny", "贷方", true, 2, true));
         return list.toArray(new Fieldelement[0]);
@@ -126,13 +129,12 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
 
     @Override
     public Fieldelement[] getFieldInfo() {
-        if (!StringUtil.isEmpty(pk_currency) && !pk_currency.equals(IGlobalConstants.RMB_currency_id)) {
+        if (!StringUtil.isEmpty(isxshl) && isxshl.equals("true")) {
             return getFileWbs();
         } else {
             return getFileNoWbs();
         }
     }
-
 
     @Override
     public String getQj() {

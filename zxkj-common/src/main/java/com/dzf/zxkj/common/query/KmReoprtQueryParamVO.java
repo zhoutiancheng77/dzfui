@@ -24,6 +24,7 @@ public class KmReoprtQueryParamVO extends QueryParamVO {
 	private DZFBoolean xskm;// 是否显示科目
 	private DZFBoolean bswitch;//是否切换
 	private int report_rows;//报表显示页数
+	private String isxshl;// 是否显示汇率
 
 	// 科目明细账使用
 	private DZFBoolean isqry;// 是否是重新查询或者第一次查询(空默认就是重新查询)
@@ -34,6 +35,14 @@ public class KmReoprtQueryParamVO extends QueryParamVO {
 	private String zy;// 摘要
 
 	private String list;//list字符串
+
+	public String getIsxshl() {
+		return isxshl;
+	}
+
+	public void setIsxshl(String isxshl) {
+		this.isxshl = isxshl;
+	}
 
 	public int getReport_rows() {
 		return report_rows;
