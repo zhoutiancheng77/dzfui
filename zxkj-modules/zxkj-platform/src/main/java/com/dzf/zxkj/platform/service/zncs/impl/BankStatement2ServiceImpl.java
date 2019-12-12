@@ -4501,7 +4501,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		//accway 标识已无效
 		
 		DZFDate lastDate = null;
-		if(setvo!=null&&setvo.getPzrq()==1){
+		if(setvo!=null&&setvo.getPzrq()!=null&&setvo.getPzrq()==1){
 			//凭证日期是当前账期最后一天
 			if(!StringUtil.isEmpty(list.get(0).getInperiod())){
 				lastDate = DateUtils.getPeriodEndDate(list.get(0).getInperiod());
