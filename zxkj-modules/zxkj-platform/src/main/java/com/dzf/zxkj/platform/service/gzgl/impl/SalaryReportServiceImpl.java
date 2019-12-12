@@ -950,6 +950,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 			DZFDouble dkcmun = new DZFDouble(kcmun);
 			vo.setLjjcfy(dkcmun);
 			vo.setLjzxkc(getPeriodZxkc(vo));
+            vo.setPk_corp(pk_corp);
 			listvo.add(vo);
 		} else {
 			String pks[] = DZFStringUtil.getString2Array(cpersonids, ",");
@@ -975,6 +976,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 					vo.setCpersonid(cpersonid);
 					setShowKm(setvo, map, kmShow, vo);
 					calGz(vo, vo.getBilltype(), opdate, false);
+                    vo.setPk_corp(pk_corp);
 					listvo.add(vo);
 				}
 			}
@@ -2205,6 +2207,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				if (corpvo != null) {
 					reportvo.setVphone(corpvo.getPhone1());
 				}
+				reportvo.setPk_corp(pk_corp);
 				slist.add(reportvo);
 			}
 		}
