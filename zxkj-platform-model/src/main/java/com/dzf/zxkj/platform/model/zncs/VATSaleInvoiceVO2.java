@@ -8,8 +8,6 @@ import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.platform.model.pjgl.IGlobalPZVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
 
 /**
  * 销项发票主表vo
@@ -167,7 +165,14 @@ public class VATSaleInvoiceVO2 extends SuperVO implements IGlobalPZVO {
 	public static final String INVMODEL_3 = "填开作废";//填开作废
 	public static final String INVMODEL_4 = "负数发票";//负数发票
 	public static final String INVMODEL_5 = "负数作废";//负数作废
-	
+
+	//新龙发票状态 20191211， 只有正数，正废，负数 从excel上看到，空废和负废的值是猜的
+	public static final String INVMODEL_11 = "正数";//正常发票
+	public static final String INVMODEL_12 = "空废";//空白作废
+	public static final String INVMODEL_13 = "正废";//填开作废
+	public static final String INVMODEL_14 = "负数";//负数发票
+	public static final String INVMODEL_15 = "负废";//负数作废
+
 	private String vdef13;//存票主键
 	
 	
