@@ -51,8 +51,10 @@ import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
 import com.dzf.zxkj.platform.service.zncs.*;
-import com.dzf.zxkj.platform.util.SystemUtil;
-import com.dzf.zxkj.platform.util.zncs.*;
+import com.dzf.zxkj.platform.util.zncs.ICaiFangTongConstant;
+import com.dzf.zxkj.platform.util.zncs.OcrUtil;
+import com.dzf.zxkj.platform.util.zncs.VatUtil;
+import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -64,7 +66,6 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -387,13 +388,28 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		VATInComInvoiceVO2[] addvos = sendData.get("adddocvos");
 		VATInComInvoiceVO2[] updvos = sendData.get("upddocvos");
 		List<VATInComInvoiceVO2> list = new ArrayList<VATInComInvoiceVO2>();
+
+		SQLParameter params = new SQLParameter();
+		params.addParam(pk_corp);
+		params.addParam(addvos!=null && addvos.length>0 ? addvos[0].getInperiod() : updvos[0].getInperiod());
+
+		BillCategoryVO[] categoryvos = (BillCategoryVO[])singleObjectBO.queryByCondition(BillCategoryVO.class, "pk_corp=? and period=? and nvl(dr,0)=0 and isaccount = 'N'", params);
+		Map<String, BillCategoryVO> mapcategory = new HashMap<String, BillCategoryVO>();
+		for (BillCategoryVO vo : categoryvos)
+		{
+			mapcategory.put(vo.getPrimaryKey(), vo);
+		}
 		//新增修改的合在一起
 		if(addvos!=null && addvos.length>0){
 			for (VATInComInvoiceVO2 vatInComInvoiceVO2 : addvos) {
 				//查询业务类型所属期间是否是入账期间
 				if (StringUtil.isEmpty(vatInComInvoiceVO2.getPk_model_h()) == false)
 				{
-					BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, vatInComInvoiceVO2.getPk_model_h());
+					BillCategoryVO categoryvo = mapcategory.get(vatInComInvoiceVO2.getPk_model_h());//(BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, vatInComInvoiceVO2.getPk_model_h());
+					if (categoryvo == null)
+					{
+						throw new BusinessException("业务类型不正确，请重新选择");
+					}
 					if (vatInComInvoiceVO2.getInperiod().equals(categoryvo.getPeriod()) == false)
 					{
 						throw new BusinessException("业务类型所属期间与入账期间不一致，请重新选择一下业务类型");
@@ -407,7 +423,12 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				
 				VATInComInvoiceBVO2[] bvos = (VATInComInvoiceBVO2[])vatInComInvoiceVO2.getChildren();
 				if(bvos!=null&&bvos.length>0){
-					for (VATInComInvoiceBVO2 bvo : bvos) {
+					for (int i = 0; i < bvos.length; i++) {
+						VATInComInvoiceBVO2 bvo = bvos[i];
+						if (StringUtil.isEmptyWithTrim(bvo.getPk_billcategory()) == false && mapcategory.containsKey(bvo.getPk_billcategory()) == false)
+						{
+							throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
+						}
 						//录入表体业务类型后保存，表头取表体第一行业务类型
 						if(bvo.getRowno().equals(1)&&StringUtils.isEmpty(vatInComInvoiceVO2.getPk_model_h())&&!StringUtils.isEmpty(bvo.getPk_billcategory())){
 							vatInComInvoiceVO2.setPk_model_h(bvo.getPk_billcategory());
@@ -433,7 +454,11 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				//查询业务类型所属期间是否是入账期间
 				if (StringUtil.isEmpty(vatInComInvoiceVO2.getPk_model_h()) == false)
 				{
-					BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, vatInComInvoiceVO2.getPk_model_h());
+					BillCategoryVO categoryvo = mapcategory.get(vatInComInvoiceVO2.getPk_model_h());//(BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, vatInComInvoiceVO2.getPk_model_h());
+					if (categoryvo == null)
+					{
+						throw new BusinessException("业务类型不正确，请重新设置");
+					}
 					if (vatInComInvoiceVO2.getInperiod().equals(categoryvo.getPeriod()) == false)
 					{
 						throw new BusinessException("业务类型所属期间与入账期间不一致，请重新选择一下业务类型");
@@ -450,6 +475,17 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 					vatInComInvoiceVO2.setPk_settlementaccsubj(setVO.getPk_settlementaccsubj());	
 					vatInComInvoiceVO2.setPk_taxaccsubj(setVO.getPk_taxaccsubj());
 					
+				}
+				if (vatInComInvoiceVO2.getChildren() != null)
+				{
+					for (int i = 0; i < vatInComInvoiceVO2.getChildren().length; i++)
+					{
+						VATInComInvoiceBVO2 bvo = (VATInComInvoiceBVO2)vatInComInvoiceVO2.getChildren()[i];
+						if (StringUtil.isEmpty(bvo.getPk_billcategory()) == false && mapcategory.containsKey(bvo.getPk_billcategory()) == false)
+						{
+							throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
+						}
+					}
 				}
 				list.add(vatInComInvoiceVO2);
 			}
@@ -2986,9 +3022,12 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			if((j==3||j==4)&&isNumber(sTmp)){//税额  金额
 				sTmp = formatter.format(new DZFDouble(sTmp));
 			}
-//			else if((j==2||j==5)&&cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC){//开票日期  认证日期
-//				sTmp = sdf.format(HSSFDateUtil.getJavaDate(Double.parseDouble(sTmp)));
-//			}
+			else if((j==2||j==5)&&cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC){//开票日期  认证日期
+				try {
+					sTmp = sdf.format(HSSFDateUtil.getJavaDate(Double.parseDouble(sTmp)));
+				}
+				catch (Exception ex){}
+			}
 		}
 //		else if (sourceType == IBillManageConstants.PIAOTONGSM_AUTO && j == 18) {// 票通扫描
 //																					// 验证发票状态
@@ -3149,10 +3188,17 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				iszhuan = DZFBoolean.FALSE;
 			}
 		}else if(sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO){
-			if(!StringUtils.isEmpty(vo.getFplx())&&(vo.getFplx().equals("增值税专票")||vo.getFplx().equals("机动车发票"))){
-				iszhuan = DZFBoolean.TRUE;
+			if(!StringUtils.isEmpty(vo.getFplx()))
+			{
+				if (vo.getFplx().contains("专票")|| vo.getFplx().contains("专用发票") || vo.getFplx().contains("机动车")){
+					iszhuan = DZFBoolean.TRUE;
+				}
+				else
+				{
+					iszhuan = DZFBoolean.FALSE;
+				}
 			}else{
-				iszhuan = DZFBoolean.FALSE;
+				iszhuan = DZFBoolean.TRUE;			//增值税认证平台导入的，没有发票类型列，默认专票 20191212
 			}
 		}else{
 			iszhuan = DZFBoolean.TRUE;
