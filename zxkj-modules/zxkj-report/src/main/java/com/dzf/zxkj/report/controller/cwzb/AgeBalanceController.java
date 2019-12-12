@@ -18,7 +18,6 @@ import com.dzf.zxkj.report.excel.cwzb.AgeBalanceExcelField;
 import com.dzf.zxkj.report.service.cwzb.IAgeBalanceReportService;
 import com.dzf.zxkj.report.utils.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +40,7 @@ public class AgeBalanceController {
     @Autowired
     private IAgeBalanceReportService gl_rep_zlyeb;
 
-    @Reference
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
     @PostMapping("/query")
