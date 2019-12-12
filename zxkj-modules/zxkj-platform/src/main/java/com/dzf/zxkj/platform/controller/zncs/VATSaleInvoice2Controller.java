@@ -3123,9 +3123,11 @@ public class VATSaleInvoice2Controller extends BaseController {
         return ReturnData.ok().data(grid);
     }
     @RequestMapping("/queryCategoryset")
-    public ReturnData<Grid> queryCategoryset(String id,String period){
+    public ReturnData<Grid> queryCategoryset(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String id =  param.get("id");
+            String period = param.get("period");
             ArrayList<String> pk_categoryList = new ArrayList<String>();
             List<CategorysetVO> list = gl_vatincinvact2.queryIncomeCategorySet(id,SystemUtil.getLoginCorpId());
             for (CategorysetVO vo : list) {

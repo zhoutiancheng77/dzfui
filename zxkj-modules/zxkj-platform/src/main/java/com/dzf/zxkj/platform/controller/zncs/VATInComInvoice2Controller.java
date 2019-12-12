@@ -549,7 +549,7 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData<Json> impExcel(MultipartFile infiles,@RequestBody VATInComInvoiceVO2 vvo){
+    public ReturnData<Json> impExcel(@RequestBody MultipartFile file){
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
@@ -559,8 +559,8 @@ public class VATInComInvoice2Controller extends BaseController {
 //                throw new BusinessException("请选择导入文件!");
 //            }
 //            String[] fileNames = ((MultiPartRequestWrapper) getRequest()).getFileNames("impfile");
-            String fileName = infiles.getOriginalFilename();
-            if(infiles == null || infiles.getSize()==0||StringUtils.isEmpty(fileName)){
+            String fileName = file.getOriginalFilename();
+            if(file == null || file.getSize()==0||StringUtils.isEmpty(fileName)){
                 throw new BusinessException("请选择导入文件!");
             }
             String fileType = null;
@@ -572,14 +572,14 @@ public class VATInComInvoice2Controller extends BaseController {
             VATInComInvoiceVO2 paramvo = new VATInComInvoiceVO2();
             paramvo.setInperiod(DateUtils.getPeriod(new DZFDate(SystemUtil.getLoginDate())));
             StringBuffer msg = new StringBuffer();
-            gl_vatincinvact2.saveImp(infiles, paramvo, pk_corp, fileType, userid, msg);
+            gl_vatincinvact2.saveImp(file, paramvo, pk_corp, fileType, userid, msg);
 
             json.setHead(paramvo);
             json.setMsg(msg.toString());
             json.setSuccess(paramvo.getCount()==0 ? false : true);
 
-            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入进项发票：" + (vvo != null && vvo.getBeginrq() != null ? vvo.getBeginrq() : ""), ISysConstants.SYS_2);
+//            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
+//                    "导入进项发票：" + (vvo != null && vvo.getBeginrq() != null ? vvo.getBeginrq() : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "导入失败!");
         }
@@ -2758,9 +2758,11 @@ public class VATInComInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryset")
-    public ReturnData<Grid> queryCategoryset(String id,String period){
+    public ReturnData<Grid> queryCategoryset(@RequestBody Map<String,String> param ){
         Grid grid = new Grid();
         try {
+            String id =  param.get("id");
+            String period = param.get("period");
             ArrayList<String> pk_categoryList = new ArrayList<String>();
             List<CategorysetVO> list = gl_vatincinvact2.queryIncomeCategorySet(id,SystemUtil.getLoginCorpId());
             for (CategorysetVO vo : list) {
