@@ -78,9 +78,11 @@ public class AgeBalanceController {
 
 
     @PostMapping("export/excel")
-    public void excelReport (@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody AgeBalanceExcelField field, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void excelReport (@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         List<LinkedHashMap<String, Object>>  dataList =  JsonUtils.deserialize(excelExportVO.getData(), List.class, Map.class);
-
+        AgeBalanceExcelField field = new AgeBalanceExcelField();
+        field.setCorpName(excelExportVO.getCorpName());
+        field.setQj(excelExportVO.getQj());
         DynamicAttributeVO[] dynamicAttributeVOS = new DynamicAttributeVO[dataList.size()];
 
         for(int i = 0; i < dataList.size(); i++){

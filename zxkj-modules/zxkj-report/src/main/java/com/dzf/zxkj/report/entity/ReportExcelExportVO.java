@@ -24,4 +24,5 @@ public class ReportExcelExportVO {
     private String areaType;
     private String qjlx;
     private String fields;
+    private String qj;
 }
