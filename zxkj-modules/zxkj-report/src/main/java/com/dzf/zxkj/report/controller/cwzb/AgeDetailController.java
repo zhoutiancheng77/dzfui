@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -20,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("gl_rep_zlmxbact")
 @Slf4j
-public class AgeDetailController {
+public class AgeDetailController extends BaseController {
 
     @Autowired
     private IAgeDetailReportService gl_rep_zlmxb;
@@ -48,9 +49,7 @@ public class AgeDetailController {
             json.setSuccess(true);
             json.setMsg("查询成功");
         } catch (Exception e) {
-            json.setSuccess(false);
-            json.setMsg("查询失败");
-            log.info("查询失败", e);
+            printErrorLog(json,e, "查询失败");
         }
         return ReturnData.ok().data(json);
     }

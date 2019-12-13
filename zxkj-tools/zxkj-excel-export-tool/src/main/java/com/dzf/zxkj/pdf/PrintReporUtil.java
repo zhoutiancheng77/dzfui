@@ -2395,8 +2395,6 @@ public class PrintReporUtil {
         Document document = null;
         ByteArrayOutputStream buffer = null;
         try {
-            BaseFont bf = BaseFont.createFont("/data1/webApp/font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);// C:/windows/fonts/simfang.ttf
-            BaseFont bf_Bold = BaseFont.createFont("/data1/webApp/font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);//IGlobalConstants.FONTPATH
             Font titleFonts = new Font(bf_Bold, 20, Font.BOLD);
             int font = Integer.parseInt(pmap.get("font"));
             Font tableBodyFounts = new Font(bf, font, Font.NORMAL);
