@@ -27,8 +27,7 @@ public interface ISalaryReportService {
 	SalaryReportVO[] saveCopyByMonth(String pk_corp, String copyFromdate, String copyTodate, String cuserid,
                                      String billtype) throws DZFWarpException;
 
-	TzpzHVO saveToVoucher(CorpVO corpVO, String gzjttotal, String bxtotal, String gjjtotal, String grsdstotal,
-						  String sfgztotal, String qj, String cuserid, String str) throws DZFWarpException;
+	TzpzHVO saveToVoucher(CorpVO corpVO,String qj, String cuserid, String str) throws DZFWarpException;
 
 	SalaryReportVO[] save(String pk_corp, List<SalaryReportVO> list, String qj, String cuserid, String billtype)
 			throws DZFWarpException;
