@@ -2328,7 +2328,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 	@Override
 	public OcrInvoiceVO[] updateChangeBillCorp(String[] billid, String pk_corp, String period) throws DZFWarpException {
-		
+
 		if(billid==null || billid.length==0){
 			throw new BusinessException("请选择需要处理的票据！");
 		}
@@ -2336,7 +2336,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			throw new BusinessException("期间不能为空！");
 		}
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
-		
+
 		if (corpvo.getBegindate() == null) {
 			throw new BusinessException("当前公司建账日期为空，可能尚未建账，请检查！");
 		}
@@ -2348,15 +2348,15 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		OcrInvoiceVO[] ocrInfos = checkZckpAndKc(null,sql);
 		//批量查出所有图片数据并存到map里面使用
 		//OcrImageLibraryVO  OcrImageGroupVO ImageGroupVO ImageLibraryVO
-		
+
 		 Map<String,ImageInfoVO> infomap = processBillInfo(sql, ocrInfos);
-		 
+
 		for (OcrInvoiceVO invvo : ocrInfos) {
 			String pk_invoice = invvo.getPk_invoice();
 			ImageInfoVO infovo = infomap.get(pk_invoice);
-			
-			
-			
+
+
+
 			invvo.setUpdateflag(DZFBoolean.TRUE);
 			invvo.setDatasource(ZncsConst.SJLY_1);
 			//更新票据表头
@@ -2376,9 +2376,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			//singleObjectBO.deleteVOArray(tailvos);
 			//处理ocr图片信息
 			OcrImageLibraryVO ocrLibraryvo =infovo.getOcrImageLbVO();//(OcrImageLibraryVO) singleObjectBO.queryByPrimaryKey(OcrImageLibraryVO.class,invvo.getOcr_id());
-			String keycode =!StringUtil.isEmpty(ocrLibraryvo.getKeycode())?ocrLibraryvo.getKeycode(): 
+			String keycode =!StringUtil.isEmpty(ocrLibraryvo.getKeycode())?ocrLibraryvo.getKeycode():
 				ocrLibraryvo.getBatchcode() + ocrLibraryvo.getPk_custcorp() + ocrLibraryvo.getVinvoicecode()+ ocrLibraryvo.getVinvoiceno();
-			
+
 			ocrLibraryvo.setKeycode(keycode);
 			ocrLibraryvo.setPk_custcorp(pk_corp);
 			boolean isequal = ocrLibraryvo.getPk_corp().equals(ocrLibraryvo.getPk_custcorp());
@@ -2388,8 +2388,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			//singleObjectBO.deleteObject(ocrLibraryvo);
 			//处理orc图片组头
 			OcrImageGroupVO ocrgvo =infovo.getOcrImageGVO();//(OcrImageGroupVO) singleObjectBO.queryByPrimaryKey(OcrImageGroupVO.class, ocrLibraryvo.getPk_image_ocrgroup());
-			
-			
+
+
 			ocrgvo.setPk_selectcorp(pk_corp);
 			if(isequal){
 				ocrgvo.setPk_corp(pk_corp);
@@ -2399,7 +2399,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			if(grpvo==null) continue;
 			grpvo.setPk_corp(pk_corp);
 			//singleObjectBO.deleteObject(grpvo);
-			
+
 			// 处理在线发票组
 			ImageLibraryVO imglib = infovo.getImageLbVO();//(ImageLibraryVO)singleObjectBO.queryByPrimaryKey(ImageLibraryVO.class, ocrLibraryvo.getCrelationid());
 
@@ -2428,17 +2428,18 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			invvo.setPk_invoice(null);
 			invvo.setPk_image_group(grpvo.getPk_image_group());
 			invvo.setOcr_id(ocrLibraryvo.getPk_image_ocrlibrary());
-			invvo = (OcrInvoiceVO)singleObjectBO.insertVO(pk_corp, invvo);
+
 			//tailvos
 			for (OcrInvoiceDetailVO tailvo : tailvos) {
 				tailvo.setPk_corp(pk_corp);
 				tailvo.setPk_billcategory(null);
 				tailvo.setPk_category_keyword(null);
 				tailvo.setPk_invoice_detail(null);
-				tailvo.setPk_invoice(invvo.getPk_invoice());
+				//tailvo.setPk_invoice(invvo.getPk_invoice());
 			}
-			singleObjectBO.insertVOArr(pk_corp, tailvos);
+			//singleObjectBO.insertVOArr(pk_corp, tailvos);
 			invvo.setChildren(tailvos);
+			invvo = (OcrInvoiceVO)singleObjectBO.insertVO(pk_corp, invvo);
 			billcreate.createBill(invvo, grpvo, imglib, null);
 			//重新分类
 		}
