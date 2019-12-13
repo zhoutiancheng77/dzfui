@@ -116,6 +116,10 @@ public class BankStatementController extends BaseController {
         }
 
         for(BankStatementVO vo : vos){
+            //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
+            if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
+                vo.setImgpath(vo.getImgpath().replace("/gl/gl_imgview!search.action","/zncs/gl_imgview/search"));
+            }
             for(int i : iarr){
                 if(vo.getBillstatus() == i){
                     list.add(vo);

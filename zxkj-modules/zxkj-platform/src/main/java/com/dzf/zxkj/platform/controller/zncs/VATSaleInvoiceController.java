@@ -47,6 +47,7 @@ import com.dzf.zxkj.platform.service.zncs.IVatInvoiceService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.ICaiFangTongConstant;
 import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -127,6 +128,12 @@ public class VATSaleInvoiceController extends BaseController {
             VATSaleInvoiceVO[] vos = null;
             if(list!=null && list.size()>0){
                 vos = getPagedZZVOs(list.toArray(new VATSaleInvoiceVO[0]),page,rows);
+                for (VATSaleInvoiceVO vo:vos) {
+                    //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
+                    if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
+                        vo.setImgpath(vo.getImgpath().replace("/gl/gl_imgview!search.action","/zncs/gl_imgview/search"));
+                    }
+                }
             }
             log.info("查询成功！");
             grid.setRows(vos==null?new ArrayList<VATSaleInvoiceVO>(): Arrays.asList(vos));
@@ -242,6 +249,10 @@ public class VATSaleInvoiceController extends BaseController {
             VATSaleInvoiceBVO bvo = null;
             for(int i = 0; i < bodyvos.length; i++){
                 bvo = bodyvos[i];
+                //处理前端传过来的空数据，过滤
+                if(StringUtils.isEmpty(bvo.getBspmc())&&bvo.getBhjje()==null){
+                    continue;
+                }
                 if(StringUtil.isEmpty(bvo.getBspmc())//商品名称
                         && StringUtil.isEmpty(bvo.getInvspec())
                         && StringUtil.isEmpty(bvo.getMeasurename())//规格
