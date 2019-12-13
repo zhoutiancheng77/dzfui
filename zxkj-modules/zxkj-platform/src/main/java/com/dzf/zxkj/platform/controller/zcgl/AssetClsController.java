@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class AssetClsController extends BaseController {
                     grid.setSuccess(true);
                     grid.setMsg("查询成功！");
                 }else{
+                    grid.setRows(new ArrayList<AssetCleanVO>());
                     grid.setTotal(0L);
                     grid.setSuccess(true);
                     grid.setMsg("查询成功！");

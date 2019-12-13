@@ -115,7 +115,7 @@ public class ZczjmxActReportController extends BaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void printAction(@MultiRequestBody ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
@@ -287,7 +287,7 @@ public class ZczjmxActReportController extends BaseController {
 
     // 导出Excel
     @PostMapping("export/excel")
-    public void excelReport(String strlist, String corpName, String qj, HttpServletResponse response) {
+    public void excelReport(@MultiRequestBody String strlist, @MultiRequestBody String corpName, @MultiRequestBody String qj, HttpServletResponse response) {
         AssetDepreciaTionVO[] listVo = JsonUtils.deserialize(strlist, AssetDepreciaTionVO[].class);
 
         Excelexport2003<AssetDepreciaTionVO> lxs = new Excelexport2003<AssetDepreciaTionVO>();
