@@ -164,13 +164,14 @@ public class WorkbenchController extends BaseController {
      * 树参照
      */
     @RequestMapping("/queryTree")
-    public ReturnData<Grid> queryTree(@RequestBody String period){
+    public ReturnData<Grid> queryTree(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
+            String period = param.get("period");
             List<CategoryTreeVO> list = iBillcategory.queryCategoryTree(SystemUtil.getLoginCorpId(),period);
             if(list!=null&& list.size()>0){
-
-                return ReturnData.error().data(grid);
+                grid.setRows(list);
+                grid.setSuccess(true);
             }else{
                 grid.setTotal(0L);
                 grid.setSuccess(true);
