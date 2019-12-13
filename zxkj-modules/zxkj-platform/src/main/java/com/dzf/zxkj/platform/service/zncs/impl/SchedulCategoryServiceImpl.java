@@ -1463,29 +1463,77 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 			if (ocrInvoiceVO.getIstate().equals(ZncsConst.SBZT_3)) {// 增值税发票只匹配分录名称
 				buffer.append(ocrInvoiceDetailVO.getInvname());
 			} else {
+				boolean bodyhasSXF = false;	//银行单据表体出现手续费，特殊处理 20191213 ztc
 				OcrInvoiceDetailVO[] detailVOs=(OcrInvoiceDetailVO[])ocrInvoiceVO.getChildren();
-				if (detailVOs.length > 1 && !StringUtil.isEmpty(ocrInvoiceVO.getVmemo()))
+				if (detailVOs.length > 1)
 				{
-					ocrInvoiceVO.setVfirsrinvname(null);
+
 					for (OcrInvoiceDetailVO detailvo : detailVOs)
 					{
-						if (ocrInvoiceVO.getVmemo().contains(detailvo.getInvname()))
+						if (ocrInvoiceVO.getIstate().equals(ZncsConst.SBZT_1) && detailvo.getInvname() != null && detailvo.getInvname().contains("手续费"))
 						{
-							ocrInvoiceVO.setVmemo(ocrInvoiceVO.getVmemo().replace(detailvo.getInvname(), ""));
+							bodyhasSXF = true;
+						}
+						if (!StringUtil.isEmpty(ocrInvoiceVO.getVmemo()))
+						{
+							ocrInvoiceVO.setVfirsrinvname(null);
+							if (ocrInvoiceVO.getVmemo().contains(detailvo.getInvname()))
+							{
+								ocrInvoiceVO.setVmemo(ocrInvoiceVO.getVmemo().replace(detailvo.getInvname(), ""));
+							}
 						}
 					}
 				}
-				buffer.append(ocrInvoiceVO.getInvoicetype() + "," + ocrInvoiceVO.getVsalename() + ","
-						+ ocrInvoiceVO.getVpurchname() + "," + ocrInvoiceVO.getVinvoicecode() + ","
-						+ ocrInvoiceVO.getVinvoiceno() + "," + ocrInvoiceVO.getBilltitle());
-				buffer.append("," + ocrInvoiceVO.getDinvoicedate() + "," + ocrInvoiceVO.getVsaleopenacc() + ","
-						+ ocrInvoiceVO.getVsalephoneaddr());
-				buffer.append("," + ocrInvoiceVO.getVpuropenacc() + "," + ocrInvoiceVO.getVpurphoneaddr() + ","
-						+ ocrInvoiceVO.getVpurbankname() + "," + ocrInvoiceVO.getVsalebankname());
-				buffer.append("," + ocrInvoiceVO.getVfirsrinvname() + "," + ocrInvoiceVO.getIstate() + ","
-						+ ocrInvoiceVO.getVmemo() + "," + ocrInvoiceVO.getKeywords());
-				buffer.append("," + ocrInvoiceDetailVO.getInvname() + "," + ocrInvoiceDetailVO.getInvtype() + ","
-						+ ocrInvoiceDetailVO.getItemunit());
+				buffer.append(ocrInvoiceDetailVO.getInvname());
+				buffer.append(",");
+				if (bodyhasSXF == false
+						|| ocrInvoiceDetailVO.getInvname() == null
+						|| ocrInvoiceDetailVO.getInvname().contains("手续费") == false)	//银行票据多行表体的中手续费行，只用含手续费的表体项匹配 20191213 ztc
+				{
+					buffer.append(ocrInvoiceVO.getInvoicetype());
+
+
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVsalename());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVpurchname());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVinvoicecode());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVinvoiceno());
+					buffer.append(",");
+
+					buffer.append(ocrInvoiceVO.getBilltitle());
+
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getDinvoicedate());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVsaleopenacc());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVsalephoneaddr());
+
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVpuropenacc());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVpurphoneaddr());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVpurbankname());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVsalebankname());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVfirsrinvname());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getIstate());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getVmemo());
+					buffer.append(",");
+					buffer.append(ocrInvoiceVO.getKeywords());
+
+					buffer.append(",");
+					buffer.append(ocrInvoiceDetailVO.getInvtype());
+					buffer.append(",");
+					buffer.append(ocrInvoiceDetailVO.getItemunit());
+				}
 			}
 			String[] keywords = keywordnames.split(",");
 			for (int i = 0; i < keywords.length; i++) {

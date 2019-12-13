@@ -280,10 +280,10 @@ public class SalaryReportController {
     }
 
     @GetMapping("/gzjt")
-    public ReturnData<Json> gzjt(@RequestParam("opdate") String qj,
-                                 @RequestParam("gzjttotal") String gzjttotal, @RequestParam("pk_corp") String pk_corp) {
+    public ReturnData<Json> gzjt(@RequestParam Map<String, String> map) {
         Json json = new Json();
-
+        String pk_corp = map.get("pk_corp");
+        String qj = map.get("opdate");
         if (StringUtil.isEmpty(qj))
             throw new BusinessException("期间为空");
         if (StringUtil.isEmpty(pk_corp)) {
@@ -292,8 +292,7 @@ public class SalaryReportController {
         securityserv.checkSecurityForSave(pk_corp, pk_corp, SystemUtil.getLoginUserId());
 
         CorpVO corp = corpService.queryByPk(pk_corp);
-        TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, gzjttotal, null, null, null, null, qj, SystemUtil.getLoginUserId(),
-                "gzjt");
+        TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, qj, SystemUtil.getLoginUserId(),"gzjt");
         // json.setHvo(msg);
         json.setData(msg);
         json.setSuccess(true);
@@ -340,11 +339,10 @@ public class SalaryReportController {
     }
 
     @GetMapping("/gzff")
-    public ReturnData<Json> gzff(@RequestParam("sourcebilltype") String bxtotal, @RequestParam("gjjtotal") String gjjtotal,
-                                 @RequestParam("grsdstotal") String grsdstotal, @RequestParam("sfgztotal") String sfgztotal,
-                                 @RequestParam("opdate") String qj, @RequestParam("pk_corp") String pk_corp) {
+    public ReturnData<Json> gzff(@RequestParam Map<String, String> map) {
         Json json = new Json();
-
+        String qj = map.get("opdate");
+        String pk_corp = map.get("pk_corp");
         if (StringUtil.isEmpty(qj))
             throw new BusinessException("期间为空");
         if (StringUtil.isEmpty(pk_corp)) {
@@ -352,8 +350,7 @@ public class SalaryReportController {
         }
         securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
         CorpVO corp = corpService.queryByPk(pk_corp);
-        TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, null, bxtotal, gjjtotal, grsdstotal, sfgztotal, qj,
-                SystemUtil.getLoginUserId(), "gzff");
+        TzpzHVO msg = gl_gzbserv.saveToVoucher(corp,  qj, SystemUtil.getLoginUserId(), "gzff");
         json.setData(msg);
         json.setSuccess(true);
 

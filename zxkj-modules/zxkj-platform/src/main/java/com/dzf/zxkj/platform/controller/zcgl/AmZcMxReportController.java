@@ -65,7 +65,7 @@ public class AmZcMxReportController extends BaseController {
     }
 
     @PostMapping("print/pdf")
-    public void printAction(PrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void printAction(@MultiRequestBody PrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
 
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);

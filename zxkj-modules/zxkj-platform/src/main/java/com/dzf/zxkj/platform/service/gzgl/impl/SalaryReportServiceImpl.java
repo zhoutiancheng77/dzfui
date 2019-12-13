@@ -1559,8 +1559,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 	}
 
 	@Override
-	public TzpzHVO saveToVoucher(CorpVO corpvp, String gzjttotal, String bxtotal, String gjjtotal, String grsdstotal,
-								 String yfgztotal, String qj, String cuserid, String str) throws DZFWarpException {
+	public TzpzHVO saveToVoucher(CorpVO corpvp,String qj, String cuserid, String str) throws DZFWarpException {
 		String pk_corp = corpvp.getPk_corp();
 		TzpzHVO headVO = new TzpzHVO();
 		String sourcebilltype = pk_corp + qj + str;
