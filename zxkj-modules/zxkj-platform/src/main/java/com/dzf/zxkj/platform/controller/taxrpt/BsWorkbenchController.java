@@ -30,6 +30,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.service.taxrpt.IbsWorkbenchService;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.platform.vo.WorkBenchExportVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -395,16 +396,16 @@ public class BsWorkbenchController extends BaseController {
      * 导出excel
      */
     @PostMapping("export/excel")
-    public void export(String strlist, String isSingle, String period, String corpname, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+    public void export(@MultiRequestBody WorkBenchExportVo workBenchExportVo, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         // 获取需要导出数据
-        if (StringUtil.isEmpty(strlist)) {
+        if (StringUtil.isEmpty(workBenchExportVo.getStrlist())) {
             return;
         }
 
-        JSONArray array = (JSONArray) JSON.parseArray(strlist);
+        JSONArray array = (JSONArray) JSON.parseArray(workBenchExportVo.getStrlist());
         Map<String, Object[]> map = null;
         CorpVO fcorpvo = corpService.queryByPk(getLoginFcorp(corpVO));
-        if ("true".equals(isSingle)) {
+        if ("true".equals(workBenchExportVo.getIsSingle())) {
             if (fcorpvo != null && fcorpvo.getIschannel() != null && fcorpvo.getIschannel().booleanValue()) {
                 map = getJmSingleExportList();
             } else {
@@ -412,7 +413,7 @@ public class BsWorkbenchController extends BaseController {
             }
         } else {
             if (fcorpvo != null) {
-                corpname = fcorpvo.getUnitname();
+                workBenchExportVo.setCorpname(fcorpvo.getUnitname());
             }
             if (fcorpvo != null && fcorpvo.getIschannel() != null && fcorpvo.getIschannel().booleanValue()) {
                 map = getJmExportList();
@@ -445,7 +446,7 @@ public class BsWorkbenchController extends BaseController {
             toClient = new BufferedOutputStream(servletOutputStream);
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             byte[] length = ex.expBsWorkbenchExcel("纳税工作台", exptitls, expfieids, hbltitls, hblindexs, hbhtitls,
-                    hbhindexs, array, toClient, "", strslist, mnylist, stalist, taxlist, corpname, period);
+                    hbhindexs, array, toClient, "", strslist, mnylist, stalist, taxlist, workBenchExportVo.getCorpname(), workBenchExportVo.getPeriod());
             String srt2 = new String(length, "UTF-8");
             response.addHeader("Content-Length", srt2);
         } catch (IOException e) {
@@ -468,7 +469,7 @@ public class BsWorkbenchController extends BaseController {
                 }
             }
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_NSGZT, "导出" + period + "纳税信息", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_NSGZT, "导出" + workBenchExportVo.getPeriod() + "纳税信息", ISysConstants.SYS_2);
     }
 
     /**

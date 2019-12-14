@@ -7,8 +7,10 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -58,7 +60,7 @@ public class ZczjmxActReportController extends BaseController {
     private IZxkjPlatformService zxkjPlatformService;
 
     /**
-     * 查询科目明细数据
+     * 查询折旧明细数据
      */
     @PostMapping("/query")
     public ReturnData<Grid> queryAction(@MultiRequestBody(required = false) ZcQueryParamVO zcQueryParamVO, @MultiRequestBody QueryParamVO queryParamvo) {
@@ -76,6 +78,8 @@ public class ZczjmxActReportController extends BaseController {
             } else {
                 assetdepreciationvos = am_rep_zczjmxserv.getZczjMxVOs(queryParamvo, zcQueryParamVO.getAsset_id());
             }
+            // 添加小计和合计列
+            assetdepreciationvos = addTotalRows(assetdepreciationvos);
             log.info("查询成功！");
             grid.setTotal(assetdepreciationvos == null ? 0 : (long) Arrays.asList(assetdepreciationvos).size());
             grid.setRows(assetdepreciationvos == null ? null : Arrays.asList(assetdepreciationvos));
@@ -88,6 +92,66 @@ public class ZczjmxActReportController extends BaseController {
             log.error("查询失败", e);
         }
         return ReturnData.ok().data(grid);
+    }
+
+    private AssetDepreciaTionVO[] addTotalRows (AssetDepreciaTionVO[] assetdepreciationvos) {
+        List<AssetDepreciaTionVO> list = new ArrayList<AssetDepreciaTionVO>();
+        List<AssetDepreciaTionVO[]> list_group = new ArrayList<>();// 按照资产类别显示分组
+        String key = "";
+        if (assetdepreciationvos != null && assetdepreciationvos.length > 0) {
+            List<AssetDepreciaTionVO> group_temp_list = null;
+            for (AssetDepreciaTionVO vo : assetdepreciationvos) {
+                if (key.equals(vo.getPk_assetcategory())) {
+                    group_temp_list.add(vo);
+                } else {
+                    group_temp_list =  new ArrayList<>();
+                    key = vo.getPk_assetcard();// 新的分组id
+                    group_temp_list.add(vo);
+                    list_group.add(group_temp_list.toArray(new AssetDepreciaTionVO[0]));
+                }
+            }
+
+            DZFDouble assetmny_total = DZFDouble.ZERO_DBL;
+            DZFDouble depreciationmny_total = DZFDouble.ZERO_DBL;
+            DZFDouble assetnetmny_total = DZFDouble.ZERO_DBL;
+            DZFDouble originalvalue_total = DZFDouble.ZERO_DBL;
+
+            for (AssetDepreciaTionVO[] vos : list_group) {
+                // 小计金额
+                DZFDouble assetmny = DZFDouble.ZERO_DBL;
+                DZFDouble depreciationmny = DZFDouble.ZERO_DBL;
+                DZFDouble assetnetmny = DZFDouble.ZERO_DBL;
+                DZFDouble originalvalue = DZFDouble.ZERO_DBL;
+                for (AssetDepreciaTionVO tt: vos) {
+                    assetmny = SafeCompute.add(assetmny, tt.getAssetmny());
+                    depreciationmny = SafeCompute.add(depreciationmny, tt.getDepreciationmny());
+                    assetnetmny = SafeCompute.add(assetnetmny, tt.getAssetnetmny());
+                    originalvalue = SafeCompute.add(originalvalue, tt.getOriginalvalue());
+                    list.add(tt);
+                }
+                AssetDepreciaTionVO xjvo = new AssetDepreciaTionVO();
+                xjvo.setAssetname("小计");
+                xjvo.setAssetmny(assetmny);
+                xjvo.setDepreciationmny(depreciationmny);
+                xjvo.setAssetnetmny(assetnetmny);
+                xjvo.setOriginalvalue(originalvalue);
+
+                // 合计金额
+                assetmny_total = SafeCompute.add(assetmny_total, assetmny);
+                depreciationmny_total = SafeCompute.add(depreciationmny_total, depreciationmny);
+                assetnetmny_total = SafeCompute.add(assetnetmny_total, assetnetmny);
+                originalvalue_total = SafeCompute.add(originalvalue_total, originalvalue);
+                list.add(xjvo);
+            }
+            AssetDepreciaTionVO hjvo = new AssetDepreciaTionVO();
+            hjvo.setAssetname("合计");
+            hjvo.setAssetmny(assetmny_total);
+            hjvo.setDepreciationmny(depreciationmny_total);
+            hjvo.setAssetnetmny(assetnetmny_total);
+            hjvo.setOriginalvalue(originalvalue_total);
+            list.add(hjvo);
+        }
+        return list.toArray(new AssetDepreciaTionVO[0]);
     }
 
     /**

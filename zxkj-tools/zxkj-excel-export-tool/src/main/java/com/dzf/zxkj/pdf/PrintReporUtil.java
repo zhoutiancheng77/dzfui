@@ -288,7 +288,8 @@ public class PrintReporUtil {
                         PdfPTable table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths,
                                 pagecount, titlename, totalwidthmap);
                         document.add(table);
-                        document.add(printdate);
+//                        document.add(printdate);
+                        createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, null);
                         zzvosList.clear();
                         if (i < zzvos.length - 1) {
                             document.newPage();
@@ -305,7 +306,8 @@ public class PrintReporUtil {
                     PdfPTable table = addTableByTzpzBvo(zzvoArray, 0, para, columns, columnnames, listattr, widths, pagecount,
                             titlename, totalwidthmap);
                     document.add(table);
-                    document.add(printdate);
+//                    document.add(printdate);
+                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum+"", corpVO, null);
                 }
             }
 
@@ -1001,8 +1003,18 @@ public class PrintReporUtil {
     public void createBottomText(String titlename, Map<String, String> pmap, Font tableHeadFounts, Document document,
                                  String pageNum, CorpVO corpvo, List<SuperVO> kmList) {
         List<String[]> bottomlist = new ArrayList<String[]>();
-        String defaultvalue = "打印日期：" + pmap.get("printdate") + PrintUtil.getSpace(9) + "第" + pageNum + "页";
-        String[] defaultvlaues = new String[]{defaultvalue};
+//        String defaultvalue = "打印日期：" + pmap.get("printdate") + PrintUtil.getSpace(9) + "第" + pageNum + "页";
+//        String[] defaultvlaues = new String[]{defaultvalue};
+        String[] defaultvlaues = new String[3];
+        if(StringUtil.isEmpty(pmap.get("printdate"))){
+            defaultvlaues[0] = "";
+            defaultvlaues[1] = "第" + pageNum + "页";
+            defaultvlaues[2] = "";
+        }else{
+            defaultvlaues[0] = "打印日期：" + pmap.get("printdate");
+            defaultvlaues[1] =  "第" + pageNum + "页";
+            defaultvlaues[2] = "";
+        }
         if ("资 产 负 债 表".equals(titlename) || "利 润 表".equals(titlename) || "利 润 表 季 报".equals(titlename)
                 || "现 金 流 量 表".equals(titlename) || "现 金 流 量 表 季 报".equals(titlename)) {
             String dwzrr = pmap.containsKey("单位负责人") ? pmap.get("单位负责人") : PrintUtil.getSpace(10);
@@ -1089,7 +1101,7 @@ public class PrintReporUtil {
                 }
                 cell1.setPadding(0f);
                 cell1.setPaddingTop(2f);
-                cell1.setFixedHeight(16);
+                cell1.setFixedHeight(20);
                 cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
                 tablet.addCell(cell1);
             }
@@ -1176,13 +1188,17 @@ public class PrintReporUtil {
         if (tableheight == null) {
             tableheight = 2f;
         }
-        float defaultheight = 80f;
-        if (!StringUtil.isEmpty(titlename)) {
-            if ("发 生 额 及 余 额 表".equals(titlename) || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0) {
-                defaultheight = 120f;
-            }
-        }
+        float defaultheight = 120f;
+//        float defaultheight = 80f;
+//        if (!StringUtil.isEmpty(titlename)) {
+//            if ("发 生 额 及 余 额 表".equals(titlename) || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0) {
+//                defaultheight = 120f;
+//            }
+//        }
         float value = (pagesize - topsize - (float) tableheight - defaultheight) / totalMnyHight;
+        if("财 务 概 要 信 息".equals(titlename)){
+            return 100;
+        }
         return new Float(value).intValue();
     }
 
@@ -1560,11 +1576,14 @@ public class PrintReporUtil {
         if (tableheight == null) {
             tableheight = 2f;
         }
-        float defaultheight = 80f;
-        if ("发 生 额 及 余 额 表".equals(titlename) || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0) {
-            defaultheight = 120f;
-        }
+        float defaultheight = 120f;
+//        if("发 生 额 及 余 额 表".equals(titlename) || "辅助余额表".equals(titlename) || titlename.indexOf("科目明细账") > 0){
+//    		defaultheight = 120f;
+//    	}
         float value = (pagesize - topsize - (float) tableheight - defaultheight) / totalMnyHight;
+        if("财 务 概 要 信 息".equals(titlename)){
+            return 100;
+        }
         return new Float(value).intValue();
     }
 

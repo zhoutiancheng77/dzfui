@@ -115,13 +115,13 @@ public class ZclbController extends BaseController {
                 sys_zclbserv.delete(vo, pk_corp);
                 json.setSuccess(true);
                 json.setRows(vo);
-                json.setMsg("成功");
+                json.setMsg("删除成功");
             } catch (Exception e) {
                 printErrorLog(json, e, "删除失败");
             }
         } else {
             json.setSuccess(false);
-            json.setMsg("失败");
+            json.setMsg("删除失败");
         }
         Integer sysident = ISysConstants.SYS_0;
         if (!IDefaultValue.DefaultGroup.equals(corpVO.getPk_corp())) {
