@@ -46,6 +46,8 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
 
     private String isxshl = null ;// 是否显示汇率
 
+    private Integer jd = 2;// 精度
+
     public XszExcelField(String nodename, String pk_currency, String currencyname, String qj, String corpname) {
         this.nodename = nodename;
         this.pk_currency = pk_currency;
@@ -54,7 +56,8 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         this.corpname = corpname;
     }
 
-    public XszExcelField(String nodename, String pk_currency, String currencyname, String[] periods, String[] allsheetname, String qj, String corpname,String isxshl) {
+    public XszExcelField(String nodename, String pk_currency, String currencyname, String[] periods,
+                         String[] allsheetname, String qj, String corpname,String isxshl,Integer jd1) {
         this.nodename = nodename;
         this.pk_currency = pk_currency;
         this.currencyname = currencyname;
@@ -63,6 +66,7 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         this.qj = qj;
         this.corpname = corpname;
         this.isxshl = isxshl;
+        this.jd = jd1 == null ? 2:jd1;
     }
 
     private Fieldelement[] getFileWbs() {
@@ -76,15 +80,15 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         list.add(new Fieldelement("kmbm", "科目编码", false, 0, true));
         list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,50,false));
         list.add(new Fieldelement("bz", "币种", false, 0, true,20,false));
-        list.add(new Fieldelement("hl", "汇率", true, 2, true));
+        list.add(new Fieldelement("hl", "汇率", true, jd.intValue(), true));
         Fieldelement qcelement = new Fieldelement("", "借方", true, 2, true, 1, 2);
         qcelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybjf", "原币", true, 2, true),
+                new Fieldelement("ybjf", "原币", true, 4, true),
                 new Fieldelement("jfmny", "本位币", true, 2, true)});
         list.add(qcelement);
         Fieldelement bqelement = new Fieldelement("", "贷方", true, 2, true, 1, 2);
         bqelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybdf", "原币", true, 2, true),
+                new Fieldelement("ybdf", "原币", true, 4, true),
                 new Fieldelement("dfmny", "本位币", true, 2, true)});
         list.add(bqelement);
         return list.toArray(new Fieldelement[0]);
@@ -159,7 +163,7 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
 
     @Override
     public boolean[] isShowTitDetail() {
-        return new boolean[] { true, true, true };
+        return new boolean[] { true, true, false };
     }
 
     @Override

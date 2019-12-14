@@ -138,8 +138,8 @@ public class XszController  extends ReportBaseController {
         String currencyname = new ReportUtil().getCurrencyDw(queryparamvo.getCurrency());
         String[] periods = new String[]{qj};
         String[] allsheetname = new String[]{"序时账"};
-
-        XszExcelField field = new XszExcelField("序时账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,gs, queryparamvo.getIsxshl());
+        Integer jd = new ReportUtil(zxkjPlatformService).getHlJd(queryparamvo.getPk_corp());
+        XszExcelField field = new XszExcelField("序时账", queryparamvo.getPk_currency(), currencyname, periods, allsheetname, qj,gs, queryparamvo.getIsxshl(),jd);
         List<XsZVO[]> result = new ArrayList<XsZVO[]>();
         result.add(listVo);
         field.setAllsheetzcvos(result);
