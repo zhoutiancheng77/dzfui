@@ -76,7 +76,7 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
     }
 
     @PostMapping("export/excel")
-    public void export(String list, String corpName, String period, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
+    public void export(@MultiRequestBody  String list, @MultiRequestBody  String corpName, @MultiRequestBody  String period, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
         ZcdzVO[] listVo = JsonUtils.deserialize(list, ZcdzVO[].class);
 
         Excelexport2003<ZcdzVO> lxs = new Excelexport2003<ZcdzVO>();
@@ -91,7 +91,7 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
     }
 
     @PostMapping("print/pdf")
-    public void print(String corpName, String period, PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+    public void print(@MultiRequestBody String corpName, @MultiRequestBody String period, @MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             String strlist = printParamVO.getList();

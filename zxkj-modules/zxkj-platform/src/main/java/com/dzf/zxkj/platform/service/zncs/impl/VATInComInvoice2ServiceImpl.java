@@ -1810,6 +1810,9 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 
 		list = filterRepeationData(list, pk_corp, msg);// 过滤重复数据
+		if((list==null||list.size()==0)&&msg.toString()!=null){
+			throw new BusinessException(msg.toString());
+		}
 
 		// 重新封装详细数据
 		if(flag != null && flag.booleanValue()){

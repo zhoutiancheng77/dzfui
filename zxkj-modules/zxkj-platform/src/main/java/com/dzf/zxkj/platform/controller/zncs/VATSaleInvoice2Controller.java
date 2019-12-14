@@ -138,6 +138,10 @@ public class VATSaleInvoice2Controller extends BaseController {
             if (list != null && list.size() > 0) {
                 vos = getPagedZZVOs(list.toArray(new VATSaleInvoiceVO2[0]), page, rows);
                 for (VATSaleInvoiceVO2 vo : vos) {
+                    //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
+                    if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
+                        vo.setImgpath(vo.getImgpath().replace("/gl/gl_imgview!search.action","/zncs/gl_imgview/search"));
+                    }
                     //未制证，有图片来源，有业务类型，则不显示业务类型，通过票据工作台处理
                     if (StringUtil.isEmpty(vo.getPk_tzpz_h()) && !StringUtil.isEmpty(vo.getImgpath()) && (!StringUtil.isEmpty(vo.getPk_model_h()) || !StringUtil.isEmpty(vo.getBusitypetempname()))) {
                         vo.setPk_model_h(null);

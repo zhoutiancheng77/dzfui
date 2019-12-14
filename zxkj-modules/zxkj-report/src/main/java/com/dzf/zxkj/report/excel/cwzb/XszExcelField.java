@@ -75,7 +75,7 @@ public class XszExcelField extends MuiltSheetAndTitleExceport<XsZVO> implements 
         list.add(new Fieldelement("zy", "摘要", false, 0, true));
         list.add(new Fieldelement("kmbm", "科目编码", false, 0, true));
         list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,50,false));
-        list.add(new Fieldelement("bz", "币种", false, 0, true,50,false));
+        list.add(new Fieldelement("bz", "币种", false, 0, true,20,false));
         list.add(new Fieldelement("hl", "汇率", true, 2, true));
         Fieldelement qcelement = new Fieldelement("", "借方", true, 2, true, 1, 2);
         qcelement.setChilds(new Fieldelement[] {

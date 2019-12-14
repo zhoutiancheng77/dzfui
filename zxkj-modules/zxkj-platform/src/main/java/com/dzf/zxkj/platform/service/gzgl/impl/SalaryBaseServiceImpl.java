@@ -383,6 +383,7 @@ public class SalaryBaseServiceImpl implements ISalaryBaseService {
 			Map<String, SalaryBaseVO> basemap = getSalaryBaseVO(pk_corp, qj);
 			gl_gzbcalserv.calSbGjj(vo, setvo, basemap.get(pks[0]));
 		}
+		vo.setPk_corp(pk_corp);
 		return vo;
 	}
 

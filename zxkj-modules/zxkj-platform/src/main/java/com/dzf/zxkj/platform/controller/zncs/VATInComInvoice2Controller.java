@@ -131,6 +131,10 @@ public class VATInComInvoice2Controller extends BaseController {
                 vos = getPagedZZVOs(list.toArray(new VATInComInvoiceVO2[0]),paramvo.getPage(),paramvo.getRows());
                 for (VATInComInvoiceVO2 vo : vos)
                 {
+                    //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
+                    if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
+                        vo.setImgpath(vo.getImgpath().replace("/gl/gl_imgview!search.action","/zncs/gl_imgview/search"));
+                    }
                     if (StringUtil.isEmpty(vo.getPk_tzpz_h()) && !StringUtil.isEmpty(vo.getImgpath()) && (!StringUtil.isEmpty(vo.getPk_model_h()) || !StringUtil.isEmpty(vo.getBusitypetempname())))
                     {
                         vo.setPk_model_h(null);

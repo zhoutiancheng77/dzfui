@@ -75,6 +75,7 @@ public class ZjhzReportController extends BaseController {
             if (zjhbzList.size() == 0) {
                 json.setMsg("无数据！");
                 json.setRows(zjhbzList);
+                json.setSuccess(true);
             } else {
                 json.setSuccess(true);
                 json.setMsg("查询成功！");
@@ -94,6 +95,11 @@ public class ZjhzReportController extends BaseController {
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody String strlist, @MultiRequestBody("corpName") String gs, @MultiRequestBody String qj, HttpServletResponse response) {
         AssetDepreciaTionVO[] listVo = JsonUtils.deserialize(strlist, AssetDepreciaTionVO[].class);
+        if (listVo!= null && listVo.length>0) {
+            for (AssetDepreciaTionVO vo: listVo) {
+                vo.setAssetproperty(getAssetpropertyName(vo.getAssetproperty()));
+            }
+        }
         Excelexport2003<AssetDepreciaTionVO> lxs = new Excelexport2003<>();
         ZchzExcelField zcz = new ZchzExcelField();
         zcz.setAssdetivos(listVo);
@@ -138,7 +144,7 @@ public class ZjhzReportController extends BaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void printAction( @MultiRequestBody  ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
 
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
@@ -157,6 +163,11 @@ public class ZjhzReportController extends BaseController {
             printReporUtil.setIscross(printParamVO.getPageOrt().equals("Y") ? DZFBoolean.TRUE : DZFBoolean.FALSE);
 
             AssetDepreciaTionVO[] bodyvos = JsonUtils.deserialize(printParamVO.getData(), AssetDepreciaTionVO[].class);
+            if (bodyvos!= null && bodyvos.length>0) {
+                for (AssetDepreciaTionVO vo: bodyvos) {
+                    vo.setAssetproperty(getAssetpropertyName(vo.getAssetproperty()));
+                }
+            }
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存title
             tmap.put("公司", printParamVO.getCorpName());
@@ -250,6 +261,17 @@ public class ZjhzReportController extends BaseController {
         temp.setAssetnetmny(assetnetmny_lx.toString());
         temp.setOriginalvalue(originalvalue_lx.toString());
         return temp;
+    }
+
+    private String getAssetpropertyName (String assetProperty) {
+        if ("0".equals(assetProperty))
+            return "固定资产";
+        else if ("1".equals(assetProperty))
+            return "无形资产";
+        else if ("3".equals(assetProperty))
+            return "待摊费用";
+         else
+            return "";
     }
 
     private String getAssetProperty(String assetProperty) {
