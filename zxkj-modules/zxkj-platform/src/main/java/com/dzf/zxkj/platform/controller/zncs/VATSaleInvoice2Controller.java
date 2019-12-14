@@ -437,7 +437,7 @@ public class VATSaleInvoice2Controller extends BaseController {
 
     //删除记录
     @RequestMapping("/onDelete")
-    public ReturnData<Json> onDelete(@RequestParam("head") String body) {
+    public ReturnData<Json> onDelete(@RequestBody Map<String,String> param){
         Json json = new Json();
         json.setSuccess(false);
         StringBuffer strb = new StringBuffer();
@@ -448,16 +448,17 @@ public class VATSaleInvoice2Controller extends BaseController {
         String msg = "";
         List<String> sucHM = new ArrayList<String>();
         List<String> errHM = new ArrayList<String>();
-        boolean lock = false;
+       // boolean lock = false;
         try {
+            String body = param.get("head");
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
 //            lock = LockUtil.getInstance().addLockKey("xiaoxiangdel", pk_corp, requestid, 600);// 设置600秒
-            if (!lock) {//处理
-                json.setSuccess(false);
-                json.setMsg("正在处理中，请稍候刷新界面");
-                return ReturnData.error().data(json);
-            }
+//            if (!lock) {//处理
+//                json.setSuccess(false);
+//                json.setMsg("正在处理中，请稍候刷新界面");
+//                return ReturnData.error().data(json);
+//            }
 
             if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");

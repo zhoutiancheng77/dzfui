@@ -1250,7 +1250,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/combineRule")
-    public ReturnData<Json> combineRule( Map<String,String> param){
+    public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
             String pzrq = param.get("pzrq");
