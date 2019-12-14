@@ -154,7 +154,9 @@ public class ExcelReport {
                         cell2.setCellValue(new HSSFRichTextString(headers.get(i + 1).split("_")[1]));
                         CellRangeAddress region1 = new CellRangeAddress(4, 4,7,
                                 (headermap.get(headers.get(i)).size() + 6));
-                        sheet.addMergedRegion(region1);
+                        if((headermap.get(headers.get(i)).size() + 6) != 7){
+                            sheet.addMergedRegion(region1);
+                        }
                         newxtvalue = headermap.get(headers.get(i)).size();
                     }
 
@@ -162,7 +164,9 @@ public class ExcelReport {
                         cell1.setCellValue(new HSSFRichTextString(headers.get(i + 1)));
                         cell2.setCellValue(new HSSFRichTextString(headers.get(i + 2).split("_")[1]));
                         CellRangeAddress region1 = new CellRangeAddress(4, 4, (newxtvalue + 7),(fieldlength - 1));
-                        sheet.addMergedRegion(region1);
+                        if((newxtvalue + 7) != (fieldlength - 1)){
+                            sheet.addMergedRegion(region1);
+                        }
                     }
                     if (i < fieldlength) {
                         if (i > 7 && i < (newxtvalue + 7)) {
