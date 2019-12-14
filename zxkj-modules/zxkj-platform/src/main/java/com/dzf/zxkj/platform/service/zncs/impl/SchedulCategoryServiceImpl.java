@@ -1484,8 +1484,7 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 						}
 					}
 				}
-				buffer.append(ocrInvoiceDetailVO.getInvname());
-				buffer.append(",");
+
 				if (bodyhasSXF == false
 						|| ocrInvoiceDetailVO.getInvname() == null
 						|| ocrInvoiceDetailVO.getInvname().contains("手续费") == false)	//银行票据多行表体的中手续费行，只用含手续费的表体项匹配 20191213 ztc
@@ -1533,7 +1532,18 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 					buffer.append(ocrInvoiceDetailVO.getInvtype());
 					buffer.append(",");
 					buffer.append(ocrInvoiceDetailVO.getItemunit());
+					buffer.append(",");
+                    if (bodyhasSXF &&
+                            (ocrInvoiceDetailVO.getInvname() == null
+                            || ocrInvoiceDetailVO.getInvname().contains("手续费") == false))		//表体含有手续费，但当前表体行没有手续费，替换全部表头中的手续费字样为空。
+                    {
+                        String s = buffer.toString().replace("手续费", "");
+                        buffer = new StringBuffer();
+                        buffer.append(s);
+                    }
 				}
+                buffer.append(ocrInvoiceDetailVO.getInvname());
+                buffer.append(",");
 			}
 			String[] keywords = keywordnames.split(",");
 			for (int i = 0; i < keywords.length; i++) {

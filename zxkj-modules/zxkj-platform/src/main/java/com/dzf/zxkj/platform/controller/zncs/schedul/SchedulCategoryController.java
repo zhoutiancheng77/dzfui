@@ -1,7 +1,9 @@
 package com.dzf.zxkj.platform.controller.zncs.schedul;
 
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.image.OcrInvoiceVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -11,6 +13,7 @@ import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-//@Component
+@Component
 public class SchedulCategoryController {
 
     /**
@@ -36,8 +39,9 @@ public class SchedulCategoryController {
     private ICorpService corpService;
 
     private ScheduledThreadPoolExecutor stexec;
+
     public SchedulCategoryController(){
-        initSchedulThreadPool();
+//        initSchedulThreadPool();
     }
     public void initSchedulThreadPool(){
         try {
