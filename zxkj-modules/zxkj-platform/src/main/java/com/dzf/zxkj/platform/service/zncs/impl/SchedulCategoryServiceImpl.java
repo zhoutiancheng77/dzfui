@@ -1532,6 +1532,7 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 					buffer.append(ocrInvoiceDetailVO.getInvtype());
 					buffer.append(",");
 					buffer.append(ocrInvoiceDetailVO.getItemunit());
+					buffer.append(",");
                     if (bodyhasSXF &&
                             (ocrInvoiceDetailVO.getInvname() == null
                             || ocrInvoiceDetailVO.getInvname().contains("手续费") == false))		//表体含有手续费，但当前表体行没有手续费，替换全部表头中的手续费字样为空。
@@ -1539,7 +1540,6 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
                         String s = buffer.toString().replace("手续费", "");
                         buffer = new StringBuffer();
                         buffer.append(s);
-                        buffer.append(",");
                     }
 				}
                 buffer.append(ocrInvoiceDetailVO.getInvname());
