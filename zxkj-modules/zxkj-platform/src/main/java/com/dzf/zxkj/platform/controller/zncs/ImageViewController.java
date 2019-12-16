@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.controller.zncs;
 
 import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -15,6 +16,8 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
 
@@ -84,6 +88,7 @@ public class ImageViewController extends BaseController {
 //        }
         ServletOutputStream sos = null;
         FileInputStream fis = null;
+        InputStream is=null;
         try{
             ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(pk_cprp_ser, Pk_image_library);
             String imgPathName = null;
@@ -122,22 +127,28 @@ public class ImageViewController extends BaseController {
 //            if(corpSet.contains(pk_cprp_ser)){
             if(true){
                 if(!file.exists()){
-                    String pathNoExist = session.getServletContext().getRealPath("/")
-                            + "img" + File.separator + "picnoexist.jpg";
-                    File picNoExist = new File(pathNoExist);
+                   // Resource exportTemplate = new ClassPathResource("img"+ File.separator;+ fileName);
+                  //  String pathNoExist = session.getServletContext().getRealPath("/")
+                         //   + "img" + File.separator + "picnoexist.jpg";
 
-                    fis = new FileInputStream(picNoExist);
+                    String pathNoExist = "img"+ File.separator+ "picnoexist.jpg";
+
+                    Resource exportTemplate = new ClassPathResource(pathNoExist);
+                     is = exportTemplate.getInputStream();
+                   // File picNoExist = new File(pathNoExist);
+
+                   // fis = new FileInputStream(picNoExist);
                     sos = response.getOutputStream();
 
                     //读取文件流
                     int i = 0;
                     byte[] buffer = new byte[1024];
-                    while((i = fis.read(buffer)) != -1){
+                    while((i = is.read(buffer)) != -1){
                         //写文件流
                         sos.write(buffer, 0, i);
                     }
                     sos.flush();
-                    fis.close();
+                    is.close();
 
                     grid.setSuccess(true);
                     log.info("图片不存在!");
@@ -159,22 +170,26 @@ public class ImageViewController extends BaseController {
                 log.info("查询图片成功!");
 
             }else{
-                String pathNoAuth = session.getServletContext().getRealPath("/")
-                        + "img" + File.separator + "picnoauth.jpg";
-                File picNoAuth = new File(pathNoAuth);
+               // String pathNoAuth = session.getServletContext().getRealPath("/")
+                 //       + "img" + File.separator + "picnoauth.jpg";
+              //  File picNoAuth = new File(pathNoAuth);
+                String pathNoExist = "img"+ File.separator+ "picnoexist.jpg";
 
-                fis = new FileInputStream(picNoAuth);
+                Resource exportTemplate = new ClassPathResource(pathNoExist);
+                is = exportTemplate.getInputStream();
+
+                //fis = new FileInputStream(picNoAuth);
                 sos = response.getOutputStream();
 
                 //读取文件流
                 int i = 0;
                 byte[] buffer = new byte[1024];
-                while((i = fis.read(buffer)) != -1){
+                while((i = is.read(buffer)) != -1){
                     //写文件流
                     sos.write(buffer, 0, i);
                 }
                 sos.flush();
-                fis.close();
+                is.close();
 
                 grid.setSuccess(true);
                 log.info("无权查看！");
@@ -197,6 +212,14 @@ public class ImageViewController extends BaseController {
                     //e.printStackTrace();
                 }
             }
+            if(is != null){
+                try{
+                    is.close();
+                }catch(Exception e){
+                    //e.printStackTrace();
+                }
+            }
+
         }
         return ReturnData.ok().data(grid);
     }
