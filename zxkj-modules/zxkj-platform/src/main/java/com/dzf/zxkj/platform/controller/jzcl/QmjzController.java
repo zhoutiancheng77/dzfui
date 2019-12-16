@@ -10,7 +10,6 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.common.query.ReportPrintParamVO;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
@@ -22,6 +21,7 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.jzcl.ITerminalSettle;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.platform.vo.QmjzPrintVo;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
@@ -366,10 +366,10 @@ public class QmjzController extends BaseController {
     }
 
     @PostMapping("print/pdf")
-    public void print(ReportPrintParamVO printParamVO, String data, String period, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void print(@MultiRequestBody QmjzPrintVo printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         try {
-            QmJzVO[] qmJzVOS = JsonUtils.deserialize(data, QmJzVO[].class);
+            QmJzVO[] qmJzVOS = JsonUtils.deserialize(printParamVO.getData(), QmJzVO[].class);
             if (qmJzVOS == null || qmJzVOS.length == 0) {
                 return;
             }
@@ -395,7 +395,7 @@ public class QmjzController extends BaseController {
 
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
-            tmap.put("期间", period);
+            tmap.put("期间", printParamVO.getPeriod());
             printReporUtil.setLineheight(22f);
 
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), qmJzVOS, "年 末 结 账",
