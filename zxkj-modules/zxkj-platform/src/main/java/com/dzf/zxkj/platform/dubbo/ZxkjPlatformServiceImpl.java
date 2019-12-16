@@ -18,8 +18,6 @@ import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellBVO;
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.*;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
@@ -31,7 +29,6 @@ import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.tax.ICorpTaxService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
-import com.dzf.zxkj.platform.service.taxrpt.ITaxRptCalCellService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,9 +92,6 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IXssrTemService xssrTemService;
-
-    @Autowired
-    private ITaxRptCalCellService taxRptCalCellService;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -452,13 +446,4 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
         }
     }
 
-    @Override
-    public TaxRptCalCellVO getTaxRptCalCell(TaxRptCalCellBVO[] params) {
-        try {
-            return taxRptCalCellService.getTaxRptCalCell(params);
-        } catch (DZFWarpException e) {
-            log.error(String.format("调用getTaxRptCalCell异常,异常信息:%s", e.getMessage()), e);
-            return null;
-        }
-    }
 }

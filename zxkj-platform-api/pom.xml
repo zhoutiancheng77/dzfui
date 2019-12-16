@@ -17,5 +17,6 @@
         <module>zxkj-platform-auth-api</module>
         <module>zxkj-platform-main-api</module>
         <module>zxkj-platform-report-api</module>
+        <module>zxkj-platform-taxrpt-api</module>
     </modules>
 </project>

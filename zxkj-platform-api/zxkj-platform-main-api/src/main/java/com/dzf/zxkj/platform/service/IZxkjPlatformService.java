@@ -16,8 +16,6 @@ import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellBVO;
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellVO;
 
 import java.util.List;
 import java.util.Map;
@@ -98,5 +96,4 @@ public interface IZxkjPlatformService {
 
     List<CorpTaxVo> queryTaxVoByParam(QueryParamVO paramvo, UserVO uservo);
 
-    TaxRptCalCellVO getTaxRptCalCell(TaxRptCalCellBVO[] params);
 }

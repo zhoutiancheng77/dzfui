@@ -137,6 +137,11 @@
         </dependency>
         <dependency>
             <groupId>com.dzf</groupId>
+            <artifactId>zxkj-platform-taxrpt-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
             <artifactId>zxkj-excel-export-tool</artifactId>
             <version>1.0</version>
         </dependency>
