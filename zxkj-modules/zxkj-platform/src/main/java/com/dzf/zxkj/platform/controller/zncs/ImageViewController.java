@@ -152,23 +152,23 @@ public class ImageViewController extends BaseController {
 
                     grid.setSuccess(true);
                     log.info("图片不存在!");
+                }else{
+                    fis = new FileInputStream(file);
+                    sos = response.getOutputStream();
+
+                    //读取文件流
+                    int i = 0;
+                    byte[] buffer = new byte[1024];
+                    while((i = fis.read(buffer)) != -1){
+                        //写文件流
+                        sos.write(buffer, 0, i);
+                    }
+                    sos.flush();
+                    fis.close();
+
+                    grid.setSuccess(true);
+                    log.info("查询图片成功!");
                 }
-                fis = new FileInputStream(file);
-                sos = response.getOutputStream();
-
-                //读取文件流
-                int i = 0;
-                byte[] buffer = new byte[1024];
-                while((i = fis.read(buffer)) != -1){
-                    //写文件流
-                    sos.write(buffer, 0, i);
-                }
-                sos.flush();
-                fis.close();
-
-                grid.setSuccess(true);
-                log.info("查询图片成功!");
-
             }else{
                // String pathNoAuth = session.getServletContext().getRealPath("/")
                  //       + "img" + File.separator + "picnoauth.jpg";
