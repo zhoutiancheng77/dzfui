@@ -426,6 +426,7 @@ public class BankStatement2Controller extends BaseController {
                 json.setSuccess(false);
             }else{
                 log.error("导入失败!",json, log, e );
+                json.setMsg(e.getMessage());
             }
         }
 
