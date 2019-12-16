@@ -205,7 +205,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 		}else{
 			ivo.setIsinputremind("N");
 		}
-		if (ivo.getPk_accsubj().length() > 1250) {
+		if (!StringUtil.isEmpty(ivo.getPk_accsubj()) && ivo.getPk_accsubj().length() > 1250) {
 			throw new BusinessException("最多可选择50个科目");
 		}
 		if (StringUtil.isEmpty(vo.getPk_sryj())) {
