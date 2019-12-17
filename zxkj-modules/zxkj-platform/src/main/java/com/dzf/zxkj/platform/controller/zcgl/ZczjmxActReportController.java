@@ -96,7 +96,7 @@ public class ZczjmxActReportController extends BaseController {
 
     private AssetDepreciaTionVO[] addTotalRows (AssetDepreciaTionVO[] assetdepreciationvos) {
         List<AssetDepreciaTionVO> list = new ArrayList<AssetDepreciaTionVO>();
-        List<AssetDepreciaTionVO[]> list_group = new ArrayList<>();// 按照资产类别显示分组
+        List<List<AssetDepreciaTionVO>> list_group = new ArrayList<>();// 按照资产类别显示分组
         String key = "";
         if (assetdepreciationvos != null && assetdepreciationvos.length > 0) {
             List<AssetDepreciaTionVO> group_temp_list = null;
@@ -105,9 +105,9 @@ public class ZczjmxActReportController extends BaseController {
                     group_temp_list.add(vo);
                 } else {
                     group_temp_list =  new ArrayList<>();
-                    key = vo.getPk_assetcard();// 新的分组id
+                    key = vo.getPk_assetcategory();// 新的分组id
                     group_temp_list.add(vo);
-                    list_group.add(group_temp_list.toArray(new AssetDepreciaTionVO[0]));
+                    list_group.add(group_temp_list);
                 }
             }
 
@@ -116,17 +116,21 @@ public class ZczjmxActReportController extends BaseController {
             DZFDouble assetnetmny_total = DZFDouble.ZERO_DBL;
             DZFDouble originalvalue_total = DZFDouble.ZERO_DBL;
 
-            for (AssetDepreciaTionVO[] vos : list_group) {
+            for (List<AssetDepreciaTionVO> vos : list_group) {
                 // 小计金额
+                Set<String> sets = new HashSet<>();
                 DZFDouble assetmny = DZFDouble.ZERO_DBL;
                 DZFDouble depreciationmny = DZFDouble.ZERO_DBL;
                 DZFDouble assetnetmny = DZFDouble.ZERO_DBL;
                 DZFDouble originalvalue = DZFDouble.ZERO_DBL;
                 for (AssetDepreciaTionVO tt: vos) {
-                    assetmny = SafeCompute.add(assetmny, tt.getAssetmny());
                     depreciationmny = SafeCompute.add(depreciationmny, tt.getDepreciationmny());
-                    assetnetmny = SafeCompute.add(assetnetmny, tt.getAssetnetmny());
-                    originalvalue = SafeCompute.add(originalvalue, tt.getOriginalvalue());
+                    if (!sets.contains(tt.getPk_assetcard())) {
+                        assetmny = SafeCompute.add(assetmny, tt.getAssetmny());
+                        assetnetmny = SafeCompute.add(assetnetmny, tt.getAssetnetmny());
+                        originalvalue = SafeCompute.add(originalvalue, tt.getOriginalvalue());
+                        sets.add(tt.getPk_assetcard());
+                    }
                     list.add(tt);
                 }
                 AssetDepreciaTionVO xjvo = new AssetDepreciaTionVO();
