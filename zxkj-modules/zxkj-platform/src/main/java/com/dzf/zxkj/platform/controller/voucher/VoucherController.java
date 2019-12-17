@@ -2,8 +2,10 @@ package com.dzf.zxkj.platform.controller.voucher;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
@@ -20,7 +22,9 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.controller.glic.CrkPrintUtil;
 import com.dzf.zxkj.platform.model.bdset.*;
+import com.dzf.zxkj.platform.model.glic.IcDetailVO;
 import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 import com.dzf.zxkj.platform.model.image.ImageLibraryVO;
@@ -38,6 +42,7 @@ import com.dzf.zxkj.platform.model.voucher.PzglmessageVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.IPersonalSetService;
 import com.dzf.zxkj.platform.service.bdset.IPzmbhService;
+import com.dzf.zxkj.platform.service.glic.ICrkMxService;
 import com.dzf.zxkj.platform.service.glic.impl.CheckInventorySet;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
@@ -49,6 +54,11 @@ import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -1689,7 +1699,7 @@ public class VoucherController {
     }
 
     @RequestMapping("/quickCreateVoucher")
-    public ReturnData<Json> quickCreateVoucher(@RequestBody Map<String,String> param) {
+    public ReturnData<Json> quickCreateVoucher(@RequestBody Map<String, String> param) {
         Json json = new Json();
         try {
             JSONObject rawData = JSON.parseObject(param.get("data"));
@@ -1783,7 +1793,7 @@ public class VoucherController {
     }
 
     @RequestMapping("/getNewInfo")
-    public ReturnData getNewInfo(@RequestBody Map<String,String> param){
+    public ReturnData getNewInfo(@RequestBody Map<String, String> param) {
         Json json = new Json();
         try {
             String date = param.get("vchdate");
@@ -1804,16 +1814,87 @@ public class VoucherController {
             json.setMsg("获取凭证号成功");
             json.setData(data);
         } catch (Exception e) {
-            log.error("获取凭证号失败!",e);
+            log.error("获取凭证号失败!", e);
         }
         return ReturnData.ok().data(json);
     }
+
     private Map<String, Object> getNewInfoJson(DZFDate vchdate) {
         String newVoucherNum = yntBoPubUtil.getNewVoucherNo(SystemUtil.getLoginCorpId(), vchdate);
-        Map<String,Object> data = new HashMap<String,Object>();
+        Map<String, Object> data = new HashMap<String, Object>();
         data.put("vchNum", newVoucherNum);
         data.put("vchYear", vchdate.getYear());
         data.put("qj", vchdate.getMonth());
         return data;
+    }
+
+    /**
+     * 校验是否存在出库数据
+     */
+    @GetMapping("/checkCrkmx")
+    public ReturnData checkCrkmx(@RequestParam String ids) {
+        Json json = new Json();
+        ICrkMxService gl_rep_crkmxserv = (ICrkMxService) SpringUtils.getBean("gl_rep_crkmxserv");
+        Map<String, List<IcDetailVO>> crkmxlist = gl_rep_crkmxserv.queryCrkmxs(null, ids.split(","),
+                SystemUtil.getLoginCorpId(), "");
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 打印出入库明细
+     */
+    @PostMapping("/printCrkmx")
+    public void printCrkmx(@RequestParam String ids, HttpServletResponse response) {
+        Rectangle pageSize = PageSize.A4;
+        float leftsize = 47f;
+        float rightsize = 15f;
+        float topsize = 36f;
+        Document document = new Document(pageSize, leftsize, rightsize, topsize, 4);
+        ByteArrayOutputStream buffer = null;
+        try {
+            String loginCorp = SystemUtil.getLoginCorpId();
+            ICrkMxService gl_rep_crkmxserv = (ICrkMxService) SpringUtils.getBean("gl_rep_crkmxserv");
+            SingleObjectBO singleObjectBO = (SingleObjectBO) SpringUtils.getBean("singleObjectBO");
+            Map<String, List<IcDetailVO>> crkmxlist = gl_rep_crkmxserv.queryCrkmxs(null,
+                    ids.split(","), loginCorp, "");
+            CorpVO cpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, loginCorp);
+            buffer = new ByteArrayOutputStream();
+            PdfWriter writer = PdfWriter.getInstance(document, buffer);
+            document.open();
+            PdfContentByte canvas = writer.getDirectContent();
+            CrkPrintUtil printutil = new CrkPrintUtil();
+            // 赋值首字符的值
+            printutil.batchPrintCrkContent(leftsize, topsize, document, canvas, crkmxlist, cpvo);
+        } catch (Exception e) {
+            log.error("打印出入库明细", e);
+        } finally {
+            document.close();
+        }
+        ServletOutputStream out = null;
+        try {
+            response.setContentType("application/pdf");
+            response.setCharacterEncoding("utf-8");
+            response.setContentLength(buffer.size());
+            out = response.getOutputStream();
+            buffer.writeTo(out);
+            buffer.flush();// flush 放在finally的时候流关闭失败报错
+            out.flush();
+        } catch (IOException e) {
+
+        } finally {
+            try {
+                if (buffer != null) {
+                    buffer.close();
+                }
+            } catch (IOException e) {
+            }
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+            }
+        }
     }
 }
