@@ -1005,7 +1005,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		try {
 			requestid = UUID.randomUUID().toString();
 //			lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key, requestid, 60);// 设置60秒
-			if (lock) {
+			if (true) {
 				cateservice.newSaveCorpCategory(null, pk_corp, period, corpvo);
 
 				cateservice.updateInvCategory(list, pk_corp, period, corpvo);
