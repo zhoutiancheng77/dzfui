@@ -34,6 +34,8 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.service.taxrpt.IKmQryService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxRptCalCellService;
 import com.dzf.zxkj.platform.service.taxrpt.IbsWorkbenchService;
+import com.dzf.zxkj.platform.taxrpt.model.TaxRptCalCellBVO;
+import com.dzf.zxkj.platform.taxrpt.model.TaxRptCalCellVO;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.vo.QrySqlSpmVO;
 import lombok.extern.slf4j.Slf4j;
@@ -1475,7 +1477,7 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
 	 * @param schemap 科目方案集合
 	 * @throws DZFWarpException
 	 */
-	private void getRealpayData(BsWorkbenchVO bsvo, Map<String, List<TaxRptCalCellBVO>> pamap,Map<String, String> schemap
+	private void getRealpayData(BsWorkbenchVO bsvo, Map<String, List<TaxRptCalCellBVO>> pamap, Map<String, String> schemap
 			) throws DZFWarpException {
 		//纳税申报税种：1：增值税；2：消费税；3：企业所得税；4：文化事业建设费；5：附加税合计；6：城建税；7：教育费附加；8：地方教育费附加；9：个人所得税；10：财报；
 		List<TaxRptCalCellBVO> list = getTaxProp(bsvo, pamap, schemap);
@@ -1616,7 +1618,7 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
 	 * @throws DZFWarpException
 	 */
 	private List<TaxRptCalCellBVO> getTaxProp(BsWorkbenchVO bsvo, Map<String, List<TaxRptCalCellBVO>> pamap,
-			Map<String, String> schemap) throws DZFWarpException {
+                                              Map<String, String> schemap) throws DZFWarpException {
 		List<TaxRptCalCellBVO> retlist = new ArrayList<TaxRptCalCellBVO>();
 		// 纳税申报税种：1：增值税；2：消费税；3：企业所得税；4：文化事业建设费；5：附加税合计；6：城建税；7：教育费附加；8：地方教育费附加；9：个人所得税；10：财报；
 		Integer[] taxcodes = new Integer[]{1,2,3,4,5,6,7,8,9,10,11};

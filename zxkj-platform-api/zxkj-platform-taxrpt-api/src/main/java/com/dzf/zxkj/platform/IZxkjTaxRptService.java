@@ -1,7 +1,7 @@
 package com.dzf.zxkj.platform;
 
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellBVO;
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellVO;
+import com.dzf.zxkj.platform.taxrpt.model.TaxRptCalCellBVO;
+import com.dzf.zxkj.platform.taxrpt.model.TaxRptCalCellVO;
 
 public interface IZxkjTaxRptService {
 
