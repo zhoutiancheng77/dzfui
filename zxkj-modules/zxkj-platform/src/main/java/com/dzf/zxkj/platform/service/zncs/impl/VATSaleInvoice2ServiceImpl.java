@@ -7412,7 +7412,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		return list.toArray(new OcrInvoiceDetailVO[0]);
 	}
 	public List<VATSaleInvoiceVO2> changeToSale(List<VATSaleInvoiceVO2> sList,String pk_corp){
-		boolean lock = false;
+		boolean lock = true;
 		String requestid = null;
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		List<OcrInvoiceVO> olist = changeToOcr(sList, pk_corp);
@@ -7421,7 +7421,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					new String[] {"pk_corp", "period"});//期间分组
 			for (String key : map.keySet()) {
 				ArrayList<String> pk_categoryList = new ArrayList<String>();
-				lock = false;
+				lock = true;
 				try {
 					if (StringUtils.isEmpty(key)) {
 						continue;

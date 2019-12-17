@@ -6903,7 +6903,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		return list.toArray(new OcrInvoiceDetailVO[0]);
 	}
 	public List<VATInComInvoiceVO2> changeToInCom(List<VATInComInvoiceVO2> bList,String pk_corp){
-		boolean lock = false;
+		boolean lock = true;
 		String requestid = null;
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		List<OcrInvoiceVO> olist = changeToOcr(bList, pk_corp);

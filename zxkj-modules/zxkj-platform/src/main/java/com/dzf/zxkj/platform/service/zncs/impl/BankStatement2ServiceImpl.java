@@ -6895,7 +6895,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		return list.toArray(new OcrInvoiceDetailVO[0]);
 	}
 	private List<BankStatementVO2> changeToBank(List<BankStatementVO2> bList,String pk_corp){
-		boolean lock = false;
+		boolean lock = true;
 		String requestid = null;
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		List<OcrInvoiceVO> olist = changeToOcr(bList, pk_corp);

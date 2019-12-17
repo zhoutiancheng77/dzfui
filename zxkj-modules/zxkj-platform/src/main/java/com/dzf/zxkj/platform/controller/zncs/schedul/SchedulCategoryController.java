@@ -65,7 +65,7 @@ public class SchedulCategoryController {
 
         @Override
         public void run() {
-            boolean lock = false;
+            boolean lock = true;
             String requestid = null;
             List<OcrInvoiceVO> list = prebillService.queryNotCategory();// 查询出所有未分类的票据
             if (list != null&& list.size() > 0) {
