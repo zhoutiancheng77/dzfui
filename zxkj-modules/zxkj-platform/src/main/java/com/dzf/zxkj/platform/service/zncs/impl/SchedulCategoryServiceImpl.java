@@ -1473,6 +1473,10 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 						if (ocrInvoiceVO.getIstate().equals(ZncsConst.SBZT_1) && detailvo.getInvname() != null && detailvo.getInvname().contains("手续费"))
 						{
 							bodyhasSXF = true;
+							if ("b手续费".equals(ocrInvoiceVO.getInvoicetype()))	//银行票据，多表体行，有一行名称含有手续费时，表头的单据类型不需要用手续费，防止其他金额误入手续费
+							{
+								ocrInvoiceVO.setInvoicetype("b普通回单");
+							}
 						}
 						if (!StringUtil.isEmpty(ocrInvoiceVO.getVmemo()))
 						{
