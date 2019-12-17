@@ -120,8 +120,12 @@ public class InventoryController {
 		String pk_invclassify = param.get("pk_invclassify");
 		List<InventoryVO> list = iservice.queryInfo(SystemUtil.getLoginCorpId(), pk_invclassify);
 
-		String filtervalue = param.get("filtervalue");
+		String kmmc = param.get("kmmc");
+		if (!DZFValueCheck.isEmpty(kmmc)) {
+			list = filterKmList(list, kmmc);
+		}
 
+        String filtervalue = param.get("filtervalue");
 		if (!DZFValueCheck.isEmpty(filtervalue)) {
 			list = filterList(list, filtervalue);
 		}
@@ -157,6 +161,19 @@ public class InventoryController {
 						|| (!DZFValueCheck.isEmpty(vo.getName()) && vo.getName().indexOf(value) >= 0)
 						|| (!DZFValueCheck.isEmpty(vo.getInvspec()) && vo.getInvspec().indexOf(value) >= 0)
 						) {
+					tlist.add(vo);
+				}
+			}
+		}
+		return tlist;
+	}
+	private List<InventoryVO> filterKmList(List<InventoryVO> list,String value) {
+		List<InventoryVO> tlist = new ArrayList<>();
+		if (!DZFValueCheck.isEmpty(list)) {
+			for (InventoryVO vo : list) {
+				if (DZFValueCheck.isEmpty(vo))
+					continue;
+				if ((!DZFValueCheck.isEmpty(vo.getKmname()) && vo.getKmname().indexOf(value) >= 0)){
 					tlist.add(vo);
 				}
 			}
