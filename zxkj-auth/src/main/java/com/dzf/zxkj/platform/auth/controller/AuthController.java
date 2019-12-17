@@ -7,6 +7,7 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
+import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginGrid;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
@@ -16,6 +17,7 @@ import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +32,11 @@ public class AuthController {
     //redis缓存 过期时间10分钟
     @CreateCache(name = "zxkj:check:code", cacheType = CacheType.REMOTE, expire = 10 * 60)
     private Cache<String, String> checkCodeCache;
+
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    private com.dzf.auth.api.service.ILoginService userService;
+    @Autowired
+    private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
 
     @Autowired
     private ILoginService loginService;
@@ -120,7 +127,9 @@ public class AuthController {
 
     @PostMapping("/logout")
     public void logout() {
-
+        LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
+        userService.logout(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getDzfAuthToken());
+        authCache.logout(SystemUtil.getLoginUserId());
     }
 
     @GetMapping("loginByToken")
