@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.auth.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
@@ -9,7 +10,9 @@ import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
+import com.dzf.zxkj.platform.auth.entity.YntParameterSet;
 import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
+import com.dzf.zxkj.platform.auth.mapper.YntParameterSetMapper;
 import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.service.ISysService;
@@ -44,6 +47,8 @@ public class SystemController {
     private FunNodeMapper funNodeMapper;
     @Autowired
     private ISysService sysService;
+    @Autowired
+    private YntParameterSetMapper yntParameterSetMapper;
 
     /**
      * 跳去别处
@@ -82,7 +87,7 @@ public class SystemController {
 
         CorpModel corpModel = sysService.queryCorpByPk(SystemUtil.getLoginCorpId());
         //资产是否开启
-        DZFBoolean holdflag = corpModel.getHoldflag()==null ?DZFBoolean.FALSE:corpModel.getHoldflag();//holdflag
+        DZFBoolean holdflag = corpModel.getHoldflag() == null ? DZFBoolean.FALSE : corpModel.getHoldflag();//holdflag
         if (!holdflag.booleanValue()) {
             funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.ZC_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
         }
@@ -91,19 +96,27 @@ public class SystemController {
         //库存
         if (IcCostStyle.IC_ON.equals(corpModel.getBbuildic())) {//启用进销存
             if (corpModel.getIbuildicstyle() != null && corpModel.getIbuildicstyle() == 1) {
-                funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
+                funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
             } else {
-                funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
+                funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
             }
-            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL2_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
-        } else if(IcCostStyle.IC_INVTENTORY.equals(corpModel.getBbuildic())){
-            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
-            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
-        }else {
-            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
-            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
-            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL2_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent()) ).collect(Collectors.toList());
+            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL2_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
+        } else if (IcCostStyle.IC_INVTENTORY.equals(corpModel.getBbuildic())) {
+            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
+            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
+        } else {
+            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
+            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL1_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
+            funNodeList = funNodeList.stream().filter(v -> !StringUtils.equalsAny(PermissionFilter.KCGL2_FUN_NODE_PK, v.getPk_funnode(), v.getPk_parent())).collect(Collectors.toList());
         }
+
+        QueryWrapper<YntParameterSet> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(YntParameterSet::getParameterbm, "dzf003").eq(YntParameterSet::getPk_corp, SystemUtil.getLoginCorpId()).and(condition -> condition.eq(YntParameterSet::getDr, "0").or().isNull(YntParameterSet::getDr));
+        YntParameterSet yntParameterSet = yntParameterSetMapper.selectOne(queryWrapper);
+
+        funNodeList.removeIf(vo -> (
+                (yntParameterSet == null || yntParameterSet.getPardetailvalue() == 1) && "出纳签字".equals(vo.getName())
+        ));
 
         List<String> routerNames = funNodeList.stream().map(v -> v.getRouter()).collect(Collectors.toList());
         Grid grid = new Grid();
