@@ -15,6 +15,7 @@ import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.KmConFzVoTreeStrateGyByPk;
@@ -480,8 +481,9 @@ public class FsYeController  extends ReportBaseController {
         if ("0".equals(excelExportVO.getExcelsel())) {// 当前期间
             allsheetname = new String[] { getCNName(vo.getBegindate1().getMonth()) };
             periods = new String[] { DateUtils.getPeriod(vo.getBegindate1()) };
-            FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(vo,1);
-            fsejyevos = getTotalRow(fsejyevos,false);
+//            FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(vo,1);
+            FseJyeVO[] fsejyevos = (FseJyeVO[])JsonUtils.deserialize(excelExportVO.getList(), FseJyeVO[].class);
+//            fsejyevos = getTotalRow(fsejyevos,false);
             putFsyeOnKmlb(fsejyevos);
             fslist.add(fsejyevos);
         } else {
@@ -554,9 +556,9 @@ public class FsYeController  extends ReportBaseController {
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             /** 是否横向 */
             printReporUtil.setIscross(DZFBoolean.TRUE);
-//            FseJyeVO[] bodyvos = JsonUtils.deserialize(strlist, FseJyeVO[].class);
-            FseJyeVO[] bodyvos = gl_rep_fsyebserv.getFsJyeVOs(queryparamvo,1);
-            bodyvos = getTotalRow(bodyvos,false);
+            FseJyeVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(), FseJyeVO[].class);
+//            FseJyeVO[] bodyvos = gl_rep_fsyebserv.getFsJyeVOs(queryparamvo,1);
+//            bodyvos = getTotalRow(bodyvos,false);
             putFsyeOnKmlb(bodyvos);
             /** 声明一个map用来存title */
             Map<String, String> tmap = new LinkedHashMap<String, String>();
