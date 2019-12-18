@@ -34,6 +34,13 @@ public class TxAdviceConfig {
         requiredTx.setRollbackRules(
                 Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
         requiredTx.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+
+        RuleBasedTransactionAttribute requiredNew = new RuleBasedTransactionAttribute();
+        requiredNew.setRollbackRules(
+                Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
+        requiredNew.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
+
 //        requiredTx.setTimeout(TX_METHOD_TIMEOUT);
         Map<String, TransactionAttribute> txMap = new HashMap<>();
         txMap.put("add*", requiredTx);
@@ -52,7 +59,7 @@ public class TxAdviceConfig {
         txMap.put("upload*", requiredTx);
         txMap.put("cancel*", requiredTx);
         txMap.put("init*", requiredTx);
-        txMap.put("new*", requiredTx);
+        txMap.put("new*", requiredNew);
 
         txMap.put("get*", readOnlyTx);
         txMap.put("find*", readOnlyTx);
@@ -60,6 +67,7 @@ public class TxAdviceConfig {
         txMap.put("search*", readOnlyTx);
         txMap.put("datagrid*", readOnlyTx);
         txMap.put("query*", readOnlyTx);
+
         txMap.put("*", readOnlyTx);
         source.setNameMap( txMap );
         TransactionInterceptor txAdvice = new TransactionInterceptor(transactionManager, source);
