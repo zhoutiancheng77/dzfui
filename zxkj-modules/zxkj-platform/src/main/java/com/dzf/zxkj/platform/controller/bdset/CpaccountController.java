@@ -36,10 +36,13 @@ public class CpaccountController {
     private IBDCurrencyService sys_currentserv;
 
     @GetMapping("query")
-    public ReturnData querykm(boolean excludeSealed) {
+    public ReturnData querykm(String corpId, boolean excludeSealed) {
         Json json = new Json();
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
+        }
         Map<String, List<YntCpaccountVO>> maps = cpaccountService.queryAccountVO(SystemUtil.getLoginUserId(),
-                SystemUtil.getLoginCorpId(), excludeSealed);
+                corpId, excludeSealed);
         if (maps != null) {
             json.setRows(maps);
             json.setSuccess(true);
@@ -194,10 +197,13 @@ public class CpaccountController {
     }
 
     @GetMapping("/queryByPz")
-    public ReturnData queryByPz() {
+    public ReturnData queryByPz(String corpId) {
         Grid grid = new Grid();
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
+        }
         YntCpaccountVO[] vos = cpaccountService
-                .queryAccountByPz(SystemUtil.getLoginCorpId());
+                .queryAccountByPz(corpId);
         if (vos != null && vos.length > 0) {
             grid.setRows(Arrays.asList(vos));
         }
