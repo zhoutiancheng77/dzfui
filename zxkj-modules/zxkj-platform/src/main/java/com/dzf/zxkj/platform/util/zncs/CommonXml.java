@@ -110,7 +110,7 @@ public class CommonXml {
 		globalInfo.addElement("appKey").addText(appKey);
 		globalInfo.addElement("appSecret").addText("");//应用密码
 		globalInfo.addElement("accessToken").addText(getToken(taxid, token));//访问令牌
-		globalInfo.addElement("UID").addText(uid);//用户ID
+		globalInfo.addElement("UID").addText(uid.replace("u",""));//用户ID,去掉u，原uid为00000000000000000000
 		globalInfo.addElement("version").addText(version);//接口版本
 		globalInfo.addElement("interfaceCode").addText(sourcecode);//接口编码
 		globalInfo.addElement("passWord").addText(getPwd());
