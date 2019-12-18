@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.taxrpt.model;
+package com.dzf.zxkj.platform.model.tax.workbench;
 
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.SuperVO;

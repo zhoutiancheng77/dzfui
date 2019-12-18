@@ -3,8 +3,8 @@ package com.dzf.zxkj.platform.service.taxrpt;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.model.tax.workbench.TaxDeclareResult;
-import com.dzf.zxkj.platform.taxrpt.model.TaxRptCalCellBVO;
-import com.dzf.zxkj.platform.taxrpt.model.TaxRptCalCellVO;
+import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellBVO;
+import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellVO;
 
 import java.util.List;
 
