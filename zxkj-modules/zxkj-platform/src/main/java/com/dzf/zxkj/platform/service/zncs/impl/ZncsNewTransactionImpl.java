@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -21,6 +22,8 @@ import java.util.*;
 public class ZncsNewTransactionImpl implements IZncsNewTransService {
 	@Autowired
 	SingleObjectBO singleObjectBO;
+	@Autowired
+	private RedissonDistributedLock redissonDistributedLock;
 	
 	private List<BillCategoryVO> getAddList(Map<String, BillCategoryVO> falseMap, Map<String, BillCategoryVO> trueMap)throws DZFWarpException{
 		Set<String> setCategoryCode = new HashSet<String>();
@@ -86,10 +89,14 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 		List<BillCategoryVO> addList=getAddList(falseMap, trueMap);
 		if(addList.size()>0){
 			String requestid=null;
-			boolean lock=true;
+			boolean lock=redissonDistributedLock.tryGetDistributedFairLock(key);
 			try {
+//				if(!redissonDistributedLock.tryGetDistributedFairLock("zncs_accounttree")){
+//					return null;
+//				}
 				requestid = UUID.randomUUID().toString();
 //				lock = LockUtil.getInstance().addLockKey("zncs_accounttree", key, requestid, 60);// 设置60秒
+
 				long starttime = System.currentTimeMillis();
 				while (!lock)
 				{
@@ -99,6 +106,7 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 					}
 					Thread.sleep(100);
 //					lock = LockUtil.getInstance().addLockKey("zncs_accounttree", key, requestid, 60);// 设置60秒
+					lock = redissonDistributedLock.tryGetDistributedFairLock(key);// 设置60秒
 				}
 				//加锁成功重新查询已制证分类树
 				trueMap=queryCategoryVOs_IsAccount(key.substring(0, 6), key.substring(6),"Y");
@@ -127,6 +135,7 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 //				if(lock){
 //					LockUtil.getInstance().unLock_Key("zncs_accounttree", key, requestid);
 //				}
+				redissonDistributedLock.releaseDistributedFairLock(key);
 			}
 		}
 		return trueMap;
