@@ -69,16 +69,16 @@ public class FKTjBgController extends BaseController {
      * 查询报告数据
      */
     @PostMapping("queryFktj")
-    public ReturnData queryFktj(@MultiRequestBody CorpVO cpvo, DZFDateTime idate) {
+    public ReturnData queryFktj(@MultiRequestBody CorpVO cpvo, @MultiRequestBody DZFDate idate) {
         Json json = new Json();
         try {
             Map<String, Object> resmap = new HashMap<String, Object>();
-            DZFDate enddate = DateUtils.getPeriodEndDate(DateUtils.getPeriod(idate.getDate()));
+            DZFDate enddate = DateUtils.getPeriodEndDate(DateUtils.getPeriod(idate));
             if (enddate.before(cpvo.getBegindate())) {
                 throw new BusinessException("查询开始日期不能在建账日期前");
             }
             // 指标分组(分出正常，异常，无法计算)
-            FkTjBgVo[] bgvos = gl_fktjbgserv.queryFktj(idate.getDate(), cpvo);
+            FkTjBgVo[] bgvos = gl_fktjbgserv.queryFktj(idate, cpvo);
             putXmGroup(bgvos, resmap);
             resmap.put("zbxq", bgvos);// 指标详情
             json.setData(resmap);

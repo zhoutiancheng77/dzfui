@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.common.constant.ISysConstant;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -103,6 +104,8 @@ public class MultiRequestBodyArgumentResolver implements HandlerMethodArgumentRe
                 // 字符串类型
             } else if (parameterType == String.class) {
                 return value.toString();
+            }else if(parameterType == DZFDate.class){
+                return new DZFDate(value.toString());
             }
             // 其他复杂对象
             return JsonUtils.deserialize(value.toString(), parameterType);
