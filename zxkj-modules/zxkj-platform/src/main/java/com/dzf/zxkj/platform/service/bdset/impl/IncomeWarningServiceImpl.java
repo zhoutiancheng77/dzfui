@@ -461,7 +461,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 		//预警信息中的历史发生金额
 		IncomeHistoryVo[] incomeHistoryVos = (IncomeHistoryVo[]) singleObjectBO.queryByCondition(IncomeHistoryVo.class,
 				" PK_CORP = '"+pk_corp+"'  and nvl(dr,0) = 0", null);
-		Map<String, DZFDouble> hisMap = Arrays.asList(incomeHistoryVos).stream().collect(Collectors.toMap(IncomeHistoryVo::getPk_sryj,IncomeHistoryVo::getOccur_mny, (key1, key2)->key2));
+		Map<String, DZFDouble> hisMap = Arrays.asList(incomeHistoryVos).stream().collect(Collectors.toMap(IncomeHistoryVo::getPk_sryj, hisvo -> hisvo.getOccur_mny() == null ? DZFDouble.ZERO_DBL : hisvo.getOccur_mny(), (key1, key2)->key2));
         //按预警条目统计总的发生额
 		for(IncomeWarningVO incomeWarningVO : incomeWarningVOS){
 			DZFDouble fseTotal = Optional.ofNullable(incomeWarningVO.getFstotal()).orElse(DZFDouble.ZERO_DBL);
