@@ -102,6 +102,7 @@ public class TradeoutServiceImpl implements ITradeoutService {
 	private String[] getJoinFieldItems(){
 		String[] joinFields = new String[]{
 				"ynt_inventory.name as Invname",
+				"ynt_inventory.code as Invcode",
 				"ynt_inventory.invspec as Invspec",
 				"ynt_inventory.invtype as Invtype",
 				"ynt_measure.name as Measure"
