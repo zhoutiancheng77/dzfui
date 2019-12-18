@@ -89,7 +89,7 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 		List<BillCategoryVO> addList=getAddList(falseMap, trueMap);
 		if(addList.size()>0){
 			String requestid=null;
-			boolean lock=redissonDistributedLock.tryGetDistributedFairLock("zncs_accounttree");
+			boolean lock=redissonDistributedLock.tryGetDistributedFairLock(key);
 			try {
 //				if(!redissonDistributedLock.tryGetDistributedFairLock("zncs_accounttree")){
 //					return null;
@@ -106,7 +106,7 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 					}
 					Thread.sleep(100);
 //					lock = LockUtil.getInstance().addLockKey("zncs_accounttree", key, requestid, 60);// 设置60秒
-					lock = redissonDistributedLock.tryGetDistributedFairLock("zncs_accounttree");// 设置60秒
+					lock = redissonDistributedLock.tryGetDistributedFairLock(key);// 设置60秒
 				}
 				//加锁成功重新查询已制证分类树
 				trueMap=queryCategoryVOs_IsAccount(key.substring(0, 6), key.substring(6),"Y");
@@ -135,7 +135,7 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 //				if(lock){
 //					LockUtil.getInstance().unLock_Key("zncs_accounttree", key, requestid);
 //				}
-				redissonDistributedLock.releaseDistributedFairLock("zncs_accounttree");
+				redissonDistributedLock.releaseDistributedFairLock(key);
 			}
 		}
 		return trueMap;
