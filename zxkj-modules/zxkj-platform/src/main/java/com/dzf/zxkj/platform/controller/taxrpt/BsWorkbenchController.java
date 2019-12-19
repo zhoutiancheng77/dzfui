@@ -2,6 +2,8 @@ package com.dzf.zxkj.platform.controller.taxrpt;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.dzf.file.fastdfs.AppException;
+import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -21,10 +23,7 @@ import com.dzf.zxkj.excel.util.ExportExcel;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
-import com.dzf.zxkj.platform.model.tax.workbench.BsWorkbenchVO;
-import com.dzf.zxkj.platform.model.tax.workbench.ColumnSetupVO;
-import com.dzf.zxkj.platform.model.tax.workbench.CorpMsgVO;
-import com.dzf.zxkj.platform.model.tax.workbench.RemindSetVO;
+import com.dzf.zxkj.platform.model.tax.workbench.*;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.service.taxrpt.IbsWorkbenchService;
@@ -32,6 +31,7 @@ import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.vo.WorkBenchExportVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,6 +58,9 @@ public class BsWorkbenchController extends BaseController {
     private SingleObjectBO singleObjectBO;
     @Autowired
     private ICorpService corpService;
+
+    @Autowired
+    private FastDfsUtil  fastDfsUtil;
 
     /**
      * 查询所有客户的数据
@@ -652,6 +655,38 @@ public class BsWorkbenchController extends BaseController {
     }
 
     /**
+     * 获取附件列表
+     */
+    @PostMapping("getAttaches")
+    public ReturnData getAttaches(@MultiRequestBody BsWorkDocVO bsWorkDocVO, @MultiRequestBody CorpVO corpVO) {
+        Json json = new Json();
+        try {
+            bsWorkDocVO.setPk_corp(corpVO.getPk_corp());
+            if (StringUtil.isEmpty(bsWorkDocVO.getFathercorp())) {
+                bsWorkDocVO.setFathercorp(corpVO.getFathercorp());
+            }
+            List<BsWorkDocVO> list = bs_workbenchserv.getAttatches(bsWorkDocVO);
+            list.stream().forEach(v -> {
+                String fileName = v.getDocname();
+                String type = fileName.substring(fileName.lastIndexOf('.')+1, fileName.length());
+                v.setExt(type);
+                if(!StringUtils.equalsAnyIgnoreCase(type, "xlsx", "xls", "pdf","pptx","txt","docx","zip")){
+                    try {
+                        v.setImgae(fastDfsUtil.downFile(v.getVfilepath()));
+                    } catch (AppException e) {
+                        log.error("预览图片异常", e);
+                    }
+                }
+            });
+            json.setRows(list);
+            json.setSuccess(true);
+            json.setMsg("获取附件成功");
+        } catch (Exception e) {
+            printErrorLog(json, e, "获取附件失败");
+        }
+        return ReturnData.ok().data(json);
+    }
+    /**
      * 获取单个客户导出相关字段（旗舰版）
      *
      * @return
@@ -750,6 +785,26 @@ public class BsWorkbenchController extends BaseController {
         } catch (Exception e) {
             printErrorLog(json, e, "提醒设置失败");
             log.error("提醒设置失败", e);
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 删除附件
+     */
+    @PostMapping("delAttaches")
+    public ReturnData delAttaches(@MultiRequestBody String[]  delData, @MultiRequestBody CorpVO corpVO) {
+        Json json = new Json();
+        try {
+            if (delData == null || delData.length == 0) {
+                throw new BusinessException("没有选择附件，请确认！");
+            }
+            bs_workbenchserv.delAttaches(corpVO.getFathercorp(), delData);
+            json.setSuccess(true);
+            json.setMsg("删除附件成功");
+        } catch (Exception e) {
+            printErrorLog(json, e, "删除附件失败");
+            log.error("删除失败", e);
         }
         return ReturnData.ok().data(json);
     }

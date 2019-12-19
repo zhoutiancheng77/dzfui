@@ -41,6 +41,26 @@ public class BsWorkDocVO extends SuperVO {
 
 	private DZFDateTime ts; // 时间
 
+	private byte[] imgae;
+
+	private String ext;
+
+	public String getExt() {
+		return ext;
+	}
+
+	public void setExt(String ext) {
+		this.ext = ext;
+	}
+
+	public byte[] getImgae() {
+		return imgae;
+	}
+
+	public void setImgae(byte[] imgae) {
+		this.imgae = imgae;
+	}
+
 	public String getFathercorp() {
 		return fathercorp;
 	}
