@@ -183,6 +183,7 @@
                 <directory>src/main/resources</directory>
                 <includes>
                     <include>param.txt</include>
+                    <include>databack_2018090602.txt</include>
                     <include>fdfs_client.conf</include>
                     <include>font/*</include>
                     <include>template/*</include>
