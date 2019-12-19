@@ -148,6 +148,7 @@ public class AuthController {
             }
             grid.setSuccess(true);
             authCache.putLoginUnique(loginUser.getUserid(), SystemUtil.getClientId());
+            authCache.putLoginUser(loginUser.getUserid(), loginUser);
             grid.setRows(loginUser);
         } catch (Exception e) {
             e.printStackTrace();
