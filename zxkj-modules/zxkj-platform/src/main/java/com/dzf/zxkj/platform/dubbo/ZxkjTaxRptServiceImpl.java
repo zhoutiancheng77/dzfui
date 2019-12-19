@@ -21,7 +21,7 @@ public class ZxkjTaxRptServiceImpl implements IZxkjTaxRptService {
     @Override
     public String getTaxRptCalCell(String param) {
         try {
-            TaxRptCalCellBVO[] params = JsonUtils.convertValue(param, TaxRptCalCellBVO[].class);
+            TaxRptCalCellBVO[] params = JsonUtils.deserialize(param, TaxRptCalCellBVO[].class);
 
             TaxRptCalCellVO vo = taxRptCalCellService.getTaxRptCalCell(params);
             String rsvalue = JsonUtils.serialize(vo);
