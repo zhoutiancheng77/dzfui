@@ -80,25 +80,25 @@ public class PzglController extends BaseController {
         String desc = param.get("desc");
         String delTelGrpDataString = param.get("delTelData");
         String delOthDataString = param.get("delOthData");
-        String clzPidDateString = param.get("clzBidDate");
+        String clzBidDateString = param.get("clzBidDate");
         Json json = new Json();
         json.setSuccess(false);
         try {
             if(StringUtil.isEmpty(delTelGrpDataString)&&StringUtil.isEmpty(delOthDataString)
-                    &&StringUtil.isEmpty(clzPidDateString)){
+                    &&StringUtil.isEmpty(clzBidDateString)){
                 throw new BusinessException("请选择要作废的票据");
             }
             String[] delTelGrpData = null;
             String[] delOthData = null;
-            String[] clzPidDate = null;
+            String[] clzBidDate = null;
             if(!StringUtil.isEmpty(delTelGrpDataString)){
                 delTelGrpData = delTelGrpDataString.split(",");
             }
             if(!StringUtil.isEmpty(delOthDataString)){
                 delOthData = delOthDataString.split(",");
             }
-            if(!StringUtil.isEmpty(clzPidDateString)){
-                clzPidDate = clzPidDateString.split(",");
+            if(!StringUtil.isEmpty(clzBidDateString)){
+                clzBidDate = clzBidDateString.split(",");
             }
             String pk_corp = SystemUtil.getLoginCorpId();
             Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
@@ -118,7 +118,7 @@ public class PzglController extends BaseController {
             }
             log.info("开始进行图片作废操作：" + alllength);
 
-            img_groupserv.deleteImgFromTpll(pk_corp, SystemUtil.getLoginUserId(), desc, delTelGrpData, delOthData);
+            img_groupserv.deleteImgFromTpll(pk_corp, SystemUtil.getLoginUserId(), desc, delTelGrpData, delOthData,clzBidDate);
             json.setRows("");
             json.setMsg("图片作废成功");
             json.setSuccess(true);

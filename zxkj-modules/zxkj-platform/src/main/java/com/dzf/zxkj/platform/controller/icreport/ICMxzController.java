@@ -131,7 +131,7 @@ public class ICMxzController {
 	private Map<String, IcDetailVO> filter(Map<String, IcDetailVO> result, QueryParamVO paramvo) {
 		Map<String, IcDetailVO> newresult = null;
 		if (DZFMapUtil.isEmpty(result) || DZFValueCheck.isEmpty(paramvo.getIshowfs())
-				|| paramvo.getIshowfs().booleanValue()) {
+				|| !paramvo.getIshowfs().booleanValue()) {
 			newresult = result;
 		} else {
 			newresult = new HashMap<String, IcDetailVO>();
@@ -415,34 +415,33 @@ public class ICMxzController {
 		try {
 			PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
 			PrintParamVO printParamVO = JsonUtils.convertValue(pmap, PrintParamVO.class);//
-			if (DZFValueCheck.isEmpty(pmap.get("list"))) {
-				return;
-			}
+
 			if ("Y".equals(pmap.get("pageOrt"))) {
 				printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
 			} else {
 				printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
 			}
-			String strlist = printParamVO.getList().replace("}{", "},{");
-			IcDetailVO[] bodyvos= JsonUtils.deserialize(strlist, IcDetailVO[].class);
-			String gs = bodyvos[0].getGs();
-			String period = bodyvos[0].getTitlePeriod();
-			String current = pmap.get("print_curr");
-			QueryParamVO queryParamvo = JsonUtils.convertValue(pmap, QueryParamVO.class);
-			if("N".equals(current)){
-				bodyvos = queryVos(getQueryParamVO(queryParamvo));
+            String gs =pmap.get("gs");
+            String titlePeriod =pmap.get("titlePeriod");
+            String currsp = getRequest().getParameter("currsp");
+            QueryParamVO queryParamvo = JsonUtils.convertValue(pmap, QueryParamVO.class);
+            IcDetailVO[] bodyvos = queryVos(getQueryParamVO(queryParamvo),currsp);
+            if(bodyvos == null || bodyvos.length ==0){
+                return;
+            }
+            bodyvos[0].setGs(gs);
+            bodyvos[0].setTitlePeriod(titlePeriod);
 
-			}
 			Map<String, List<SuperVO>> mxmap = new HashMap<>();
 			mxmap = reloadVOs(bodyvos, getQueryParamVO(queryParamvo));
 
 			Map<String, String> tmap = new HashMap<>();// 声明一个map用来存前台传来的设置参数
 			tmap.put("公司", gs);
-			tmap.put("期间", period);
+			tmap.put("期间", titlePeriod);
 			CorpVO corpvo =SystemUtil.getLoginCorpVo();
 			boolean bisfenye = false;
 			String isfenye = getRequest().getParameter("isfenye");
-			if (!StringUtil.isEmpty(isfenye) && isfenye.equals("Y")) {
+			if (!StringUtil.isEmpty(isfenye) && (isfenye.equals("Y") || isfenye.equals("true"))) {
 				bisfenye = true;
 			}
 
@@ -543,16 +542,16 @@ public class ICMxzController {
         }
 	}
 
-	private IcDetailVO[] queryVos(QueryParamVO queryParamVO) {
+	private IcDetailVO[] queryVos(QueryParamVO queryParamVO,String currsp) {
 		Map<String, IcDetailVO> result = null;
 
 		result = ic_rep_mxzserv.queryDetail(queryParamVO, SystemUtil.getLoginCorpVo());
 
 		result = filter(result, queryParamVO);
 
-		List<IcDetailFzVO> listsps = createRightTree(result, "all");
+		List<IcDetailFzVO> listsps = createRightTree(result, currsp);
 		// 将查询后的数据分页展示
-		List<IcDetailVO> list = getPagedMXZVos(listsps, result, 1, Integer.MAX_VALUE, new ReportDataGrid(), "all", null);
+		List<IcDetailVO> list = getPagedMXZVos(listsps, result, 1, Integer.MAX_VALUE, new ReportDataGrid(), currsp, null);
 		// 再次排序
 		Collections.sort(list, new Comparator<IcDetailVO>() {
 			@Override
@@ -663,17 +662,12 @@ public class ICMxzController {
     public void expExcel(HttpServletResponse response, @RequestParam Map<String, String> param){
 		OutputStream toClient = null;
 		try {
-			String strlist = param.get("list");
-			strlist =strlist.replace("}{", "},{");
-            IcDetailVO[] vo= JsonUtils.deserialize(strlist, IcDetailVO[].class);
-			String gs = vo[0].getGs();
-			String qj = vo[0].getTitlePeriod();
 
             QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
-			String current = getRequest().getParameter("export_curr");
-			if("N".equals(current)){
-				vo = queryVos(getQueryParamVO(queryParamvo));
-			}
+            String gs =param.get("gs");
+            String titlePeriod =param.get("titlePeriod");
+            String currsp = getRequest().getParameter("currsp");
+            IcDetailVO[] vo = queryVos(getQueryParamVO(queryParamvo),currsp);
 			Excelexport2003<IcDetailVO> lxs = new Excelexport2003<>();
 			String pk_corp = SystemUtil.getLoginCorpId();
 			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
@@ -684,7 +678,7 @@ public class ICMxzController {
 			IcMxExcelField xsz = new IcMxExcelField(num, price);
 			setExprotInfo(xsz, corpvo);
 			xsz.setIcDetailVos(vo);
-			xsz.setQj(qj);
+			xsz.setQj(titlePeriod);
 			xsz.setCreator(SystemUtil.getLoginUserVo().getUser_name());
 			xsz.setCorpName(gs);
 			response.reset();

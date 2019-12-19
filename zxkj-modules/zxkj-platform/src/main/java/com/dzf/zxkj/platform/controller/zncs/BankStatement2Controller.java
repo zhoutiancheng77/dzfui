@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.controller.zncs;
 import cn.jiguang.common.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.IBillManageConstants;
@@ -70,6 +71,8 @@ public class BankStatement2Controller extends BaseController {
     private IAccountService accountService;
     @Autowired
     private ICorpService corpService;
+    @Autowired
+    private RedissonDistributedLock redissonDistributedLock;
 //	@Autowired
 //	private IParameterSetService parameterserv;
 
@@ -330,18 +333,18 @@ public class BankStatement2Controller extends BaseController {
         StringBuffer strb = new StringBuffer();
         BankStatementVO2[] bodyvos = null;
         int errorCount = 0;
-        String requestid = UUID.randomUUID().toString();
-        String pk_corp = "";
+        boolean lock = false;
+                String pk_corp = "";
         try{
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("duizhangdandel", pk_corp, requestid, 600);// 设置600秒
-//            if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候刷新界面");
-//
-//                return ReturnData.error().data(json);
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("duizhangdandel"+pk_corp);
+            if(!lock){//处理
+                json.setSuccess(false);
+                json.setMsg("正在处理中，请稍候刷新界面");
+
+                return ReturnData.error().data(json);
+            }
             if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
@@ -369,7 +372,9 @@ public class BankStatement2Controller extends BaseController {
             log.error("删除失败", json, e);
             strb.append("删除失败");
         }finally {
-//            LockUtil.getInstance().unLock_Key("duizhangdandel", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("duizhangdandel"+pk_corp);
+            }
         }
 
         if(errorCount == 0){
@@ -448,16 +453,15 @@ public class BankStatement2Controller extends BaseController {
     public ReturnData<Json> createPZ(String body){
         Json json = new Json();
         BankStatementVO2[] vos = null;
-        String requestid = UUID.randomUUID().toString();
+        boolean lock = false;
         String pk_corp =  SystemUtil.getLoginCorpId();
         try {
-//            boolean lock = LockUtil.getInstance().addLockKey("yhdzd2createpz", pk_corp, requestid, 900);// 设置900秒
-//            if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候刷新界面");
-//
-//                return ReturnData.error().data(json);
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("yhdzd2createpz"+pk_corp);
+            if(!lock){//处理
+                json.setSuccess(false);
+                json.setMsg("正在处理中，请稍候刷新界面");
+                return ReturnData.error().data(json);
+            }
             if (body == null) {
                 throw new BusinessException("数据为空,请检查!");
             }
@@ -622,7 +626,9 @@ public class BankStatement2Controller extends BaseController {
         } catch (Exception e) {
             printErrorLog(json,  e, "生成凭证失败");
         }finally {
-//            LockUtil.getInstance().unLock_Key("yhdzd2createpz", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("yhdzd2createpz"+pk_corp);
+            }
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,

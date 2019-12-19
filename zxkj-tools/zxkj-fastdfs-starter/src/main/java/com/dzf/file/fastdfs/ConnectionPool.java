@@ -4,10 +4,14 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.csource.fastdfs.ClientGlobal;
 import org.csource.fastdfs.TrackerClient;
+import org.csource.fastdfs.TrackerGroup;
 import org.csource.fastdfs.TrackerServer;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -167,7 +171,7 @@ public class ConnectionPool {
 	 * @Description: 释放繁忙连接 1.如果空闲池的连接小于最小连接值，就把当前连接放入idleConnectionPool；
 	 *               2.如果空闲池的连接等于或大于最小连接值，就把当前释放连接丢弃；
 	 *
-	 * @param client1
+	 * @param trackerServer
 	 *            需释放的连接对象
 	 *
 	 */
@@ -218,9 +222,25 @@ public class ConnectionPool {
 		try {
 //			URL xmlpath = this.getClass().getClassLoader().getResource("fdfs_client.conf");
 //			ClientGlobal.init(xmlpath.getPath());
-			String filePath = new ClassPathResource("/fdfs_client.conf").getFile().getAbsolutePath();
-			log.info("++++++连接池初始化+++++++" + filePath);
-			ClientGlobal.init(filePath);
+			URL xmlpath = this.getClass().getClassLoader().getResource("fdfs_client.conf");
+			log.info("+++++++连接池初始化this.getClass().getClassLoader().getResource" + xmlpath.getPath());
+			Resource resource = new ClassPathResource("/fdfs_client.conf");
+			URL xmlpath1 = resource.getURL();
+			log.info("+++++++连接池初始化this.getClass().getClassLoader().getResource" + xmlpath1.getPath());
+//			ClientGlobal.init(xmlpath.getPath());
+			try{
+				ClientGlobal.init(xmlpath.getPath());
+			}catch(Exception e){
+				log.error("连接池初始化失败!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", e);
+				log.error("先能用吧!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				ClientGlobal.g_connect_timeout = 10 * 1000;
+				ClientGlobal.g_network_timeout = 30 * 1000;
+				ClientGlobal.g_charset = "UTF-8";
+				InetSocketAddress[] address = new InetSocketAddress[1];
+				address[0] = new InetSocketAddress("172.16.6.44", 22122);
+				ClientGlobal.g_tracker_group = new TrackerGroup(address);
+				ClientGlobal.g_tracker_http_port = 8888;
+			}
 		} catch (Exception e) {
 			throw new BusinessException("连接池初始化失败!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}

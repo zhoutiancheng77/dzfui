@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -87,7 +88,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	private IAccountService accountService;
 	@Autowired
 	private ICorpService corpService;
-
+	@Autowired
+	private RedissonDistributedLock redissonDistributedLock;
 
 	@Override
 	public void updateInvalidBill(String billid[],String pk_corp) throws DZFWarpException {
@@ -997,15 +999,12 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		// iPrebillService.updateInvoiceById(list);
 		// iPrebillService.updateInvoiceDetailByInvId(list);
 		boolean lock = false;
-		String requestid = null;
-		String key = pk_corp + "," + period;
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		if (list == null)
 			return;
 		try {
-			requestid = UUID.randomUUID().toString();
-//			lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key, requestid, 60);// 设置60秒
-			if (true) {
+			lock = redissonDistributedLock.tryGetDistributedFairLock("zncsCategory_"+pk_corp+period);
+			if (lock) {
 				cateservice.newSaveCorpCategory(null, pk_corp, period, corpvo);
 
 				cateservice.updateInvCategory(list, pk_corp, period, corpvo);
@@ -1015,9 +1014,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		} catch (Exception e) {
 			throw new BusinessException("分类失败,请稍后重试!");
 		} finally {
-//			if (lock) {
-//				LockUtil.getInstance().unLock_Key("ZNCS_AUTOCATEGORY", key, requestid);
-//			}
+			if (lock) {
+				redissonDistributedLock.releaseDistributedFairLock("zncsCategory_"+pk_corp+period);
+			}
 		}
 	}
 

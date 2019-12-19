@@ -1768,7 +1768,7 @@ public class QmclServiceImpl implements IQmclService {
 		checkLirunjz(vo.getPeriod(), vo.getPk_corp());
 		DZFBoolean isqjsyjz = vo.getIsqjsyjz();
 		if (isqjsyjz == null || !isqjsyjz.booleanValue()) {
-			throw new BusinessException("期间" + vos.getPeriod() + "没进行期间结转!");
+			throw new BusinessException("期间" + vos.getPeriod() + "没进行损益结转!");
 		}
 
 		checkNextPeriod(vo);

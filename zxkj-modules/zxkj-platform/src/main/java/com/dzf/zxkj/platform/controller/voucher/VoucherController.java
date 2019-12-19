@@ -239,7 +239,7 @@ public class VoucherController {
                                 }
                             }
                             bvo.setKmmchie(showKm.toString());
-                            bvo.setZy(showZy.toString());
+                            bvo.setTmpzy(showZy.toString());
 
                             pvo.setVdef4(corpVo.getUnitname());
                         }

@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.controller.zncs;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
@@ -110,6 +111,8 @@ public class VATInComInvoice2Controller extends BaseController {
     private IAccountService accountService;
     @Autowired
     private ICorpService corpService;
+    @Autowired
+    private RedissonDistributedLock redissonDistributedLock;
 
     @RequestMapping("/queryInfo")
     public ReturnData<Json> queryInfo(@RequestBody InvoiceParamVO paramvo){
@@ -480,22 +483,22 @@ public class VATInComInvoice2Controller extends BaseController {
         json.setSuccess(false);
         StringBuffer strb = new StringBuffer();
         VATInComInvoiceVO2[] bodyvos = null;
-        String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
 
         String msg = "";
         List<String> sucHM = new ArrayList<String>();
         List<String> errHM = new ArrayList<String>();
+        boolean lock= false;
         try{
             String body = param.get("head");
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("jinxiangdel", pk_corp, requestid, 600);// 设置600秒
-//            if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候刷新界面");
-//               return ReturnData.error().data(json);
-//            }
+             lock=redissonDistributedLock.tryGetDistributedFairLock("jinxiangDelete_"+pk_corp);
+            if(!lock){//处理
+                json.setSuccess(false);
+                json.setMsg("正在处理中，请稍候刷新界面");
+               return ReturnData.error().data(json);
+            }
             if (body == null) {
                 throw new BusinessException("数据为空,删除失败!!");
             }
@@ -545,7 +548,9 @@ public class VATInComInvoice2Controller extends BaseController {
             printErrorLog(json, e, "删除失败");
             strb.append("删除失败");
         }finally {
-//            LockUtil.getInstance().unLock_Key("jinxiangdel", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("jinxiangDelete_"+pk_corp);
+            }
         }
         json.setMsg(strb.toString());
 
@@ -601,18 +606,18 @@ public class VATInComInvoice2Controller extends BaseController {
     public ReturnData<Json> createPZ(String lwstr,String body,String goods){
         Json json = new Json();
         VATInComInvoiceVO2[] vos = null;
-        String requestid = UUID.randomUUID().toString();
         CorpVO corpvo = SystemUtil.getLoginCorpVo();
         String pk_corp =  corpvo.getPk_corp();
+        boolean lock = false;
         try {
 
             //加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("jinxiangcreatepz", pk_corp, requestid, 600);// 设置600秒
-//            if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候");
-//                return ReturnData.error().data(json);
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcreatepz"+pk_corp);
+            if(!lock){//处理
+                json.setSuccess(false);
+                json.setMsg("正在处理中，请稍候");
+                return ReturnData.error().data(json);
+            }
 
             DZFBoolean lwflag = "Y".equals(lwstr) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
             if (body == null) {
@@ -744,7 +749,10 @@ public class VATInComInvoice2Controller extends BaseController {
         } catch (Exception e) {
             printErrorLog(json, e, "生成凭证失败");
         } finally{
-//            LockUtil.getInstance().unLock_Key("jinxiangcreatepz", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("jinxiangcreatepz"+pk_corp);
+            }
+
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
@@ -990,17 +998,17 @@ public class VATInComInvoice2Controller extends BaseController {
     public ReturnData<Json> combinePZ1(String lwstr,String body,String goods){
         Json json = new Json();
         VATInComInvoiceVO2[] vos = null;
-        String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
+        boolean lock = false;
         try {
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("jinxiangcombinepz", pk_corp, requestid, 600);// 设置600秒
-//            if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候");
-//                return ReturnData.error().data(json);
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcombinepz"+pk_corp);
+            if(!lock){//处理
+                json.setSuccess(false);
+                json.setMsg("正在处理中，请稍候");
+                return ReturnData.error().data(json);
+            }
 
             DZFBoolean lwflag = "Y".equals(lwstr) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
             if (body == null) {
@@ -1184,7 +1192,9 @@ public class VATInComInvoice2Controller extends BaseController {
         } catch (Exception e) {
             printErrorLog(json, e, "生成凭证失败");
         } finally {
-//            LockUtil.getInstance().unLock_Key("jinxiangcombinepz", pk_corp, requestid);
+            if(lock){
+            redissonDistributedLock.releaseDistributedFairLock("jinxiangcombinepz"+pk_corp);
+            }
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
@@ -1412,8 +1422,8 @@ public class VATInComInvoice2Controller extends BaseController {
         Json json = new Json();
 
         VATInComInvoiceVO2 paramvo = new VATInComInvoiceVO2();
-        String uuid = UUID.randomUUID().toString();
         String pk_corp = null;
+        boolean lock = false;
         try{
             String ccrecode = param.get("ccrecode");
             String f2 = param.get("f2");
@@ -1424,8 +1434,12 @@ public class VATInComInvoice2Controller extends BaseController {
             paramvo.setKprj(new DZFDate(SystemUtil.getLoginDate()));//参数：当前登录时间
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
-//            LockUtil.getInstance().tryLockKey(paramvo.getTableName(), pk_corp, uuid, 240);//4分钟
-
+            lock = redissonDistributedLock.tryGetDistributedFairLock(paramvo.getTableName()+pk_corp);
+            if(!lock){//处理
+                json.setSuccess(false);
+                json.setMsg("正在处理中，请稍候");
+                return ReturnData.error().data(json);
+            }
             if(StringUtils.isEmpty(begindate3)||StringUtils.isEmpty(enddate3)){
                 throw new BusinessException("开票日期不能为空！");
             }
@@ -1485,18 +1499,13 @@ public class VATInComInvoice2Controller extends BaseController {
             json.setMsg(msg.toString());
         }catch(Exception e){
             printErrorLog(json, e, "一键取票失败");
-
-//			if(e instanceof BusinessException){
-//				String ms = json.getMsg();
-//				ms = StringUtil.isEmpty(ms)? "" : ms;
-//				if(!ms.contains("一键取票成功")){
-//					ms = ms + "<br>如首次使用进项一键取票，需使用【进项发票管理软件】采集发票信息，并在纳税信息节点维护公司纳税人识别号和税盘口令。";
-//					json.setMsg(ms);
-//				}
-//			}
+            json.setSuccess(false);
+            json.setMsg(e.getMessage());
         }finally{
             //解锁
-//            LockUtil.getInstance().unLock_Key(paramvo.getTableName(), pk_corp, uuid);
+            if(lock){
+            redissonDistributedLock.releaseDistributedFairLock(paramvo.getTableName()+pk_corp);
+            }
         }
 
         return ReturnData.ok().data(json);
@@ -1926,19 +1935,18 @@ public class VATInComInvoice2Controller extends BaseController {
     public ReturnData<Json> createIC(@RequestParam("head")String body,String goods ){
         Json json = new Json();
         VATInComInvoiceVO2[] vos = null;
-        String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
+        boolean lock = false;
         try {
-
             pk_corp = SystemUtil.getLoginCorpId();
             String userid  = SystemUtil.getLoginUserId();
             //加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("jinxiang2ic", pk_corp, requestid, 600);// 设置600秒
-//            if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候");
-//                return ReturnData.ok().data(json);
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiang2ic"+pk_corp);
+            if(!lock){//处理
+                json.setSuccess(false);
+                json.setMsg("正在处理中，请稍候");
+                return ReturnData.ok().data(json);
+            }
 
             CorpVO corpvo = corpService.queryByPk(pk_corp);
             checkBeforeIC(corpvo);
@@ -2016,7 +2024,9 @@ public class VATInComInvoice2Controller extends BaseController {
         } catch (Exception e) {
             printErrorLog(json, e, "生成入库单失败");
         } finally {
-//            LockUtil.getInstance().unLock_Key("jinxiang2ic", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("jinxiang2ic"+pk_corp);
+            }
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
@@ -2170,18 +2180,18 @@ public class VATInComInvoice2Controller extends BaseController {
     @RequestMapping("/saveInventoryData")
     public ReturnData<Grid> saveInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-        String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
+        boolean lock = false;
         try {
             String goods = param.get("goods");
             pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("jx2pp", pk_corp, requestid, 600);// 设置600秒
-//            if (!lock) {// 处理
-//                grid.setSuccess(false);
-//                grid.setMsg("正在处理中，请稍候");
-//                return ReturnData.error().data(grid);
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiang2pp"+pk_corp);
+            if (!lock) {// 处理
+                grid.setSuccess(false);
+                grid.setMsg("正在处理中，请稍候");
+                return ReturnData.error().data(grid);
+            }
 
             InventoryAliasVO[] goodvos = getInvAliasData(goods);
             if (goodvos == null || goodvos.length == 0)
@@ -2203,7 +2213,9 @@ public class VATInComInvoice2Controller extends BaseController {
         } catch (Exception e) {
             printErrorLog(grid, e, "进项发票匹配存货失败");
         } finally {
-//            LockUtil.getInstance().unLock_Key("jx2pp", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("jinxiang2pp"+pk_corp);
+            }
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "进项发票匹配存货", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
@@ -2299,20 +2311,18 @@ public class VATInComInvoice2Controller extends BaseController {
         String inperiod = param.get("inperiod");
         String goods = param.get("goods");
         Grid grid = new Grid();
-        String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
+        boolean lock = false;
         String sourceName = StringUtil.isEmpty(sourcename)?"填制凭证_":sourcename+"_";
         try {
-
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("jx2pz", pk_corp, requestid, 600);// 设置600秒
-//            if(!lock){//处理
-//                grid.setSuccess(false);
-//                grid.setMsg("正在处理中，请稍候");
-//
-//                return ReturnData.ok().data(grid);
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiang2pz"+pk_corp);
+            if(!lock){//处理
+                grid.setSuccess(false);
+                grid.setMsg("正在处理中，请稍候");
+                return ReturnData.ok().data(grid);
+            }
             if (body == null) {
                 throw new BusinessException("数据为空,生成凭证失败!");
             }
@@ -2404,7 +2414,9 @@ public class VATInComInvoice2Controller extends BaseController {
         } catch (Exception e) {
             printErrorLog(grid,e, "进项发票生成凭证失败");
         }finally {
-//            LockUtil.getInstance().unLock_Key("jx2pz", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("jinxiang2pz"+pk_corp);
+            }
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "进项发票生成凭证", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
