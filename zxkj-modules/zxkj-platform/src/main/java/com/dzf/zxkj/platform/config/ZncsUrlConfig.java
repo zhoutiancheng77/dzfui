@@ -75,5 +75,9 @@ public class ZncsUrlConfig {
     public String ptb_privateKey;
     @Value("${zncs.ptb.publicKey}")
     public String ptb_publicKey;
+    @Value("${zncs.ocr.inv_ip}")
+    public String inv_ip;
+    @Value("${zncs.ocr.webrow}")
+    public String webrow;
 
 }

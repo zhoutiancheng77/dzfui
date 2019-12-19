@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -103,6 +104,8 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	private IAccountService accountService;
 	@Autowired
 	private ICorpService corpService;
+	@Autowired
+	private RedissonDistributedLock redissonDistributedLock;
 
 	public List<BankStatementVO2> quyerByPkcorp(String pk_corp, BankStatementVO2 vo, String sort, String order) throws DZFWarpException{
 //		try {
@@ -6895,8 +6898,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		return list.toArray(new OcrInvoiceDetailVO[0]);
 	}
 	private List<BankStatementVO2> changeToBank(List<BankStatementVO2> bList,String pk_corp){
-		boolean lock = true;
-		String requestid = null;
+
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		List<OcrInvoiceVO> olist = changeToOcr(bList, pk_corp);
 		if (olist != null&& olist.size() > 0) {	
@@ -6904,12 +6906,12 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 					new String[] {"pk_corp", "period"});//期间分组
 			for (String key : map.keySet()) {
 				ArrayList<String> pk_categoryList = new ArrayList<String>();
+				boolean lock = false;
 				try {
 					if (StringUtils.isEmpty(key)) {
 						continue;
 					}
-					requestid = UUID.randomUUID().toString();
-//					lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key, requestid, 60);// 设置60秒
+					lock = redissonDistributedLock.tryGetDistributedFairLock("zncsCategory_"+key.replace(",",""));
 					if (lock) {
 						schedulCategoryService.newSaveCorpCategory(map.get(key), corpVO.getPk_corp(), map.get(key).get(0).getPeriod(), corpVO);
 
@@ -6935,9 +6937,9 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 				} catch (Exception e) {
 					log.error("分类任务异常", e);
 				} finally {
-//					if (lock) {
-//						LockUtil.getInstance().unLock_Key("ZNCS_AUTOCATEGORY", key, requestid);
-//					}
+					if (lock) {
+						redissonDistributedLock.releaseDistributedFairLock("zncsCategory_"+key.replace(",",""));
+					}
 				}
 			}
 				

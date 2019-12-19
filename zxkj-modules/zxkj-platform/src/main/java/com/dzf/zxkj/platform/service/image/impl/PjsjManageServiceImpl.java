@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -35,6 +36,8 @@ public class PjsjManageServiceImpl implements IPjsjManageService {
 	private Logger log = Logger.getLogger(this.getClass());
 	@Autowired
 	private SingleObjectBO singleObjectBO;
+	@Autowired
+	private RedissonDistributedLock redissonDistributedLock;
 	@Override
 	public void updateCountByPjlx(String selcorp, 
 			String qj, 
@@ -48,7 +51,8 @@ public class PjsjManageServiceImpl implements IPjsjManageService {
 		
 		if(isEmpty(new String[]{selcorp, qj, pjlxType})) 
 			return;
-		
+
+		boolean lock = false;
 		int pjlxInt = Integer.parseInt(pjlxType);
 		
 		if(StringUtil.isEmpty(fromOpen)){
@@ -71,15 +75,18 @@ public class PjsjManageServiceImpl implements IPjsjManageService {
 		String key = selcorp 
 				+ "_" + qj 
 				+ "_" + pjlxType;
-		String requestid = UUID.randomUUID().toString();
 		try {
-//			LockUtil.getInstance().tryLockKey(hvo.getTableName(), key,requestid, 30);
-			updateMergeCount(selcorp, qj, pjlxInt, fromOpen, userVO, corpVo, hvo, bvo, calNum);
+			lock = redissonDistributedLock.tryGetDistributedFairLock(hvo.getTableName()+key);
+			if(lock){
+				updateMergeCount(selcorp, qj, pjlxInt, fromOpen, userVO, corpVo, hvo, bvo, calNum);
+			}
 		} catch (Exception e) {
 			log.error("错误",e);
 			throw new BusinessException(e.getMessage());
 		}finally {
-//			LockUtil.getInstance().unLock_Key(hvo.getTableName(), key,requestid);
+			if(lock){
+				redissonDistributedLock.releaseDistributedFairLock(hvo.getTableName()+key);
+			}
 		}
 		
 	}

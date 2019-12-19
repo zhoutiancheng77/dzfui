@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.controller.zncs;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.base.IOperatorLogService;
@@ -122,6 +123,8 @@ public class WorkbenchController extends BaseController {
     private IAccountService accountService;
     @Autowired
     private ICorpService corpService;
+    @Autowired
+    private RedissonDistributedLock redissonDistributedLock;
     /**
      * 查询分类+票据树
      */
@@ -929,7 +932,6 @@ public class WorkbenchController extends BaseController {
     public ReturnData<Grid> updateCategoryAgain(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         boolean lock = false;
-        String requestid = null;
         int count = 0;
         try {
             String pk_category = param.get("categoryid");
@@ -940,13 +942,9 @@ public class WorkbenchController extends BaseController {
                 throw new BusinessException("参数异常");
             }
             String pk_corp=SystemUtil.getLoginCorpId();
-            String key = pk_corp+","+period;
-
-            requestid = UUID.randomUUID().toString();
-            lock = true;
             while (lock == false && count < 10)
             {
-//                lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key, requestid, 60);// 设置60秒
+                lock = redissonDistributedLock.tryGetDistributedFairLock("zncsCategory_"+pk_corp+period);
                 if (lock == false)
                 {
                     Thread.sleep(500);
@@ -955,8 +953,6 @@ public class WorkbenchController extends BaseController {
             }
             if (lock) {
                 try {
-
-
                     iBillcategory.updateCategoryAgain(pk_category, pk_parent, pk_corp, period);
                     grid.setSuccess(true);
                     grid.setMsg("整理成功!");
@@ -964,9 +960,9 @@ public class WorkbenchController extends BaseController {
                     printErrorLog(grid, e, "整理失败!");
                 }
                 finally {
-//                    if(lock){
-//                        LockUtil.getInstance().unLock_Key("ZNCS_AUTOCATEGORY", key, requestid);
-//                    }
+                    if(lock){
+                        redissonDistributedLock.releaseDistributedFairLock("zncsCategory_"+pk_corp+period);
+                    }
                 }
             }
             else
@@ -1144,20 +1140,15 @@ public class WorkbenchController extends BaseController {
         String pk_bankcode = param.get("pk_bankcode");
         Json json = new Json();
         String pk_corp=SystemUtil.getLoginCorpId();
-        String requestid = UUID.randomUUID().toString();
         boolean lock = false;
         try{
-//            lock = LockUtil.getInstance().addLockKey("zncsVoucher", pk_corp+period, requestid, 600);// 设置600秒
-            lock = true;
+            lock = redissonDistributedLock.tryGetDistributedFairLock("zncsVoucher"+pk_corp+period);
             if(!lock){//处理
                 json.setSuccess(false);
                 json.setMsg("正在处理中，请稍后刷新数据");
                 return ReturnData.error().data(json);
             }
-
             checkPeriod(period, true);		//检查期间合法性
-
-
             if(!StringUtil.isEmpty(pk_bankcode)&&pk_category!=null&&!pk_category.startsWith("bank_")){
                 pk_parent=pk_bankcode;
             }
@@ -1195,7 +1186,7 @@ public class WorkbenchController extends BaseController {
             printErrorLog(json, e, "失败");
         } finally{
             if(lock){//处理
-//                LockUtil.getInstance().unLock_Key("zncsVoucher", pk_corp+period, requestid);
+                redissonDistributedLock.releaseDistributedFairLock("zncsVoucher"+pk_corp+period);
             }
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "票据工作台-智能做账:期间："+period, ISysConstants.SYS_2);
@@ -1227,8 +1218,8 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveInventoryData_long")
     public ReturnData<Grid> saveInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-        String requestid = UUID.randomUUID().toString();
         String pk_corp = "";
+        boolean lock = false;
         try {
             InventorySetVO inventorySetVO = gl_ic_invtorysetserv.query(SystemUtil.getLoginCorpId());
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
@@ -1237,13 +1228,12 @@ public class WorkbenchController extends BaseController {
             }
             pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("wb2pp", pk_corp, requestid, 600);// 设置600秒
-//            if (!lock) {// 处理
-//                grid.setSuccess(false);
-//                grid.setMsg("正在处理中，请稍候");
-//                writeJson(grid);
-//                return;
-//            }
+            lock = redissonDistributedLock.tryGetDistributedFairLock("zncswb2pp"+pk_corp);
+            if (!lock) {// 处理
+                grid.setSuccess(false);
+                grid.setMsg("正在处理中，请稍候");
+                return ReturnData.error().data(grid);
+            }
             String goods = param.get("goods");
             InventoryAliasVO[] goodvos = getInvAliasData(goods);
             if (goodvos == null || goodvos.length == 0)
@@ -1260,7 +1250,9 @@ public class WorkbenchController extends BaseController {
         } catch (Exception e) {
             printErrorLog(grid,  e, "智能发票匹配存货失败");
         } finally {
-//            LockUtil.getInstance().unLock_Key("wb2pp", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("zncswb2pp"+pk_corp);
+            }
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "票据工作台-匹配存货", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);

@@ -88,14 +88,9 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 	public Map<String, BillCategoryVO> newInsertCategoryVOs(Map<String, BillCategoryVO> falseMap,Map<String, BillCategoryVO> trueMap,String key) throws DZFWarpException {
 		List<BillCategoryVO> addList=getAddList(falseMap, trueMap);
 		if(addList.size()>0){
-			String requestid=null;
-			boolean lock=redissonDistributedLock.tryGetDistributedFairLock(key);
+			boolean lock= false;
 			try {
-//				if(!redissonDistributedLock.tryGetDistributedFairLock("zncs_accounttree")){
-//					return null;
-//				}
-				requestid = UUID.randomUUID().toString();
-//				lock = LockUtil.getInstance().addLockKey("zncs_accounttree", key, requestid, 60);// 设置60秒
+				lock=redissonDistributedLock.tryGetDistributedFairLock("zncscreateTree_"+key);
 
 				long starttime = System.currentTimeMillis();
 				while (!lock)
@@ -105,8 +100,7 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 						throw new BusinessException("操作失败，请稍后再试");
 					}
 					Thread.sleep(100);
-//					lock = LockUtil.getInstance().addLockKey("zncs_accounttree", key, requestid, 60);// 设置60秒
-					lock = redissonDistributedLock.tryGetDistributedFairLock(key);// 设置60秒
+					lock = redissonDistributedLock.tryGetDistributedFairLock("zncscreateTree_"+key);// 设置60秒
 				}
 				//加锁成功重新查询已制证分类树
 				trueMap=queryCategoryVOs_IsAccount(key.substring(0, 6), key.substring(6),"Y");
@@ -132,10 +126,10 @@ public class ZncsNewTransactionImpl implements IZncsNewTransService {
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			} finally {
-//				if(lock){
-//					LockUtil.getInstance().unLock_Key("zncs_accounttree", key, requestid);
-//				}
-				redissonDistributedLock.releaseDistributedFairLock(key);
+				if(lock){
+					redissonDistributedLock.releaseDistributedFairLock("zncscreateTree_"+key);
+				}
+
 			}
 		}
 		return trueMap;

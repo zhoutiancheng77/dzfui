@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -64,6 +65,8 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 	private IZncsNewTransService iZncsNewTransService;
 	@Autowired
 	private ICorpService corpService;
+	@Autowired
+	private RedissonDistributedLock redissonDistributedLock;
 
 	@Override
 	public List<BillCategoryVO> queryTree(BillcategoryQueryVO paramVO) throws DZFWarpException {
@@ -202,23 +205,15 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 	 */
 	public void newSaveCorpCategory(List<OcrInvoiceVO> list, String pk_corp, String period, CorpVO corpVO)
 			throws DZFWarpException {
-		StringBuffer key = new StringBuffer();
-		key.append(pk_corp);
-		key.append(",");
-		key.append(period);
-		key.append(",");
-		key.append("newtree_unaccount");
 		String requestid = UUID.randomUUID().toString();
-//		boolean lock = false;
-		boolean lock = true;
+		boolean lock = false;
 		try {
 			long now = System.currentTimeMillis();
-//			lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key.toString(), requestid, 60);// 设置60秒
+			lock = redissonDistributedLock.tryGetDistributedFairLock("zncscreateTree_"+pk_corp+period);
 			while (!lock && System.currentTimeMillis() - now < 5000)
 			{
 				Thread.sleep(499);
-//				lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key.toString(), requestid, 60);// 设置60秒
-				
+				lock = redissonDistributedLock.tryGetDistributedFairLock("zncscreateTree_"+pk_corp+period);
 			}
 			if (lock) {
 
@@ -265,13 +260,10 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 			throw new BusinessException("操作失败，请稍后再试！");
 		}
 		finally {
-//			if (lock) {
-//				LockUtil.getInstance().unLock_Key("ZNCS_AUTOCATEGORY", key.toString(), requestid);
-//			}
+			if (lock) {
+				redissonDistributedLock.releaseDistributedFairLock("zncscreateTree_"+pk_corp+period);
+			}
 		}
-
-		// InvCategory(list,pk_corp,period,corpVO);//票据分类
-
 	}
 	private void copyCategorySet(String pk_corp, String period) throws DZFWarpException
 	{

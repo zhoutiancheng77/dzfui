@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.zncs.schedul;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -37,6 +38,8 @@ public class SchedulCategoryController {
     private ISchedulCategoryService schedulCategoryService;
     @Autowired
     private ICorpService corpService;
+    @Autowired
+    private RedissonDistributedLock redissonDistributedLock;
 
     private ScheduledThreadPoolExecutor stexec;
 
@@ -65,8 +68,6 @@ public class SchedulCategoryController {
 
         @Override
         public void run() {
-            boolean lock = true;
-            String requestid = null;
             List<OcrInvoiceVO> list = prebillService.queryNotCategory();// 查询出所有未分类的票据
             if (list != null&& list.size() > 0) {
                 Map<String, List<OcrInvoiceVO>> map = DZfcommonTools.hashlizeObject(list,
@@ -78,12 +79,13 @@ public class SchedulCategoryController {
 
                     int iSuccessCount = 0;
                     for (String key : map.keySet()) {
+                        boolean lock = false;
                         try {
                             if (StringUtils.isEmpty(key)) {
                                 continue;
                             }
-                            requestid = UUID.randomUUID().toString();
-//                            lock = LockUtil.getInstance().addLockKey("ZNCS_AUTOCATEGORY", key, requestid, 60);// 设置60秒
+
+                            lock = redissonDistributedLock.tryGetDistributedFairLock("zncsCategory_"+key.replace(",",""));
                             if (lock) {
                                 // 加锁成功 公司+期间的list去分类
                                 List<OcrInvoiceVO> InvoiceVOlist = map.get(key);
@@ -112,7 +114,7 @@ public class SchedulCategoryController {
                             log.error("分类任务异常", e);
                         } finally {
                             if(lock){
-//                                LockUtil.getInstance().unLock_Key("ZNCS_AUTOCATEGORY", key, requestid);
+                                redissonDistributedLock.releaseDistributedFairLock("zncsCategory_"+key.replace(",",""));
                             }
                         }
                     }

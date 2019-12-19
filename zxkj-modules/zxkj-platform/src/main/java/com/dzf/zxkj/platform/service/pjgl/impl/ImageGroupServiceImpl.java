@@ -40,6 +40,7 @@ import com.dzf.zxkj.platform.service.zncs.IBankStatementService;
 import com.dzf.zxkj.platform.service.zncs.IBillcategory;
 import com.dzf.zxkj.platform.service.zncs.IPrebillService;
 import com.dzf.zxkj.platform.service.zncs.IZncsService;
+import com.dzf.zxkj.platform.service.zncs.impl.AfreshAutoRecognitionService;
 import com.dzf.zxkj.platform.util.BeanUtils;
 import com.dzf.zxkj.platform.util.ImageCopyUtil;
 import com.dzf.zxkj.platform.util.ThreadImgPoolExecutorFactory;
@@ -91,7 +92,8 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 	IBillcategory ibillcategory;
 	@Autowired(required = false)
 	IZncsService iZncsService;
-
+	@Autowired
+	AfreshAutoRecognitionService afreshAutoRecognitionService;
 	@Autowired
 	private ICorpService corpService;
 
@@ -288,7 +290,11 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 
 	@Override
 	public void deleteImgFromTpll(String pk_corp, String userid, String desc, String[] delTelGrpData, 
-			String[] delOthIds) throws DZFWarpException{
+			String[] delOthIds,String[] clzBidDate) throws DZFWarpException{
+
+		//识别中票据作废不再复检
+		notRecheck(clzBidDate);
+
 		if(delTelGrpData != null && delTelGrpData.length > 0){
 			refuseImg(pk_corp, userid, desc, delTelGrpData);
 		}
@@ -1771,5 +1777,46 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		singleObjectBO.executeBatchUpdate(sql1, list.toArray(new SQLParameter[list.size()]));
 		sql1 =" update ynt_assetcard set pk_image_group=? where pk_image_library =?  and pk_corp=? and nvl(dr,0)=0";
 		singleObjectBO.executeBatchUpdate(sql1, list.toArray(new SQLParameter[list.size()]));
+	}
+	private void notRecheck(String[] clzPidDate) throws DZFWarpException{
+		if (clzPidDate == null || clzPidDate.length == 0)
+			return;
+
+		List<String> list = new ArrayList<String>();
+		for (String pk_image_group : clzPidDate) {
+			String sql = "nvl(dr,0)=0 and pk_image_group = ? ";
+			SQLParameter parameter = new SQLParameter();
+			parameter.addParam(pk_image_group);
+			OcrInvoiceVO[] ocrvos = (OcrInvoiceVO[]) singleObjectBO.queryByCondition(OcrInvoiceVO.class, sql,
+					parameter);
+			if(ocrvos == null || ocrvos.length == 0){
+				list.add(pk_image_group);
+			}
+		}
+		if(list != null&&list.size() > 0){
+			String sql = " select * from ynt_image_ocrlibrary yio "
+					+ " left join ynt_image_library yil on yio.crelationid=yil.pk_image_library "
+					//+ " left join ynt_image_group yig on yig.pk_image_group=yil.pk_image_group "
+					+ " where nvl(yio.dr,0)=0 and nvl(yil.dr,0)=0 and "+SqlUtil.buildSqlForIn("pk_image_group", list.toArray(new String[list.size()]));
+			List<OcrImageLibraryVO> ocrimageList = (List<OcrImageLibraryVO>) singleObjectBO.executeQuery(sql, null,
+					new BeanListProcessor(OcrImageLibraryVO.class));
+			if(ocrimageList!=null&&ocrimageList.size()>0){
+				List<String> codeList = new ArrayList<String>();
+				Map<String,String[]> codeMap = new HashMap<String,String[]>();
+				for (OcrImageLibraryVO vo : ocrimageList) {
+					String keycode =!StringUtil.isEmpty(vo.getKeycode())?vo.getKeycode():
+							vo.getBatchcode() + vo.getPk_custcorp() + vo.getVinvoicecode()+ vo.getVinvoiceno();
+					codeList.add(keycode);
+				}
+				if(codeList!=null&&codeList.size()>0){
+					codeMap.put("batchesname", codeList.toArray(new String[codeList.size()]));
+					String batchesname = JSON.toJSONString(codeMap);
+					String json=batchesname;
+					afreshAutoRecognitionService.notRecheck(json);
+				}
+
+			}
+		}
+
 	}
 }

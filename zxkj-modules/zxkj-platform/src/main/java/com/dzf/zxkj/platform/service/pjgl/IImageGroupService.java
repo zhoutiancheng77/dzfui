@@ -50,7 +50,7 @@ public interface IImageGroupService {
 	public void deleteKJImg(String pk_corp, String[] imageKeys) throws DZFWarpException;
 	
 	//该删除供图片浏览使用 因为手机端上传的进行退回操作
-	public void deleteImgFromTpll(String pk_corp, String userid, String desc, String[] delTelIds, String[] delOthIds) throws DZFWarpException;
+	public void deleteImgFromTpll(String pk_corp, String userid, String desc, String[] delTelIds, String[] delOthIds,String[] clzBidDate) throws DZFWarpException;
 
 	// 根据文件MD5查询图片信息
 	public ImageLibraryVO[] queryLibByMD(String pk_corp, String md) throws DZFWarpException;

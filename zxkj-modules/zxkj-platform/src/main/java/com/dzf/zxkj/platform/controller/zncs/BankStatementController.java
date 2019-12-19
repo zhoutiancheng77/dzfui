@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.controller.zncs;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSON;
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.IBillManageConstants;
@@ -57,8 +58,8 @@ public class BankStatementController extends BaseController {
     private IVatInvoiceService vatinvoiceserv;
     @Autowired
     private IYHZHService gl_yhzhserv;
-//	@Autowired
-//	private IParameterSetService parameterserv;
+    @Autowired
+    private RedissonDistributedLock redissonDistributedLock;
 
     @RequestMapping("/queryInfo")
     public ReturnData<Json> queryInfo(@RequestBody BankStatementVO bvo){
@@ -298,14 +299,13 @@ public class BankStatementController extends BaseController {
         StringBuffer strb = new StringBuffer();
         BankStatementVO[] bodyvos = null;
         int errorCount = 0;
-        String requestid = UUID.randomUUID().toString();
+        boolean lock = false;
         String pk_corp = "";
         try{
             String body = param.get("head");
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
-//            boolean lock = LockUtil.getInstance().addLockKey("duizhangdandel", pk_corp, requestid, 600);// 设置600秒
-            boolean lock = true;
+            lock = redissonDistributedLock.tryGetDistributedFairLock("duizhangdandel"+pk_corp);
             if(!lock){//处理
                 json.setSuccess(false);
                 json.setMsg("正在处理中，请稍候刷新界面");
@@ -336,7 +336,9 @@ public class BankStatementController extends BaseController {
             printErrorLog(json, e, "删除失败");
             strb.append("删除失败");
         }finally {
-//            LockUtil.getInstance().unLock_Key("duizhangdandel", pk_corp, requestid);
+            if(lock){
+                redissonDistributedLock.releaseDistributedFairLock("duizhangdandel"+pk_corp);
+            }
         }
 
         if(errorCount == 0){
