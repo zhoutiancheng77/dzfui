@@ -127,9 +127,14 @@ public class AuthController {
 
     @PostMapping("/logout")
     public void logout() {
-        LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
-        userService.logout(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getDzfAuthToken());
-        authCache.logout(SystemUtil.getLoginUserId());
+        try{
+            LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
+            userService.logout(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getDzfAuthToken());
+            authCache.logout(SystemUtil.getLoginUserId());
+        }catch (Exception e){
+            log.error("登出异常：",e);
+        }
+
     }
 
     @GetMapping("loginByToken")
