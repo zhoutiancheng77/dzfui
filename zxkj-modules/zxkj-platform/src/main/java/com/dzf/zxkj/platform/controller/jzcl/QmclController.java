@@ -20,6 +20,7 @@ import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.jzcl.*;
+import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
@@ -71,7 +72,7 @@ public class QmclController {
     private IInventoryService ic_inventoryserv;
 
     @PostMapping("/query")
-    public ReturnData<Grid> query(@MultiRequestBody QueryParamVO queryParamvo) {
+    public ReturnData<Grid> query(@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
         Grid grid = new Grid();
         try {
             List<String> corppks = queryParamvo.getCorpslist();
@@ -90,6 +91,25 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "查询失败");
             log.error("查询失败!", e);
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("/queryGlpz")
+    public ReturnData<Grid> queryGlpz(@MultiRequestBody("sourcebilltype") String sourcebilltype,
+                                      @MultiRequestBody("pk_corp") String pk_corp,
+                                      @MultiRequestBody("period") String period) {
+        Grid grid = new Grid();
+        try {
+            List<TzpzHVO> tzpzHVOList = gl_qmclserv.queryQmclGlpz(period, pk_corp, sourcebilltype);
+            grid.setRows(tzpzHVOList);
+            grid.setSuccess(true);
+            grid.setMsg("联查成功！");
+        } catch (Exception e) {
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "联查失败");
+            log.error("联查失败!", e);
         }
         return ReturnData.ok().data(grid);
     }
