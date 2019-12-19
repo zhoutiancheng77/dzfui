@@ -20,6 +20,7 @@ import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.jzcl.*;
+import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
@@ -71,7 +72,7 @@ public class QmclController {
     private IInventoryService ic_inventoryserv;
 
     @PostMapping("/query")
-    public ReturnData<Grid> query(@MultiRequestBody QueryParamVO queryParamvo) {
+    public ReturnData<Grid> query(@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
         Grid grid = new Grid();
         try {
             List<String> corppks = queryParamvo.getCorpslist();
@@ -90,6 +91,25 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "查询失败");
             log.error("查询失败!", e);
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("/queryGlpz")
+    public ReturnData<Grid> queryGlpz(@MultiRequestBody("sourcebilltype") String sourcebilltype,
+                                      @MultiRequestBody("pk_corp") String pk_corp,
+                                      @MultiRequestBody("period") String period) {
+        Grid grid = new Grid();
+        try {
+            List<TzpzHVO> tzpzHVOList = gl_qmclserv.queryQmclGlpz(period, pk_corp, sourcebilltype);
+            grid.setRows(tzpzHVOList);
+            grid.setSuccess(true);
+            grid.setMsg("联查成功！");
+        } catch (Exception e) {
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "联查失败");
+            log.error("联查失败!", e);
         }
         return ReturnData.ok().data(grid);
     }
@@ -748,7 +768,7 @@ public class QmclController {
 
     @PostMapping("/onhdsytz")
     public ReturnData<Grid> onhdsytz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,
-                                   @MultiRequestBody("exrates") AdjustExrateVO[] exrates,@MultiRequestBody UserVO userVO) {
+                                     @MultiRequestBody("exrates") AdjustExrateVO[] exrates,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         try {
             String userid = userVO.getCuserid();
@@ -1345,8 +1365,8 @@ public class QmclController {
     // 第三步:结转所有制造费用到生产成本--基本生产成本--制造费用
     @PostMapping("/thirdquery")
     public ReturnData<Grid> thirdquery(@MultiRequestBody("qmvo")  QmclVO qmvo,
-                                        @MultiRequestBody("cbjzPara0")  CostForwardVO[] cbjzPara0,
-                                        @MultiRequestBody("cbjzPara1")  CostForwardVO[] cbjzPara1) {
+                                       @MultiRequestBody("cbjzPara0")  CostForwardVO[] cbjzPara0,
+                                       @MultiRequestBody("cbjzPara1")  CostForwardVO[] cbjzPara1) {
         Grid grid = new Grid();
         grid.setSuccess(true);
         grid.setRows(new ArrayList<CostForwardVO>());
@@ -2574,9 +2594,9 @@ public class QmclController {
     // 不启用进销存，工业结转，结转辅助生产成本
     @PostMapping("/jzfuzhusccb")
     public ReturnData<Grid> jzfuzhusccb(@MultiRequestBody("qmvo")  QmclVO qmvo,
-                                           @MultiRequestBody("cbjzcount")  String cbjzCount,
-                                           @MultiRequestBody("isgy")  String isgy,
-                                           @MultiRequestBody UserVO userVO) {
+                                        @MultiRequestBody("cbjzcount")  String cbjzCount,
+                                        @MultiRequestBody("isgy")  String isgy,
+                                        @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo)));
         try {
@@ -2607,9 +2627,9 @@ public class QmclController {
     // 不启用进销存，工业结转，结转制造费用
     @PostMapping("/jzzhizaofy")
     public ReturnData<Grid> jzzhizaofy(@MultiRequestBody("qmvo")  QmclVO qmvo,
-                                        @MultiRequestBody("cbjzcount")  String cbjzCount,
-                                        @MultiRequestBody("isgy")  String isgy,
-                                        @MultiRequestBody UserVO userVO) {
+                                       @MultiRequestBody("cbjzcount")  String cbjzCount,
+                                       @MultiRequestBody("isgy")  String isgy,
+                                       @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo)));
         try {
@@ -2641,9 +2661,9 @@ public class QmclController {
     // 不启用进销存，工业结转，结转完工产品。（产品的成本分摊）
     @PostMapping("/queryWangong")
     public ReturnData<Grid> queryWangong(@MultiRequestBody("qmvo")  QmclVO qmvo,
-                                            @MultiRequestBody("isgy")  String isgy,
-                                            @MultiRequestBody("jztype")  String jztype,
-                                            @MultiRequestBody UserVO userVO) {
+                                         @MultiRequestBody("isgy")  String isgy,
+                                         @MultiRequestBody("jztype")  String jztype,
+                                         @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         grid.setRows(new ArrayList<QmclVO>(Arrays.asList(qmvo)));
         try {
@@ -2682,8 +2702,8 @@ public class QmclController {
     // 查询存货、材料相关科目，不启用进销存、工业结转，结转完工产品。（产品的成本分摊）
     @PostMapping("/queryCBJZKMwg")
     public ReturnData<Grid> queryCBJZKMwg(@MultiRequestBody("jztype")  String jztype,
-                                            @MultiRequestBody("pk_gs")  String pk_gs,
-                                            @MultiRequestBody UserVO userVO) {
+                                          @MultiRequestBody("pk_gs")  String pk_gs,
+                                          @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         try {
             String userid = userVO.getCuserid();
@@ -2708,10 +2728,10 @@ public class QmclController {
     // 不启用进销存，工业结转，结转完工产品。保存 完工 凭证
     @PostMapping("/savePzWangong")
     public ReturnData<Grid> savePzWangong(@MultiRequestBody("qmvo")  QmclVO qmvo,
-                                            @MultiRequestBody("cbjzPara3")  CostForwardInfo[] cbjz3,
-                                            @MultiRequestBody("cbjzCount")  String cbjzCount,
-                                            @MultiRequestBody("jztype")  String jztype,
-                                            @MultiRequestBody UserVO userVO) {
+                                          @MultiRequestBody("cbjzPara3")  CostForwardInfo[] cbjz3,
+                                          @MultiRequestBody("cbjzCount")  String cbjzCount,
+                                          @MultiRequestBody("jztype")  String jztype,
+                                          @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         try {
             Map<QmclVO, List<CostForwardInfo>> map = new HashMap<QmclVO, List<CostForwardInfo>>();

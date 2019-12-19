@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.csource.fastdfs.ClientGlobal;
 import org.csource.fastdfs.TrackerClient;
 import org.csource.fastdfs.TrackerServer;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -216,8 +216,11 @@ public class ConnectionPool {
 
 	private void initClientGlobal() throws Exception {
 		try {
-			URL xmlpath = this.getClass().getClassLoader().getResource("fdfs_client.conf");
-			ClientGlobal.init(xmlpath.getPath());
+//			URL xmlpath = this.getClass().getClassLoader().getResource("fdfs_client.conf");
+//			ClientGlobal.init(xmlpath.getPath());
+			String filePath = new ClassPathResource("/fdfs_client.conf").getFile().getAbsolutePath();
+			log.info("++++++连接池初始化+++++++" + filePath);
+			ClientGlobal.init(filePath);
 		} catch (Exception e) {
 			throw new BusinessException("连接池初始化失败!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
