@@ -3343,7 +3343,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	}
 	
 	private Object[][] getImpConfigObj(){
-		String sql = " select * from ynt_vatimpconfset where stype = ? and nvl(dr,0) = 0 ";
+		String sql = " select * from ynt_vatimpconfset where stype = ? and nvl(dr,0) = 0 order by pk_vatimpconfset ";
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(IBillManageConstants.HEBING_JXFP);
 		List<VatImpConfSetVO> ll = (List<VatImpConfSetVO>) singleObjectBO.executeQuery(sql, 
