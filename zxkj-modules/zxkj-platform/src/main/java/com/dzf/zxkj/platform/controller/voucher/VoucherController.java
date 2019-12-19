@@ -1897,4 +1897,25 @@ public class VoucherController {
             }
         }
     }
+
+    @GetMapping("/readColumnSetting")
+    public ReturnData readColumnSetting() {
+        Json json = new Json();
+        String setting = gl_pzglserv.readColumnSetting(SystemUtil.getLoginUserId());
+        json.setSuccess(true);
+        json.setRows(setting);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/saveColumnSetting")
+    public ReturnData saveColumnSetting(@RequestBody Map<String, String> data) {
+        Json json = new Json();
+        String setting = data.get("setting");
+        if (StringUtils.isEmpty(setting)) {
+            throw new BusinessException("参数为空");
+        }
+        gl_pzglserv.saveColumnSetting(SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), setting);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
 }
