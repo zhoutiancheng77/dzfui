@@ -1097,28 +1097,32 @@ public class QmclController {
                     qmclvo = qmvos[i];
                     pk_corp = qmclvo.getPk_corp();
                     period = qmclvo.getPeriod();
-                    msg.append("公司：").append(qmclvo.getCorpname()).append(",期间").append(period);
-                    if (qmclvo.getIscbjz() == null || !qmclvo.getIscbjz().booleanValue()) {
-                        msg.append("成本结转取消成功!<br>");
-                        continue;
-                    }
+//                    msg.append("公司：").append(qmclvo.getCorpname()).append(",期间").append(period);
+//                    if (qmclvo.getIscbjz() == null || !qmclvo.getIscbjz().booleanValue()) {
+//                        msg.append("成本结转取消成功!<br>");
+//                        continue;
+//                    }
                     qmclvo = gl_qmclserv.rollbackCbjz(qmclvo);
                     list.add(qmclvo);
-                    msg.append("成本结转取消成功!<br>");
                 } catch (Exception e) {
                     log.error("反成本结转:", e);
-                    msg.append("<font color='red'>");
                     if (e instanceof BusinessException) {
                         msg.append(e.getMessage());
                     } else {
                         msg.append("成本结转取消失败!");
                     }
-                    msg.append("</font><br>");
+                    msg.append("<br>");
                 }
             }
-            grid.setMsg(msg.toString());
-            grid.setRows(list);
-            grid.setSuccess(true);
+            if(msg != null && msg.length() > 0){
+                grid.setMsg(msg.toString());
+                grid.setRows(list);
+                grid.setSuccess(false);
+            }else{
+                grid.setMsg("成本结转取消成功");
+                grid.setRows(list);
+                grid.setSuccess(true);
+            }
         }catch (Exception e) {
             log.error("错误",e);
             grid.setSuccess(false);

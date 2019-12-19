@@ -2239,6 +2239,9 @@ public class QmclServiceImpl implements IQmclService {
 	 */
 	@Override
 	public QmclVO rollbackCbjz(QmclVO vos) throws DZFWarpException {
+		if(vos!=null && (vos.getIscbjz() == null ||  !vos.getIscbjz().booleanValue())){
+			throw new BusinessException("未成本结转不能反结转！");
+		}
 		updateCheckNj(vos);
 		vos = checkisGz(vos, "不能反成本结转！");
 		CancelCbjz cbjz = new CancelCbjz(singleObjectBO);
@@ -3343,6 +3346,9 @@ public class QmclServiceImpl implements IQmclService {
 
 	@Override
 	public QmclVO onfzzsjz(QmclVO qmvo) throws DZFWarpException {
+		if(qmvo!=null && (qmvo.getZzsjz()== null ||  !qmvo.getZzsjz().booleanValue())){
+			throw new BusinessException("未增值税结转不能反结转！");
+		}
 		updateCheckNj(qmvo);
 		checkisGz(qmvo, "不能反增值税结转！");
 		DZFBoolean isqjsyjz = qmvo.getIsqjsyjz();
@@ -3936,6 +3942,9 @@ public class QmclServiceImpl implements IQmclService {
 
 	@Override
 	public QmclVO onfsdsjz(QmclVO qmvo) throws DZFWarpException {
+		if(qmvo!=null && (qmvo.getQysdsjz() == null ||  !qmvo.getQysdsjz().booleanValue())){
+			throw new BusinessException("所得税未计提不能反计提！");
+		}
 		updateCheckNj(qmvo);
 		checkisGz(qmvo, "不能反企业所得税计提！");
 		DZFBoolean isqjsyjz = qmvo.getIsqjsyjz();
