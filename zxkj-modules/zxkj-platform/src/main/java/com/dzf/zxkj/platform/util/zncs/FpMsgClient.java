@@ -66,7 +66,7 @@ public class FpMsgClient {
 		HttpPost post = null;
 		try {
 			//log.info("开始取票"+CommonXml.fpcyurl);
-			post = new HttpPost(CommonXml.fpcyurl);
+			post = new HttpPost(PropertyGetter.fpcy_fpcyurl);
 			String sp = requestListFp(drcode,new DZFDateTime());
 			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
 			nvps.add(new BasicNameValuePair("parameter",

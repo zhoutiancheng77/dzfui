@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangDataVO;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangHVO;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangInvoiceVO;
@@ -96,8 +95,7 @@ public class PiaoTongJinXiang2 {
     }
     private String getPtjxurl(){
 		if(StringUtils.isEmpty(ptjxurl)){
-			ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig)SpringUtils.getBean(ZncsUrlConfig.class);
-			ptjxurl = zncsUrlConfig.ptjx_ptjxurl;
+			ptjxurl = PropertyGetter.ptjx_url;
 		}
 		return ptjxurl;
 	}

@@ -1,42 +1,70 @@
 package com.dzf.zxkj.platform.util.zncs;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.platform.config.ZncsUrlConfig;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 
 public class PropertyGetter {
 
 	public static String inv_ip = null;// 聂老师网站地址
 	public static String webrow = null;// 清单总行数
-//	public static String ocr_sercet = null;// 文通密钥 -----弃用
-//	public static String ocr_libpath = null;// 文通软件路径 -----弃用
-//	public static String ocr_imagepath = null;// 图片路径
-//	public static String ocr_model = null;// 文通模板地址 -----弃用
-//	public static String area_code = null;// 聂老师网站地区代码 -----弃用
-//	public static String interface_way = null;// 接口方式 现在只支持聂老师网站
-//	public static String ptarea_code = null;// 票通地区代码 -----弃用
-//	public static String webprefix = null;// 聂老师网站开头前缀
-//	public static String dzfkjpicurl = null;// 调用在线会计地址 -----弃用
-	// public static String ismulthread = null;
-//	public static String istest = null;// 是否测试
-
+	public static String ptjx_url = null;
+	public static String fpcy_fpcyurl = null;
+	public static String fpcy_ocrurl = null;
+	public static String fpcy_busiurl = null;
+	public static String fpcy_authurl = null;
+	public static String fpcy_version = null;
+	public static String fpcy_appKey = null;
+	public static String fpcy_appSecret = null;
+	public static String fpcy_uid = null;
+	public static String fpcy_unzip = null;
+	public static String fpcy_unencry = null;
+	public static String fpcy_endes = null;
+	public static String fpcy_enca = null;
+	public static String fpcy_codeType = null;
+	public static String fpcy_standardtime = null;
+	public static String fpcy_regpwd = null;
+	public static String fpcy_pagesize = null;
+	public static String fpcy_randnum = null;
+	public static String cft_busiurl = null;
+	public static String cft_getcorpnameurl = null;
+	public static String cft_appId = null;
+	public static String cft_version = null;
+	public static String cft_randnum = null;
+	public static String cft_regpwd = null;
+	public static String cft_encryptCode = null;
+	public static String ptb_ptxxurl = null;
+	public static String ptb_xxptbm = null;
+	public static String ptb_platformCode = null;
+	public static String ptb_signType = null;
+	public static String ptb_format = null;
+	public static String ptb_xxversion = null;
+	public static String ptb_xxpwd = null;
+	public static String ptb_xxsize = null;
+	public static String ptb_privateKey = null;
+	public static String ptb_publicKey = null;
 	static {
-				ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
-				// / 加载属性列表
-				inv_ip = zncsUrlConfig.inv_ip;
-				webrow = zncsUrlConfig.webrow;
-//				ocr_sercet = prop.getProperty("ocr_sercet");
-//				ocr_libpath = prop.getProperty("ocr_libpath");
-//				ocr_imagepath = prop.getProperty("ocr_imagepath");
-//				ocr_model = prop.getProperty("ocr_model");
-//				area_code = prop.getProperty("area_code");
-//				interface_way = prop.getProperty("interface_way");
-//				ptarea_code = prop.getProperty("ptarea_code");
-//				webprefix = prop.getProperty("webprefix");
-//				dzfkjpicurl = prop.getProperty("dzfocrimage");
-				// ismulthread = prop.getProperty("ismulthread");
-//				istest = prop.getProperty("istest");
-			}
-
-	}
+		InputStream is = null;
+		Properties prop = new Properties();
+		try {
+			Resource exportTemplate = new ClassPathResource("properties"+ File.separator+"zncsConfig.properties");
+			is = exportTemplate.getInputStream();
+			prop.load(is);
+			// / 加载属性列表
+			inv_ip = prop.getProperty("ocr_inv_ip");
+			webrow = prop.getProperty("ocr_webrow");
+			ptjx_url = prop.getProperty("ptjx_url");
+			} catch (IOException e) {
+				e.printStackTrace();
+				}
+		}
+}
 
 

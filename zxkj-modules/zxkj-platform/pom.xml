@@ -188,6 +188,7 @@
                     <include>font/*</include>
                     <include>template/*</include>
                     <include>img/*</include>
+                    <include>properties/*</include>
                 </includes>
             </resource>
             <resource>

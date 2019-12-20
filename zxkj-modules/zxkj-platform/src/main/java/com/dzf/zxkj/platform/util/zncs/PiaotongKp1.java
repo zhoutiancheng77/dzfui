@@ -1,29 +1,27 @@
 package com.dzf.zxkj.platform.util.zncs;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
+
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.piaotong.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import com.alibaba.fastjson.JSON;
 import org.jboss.logging.Logger;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 public class PiaotongKp1 {
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -62,17 +60,26 @@ public class PiaotongKp1 {
 	private int ly;
 	
 	static{
-		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
-		ptxxurl = zncsUrlConfig.ptb_ptxxurl;
-		xxptbm = zncsUrlConfig.ptb_xxptbm;
-		platformCode = zncsUrlConfig.ptb_platformCode;
-		signType = zncsUrlConfig.ptb_signType;
-		format = zncsUrlConfig.ptb_format;
-		xxversion = zncsUrlConfig.ptb_xxversion;
-		xxpwd = zncsUrlConfig.ptb_xxpwd;
-		xxsize = zncsUrlConfig.ptb_xxsize;
-		privateKey = zncsUrlConfig.ptb_privateKey;
-		publicKey = zncsUrlConfig.ptb_publicKey;
+		InputStream is = null;
+		Properties prop = new Properties();
+		try {
+			Resource exportTemplate = new ClassPathResource("properties"+ File.separator+"zncsConfig.properties");
+			is = exportTemplate.getInputStream();
+			prop.load(is);
+			// / 加载属性列表
+			ptxxurl = prop.getProperty("ptb_ptxxurl");
+			xxptbm = prop.getProperty("ptb_xxptbm");
+			platformCode = prop.getProperty("ptb_platformCode");
+			signType = prop.getProperty("ptb_signType");
+			format = prop.getProperty("ptb_format");
+			xxversion = prop.getProperty("ptb_xxversion");
+			xxpwd = prop.getProperty("ptb_xxpwd");
+			xxsize = prop.getProperty("ptb_xxsize");
+			privateKey = prop.getProperty("ptb_privateKey");
+			publicKey = prop.getProperty("ptb_publicKey");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public PiaotongKp1(String taxpayerNum,

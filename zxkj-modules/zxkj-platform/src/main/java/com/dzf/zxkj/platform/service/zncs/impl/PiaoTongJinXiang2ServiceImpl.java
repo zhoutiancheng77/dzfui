@@ -12,7 +12,6 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.image.DcModelHVO;
 import com.dzf.zxkj.platform.model.piaotong.CaiFangTongBVO;
 import com.dzf.zxkj.platform.model.piaotong.CaiFangTongHVO;
@@ -59,8 +58,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 	private IBDCorpTaxService sys_corp_tax_serv;
 	@Autowired
 	private IParameterSetService sys_parameteract;
-	@Autowired
-	private ZncsUrlConfig zncsUrlConfig;
+
 	
 //	private static final String CHARGEDEPTNAME_YBR = "一般纳税人";
 
@@ -832,7 +830,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 		
 		StringBuffer buffer = new StringBuffer();
 		try {
-			String url=zncsUrlConfig.ptjx_ptjxurl+"/company/checkInfo";
+			String url=PropertyGetter.ptjx_url+"/company/checkInfo";
 			Map<String, String> paramMap = new HashMap<String,String>();
 			paramMap.put("taxNum", getQuotes(taxNum));
 			paramMap.put("vertifyCode", getQuotes(vertifyCode));

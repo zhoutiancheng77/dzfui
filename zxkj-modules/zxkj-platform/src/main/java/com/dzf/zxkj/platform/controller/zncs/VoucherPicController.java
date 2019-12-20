@@ -169,7 +169,7 @@ public class VoucherPicController extends BaseController {
 
             json.setRows(il);
             json.setSuccess(true);
-            json.setMsg("保存成功!");
+            json.setMsg("上传成功!");
         } catch (Exception e) {
 //			log.info("上传凭证图片失败!" + e.getMessage());
 //			json.setSuccess(false);
