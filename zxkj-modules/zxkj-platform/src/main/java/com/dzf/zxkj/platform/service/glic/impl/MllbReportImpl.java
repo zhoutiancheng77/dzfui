@@ -14,13 +14,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service("iMllbReport")
 public class MllbReportImpl implements IMllbReport {
     @Autowired
     private SingleObjectBO singleObjectBO = null;
-
-//    @Autowired
-//    private IParameterSetService parameterserv;
 
     @Override
     public List<MllDetailVO> queryMllMx(QueryParamVO queryParamvo, CorpVO loginCorpInfo, String currsp) {

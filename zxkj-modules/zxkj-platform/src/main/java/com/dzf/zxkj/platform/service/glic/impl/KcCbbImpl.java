@@ -38,17 +38,13 @@ import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-
 @Service("ic_rep_kccbbserv")
-@Slf4j
 public class KcCbbImpl implements IKcCbb {
-
 	@Autowired
 	private SingleObjectBO singleObjectBO;
 	@Autowired
@@ -63,15 +59,14 @@ public class KcCbbImpl implements IKcCbb {
 	private IVoucherService voucher;
 	@Autowired
 	private IQmclService gl_qmclserv;
-	@Autowired(required = false)
+	@Autowired
 	private IQmclNoicService gl_qmclnoicserv;
 	@Autowired
 	private IInventoryQcService gl_ic_invtoryqcserv;
 	@Autowired
-	private ICorpService corpService;
-	@Autowired
-	private IAccountService accService;
-
+	private IAccountService accountService;
+    @Autowired
+    private ICorpService corpService;
 	@Override
 	public Map<String, IcDetailVO> queryDetail(QueryParamVO paramvo, CorpVO corpvo) throws DZFWarpException {
 		// 查询凭证数据
@@ -83,30 +78,30 @@ public class KcCbbImpl implements IKcCbb {
 		List<Map<String, IcDetailVO>> fsMap = calFsByPeriod(paramvo, detailVOs);
 
 		String pk_corp = corpvo.getPk_corp();
-		Map<String, YntCpaccountVO> cpaMap = accService.queryMapByPk(pk_corp);
+		Map<String, YntCpaccountVO> cpaMap = accountService.queryMapByPk(pk_corp);
 		// 获取结果
 		Map<String, IcDetailVO> result = new HashMap<String, IcDetailVO>();
 
 		result = createResult(qcMap, fsMap, paramvo);
-		
+
 		//汇总金额数量到上级
-//		addParents(result, cpaMap);
-		
+		addParents(result, cpaMap);
+
 		calSpmc(corpvo, result, pk_corp, cpaMap);
-		
+
 		// 计算单价
 		calPrice(result);
 
 		return result;
 	}
-	
+
 	private void addParents(Map<String, IcDetailVO> result,
-			Map<String, YntCpaccountVO> cpaMap){
+							Map<String, YntCpaccountVO> cpaMap){
 		if(result == null || result.size() == 0)
 			return;
-		
+
 		Map<String, List<IcDetailVO>> map = hashlizeObject(result);
-		
+
 		if(map != null && map.size() > 0){
 			String key;
 			IcDetailVO vo;
@@ -119,36 +114,36 @@ public class KcCbbImpl implements IKcCbb {
 			}
 		}
 	}
-	
+
 	private IcDetailVO buildParentVO(List<IcDetailVO> list, String key){
 		IcDetailVO vo = new IcDetailVO();
-		
+
 		String[] fileds = { "qcsl", "qcje", "srsl", "srje", "jcsl", "jcje" };
 		DZFDouble value;
 		for(IcDetailVO detailvo : list){
 			for(String filed : fileds){
 				value = SafeCompute.add((DZFDouble)vo.getAttributeValue(filed),
-							(DZFDouble)detailvo.getAttributeValue(filed));
+						(DZFDouble)detailvo.getAttributeValue(filed));
 				vo.setAttributeValue(filed, value);
 			}
 		}
 		vo.setPk_sp(key + "_fl");
 		return vo;
 	}
-	
+
 	private Map<String, List<IcDetailVO>> hashlizeObject(Map<String, IcDetailVO> result){
 		Map<String, List<IcDetailVO>> map = new HashMap<String, List<IcDetailVO>>();
 		String key;
 		IcDetailVO vo;
 		List<IcDetailVO> ll;
-		
+
 		for(Map.Entry<String, IcDetailVO> entry : result.entrySet()){
 			key = entry.getKey();
 			if(key.length() < 49)
 				continue;
-			
+
 			key = key.substring(25, key.length());
-			
+
 			vo = entry.getValue();
 			if(map.containsKey(key)){
 				map.get(key).add(vo);
@@ -158,10 +153,10 @@ public class KcCbbImpl implements IKcCbb {
 				map.put(key, ll);
 			}
 		}
-		
+
 		return map;
 	}
-	
+
 	public List<TempInvtoryVO> queryZgVOs(CorpVO corpvo, String userid, DZFDate doped) throws DZFWarpException{
 		//查询最小未成本结转期间
 		String period = queryMaxCbjzPeriod(corpvo);
@@ -176,34 +171,34 @@ public class KcCbbImpl implements IKcCbb {
 		if(list == null || list.size() == 0){
 			throw new BusinessException("未找到期末处理的数据，请检查");
 		}
-		
+
 		//查询成本结转的数据
 		List<QMJzsmNoICVO> vos = gl_qmclnoicserv.queryCBJZqcpzAccountVOS(pk_corp,userid,
 				date.toString(), date.toString(), null, null);
-		
-		Map<String, YntCpaccountVO> kmsmap = accService.queryMapByPk(pk_corp);
-		
+
+		Map<String, YntCpaccountVO> kmsmap =  accountService.queryMapByPk(pk_corp);
+
 		List<TempInvtoryVO> zlist = gl_qmclnoicserv.getZgDataByCBB(
 				list.get(0), vos, corpvo, 3, null, DZFBoolean.FALSE, userid, kmsmap);
-		
+
 		tempInvtory(zlist, kmsmap, corpvo, period);
-		
+
 		return zlist;
 	}
-	
-	private void tempInvtory(List<TempInvtoryVO> list, 
-			Map<String, YntCpaccountVO> kmsmap, 
-			CorpVO corpvo, String period){
+
+	private void tempInvtory(List<TempInvtoryVO> list,
+							 Map<String, YntCpaccountVO> kmsmap,
+							 CorpVO corpvo, String period){
 		if(list == null || list.size() == 0){
 			return;
 		}
-		
+
 		String pk_corp = corpvo.getPk_corp();
-		
+
 		AuxiliaryAccountBVO[] bvos = gl_fzhsserv.queryB(
 				AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
 		Map<String, List<TempInvtoryVO>> map = DZfcommonTools.hashlizeObject(list, new String[]{ "fzid" });//存货辅助
-		
+
 		String key;
 		String kmclassify;
 		YntCpaccountVO cpavo;
@@ -211,7 +206,7 @@ public class KcCbbImpl implements IKcCbb {
 		for(AuxiliaryAccountBVO bvo : bvos){
 			if(map == null || map.size() == 0)
 				break;
-			
+
 			key = bvo.getPk_auacount_b();
 			if(map.containsKey(key)){
 				temp = map.get(key);
@@ -226,7 +221,7 @@ public class KcCbbImpl implements IKcCbb {
 						vo.setPk_gs(pk_corp);
 						vo.setGsname(corpvo.getUnitname());
 						vo.setPeriod(period);
-						
+
 						kmclassify = bvo.getKmclassify();
 						if(!StringUtil.isEmpty(kmclassify)){
 							cpavo = kmsmap.get(kmclassify);
@@ -239,69 +234,69 @@ public class KcCbbImpl implements IKcCbb {
 			}
 		}
 	}
-	
+
 	private String queryMaxCbjzPeriod(CorpVO corpvo){
 		String pk_corp = corpvo.getPk_corp();
 		DZFDate beginDate = corpvo.getBegindate();
-		
+
 		String period = DateUtils.getPeriod(beginDate);
-		
+
 		String qmclsql = "select max(period) from ynt_qmcl where nvl(dr,0)=0 and pk_corp = ? and period >= ? and nvl(iscbjz,'N') ='Y'";
-		
+
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(period);
-		
+
 		String maxperiod = (String) singleObjectBO.executeQuery(qmclsql, sp, new ColumnProcessor());
-		
+
 		if(StringUtil.isEmpty(maxperiod)){
 			maxperiod = period;
 		}else{
 			//后续添加逻辑
 			maxperiod = DateUtils.getPeriod(DateUtils.getPeriodEndDate(maxperiod).getDateAfter(1));
 		}
-		
+
 		return maxperiod;
 	}
-	
+
 	private QmclVO getQmcl(String pk_corp, String period){
-		
+
 		String sql = " select * from ynt_qmcl where nvl(dr,0)=0 and pk_corp = ? and period = ? ";
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(period);
 		QmclVO qmclvo = (QmclVO) singleObjectBO.executeQuery(sql, sp, new BeanProcessor(QmclVO.class));
-		
+
 		return qmclvo;
 	}
-	
-	private void calSpmc(CorpVO corpvo, 
-			Map<String, IcDetailVO> result, 
-			String pk_corp,
-			Map<String, YntCpaccountVO> cpaMap){
+
+	private void calSpmc(CorpVO corpvo,
+						 Map<String, IcDetailVO> result,
+						 String pk_corp,
+						 Map<String, YntCpaccountVO> cpaMap){
 		if(result == null || result.size() == 0)
 			return;
-		
+
 		AuxiliaryAccountBVO[] bvos = gl_fzhsserv.queryB(
 				AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
-		
+
 		if(bvos == null || bvos.length == 0)
 			return;
-		
+
 		String key;
 		String kmclassify;
 		IcDetailVO icvo;
 		YntCpaccountVO cpavo;
 		for(AuxiliaryAccountBVO bvo : bvos){
-			key = bvo.getPk_auacount_b();
-			
+			key = bvo.getPk_auacount_b() + "_" + bvo.getKmclassify();
+
 			if(result.containsKey(key)){
 				icvo = result.get(key);
 				icvo.setSpbm(bvo.getCode());
 				icvo.setSpmc(bvo.getName());
 				icvo.setSpgg(bvo.getSpec());//规格型号
 				icvo.setJldw(bvo.getUnit());
-				
+
 				kmclassify = bvo.getKmclassify();
 				if(!StringUtil.isEmpty(kmclassify)){
 					cpavo = cpaMap.get(kmclassify);
@@ -310,22 +305,22 @@ public class KcCbbImpl implements IKcCbb {
 						icvo.setSpfl_name(cpavo.getAccountname());
 					}
 				}
-				
+
 			}
-			
+
 			key = bvo.getKmclassify();
-			if(!StringUtil.isEmpty(key) 
+			if(!StringUtil.isEmpty(key)
 					&& result.containsKey(key)){
 				cpavo = cpaMap.get(key);
 				icvo = result.get(key);
-				
+
 				icvo.setSpfl(key);
 				icvo.setSpbm(cpavo.getAccountcode());
 				icvo.setSpfl_name(cpavo.getAccountname());
-				
+
 			}
 		}
-		
+
 	}
 
 	private List<IcDetailVO> queryFsDetails(QueryParamVO paramvo, CorpVO corpvo) throws DZFWarpException {
@@ -340,7 +335,7 @@ public class KcCbbImpl implements IKcCbb {
 		sp.addParam(paramvo.getPk_corp());
 		sp.addParam(DateUtils.getPeriod(jzDate));
 		sp.addParam(DateUtils.getPeriod(paramvo.getEnddate()));
-		
+
 		sf.append(" Select h.doperatedate dbilldate, h.period, b.fzhsx6 pk_sp, fzb.kmclassify spfl, ");
 		sf.append(" b.pk_accsubj, b.glchhsnum nnum, b.vicbillcodetype, b.xsjzcb ncost, b.glcgmny ");
 		sf.append(" From ynt_tzpz_b b join ynt_tzpz_h h on h.pk_tzpz_h = b.pk_tzpz_h  ");
@@ -355,18 +350,18 @@ public class KcCbbImpl implements IKcCbb {
 			sf.append(" and fzb.kmclassify = ? ");
 			sp.addParam(paramvo.getXmlbid());
 		}
-		
-		
+
+
 		List<IcDetailVO> list = (List<IcDetailVO>) singleObjectBO.executeQuery(
 				sf.toString(), sp, new BeanListProcessor(IcDetailVO.class));
-		
+
 		convertData(list);//
 		return list;
 	}
 
 	/**
 	 * 查询期初数据
-	 * 
+	 *
 	 * @param paramVo
 	 * @return
 	 */
@@ -377,7 +372,7 @@ public class KcCbbImpl implements IKcCbb {
 		sf.append(" select y.*, b.kmclassify chlb from ynt_glicqc y ");
 		sf.append(" left join ynt_fzhs_b b on b.pk_auacount_b = y.pk_inventory ");
 		sf.append(" Where y.pk_corp = ? and nvl(y.dr,0) =0 and nvl(b.dr,0) =0 and y.pk_inventory is not null ");
-		
+
 		if(!StringUtil.isEmpty(paramVo.getPk_inventory())){
 			sf.append(" and y.pk_inventory= ? ");
 			sp.addParam(paramVo.getPk_inventory());
@@ -386,10 +381,10 @@ public class KcCbbImpl implements IKcCbb {
 			sf.append(" and b.kmclassify = ? ");
 			sp.addParam(paramVo.getXmlbid());
 		}
-		
+
 		List<InventoryQcVO> fzrs = (List<InventoryQcVO>) singleObjectBO.executeQuery(
 				sf.toString(), sp, new BeanListProcessor(InventoryQcVO.class));
-		
+
 		Map<String, InventoryQcVO> qcMap = hashlizeObject(fzrs);
 
 		return qcMap;
@@ -398,7 +393,7 @@ public class KcCbbImpl implements IKcCbb {
 	private void convertData(List<IcDetailVO> list) {
 		if(list == null || list.size() == 0)
 			return;
-		
+
 		for(IcDetailVO vo : list){
 			if("in".equals(vo.getVicbillcodetype())){
 				vo.setSrsl(vo.getNnum());
@@ -407,7 +402,7 @@ public class KcCbbImpl implements IKcCbb {
 				vo.setFcsl(vo.getNnum());
 				vo.setFcje(vo.getNcost());//取结转成本
 			}
-			
+
 		}
 	}
 
@@ -417,11 +412,18 @@ public class KcCbbImpl implements IKcCbb {
 		if (fzrs == null || fzrs.size() == 0) {
 			return result;
 		}
+
 		String key = null;
+		InventoryQcVO tempvo = null;
 		for (InventoryQcVO vo : fzrs) {
-			key = vo.getPk_inventory();
+			key = vo.getPk_inventory() + "_" + vo.getChlb();
+
 			if (!result.containsKey(key)) {
 				result.put(key, vo);
+			}else{
+				tempvo = result.get(key);
+				tempvo.setThismonthqc(SafeCompute.add(vo.getThismonthqc(), tempvo.getThismonthqc()));
+				tempvo.setMonthqmnum(SafeCompute.add(vo.getMonthqmnum(), tempvo.getMonthqmnum()));
 			}
 		}
 
@@ -430,7 +432,7 @@ public class KcCbbImpl implements IKcCbb {
 
 	/**
 	 * 按区间计算合计
-	 * 
+	 *
 	 * @return
 	 */
 	private List<Map<String, IcDetailVO>> calFsByPeriod(QueryParamVO paramVo, List<IcDetailVO> list) {
@@ -459,13 +461,13 @@ public class KcCbbImpl implements IKcCbb {
 
 	/**
 	 * 计算合计
-	 * 
+	 *
 	 * @param sumMap
 	 * @param vo
 	 */
 	private void sumDetail(Map<String, IcDetailVO> sumMap, IcDetailVO vo) {
 
-		String key = vo.getPk_sp();
+		String key = vo.getPk_sp() + "_" + vo.getSpfl();
 
 		IcDetailVO icdvo = sumMap.get(key);
 		if (icdvo == null) {
@@ -484,19 +486,19 @@ public class KcCbbImpl implements IKcCbb {
 	/**
 	 * 封装结果数据
 	 */
-	private Map<String, IcDetailVO> createResult(Map<String, InventoryQcVO> qcMap, 
-			List<Map<String, IcDetailVO>> fsMap,
-			QueryParamVO paramvo) {
+	private Map<String, IcDetailVO> createResult(Map<String, InventoryQcVO> qcMap,
+												 List<Map<String, IcDetailVO>> fsMap,
+												 QueryParamVO paramvo) {
 		Map<String, IcDetailVO> result = new HashMap<String, IcDetailVO>();
 		Set<String> keySet = new HashSet<String>();
 
 		Map<String, IcDetailVO> PeriodBeforeFs = fsMap.get(0);
-		
+
 		Map<String, IcDetailVO> PeriodFs = fsMap.get(1);
 		keySet.addAll(qcMap.keySet());
 		keySet.addAll(PeriodBeforeFs.keySet());
 		keySet.addAll(PeriodFs.keySet());
-//		fsMap =hashlizeObjectByPeriod(fsMap);
+
 		if (keySet.size() > 0) {
 			InventoryQcVO qcvo;
 			IcDetailVO periodBf;
@@ -515,49 +517,49 @@ public class KcCbbImpl implements IKcCbb {
 
 		return result;
 	}
-	
-	private IcDetailVO calculateAll(String key, 
-			InventoryQcVO qcvo, 
-			IcDetailVO periodBf, 
-			IcDetailVO period){
+
+	private IcDetailVO calculateAll(String key,
+									InventoryQcVO qcvo,
+									IcDetailVO periodBf,
+									IcDetailVO period){
 		DZFDouble qcsl = DZFDouble.ZERO_DBL;
 		DZFDouble qcje = DZFDouble.ZERO_DBL;
-		
+
 		DZFDouble srsl = DZFDouble.ZERO_DBL;
 		DZFDouble srje = DZFDouble.ZERO_DBL;
-		
+
 		DZFDouble fcsl = DZFDouble.ZERO_DBL;
 		DZFDouble fcje = DZFDouble.ZERO_DBL;
-		
+
 		DZFDouble jcsl = DZFDouble.ZERO_DBL;
 		DZFDouble jcje = DZFDouble.ZERO_DBL;
-		
-		
+
+
 		if(qcvo != null){
-			
+
 			qcsl = qcvo.getMonthqmnum();
 			qcje = qcvo.getThismonthqc();
 		}
-		
+
 		if(periodBf != null){
-			
+
 			qcsl = SafeCompute.add(qcsl, SafeCompute.sub(periodBf.getSrsl(), periodBf.getFcsl()));
 			qcje = SafeCompute.add(qcje, SafeCompute.sub(periodBf.getSrje(), periodBf.getFcje()));
 		}
-		
+
 		if(period != null){
-			
+
 			srsl = period.getSrsl();
 			srje = period.getSrje();
-			
+
 			fcsl = period.getFcsl();
 			fcje = period.getFcje();
-			
+
 		}
-		
+
 		jcsl = SafeCompute.sub(SafeCompute.add(qcsl, srsl), fcsl);
 		jcje = SafeCompute.sub(SafeCompute.add(qcje, srje), fcje);
-		
+
 		IcDetailVO vo = new IcDetailVO();
 		vo.setPk_sp(key);
 		vo.setQcsl(qcsl);
@@ -568,38 +570,13 @@ public class KcCbbImpl implements IKcCbb {
 		vo.setFcje(fcje);
 		vo.setJcsl(jcsl);
 		vo.setJcje(jcje);
-		
-		return vo;
-	}
 
-	private Map<String, List<IcDetailVO>> hashlizeObjectByPeriod(List<IcDetailVO> objs) {
-		Map<String, List<IcDetailVO>> result = new HashMap<String, List<IcDetailVO>>();
-		if (objs == null || objs.isEmpty())
-			return result;
-		String key = null;
-		List<IcDetailVO> zlist = null;
-		for (int i = 0; i < objs.size(); i++) {
-			key = DateUtils.getPeriod(objs.get(i).getDbilldate());
-			if (result.containsKey(key)) {
-				result.get(key).add(objs.get(i));
-			} else {
-				zlist = new ArrayList<>();
-				zlist.add(objs.get(i));
-				result.put(key, zlist);
-			}
-		}
-		return result;
+		return vo;
 	}
 
 	/**
 	 * 根据期初，计算发生
-	 * 
-	 * @param 'key'
-	 * @param 'qcVo'
-	 * @param 'periodBf'
-	 * @param 'period'
-	 * @param 'account'
-	 * @return
+	 *
 	 */
 
 	private void calPrice(Map<String, IcDetailVO> result) {
@@ -621,12 +598,12 @@ public class KcCbbImpl implements IKcCbb {
 		DZFDouble jcdj = null;
 		for (Map.Entry<String, IcDetailVO> entry : result.entrySet()) {
 			vo = entry.getValue();
-			
+
 			qcje = vo.getQcje();
 			qcsl = vo.getQcsl();
 			qcdj = SafeCompute.div(qcje, qcsl);
 			vo.setQcdj(qcdj);
-			
+
 			srje = vo.getSrje();
 			srsl = vo.getSrsl();
 			srdj = SafeCompute.div(srje, srsl);
@@ -645,27 +622,27 @@ public class KcCbbImpl implements IKcCbb {
 	}
 
 	@Override
-	public void saveZg(TempInvtoryVO[] bodyvos, 
-			String pk_corp, 
-			String userid) throws DZFWarpException {
+	public void saveZg(TempInvtoryVO[] bodyvos,
+					   String pk_corp,
+					   String userid) throws DZFWarpException {
 		if(bodyvos == null || bodyvos.length == 0)
 			throw new BusinessException("解析暂估数据不完整,请检查");
 		String period = bodyvos[0].getPeriod();
 		QmclVO qmclvo = getQmcl(pk_corp, period);
 		if(qmclvo == null)
 			throw new BusinessException("校验数据不合规，请检查");
-		
+
 		CorpVO corpvo =corpService.queryByPk(pk_corp);
-		Map<String, YntCpaccountVO> kmsmap =accService.queryMapByPk(pk_corp);
+		Map<String, YntCpaccountVO> kmsmap =  accountService.queryMapByPk(pk_corp);
 		ZgVoucher zg = new ZgVoucher(gl_cbconstant, singleObjectBO, yntBoPubUtil,parameterserv);
-		
+
 		TzpzHVO billvo = zg.createPzvosNoIC(qmclvo, bodyvos, null,userid,kmsmap);
 		TzpzHVO nextvo = zg.queryNextcodeNoIC(qmclvo, billvo);
 		voucher.saveVoucher(corpvo, billvo);
 		voucher.saveVoucher(corpvo, nextvo);
-		
+
 	}
-	
+
 //	private void setTempByTempInvtory(TempInvtoryVO[] bodyvos, String pk_corp){
 //		YntCpaccountVO[] cpavos = AccountCache.getInstance().get(null, pk_corp);
 //		YntCpaccountVO cpavo = null;
@@ -676,10 +653,10 @@ public class KcCbbImpl implements IKcCbb {
 //					cpavo = vo;
 //					break;
 //				}
-//				
+//
 //			}
 //		}
-//		
+//
 //		for(TempInvtoryVO vo : bodyvos){
 //			vo.setFzid(vo.getPk_invtory());
 //			if(cpavo != null){
@@ -687,31 +664,31 @@ public class KcCbbImpl implements IKcCbb {
 //				vo.setKmbm(cpavo.getAccountcode());
 //				vo.setKmname(cpavo.getAccountname());
 //			}
-//			
+//
 //		}
 //	}
-	
+
 	@Override
 	public TzpzHVO queryJzPz(String pk_corp, String period) throws DZFWarpException {
 		SQLParameter sp = new SQLParameter();
 		StringBuffer sf = new StringBuffer();
 		//首先判断该月是否成本结转，如未结转，直接返回
 		QmclVO qmclvo = getQmcl(pk_corp, period);
-		if(qmclvo == null 
+		if(qmclvo == null
 				|| qmclvo.getIscbjz() == null
 				|| !qmclvo.getIscbjz().booleanValue())
 			return null;
-		
+
 		sf.append(" Select * From ynt_tzpz_h h ");
 		sf.append(" Where nvl(h.dr,0) = 0 and h.pk_corp = ? and h.period = ? and h.sourcebilltype = ? ");
-		
+
 		sp.addParam(pk_corp);
 		sp.addParam(period);
 		sp.addParam(IBillTypeCode.HP34);
-		
+
 		List<TzpzHVO> list = (List<TzpzHVO>) singleObjectBO.executeQuery(
 				sf.toString(), sp, new BeanListProcessor(TzpzHVO.class));
-		
+
 		if(list != null && list.size() > 1){
 			Collections.sort(list, new Comparator<TzpzHVO>() {
 
@@ -721,9 +698,9 @@ public class KcCbbImpl implements IKcCbb {
 				}
 			});
 		}
-		
-		return list == null || list.size() == 0 
+
+		return list == null || list.size() == 0
 				? null : list.get(0);
 	}
-	
+
 }

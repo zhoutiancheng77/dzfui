@@ -641,7 +641,8 @@ public class NumberForward {
 
 //			}
 			if (dvo.getIsleaf() == null || !dvo.getIsleaf().booleanValue()) {
-				dvo = queryNewCpaccountVO(dvo.getAccountcode(), cvo.getPk_corp(), cvo.getPk_inventory());
+                // 以下逻辑有问题 暂时注释掉  生成末级科目交由凭证处理 （凭证保存会处理成临时凭证）
+//				dvo = queryNewCpaccountVO(dvo.getAccountcode(), cvo.getPk_corp(), cvo.getPk_inventory());
 			}
 			balancevo = map.get(cvo.getPk_inventory());
 

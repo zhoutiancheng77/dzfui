@@ -1,10 +1,10 @@
 package com.dzf.zxkj.platform.service.jzcl.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.exception.ExBusinessException;
@@ -16,12 +16,11 @@ import com.dzf.zxkj.platform.model.jzcl.TempInvtoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.BdTradeCostTransferVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.icset.IInvAccSetService;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
-import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
-import com.dzf.zxkj.platform.service.jzcl.IndustryForward;
-import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
+import com.dzf.zxkj.platform.service.icset.IInvAccSetService;
+import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
+import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
@@ -168,59 +167,62 @@ public class Cbjz_3 {
 		cb.save(corpVo, vo);
 		return vo;
 	}
-	
-	private CpcosttransVO[] getCpcosttransVO(CorpVO corpVo, QmclVO vo, Map<String, YntCpaccountVO> accmap) {
-		// 公司级成本结转模板
-		// SQLParameter sp = new SQLParameter();
-		// sp.addParam(vo.getPk_corp());
-		// String where = " pk_corp= ? and nvl(dr,0)=0 and jztype =3 ";
-		// // 公司商贸销售成本结转模板
-		// CpcosttransVO[] mbvos = (CpcosttransVO[])
-		// singleObjectBO.queryByCondition(CpcosttransVO.class, where, sp);
-		// // 销售结转
-		// if (mbvos == null || mbvos.length == 0) {// 查找行业级成本结转模板
-		// // 将行业成本结转翻译成公司级模板
-		// mbvos = translateCpcosttransVO(vo.getPk_corp());
-		// if (mbvos == null || mbvos.length == 0) {
-		// throw new BusinessException("当前公司、行业成本结转模板都为空！请设置！");
-		// }
-		// }
 
-		IndustryForward gl_industryserv = (IndustryForward) SpringUtils.getBean("gl_industryserv");
-		boolean is2007 = gl_industryserv.is2007(vo.getPk_corp());
+    private CpcosttransVO[] getCpcosttransVO(CorpVO corpVo, QmclVO vo, Map<String, YntCpaccountVO> accmap) {
+        // 企业会计准则 和小企业会计准则走默认模板不支持 期末结转模板  其他制度走期末结转模板（具体的需要适配）
+        CorpVO corpVO = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, vo.getPk_corp());
+        String clcode = null;
+        String kcspcode = null;
+        CpcosttransVO[] mbvos = null;
+        if (gl_cbconstant.getFangan_2013().equals(corpVO.getCorptype())) {// 2013
+            clcode = gl_cbconstant.getJzcb_ycl2013(vo.getPk_corp());
+            kcspcode = gl_cbconstant.getJzcb_kcsp2013(vo.getPk_corp());
+            mbvos = createMb(kcspcode, clcode, accmap);
+        } else if (gl_cbconstant.getFangan_2007().equals(corpVO.getCorptype())) {// 2007
+            clcode = gl_cbconstant.getJzcb_ycl2007(vo.getPk_corp());
+            kcspcode = gl_cbconstant.getJzcb_kcsp2007(vo.getPk_corp());
+            mbvos = createMb(kcspcode, clcode, accmap);
+        } else {
+            // 公司级成本结转模板
+            SQLParameter sp = new SQLParameter();
+            sp.addParam(vo.getPk_corp());
+            String where = " pk_corp= ? and nvl(dr,0)=0 and jztype =3 ";
+            // 公司商贸销售成本结转模板
+            mbvos = (CpcosttransVO[]) singleObjectBO.queryByCondition(CpcosttransVO.class, where, sp);
+            // 销售结转
+            if (mbvos == null || mbvos.length == 0) {// 查找行业级成本结转模板
+                // 将行业成本结转翻译成公司级模板
+                mbvos = translateCpcosttransVO(vo.getPk_corp());
+                if (mbvos == null || mbvos.length == 0) {
+                    throw new BusinessException("当前公司、行业成本结转模板都为空！请设置！");
+                }
+            }
+        }
+        return mbvos;
+    }
 
-		String clcode = null;
-		String kcspcode = null;
-		if (is2007) {
-			clcode = gl_cbconstant.getJzcb_ycl2007(vo.getPk_corp());
-			kcspcode = gl_cbconstant.getJzcb_kcsp2007(vo.getPk_corp());
-		} else {
-			clcode = gl_cbconstant.getJzcb_ycl2013(vo.getPk_corp());
-			kcspcode = gl_cbconstant.getJzcb_kcsp2013(vo.getPk_corp());
-		}
+    private CpcosttransVO[] createMb(String kcspcode, String clcode, Map<String, YntCpaccountVO> accmap) {
+        CpcosttransVO[] mbvos = new CpcosttransVO[2];
 
-		CpcosttransVO[] mbvos = new CpcosttransVO[2];
+        // 贷方科目
+        YntCpaccountVO dfkm = getYntCpaccountVO(accmap, gl_cbconstant.getKcsp_code());
+        // 借方科目
+        YntCpaccountVO jfkm = getYntCpaccountVO(accmap, kcspcode);
+        CpcosttransVO mbvo = new CpcosttransVO();
+        mbvo.setAbstracts("商品销售成本结转");// 540101 540201
+        mbvo.setPk_creditaccount(dfkm.getPk_corp_account());
+        mbvo.setPk_debitaccount(jfkm.getPk_corp_account());
+        mbvos[0] = mbvo;
 
-		// 贷方科目
-		YntCpaccountVO dfkm = getYntCpaccountVO(accmap, gl_cbconstant.getKcsp_code());
-		// 借方科目
-		YntCpaccountVO jfkm = getYntCpaccountVO(accmap, kcspcode);
-		CpcosttransVO mbvo  =new CpcosttransVO();
-		mbvo.setAbstracts("商品销售成本结转");// 540101 540201
-		mbvo.setPk_creditaccount(dfkm.getPk_corp_account());
-		mbvo.setPk_debitaccount(jfkm.getPk_corp_account());
-		mbvos[0]=mbvo;
-		
-		mbvo  =new CpcosttransVO();
-		dfkm = getYntCpaccountVO(accmap, gl_cbconstant.getYcl_code());
-		jfkm = getYntCpaccountVO(accmap, clcode);
-		mbvo.setAbstracts("材料销售成本结转");
-		mbvo.setPk_creditaccount(dfkm.getPk_corp_account());
-		mbvo.setPk_debitaccount(jfkm.getPk_corp_account());
-		mbvos[1]=mbvo;
-		
-		return mbvos;
-	}
+        mbvo = new CpcosttransVO();
+        dfkm = getYntCpaccountVO(accmap, gl_cbconstant.getYcl_code());
+        jfkm = getYntCpaccountVO(accmap, clcode);
+        mbvo.setAbstracts("材料销售成本结转");
+        mbvo.setPk_creditaccount(dfkm.getPk_corp_account());
+        mbvo.setPk_debitaccount(jfkm.getPk_corp_account());
+        mbvos[1] = mbvo;
+        return mbvos;
+    }
 	
 	private YntCpaccountVO getYntCpaccountVO(Map<String, YntCpaccountVO> accmap, String code) {
 		YntCpaccountVO accvo = null;

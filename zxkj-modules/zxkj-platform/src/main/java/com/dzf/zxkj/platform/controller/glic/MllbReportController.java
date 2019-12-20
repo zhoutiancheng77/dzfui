@@ -15,6 +15,7 @@ import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.excel.MllbExcelField;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
+import com.dzf.zxkj.platform.model.report.IcDetailFzVO;
 import com.dzf.zxkj.platform.model.report.MllDetailVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
@@ -33,10 +34,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 毛利率统计表
@@ -60,26 +58,46 @@ public class MllbReportController  extends GlicReportController{
 
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
         checkPowerDate(queryParamvo);
-        List<MllDetailVO> result  = iMllbReport.queryMllMx(queryParamvo, SystemUtil.getLoginCorpVo(),queryParamvo.getPk_inventory());
+        List<MllDetailVO> result  = iMllbReport.queryMllMx(queryParamvo,SystemUtil.getLoginCorpVo(),queryParamvo.getPk_inventory());
 
         if(result == null || result.size() == 0){
             throw new BusinessException("查询数据为空");
         }
+        String currsp =  param.get("currsp");
+        List<IcDetailFzVO> listsps = createRightTree(result,currsp);
         //将查询后的数据分页展示
-        List<MllDetailVO> list = getPagedMllDetailVO(result, queryParamvo.getPage(), queryParamvo.getRows(), grid);
+        List<MllDetailVO> list = getPagedMllDetailVO(listsps,result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
+
+        grid.setIccombox(listsps);
         grid.setRows(list);
-        grid.setSuccess(true);
         return ReturnData.ok().data(grid);
     }
 
-    private List<MllDetailVO> getPagedMllDetailVO(List<MllDetailVO> result, int page, int rows, Grid grid) {
+    private List<MllDetailVO> getPagedMllDetailVO(List<IcDetailFzVO> listsps, List<MllDetailVO> result, int page, int rows, Grid grid, String currsp) {
 
-        if(result == null || result.isEmpty() ){
+        if(result == null || result.isEmpty() || "unall".equals(currsp)){
             grid.setTotal(0L);
             return new ArrayList<>();
         }
-        grid.setTotal((long)result.size());
-        return result.subList((page-1)*rows, page * rows > result.size() ? result.size() : page * rows);
+
+        if("all".equals(currsp)){
+            grid.setTotal((long)result.size());
+            return result.subList((page-1)*rows, page * rows > result.size() ? result.size() : page * rows);
+        }
+
+        if(StringUtil.isEmpty(currsp)){
+            currsp = listsps.get(1).getId();
+        }
+
+        List<MllDetailVO> list = getCurrSp(result, currsp);
+        if(list == null || list.size() ==0){
+            currsp = listsps.get(1).getId();
+            list = getCurrSp(result, currsp);
+        }
+
+        grid.setTotal((long)list.size());
+
+        return list.subList((page-1)*rows, page * rows > list.size() ? list.size() : page * rows);
     }
 
     private List<MllDetailVO> getCurrSp(List<MllDetailVO> result, String currsp) {
@@ -90,6 +108,65 @@ public class MllbReportController  extends GlicReportController{
             }
         }
         return list;
+    }
+
+    private List<IcDetailFzVO> createRightTree(List<MllDetailVO> result,String currsp){
+
+        IcDetailFzVO fzvo = null;
+        Set<String> conkeys = new HashSet<String>();
+        List<IcDetailFzVO> listsps = new ArrayList<IcDetailFzVO>();
+
+
+        for(MllDetailVO mllDetailVO : result){
+            if(!StringUtil.isEmpty(mllDetailVO.getFzid())){
+                fzvo = new IcDetailFzVO();
+                fzvo.setId(mllDetailVO.getFzid());
+                if(StringUtil.isEmpty(mllDetailVO.getSpec())){
+                    fzvo.setText(mllDetailVO.getCode() + " " + mllDetailVO.getName());
+                }else{
+                    fzvo.setText(mllDetailVO.getCode() + " " + mllDetailVO.getName()+"("+mllDetailVO.getSpec()+")");
+                }
+
+                fzvo.setCode(mllDetailVO.getCode());
+                if(conkeys.add(mllDetailVO.getFzid())){
+                    listsps.add(fzvo);
+                }
+            }
+        }
+
+
+        if(listsps != null && listsps.size() > 0){
+            List<String> checklist = new ArrayList<String>();
+            Collections.sort(listsps, new Comparator<IcDetailFzVO>() {
+                @Override
+                public int compare(IcDetailFzVO o1, IcDetailFzVO o2) {
+                    int i = o1.getText().compareTo(o2.getText());
+                    return i;
+                }
+            });
+            if(!StringUtil.isEmpty(currsp)){
+                String[] values = currsp.split(",");
+                checklist = Arrays.asList(values);
+            }
+
+            IcDetailFzVO alldetailvo = new IcDetailFzVO();
+            alldetailvo.setCode("all");
+            alldetailvo.setId("all");
+            alldetailvo.setText("全选");
+            listsps.add(0, alldetailvo);
+
+            for(IcDetailFzVO vo1:listsps){
+                if(checklist.contains(vo1.getId()) || (!StringUtil.isEmpty(currsp) && currsp.startsWith("all")) ){
+                    vo1.setChecked("true");
+                    if(StringUtil.isEmpty(currsp)){//科目为空，自动带出默认值
+                        vo1.setBdefault(DZFBoolean.TRUE);
+                    }
+                }
+
+            }
+        }
+
+        return listsps;
     }
 
     @PostMapping("print")

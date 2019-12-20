@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -20,6 +21,7 @@ import com.dzf.zxkj.platform.model.glic.IcDetailVO;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.jzcl.TempInvtoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
+import com.dzf.zxkj.platform.model.report.IcDetailFzVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
@@ -61,35 +63,216 @@ public class KcCbbController extends GlicReportController{
         ReportDataGrid grid = new ReportDataGrid();
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
         checkPowerDate(queryParamvo);
-        Map<String, IcDetailVO> result = ic_rep_cbbserv.queryDetail(queryParamvo,SystemUtil.getLoginCorpVo());
+        Map<String, IcDetailVO>  result = ic_rep_cbbserv.queryDetail(queryParamvo, SystemUtil.getLoginCorpVo());
+        String currsp =  param.get("currsp");
+        List<IcDetailFzVO> listsps = createRightTree(result,currsp);
         //将查询后的数据分页展示
-        List<IcDetailVO> list = getPagedMXZVos( result, queryParamvo.getPage(),queryParamvo.getRows() , grid);
+        List<IcDetailVO> list = getPagedMXZVos(listsps, result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
+
+        grid.setIccombox(listsps);
+        grid.setKcDetail(list);
         grid.setRows(list);
         grid.setSuccess(true);
         return ReturnData.ok().data(grid);
     }
 
-    private List<IcDetailVO> getPagedMXZVos(Map<String, IcDetailVO> result, int page, int rows,
-                                            ReportDataGrid grid){
-        List<IcDetailVO> spList = new ArrayList<>();
-        List<IcDetailVO> spList1 = new ArrayList<>();
-        Set<Map.Entry<String, IcDetailVO>> entrySet = result.entrySet();
-        Iterator<Map.Entry<String, IcDetailVO>> iter = entrySet.iterator();
-        while (iter.hasNext()) {
-            Map.Entry<String, IcDetailVO> entry = iter.next();
-            spList.add(entry.getValue());
+    private List<IcDetailVO> getPagedMXZVos(List<IcDetailFzVO> listsps,
+                                            Map<String, IcDetailVO> result, int page, int rows,
+                                            ReportDataGrid grid, String currsp){
+
+        if(listsps == null || listsps.size() == 0){
+            grid.setTotal(0L);
+            return new ArrayList<IcDetailVO>();
         }
+
+        if(StringUtil.isEmpty(currsp)){
+            currsp = listsps.get(0).getId();
+            if("all".equals(currsp)){//取第二个
+                currsp = listsps.get(1).getId();
+            }
+        }
+
+        Map<String, List<IcDetailVO>> spMap = new TreeMap<String, List<IcDetailVO>>();
+        IcDetailVO icv = null;
+        List<IcDetailVO> flist = null;
+        for(Map.Entry<String, IcDetailVO> entry : result.entrySet()){
+            icv = entry.getValue();
+            if(spMap.containsKey(icv.getPk_sp())){
+                spMap.get(icv.getPk_sp()).add(icv);
+            }else{
+                flist = new ArrayList<IcDetailVO>();
+                flist.add(icv);
+                spMap.put(icv.getPk_sp(), flist);
+            }
+        }
+        List<IcDetailVO> spList = new ArrayList<IcDetailVO>();//spMap.get(currsp);
+        if(!StringUtil.isEmpty(currsp) && currsp.startsWith("all")){
+            for(Map.Entry<String, List<IcDetailVO>> entry:spMap.entrySet()){
+                if(entry.getValue()!=null && entry.getValue().size()>0){
+                    for(IcDetailVO detailvo:entry.getValue()){
+                        spList.add(detailvo);
+                    }
+                }
+            }
+
+            if(spList.size() > 1){
+                final Map<String, Integer> sortScore = new HashMap<String, Integer>();
+                int count = 0;
+                IcDetailFzVO[] children;
+                for(IcDetailFzVO ic : listsps){
+                    sortScore.put(ic.getId(), count++);
+
+                    children = (IcDetailFzVO[]) ic.getChildren();
+
+                    if(children != null && children.length > 0){
+                        for(IcDetailFzVO icbvo : children){
+                            sortScore.put(icbvo.getId(), count++);
+                        }
+                    }
+                }
+
+                Collections.sort(spList, new Comparator<IcDetailVO>() {
+
+                    @Override
+                    public int compare(IcDetailVO o1, IcDetailVO o2) {
+                        Integer i1 = sortScore.get(o1.getPk_sp());
+                        i1 = i1 == null ? -1 : i1;
+
+                        Integer i2 = sortScore.get(o2.getPk_sp());
+                        i2 = i2 == null ? -1 : i2;
+
+                        return i1.compareTo(i2);
+                    }
+                });
+            }
+        }else{
+            String[] currsps = currsp.split(",");
+            for(String str:currsps){
+                if(spMap.get(str)!=null){
+                    for(IcDetailVO detailvo:spMap.get(str)){
+                        spList.add(detailvo);
+                    }
+                }
+            }
+
+            if(spList== null || spList.size() == 0){
+                String firstkey = "";
+                for(Map.Entry<String, List<IcDetailVO>> entry:spMap.entrySet()){
+                    if(!StringUtil.isEmpty( entry.getKey())){
+                        firstkey = entry.getKey();
+                        break;
+                    }
+                }
+                spList = spMap.get(firstkey);
+            }
+        }
+
+        List<IcDetailVO> resList= new ArrayList<IcDetailVO>();
         if(spList != null && spList.size() > 0){
             int start= (page-1)*rows;
             for(int i = start ; i < page * rows && i < spList.size(); i++){
-                spList1.add(spList.get(i));
+                resList.add(spList.get(i));
             }
-            grid.setTotal((long)spList1.size());
+            grid.setTotal((long)spList.size());
         }else{
             grid.setTotal(0L);
         }
-        return spList1;
+
+        return resList;
     }
+
+    private List<IcDetailFzVO> createRightTree(Map<String, IcDetailVO> result,String currsp){
+        IcDetailFzVO fzvo = null;
+        Set<String> conkeys = new HashSet<String>();
+        IcDetailVO vo = null;
+        List<IcDetailFzVO> listsps_temp = new ArrayList<IcDetailFzVO>();
+
+        for(Map.Entry<String, IcDetailVO> entry : result.entrySet()){
+            String key = entry.getKey();
+            key = key.length() > 49 ? key.substring(0, 49) : key;
+            vo = entry.getValue();
+
+            if(!conkeys.contains(key) && !StringUtil.isEmpty(vo.getSpbm())){
+                fzvo = new IcDetailFzVO();
+                fzvo.setId(vo.getPk_sp());
+                fzvo.setSpfl(vo.getSpfl());
+                if(StringUtil.isEmpty(vo.getSpgg())){
+                    fzvo.setText(vo.getSpbm() + " " + vo.getSpmc());
+                }else{
+                    fzvo.setText(vo.getSpbm() + " " + vo.getSpmc()+"("+vo.getSpgg()+")");
+                }
+
+                fzvo.setSpgg(vo.getSpgg());
+                if(key.length() == 24){
+                    fzvo.setText(vo.getSpbm() + " " + vo.getSpfl_name());
+                }
+                fzvo.setCode(vo.getSpbm());
+                conkeys.add(key);
+                listsps_temp.add(fzvo);
+            }
+
+        }
+        if(listsps_temp != null && listsps_temp.size() > 0){
+            List<String> checklist = new ArrayList<String>();
+            Collections.sort(listsps_temp, new Comparator<IcDetailFzVO>() {
+                @Override
+                public int compare(IcDetailFzVO o1, IcDetailFzVO o2) {
+                    int i = o1.getText().compareTo(o2.getText());
+                    return i;
+                }
+            });
+            if(!StringUtil.isEmpty(currsp)){
+                String[] values = currsp.split(",");
+                checklist = Arrays.asList(values);
+            }
+
+            IcDetailFzVO alldetailvo = new IcDetailFzVO();
+            alldetailvo.setCode("all");
+            alldetailvo.setId("all");
+            alldetailvo.setText("全选");
+            listsps_temp.add(0, alldetailvo);
+
+            for(IcDetailFzVO vo1:listsps_temp){
+                if(checklist.contains(vo1.getId()) || (!StringUtil.isEmpty(currsp) && currsp.startsWith("all")) ){
+                    vo1.setChecked("true");
+                    if(StringUtil.isEmpty(currsp)){//科目为空，自动带出默认值
+                        vo1.setBdefault(DZFBoolean.TRUE);
+                    }
+                }
+
+            }
+        }
+
+        //分组区分（怎么取根节点）
+        List<IcDetailFzVO> listsps = new ArrayList<IcDetailFzVO>();
+        //如果没有分类，或者分类的id是空则是根节点(按照分类核算，按照明细核算)
+        for(IcDetailFzVO zvo:listsps_temp){
+            if((!StringUtil.isEmpty(zvo.getId()) && zvo.getId().endsWith("_fl"))
+                    || StringUtil.isEmpty(zvo.getSpfl())){
+                listsps.add(zvo);
+            }
+        }
+        //该商品下的则是子vo
+        String flid = "";
+        for(IcDetailFzVO vo_parent:listsps){//父vo
+            List<IcDetailFzVO> childvos = new ArrayList<IcDetailFzVO>();
+            for(IcDetailFzVO vvo : listsps_temp){
+
+                flid = vvo.getSpfl()+"_fl";
+                if(!StringUtil.isEmpty(vvo.getSpfl()) && (flid).equals(vo_parent.getId())
+                        && !vvo.getId().equals(vo_parent.getId())){
+                    vo_parent.setState("closed");
+                    childvos.add(vvo);
+                }
+            }
+            if(childvos!=null && childvos.size()>0){
+                vo_parent.setChildren((SuperVO[])childvos.toArray(new IcDetailFzVO[0]));
+            }
+        }
+
+        return listsps;
+    }
+
     @GetMapping("/showzg")
     public ReturnData<Json> showzg(){
         Grid grid = new Grid();
