@@ -282,7 +282,7 @@ public class OperatorLogController {
             response.reset();
             String fileName = xsz.getExcelport2003Name();
             String formattedName = URLEncoder.encode(fileName, "UTF-8");
-            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
+            response.addHeader("Content-Disposition", "attachment;filename=" + formattedName + ";filename*=UTF-8''" + formattedName);
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             lxs.exportExcel(xsz, toClient);
