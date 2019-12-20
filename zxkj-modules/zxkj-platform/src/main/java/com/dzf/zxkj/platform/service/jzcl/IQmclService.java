@@ -152,7 +152,6 @@ public interface IQmclService {
 	 * @param pk_corp
 	 * @param period
 	 * @param vos
-	 * @param byear 是否本年累计
 	 * @return
 	 * @throws DZFWarpException
 	 */
@@ -171,16 +170,16 @@ public interface IQmclService {
 	 * @param pk_corp
 	 * @param period
 	 */
-	public void checkTemporaryIsExist(String pk_corp, String period, String message) throws DZFWarpException;
+	public void checkTemporaryIsExist(String pk_corp, String period, boolean isbat,String message) throws DZFWarpException;
 
 	/**
 	 * 期末处理校验和库存相关的
 	 * @param pk_corp
 	 * @param period
-	 * @param message
+	 * @param isbat
 	 * @throws DZFWarpException
 	 */
-	public void checkQmclForKc(String pk_corp, String period, String message)  throws DZFWarpException;
+	public void checkQmclForKc(String pk_corp, String period, boolean isbat)  throws DZFWarpException;
 
 
 	/**

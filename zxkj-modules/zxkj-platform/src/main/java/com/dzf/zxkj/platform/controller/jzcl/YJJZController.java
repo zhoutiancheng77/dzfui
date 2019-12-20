@@ -690,7 +690,7 @@ public class YJJZController {
 
     private boolean checkIssb(String pk_corp, String period, YjjzOperateVO atvo) {
         try{
-            gl_qmclserv.checkTemporaryIsExist(pk_corp,period,"不能一键结转!");
+            gl_qmclserv.checkTemporaryIsExist(pk_corp,period,true,"不能一键结转!");
         }catch(Exception e){
             atvo.setIsgoonjz(false);
             atvo.setOperatemsg("<font color='red'>"+e.getMessage()+"</font>");

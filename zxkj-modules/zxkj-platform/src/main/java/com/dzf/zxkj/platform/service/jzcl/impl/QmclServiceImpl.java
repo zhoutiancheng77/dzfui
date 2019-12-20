@@ -2145,7 +2145,7 @@ public class QmclServiceImpl implements IQmclService {
 	/*
 		期末处理增加校验 暂估未识别凭证
 	 */
-	public void checkTemporaryIsExist(String pk_corp, String period, String message) {
+	public void checkTemporaryIsExist(String pk_corp, String period, boolean isbat,String message) {
 		CorpVO corpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);
 		String sql = "select * from ynt_tzpz_h where VBILLSTATUS = -1 and nvl(IAUTORECOGNIZE,0) != 1 and PERIOD = ? and PK_CORP = ? and nvl(dr,0) = 0";
 		SQLParameter sp = new SQLParameter();
@@ -2154,15 +2154,14 @@ public class QmclServiceImpl implements IQmclService {
 
 		StringBuffer error = new StringBuffer();
 
-		if(!"不能批量结转!".equals(message)){
-			error.append("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period);
-		}
-
 		if(singleObjectBO.isExists(pk_corp,sql,sp)){
 			error.append(", 存在暂存未识别凭证");
+			if(!isbat && error.length() > 0){
+				error = new StringBuffer("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period).append(error);
+			}
 		}
 
-		if(error.toString().length()>0 &&!error.toString().equals("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period)){
+		if(error.toString().length()>0){
 			throw new BusinessException(error.toString()+", "+message);
 		}
 	}
@@ -4096,7 +4095,7 @@ public class QmclServiceImpl implements IQmclService {
 	}
 
 	@Override
-	public void checkQmclForKc(String pk_corp, String period, String message) throws DZFWarpException {
+	public void checkQmclForKc(String pk_corp, String period, boolean isbat) throws DZFWarpException {
 		CorpVO corpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);
 
 		StringBuffer qrysql = new StringBuffer();
@@ -4114,10 +4113,6 @@ public class QmclServiceImpl implements IQmclService {
 		List<IntradeHVO> inhvos =  (List<IntradeHVO>) singleObjectBO.executeQuery(qrysql.toString(), sp1, new BeanListProcessor(IntradeHVO.class));
 
 		StringBuffer error = new StringBuffer();
-
-		if(!"不能批量结转!".equals(message)){
-			error.append("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period);
-		}
 
 		if (inhvos != null && inhvos.size() > 0) {
 			int in_count = 0;
@@ -4137,10 +4132,14 @@ public class QmclServiceImpl implements IQmclService {
 			if(out_count>0){
 				error.append(",有"+out_count+"张出库单未转总账");
 			}
+
+			if(!isbat && error.length() > 0){
+				error = new StringBuffer("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period).append(error);
+			}
 		}
 
-		if(error.toString().length()>0 &&!error.toString().equals("公司:" + deCodename(corpvo.getUnitname()) + ",期间:"+period)){
-			throw new BusinessException(error.toString()+", "+message);
+		if(error.toString().length()>0){
+			throw new BusinessException(error.toString()+", 不能成本结转!");
 		}
 	}
 

@@ -138,7 +138,7 @@ public class QmclController {
 
                 for (QmclVO votemp : qmclvos) {
                     try {
-                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(),"不能计提折旧!");
+                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(),false,"不能计提折旧!");
                         votemp.setCoperatorid(userVO.getCuserid());
                         QmclVO resvos = gl_qmclserv.updateJiTiZheJiu(votemp,userVO.getCuserid());
                         resqmcl.add(resvos);
@@ -247,7 +247,7 @@ public class QmclController {
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
                 for (QmclVO votemp : qmclvos) {
                     try {
-                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), "不能增值税结转!");
+                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), false,"不能增值税结转!");
                         votemp.setCoperatorid(userVO.getCuserid());
                         QmclVO resvos = gl_qmclserv.onzzsjz(userVO.getCuserid(), votemp);
                         resqmcl.add(resvos);
@@ -361,7 +361,7 @@ public class QmclController {
                 for (QmclVO votemp : qmclvos) {
                     try {
                         votemp.setCoperatorid(userid);
-                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), "不能计提附加税!");
+                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), false,"不能计提附加税!");
                         QmclVO resvos = gl_qmclserv.updateJiTiShuiJin(votemp, kmmethod, votemp.getPk_corp(), userid);
                         resqmcl.add(resvos);
                     } catch (BusinessException e) {
@@ -484,7 +484,7 @@ public class QmclController {
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
                 for (QmclVO votemp : qmclvos) {
                     try {
-                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), "不能计提所得税!");
+                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), false,"不能计提所得税!");
                         votemp.setCoperatorid(userid);
                         QmclVO resvos = gl_qmclserv.onsdsjz(votemp, userid);
                         resqmcl.add(resvos);
@@ -654,7 +654,7 @@ public class QmclController {
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
                 for (QmclVO votemp : qmclvos) {
                     try {
-                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), "不能损益结转!");
+                        gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), false,"不能损益结转!");
                         votemp.setCoperatorid(userid);
                         QmclVO resvos = gl_qmclserv.updateQiJianSunYiJieZhuan(votemp, userid);
                         resqmcl.add(resvos);
@@ -900,8 +900,8 @@ public class QmclController {
                         msg.append("<font color='red'>已经成本结转，请勿重复结转！</font><br>");
                         continue;
                     }
-                    gl_qmclserv.checkTemporaryIsExist(pk_corp, period, "不能批量结转!");
-                    gl_qmclserv.checkQmclForKc(pk_corp, period, "不能批量结转!");
+                    gl_qmclserv.checkTemporaryIsExist(pk_corp, period,true,"不能成本结转!");
+                    gl_qmclserv.checkQmclForKc(pk_corp, period, true);
                     QmclVO vos = gl_qmclserv.saveCbjz(vo, cuserid);
                     list.add(vos);
                     msg.append("成本结转成功<br>");
@@ -945,8 +945,8 @@ public class QmclController {
                 qmvo.setZgdata(zgdata);
             }
             //校验
-            gl_qmclserv.checkTemporaryIsExist(qmvo.getPk_corp(), qmvo.getPeriod(), "不能批量结转!");
-            gl_qmclserv.checkQmclForKc(qmvo.getPk_corp(), qmvo.getPeriod(), "不能批量结转!");
+            gl_qmclserv.checkTemporaryIsExist(qmvo.getPk_corp(), qmvo.getPeriod(), false , "不能成本结转!");
+            gl_qmclserv.checkQmclForKc(qmvo.getPk_corp(), qmvo.getPeriod(), false);
             String userid = userVO.getCuserid();
             QmclVO resvos = null;
             // 成本结转方式为手工结转 和 比例结转
@@ -1207,7 +1207,7 @@ public class QmclController {
                 Collections.sort(vos, new Comparator<QMJzsmNoICVO>() {
                     @Override
                     public int compare(QMJzsmNoICVO o1, QMJzsmNoICVO o2) {
-                        return VOSortUtils.compareContainsNull(o1.getKmbm(), o2.getKmbm());
+                        return o1.getKmbm().compareTo(o2.getKmbm());
                     }
                 });
                 grid.setRows(vos);
@@ -2550,6 +2550,7 @@ public class QmclController {
         return DZFDouble.ZERO_DBL;
     }
 
+    // 目前只有汇兑损益调用，前台 成本类并没有调用。。。 zpm 2019.12.20
     @PostMapping("/checkTemporaryIsExist")
     public ReturnData<Grid> checkTemporaryIsExist(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody("type") String type) {
         Grid grid = new Grid();
@@ -2557,10 +2558,10 @@ public class QmclController {
             grid.setSuccess(false);
             if(qmvos != null && qmvos.length == 1){
                 QmclVO headvo  = qmvos[0];
-                gl_qmclserv.checkTemporaryIsExist(headvo.getPk_corp(), headvo.getPeriod(), "");
+                gl_qmclserv.checkTemporaryIsExist(headvo.getPk_corp(), headvo.getPeriod(), false,"不能期末调汇!");
                 if ("0".equals(type)) {// 0 默认成本结转
-                    // 如果是成本结转走这个
-                    gl_qmclserv.checkQmclForKc(headvo.getPk_corp(), headvo.getPeriod(), "");
+                    // 如果是成本结转走这个,,,前台 成本类并没有调用。。。 zpm 2019.12.20
+                    ////gl_qmclserv.checkQmclForKc(headvo.getPk_corp(), headvo.getPeriod(), "");
                 }
                 grid.setSuccess(true);
             }
