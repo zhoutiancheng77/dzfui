@@ -8,6 +8,7 @@ import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
@@ -41,6 +42,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.*;
 
 @RestController
@@ -1054,5 +1056,46 @@ public class BsWorkbenchController extends BaseController {
         }
 
         return byteData;
+    }
+
+    /**
+     * 附件文件下载
+     */
+    @PostMapping("downloadAttach")
+    public void downloadAttach(@MultiRequestBody BsWorkDocVO paramvo, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+        OutputStream output = null;
+        if (StringUtil.isEmpty(paramvo.getFathercorp())) {
+            paramvo.setFathercorp(corpVO.getFathercorp());
+        }
+        List<BsWorkDocVO> list = bs_workbenchserv.getAttatches(paramvo);
+        BsWorkDocVO docvo = null;
+        if (list != null && list.size() > 0) {
+            docvo = list.get(0);
+        } else {
+            return;
+        }
+        if (docvo != null && !StringUtil.isEmpty(docvo.getVfilepath())) {
+            try {
+                response.setContentType("application/octet-stream");
+                String formattedName = URLEncoder.encode(docvo.getDocname(), "UTF-8");
+                response.addHeader("Content-Disposition",
+                        "attachment;filename=" + new String(docvo.getDocname().getBytes("UTF-8"), "ISO8859-1")
+                                + ";filename*=UTF-8''" + formattedName);
+                output = response.getOutputStream();
+                byte[] bytes = ((FastDfsUtil) SpringUtils.getBean("connectionPool")).downFile(docvo.getVfilepath());
+                output.write(bytes);
+                output.flush();
+            } catch (Exception e) {
+                log.error("文件下载失败", e);
+            } finally {
+                try {
+                    if (output != null) {
+                        output.close();
+                    }
+                } catch (IOException e) {
+                    log.error("文件下载失败", e);
+                }
+            }
+        }
     }
 }
