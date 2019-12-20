@@ -1,5 +1,7 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.base.IOperatorLogService;
@@ -9,16 +11,28 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
+import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.excel.util.Excelexport2003;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.excel.LogRecordExcelField;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.sys.IOperatorType;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +45,8 @@ public class OperatorLogController {
 
     @Autowired
     private IOperatorLogService sys_ope_log;
+    @Autowired
+    private IZxkjPlatformService zxkjPlatformService;
 
     @GetMapping("/query")
     public ReturnData<Grid> query(int page, int rows, LogQueryParamVO paramvo) {
@@ -174,113 +190,120 @@ public class OperatorLogController {
     /**
      * 打印
      */
-//    @SuppressWarnings("unchecked")
-//    public void print() {
-//        try{
-//            String columns =getRequest().getParameter("columns");
-//
-//            Map<Integer, String> typemap =  getTypeMap();
-//
-//            LogQueryParamVO paramvo = new LogQueryParamVO();
-//            paramvo = (LogQueryParamVO) DzfTypeUtils.cast(getRequest(), paramvo);
-//            paramvo.setPk_corp(getLogincorppk());
-//            List<LogRecordVo> recordlists  = sys_ope_log.query(paramvo);
-//
-//            recordlists = (List<LogRecordVo>)QueryDeCodeUtils.decKeyUtils(new String[]{"vuser"}, recordlists, 1);
-//
-//            for(LogRecordVo lgvo:recordlists){
-//                lgvo.setOpetypestr(typemap.get(lgvo.getIopetype()));
-//            }
-//
-//            String value =  getObjectMapper().writeValueAsString(recordlists);
-//
-//            JSONArray array = (JSONArray) JSON.parseArray(value);
-//            String qj = paramvo.getBegindate1().toString() +"~"+paramvo.getEnddate().toString();
-//
-//            JSONArray headlist = (JSONArray) JSON.parseArray(columns);
-//            List<String> heads = new ArrayList<String>();
-//            List<String> fieldslist = new ArrayList<String>();
-//            setIscross(DZFBoolean.TRUE);
-//            Map<String, String> name = null;
-//            int[] widths =new  int[]{};
-//            int len=headlist.size();
-//            for (int i = 0 ; i< len; i ++) {
-//                name=(Map<String, String>) headlist.get(i);
-//                heads.add(name.get("title"));
-//                fieldslist.add(name.get("field"));
-//                widths =ArrayUtils.addAll(widths, new int[] {3});
-//            }
-//            String[] fields= (String[]) fieldslist.toArray(new String[fieldslist.size()]);
-//
-//
-//            //字符类型字段(取界面元素id)
-//            List<String> list = new ArrayList<String>();
-//            list.add("opestr");
-//            list.add("vuser");
-//            list.add("vuserip");
-//            list.add("opetypestr");
-//            list.add("vopemsg");
-//            printMultiColumn(array, "操作日志", heads, list.toArray(new String[0]), widths, 20, list);
-//        }catch(Exception e){
-//            log.error("打印失败",e);
-//        }
-//    }
-//
-//
-//
-//
-//    //导出Excel
-//    public void excelReport(){
-//        HttpServletRequest request = getRequest();
-//        request.getParameterNames();
-//
-//        String userid=(String) getRequest().getSession().getAttribute(IGlobalConstants.login_user);
-//        LogQueryParamVO paramvo = new LogQueryParamVO();
-//        paramvo = (LogQueryParamVO) DzfTypeUtils.cast(getRequest(), paramvo);
-//        String qj = paramvo.getBegindate1().toString() +"~"+paramvo.getEnddate().toString();
-//        paramvo.setPk_corp(getLogincorppk());
-//        List<LogRecordVo> recordlists  = sys_ope_log.query(paramvo);
-//        Map<Integer, String> typemap = getTypeMap();
-//
-//        for(LogRecordVo lgvo:recordlists){
-//            lgvo.setOpetypestr(typemap.get(lgvo.getIopetype()));
-//        }
-//
-//
-//        recordlists = (List<LogRecordVo>)QueryDeCodeUtils.decKeyUtils(new String[]{"vuser"}, recordlists, 1);
-//
-//        Excelexport2003<LogRecordVo> lxs = new Excelexport2003<LogRecordVo>();
-//        LogRecordExcelField xsz = new LogRecordExcelField();
-//        xsz.setLogrecordvos(recordlists.toArray(new LogRecordVo[0]));;
-//        xsz.setQj(qj);
-//        xsz.setCreator(getLoginUserInfo().getUser_name());
-//        xsz.setCorpName(getLoginCorpInfo().getUnitname());
+    @SuppressWarnings("unchecked")
+    @PostMapping("print/pdf")
+    public void print(@RequestBody Map<String, String> params,
+                      @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+        try{
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+
+            String columns = params.get("columns");
+
+            Map<Integer, String> typemap =  getTypeMap();
+
+            LogQueryParamVO paramvo = new LogQueryParamVO();
+            paramvo = JsonUtils.convertValue(params, LogQueryParamVO.class);
+            paramvo.setPk_corp(SystemUtil.getLoginCorpId());
+            List<LogRecordVo> recordlists  = sys_ope_log.query(paramvo);
+
+            recordlists = (List<LogRecordVo>)QueryDeCodeUtils.decKeyUtils(new String[]{"vuser"}, recordlists, 1);
+
+            for(LogRecordVo lgvo:recordlists){
+                lgvo.setOpetypestr(typemap.get(lgvo.getIopetype()));
+            }
+
+            String value = JsonUtils.serialize(recordlists);
+//            List<Map<String, String>> data = JsonUtils.deserialize(value, List.class, Map.class);
+            JSONArray array = JSON.parseArray(value);
+            String qj = paramvo.getBegindate1().toString() +"~"+paramvo.getEnddate().toString();
+
+            JSONArray headlist = (JSONArray) JSON.parseArray(columns);
+            List<String> heads = new ArrayList<String>();
+            List<String> fieldslist = new ArrayList<String>();
+            printReporUtil.setIscross(DZFBoolean.TRUE);
+            Map<String, String> name = null;
+            int[] widths = new  int[]{};
+            int len = headlist.size();
+            for (int i = 0 ; i< len; i ++) {
+                name=(Map<String, String>) headlist.get(i);
+                if("序号".equals(name.get("columname"))){
+                    continue;
+                }
+                heads.add(name.get("columname"));
+                fieldslist.add(name.get("column"));
+                widths = ArrayUtils.addAll(widths, new int[] {3});
+            }
+            String[] fields= (String[]) fieldslist.toArray(new String[fieldslist.size()]);
+
+
+            //字符类型字段(取界面元素id)
+            List<String> list = new ArrayList<String>();
+            list.add("opestr");
+            list.add("vuser");
+            list.add("vuserip");
+            list.add("opetypestr");
+            list.add("vopemsg");
+            printReporUtil.printSimpleColumn(array, "操作日志", heads, fieldslist.toArray(new String[0]), widths, 20, fieldslist, response);
+        }catch(Exception e){
+            log.error("打印失败",e);
+        }
+    }
+
+    //导出Excel
+    @PostMapping("export/excel")
+    public void excelReport(@RequestBody Map<String, String> params,
+                            @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+
+        String userid = userVO.getCuserid();
+        LogQueryParamVO paramvo = new LogQueryParamVO();
+        paramvo = JsonUtils.convertValue(params, LogQueryParamVO.class);
+        String qj = paramvo.getBegindate1().toString() +"~"+paramvo.getEnddate().toString();
+        paramvo.setPk_corp(corpVO.getPk_corp());
+
 //        HttpServletResponse response = getResponse();
-//        OutputStream toClient = null;
-//        try {
-//            response.reset();
-//            String fileName = xsz.getExcelport2003Name();
-//            String formattedName = URLEncoder.encode(fileName, "UTF-8");
-//            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
-//            toClient = new BufferedOutputStream(response.getOutputStream());
-//            response.setContentType("application/vnd.ms-excel;charset=gb2312");
-//            lxs.exportExcel(xsz, toClient);
-//            toClient.flush();
-//            response.getOutputStream().flush();
-//        } catch (IOException e) {
-//            log.error("excel导出错误",e);
-//        }finally{
-//            try{
-//                if(toClient != null){
-//                    toClient.close();
-//                }
-//                if(response!=null && response.getOutputStream() != null){
-//                    response.getOutputStream().close();
-//                }
-//            }catch(IOException e){
-//                log.error("excel导出错误",e);
-//            }
-//        }
-//    }
+        OutputStream toClient = null;
+        try {
+            List<LogRecordVo> recordlists  = sys_ope_log.query(paramvo);
+            Map<Integer, String> typemap = getTypeMap();
+            for(LogRecordVo lgvo:recordlists){
+                lgvo.setOpetypestr(typemap.get(lgvo.getIopetype()));
+            }
+
+            recordlists = (List<LogRecordVo>)QueryDeCodeUtils.decKeyUtils(new String[]{"vuser"}, recordlists, 1);
+
+            Excelexport2003<LogRecordVo> lxs = new Excelexport2003<LogRecordVo>();
+            LogRecordExcelField xsz = new LogRecordExcelField();
+            xsz.setLogrecordvos(recordlists.toArray(new LogRecordVo[0]));;
+            xsz.setQj(qj);
+            xsz.setCreator(userVO.getUser_name());
+            xsz.setCorpName(corpVO.getUnitname());
+
+
+            response.reset();
+            String fileName = xsz.getExcelport2003Name();
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/vnd.ms-excel;charset=gb2312");
+            lxs.exportExcel(xsz, toClient);
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("excel导出错误",e);
+        } catch (Exception e) {
+            log.error("excel导出错误",e);
+        } finally{
+            try{
+                if(toClient != null){
+                    toClient.close();
+                }
+                if(response!=null && response.getOutputStream() != null){
+                    response.getOutputStream().close();
+                }
+            }catch(IOException e){
+                log.error("excel导出错误",e);
+            }
+        }
+    }
 
 }

@@ -2605,6 +2605,183 @@ public class PrintReporUtil {
         }
         return linenum;
     }
+
+    public void printSimpleColumn(JSONArray array, String titlename, List<String> columns,String[] fields,
+                                 int[] widths, Integer pagecount, List<String> list, HttpServletResponse response) throws Exception {
+        BaseFont bf = BaseFont.createFont(IGlobalConstants.FONTPATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);// C:/windows/fonts/simfang.ttf
+        BaseFont bf_Bold = BaseFont.createFont(IGlobalConstants.FONTPATH, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);//IGlobalConstants.FONTPATH
+        Font titleFonts = new Font(bf_Bold, 20, Font.BOLD);
+        int font= 9;
+        Font tableBodyFounts = new Font(bf,font, Font.NORMAL);
+        Font tableHeadFounts = new Font(bf,font, Font.BOLD);
+        float totalAmountHight = 13f;
+        float totalMnyHight ;
+        totalMnyHight = 22f;//设置双倍行距解决科目显示不完整问题
+        float leftsize =(float) (15);
+        float topsize =(float) (20);
+        Document document = null;
+        Rectangle pageSize=null;
+        if(iscross!=null && iscross.booleanValue()){
+            pageSize = new Rectangle((PageSize.A4.getHeight()), (PageSize.A4.getWidth()));
+            document = new Document(pageSize,leftsize,15,topsize,10);
+        }else{
+            pageSize=PageSize.A4;
+            document = new Document(pageSize,leftsize, 15,topsize, 5);
+        }
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        PdfWriter writer = PdfWriter.getInstance(document, buffer);
+        document.open();
+        try {
+            Map<String, Object> para = new TreeMap<String, Object>();
+            para.put("titleFonts", titleFonts);
+            para.put("tableHeadFounts", tableHeadFounts);
+            para.put("tableBodyFounts", tableBodyFounts);
+            para.put("totalAmountHight", totalAmountHight);
+            para.put("totalMnyHight", totalMnyHight);
+            Paragraph title = new Paragraph();
+            title.add(new Chunk(titlename, titleFonts));
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+            int linenum=0;
+            if(iscross!=null && iscross.booleanValue()){
+                if(columns.size()!=fields.length){
+                    linenum=21;
+                }else{
+                    linenum=22;
+                }
+            }else{
+                if(columns.size()!=fields.length){
+                    linenum=32;
+                }else{
+                    linenum=33;
+                }
+            }
+            JSONArray array1=new JSONArray();
+            for (int i = 0; i < array.size(); i++) {
+                array1.add(array.get(i));
+                if((i+1) % linenum== 0 && i != 0) {
+                    PdfPTable table = getTableBody(tableBodyFounts, array1, totalMnyHight, columns, fields, titlename ,widths, para, list);
+                    document.add(table);
+                    array1.clear();
+                    if(i<array.size()-1){
+                        document.newPage();
+                        document.add(title); //输入标题
+                    }
+                }
+            }
+            PdfPTable table= getTableBody(tableBodyFounts, array1, totalMnyHight, columns,fields, titlename, widths, para, list);
+            document.add(table);
+
+            document.close();
+            getResponse().setContentType("application/pdf");
+            getResponse().setCharacterEncoding("utf-8");
+            getResponse().setContentLength(buffer.size());
+            ResourceUtils.doSOStreamAExec(getResponse(), new ResourceUtils.ICloseAction<ServletOutputStream>(){
+                @Override
+                public Object doAction(ServletOutputStream out) throws Exception {
+                    buffer.writeTo(out);
+                    return null;
+                }
+
+            });
+        }catch (Exception e) {
+            throw e;
+        } finally {
+            if(document != null){
+                document.close();
+            }
+        }
+    }
+
+    public PdfPTable getTableBody(Font fonts,JSONArray array, float totalMnyHight, List<String> columns,String[] fields,String tilename,
+                                  int[] widths, Map<String, Object> para, List<String> list) throws Exception {
+        List<ColumnCellAttr> listattr = new ArrayList<ColumnCellAttr>();
+        int columnslength=columns.size();
+        int fieldslength=fields.length;
+        PdfPTable table = new PdfPTable(fieldslength);
+        if(columnslength!= fieldslength){
+            table.setHeaderRows(2);
+        }else{
+            table.setHeaderRows(1);
+        }
+        table.setSpacingBefore(10);
+        table.setWidthPercentage(100);
+        try {
+            table.setWidths(widths);
+        } catch (DocumentException e1) {
+            throw e1;
+        }
+        for(int i =0;i<columnslength;i++){
+            ColumnCellAttr attr = new ColumnCellAttr();
+            attr.setColumname(columns.get(i));
+            if(columnslength>fieldslength){
+                if(i<=6 ){
+                    attr.setRowspan(2);
+                }else if(i == 7){
+                    attr.setColspan(fieldslength-7);
+                }
+            }
+            listattr.add(attr);
+        }
+        addTabHead((Font)para.get("tableHeadFounts"), table,totalMnyHight, listattr);
+        try {
+            PdfPCell cell = null;
+            for (int i = 0; i < array.size(); i++) {
+                Map<String, Object> map=new HashMap<String, Object>();
+                map = (Map<String, Object>) array.get(i);
+                for (String key : fields) {
+//                  if(map.get(key)!=null&&!map.get(key).toString().equals("0")){
+                    if(map.get(key)!=null){
+                        if(!list.contains(key)){
+                            DZFDouble doublevalue =new DZFDouble(map.get(key).toString());
+                            doublevalue = doublevalue.setScale(2, DZFDouble.ROUND_HALF_UP);
+                            cell = new PdfPCell(new Phrase(doublevalue.toString(), fonts));
+                        }else{
+                            cell = new PdfPCell(new Phrase(map.get(key).toString(), fonts));
+                        }
+                    }else{
+                        cell = new PdfPCell(new Phrase("", fonts));
+                    }
+                    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    if(list.contains(key)){
+                        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                    }else{
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    }
+                    cell.setFixedHeight(totalMnyHight);
+                    table.addCell(cell);
+                }
+            }
+        }
+        catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw e;
+        }
+        return table;
+    }
+
+    private void addTabHead(Font fonts10_bold, PdfPTable table,float totalMnyHight, List<ColumnCellAttr> listattr) {
+        PdfPCell cell;
+        int count =0;
+        for (ColumnCellAttr columnsname : listattr) {
+            cell = new PdfPCell(new Paragraph(columnsname.getColumname(), fonts10_bold));
+            if(listattr.get(count).getColspan()!=null && listattr.get(count).getColspan().intValue()>0){//合并
+                cell.setFixedHeight(totalMnyHight);
+                cell.setColspan(listattr.get(count).getColspan());
+            }
+            if(listattr.get(count).getRowspan()!=null && listattr.get(count).getRowspan().intValue()>0){//空行
+                cell.setPadding(0);
+                cell.setFixedHeight(totalMnyHight*listattr.get(count).getRowspan());
+                cell.setRowspan(listattr.get(count).getRowspan());
+            }
+            cell.setFixedHeight(totalMnyHight);
+            cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            table.addCell(cell);
+            count++;
+        }
+    }
+
 }
 
 class HeaderColumnsInfo {
