@@ -613,6 +613,7 @@ public class PzglServiceImpl implements IPzglService {
 	 * @return
 	 */
 	private String getFrontStateSql(String status) {
+
 		StringBuffer stateSql = new StringBuffer();
 		if ("0".equals(status)) {
 			// 不做处理
@@ -632,7 +633,7 @@ public class PzglServiceImpl implements IPzglService {
 		} else if ("10".equals(status)) {
 			// 未制证
 			stateSql.append(" and nvl(a.istate, 10) not in (").append(PhotoState.state80).append(",").append(PhotoState.state205).append(",")
-					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(")");
+					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(") and ((yi.pk_invoice is not null and yi.pk_billcategory is not null) or c.def4 <> ").append(PhotoState.TREAT_TYPE_7).append(")");
 		} else if ("11".equals(status)) {
 			// 暂存凭证
 			stateSql.append(" and h.vbillstatus = -1 and h.iautorecognize <> 1 ");
@@ -645,26 +646,27 @@ public class PzglServiceImpl implements IPzglService {
 		} else if ("14".equals(status)) {
 			// 已识别
 			stateSql.append(" and (nvl(c.def4, '0') <> '").append(PhotoState.TREAT_TYPE_7)
-			.append("' or nvl(a.istate,10) not in (")
-			.append(PhotoState.state0).append("))");
+					.append("' or nvl(a.istate,10) not in (")
+					.append(PhotoState.state0).append("))");
 		} else if ("15".equals(status)) {
 			// 统计-未处理
 			stateSql.append(" and nvl(c.def4, '0') = '").append(PhotoState.TREAT_TYPE_7)
-			.append("' and nvl(a.istate,10) = ").append(PhotoState.state0).append(" ");
+					.append("' and nvl(a.istate,10) = ").append(PhotoState.state0).append(" ");
 		}else if ("16".equals(status)) {
 			// 统计-已作废
 			stateSql.append(" and nvl(a.istate,10) = '").append(PhotoState.state205).append("'");
 		}else if ("17".equals(status)) {
 			// 统计-做账
 			stateSql.append(" and nvl(a.istate, 10)  in (")
-			.append(PhotoState.state100).append(",").append(PhotoState.state101).append(")");
+					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(")");
 		}else if ("18".equals(status)) {
 			// 识别中
-			stateSql.append(" and ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  a.istate not in (205,100,101) )");
-			
+			stateSql.append(" and ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  a.istate not in (205,100,101) )").append(" and c.def4 = ").append(PhotoState.TREAT_TYPE_7);
+
 		}
 
 		return stateSql.toString();
+
 	}
 
 	@Override
@@ -715,12 +717,13 @@ public class PzglServiceImpl implements IPzglService {
 	 */
 	@Override
 	public List<PictureBrowseVO> search(ImageParamVO imgparamvo) throws DZFWarpException {
+
 		String status = imgparamvo.getPic_status();
 		String begindate = imgparamvo.getBegindate();
 		String enddate = imgparamvo.getEnddate();
 		String begindate2 = imgparamvo.getBegindate2();
 		String enddate2 = imgparamvo.getEnddate2();
-		
+
 		String pk_corp = imgparamvo.getPk_corp();
 		String group1 = imgparamvo.getGroup1();
 		String group2 = imgparamvo.getGroup2();
@@ -728,11 +731,11 @@ public class PzglServiceImpl implements IPzglService {
 		String pagesize = imgparamvo.getPagesize();
 		String pjlxzt = imgparamvo.getPjlxzt();
 		String recognition_type = imgparamvo.getRecognition_type();
-		
+
 		SQLParameter sp = new SQLParameter();
 		StringBuffer qrySql = new StringBuffer();
-		qrySql.append("select a.*,b.*, c.unitname, c.unitcode,su.user_name,h.vbillstatus pzdt,h.iautorecognize, ");
-		qrySql.append("  case when ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  a.istate not in (205,100,101) ) then 18 else a.istate end as istate ");
+		qrySql.append("select a.*,b.*, yc.keycode as ocr_batch,c.unitname, c.unitcode,su.user_name,h.vbillstatus pzdt,h.iautorecognize, ");
+		qrySql.append("  case when ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  a.istate not in (205,100,101) ) and c.def4 =7 then 18 else a.istate end as istate ");
 		qrySql.append("from ynt_image_group a ");
 		qrySql.append("left join ynt_image_library  b  on a.pk_image_group = b.pk_image_group ");
 		qrySql.append("left join bd_corp c on a.pk_corp = c.pk_corp ");
@@ -758,11 +761,11 @@ public class PzglServiceImpl implements IPzglService {
 		qrySql.append(PhotoState.state80);
 		qrySql.append(getFrontStateSql(status));
 		if (!StringUtil.isEmpty(pk_corp)) {// pk_corp !=null &&
-											// pk_corp.equals("") == false
+			// pk_corp.equals("") == false
 			sp.addParam(pk_corp);
 			qrySql.append(" and b.pk_corp = ? ");
 		}
-		
+
 		if("serSc".equals(imgparamvo.getSerdate())){
 			if (!StringUtil.isEmpty(begindate) && !StringUtil.isEmpty(enddate)) {
 				sp.addParam(begindate);
@@ -776,13 +779,13 @@ public class PzglServiceImpl implements IPzglService {
 				qrySql.append(" and b.doperatedate between ? and ? ");
 			}
 		}
-		
+
 
 		if (recognition_type != null) {
 			// 启用智能识别公司，不包含未处理图片
 			qrySql.append(" and (nvl(c.def4, '0') <> '").append(PhotoState.TREAT_TYPE_7)
-			.append("' or nvl(a.istate,10) not in (")
-			.append(PhotoState.state0).append("))");
+					.append("' or nvl(a.istate,10) not in (")
+					.append(PhotoState.state0).append("))");
 			if ("1".equals(recognition_type)) {
 				// 入库发票
 				qrySql.append(" and bu.ioperatetype = 21 and bu.pk_vatincominvoice is not null ");
@@ -795,7 +798,7 @@ public class PzglServiceImpl implements IPzglService {
 			} else if ("4".equals(recognition_type)) {
 				// 其他票据
 				qrySql.append(" and sl.pk_vatsaleinvoice is null and bk.pk_bankstatement is null ")
-				.append(" and (bu.pk_vatincominvoice is null or bu.ioperatetype is null or bu.ioperatetype <> 21) ");
+						.append(" and (bu.pk_vatincominvoice is null or bu.ioperatetype is null or bu.ioperatetype <> 21) ");
 			}
 		}
 
@@ -836,6 +839,7 @@ public class PzglServiceImpl implements IPzglService {
 			}
 		}
 		return imageList;
+
 
 	}
 	
