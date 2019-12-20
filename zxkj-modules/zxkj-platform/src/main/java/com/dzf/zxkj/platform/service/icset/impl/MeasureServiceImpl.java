@@ -18,6 +18,7 @@ import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.NotOLE2FileException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -445,7 +446,9 @@ public class MeasureServiceImpl implements IMeasureService {
 			}
 		} catch (FileNotFoundException e) {
 			throw new BusinessException("导入文件未找到");
-		} catch (IOException e) {
+		} catch (NotOLE2FileException e){
+            throw new BusinessException("导入文件错误，请重新选择文件");
+        } catch (IOException e) {
 			throw new BusinessException(e.getMessage());
 		} catch (BusinessException e) {
 			throw new BusinessException(e.getMessage());
