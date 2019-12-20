@@ -134,7 +134,6 @@ public class ICHzbController {
 				}
 			}
 		}
-
 		return newresult;
 	}
 
@@ -148,6 +147,15 @@ public class ICHzbController {
 			spList.add(entry.getValue());
 		}
 
+		if (spList != null && spList.size() > 0) {
+			Collections.sort(spList, new Comparator<IcDetailVO>() {
+				@Override
+				public int compare(IcDetailVO o1, IcDetailVO o2) {
+					int i = o1.getSpbm().compareTo(o2.getSpbm());
+					return i;
+				}
+			});
+		}
 		List<IcDetailVO> resList = new ArrayList<IcDetailVO>();
 		if (spList != null && spList.size() > 0) {
 			int start = (page - 1) * rows;
@@ -259,15 +267,7 @@ public class ICHzbController {
 		result = ic_rep_hzbserv.queryDetail(queryParamVO, SystemUtil.getLoginCorpVo());
 
 		List<IcDetailVO> list = getPagedMXZVos(result, 1, Integer.MAX_VALUE, new ReportDataGrid());
-		if (list != null && list.size() > 0) {
-			Collections.sort(list, new Comparator<IcDetailVO>() {
-				@Override
-				public int compare(IcDetailVO o1, IcDetailVO o2) {
-					int i = o1.getSpbm().compareTo(o2.getSpbm());
-					return i;
-				}
-			});
-		}
+
 		return list.stream().toArray(IcDetailVO[]::new);
 	}
 
