@@ -121,7 +121,10 @@ public class ICbbController  {
 							if ((vo.getNnum() == null || vo.getNnum().doubleValue() == 0)
 									&& (vo.getNcost() == null || vo.getNcost().doubleValue() == 0)) {
 							} else {
-								vo.setNprice(SafeCompute.div(balvo1.getNcost(), balvo1.getNnum()).setScale(price, 2));
+								if(vo.getNnum() == null || vo.getNnum().doubleValue() == 0){
+								}else{
+									vo.setNprice(SafeCompute.div(balvo1.getNcost(), balvo1.getNnum()).setScale(price, 2));
+								}
 								vo.setNcost(balvo1.getNcost());
 							}
 						}
