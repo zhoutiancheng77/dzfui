@@ -663,7 +663,7 @@ public class BsWorkbenchController extends BaseController {
     public ReturnData getAttaches(@MultiRequestBody BsWorkDocVO bsWorkDocVO, @MultiRequestBody CorpVO corpVO) {
         Json json = new Json();
         try {
-            bsWorkDocVO.setPk_corp(corpVO.getPk_corp());
+//            bsWorkDocVO.setPk_corp(corpVO.getPk_corp());
             if (StringUtil.isEmpty(bsWorkDocVO.getFathercorp())) {
                 bsWorkDocVO.setFathercorp(corpVO.getFathercorp());
             }
