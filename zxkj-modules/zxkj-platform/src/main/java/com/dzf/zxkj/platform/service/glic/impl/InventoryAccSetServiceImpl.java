@@ -209,15 +209,30 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 				}
 			}
 		}
-		vo.setZgkhfz(zgfz);//默认供应商辅助
-		
-		
 		InventorySetVO vo1 = query(cpvo.getPk_corp());
 		if(vo1!=null){
 			vo.setChcbjzfs(vo1.getChcbjzfs());
 			vo.setZgrkdfkm(vo1.getZgrkdfkm());
-			vo.setZgkhfz(vo1.getZgkhfz());
+			if(bodyvos != null && bodyvos.length >0){
+				boolean flag = true;
+				for(AuxiliaryAccountBVO bvo : bodyvos){
+					if(!StringUtil.isEmpty(bvo.getPk_auacount_b())
+							&& bvo.getPk_auacount_b().trim().equals(vo1.getZgkhfz())){
+						vo.setZgkhfz(vo1.getZgkhfz());
+						flag =false;
+						break;
+					}
+				}
+				if(flag){
+					vo.setZgkhfz(null);
+				}
+			}else{
+				vo.setZgkhfz(null);
+			}
 		}
+		if(StringUtil.isEmpty(vo.getZgkhfz())){
+            vo.setZgkhfz(zgfz);//默认供应商辅助
+        }
 		return vo;
 	}
 
