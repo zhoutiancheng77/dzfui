@@ -252,23 +252,17 @@ public class CrkMxController extends GlicReportController{
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             PrintParamVO printvo = JsonUtils.convertValue(pmap, PrintParamVO.class);//
-            String strlist = pmap.get("list");
-            if (strlist == null) {
-                return;
-            }
+
             if (printvo.getPageOrt().equals("Y")) {
                 printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
             } else {
                 printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
             }
-            strlist = strlist.replace("}{", "},{");
-            IcDetailVO[] bodyvos =JsonUtils.deserialize(strlist, IcDetailVO[].class);
-            period = bodyvos[0].getTitlePeriod();
-            String gs = bodyvos[0].getGs();
-
+            period =  pmap.get("titlePeriod");
+            String gs = pmap.get("gs");
             String current =pmap.get("curr_print");
             QueryParamVO queryParamvo = JsonUtils.convertValue(pmap, QueryParamVO.class);
-            bodyvos = queryVos(getQueryParamVO(queryParamvo), current,pmap);
+            IcDetailVO[] bodyvos = queryVos(getQueryParamVO(queryParamvo), current,pmap);
 
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("公司", gs);
@@ -401,17 +395,11 @@ public class CrkMxController extends GlicReportController{
         OutputStream toClient = null;
         String qj = "";
         try {
-            String strlist = param.get("list");
-            if (strlist == null) {
-                return;
-            }
-            strlist = strlist.replace("}{", "},{");
-            IcDetailVO[] vo =JsonUtils.deserialize(strlist, IcDetailVO[].class);
-            String gs = vo[0].getGs();
-            qj = vo[0].getTitlePeriod();
+            qj =  param.get("titlePeriod");
+            String gs = param.get("gs");
             String current = param.get("curr_export");
             QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
-            vo = queryVos(getQueryParamVO(queryParamvo), current,param);
+            IcDetailVO[] vo = queryVos(getQueryParamVO(queryParamvo), current,param);
             Excelexport2003<IcDetailVO> lxs = new Excelexport2003<>();
             String pk_corp = SystemUtil.getLoginCorpId();
 			String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
