@@ -24,15 +24,20 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Auther: dandelion
@@ -59,7 +64,6 @@ public class PermissionFilter implements GlobalFilter, Ordered {
     private ObjectMapper objectMapper;
 
 
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -70,58 +74,58 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        HttpHeaders headers = request.getHeaders();
-        ServerHttpResponse response = exchange.getResponse();
-        //token非空判断
-        String token = headers.getFirst("X-ACCESS-TOKEN");
-        if (StringUtils.isBlank(token)) {
-            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
-        }
-        //token校验
-        IJWTInfo ijwtInfo = null;
-        try {
-            ijwtInfo = JWTUtil.getInfoFromToken(token, gatewayConfig.getUserPubKey());
-        } catch (Exception e) {
-            log.info("token验证失败！");
-            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
-        }
-        //校验token内userid与消息头的userid是否一致
-        String useridFormToken = ijwtInfo.getBody();
-        String useridFromHeader = headers.getFirst(ISysConstant.LOGIN_USER_ID);
-        if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
-            return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
-        }
-        String clientId = headers.getFirst(ISysConstant.CLIENT_ID);
-        //token过期时间校验
-        if (authService.validateTokenEx(useridFormToken, clientId)) {
-            return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
-        }
+        return getAuthInfoFromRequest(exchange).flatMap(authInfo -> {
+            ServerHttpResponse response = exchange.getResponse();
+            //token非空判断
+            String token = authInfo.get(ISysConstant.TOKEN);
+            if (StringUtils.isBlank(token)) {
+                return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
+            }
+            //token校验
+            IJWTInfo ijwtInfo = null;
+            try {
+                ijwtInfo = JWTUtil.getInfoFromToken(token, gatewayConfig.getUserPubKey());
+            } catch (Exception e) {
+                log.info("token验证失败！");
+                return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
+            }
+            //校验token内userid与消息头的userid是否一致
+            String useridFormToken = ijwtInfo.getBody();
+            String useridFromHeader = authInfo.get(ISysConstant.LOGIN_USER_ID);
+            if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
+                return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
+            }
+            String clientId = authInfo.get(ISysConstant.CLIENT_ID);
+            //token过期时间校验
+            if (authService.validateTokenEx(useridFormToken, clientId)) {
+                return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
+            }
 
-        if(StringUtils.equalsAnyIgnoreCase(path, "/api/zxkj/sm_user/gsQuery", "/api/zxkj/sm_user/gsSelect")){
-            return chain.filter(exchange);
-        }
+            if (StringUtils.equalsAnyIgnoreCase(path, "/api/zxkj/sm_user/gsQuery", "/api/zxkj/sm_user/gsSelect")) {
+                return chain.filter(exchange);
+            }
 
-        String currentCorp = headers.getFirst(ISysConstant.LOGIN_PK_CORP);
-        //用户与公司关联校验
-        List<String> corps = authService.getPkCorpByUserId(useridFormToken);
-        if (corps == null || corps.contains(currentCorp)) {
-            log.info("用户没有操作公司权限！");
-            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
-        }
+            String currentCorp = authInfo.get(ISysConstant.LOGIN_PK_CORP);
+            //用户与公司关联校验
+            List<String> corps = authService.getPkCorpByUserId(useridFormToken);
+            if (corps == null || corps.contains(currentCorp)) {
+                log.info("用户没有操作公司权限！");
+                return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+            }
 
-        //查询公司和用户vo
-        final CorpModel corpModel = sysService.queryCorpByPk(currentCorp);
-        final UserModel userModel = sysService.queryByUserId(useridFormToken);
-        if (corpModel == null || userModel == null) {
-            return reponse(HttpStatusEnum.EX_USER_INVALID_CODE, response);
-        }
+            //查询公司和用户vo
+            final CorpModel corpModel = sysService.queryCorpByPk(currentCorp);
+            final UserModel userModel = sysService.queryByUserId(useridFormToken);
+            if (corpModel == null || userModel == null) {
+                return reponse(HttpStatusEnum.EX_USER_INVALID_CODE, response);
+            }
 
-        //判断是否唯一登录
-        if (authService.validateMultipleLogin(useridFormToken, clientId)) {
-            return reponse(HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
-        }
+            //判断是否唯一登录
+            if (authService.validateMultipleLogin(useridFormToken, clientId)) {
+                return reponse(HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
+            }
 
-        //权限校验
+            //权限校验
 //        Set<String> allPermissions = authService.getAllPermission();
 //        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
 //
@@ -129,7 +133,8 @@ public class PermissionFilter implements GlobalFilter, Ordered {
 //            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
 //        }
 
-        return chain.filter(exchange);
+            return chain.filter(exchange);
+        });
     }
 
     private Mono<Void> reponse(HttpStatusEnum httpStatus, ServerHttpResponse response) {
@@ -151,5 +156,55 @@ public class PermissionFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return -1;
+    }
+
+    private Mono<Map<String, String>> getAuthInfoFromRequest(ServerWebExchange exchange) {
+        ServerHttpRequest request = exchange.getRequest();
+        HttpHeaders headers = request.getHeaders();
+        Mono<Map<String, String>> authInfoMono = null;
+        Map<String, String> authInfo = getAuthInfo(headers);
+        if (authInfo.isEmpty()) {
+            HttpMethod requestMethod = request.getMethod();
+            if (HttpMethod.GET == requestMethod) {
+                authInfo = getAuthInfo(request.getQueryParams());
+            } else if (HttpMethod.POST == requestMethod
+                    && MediaType.APPLICATION_FORM_URLENCODED.equals(headers.getContentType())) {
+                authInfoMono = exchange.getFormData().flatMap(map -> {
+                    Map<String, String> info = getAuthInfo(map);
+                    return Mono.just(info);
+                });
+            }
+        }
+        if (authInfoMono == null) {
+            if (authInfo == null) {
+                authInfo = new HashMap<>();
+            }
+            authInfoMono = Mono.just(authInfo);
+        }
+        return authInfoMono;
+    }
+
+    private Map<String, String> getAuthInfo(HttpHeaders headers) {
+        Map<String, String> map = new HashMap<>();
+        String token = headers.getFirst(ISysConstant.TOKEN);
+        if (!StringUtils.isBlank(token)) {
+            map.put(ISysConstant.TOKEN, token);
+            map.put(ISysConstant.LOGIN_USER_ID, headers.getFirst(ISysConstant.LOGIN_USER_ID));
+            map.put(ISysConstant.LOGIN_PK_CORP, headers.getFirst(ISysConstant.LOGIN_PK_CORP));
+            map.put(ISysConstant.CLIENT_ID, headers.getFirst(ISysConstant.CLIENT_ID));
+        }
+        return map;
+    }
+
+    private Map<String, String> getAuthInfo(MultiValueMap<String, String> param) {
+        Map<String, String> map = new HashMap<>();
+        String token = param.getFirst(ISysConstant.TOKEN);
+        if (!StringUtils.isBlank(token)) {
+            map.put(ISysConstant.TOKEN, token);
+            map.put(ISysConstant.LOGIN_USER_ID, param.getFirst(ISysConstant.LOGIN_USER_ID));
+            map.put(ISysConstant.LOGIN_PK_CORP, param.getFirst(ISysConstant.LOGIN_PK_CORP));
+            map.put(ISysConstant.CLIENT_ID, param.getFirst(ISysConstant.CLIENT_ID));
+        }
+        return map;
     }
 }
