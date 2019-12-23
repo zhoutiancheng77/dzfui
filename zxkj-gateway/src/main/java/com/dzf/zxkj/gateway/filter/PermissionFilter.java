@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Auther: dandelion
@@ -126,12 +127,12 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             }
 
             //权限校验
-//        Set<String> allPermissions = authService.getAllPermission();
-//        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
-//
-//        if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
-//            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
-//        }
+        Set<String> allPermissions = authService.getAllPermission();
+        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
+
+        if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
+            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+        }
 
             return chain.filter(exchange);
         });
