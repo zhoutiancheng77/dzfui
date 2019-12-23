@@ -3,23 +3,35 @@ package com.dzf.zxkj.report.controller.cwzb;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.SafeCompute;
+import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.SubjectCollectGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.controller.ReportBaseController;
+import com.dzf.zxkj.report.excel.cwzb.KmHzExcelField;
 import com.dzf.zxkj.report.service.cwzb.IKmHzReport;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -32,6 +44,8 @@ public class KmhzReportController extends ReportBaseController {
 
     @Autowired
     private IKmHzReport gl_rep_kmhzbserv;
+    @Autowired
+    private IZxkjPlatformService zxkjPlatformService;
 
     /**
      * 查询科目明细数据
@@ -118,6 +132,122 @@ public class KmhzReportController extends ReportBaseController {
 
         }
     }
+    /**
+     * 打印操作
+     */
+    @PostMapping("print/pdf")
+    public void printAction(@MultiRequestBody PrintParamVO printParamVO,
+                            @MultiRequestBody SubjectCollectGrid collVO,
+                            @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+        try {
+            PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
+            Map<String, String> params = printReporUtil.getPrintMap(printParamVO);
 
+            String strlist = params.get("list");
+            String type = params.get("type");
+            String pageOrt = params.get("pageOrt");
+            String left = params.get("left");
+            String top = params.get("top");
+            String printdate = params.get("printdate");
+            String font = params.get("font");
+            String pageNum = params.get("pageNum");
+            /** 声明一个map用来存前台传来的设置参数 */
+            Map<String, String> pmap = new HashMap<String, String>();
+            pmap.put("type", type);
+            pmap.put("pageOrt", pageOrt);
+            pmap.put("left", left);
+            pmap.put("top", top);
+            pmap.put("printdate", printdate);
+            pmap.put("font", font);
+            pmap.put("pageNum", pageNum);
+            if (strlist == null) {
+                return;
+            }
+            /** 是否横向 */
+            if (pageOrt.equals("Y")) {
+                printReporUtil.setIscross(DZFBoolean.TRUE);
+            } else {
+                printReporUtil.setIscross(DZFBoolean.FALSE);
+            }
+//            JSONArray array = (JSONArray) JSON.parseArray(strlist);
+//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new PzmbbVO());
+//            FseJyeVO[] bodyvos = DzfTypeUtils.cast(array, bodymapping, FseJyeVO[].class,
+//                    JSONConvtoJAVA.getParserConfig());
+            FseJyeVO[] bodyvos = JsonUtils.deserialize(strlist, FseJyeVO[].class);
+            /** 声明一个map用来存前台传来的设置参数 */
+            Map<String,String> tmap=new LinkedHashMap<String,String>();
+            tmap.put("公司",  printParamVO.getCorpName());
+            tmap.put("期间",  printParamVO.getTitleperiod());
+            tmap.put("凭证数",  collVO.getVoucherCount() + "");
+            tmap.put("附件数",  collVO.getBillCount() + "");
+            /** 设置表头字体 */
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));
+            printReporUtil.setLineheight(22f);
+            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "科 目 汇 总 表",
+                    new String[] { "kmlb", "kmbm", "kmmc", "fsjf", "fsdf" },
+                    new String[] { "科目类别", "科目编码", "科目名称", "本期发生借方", "本期发生贷方" }, new int[] { 1, 1, 3, 2, 2 }, 0, type,
+                    pmap,tmap);
+        } catch (DocumentException e) {
+            log.error("打印错误",e);
+        } catch (IOException e) {
+            log.error("打印错误",e);
+        }
+    }
+    /**
+     * 导出excel
+     */
+    @PostMapping("export/excel")
+    public void excelReport(@MultiRequestBody PrintParamVO printParamVO,
+                            @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+//        HttpServletRequest request = getRequest();
+        String strlist = printParamVO.getList();
+//        JSONArray array = (JSONArray) JSON.parseArray(strlist);
+//        Map<String, String> bodymapping = FieldMapping.getFieldMapping(new PzmbbVO());
+//        FseJyeVO[] vo = DzfTypeUtils.cast(array, bodymapping, FseJyeVO[].class, JSONConvtoJAVA.getParserConfig());
+        FseJyeVO[] vo = JsonUtils.deserialize(strlist, FseJyeVO[].class);
+        String gs = printParamVO.getCorpName();
+        String qj = printParamVO.getTitleperiod();
+        Excelexport2003<FseJyeVO> lxs = new Excelexport2003<FseJyeVO>();
+        KmHzExcelField xsz = new KmHzExcelField();
+        xsz.setFseJyeVOs(vo);
+        xsz.setQj(qj);
+        xsz.setCreator(userVO.getUser_name());
+        xsz.setCorpName(gs);
+//        HttpServletResponse response = getResponse();
+        OutputStream toClient = null;
+        try {
+            response.reset();
+            String filename = xsz.getExcelport2003Name();
+            String formattedName = URLEncoder.encode(filename, "UTF-8");
+            response.addHeader("Content-Disposition", "attachment;filename=" + filename + ";filename*=UTF-8''" + formattedName);
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/vnd.ms-excel;charset=gb2312");
+            lxs.exportExcel(xsz, toClient);
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("excel导出错误",e);
+        }finally{
+            try{
+                if(toClient != null){
+                    toClient.close();
+                }
+            }catch(IOException e){
+                log.error("excel导出错误",e);
+            }
+            try{
+                if(response!=null && response.getOutputStream() != null){
+                    response.getOutputStream().close();
+                }
+            }catch(IOException e){
+                log.error("excel导出错误",e);
+            }
+        }
+
+//        QueryParamVO qryvo = getQueryParamVO();
+//
+//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
+//                "科目汇总表导出:"+qryvo.getBegindate1() +"-"+ qryvo.getEnddate(), ISysConstants.SYS_2);
+    }
 
 }
