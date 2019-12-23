@@ -359,6 +359,11 @@ public class QmgzServiceImpl implements IQmgzService {
 		
 		if(pzvos!=null&&pzvos.size()>0){
 			int a1,a2,a,c;
+			if (Integer.parseInt(pzvos.get(0).getPzh()) > 2){
+				b.append("记"+(Integer.parseInt(pzvos.get(0).getPzh())-1)+"~"+(1)+",");
+			}else if(Integer.parseInt(pzvos.get(0).getPzh()) == 2){
+				b.append("记"+(1)+",");
+			}
 			for (int i = 1; i<pzvos.size();i++) {
 				a1=Integer.parseInt(pzvos.get(i).getPzh());//当前凭证的凭证号
 				a2 = Integer.parseInt(pzvos.get(i-1).getPzh());//上一个的凭证的凭证号
