@@ -42,7 +42,7 @@ public class PrintParamVO extends SuperVO {
 
 	private String showjf;// 是否展示借方
 	private String showdf;// 是否展示贷方
-	private String showdj;// 是否展示单价
+	private String showye;// 是否展示余额
 	private String numstr;// 数量精度
 	private String pricestr;// 单价精度
 
@@ -62,12 +62,12 @@ public class PrintParamVO extends SuperVO {
 		this.showdf = showdf;
 	}
 
-	public String getShowdj() {
-		return showdj;
+	public String getShowye() {
+		return showye;
 	}
 
-	public void setShowdj(String showdj) {
-		this.showdj = showdj;
+	public void setShowye(String showye) {
+		this.showye = showye;
 	}
 
 	public String getNumstr() {
