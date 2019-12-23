@@ -146,9 +146,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			SQLParameter param = new SQLParameter();// PhotoState.state205
 			param.addParam(pk_corp);
 			// param.addParam(PhotoState.state205);
-			invalidOtherBill(new VATInComInvoiceVO2().getTableName(), conditon, param);
-			invalidOtherBill(new VATSaleInvoiceVO2().getTableName(), conditon, param);
-			invalidOtherBill(new BankStatementVO2().getTableName(), conditon, param);
+			invalidOtherBill(pk_corp, new VATInComInvoiceVO2().getTableName(), conditon, param);
+			invalidOtherBill(pk_corp, new VATSaleInvoiceVO2().getTableName(), conditon, param);
+			invalidOtherBill(pk_corp, new BankStatementVO2().getTableName(), conditon, param);
 			singleObjectBO.executeUpdate(sql, param);
 			
 
@@ -204,9 +204,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				}
 				checkZckpAndKc(pkInvoiceList.toArray(new String[0]),null);
 			}
-			invalidOtherBill(new VATInComInvoiceVO2().getTableName(), buffm.toString(), param);
-			invalidOtherBill(new VATSaleInvoiceVO2().getTableName(), buffm.toString(), param);
-			invalidOtherBill(new BankStatementVO2().getTableName(), buffm.toString(), param);
+			invalidOtherBill(pk_corp, new VATInComInvoiceVO2().getTableName(), buffm.toString(), param);
+			invalidOtherBill(pk_corp, new VATSaleInvoiceVO2().getTableName(), buffm.toString(), param);
+			invalidOtherBill(pk_corp, new BankStatementVO2().getTableName(), buffm.toString(), param);
 			singleObjectBO.executeUpdate(buff.toString(), param);
 			
 
@@ -325,7 +325,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 	}
 
-	private void invalidOtherBill(String table, String condition, SQLParameter param) {
+	private void invalidOtherBill(String pk_corp, String table, String condition, SQLParameter param) {
 		// )
 		// 银行对账单 billstatus 0 1 2 其他的
 		// vo.setSourcetype(IBillManageConstants.OCR);
@@ -335,8 +335,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 		if (table.equals("ynt_bankstatement")) {// 清除银行对账单子表数据
 			buff = new StringBuffer();
-			buff.append(" update ynt_bankbilltostatement set dr=1  where pk_bankstatement in (");
-			buff.append("  select pk_bankstatement from   ynt_bankstatement  where ");
+			buff.append(" update ynt_bankbilltostatement set dr=1  where pk_corp = '").append(pk_corp).append("' and pk_bankstatement in (");
+			buff.append("  select pk_bankstatement from   ynt_bankstatement  where pk_corp='").append(pk_corp).append("' and ");
 			buff.append(condition);
 			buff.append(")");
 			singleObjectBO.executeUpdate(buff.toString(), param);
@@ -349,7 +349,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		} else {
 			buff.append(",pk_image_library =null ");
 		}
-		buff.append("  where    ");
+		buff.append("  where pk_corp='").append(pk_corp).append("' and ");
 		if (table.equals("ynt_bankstatement")) {
 			buff.append(" billstatus in (0,2)  ");// 导入和合并过的
 		} else {
@@ -763,9 +763,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		
 		//VATInComInvoiceVO2 incomvos []= (VATInComInvoiceVO2[])singleObjectBO.queryByCondition(VATInComInvoiceVO2.class, conditon, param); 
 		// param.addParam(PhotoState.state205);
-		invalidOtherBill(new VATInComInvoiceVO2().getTableName(), conditon, param);
-		invalidOtherBill(new VATSaleInvoiceVO2().getTableName(), conditon, param);
-		invalidOtherBill(new BankStatementVO2().getTableName(), conditon, param);
+		invalidOtherBill(headvoold.getPk_corp(), new VATInComInvoiceVO2().getTableName(), conditon, param);
+		invalidOtherBill(headvoold.getPk_corp(), new VATSaleInvoiceVO2().getTableName(), conditon, param);
+		invalidOtherBill(headvoold.getPk_corp(), new BankStatementVO2().getTableName(), conditon, param);
 		//
 		param = new SQLParameter();// PhotoState.state205
 		param.addParam(headvo.getPk_invoice());
@@ -2356,7 +2356,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		//批量查出所有图片数据并存到map里面使用
 		//OcrImageLibraryVO  OcrImageGroupVO ImageGroupVO ImageLibraryVO
 
-		 Map<String,ImageInfoVO> infomap = processBillInfo(sql, ocrInfos);
+		 Map<String,ImageInfoVO> infomap = processBillInfo(sql, pk_corp, ocrInfos);
 
 		for (OcrInvoiceVO invvo : ocrInfos) {
 			String pk_invoice = invvo.getPk_invoice();
@@ -2456,7 +2456,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		return ocrInfos;
 	}
 	//	String sql = " nvl(dr,0)=0 and pk_invoice " + new SqlInUtil(billid).getInSql("invoice", "000001", "000001");
-	private Map<String,ImageInfoVO> processBillInfo(String conditon,OcrInvoiceVO invvos[]){
+	private Map<String,ImageInfoVO> processBillInfo(String conditon, String pk_corp, OcrInvoiceVO invvos[]){
 		//ImageGroupVO ImageLibraryVO OcrImageGroupVO OcrImageLibraryVO 
 		//先查出所有数据,,然后删掉,在组装数据
 		//sqlbuff.toString(), param, new BeanListProcessor(VATSaleInvoiceBVO2.class)
@@ -2515,9 +2515,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		
 		//作废其他相关票据
 		String updatesql = conditon.replace("pk_invoice", "vdef13");
-		invalidOtherBill(new VATInComInvoiceVO2().getTableName(), updatesql, params);
-		invalidOtherBill(new VATSaleInvoiceVO2().getTableName(), updatesql, params);
-		invalidOtherBill(new BankStatementVO2().getTableName(), updatesql, params);
+		invalidOtherBill(pk_corp, new VATInComInvoiceVO2().getTableName(), updatesql, params);
+		invalidOtherBill(pk_corp, new VATSaleInvoiceVO2().getTableName(), updatesql, params);
+		invalidOtherBill(pk_corp, new BankStatementVO2().getTableName(), updatesql, params);
 		
 		return imageInfoMap;
 	}

@@ -40,6 +40,51 @@ public class PrintParamVO extends SuperVO {
 	private String extra;//汇率
 	private String currencyname;//币种名称
 
+	private String showjf;// 是否展示借方
+	private String showdf;// 是否展示贷方
+	private String showdj;// 是否展示单价
+	private String numstr;// 数量精度
+	private String pricestr;// 单价精度
+
+	public String getShowjf() {
+		return showjf;
+	}
+
+	public void setShowjf(String showjf) {
+		this.showjf = showjf;
+	}
+
+	public String getShowdf() {
+		return showdf;
+	}
+
+	public void setShowdf(String showdf) {
+		this.showdf = showdf;
+	}
+
+	public String getShowdj() {
+		return showdj;
+	}
+
+	public void setShowdj(String showdj) {
+		this.showdj = showdj;
+	}
+
+	public String getNumstr() {
+		return numstr;
+	}
+
+	public void setNumstr(String numstr) {
+		this.numstr = numstr;
+	}
+
+	public String getPricestr() {
+		return pricestr;
+	}
+
+	public void setPricestr(String pricestr) {
+		this.pricestr = pricestr;
+	}
 
 	public String getExtra() {
 		return extra;
