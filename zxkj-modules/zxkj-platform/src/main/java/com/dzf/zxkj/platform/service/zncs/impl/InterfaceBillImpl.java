@@ -457,23 +457,28 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				+ innerinvoicesql+ "";
 		SQLParameter param = new SQLParameter();
 		//param.addParam(period);
-		updateBillPeriod(new VATInComInvoiceVO2().getTableName(), condition, param,period);
-		updateBillPeriod(new VATSaleInvoiceVO2().getTableName(), condition, param,period);
-		updateBillPeriod(new BankStatementVO2().getTableName(), condition, param,period);
-		updateBillPeriod(new ImageGroupVO().getTableName(), condition, param,period);
-		updateBillPeriod(new ImageLibraryVO().getTableName(), condition, param,period);
+		updateBillPeriod(vos[0].getPk_corp(), new VATInComInvoiceVO2().getTableName(), condition, param,period);
+		updateBillPeriod(vos[0].getPk_corp(), new VATSaleInvoiceVO2().getTableName(), condition, param,period);
+		updateBillPeriod(vos[0].getPk_corp(), new BankStatementVO2().getTableName(), condition, param,period);
+		updateBillPeriod(vos[0].getPk_corp(), new ImageGroupVO().getTableName(), condition, param,period);
+		updateBillPeriod(vos[0].getPk_corp(), new ImageLibraryVO().getTableName(), condition, param,period);
 		CorpVO corpVO = corpService.queryByPk(vos[0].getPk_corp());
 
 		invCategory(vos[0].getPk_corp(), period, list);
 	}
 
-	private void updateBillPeriod(String tablename, String condition, SQLParameter param,String peroid) {
+	private void updateBillPeriod(String pk_corp, String tablename, String condition, SQLParameter param,String peroid) {
 		// update ynt_vatincominvoice set inperiod =? where pk_image_group in (
 		// )
 		StringBuffer buff = new StringBuffer();
 		if(tablename.equals("ynt_image_group")||tablename.equals("ynt_image_library")){
 			buff.append(" update ").append(tablename)
-			.append(" set cvoucherdate= '"+ DateUtils.getPeriodEndDate(peroid)+"' where nvl(dr,0)=0 and pk_image_group in ( ");
+				.append(" set cvoucherdate= '")
+					.append(DateUtils.getPeriodEndDate(peroid))
+					.append("' where nvl(dr,0)=0 ")
+					.append("and pk_corp='")
+					.append(pk_corp)
+					.append("' and pk_image_group in ( ");
 			buff.append(condition);// select pk_image_group from
 									// ynt_interface_invoice
 			buff.append(" )   ");
@@ -484,7 +489,10 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		
 		
 		buff.append(" update ").append(tablename)
-				.append(" set inperiod ='"+peroid+"' ,period = '"+peroid+"' where nvl(dr,0)=0 and pk_image_group in ( ");
+				.append(" set inperiod ='"+peroid+"' ,period = '"+peroid+"' where nvl(dr,0)=0 ")
+				.append("and pk_corp='")
+				.append(pk_corp)
+				.append("' and pk_image_group in ( ");
 		buff.append(condition);// select pk_image_group from
 								// ynt_interface_invoice
 		buff.append(" )   ");
