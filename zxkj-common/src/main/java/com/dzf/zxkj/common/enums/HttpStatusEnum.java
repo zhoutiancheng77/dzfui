@@ -11,7 +11,7 @@ public enum HttpStatusEnum {
     EX_TOKEN_EXPIRED_CODE(40102, "令牌过期"),
     EX_USER_INVALID_CODE(40103, "用户名无效"),
     EX_USER_PASS_INVALID_CODE(40104, "用户名密码无效"),
-    EX_USER_FORBIDDEN_CODE(40105, "权限不足"),
+    EX_USER_FORBIDDEN_CODE(40301, "权限不足"),
     MISS_REQUEST_PARAMETER_CODE(422, "缺少参数"),
     INTERNAL_SERVER_ERROR(500, "系统异常"),
     MULTIPLE_LOGIN_ERROR(40106, "在别处登录"),

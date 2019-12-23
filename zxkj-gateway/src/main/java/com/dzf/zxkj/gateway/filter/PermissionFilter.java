@@ -80,7 +80,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             //token非空判断
             String token = authInfo.get(ISysConstant.TOKEN);
             if (StringUtils.isBlank(token)) {
-                return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
             }
             //token校验
             IJWTInfo ijwtInfo = null;
@@ -88,18 +88,18 @@ public class PermissionFilter implements GlobalFilter, Ordered {
                 ijwtInfo = JWTUtil.getInfoFromToken(token, gatewayConfig.getUserPubKey());
             } catch (Exception e) {
                 log.info("token验证失败！");
-                return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
             }
             //校验token内userid与消息头的userid是否一致
             String useridFormToken = ijwtInfo.getBody();
             String useridFromHeader = authInfo.get(ISysConstant.LOGIN_USER_ID);
             if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
-                return reponse(HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
             }
             String clientId = authInfo.get(ISysConstant.CLIENT_ID);
             //token过期时间校验
             if (authService.validateTokenEx(useridFormToken, clientId)) {
-                return reponse(HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
             }
 
             if (StringUtils.equalsAnyIgnoreCase(path, "/api/zxkj/sm_user/gsQuery", "/api/zxkj/sm_user/gsSelect")) {
@@ -111,40 +111,40 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             List<String> corps = authService.getPkCorpByUserId(useridFormToken);
             if (corps == null || corps.contains(currentCorp)) {
                 log.info("用户没有操作公司权限！");
-                return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
             }
 
             //查询公司和用户vo
             final CorpModel corpModel = sysService.queryCorpByPk(currentCorp);
             final UserModel userModel = sysService.queryByUserId(useridFormToken);
             if (corpModel == null || userModel == null) {
-                return reponse(HttpStatusEnum.EX_USER_INVALID_CODE, response);
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_INVALID_CODE, response);
             }
 
             //判断是否唯一登录
             if (authService.validateMultipleLogin(useridFormToken, clientId)) {
-                return reponse(HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
             }
 
             //权限校验
-        Set<String> allPermissions = authService.getAllPermission();
-        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
+            Set<String> allPermissions = authService.getAllPermission();
+            Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
 
-        if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
-            return reponse(HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
-        }
+            if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
+                return reponse(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+            }
 
             return chain.filter(exchange);
         });
     }
 
-    private Mono<Void> reponse(HttpStatusEnum httpStatus, ServerHttpResponse response) {
+    private Mono<Void> reponse(HttpStatus status, HttpStatusEnum httpStatus, ServerHttpResponse response) {
         JSONObject message = new JSONObject();
         message.put("status", httpStatus.value());
         message.put("message", httpStatus.msg());
         byte[] bits = message.toJSONString().getBytes(StandardCharsets.UTF_8);
         DataBuffer buffer = response.bufferFactory().wrap(bits);
-        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+        response.setStatusCode(status);
         //指定编码，否则在浏览器中会中文乱码
         response.getHeaders().add("Content-Type", "text/plain;charset=UTF-8");
         return response.writeWith(Mono.just(buffer));
