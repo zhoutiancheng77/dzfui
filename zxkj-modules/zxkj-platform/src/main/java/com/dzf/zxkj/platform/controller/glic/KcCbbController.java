@@ -339,24 +339,15 @@ public class KcCbbController extends GlicReportController{
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             PrintParamVO printvo = JsonUtils.convertValue(pmap, PrintParamVO.class);//
-            String strlist = pmap.get("list");
-            if (strlist == null) {
-                return;
-            }
             if (printvo.getPageOrt().equals("Y")) {
                 printReporUtil.setIscross(DZFBoolean.TRUE);// 是否横向
             } else {
                 printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
             }
-            strlist = strlist.replace("}{", "},{");
-            IcDetailVO[] bodyvos =JsonUtils.deserialize(strlist, IcDetailVO[].class);
-            if(bodyvos!=null && bodyvos.length>0){
-                for(IcDetailVO vo:bodyvos){
-                    vo.setPk_corp(SystemUtil.getLoginCorpId());
-                }
-            }
-            period = bodyvos[0].getTitlePeriod();
-            String gs = bodyvos[0].getGs();
+            period =  pmap.get("titlePeriod");
+            String gs = pmap.get("gs");
+            QueryParamVO queryParamvo = JsonUtils.convertValue(pmap, QueryParamVO.class);
+            IcDetailVO[] bodyvos = queryVos(getQueryParamVO(queryParamvo));
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("公司", gs);
             tmap.put("期间", period);
@@ -413,6 +404,27 @@ public class KcCbbController extends GlicReportController{
 //                "库存成本表:打印期间“" + period + "”存货数据", ISysConstants.SYS_2);
     }
 
+    private QueryParamVO getQueryParamVO( QueryParamVO paramvo){
+
+        if(StringUtil.isEmptyWithTrim(paramvo.getPk_corp())){
+            paramvo.setPk_corp(SystemUtil.getLoginCorpId());//设置默认公司PK
+        }
+        return paramvo;
+    }
+
+    private IcDetailVO[] queryVos(QueryParamVO queryParamVO) {
+        Map<String, IcDetailVO> result = null;
+
+        queryParamVO.setXmlbid(null);
+        queryParamVO.setPk_inventory(null);
+        result = ic_rep_cbbserv.queryDetail(queryParamVO, SystemUtil.getLoginCorpVo());
+
+        List<IcDetailFzVO> listsps = createRightTree(result,"all");
+        //将查询后的数据分页展示
+        List<IcDetailVO> list = getPagedMXZVos(listsps, result, 1, Integer.MAX_VALUE, new ReportDataGrid(), "all");
+
+        return list.stream().toArray(IcDetailVO[]::new);
+    }
     /**
      * 导出excel
      */
@@ -426,10 +438,10 @@ public class KcCbbController extends GlicReportController{
                 return;
             }
             String strclassif = param.get("classif");
-            strlist = strlist.replace("}{", "},{");
-            IcDetailVO[] vo =JsonUtils.deserialize(strlist, IcDetailVO[].class);
-            String gs = vo[0].getGs();
-            qj = vo[0].getTitlePeriod();
+            qj =  param.get("titlePeriod");
+            String gs = param.get("gs");
+            QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+            IcDetailVO[] bodyvos = queryVos(getQueryParamVO(queryParamvo));
             Excelexport2003<IcDetailVO> lxs = new Excelexport2003<IcDetailVO>();
 
             String pk_corp = SystemUtil.getLoginCorpId();
@@ -442,7 +454,7 @@ public class KcCbbController extends GlicReportController{
             DZFBoolean flag = new DZFBoolean(strclassif);
 
             xsz.setFields(flag.booleanValue() ? xsz.getFields2() : xsz.getFields1());
-            xsz.setIcDetailVos(vo);
+            xsz.setIcDetailVos(bodyvos);
             xsz.setQj(qj);
             xsz.setCreator(SystemUtil.getLoginUserVo().getUser_name());
             xsz.setCorpName(gs);
