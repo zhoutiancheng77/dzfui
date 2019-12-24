@@ -44,62 +44,66 @@ public class TimerTaskController{
     @RequestMapping("/autoCategory")
     public void autoCategory() {
 
-        List<OcrInvoiceVO> list = prebillService.queryNotCategory();// 查询出所有未分类的票据
-        if (list != null && list.size() > 0) {
-            Map<String, List<OcrInvoiceVO>> map = DZfcommonTools.hashlizeObject(list,
-                    new String[]{"pk_corp", "period"});// 公司+期间分组
-            long lStart = System.currentTimeMillis();
-            if (map != null && map.keySet().size() > 0) {
-                int iSuccessCount = 0;
-                for (String key : map.keySet()) {
+        cachedThreadPool.execute(new Runnable() {
+            @Override
+            public void run(){
+                List<OcrInvoiceVO> list = prebillService.queryNotCategory();// 查询出所有未分类的票据
+                if (list != null&& list.size() > 0) {
+                    Map<String, List<OcrInvoiceVO>> map = DZfcommonTools.hashlizeObject(list,
+                            new String[] { "pk_corp", "period" });// 公司+期间分组
+                    long lStart = System.currentTimeMillis();
+                    if (map != null && map.keySet().size() > 0)
+                    {
+                        log.error("当前线程 " + Thread.currentThread().getId() + " 将处理" + map.size() + "个公司分类");
 
-                    boolean lock = false;
-                    try {
-                        if (StringUtils.isEmpty(key)) {
-                            continue;
-                        }
-                        lock = redissonDistributedLock.tryGetDistributedFairLock("zncsCategory_" + key.replace(",", ""));
-                        if (lock) {
-                            cachedThreadPool.execute(new Runnable() {
+                        int iSuccessCount = 0;
+                        for (String key : map.keySet()) {
+                            boolean lock = false;
+                            try {
+                                if (StringUtils.isEmpty(key)) {
+                                    continue;
+                                }
 
-                                @Override
-                                public void run() {
-                                    long begintime = System.currentTimeMillis();
+                                lock = redissonDistributedLock.tryGetDistributedFairLock("zncsCategory_"+key.replace(",",""));
+                                if (lock) {
+                                    // 加锁成功 公司+期间的list去分类
                                     List<OcrInvoiceVO> InvoiceVOlist = map.get(key);
                                     String pk_corp = InvoiceVOlist.get(0).getPk_corp();//公司id
                                     String period = InvoiceVOlist.get(0).getPeriod();//期间
+                                    long begintime = System.currentTimeMillis();
                                     log.error("线程" + Thread.currentThread().getId() + ", " + pk_corp + "," + period + " 开始运行，时间: " + begintime);
                                     CorpVO corpVO = corpService.queryByPk(pk_corp);
-                                    schedulCategoryService.newSaveCorpCategory(InvoiceVOlist, pk_corp, period, corpVO);
+                                    schedulCategoryService.newSaveCorpCategory(InvoiceVOlist,pk_corp,period,corpVO);
 
-                                    for (OcrInvoiceVO ocrvo : InvoiceVOlist) {
+                                    for (OcrInvoiceVO ocrvo : InvoiceVOlist)
+                                    {
                                         ocrvo.setUpdateflag(new DZFBoolean(true));
                                         ocrvo.setDatasource(ZncsConst.SJLY_1);
                                     }
-                                    corpVO.setZipcode("autocategory");    //自动分类标志，只是借用邮政编码字段传递临时值
-                                    schedulCategoryService.updateInvCategory(InvoiceVOlist, pk_corp, period, corpVO);//票据分类
+                                    corpVO.setZipcode("autocategory");	//自动分类标志，只是借用邮政编码字段传递临时值
+                                    schedulCategoryService.updateInvCategory(InvoiceVOlist,pk_corp,period,corpVO);//票据分类
 
                                     long endtime = System.currentTimeMillis();
                                     log.error("线程" + Thread.currentThread().getId() + ", " + pk_corp + "," + period + " 运行结束，时间: " + endtime + ", 用时" + ((endtime - begintime) / 1000.0) + "秒");
-
+                                    iSuccessCount++;
+                                } else {
+                                    continue;
                                 }
-                            });
-                        } else {
-                            continue;
+                            } catch (Exception e) {
+                                log.error("分类任务异常", e);
+                            } finally {
+                                if(lock){
+                                    redissonDistributedLock.releaseDistributedFairLock("zncsCategory_"+key.replace(",",""));
+                                }
+                            }
                         }
-                    } catch (Exception e) {
-                        log.error("分类任务异常", e);
-                    } finally {
-                        if (lock) {
-                            redissonDistributedLock.releaseDistributedFairLock("zncsCategory_" + key.replace(",", ""));
-                        }
+                        log.error("当前线程 " + Thread.currentThread().getId() + " 结束，共成功处理 " + iSuccessCount + "个公司分类，耗时" + ((System.currentTimeMillis() - lStart) / 1000.0) + "秒");
                     }
-                    iSuccessCount++;
                 }
-                log.error("当前线程 " + Thread.currentThread().getId() + " 结束，共成功处理 " + iSuccessCount + "个公司分类，耗时" + ((System.currentTimeMillis() - lStart) / 1000.0) + "秒");
 
             }
+        });
 
-        }
+
     }
 }
