@@ -69,7 +69,9 @@ public class MllbReportController  extends GlicReportController{
         List<MllDetailVO> list = getPagedMllDetailVO(listsps,result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
 
         grid.setIccombox(listsps);
-        grid.setRows(list);
+        grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
+        grid.setRows(list == null ? new ArrayList<>() : list);
+        grid.setSuccess(true);
         return ReturnData.ok().data(grid);
     }
 
@@ -198,11 +200,14 @@ public class MllbReportController  extends GlicReportController{
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
             printReporUtil.setLineheight(22F);
             List<ColumnCellAttr> list = new ArrayList<>();
+            InventorySetVO inventorySetVO = gl_ic_invtorysetserv.query(SystemUtil.getLoginCorpId());
+            if(inventorySetVO != null && inventorySetVO.getChcbjzfs() == 1){
+                list.add(new ColumnCellAttr("存货类别",null,null,null,"vname",1));
+            }
             list.add(new ColumnCellAttr("存货编码",null,null,null,"code",1));
             list.add(new ColumnCellAttr("存货名称",null,null,null,"name",1));
             list.add(new ColumnCellAttr("规格(型号)",null,null,null,"spec",1));
             list.add(new ColumnCellAttr("计量单位",null,null,null,"unit",1));
-            list.add(new ColumnCellAttr("存货类别",null,null,null,"vname",1));
             list.add(new ColumnCellAttr("出库数量",null,null,null,"ckdj",1));
             list.add(new ColumnCellAttr("出库单价",null,null,null,"code",1));
             list.add(new ColumnCellAttr("销售单价",null,null,null,"xsdj",1));

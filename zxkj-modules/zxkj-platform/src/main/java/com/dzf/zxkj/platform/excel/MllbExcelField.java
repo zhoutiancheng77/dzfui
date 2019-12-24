@@ -95,11 +95,11 @@ public class MllbExcelField implements IExceport<MllDetailVO> {
     public Fieldelement[] getFields(){
         if(chcbjzfs == 1){
             return new Fieldelement[]{
+                    new Fieldelement("vname", "存货类别名称",false,0,false),
                     new Fieldelement("code", "存货编码",false,0,false),
                     new Fieldelement("name", "存货名称",false,0,false),
                     new Fieldelement("spec", "规格（型号）",false,0,false),
                     new Fieldelement("unit", "计量单位",false,0,false),
-                    new Fieldelement("vname", "存货类别名称",false,0,false),
                     new Fieldelement("cksl", "出库数量",true,numPrecision,false),
                     new Fieldelement("ckdj", "出库单价",true,pricePrecision,false),
                     new Fieldelement("xsdj", "销售单价",true,pricePrecision,false),
