@@ -82,7 +82,14 @@ public class MeasureController{
         // 分页
         MeasureVO[] vos = null;
         if (list != null && list.size() > 0) {
-            vos = getPagedZZVOs(list.toArray(new MeasureVO[0]), queryParamvo.getPage(), queryParamvo.getRows());
+            String isfenye = param.get("isfenye");
+            if("Y".equals(isfenye)) {
+                int page = queryParamvo.getPage();
+                int rows = queryParamvo.getRows();
+                vos = getPagedZZVOs(list.toArray(new MeasureVO[list.size()]),page, rows);
+            }else{
+                vos = list.toArray(new MeasureVO[list.size()]);
+            }
         }
         grid.setRows(vos == null ? new ArrayList<MeasureVO>() : Arrays.asList(vos));
         grid.setSuccess(true);
