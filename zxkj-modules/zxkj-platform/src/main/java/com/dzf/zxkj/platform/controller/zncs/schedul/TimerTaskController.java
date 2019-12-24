@@ -42,7 +42,7 @@ public class TimerTaskController{
 
 
     @RequestMapping("/autoCategory")
-    public void autoCategory(){
+    public void autoCategory() {
 
         cachedThreadPool.execute(new Runnable() {
             @Override
@@ -106,5 +106,4 @@ public class TimerTaskController{
 
 
     }
-
 }
