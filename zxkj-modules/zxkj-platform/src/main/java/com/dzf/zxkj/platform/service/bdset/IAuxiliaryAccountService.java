@@ -146,6 +146,11 @@ public interface IAuxiliaryAccountService {
     boolean checkRepeat(AuxiliaryAccountBVO bvo) throws DZFWarpException;
 
     /**
+     * 科目是否为存货大类
+     */
+    boolean isInventoryCategory(String corpId, String subjectId) throws DZFWarpException;
+
+    /**
      * 根据名称查询相关税务信息
      *
      * @param invname

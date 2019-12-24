@@ -529,6 +529,19 @@ public class AuxiliaryAccountController {
         return ReturnData.ok().data(json);
     }
 
+
+    @GetMapping("/isInventoryCategory")
+    public ReturnData<Json> checkInventoryCategory(String corpId, @RequestParam String subjectId) {
+        Json json = new Json();
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
+        }
+        boolean isCategory = gl_fzhsserv.isInventoryCategory(corpId, subjectId);
+        json.setData(isCategory);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
     /**
      * 查询存货税务信息
      */

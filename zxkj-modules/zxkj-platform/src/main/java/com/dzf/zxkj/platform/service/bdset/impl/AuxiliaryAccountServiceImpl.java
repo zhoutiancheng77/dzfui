@@ -12,12 +12,12 @@ import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.VOUtil;
-import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
@@ -1504,6 +1504,20 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         if (qvo != null && !qvo.getPk_auacount_b().equals(bvo.getPk_auacount_b()))
             isRepeat = true;
         return isRepeat;
+    }
+
+    @Override
+    public boolean isInventoryCategory(String corpId, String subjectId) throws DZFWarpException {
+        boolean isCategory = false;
+        CorpVO corp = corpService.queryByPk(corpId);
+        if (IcCostStyle.IC_INVTENTORY.equals(corp.getBbuildic())) {
+            InventorySetVO invSet = gl_ic_invtorysetserv.query(corpId);
+            if (invSet != null && invSet.getChcbjzfs() == InventoryConstant.IC_CHDLHS
+                    && Kmschema.isKmclassify(corpId, corp.getCorptype(), subjectId)) {
+                isCategory = true;
+            }
+        }
+        return isCategory;
     }
 
     @Override

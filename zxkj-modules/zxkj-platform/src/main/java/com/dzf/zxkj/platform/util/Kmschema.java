@@ -458,7 +458,7 @@ public class Kmschema {
 			return isKmclassify;
 		}
 
-		IAccountService accountService = (IAccountService) SpringUtils.getBean("AccountServiceImpl");
+		IAccountService accountService = SpringUtils.getBean(IAccountService.class);
 
 		YntCpaccountVO[] vos = accountService.queryByPk(pk_corp);
 		String kmCode = null;
