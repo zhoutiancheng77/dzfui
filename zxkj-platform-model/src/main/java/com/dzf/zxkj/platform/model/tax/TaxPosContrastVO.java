@@ -8,7 +8,7 @@ import com.dzf.zxkj.common.lang.DZFDateTime;
 public class TaxPosContrastVO extends SuperVO {
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -6255464478095496318L;
 
