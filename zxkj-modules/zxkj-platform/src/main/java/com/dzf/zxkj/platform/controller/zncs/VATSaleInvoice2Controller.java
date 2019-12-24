@@ -1650,8 +1650,12 @@ public class VATSaleInvoice2Controller extends BaseController {
     @RequestMapping("/expExcelData")
     public void expExcelData(@RequestBody Map<String,String> param,HttpServletResponse response){
         String strrows = param.get("daterows");
+        VATSaleInvoiceVO2[] listvo = null;
         JSONArray array = JSON.parseArray(strrows);
-        VATSaleInvoiceVO2[] listvo = array.toArray(new VATSaleInvoiceVO2[0]);
+        if(!StringUtils.isEmpty(strrows)) {
+            listvo = array.toArray(new VATSaleInvoiceVO2[0]);
+        }
+
         OutputStream toClient = null;
         try {
             response.reset();
