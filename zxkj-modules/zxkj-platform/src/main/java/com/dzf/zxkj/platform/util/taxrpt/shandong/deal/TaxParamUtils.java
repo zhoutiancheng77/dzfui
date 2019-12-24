@@ -24,7 +24,7 @@ public class TaxParamUtils {
 	static {
 		Properties prop = new Properties();
 		// 读取属性文件jedis_config.properties
-		InputStream input = TaxParamUtils.class.getResourceAsStream("/sdtaxconfig.properties");
+		InputStream input = TaxParamUtils.class.getResourceAsStream("/properties/sdtaxconfig.properties");
 		try {
 			if (input == null) {
 				throw new BusinessException("丢失配置文件!");

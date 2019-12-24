@@ -332,9 +332,9 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		if(queryvo.getIshasjz() != null && queryvo.getIshasjz().booleanValue()){
             corpsql.append(" and nvl(a.ishasaccount,'N') = 'Y' ");
         }
-//		if(!StringUtil.isEmpty(queryvo.getCorpid())){
-//			corpsql.append(" and a.pk_corp = ? ");
-//		}
+		if(!StringUtil.isEmpty(queryvo.getCorpid())){
+			corpsql.append(" and a.pk_corp = ? ");
+		}
 		if (queryvo.getCorpcode() != null && queryvo.getCorpcode().trim().length() > 0) {
 			corpsql.append(" and a.innercode like ? ");
 		}
@@ -440,9 +440,9 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		SQLParameter param = new SQLParameter();
 //		param.addParam(queryvo.getPk_corp());
 
-//		if (!StringUtil.isEmpty(queryvo.getCorpid())){
-//			param.addParam(queryvo.getCorpid());
-//		}
+		if (!StringUtil.isEmpty(queryvo.getCorpid())){
+			param.addParam(queryvo.getCorpid());
+		}
 		if (queryvo.getCorpcode() != null && queryvo.getCorpcode().trim().length() > 0) {
 			param.addParam("%" + queryvo.getCorpcode() + "%");
 		}
