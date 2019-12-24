@@ -2362,7 +2362,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				throw new Exception("需要导入的数据为空。");
 			}
 			Sheet sheet1 = impBook.getSheetAt(0);
-			;
+
 			List<VATSaleInvoiceVO2> list = getDataByExcel(sheet1, pk_corp, userid, fileType, sourceType, msg);
 			return list;
 		} catch (FileNotFoundException e) {
