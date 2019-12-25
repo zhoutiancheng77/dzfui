@@ -55,7 +55,7 @@ public class AuthServiceImpl implements IAuthService {
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "getPkCorpByUserId")
     public List<String> getPkCorpByUserId(String userid) {
         QueryWrapper<UserCorpRelation> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UserCorpRelation::getUserid, userid).and(condition -> condition.eq(UserCorpRelation::getDr, "0").or().isNull(UserCorpRelation::getDr));
+        queryWrapper.lambda().eq(UserCorpRelation::getUserid, userid).and(condition -> condition.eq(UserCorpRelation::getDr, 0).or().isNull(UserCorpRelation::getDr));
         List<UserCorpRelation> userCorpRelationList = userCorpRelationMapper.selectList(queryWrapper);
         if (userCorpRelationList == null || userCorpRelationList.size() == 0) {
             return new ArrayList();

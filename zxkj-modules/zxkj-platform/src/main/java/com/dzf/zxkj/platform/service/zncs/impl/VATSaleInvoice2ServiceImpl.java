@@ -2051,6 +2051,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		judgeInOneCompany(list, pk_corp, isFlag);
 
 		list = filterRepeationData(list, pk_corp, msg);// 过滤重复数据
+		if(list.size()==0&&!StringUtils.isEmpty(msg.toString())){
+			throw new BusinessException(msg.toString());
+		}
 		list = specialVatBVO(list, pk_corp);
 		//设置数量 ,单价精度
 		int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
@@ -2362,7 +2365,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				throw new Exception("需要导入的数据为空。");
 			}
 			Sheet sheet1 = impBook.getSheetAt(0);
-
+			;
 			List<VATSaleInvoiceVO2> list = getDataByExcel(sheet1, pk_corp, userid, fileType, sourceType, msg);
 			return list;
 		} catch (FileNotFoundException e) {
