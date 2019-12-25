@@ -11,6 +11,7 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -32,10 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("am_rep_zczzact")
@@ -162,10 +160,10 @@ public class ZczzReportController extends BaseController {
             else if ("2".equals(param.getType())) {
                 printReporUtil.printB5(null, bodyvos, "资 产 总 账", columnkeys, columnames, columnlist,
                         new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1}, 0, null, pmap, tmap);
+            } else if ("4".equals(param.getType())) {
+                printReporUtil.printA5(null, bodyvos, "资 产 总 账", columnkeys, columnames, columnlist,
+                        new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1}, 0, null, pmap, tmap);
             }
-            // printGroup(new HashMap<String, List<SuperVO>>(),bodyvos,
-            // "资 产 总 账", columnkeys, null, columnlist, new
-            // int[]{1,1,1,1,1,1,1,1,1}, 0);
         } catch (DocumentException e) {
             log.error("资产总账打印失败", e);
         } catch (IOException e) {

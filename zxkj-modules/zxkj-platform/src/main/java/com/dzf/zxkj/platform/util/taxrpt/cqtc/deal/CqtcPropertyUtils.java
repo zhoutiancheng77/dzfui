@@ -16,7 +16,7 @@ public class CqtcPropertyUtils {
 		Properties property = new Properties();
 		InputStream inputStream = null;
 		try {
-			inputStream = CqtcPropertyUtils.class.getClassLoader().getResourceAsStream("cqtcconfig.properties");
+			inputStream = CqtcPropertyUtils.class.getClassLoader().getResourceAsStream("properties/cqtcconfig.properties");
 			property.load(inputStream);
 		} catch (IOException e1) {
 		} finally {

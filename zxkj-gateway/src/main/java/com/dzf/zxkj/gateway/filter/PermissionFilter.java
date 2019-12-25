@@ -20,6 +20,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.NettyDataBufferFactory;
@@ -27,18 +28,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.HttpMessageReader;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @Auther: dandelion
@@ -51,6 +51,7 @@ import java.util.Set;
 public class PermissionFilter implements GlobalFilter, Ordered {
 
     private final DataBufferFactory dataBufferFactory = new NettyDataBufferFactory(ByteBufAllocator.DEFAULT);
+    private static final List<HttpMessageReader<?>> MESSAGE_READERS = HandlerStrategies.withDefaults().messageReaders();
 
     @Reference(version = "1.0.0")
     private ISysService sysService;
@@ -170,10 +171,22 @@ public class PermissionFilter implements GlobalFilter, Ordered {
                 authInfo = getAuthInfo(request.getQueryParams());
             } else if (HttpMethod.POST == requestMethod
                     && MediaType.APPLICATION_FORM_URLENCODED.equals(headers.getContentType())) {
-                authInfoMono = exchange.getFormData().flatMap(map -> {
-                    Map<String, String> info = getAuthInfo(map);
-                    return Mono.just(info);
-                });
+                final ResolvableType resolvableType;
+                resolvableType = ResolvableType.forClassWithGenerics(MultiValueMap.class, String.class, String.class);
+                authInfoMono = MESSAGE_READERS.stream().filter(reader ->
+                        reader.canRead(resolvableType, exchange.getRequest().getHeaders().getContentType()))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("no suitable HttpMessageReader."))
+                        .readMono(resolvableType, exchange.getRequest(), Collections.emptyMap())
+                        .flatMap(resolvedBody -> {
+                            Map<String, String> info;
+                            if (resolvedBody instanceof MultiValueMap) {
+                                info = getAuthInfo((MultiValueMap) resolvedBody);
+                            } else {
+                                info = new HashMap<>();
+                            }
+                            return Mono.just(info);
+                        });
             }
         }
         if (authInfoMono == null) {
