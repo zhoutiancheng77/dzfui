@@ -93,7 +93,7 @@ public class IntradeHVO extends SuperVO {
 	private Integer vdef12;//
 	private Integer vdef13;//
 	private DZFBoolean vdef14;//
-	private DZFBoolean vdef15;//
+	private DZFBoolean vdef15;//记录是否是部分暂估
 	private DZFBoolean isinterface;//新智能识别接口为 DZFBoolean.TRUE  其他 DZFBoolean.FALSE
 	
 	private String pk_image_group;//图片主表id
