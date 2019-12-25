@@ -207,13 +207,14 @@ public class QcyeController extends BaseController {
             }
             if("0".equals(atype)){
                 gl_qcyeserv.deleteFs(corpid);
+                json.setMsg("清除发生数据成功！");
                 writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "科目期初-清除发生", ISysConstants.SYS_2);
             }else if("1".equals(atype)){
                 gl_qcyeserv.deleteAll(corpid);
+                json.setMsg("清除所有数据成功！");
                 writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "科目期初-全部清除", ISysConstants.SYS_2);
             }
             json.setSuccess(true);
-            json.setMsg("清除所有数据成功！");
         } catch (Exception e) {
             printErrorLog(json, e, "清除失败！");
         }
