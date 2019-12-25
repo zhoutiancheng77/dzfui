@@ -598,7 +598,7 @@ public class PurchInServiceImpl implements IPurchInService {
 	 * 检查入库单引用的供应商是否存在
 	 * 
 	 * @param corpvo
-	 * @param hvo
+	 * @param vo
 	 */
 	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
 		Set<String> assists = new HashSet<String>();
@@ -783,7 +783,6 @@ public class PurchInServiceImpl implements IPurchInService {
 	/**
 	 * 检查编码是否唯一
 	 *
-	 * @param code
 	 * @return
 	 */
 	private boolean checkCodeIsUnique(IntradeHVO vo) {
@@ -1251,57 +1250,62 @@ public class PurchInServiceImpl implements IPurchInService {
 		}
 
 		// 汇总vo
-
-		Map<String, TzpzBVO> map = new LinkedHashMap();
-		for (TzpzBVO bvo : list) {
-			String inv = constructTzpzKey(bvo);
-			if (StringUtil.isEmpty(inv)) {
-				inv = "aaaaa";
-			}
-
-			TzpzBVO temp = null;
-			if (!map.containsKey(inv)) {
-				temp = bvo;
-			} else {
-				temp = map.get(inv);
-				temp.setNnumber(SafeCompute.add(temp.getNnumber(), bvo.getNnumber()));
-				temp.setDfmny(SafeCompute.add(temp.getDfmny(), bvo.getDfmny()));
-				temp.setYbdfmny(SafeCompute.add(temp.getYbdfmny(), bvo.getYbdfmny()));
-				temp.setJfmny(SafeCompute.add(temp.getJfmny(), bvo.getJfmny()));
-				temp.setYbjfmny(SafeCompute.add(temp.getYbjfmny(), bvo.getYbjfmny()));
-			}
-			if (temp.getNnumber() != null && DZFDouble.ZERO_DBL.compareTo(temp.getNnumber()) != 0) {
-				if (vdirect == 1) {
-					DZFDouble price = SafeCompute.div(temp.getDfmny(), temp.getNnumber());
-					price = price.setScale(iprice, DZFDouble.ROUND_HALF_UP);
-					temp.setNprice(price);
-				} else {
-					DZFDouble price = SafeCompute.div(temp.getJfmny(), temp.getNnumber());
-					price = price.setScale(iprice, DZFDouble.ROUND_HALF_UP);
-					temp.setNprice(price);
-				}
-
-			}
-			map.put(inv, temp);
-		}
-
-		List<TzpzBVO> bodyList = new ArrayList<TzpzBVO>();
-
-		for (TzpzBVO value : map.values()) {
-			if (vdirect == 1) {
-				if (value.getDfmny() == null || value.getDfmny().doubleValue() == 0) {
-					continue;
-				}
-			} else {
-				if (value.getJfmny() == null || value.getJfmny().doubleValue() == 0) {
-					continue;
-				}
-			}
-			bodyList.add(value);
-		}
-		return bodyList;
+        if ( ivo.getVdef15() == null || !ivo.getVdef15().booleanValue() || vdirect==1) {
+            list = comBinVO(list, vdirect, iprice);
+        }
+		return list;
 	}
 
+    private List<TzpzBVO> comBinVO(List<TzpzBVO> list, int vdirect, int iprice) {
+        Map<String, TzpzBVO> map = new LinkedHashMap();
+        for (TzpzBVO bvo : list) {
+            String inv = constructTzpzKey(bvo);
+            if (StringUtil.isEmpty(inv)) {
+                inv = "aaaaa";
+            }
+
+            TzpzBVO temp = null;
+            if (!map.containsKey(inv)) {
+                temp = bvo;
+            } else {
+                temp = map.get(inv);
+                temp.setNnumber(SafeCompute.add(temp.getNnumber(), bvo.getNnumber()));
+                temp.setDfmny(SafeCompute.add(temp.getDfmny(), bvo.getDfmny()));
+                temp.setYbdfmny(SafeCompute.add(temp.getYbdfmny(), bvo.getYbdfmny()));
+                temp.setJfmny(SafeCompute.add(temp.getJfmny(), bvo.getJfmny()));
+                temp.setYbjfmny(SafeCompute.add(temp.getYbjfmny(), bvo.getYbjfmny()));
+            }
+            if (temp.getNnumber() != null && DZFDouble.ZERO_DBL.compareTo(temp.getNnumber()) != 0) {
+                if (vdirect == 1) {
+                    DZFDouble price = SafeCompute.div(temp.getDfmny(), temp.getNnumber());
+                    price = price.setScale(iprice, DZFDouble.ROUND_HALF_UP);
+                    temp.setNprice(price);
+                } else {
+                    DZFDouble price = SafeCompute.div(temp.getJfmny(), temp.getNnumber());
+                    price = price.setScale(iprice, DZFDouble.ROUND_HALF_UP);
+                    temp.setNprice(price);
+                }
+
+            }
+            map.put(inv, temp);
+        }
+
+        List<TzpzBVO> bodyList = new ArrayList<TzpzBVO>();
+
+        for (TzpzBVO value : map.values()) {
+            if (vdirect == 1) {
+                if (value.getDfmny() == null || value.getDfmny().doubleValue() == 0) {
+                    continue;
+                }
+            } else {
+                if (value.getJfmny() == null || value.getJfmny().doubleValue() == 0) {
+                    continue;
+                }
+            }
+            bodyList.add(value);
+        }
+        return bodyList;
+    }
 	private TzpzBVO createSingleTzpzBVO(YntCpaccountVO cvo, String zy, IntradeHVO ivo, int vdirect,
 			DZFDouble totalDebit, IctradeinVO ibody, CorpVO corp, int iprice) {
 		TzpzBVO depvo = new TzpzBVO();
@@ -2820,7 +2824,7 @@ public class PurchInServiceImpl implements IPurchInService {
 
 		List<IctradeinVO> icList = new ArrayList<IctradeinVO>();
 		IctradeinVO icbvo = null;
-
+		DZFBoolean part = DZFBoolean.FALSE;
 		String spmc = null;
 		for (TempInvtoryVO inbvo : bodyvos) {
 			spmc = inbvo.getInvname();
@@ -2836,6 +2840,17 @@ public class PurchInServiceImpl implements IPurchInService {
 			icbvo.setNtaxmny(DZFDouble.ZERO_DBL);
 			icbvo.setNtotaltaxmny(SafeCompute.add(icbvo.getNymny(), icbvo.getNtaxmny()));// 价税合计
 			icList.add(icbvo);
+			if (inbvo.getNnumber_old() != null && inbvo.getNnumber_old().compareTo(inbvo.getNnumber()) > 0) {
+				icbvo = (IctradeinVO) icbvo.clone();
+				icbvo.setNnum(SafeCompute.sub(inbvo.getNnumber_old(), inbvo.getNnumber()));
+				icbvo.setNprice(DZFDouble.ZERO_DBL);
+				icbvo.setNymny(DZFDouble.ZERO_DBL);// 金额
+				icbvo.setNtax(DZFDouble.ZERO_DBL);
+				icbvo.setNtaxmny(DZFDouble.ZERO_DBL);
+				icbvo.setNtotaltaxmny(DZFDouble.ZERO_DBL);// 价税合计
+				part = DZFBoolean.TRUE;
+				icList.add(icbvo);
+			}
 		}
 
 		if (icList.size() == 0) {
@@ -2851,6 +2866,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		ichvo.setIarristatus(1);
 		ichvo.setCreator(userid);
 		ichvo.setIszg(DZFBoolean.TRUE);// 是暂估
+        ichvo.setVdef15(part);
 		ichvo.setChildren(icList.toArray(new IctradeinVO[0]));
 		ichvo.setPk_cust(pk_zggys);
 
