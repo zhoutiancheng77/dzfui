@@ -2298,11 +2298,11 @@ public class VATSaleInvoice2Controller extends BaseController {
         Json json = new Json();
         try {
             String pzrq = param.get("pzrq");
-            String pzrule = param.get("pzrq");
-            String flrule = param.get("pzrq");
-            String zy = param.get("pzrq");
+            String pzrule = param.get("pzrule");
+            String flrule = param.get("flrule");
+            String zy = param.get("zy");
             String setId = param.get("setid");
-            String bk = param.get("pzrq");
+            String bk = param.get("bk");
             if(StringUtil.isEmpty(pzrule)
                     || StringUtil.isEmpty(flrule)||StringUtil.isEmpty(pzrq)){
                 throw new BusinessException("合并规则设置失败，请重试");
