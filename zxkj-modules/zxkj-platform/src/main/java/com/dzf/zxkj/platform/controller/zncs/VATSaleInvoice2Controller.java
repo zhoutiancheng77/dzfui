@@ -522,7 +522,7 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData<Json> impExcel(@RequestBody MultipartFile file,@RequestBody String impForce) {
+    public ReturnData<Json> impExcel(@RequestBody MultipartFile file,String impForce) {
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
