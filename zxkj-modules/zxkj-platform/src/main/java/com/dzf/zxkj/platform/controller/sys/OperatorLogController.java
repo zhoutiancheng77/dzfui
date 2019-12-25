@@ -219,7 +219,7 @@ public class OperatorLogController {
 
             JSONArray headlist = (JSONArray) JSON.parseArray(columns);
             List<String> heads = new ArrayList<String>();
-            List<String> fieldslist = new ArrayList<String>();
+//            List<String> fieldslist = new ArrayList<String>();
             printReporUtil.setIscross(DZFBoolean.TRUE);
             Map<String, String> name = null;
             int[] widths = new  int[]{};
@@ -230,20 +230,24 @@ public class OperatorLogController {
                     continue;
                 }
                 heads.add(name.get("columname"));
-                fieldslist.add(name.get("column"));
+//                fieldslist.add(name.get("column"));
                 widths = ArrayUtils.addAll(widths, new int[] {3});
             }
-            String[] fields= (String[]) fieldslist.toArray(new String[fieldslist.size()]);
-
+//            String[] fields= (String[]) fieldslist.toArray(new String[fieldslist.size()]);
 
             //字符类型字段(取界面元素id)
             List<String> list = new ArrayList<String>();
-            list.add("opestr");
-            list.add("vuser");
-            list.add("vuserip");
+//            list.add("opestr");
+//            list.add("vuser");
+//            list.add("vuserip");
+//            list.add("opetypestr");
+//            list.add("vopemsg");
+            list.add("odate");
+            list.add("user");
+            list.add("ip");
             list.add("opetypestr");
-            list.add("vopemsg");
-            printReporUtil.printSimpleColumn(array, "操作日志", heads, fieldslist.toArray(new String[0]), widths, 20, fieldslist, response);
+            list.add("omsg");
+            printReporUtil.printSimpleColumn(array, "操作日志", heads, list.toArray(new String[0]), widths, 20, list, response);
         }catch(Exception e){
             log.error("打印失败",e);
         }
