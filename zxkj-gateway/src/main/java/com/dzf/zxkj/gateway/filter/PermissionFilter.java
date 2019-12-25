@@ -98,6 +98,12 @@ public class PermissionFilter implements GlobalFilter, Ordered {
                 return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, response);
             }
             String clientId = authInfo.get(ISysConstant.CLIENT_ID);
+
+            //判断是否唯一登录
+            if (authService.validateMultipleLogin(useridFormToken, clientId)) {
+                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
+            }
+
             //token过期时间校验
             if (authService.validateTokenEx(useridFormToken, clientId)) {
                 return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, response);
@@ -120,11 +126,6 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             final UserModel userModel = sysService.queryByUserId(useridFormToken);
             if (corpModel == null || userModel == null) {
                 return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_INVALID_CODE, response);
-            }
-
-            //判断是否唯一登录
-            if (authService.validateMultipleLogin(useridFormToken, clientId)) {
-                return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
             }
 
             //权限校验
