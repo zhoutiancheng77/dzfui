@@ -6,6 +6,7 @@ import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
@@ -176,9 +177,9 @@ public class AuthController {
         String password = RSAUtils.decryptStringByJs(updateUserVo.getUser_password());
         String psw2 =RSAUtils.decryptStringByJs(updateUserVo.getPsw2());
         String psw3 = RSAUtils.decryptStringByJs(updateUserVo.getPsw3());
-
+        String p = new Encode().encode(password);
         try{
-            if(updateUserVo.getUser_password() == null || updateUserVo.getUser_password().trim().length()== 0 || !password.equals(loginUser.getPassword())){
+            if(updateUserVo.getUser_password() == null || updateUserVo.getUser_password().trim().length()== 0 || !(new Encode().encode(password)).equals(loginUser.getPassword())){
                 json.setMsg("输入初始密码错误！");
             }else if(psw2 != null && psw3 != null && psw2.trim().length() > 0 && psw3.trim().length() > 0 ){
                 if(psw2.equals(password)){
