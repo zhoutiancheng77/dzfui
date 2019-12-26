@@ -341,6 +341,8 @@ public class AssetCardImpl implements IAssetCard {
             return qmclVO;
         String period = qmclVO.getPeriod();
 
+        //检查是否存在后续业务（后续计提折旧、资产清理、资产原值变更等），需先取消后续业务才能反计提折旧
+
         //折旧与资产关系
         HashMap<AssetDepreciaTionVO, AssetcardVO> map = getRollbackDepCardVOs(qmclVO, period);
 
@@ -377,7 +379,6 @@ public class AssetCardImpl implements IAssetCard {
         if ((map != null) && (map.size() > 0)) {
             List<String> checkCorps = new ArrayList<String>();
             for (AssetDepreciaTionVO assetdepVO : map.keySet()) {
-
                 AssetcardVO assetcardVO = (AssetcardVO) map.get(assetdepVO);
 
                 if (!checkCorps.contains(assetcardVO.getPk_corp())) {
@@ -385,9 +386,15 @@ public class AssetCardImpl implements IAssetCard {
                     checkCorps.add(assetcardVO.getPk_corp());
                 }
 
+                //llh: 检查折旧期间之后(或在折旧当期的折旧操作时间之后)是否存在原值变更业务
+                boolean isExistVM = checkExistValueModify(assetdepVO);
+                if (isExistVM) {
+                    throw new BusinessException(String.format("资产[%s-%s]当期折旧后存在后续业务—原值变更，请先取消原值变更", assetcardVO.getAssetcode(), assetcardVO.getAssetname()));
+                }
+
 //				if ((assetdepVO.getIssettle() != null) && (assetdepVO.getIssettle().booleanValue())) {
 //					throw new BusinessException(
-//							String.format( "资产卡片%s期间%s的累计折旧已经结账，不允许删除折旧明细", 
+//							String.format( "资产卡片%s期间%s的累计折旧已经结账，不允许删除折旧明细",
 //									new Object[] { assetcardVO.getAssetcode(), period }));
 //				}
                 if ((assetdepVO.getIstogl() != null) && (assetdepVO.getIstogl().booleanValue())) {
@@ -437,6 +444,32 @@ public class AssetCardImpl implements IAssetCard {
             singleObjectBO.update(qmclVO, new String[]{"iszjjt"});
         }
         return qmclVO;
+    }
+
+    /**
+     * 检查折旧期间之后(或在折旧当期的折旧操作时间之后)是否存在原值变更业务
+     * @param assetdepVO
+     * @return
+     * @throws DZFWarpException
+     */
+    private boolean checkExistValueModify(AssetDepreciaTionVO assetdepVO) throws DZFWarpException {
+        //折旧期间，如：'2019-12'
+        String depperiod = assetdepVO.getBusinessdate().toString().substring(0, 7);
+        //折旧操作时间，如：'2019-12-25 16:56:39'
+        String depts = assetdepVO.getTs().toString();
+
+        StringBuffer sf = new StringBuffer();
+        sf.append("select 1 from ynt_valuemodify ");
+        sf.append(" where pk_assetcard=? and nvl(dr,0)=0 ");
+        sf.append(" and (substr(businessdate,1,7)>? "); //折旧期间之后是否有原值变更
+        sf.append("  or substr(businessdate,1,7)=? and ts>to_timestamp(?,'yyyy-mm-dd hh24:mi:ss'))"); //(折旧期间当期)在折旧操作之后是否存在原值变更
+        SQLParameter sp1 = new SQLParameter();
+        sp1.addParam(assetdepVO.getPk_assetcard());
+        sp1.addParam(depperiod);
+        sp1.addParam(depperiod);
+        sp1.addParam(depts);
+        boolean isExistVM = singleObjectBO.isExists(null, sf.toString(), sp1);
+        return isExistVM;
     }
 
     @Override
