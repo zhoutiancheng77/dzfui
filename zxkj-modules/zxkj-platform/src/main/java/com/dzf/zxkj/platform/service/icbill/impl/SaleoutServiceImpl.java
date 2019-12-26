@@ -1690,7 +1690,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 			dashoutvo.setNnum(outvo.getNnum() == null ? null : outvo.getNnum().multiply(-1));
 			dashoutvo.setNymny(outvo.getNymny() == null ? null : outvo.getNymny().multiply(-1));
 			dashoutvo.setNcost(outvo.getNcost() == null ? null : outvo.getNcost().multiply(-1));
-			dashoutvo.setNtax(outvo.getNtax() == null ? null : outvo.getNtax().multiply(-1));
+			dashoutvo.setNtax(outvo.getNtax());
 			dashoutvo.setNtaxmny(outvo.getNtaxmny() == null ? null : outvo.getNtaxmny().multiply(-1));
 			dashoutvo.setNtotaltaxmny(outvo.getNtotaltaxmny() == null ? null : outvo.getNtotaltaxmny().multiply(-1));
 			dashoutvo.setNprice(outvo.getNprice());
