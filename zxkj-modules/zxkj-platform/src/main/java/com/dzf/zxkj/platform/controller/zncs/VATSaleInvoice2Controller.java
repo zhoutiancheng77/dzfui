@@ -1653,7 +1653,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         VATSaleInvoiceVO2[] listvo = null;
         JSONArray array = JSON.parseArray(strrows);
         if(!StringUtils.isEmpty(strrows)) {
-            listvo = array.toArray(new VATSaleInvoiceVO2[0]);
+            listvo = JsonUtils.deserialize(strrows,VATSaleInvoiceVO2[].class);
         }
 
         OutputStream toClient = null;
