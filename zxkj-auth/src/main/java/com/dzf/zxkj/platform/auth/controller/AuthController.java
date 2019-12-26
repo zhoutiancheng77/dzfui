@@ -185,7 +185,7 @@ public class AuthController {
                 if(psw2.equals(password)){
                     json.setMsg("旧密码和新密码不能一致！");
                 }else if(psw2.equals(psw3)){
-                    loginUser.setPassword(psw2);
+                    loginUser.setPassword(new Encode().encode(psw2));
                     //修改后密码校验
                     StringBuffer sf = new StringBuffer();
                     boolean flag = checkUserPWD(psw2,sf);
