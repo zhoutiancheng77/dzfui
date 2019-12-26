@@ -83,6 +83,9 @@ public class ParameterSetController {
                     ){
                         continue;
                     }
+                    if("dzf007".equals(param.getParameterbm()) && "一般纳税人".equals(cpvo.getChargedeptname())){
+                        continue;
+                    }
                     //
                     if(paramlevel != null && paramlevel >= teLe){//取大于等于
                         result.add(param);

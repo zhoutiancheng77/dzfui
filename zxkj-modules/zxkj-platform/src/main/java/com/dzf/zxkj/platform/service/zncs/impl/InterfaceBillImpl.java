@@ -46,6 +46,7 @@ import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -2619,7 +2620,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		List<VATSaleInvoiceBVO2> tlist = new ArrayList<>();
 		for (int i = 0; i < sallist.size(); i++) {
 			VATSaleInvoiceBVO2 bvo = sallist.get(i);
-			if(saleinfo.getName().equals(OcrUtil.execInvname(bvo.getBspmc()))){
+			if(!StringUtil.isEmpty(saleinfo.getName())&&saleinfo.getName().equals(OcrUtil.execInvname(bvo.getBspmc()))){
 				tlist.add(bvo);
 			}
 		}
