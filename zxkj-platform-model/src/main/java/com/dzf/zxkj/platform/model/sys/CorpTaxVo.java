@@ -140,7 +140,7 @@ public class CorpTaxVo extends SuperVO {
     public DZFBoolean taxbasesilv;//是否是否签约税库银三方协议 默认不打勾（未签约），打勾（已签约）
     //---------------不存库的字段
 
-    //-------------不存库，需要回写的字段-----------
+    //-------------不存库，需要回写的字段 begin-----------
     @JsonProperty("ccrecode")
     public String vsoccrecode;// 社会信用代码(不存库--从bd_corp获取)
     @JsonProperty("sxrq")
@@ -161,10 +161,10 @@ public class CorpTaxVo extends SuperVO {
     public String chargedeptname;// 公司性质(不存库--从bd_corp获取)
 
     private DZFBoolean ischannel;//是否加盟商
-    //----------不存库，需要回写的字段------------------
+    //----------不存库，需要回写的字段  end------------------
 
 
-    //-----------不存库，不需要回写的字段------------
+    //-----------不存库，不需要回写的字段  begin------------
     @JsonProperty("ctypename")
     public String ctypename;// 行业科目方案---不存库
     @JsonProperty("bdate")
@@ -173,13 +173,16 @@ public class CorpTaxVo extends SuperVO {
     public DZFDate createdate;// 录入日期
     @JsonProperty("incode")
     public String innercode;//客户编码
-    //	public Integer vprovince;// 省(不存库--从bd_corp获取),不是报税地区。千万注意
+
     @JsonProperty("stsource")
     public String vcustsource;// 客户来源(不存库--从bd_corp获取)
-    //	@JsonProperty("city")
-//	public Integer vcity;// 市(不存库--从bd_corp获取)
-//	@JsonProperty("area")
-//	public Integer varea;// 区(不存库--从bd_corp获取)
+
+    public Integer vprovince;// 省(不存库--从bd_corp获取),不是报税地区。千万注意
+    @JsonProperty("city")
+	public Integer vcity;// 市(不存库--从bd_corp获取)
+	@JsonProperty("area")
+	public Integer varea;// 区(不存库--从bd_corp获取)
+
     @JsonProperty("nkname")
     public String vbankname;// 开户银行(不存库--从bd_corp获取)
     @JsonProperty("fcorp")
@@ -209,7 +212,7 @@ public class CorpTaxVo extends SuperVO {
     public DZFDate icbegindate;// 库存启用日期
     @JsonProperty("ctype")
     public String corptype;// 科目方案
-    //-----------不存库，不需要回写的字段
+    //-----------不存库，不需要回写的字段  end----------------------------
 
     @JsonProperty("bgqj")
     private String bgperiod;//变更期间
@@ -229,6 +232,16 @@ public class CorpTaxVo extends SuperVO {
 
     @JsonProperty("coachedate")
     private DZFDate dcoachedate;//辅导期结束
+
+    private Integer defTaxArea;//不存库
+
+    public Integer getDefTaxArea() {
+        return defTaxArea;
+    }
+
+    public void setDefTaxArea(Integer defTaxArea) {
+        this.defTaxArea = defTaxArea;
+    }
 
     public DZFBoolean getTaxbasesilv() {
         return taxbasesilv;
@@ -358,13 +371,13 @@ public class CorpTaxVo extends SuperVO {
         this.unitname = unitname;
     }
 
-//	public Integer getVprovince() {
-//		return vprovince;
-//	}
-//
-//	public void setVprovince(Integer vprovince) {
-//		this.vprovince = vprovince;
-//	}
+	public Integer getVprovince() {
+		return vprovince;
+	}
+
+	public void setVprovince(Integer vprovince) {
+		this.vprovince = vprovince;
+	}
 
     public DZFBoolean getIschannel() {
         return ischannel;
@@ -606,21 +619,21 @@ public class CorpTaxVo extends SuperVO {
         this.vcustsource = vcustsource;
     }
 
-//	public Integer getVcity() {
-//		return vcity;
-//	}
-//
-//	public void setVcity(Integer vcity) {
-//		this.vcity = vcity;
-//	}
-//
-//	public Integer getVarea() {
-//		return varea;
-//	}
-//
-//	public void setVarea(Integer varea) {
-//		this.varea = varea;
-//	}
+	public Integer getVcity() {
+		return vcity;
+	}
+
+	public void setVcity(Integer vcity) {
+		this.vcity = vcity;
+	}
+
+	public Integer getVarea() {
+		return varea;
+	}
+
+	public void setVarea(Integer varea) {
+		this.varea = varea;
+	}
 
     public DZFDouble getCitybuildtax() {
         return citybuildtax;

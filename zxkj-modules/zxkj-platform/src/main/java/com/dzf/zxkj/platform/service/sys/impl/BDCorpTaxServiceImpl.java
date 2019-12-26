@@ -1012,7 +1012,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 
 	@Override
 	public CorpTaxVo queryCorpTaxVOByType(String pk_corp, String type) throws DZFWarpException {
-		CorpTaxVo vo =queryCorpTaxVO(pk_corp);
+		CorpTaxVo vo = queryCorpTaxVO(pk_corp);
 		if("specHis".equals(type)){
 			setZxKc(vo, pk_corp);
 		}else{

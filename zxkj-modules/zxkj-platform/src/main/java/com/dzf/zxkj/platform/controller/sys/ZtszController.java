@@ -2,17 +2,21 @@ package com.dzf.zxkj.platform.controller.sys;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.pzgl.ICorpInfoService;
 import com.dzf.zxkj.platform.service.sys.IBDCorpService;
 import com.dzf.zxkj.platform.service.sys.IBDCorpTaxService;
+import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.service.sys.IZtszService;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -23,6 +27,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 @RestController
 @RequestMapping("/sys/sys_kj_ztsz")
 @Slf4j
@@ -32,6 +40,8 @@ public class ZtszController {
     private SingleObjectBO singleObjectBO;
     @Autowired
     private IBDCorpService sys_corpserv;
+    @Autowired
+    private IUserService userService;
     @Autowired
     private ICorpInfoService corpInfoSer;
     @Autowired
@@ -141,5 +151,40 @@ public class ZtszController {
         }
 
         return ReturnData.ok().data(json);
+    }
+
+    //公司信息
+    @GetMapping("/query")
+    public ReturnData<Grid> query(QueryParamVO paramvo) {
+        Grid grid = new Grid();
+        try {
+            UserVO uservo = SystemUtil.getLoginUserVo();
+            Set<String> clist = getCorpids(uservo);
+
+            List<CorpTaxVo> vos = ztsz_serv.query(paramvo, uservo, clist);
+            int len = vos == null || vos.size() == 0 ? 0 : vos.size();
+
+            grid.setTotal((long) len);
+            grid.setRows(len > 0 ? vos : null);
+            grid.setSuccess(true);
+            grid.setMsg("查询成功!");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败");
+        }
+
+        return ReturnData.ok().data(grid);
+    }
+
+    private Set<String> getCorpids(UserVO uservo) {
+        List<CorpVO> list = userService.queryPowerCorpKj(uservo.getPrimaryKey());
+        Set<String> setlist = new HashSet<String>();
+        if (list != null && list.size() > 0) {
+            for (CorpVO cvo : list) {
+                setlist.add(cvo.getPk_corp());
+            }
+        }
+        return setlist;
     }
 }
