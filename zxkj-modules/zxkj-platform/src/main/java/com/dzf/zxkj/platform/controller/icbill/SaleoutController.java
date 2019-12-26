@@ -269,8 +269,8 @@ public class SaleoutController{
 					child.setAttributeValue("imppzh", null);
 					child.setAttributeValue("pzh", null);
 					child.setAttributeValue("pk_voucher_b", null);
-					child.setAttributeValue("ncost", null);
-					child.setAttributeValue("vdef1", null);
+					child.setAttributeValue("ncost", DZFDouble.ZERO_DBL);
+					child.setAttributeValue("vdef1", DZFDouble.ZERO_DBL);
 				}
 			}
 		}
