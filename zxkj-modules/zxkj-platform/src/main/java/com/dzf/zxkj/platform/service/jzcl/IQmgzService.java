@@ -12,7 +12,7 @@ public interface IQmgzService {
 
     QmclVO[] query(QueryParamVO vo, String userid, DZFDate d) throws DZFWarpException;
 
-    void processGzOperate(String pk_corp, String qj, DZFBoolean b, String userid) throws DZFWarpException;
+    void processGzOperate(QmclVO qmclvo,String pk_corp, String qj, DZFBoolean b, String userid) throws DZFWarpException;
 
     List<Object> gzCheck(String pk_corp, String qj) throws DZFWarpException;
 

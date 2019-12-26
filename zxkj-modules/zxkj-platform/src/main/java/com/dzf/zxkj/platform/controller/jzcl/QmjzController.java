@@ -244,7 +244,7 @@ public class QmjzController extends BaseController {
                                 continue;
                             }
                             try {
-                                qmgzService.processGzOperate(votemp.getPk_corp(), qmvo.getPeriod(), DZFBoolean.TRUE, SystemUtil.getLoginUserId());
+                                qmgzService.processGzOperate(qmvo,votemp.getPk_corp(), qmvo.getPeriod(), DZFBoolean.TRUE, SystemUtil.getLoginUserId());
                             } catch (BusinessException e) {
                                 ishasgz = DZFBoolean.FALSE;
                                 tips.append(e.getMessage() + "<br>");
