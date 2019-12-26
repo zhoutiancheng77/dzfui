@@ -394,18 +394,19 @@ public class QcyeController extends BaseController {
     }
 
     @PostMapping("export/excel")
-    public void exportExcel(HttpServletRequest request, HttpServletResponse response) {
+    public void exportExcel(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
         OutputStream toClient = null;
         try {
-            String isFzqc = request.getParameter("fzqc");
-            boolean showQuantity = Boolean.valueOf(request.getParameter("showQuantity"));
+//            String isFzqc = request.getParameter("fzqc");
+            String isFzqc = map.get("fzqc");
+            boolean showQuantity = Boolean.valueOf(map.get("showQuantity"));
 
             byte[] excelData = null;
             String fileName = null;
             if ("Y".equals(isFzqc)) {
                 fileName = "辅助期初导入.xls";
-                String pk_km = request.getParameter("pk_km");
-                String tempName = request.getParameter("tempName");
+                String pk_km = map.get("pk_km");
+                String tempName = map.get("tempName");
                 Resource exportTemplate = new ClassPathResource(DZFConstant.DZF_KJ_EXCEL_TEMPLET + tempName);
                 excelData = gl_qcyeserv.exportFzExcel(SystemUtil.getLoginCorpId(), pk_km, ((ClassPathResource) exportTemplate).getPath(), showQuantity);
             } else {
