@@ -10,7 +10,7 @@ import com.dzf.zxkj.platform.service.sys.IUpdateLogService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +23,7 @@ public class UpdateLogController extends BaseController {
     private IUpdateLogService gl_logpicserv = null;
 
     // 查询
-    @PostMapping("query")
+    @GetMapping("query")
     public ReturnData query() {
         Json json = new Json();
         try {
