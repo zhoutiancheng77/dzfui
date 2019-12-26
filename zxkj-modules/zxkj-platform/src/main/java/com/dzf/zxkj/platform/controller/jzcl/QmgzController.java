@@ -242,6 +242,7 @@ public class QmgzController  extends PrintAndExcelExportController {
                 }
             }
 
+            grid.setRows(bodyvos);
             if(tips.toString().length()>0){
                 grid.setMsg(tips.toString());
                 grid.setSuccess(false);
@@ -286,7 +287,7 @@ public class QmgzController  extends PrintAndExcelExportController {
         if(votemp.getIsgz()!=null && votemp.getIsgz().booleanValue()){
             throw new BusinessException(votemp.getCorpname()+"在期间"+votemp.getPeriod()+"已关账，请勿重复操作");
         }
-        qmgzService.processGzOperate(votemp.getPk_corp(), votemp.getPeriod(), DZFBoolean.TRUE,SystemUtil.getLoginUserId());
+        qmgzService.processGzOperate(votemp,votemp.getPk_corp(), votemp.getPeriod(), DZFBoolean.TRUE,SystemUtil.getLoginUserId());
     }
 
     private String getLogMsg(String ope,QmclVO[] qmclvos,String ident) {
@@ -362,7 +363,7 @@ public class QmgzController  extends PrintAndExcelExportController {
                     for(QmclVO votemp:qmclvos){
                         try {
                             if(votemp.getIsgz()!=null&&votemp.getIsgz().booleanValue()){
-                                qmgzService.processGzOperate(votemp.getPk_corp(), votemp.getPeriod(), DZFBoolean.FALSE,SystemUtil.getLoginUserId());
+                                qmgzService.processGzOperate(votemp,votemp.getPk_corp(), votemp.getPeriod(), DZFBoolean.FALSE,SystemUtil.getLoginUserId());
                             }else{
                                 throw new BusinessException(votemp.getCorpname()+"在期间"+votemp.getPeriod()+"未关账，不能反关账");
                             }
@@ -372,6 +373,7 @@ public class QmgzController  extends PrintAndExcelExportController {
                         }
                     }
                 }
+                grid.setRows(bodyvos);
                 if(tips.toString().length()>0){
                     grid.setMsg(tips.toString());
                     grid.setSuccess(false);

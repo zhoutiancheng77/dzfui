@@ -269,6 +269,10 @@ public class SaleoutController{
 					child.setAttributeValue("imppzh", null);
 					child.setAttributeValue("pzh", null);
 					child.setAttributeValue("pk_voucher_b", null);
+                    if (vo.getCbusitype() == null || (IcConst.XSTYPE.equals(vo.getCbusitype()))) {
+                        child.setAttributeValue("ncost", DZFDouble.ZERO_DBL);
+                        child.setAttributeValue("vdef1", DZFDouble.ZERO_DBL);
+                    }
 				}
 			}
 		}

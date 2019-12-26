@@ -111,8 +111,6 @@ public class QmclServiceImpl implements IQmclService {
 	@Autowired
 	private ISurtaxTemplateService gl_surtaxtempserv;
 	@Autowired
-	private IIncomeWarningService incomewarningserv;
-	@Autowired
 	private ICorpService corpService;
 	@Autowired
 	private QmjzByDzfConfig qmjzByDzfConfig;
@@ -3476,7 +3474,7 @@ public class QmclServiceImpl implements IQmclService {
 					&& taxInfo.getIncomtaxtype() == 1;
 			DZFDouble shuikuan = null;
 			IncomeTaxCalculator calculator = new IncomeTaxCalculator(singleObjectBO,
-					zxkjReportService, incomewarningserv);
+					zxkjReportService);
 			shuikuan = calculator.calculateIncomeTax(qmvo.getPeriod(), isQuarter, corpvo,
 					taxInfo);
 			if (shuikuan != null && shuikuan.doubleValue() > 0) {
