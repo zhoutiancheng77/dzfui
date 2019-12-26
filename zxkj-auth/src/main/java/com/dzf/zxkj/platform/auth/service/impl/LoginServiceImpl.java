@@ -166,7 +166,7 @@ public class LoginServiceImpl implements ILoginService {
 
     @Override
     public void updatePassword(LoginUser loginUser) {
-
+        loginUserMapper.updatePassWord(loginUser.getUserid(), loginUser.getPassword());
     }
 
 
