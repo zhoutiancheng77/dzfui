@@ -53,7 +53,7 @@ public class LoginServiceImpl implements ILoginService {
             log.error("用户中心异常", e);
         }
 
-        return null;
+        return getLocalLoginUser(username, password);
     }
 
     //获取用户中心用户信息
@@ -156,6 +156,19 @@ public class LoginServiceImpl implements ILoginService {
     public void refresh(String token) {
 
     }
+
+    @Override
+    public LoginUser queryUserById(String userId) {
+        QueryWrapper<LoginUser> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(LoginUser::getUserid, userId).and(condition -> condition.eq(LoginUser::getDr, "0").or().isNull(LoginUser::getDr));
+        return loginUserMapper.selectOne(queryWrapper);
+    }
+
+    @Override
+    public void updatePassword(LoginUser loginUser) {
+
+    }
+
 
     public void logout(String token) {
 

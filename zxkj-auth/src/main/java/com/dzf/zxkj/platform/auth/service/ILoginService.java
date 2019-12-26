@@ -8,4 +8,8 @@ public interface ILoginService {
     LoginUser exchange(String resource) throws Exception;
 
     void refresh(String token);
+
+    LoginUser queryUserById(String userid);
+
+    void updatePassword(LoginUser loginUser);
 }

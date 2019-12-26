@@ -11,6 +11,7 @@ import lombok.Data;
 public class FunNode {
     @TableField("module")
     private String module;
+    @TableField("fun_code")
     private String code;
     @TableField("router")
     private String router;

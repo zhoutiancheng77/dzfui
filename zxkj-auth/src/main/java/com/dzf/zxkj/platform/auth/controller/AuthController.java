@@ -4,12 +4,15 @@ import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.common.entity.Grid;
+import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginGrid;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
+import com.dzf.zxkj.platform.auth.entity.UpdateUserVo;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.util.RSAUtils;
 import com.dzf.zxkj.platform.auth.util.SystemUtil;
@@ -22,9 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RestController
 @Slf4j
@@ -155,5 +161,81 @@ public class AuthController {
         }
         return ReturnData.ok().data(grid);
     }
+    @PostMapping("updatePassword")
+    public ReturnData updatePassword(@RequestBody UpdateUserVo updateUserVo){
+        Json json = new Json();
+        String userid = SystemUtil.getLoginUserId();
+        LoginUser loginUser = loginService.queryUserById(userid);
+        if(loginUser == null){
+            json.setMsg("未找到用户信息！");
+            json.setStatus(-200);
+            json.setSuccess(false);
+            return ReturnData.ok().data(json);
+        }
+        json.setStatus(-200);
+        json.setSuccess(false);
+        String password = RSAUtils.decryptStringByJs(updateUserVo.getUser_password());
+        String psw2 =RSAUtils.decryptStringByJs(updateUserVo.getPsw2());
+        String psw3 = RSAUtils.decryptStringByJs(updateUserVo.getPsw3());
 
+        try{
+            if(updateUserVo.getUser_password() == null || updateUserVo.getUser_password().trim().length()== 0 || !(new Encode().encode(password)).equals(loginUser.getPassword())){
+                json.setMsg("输入初始密码错误！");
+            }else if(psw2 != null && psw3 != null && psw2.trim().length() > 0 && psw3.trim().length() > 0 ){
+                if(psw2.equals(password)){
+                    json.setMsg("旧密码和新密码不能一致！");
+                }else if(psw2.equals(psw3)){
+                    loginUser.setPassword(psw2);
+                    //修改后密码校验
+                    StringBuffer sf = new StringBuffer();
+                    boolean flag = checkUserPWD(psw2,sf);
+                    if(!flag){
+                        json.setMsg(sf.toString());
+                        json.setSuccess(false);
+                    }else{
+                        loginService.updatePassword(loginUser);
+                        json.setMsg("修改成功!");
+                        json.setSuccess(true);
+                        json.setStatus(200);
+                    }
+                }else{
+                    json.setMsg("两次输入密码不一致，请检查！");
+                }
+            }else{
+                json.setMsg("请输入密码信息！");
+            }
+        }catch(Exception e){
+                json.setMsg("操作失败");
+                log.error("操作失败",e);
+            json.setSuccess(false);
+        }
+
+        return ReturnData.ok().data(json);
+    }
+
+    String[] INIT_PASSWORD = {"123abc!@#","1234abcd!@#$","dzf12345678"};
+
+    private boolean checkUserPWD(String pwd,StringBuffer eInfo){
+        if (pwd.length() < 8){
+            eInfo.append("密码长度不能小于8\n");
+            return  false;
+        }
+        if (!pwd.matches(".*([0-9]+.*[A-Za-z]+|[A-Za-z]+.*[0-9]+).*")){
+            eInfo.append("密码必须含有数字、字母\n");
+            return  false;
+        }
+        //判断是否为初始化密码
+        if(Arrays.asList(INIT_PASSWORD).contains(pwd)){
+            eInfo.append("密码为初始化密码!\n");
+            return  false;
+        }
+        String regEx = "[~!@#$%^&*()<>?+=]";
+        Pattern p = Pattern.compile(regEx);
+        Matcher m = p.matcher(pwd);
+        if (!m.find()){
+            eInfo.append("密码必须含有特殊字符\n");
+            return  false;
+        }
+        return true;
+    }
 }
