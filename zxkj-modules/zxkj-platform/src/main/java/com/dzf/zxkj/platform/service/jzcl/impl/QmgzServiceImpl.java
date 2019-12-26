@@ -80,7 +80,7 @@ public class QmgzServiceImpl implements IQmgzService {
 	
 // 关账操作，保存关账状态
 	@Override
-	public void processGzOperate(String pk_corp,String qj, DZFBoolean b ,String userid)
+	public void processGzOperate(QmclVO qmclvo,String pk_corp,String qj, DZFBoolean b ,String userid)
 			throws DZFWarpException {
 		if (!b.booleanValue()) {
 			// 反关账
@@ -115,17 +115,15 @@ public class QmgzServiceImpl implements IQmgzService {
 				}
 			}
 		}
-		SQLParameter sp = new SQLParameter();
-		String sql = " select * from ynt_qmcl where pk_corp = ? and period = ? and nvl(dr,0) = 0 ";
-		sp.addParam(pk_corp);
-		sp.addParam(qj.substring(0, 7));
-		List<QmclVO> qmvos = (List<QmclVO>) singleObjectBO.executeQuery(sql,
-				sp, new BeanListProcessor(QmclVO.class));
-		if (qmvos != null && qmvos.size() > 0) {
-			QmclVO qmclvo = qmvos.get(0);
+//		SQLParameter sp = new SQLParameter();
+//		String sql = " select * from ynt_qmcl where pk_corp = ? and period = ? and nvl(dr,0) = 0 ";
+//		sp.addParam(pk_corp);
+//		sp.addParam(qj.substring(0, 7));
+//		List<QmclVO> qmvos = (List<QmclVO>) singleObjectBO.executeQuery(sql,
+//				sp, new BeanListProcessor(QmclVO.class));
+		if (qmclvo != null) {
 			qmclvo.setIsgz(b);
-			singleObjectBO.updateAry(qmvos.toArray(new QmclVO[qmvos.size()]),
-					new String[] { "isgz" });
+			singleObjectBO.update(qmclvo,new String[] { "isgz" });
 		}
 
 	}

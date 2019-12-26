@@ -1714,9 +1714,15 @@ public class VoucherController {
             if (e instanceof BusinessException) {
                 if ("当月已结转损益，不能操作！".equals(e.getMessage())) {
                     json.setStatus(IVoucherConstants.STATUS_RECONFM_CODE);
+                    json.setMsg("当月已结转损益，不能操作！");
                 }
                 if ("生成凭证失败:借贷方金额不等！".equals(e.getMessage())) {
                     log.error("Export Error", e);
+                    json.setMsg("生成凭证失败:借贷方金额不等！");
+                }
+                if ("找不到对应模板！".equals(e.getMessage())) {
+                    log.error("Export Error", e);
+                    json.setMsg("找不到对应模板！");
                 }
             }
         }
