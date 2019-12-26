@@ -501,7 +501,9 @@ public class CrkMxServiceImpl implements ICrkMxService {
 					icvo.setJldw(bvo.getUnit());
 					icvo.setSpfl(bvo.getKmclassify());//商品分类
 					icvo.setSpgg(bvo.getSpec());//规格型号
-					icvo.setSpfl_name(cpamap.get(bvo.getKmclassify()).getAccountname());
+					if(cpamap.get(bvo.getKmclassify()) != null){
+						icvo.setSpfl_name(cpamap.get(bvo.getKmclassify()).getAccountname());
+					}
 					if(cpamap.containsKey(bvo.getKmclassify())){
 						spmcmap.put(icvo.getPk_sp(),new String[]{cpamap.get(bvo.getKmclassify()).getAccountcode(),bvo.getCode()});
 					}else{
