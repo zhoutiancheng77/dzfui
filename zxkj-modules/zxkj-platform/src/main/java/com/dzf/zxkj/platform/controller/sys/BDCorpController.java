@@ -8,6 +8,7 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.sys.IBDCorpService;
@@ -15,10 +16,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Set;
@@ -59,12 +57,12 @@ public class BDCorpController {
                         if (corp == null) {
                             statusMsg.append(corpVO.getUnitname()).append("不存在，或已被删除！<br>");
                             continue;
-                        }else if(kjflag){
+                        } else if (kjflag) {
                             if (!nnmnc.contains(pk_corp)) {
                                 statusMsg.append("没有").append(corpVO.getUnitname()).append("的权限<br>");
                                 continue;
                             }
-                        }else {
+                        } else {
                             if (!pk_corp.equals(corp.getFathercorp())) {
                                 statusMsg.append("没有").append(unitname).append("的权限<br>");
                                 continue;
@@ -106,9 +104,9 @@ public class BDCorpController {
         return ReturnData.ok().data(json);
     }
 
-    private Set<String> getKJPowerSet(boolean kjflag){
+    private Set<String> getKJPowerSet(boolean kjflag) {
         Set<String> nnmnc = null;
-        if(kjflag)
+        if (kjflag)
             nnmnc = userServiceImpl.querypowercorpSet(SystemUtil.getLoginUserId());
 
         return nnmnc;
@@ -140,12 +138,12 @@ public class BDCorpController {
                         if (corp == null) {
                             statusMsg.append(unitname).append("不存在，或已被删除！<br>");
                             continue;
-                        }else if(kjflag){
+                        } else if (kjflag) {
                             if (!nnmnc.contains(pk_corp)) {
                                 statusMsg.append("没有").append(corpVO.getUnitname()).append("的权限<br>");
                                 continue;
                             }
-                        }else {
+                        } else {
                             if (!pk_corp.equals(corp.getFathercorp())) {
                                 statusMsg.append("没有").append(unitname).append("的权限！<br>");
                                 continue;
@@ -210,15 +208,15 @@ public class BDCorpController {
                     CorpVO corp = sys_corpserv.queryByID(corpVO.getPk_corp());
                     if (corp == null) {
                         statusMsg.append(corpVO.getUnitname()).append("不存在，或已被删除！<br>");
-                    }else if(kjflag){
+                    } else if (kjflag) {
                         if (!nnmnc.contains(pk_corp)) {
                             statusMsg.append("没有").append(corpVO.getUnitname()).append("的权限<br>");
                             continue;
                         }
-                    }else if (!pk_corp.equals(corp.getFathercorp())) {
+                    } else if (!pk_corp.equals(corp.getFathercorp())) {
                         statusMsg.append("没有").append(corpVO.getUnitname()).append("的权限<br>");
                     }
-                    if(corpVO.getBusibegindate() == null){
+                    if (corpVO.getBusibegindate() == null) {
                         corpVO.setBusibegindate(new DZFDate(SystemUtil.getLoginDate()));
                     }
                     sys_corpserv.updateHflagSer(corpVO);
@@ -279,12 +277,12 @@ public class BDCorpController {
                         if (corp == null) {
                             statusMsg.append(unitname).append("不存在，或已被删除！<br>");
                             continue;
-                        }else if(kjflag){
+                        } else if (kjflag) {
                             if (!nnmnc.contains(pk_corp)) {
                                 statusMsg.append("没有").append(corpVO.getUnitname()).append("的权限<br>");
                                 continue;
                             }
-                        }else {
+                        } else {
                             if (!pk_corp.equals(corp.getFathercorp())) {
                                 statusMsg.append("没有").append(unitname).append("的权限！<br>");
                                 continue;
@@ -349,16 +347,16 @@ public class BDCorpController {
                         if (corp == null) {
                             statusMsg.append(unitname).append("不存在，或已被删除！<br>");
                             continue;
-                        }else if(kjflag){
+                        } else if (kjflag) {
                             if (!nnmnc.contains(pk_corp)) {
                                 statusMsg.append("没有").append(corpVO.getUnitname()).append("的权限<br>");
                                 continue;
                             }
-                        }else if (!pk_corp.equals(corp.getFathercorp())) {
+                        } else if (!pk_corp.equals(corp.getFathercorp())) {
                             statusMsg.append("没有").append(unitname).append("的权限<br>");
                             continue;
                         }
-                        if(corpVO.getIcbegindate() == null){
+                        if (corpVO.getIcbegindate() == null) {
                             corpVO.setIcbegindate(new DZFDate(SystemUtil.getLoginDate()));
                         }
                         sys_corpserv.updateBuildicSer(corpVO);
@@ -420,12 +418,12 @@ public class BDCorpController {
                         if (corp == null) {
                             statusMsg.append(unitname).append("不存在，或已被删除！<br>");
                             continue;
-                        }else if(kjflag){
+                        } else if (kjflag) {
                             if (!nnmnc.contains(pk_corp)) {
                                 statusMsg.append("没有").append(corpVO.getUnitname()).append("的权限<br>");
                                 continue;
                             }
-                        }else {
+                        } else {
                             if (!pk_corp.equals(corp.getFathercorp())) {
                                 statusMsg.append("没有").append(unitname).append("的权限！<br>");
                                 continue;
@@ -463,6 +461,31 @@ public class BDCorpController {
             json.setSuccess(false);
             json.setMsg("库存停用失败");
         }
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/getTaxWarningRate")
+    public ReturnData<Json> getTaxWarningRate(String corpId) {
+        Json json = new Json();
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
+        }
+        DZFDouble rate = sys_corpserv.getTaxWarningRate(corpId);
+        json.setData(rate);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/updateTaxWarningRate")
+    public ReturnData<Json> updateTaxWarningRate(@RequestBody Map<String, String> data) {
+        Json json = new Json();
+        String rate = data.get("rate");
+        String corpId = data.get("corpId");
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
+        }
+        sys_corpserv.updateTaxradio(corpId, rate);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 }
