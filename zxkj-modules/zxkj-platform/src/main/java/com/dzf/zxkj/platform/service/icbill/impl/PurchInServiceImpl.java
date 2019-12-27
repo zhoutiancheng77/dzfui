@@ -581,16 +581,15 @@ public class PurchInServiceImpl implements IPurchInService {
 			if (StringUtil.isEmpty(inventory)) {
 				strb.append("第" + (i + 1) + "行,存在存货为空的数据!\n");
 			}
-
 			// if (vo.getNnum() == null ||
 			// vo.getNnum().compareTo(DZFDouble.ZERO_DBL) == 0) {
 			// strb.append("第" + (i + 1) + "行,存在数量为空或零的数据!\n");
 			// }
-
-			if (vo.getNymny() == null || vo.getNymny().compareTo(DZFDouble.ZERO_DBL) == 0) {
-				strb.append("第" + (i + 1) + "行,存在金额为空或零的数据!\n");
+			if (headvo.getIszg() == null || !headvo.getIszg().booleanValue()) {
+				if (vo.getNymny() == null || vo.getNymny().compareTo(DZFDouble.ZERO_DBL) == 0) {
+					strb.append("第" + (i + 1) + "行,存在金额为空或零的数据!\n");
+				}
 			}
-
 		}
 	}
 
