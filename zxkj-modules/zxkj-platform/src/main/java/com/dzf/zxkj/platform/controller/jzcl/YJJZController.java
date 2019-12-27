@@ -454,8 +454,10 @@ public class YJJZController {
         if(corp == null){
             corp = corpService.queryByPk(qmvo.getPk_corp());
             unitname = CodeUtils1.deCode(corp.getUnitname());
+        }else{
+            unitname = corp.getUnitname();
         }
-        return "公司:"+unitname+"期间:"+qmvo.getPeriod()+"，";
+        return "公司:"+unitname+"，期间:"+qmvo.getPeriod()+"，";
     }
 
     private void onyjjzcancel(int index,QmclVO qmvo,CorpVO rpvo,YjjzReturnVO returnvo,StringBuffer sbf){
