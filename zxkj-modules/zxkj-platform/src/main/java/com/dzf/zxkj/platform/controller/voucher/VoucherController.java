@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.controller.voucher;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -1922,6 +1923,75 @@ public class VoucherController {
         }
         gl_pzglserv.saveColumnSetting(SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), setting);
         json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/queryHeadByPeriod")
+    public ReturnData queryHeadByPeriod(@RequestParam String period, String corpId) {
+        Json json = new Json();
+        if (StringUtils.isEmpty(corpId)) {
+            corpId = SystemUtil.getLoginCorpId();
+        }
+        List<TzpzHVO> list = gl_pzglserv.query(period, corpId);
+        json.setSuccess(true);
+        json.setRows(list);
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("/queryChildren")
+    public ReturnData queryChildren(@RequestParam String voucherId, @RequestParam String corpId) {
+        Json json = new Json();
+        List<TzpzBVO> list = gl_pzglserv.queryB(voucherId, corpId);
+        String curcode;
+        BdCurrencyVO cvo;
+        StringBuilder sb;
+        for (TzpzBVO bvo : list) {
+            curcode = bvo.getCur_code();
+            if (StringUtils.isEmpty(curcode)) {
+                curcode = bvo.getPk_currency();
+                if (StringUtils.isEmpty(curcode))
+                    curcode = IGlobalConstants.RMB_currency_id;
+                cvo = sys_currentserv.queryCurrencyVOByPk(curcode);
+                if (cvo != null)
+                    curcode = cvo.getCurrencycode();
+                else
+                    curcode = null;
+            }
+            String[] fzStr = getFzhsStr(bvo.getFzhs_list());
+            if (!"".equals(fzStr[1]))
+                bvo.setVcode(bvo.getVcode() + fzStr[0]);
+            sb = new StringBuilder();
+            sb.append(bvo.getVname() == null ? "未找到" : bvo.getVname()).append(fzStr[1])
+                    .append(bvo.getInvname() == null ? "" : "_" + bvo.getInvname())
+                    .append(curcode == null || curcode.equals("CNY") ? "" : "_" + curcode);
+            bvo.setVname(sb.toString());
+        }
+        json.setRows(list);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/manualSort")
+    public ReturnData manualSort(@RequestBody Map<String, String> data) {
+        Json json = new Json();
+        JSONArray array = JSONArray.parseArray(data.get("data"));
+        String corp = data.get("corpId");
+        if (!StringUtil.isEmpty(corp)) {
+            corp = SystemUtil.getLoginCorpId();
+        }
+        if (array != null && array.size() > 0) {
+            JSONObject obj = (JSONObject) array.get(0);
+            String qj = obj.getString("zdrq");
+            if (qmgzService.isGz(obj.getString("corpId"), qj)) {
+                throw new BusinessException("整理失败,该公司已关账不能凭证整理哦。");
+            }
+            gl_pzglserv.doVoucherOrder3(corp, array);
+            json.setSuccess(true);
+            json.setMsg("整理成功");
+        } else {
+            json.setSuccess(false);
+            json.setMsg("未选择凭证！");
+        }
         return ReturnData.ok().data(json);
     }
 }
