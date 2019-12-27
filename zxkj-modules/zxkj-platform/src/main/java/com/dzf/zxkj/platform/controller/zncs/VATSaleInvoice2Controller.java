@@ -1758,7 +1758,7 @@ public class VATSaleInvoice2Controller extends BaseController {
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock(paramvo.getTableName()+pk_corp);
-            if(lock){
+            if(!lock){
                 json.setSuccess(false);
                 json.setMsg("正在处理中，请稍候");
                 return ReturnData.ok().data(json);

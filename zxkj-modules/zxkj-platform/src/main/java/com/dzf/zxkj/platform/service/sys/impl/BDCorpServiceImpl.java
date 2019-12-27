@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.*;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.VOUtil;
@@ -3271,6 +3272,21 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		params.addParam(radio);
 		params.addParam(pk_corp);
 		singleObjectBO.executeUpdate(sql, params);
+	}
+
+	@Override
+	public DZFDouble getTaxWarningRate(String pk_corp) throws DZFWarpException {
+		String sql = "select hy.warning_rate from bd_corp corp " +
+				" left join ynt_bd_trade hy on corp.industry = hy.pk_trade " +
+				" where corp.pk_corp = ? and nvl(corp.dr,0)=0 ";
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(pk_corp);
+		BigDecimal rate = (BigDecimal) singleObjectBO.executeQuery(sql, sp, new ColumnProcessor());
+		if (rate != null) {
+			return new DZFDouble(rate);
+		} else {
+            return new DZFDouble(1);
+		}
 	}
 	
 	@Override

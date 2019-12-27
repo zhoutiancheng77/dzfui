@@ -1438,6 +1438,7 @@ public class VATInComInvoice2Controller extends BaseController {
             if(!lock){//处理
                 json.setSuccess(false);
                 json.setMsg("正在处理中，请稍候");
+                redissonDistributedLock.releaseDistributedFairLock(paramvo.getTableName()+pk_corp);
                 return ReturnData.error().data(json);
             }
             if(StringUtils.isEmpty(begindate3)||StringUtils.isEmpty(enddate3)){

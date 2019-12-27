@@ -230,7 +230,7 @@ public class VatUtil {
 			if (CommonXml.endes.equals(encry)) {// 3des加密、解密
 				byte[] jm = CommonXml.decrypt3DES(CommonXml.appSecret, bytes);
 				strs = new String(jm, "UTF-8");
-				log.info("认证平台返回"+strs);
+//				log.info("认证平台返回"+strs);
 			} else if (CommonXml.enca.equals(encry)) {
 
 			}
