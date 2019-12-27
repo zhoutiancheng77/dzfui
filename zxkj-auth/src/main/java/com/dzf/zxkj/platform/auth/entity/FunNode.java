@@ -19,7 +19,7 @@ public class FunNode {
     private String pk_funnode;
     @TableField("fun_name")
     private String name;
-    @TableField("nodeurl")
+    @TableField("server_url")
     private String nodeurl;
     @JsonIgnore
     private String dr;
