@@ -1240,8 +1240,14 @@ public class PurchInServiceImpl implements IPurchInService {
 				column2 = column1;
 				nmny = SafeCompute.add((DZFDouble) ibody.getAttributeValue(column2), nmny);
 			}
-			// 金额为零的 不记录凭证行
-			if (nmny.compareTo(DZFDouble.ZERO_DBL) != 0) {
+			if (ivo.getVdef15() == null || !ivo.getVdef15().booleanValue() || vdirect==1) {
+				// 金额为零的 不记录凭证行
+				if (nmny.compareTo(DZFDouble.ZERO_DBL) != 0) {
+					TzpzBVO bvo = createSingleTzpzBVO(cvo, zy, ivo, vdirect, nmny, ibody, corp, iprice);
+					bvo.setRowno(rowno);
+					list.add(bvo);
+				}
+			} else {
 				TzpzBVO bvo = createSingleTzpzBVO(cvo, zy, ivo, vdirect, nmny, ibody, corp, iprice);
 				bvo.setRowno(rowno);
 				list.add(bvo);

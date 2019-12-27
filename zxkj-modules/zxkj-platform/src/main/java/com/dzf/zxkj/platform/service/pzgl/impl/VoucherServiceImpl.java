@@ -1726,7 +1726,7 @@ public class VoucherServiceImpl implements IVoucherService {
 				}
 
 				if(!IBillTypeCode.HP32.equals(hvo.getSourcebilltype())//损益结转的凭证，金额为零也让过 
-						&& !IBillTypeCode.HP34.equals(hvo.getSourcebilltype())){//成本的凭证，金额为零也让过 
+						&& !IBillTypeCode.HP34.equals(hvo.getSourcebilltype())&& !IBillTypeCode.HP70.equals(hvo.getSourcebilltype())){//成本的凭证，金额为零也让过
 					if (hvo.getVbillstatus() == null || hvo.getVbillstatus().intValue() != IVoucherConstants.TEMPORARY) {
 						if (jfmny.doubleValue() == 0 && dfmny.doubleValue() == 0) {
 							// 为零
