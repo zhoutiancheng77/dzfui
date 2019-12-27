@@ -190,7 +190,31 @@ public class AssetcardVO extends SuperVO {
 	@JsonProperty("jsfzhs10")
 	private String jsfzhsx10;// 辅助核算自定义4
 	//------------结算科目辅助核算
-	
+
+
+	//---折旧费用辅助核算
+	@JsonProperty("zjfyfzhs1")
+	private String zjfyfzhsx1;// 辅助核算客户
+	@JsonProperty("zjfyfzhs2")
+	private String zjfyfzhsx2;// 辅助核算供应商
+	@JsonProperty("zjfyfzhs3")
+	private String zjfyfzhsx3;// 辅助核算职员
+	@JsonProperty("zjfyfzhs4")
+	private String zjfyfzhsx4;// 辅助核算供项目
+	@JsonProperty("zjfyfzhs5")
+	private String zjfyfzhsx5;// 辅助核算部门
+	@JsonProperty("zjfyfzhs6")
+	private String zjfyfzhsx6;// 辅助核算存货
+	@JsonProperty("zjfyfzhs7")
+	private String zjfyfzhsx7;// 辅助核算自定义1
+	@JsonProperty("zjfyfzhs8")
+	private String zjfyfzhsx8;// 辅助核算自定义2
+	@JsonProperty("zjfyfzhs9")
+	private String zjfyfzhsx9;// 辅助核算自定义3
+	@JsonProperty("zjfyfzhs10")
+	private String zjfyfzhsx10;// 辅助核算自定义4
+	//------------折旧费用科目辅助核算
+
 	private String jskm;
 	private String jskmcode;
 	@JsonProperty("jtzjkm_id")
@@ -409,6 +433,87 @@ public class AssetcardVO extends SuperVO {
 	public void setNjxsf(DZFDouble njxsf) {
 		this.njxsf = njxsf;
 	}
+
+	public String getZjfyfzhsx1() {
+		return zjfyfzhsx1;
+	}
+
+	public void setZjfyfzhsx1(String zjfyfzhsx1) {
+		this.zjfyfzhsx1 = zjfyfzhsx1;
+	}
+
+	public String getZjfyfzhsx2() {
+		return zjfyfzhsx2;
+	}
+
+	public void setZjfyfzhsx2(String zjfyfzhsx2) {
+		this.zjfyfzhsx2 = zjfyfzhsx2;
+	}
+
+	public String getZjfyfzhsx3() {
+		return zjfyfzhsx3;
+	}
+
+	public void setZjfyfzhsx3(String zjfyfzhsx3) {
+		this.zjfyfzhsx3 = zjfyfzhsx3;
+	}
+
+	public String getZjfyfzhsx4() {
+		return zjfyfzhsx4;
+	}
+
+	public void setZjfyfzhsx4(String zjfyfzhsx4) {
+		this.zjfyfzhsx4 = zjfyfzhsx4;
+	}
+
+	public String getZjfyfzhsx5() {
+		return zjfyfzhsx5;
+	}
+
+	public void setZjfyfzhsx5(String zjfyfzhsx5) {
+		this.zjfyfzhsx5 = zjfyfzhsx5;
+	}
+
+	public String getZjfyfzhsx6() {
+		return zjfyfzhsx6;
+	}
+
+	public void setZjfyfzhsx6(String zjfyfzhsx6) {
+		this.zjfyfzhsx6 = zjfyfzhsx6;
+	}
+
+	public String getZjfyfzhsx7() {
+		return zjfyfzhsx7;
+	}
+
+	public void setZjfyfzhsx7(String zjfyfzhsx7) {
+		this.zjfyfzhsx7 = zjfyfzhsx7;
+	}
+
+	public String getZjfyfzhsx8() {
+		return zjfyfzhsx8;
+	}
+
+	public void setZjfyfzhsx8(String zjfyfzhsx8) {
+		this.zjfyfzhsx8 = zjfyfzhsx8;
+	}
+
+	public String getZjfyfzhsx9() {
+		return zjfyfzhsx9;
+	}
+
+	public void setZjfyfzhsx9(String zjfyfzhsx9) {
+		this.zjfyfzhsx9 = zjfyfzhsx9;
+	}
+
+	public String getZjfyfzhsx10() {
+		return zjfyfzhsx10;
+	}
+
+	public void setZjfyfzhsx10(String zjfyfzhsx10) {
+		this.zjfyfzhsx10 = zjfyfzhsx10;
+	}
+
 	/**
 	 * 属性pk_corp的Getter方法.
 	 * 创建日期:2014-11-01 16:41:33

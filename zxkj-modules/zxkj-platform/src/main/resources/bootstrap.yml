@@ -4,15 +4,10 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: @dzf.mvn.nacos.config.server-addr@
-        namespace: @dzf.mvn.nacos.config.namespace@
+        server-addr: localhost:8848
         file-extension: yaml
         group: dzf-zxkj
-        prefix: ${spring.application.name}
     zookeeper:
       enabled: false
     consul:
       enabled: false
-eureka:
-  client:
-    enabled: false
