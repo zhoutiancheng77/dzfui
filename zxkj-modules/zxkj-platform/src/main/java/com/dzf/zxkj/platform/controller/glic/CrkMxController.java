@@ -63,9 +63,6 @@ public class CrkMxController extends GlicReportController{
         Map<String, List<IcDetailVO>> result = null;
         result = gl_rep_crkmxserv.queryMx(queryParamvo, SystemUtil.getLoginCorpVo());
 
-        if(result == null || result.size() == 0){
-            throw new BusinessException("查询数据为空");
-        }
         List<IcDetailFzVO> listsps = createRightTree(result,currsp);
         //将查询后的数据分页展示
         List<IcDetailVO> list = getPagedMXZVos(listsps, result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);

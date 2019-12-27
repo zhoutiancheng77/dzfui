@@ -121,7 +121,7 @@ public class CrkMxServiceImpl implements ICrkMxService {
 		
 		
 		if(map == null || map.size() == 0){
-			return null;
+			return map;
 		}
 		
 		Map<String, List<IcDetailVO>> sortMap = new TreeMap<String, List<IcDetailVO>>(new Comparator<String>() {

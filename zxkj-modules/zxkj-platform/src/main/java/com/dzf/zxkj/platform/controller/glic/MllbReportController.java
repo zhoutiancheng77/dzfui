@@ -1,6 +1,5 @@
 package com.dzf.zxkj.platform.controller.glic;
 
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
@@ -60,9 +59,6 @@ public class MllbReportController  extends GlicReportController{
         checkPowerDate(queryParamvo);
         List<MllDetailVO> result  = iMllbReport.queryMllMx(queryParamvo,SystemUtil.getLoginCorpVo(),queryParamvo.getPk_inventory());
 
-        if(result == null || result.size() == 0){
-            throw new BusinessException("查询数据为空");
-        }
         String currsp =  param.get("currsp");
         List<IcDetailFzVO> listsps = createRightTree(result,currsp);
         //将查询后的数据分页展示
