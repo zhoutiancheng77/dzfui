@@ -266,7 +266,7 @@ public class CheckInventorySet {
 		if(list == null || list.size() ==0)
 			return "";
 		StringBuffer sf = new StringBuffer();
-		sf.append("[");
+		sf.append("[ ");
 		for(int i=0;i<list.size();i++){
 			if(i>3){
 				sf.append(" ...");
@@ -279,7 +279,7 @@ public class CheckInventorySet {
 				}
 			}
 		}
-		sf.append("]");
+		sf.append(" ]");
 		return sf.toString();
 	}
 	
