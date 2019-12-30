@@ -165,6 +165,7 @@ public class ZtszServiceImpl implements IZtszService {
 					list.add(vo);
 				}
 			}else{
+				setCorpTaxDefaultValue(vo);
 				list.add(vo);
 			}
 

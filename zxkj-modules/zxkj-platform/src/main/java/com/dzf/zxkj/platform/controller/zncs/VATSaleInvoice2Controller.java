@@ -1748,12 +1748,15 @@ public class VATSaleInvoice2Controller extends BaseController {
     }
 
     @RequestMapping("/onTicket")
-    public ReturnData<Json> onTicket( String ccrecode, String f2, String period){
+    public ReturnData<Json> onTicket(@RequestBody Map<String,String> param){
         Json json = new Json();
         VATSaleInvoiceVO2 paramvo = new VATSaleInvoiceVO2();
         String pk_corp = null;
         boolean lock = false;
         try{
+            String ccrecode = param.get("ccrecode");
+            String f2 = param.get("f2");
+            String period = param.get("period");
             paramvo.setKprj(new DZFDate(SystemUtil.getLoginDate()));//参数：当前登录时间
             pk_corp = SystemUtil.getLoginCorpId();
             //加锁

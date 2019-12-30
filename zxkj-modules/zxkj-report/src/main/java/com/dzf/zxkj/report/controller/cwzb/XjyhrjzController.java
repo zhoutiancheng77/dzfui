@@ -150,7 +150,7 @@ public class XjyhrjzController extends ReportBaseController {
         xsz.setQj(qj);
         xsz.setCreator(userVO.getUser_name());
         xsz.setCorpName(gs);
-        xsz.setCurrencyname(new ReportUtil().getCurrencyByPk(pk_currency));
+        xsz.setCurrencyname(new ReportUtil(zxkjPlatformService).getCurrencyByPk(pk_currency));
 
         baseExcelExport(response,lxs,xsz);
 
