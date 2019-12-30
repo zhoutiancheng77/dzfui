@@ -204,7 +204,7 @@ public class KmzzController extends ReportBaseController {
             if (bodyvos != null && bodyvos.length > 0) {
                 tmap.put("公司", printParamVO.getCorpName());
                 tmap.put("期间", printParamVO.getTitleperiod());
-                tmap.put("单位", new ReportUtil().getCurrencyByPk(queryparamvo.getPk_currency()));
+                tmap.put("单位", new ReportUtil(zxkjPlatformService).getCurrencyByPk(queryparamvo.getPk_currency()));
             }
             printReporUtil.setLineheight(StringUtil.isEmpty(lineHeight) ? 22f : Float.parseFloat(lineHeight));
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体

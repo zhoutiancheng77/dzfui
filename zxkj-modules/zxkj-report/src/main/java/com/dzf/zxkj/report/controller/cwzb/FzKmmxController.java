@@ -139,7 +139,7 @@ public class FzKmmxController extends ReportBaseController {
         Excelexport2003<FzKmmxVO> lxs = new Excelexport2003<FzKmmxVO>();
         FzmxMuiltSheetExcelField zcfz = getExcelField(listVo, gs, qj,excelExportVO.getIsPaging(),userVO);
         zcfz.setPk_currency(queryparamvo.getPk_currency());
-        zcfz.setCurrencyname(new ReportUtil().getCurrencyByPk(queryparamvo.getPk_currency()));
+        zcfz.setCurrencyname(new ReportUtil(zxkjPlatformService).getCurrencyByPk(queryparamvo.getPk_currency()));
         baseExcelExport(response,lxs,zcfz);
 
         writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
