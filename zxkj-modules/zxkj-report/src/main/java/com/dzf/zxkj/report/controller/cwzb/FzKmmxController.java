@@ -57,6 +57,7 @@ public class FzKmmxController extends ReportBaseController {
             checkPowerDate(queryparamvo,corpVO);
             Object[] objs = gl_rep_fzkmmxjrptserv.getFzkmmxVos(queryparamvo, DZFBoolean.FALSE);
             List<FzKmmxVO> rsfzvos = (List<FzKmmxVO>) objs[0];
+            formaterFzmxvo(rsfzvos, queryparamvo.getPk_corp());
             List<FzKmmxVO> fzkmms = (objs[1] == null)? new ArrayList<FzKmmxVO>() :(List<FzKmmxVO>) objs[1];
             if (fzkmms.size() > 0) {
                 FzKmmxVO allfzkm = new FzKmmxVO();
@@ -102,6 +103,17 @@ public class FzKmmxController extends ReportBaseController {
         }
     }
 
+
+    private void formaterFzmxvo(List<FzKmmxVO> rsfzvos, String pk_corp) {
+        if  (rsfzvos!= null && rsfzvos.size() > 0) {
+            Integer hljd =  new ReportUtil(zxkjPlatformService).getHlJd(pk_corp);
+            for (FzKmmxVO mxzvo: rsfzvos) {
+                if(!StringUtil.isEmpty(mxzvo.getBz()) && !StringUtil.isEmpty(mxzvo.getHl())){
+                    mxzvo.setBz(mxzvo.getBz()+"/"+new DZFDouble(mxzvo.getHl()).setScale(hljd, DZFDouble.ROUND_HALF_UP).toString());
+                }
+            }
+        }
+    }
     /**
      * 导出Excel
      */

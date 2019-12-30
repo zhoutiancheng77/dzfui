@@ -1074,7 +1074,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		QmGzBgVo vo1 = new QmGzBgVo();
 		vo1.setIssuccess(new DZFBoolean(fzyeData.isEmpty()));
 		vo1.setVmemo("通过");
-		vo1.setName("往来挂账混乱"+ StringUtils.join(wlList,","));
+//		vo1.setName("往来挂账混乱"+ StringUtils.join(wlList,","));
 		try {
 			if(!vo1.getIssuccess().booleanValue()){
 				StringBuilder sb = new StringBuilder();
@@ -1096,6 +1096,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 				vo1.setVmemo("存在挂账混乱的往来"+fzyeData.size()+"家未通过");
 			}
 			vo1.setXm("往来挂账混乱");
+			vo1.setName("辅助余额表");
+			vo1.setUrl("auxiliary-balance-report");
+			vo1.setParamstr(JsonUtils.serialize(map));
 		} catch (DAOException e) {
 			handleError(vo1, e);
 		}
@@ -1567,6 +1570,8 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		parammap.put("serdate","serDay");
 		parammap.put("pzbegdate",DateUtils.getPeriodStartDate(period));
 		parammap.put("pzenddate",DateUtils.getPeriodEndDate(period));
+		parammap.put("beginPeriod", period);
+		parammap.put("endPeriod", period);
 		bgvo.setParamstr(JsonUtils.serialize(parammap));
 //		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo)+"&pz_status=11&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
 		bgvo.setName("凭证管理");
@@ -2133,6 +2138,8 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		parammap.put("serdate","serDay");
 		parammap.put("pzbegdate",DateUtils.getPeriodStartDate(period));
 		parammap.put("pzenddate",DateUtils.getPeriodEndDate(period));
+		parammap.put("beginPeriod", period);
+		parammap.put("endPeriod", period);
 		bgvo.setParamstr(JsonUtils.serialize(parammap));
 		bgvo.setUrl("voucher-manage");
 //		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo)+"&pz_status=-1&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
@@ -2178,6 +2185,8 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		parammap.put("serdate", "serDay");
 		parammap.put("pzbegdate", DateUtils.getPeriodStartDate(period));
 		parammap.put("pzenddate", DateUtils.getPeriodEndDate(period));
+		parammap.put("beginPeriod", period);
+		parammap.put("endPeriod", period);
 //		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo,parammap)+"&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
 		bgvo.setParamstr(JsonUtils.serialize(parammap));
 		bgvo.setName("凭证管理");
