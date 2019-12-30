@@ -16,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -239,7 +241,7 @@ public class TaxDeclarationController {
      * 批量填写
      */
     @PostMapping("/batWrite")
-    public ReturnData<Json> batWrite(@RequestBody Map<String, String> param){
+    public ReturnData<Json> batWrite(@RequestBody Map<String, String> param, HttpServletRequest request){
         Json json = new Json();
         try {
             String pk_corp = param.get("pk_corp");
@@ -249,9 +251,9 @@ public class TaxDeclarationController {
                 throw new BusinessException("当前操作人，不包含该公司权限");
             }
             //获取cookie
-//            Cookie[] cookies  = getRequest().getCookies();
+            Cookie[] cookies  = request.getCookies();
             String info = taxDeclarationService.saveBatWriteInfo(pk_corp,
-                    SystemUtil.getLoginUserVo(), SystemUtil.getLoginDate(), null);
+                    SystemUtil.getLoginUserVo(), SystemUtil.getLoginDate(), cookies);
             json.setStatus(200);
             json.setSuccess(true);
             if(StringUtil.isEmpty(info)){
