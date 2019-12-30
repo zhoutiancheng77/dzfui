@@ -47,6 +47,10 @@ public class LoginServiceImpl implements ILoginService {
         try {
             UserVO userVO = getRemoteLoginUser(username, password);
             if (userVO != null) {
+                if(StringUtils.isBlank(userVO.getPlatformUserId())){
+                    LoginUser loginUser = queryLoginUser(username);
+                    userVO.setPlatformUserId(loginUser.getUserid());
+                }
                 return transfer(userVO);
             }
         } catch (Exception e) {
