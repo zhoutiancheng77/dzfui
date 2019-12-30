@@ -1102,9 +1102,8 @@ public class VoucherController {
         Json json = new Json();
         data = gl_tzpzserv.queryVoucherById(data.getPk_tzpz_h());
 
-        data.setIsqxsy(DZFBoolean.TRUE);
-
         if (data != null) {
+            data.setIsqxsy(DZFBoolean.TRUE);
             try {
                 gl_tzpzserv.deleteVoucher(data);
                 json.setMsg("删除成功");
@@ -1120,6 +1119,8 @@ public class VoucherController {
                     json.setStatus(IVoucherConstants.STATUS_RECONFM_CODE);
                 }
             }
+        } else {
+            throw new BusinessException("凭证不存在, 请检查");
         }
         return ReturnData.ok().data(json);
     }
