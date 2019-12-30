@@ -128,13 +128,15 @@ public class PermissionFilter implements GlobalFilter, Ordered {
                 return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_INVALID_CODE, response);
             }
 
-            //权限校验
-            Set<String> allPermissions = authService.getAllPermission();
-            Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
-
-            if (allPermissions.contains(path) && !myPermisssions.contains(path)) {
-                return reponse(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
-            }
+//            //权限校验
+//            Set<String> allPermissions = authService.getAllPermission();
+//            Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
+//
+//            String serverPath = path.replace("/api","");
+//
+//            if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
+//                return reponse(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, response);
+//            }
 
             return chain.filter(exchange);
         });
