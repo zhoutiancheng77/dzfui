@@ -371,18 +371,6 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		VATSaleInvoiceVO2[] updvos = sendData.get("upddocvos");
 		List<VATSaleInvoiceVO2> list = new ArrayList<VATSaleInvoiceVO2>();
 
-
-		SQLParameter params = new SQLParameter();
-		params.addParam(pk_corp);
-		params.addParam(addvos!=null && addvos.length>0 ? addvos[0].getInperiod() : updvos[0].getInperiod());
-
-		BillCategoryVO[] categoryvos = (BillCategoryVO[])singleObjectBO.queryByCondition(BillCategoryVO.class, "pk_corp=? and period=? and nvl(dr,0)=0 and isaccount = 'N'", params);
-		Map<String, BillCategoryVO> mapcategory = new HashMap<String, BillCategoryVO>();
-		for (BillCategoryVO vo : categoryvos)
-		{
-			mapcategory.put(vo.getPrimaryKey(), vo);
-		}
-
 		//新增修改的合在一起
 		if(addvos!=null && addvos.length>0){
 			for (VATSaleInvoiceVO2 VATSaleInvoiceVO2 : addvos) {
@@ -390,7 +378,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				//查询业务类型所属期间是否是入账期间
 				if (StringUtil.isEmpty(VATSaleInvoiceVO2.getPk_model_h()) == false)
 				{
-					BillCategoryVO categoryvo = mapcategory.get(VATSaleInvoiceVO2.getPk_model_h());//(BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, VATSaleInvoiceVO2.getPk_model_h());
+					BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, VATSaleInvoiceVO2.getPk_model_h());
 					if (categoryvo == null)
 					{
 						throw new BusinessException("业务类型不正确，请重新选择");
@@ -411,9 +399,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					for (int i = 0; i < bvos.length; i++) {
 
 						VATSaleInvoiceBVO2 bvo = bvos[i];
-						if (StringUtil.isEmptyWithTrim(bvo.getPk_billcategory()) == false && mapcategory.containsKey(bvo.getPk_billcategory()) == false)
+						if (StringUtil.isEmptyWithTrim(bvo.getPk_billcategory()) == false)
 						{
-							throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
+							BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class,bvo.getPk_billcategory());
+							if(categoryvo==null||(VATSaleInvoiceVO2.getInperiod().equals(categoryvo.getPeriod())&&pk_corp.equals(categoryvo.getPk_corp()))){
+								throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
+							}
 						}
 
 						//录入表体业务类型后保存，表头取表体第一行业务类型
@@ -443,7 +434,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				//查询业务类型所属期间是否是入账期间
 				if (StringUtil.isEmpty(VATSaleInvoiceVO2.getPk_model_h()) == false)
 				{
-					BillCategoryVO categoryvo = mapcategory.get(VATSaleInvoiceVO2.getPk_model_h());// (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, VATSaleInvoiceVO2.getPk_model_h());
+					BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, VATSaleInvoiceVO2.getPk_model_h());
 					if (categoryvo == null)
 					{
 						throw new BusinessException("业务类型不正确，请重新设置");
@@ -470,9 +461,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					for (int i = 0; i < VATSaleInvoiceVO2.getChildren().length; i++)
 					{
 						VATSaleInvoiceBVO2 bvo = (VATSaleInvoiceBVO2)VATSaleInvoiceVO2.getChildren()[i];
-						if (StringUtil.isEmpty(bvo.getPk_billcategory()) == false && mapcategory.containsKey(bvo.getPk_billcategory()) == false)
+						if (StringUtil.isEmpty(bvo.getPk_billcategory()) == false)
 						{
-							throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
+							BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class,bvo.getPk_billcategory());
+							if(categoryvo==null||(VATSaleInvoiceVO2.getInperiod().equals(categoryvo.getPeriod())&&pk_corp.equals(categoryvo.getPk_corp()))){
+								throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
+							}
 						}
 					}
 				}

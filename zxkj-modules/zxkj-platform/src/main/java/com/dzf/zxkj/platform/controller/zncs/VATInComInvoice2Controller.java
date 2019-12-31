@@ -1436,10 +1436,10 @@ public class VATInComInvoice2Controller extends BaseController {
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock(paramvo.getTableName()+pk_corp);
             if(!lock){//处理
-                json.setSuccess(false);
+                json.setSuccess(true);
                 json.setMsg("正在处理中，请稍候");
                 redissonDistributedLock.releaseDistributedFairLock(paramvo.getTableName()+pk_corp);
-                return ReturnData.error().data(json);
+                return ReturnData.ok().data(json);
             }
             if(StringUtils.isEmpty(begindate3)||StringUtils.isEmpty(enddate3)){
                 throw new BusinessException("开票日期不能为空！");
