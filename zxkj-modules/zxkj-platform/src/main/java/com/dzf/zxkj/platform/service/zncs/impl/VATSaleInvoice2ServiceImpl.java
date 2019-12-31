@@ -402,7 +402,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						if (StringUtil.isEmptyWithTrim(bvo.getPk_billcategory()) == false)
 						{
 							BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class,bvo.getPk_billcategory());
-							if(categoryvo==null||(VATSaleInvoiceVO2.getInperiod().equals(categoryvo.getPeriod())&&pk_corp.equals(categoryvo.getPk_corp()))){
+							if(categoryvo==null||!VATSaleInvoiceVO2.getInperiod().equals(categoryvo.getPeriod())||!pk_corp.equals(categoryvo.getPk_corp())){
 								throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
 							}
 						}
@@ -464,7 +464,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						if (StringUtil.isEmpty(bvo.getPk_billcategory()) == false)
 						{
 							BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class,bvo.getPk_billcategory());
-							if(categoryvo==null||(VATSaleInvoiceVO2.getInperiod().equals(categoryvo.getPeriod())&&pk_corp.equals(categoryvo.getPk_corp()))){
+							if(categoryvo==null||!VATSaleInvoiceVO2.getInperiod().equals(categoryvo.getPeriod())||!pk_corp.equals(categoryvo.getPk_corp())){
 								throw new BusinessException("第 " + (i + 1) + " 行业务类型不正确，请重新选择");
 							}
 						}
