@@ -31,10 +31,7 @@ import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -396,8 +393,10 @@ public class QmgzController  extends PrintAndExcelExportController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(String corpName, String period, PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+    public void printAction(String corpName, String period, @RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO,
+                            @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
+            PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             QmclVO[] bodyvos =JsonUtils.deserialize(printParamVO.getList(),QmclVO[].class) ;
