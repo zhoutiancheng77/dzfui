@@ -100,7 +100,7 @@ public class PermissionFilter implements GlobalFilter, Ordered {
             String clientId = authInfo.get(ISysConstant.CLIENT_ID);
 
             //判断是否唯一登录
-            if (authService.validateMultipleLogin(useridFormToken, clientId)) {
+            if (!StringUtils.isBlank(clientId) && authService.validateMultipleLogin(useridFormToken, clientId)) {
                 return reponse(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, response);
             }
 
