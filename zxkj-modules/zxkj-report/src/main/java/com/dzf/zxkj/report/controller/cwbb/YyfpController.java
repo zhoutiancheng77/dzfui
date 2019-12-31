@@ -26,10 +26,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -89,17 +86,18 @@ public class YyfpController extends ReportBaseController {
     }
 
     @PostMapping("print/pdf")
-    public void print(String corpName, String period, PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
+    public void print(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
 
         try {
+            PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             YyFpVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(), YyFpVO[].class);
             ColumnCellAttr[] columncellattrvos = YyFpPdfField.getColumnCellList();
             //初始化表头
             Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存前台传来的设置参数
-            tmap.put("公司", corpName);
-            tmap.put("期间", period);
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getPeriod());
             tmap.put("单位", "元");
 
             printReporUtil.setIscross(DZFBoolean.FALSE);//是否横向

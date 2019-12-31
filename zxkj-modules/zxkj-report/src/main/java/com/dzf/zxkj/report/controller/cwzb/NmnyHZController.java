@@ -140,9 +140,10 @@ public class NmnyHZController extends ReportBaseController {
     }
 
     @PostMapping("print/pdf")
-    public void print(@MultiRequestBody PrintParamVO printParamVO,
+    public void print(@RequestParam Map<String, String> pmap1,
                       @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
+            PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> params = printReporUtil.getPrintMap(printParamVO);
             String strlist = params.get("list");

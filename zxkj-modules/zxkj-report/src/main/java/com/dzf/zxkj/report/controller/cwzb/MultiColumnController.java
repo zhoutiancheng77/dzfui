@@ -2,12 +2,12 @@ package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.ReportPrintParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -290,9 +290,12 @@ public class MultiColumnController extends ReportBaseController {
     }
 
     @PostMapping("print/pdf")
-    public void print(@MultiRequestBody ReportPrintParamVO printParamVO, @MultiRequestBody MultiColumnPdfField columnPdfField, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void print(@RequestParam Map<String, String> pmap1, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         try {
+            ReportPrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), ReportPrintParamVO.class);
+            MultiColumnPdfField columnPdfField = JsonUtils.deserialize(JsonUtils.serialize(pmap1), MultiColumnPdfField.class);
+
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
 
             Map<String, String> pmap = new HashMap<String, String>();

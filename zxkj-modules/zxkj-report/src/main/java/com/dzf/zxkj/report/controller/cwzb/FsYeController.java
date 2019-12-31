@@ -35,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -550,15 +551,17 @@ public class FsYeController  extends ReportBaseController {
     }
 
     @PostMapping("print/pdf")
-    public void printAction(@MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+    public void printAction(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+
+        PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
+        KmReoprtQueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);
+
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             /** 是否横向 */
             printReporUtil.setIscross(DZFBoolean.TRUE);
             FseJyeVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(), FseJyeVO[].class);
-//            FseJyeVO[] bodyvos = gl_rep_fsyebserv.getFsJyeVOs(queryparamvo,1);
-//            bodyvos = getTotalRow(bodyvos,false);
             putFsyeOnKmlb(bodyvos);
             /** 声明一个map用来存title */
             Map<String, String> tmap = new LinkedHashMap<String, String>();

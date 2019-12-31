@@ -136,10 +136,11 @@ public class KmhzReportController extends ReportBaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(@MultiRequestBody PrintParamVO printParamVO,
-                            @MultiRequestBody SubjectCollectGrid collVO,
+    public void printAction(@RequestParam Map<String, String> pmap1,
                             @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
+            PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
+            SubjectCollectGrid collVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), SubjectCollectGrid.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> params = printReporUtil.getPrintMap(printParamVO);
 

@@ -1,13 +1,13 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.common.constant.ISysConstants;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
-import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.excel.util.Excelexport2003;
@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +50,7 @@ public class SrzcController extends ReportBaseController {
     public ReturnData queryAction(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
 
         Grid grid = new Grid();
-        QueryParamVO queryParamvo = getQueryParamVO(queryvo,corpVO);
+        QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
             String begindate = queryParamvo.getBegindate1().toString()
                     .substring(0, 7);
@@ -66,7 +67,7 @@ public class SrzcController extends ReportBaseController {
             queryParamvo.setXswyewfs(DZFBoolean.FALSE);
 
             //开始日期应该在建账日期前
-            checkPowerDate(queryParamvo,corpVO);
+            checkPowerDate(queryParamvo, corpVO);
 
             SrzcBVO[] ywvos = gl_rep_srzcserv.queryVos(queryParamvo);
 
@@ -90,10 +91,10 @@ public class SrzcController extends ReportBaseController {
 
     //导出Excel
     @PostMapping("export/excel")
-    public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
-        SrzcBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(),SrzcBVO[].class);//
-        String gs=  excelExportVO.getCorpName();
-        String qj=  excelExportVO.getTitleperiod();
+    public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        SrzcBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), SrzcBVO[].class);//
+        String gs = excelExportVO.getCorpName();
+        String qj = excelExportVO.getTitleperiod();
 
         Excelexport2003<SrzcBVO> lxs = new Excelexport2003<SrzcBVO>();
         SrzcExcelField field = new SrzcExcelField();
@@ -102,7 +103,7 @@ public class SrzcController extends ReportBaseController {
         field.setCreator(userVO.getUser_name());
         field.setCorpName(gs);
 
-        baseExcelExport(response,lxs,field);
+        baseExcelExport(response, lxs, field);
 
     }
 
@@ -110,26 +111,29 @@ public class SrzcController extends ReportBaseController {
      * 打印操作
      */
     @PostMapping("print/pdf")
-    public void printAction(@MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody QueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+    public void printAction(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
+
+            PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
+            QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();
-            if(strlist==null){
+            if (strlist == null) {
                 return;
             }
             SrzcBVO[] bodyvos = JsonUtils.deserialize(strlist, SrzcBVO[].class);
-            Map<String,String> tmap=new LinkedHashMap<String,String>();//声明一个map用来存前台传来的设置参数
-            tmap.put("公司",  printParamVO.getCorpName());
-            tmap.put("期间",  printParamVO.getTitleperiod());
-            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(),bodyvos,"收 入 支 出 表",
-                    new String[]{"xm","monnum","yearnum"},
-                    new String[]{"项目","本月数","本年累计数"},
-                    new int[]{5,2,2},20,pmap,tmap);
+            Map<String, String> tmap = new LinkedHashMap<String, String>();//声明一个map用来存前台传来的设置参数
+            tmap.put("公司", printParamVO.getCorpName());
+            tmap.put("期间", printParamVO.getTitleperiod());
+            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "收 入 支 出 表",
+                    new String[]{"xm", "monnum", "yearnum"},
+                    new String[]{"项目", "本月数", "本年累计数"},
+                    new int[]{5, 2, 2}, 20, pmap, tmap);
         } catch (DocumentException e) {
-            log.error("打印错误",e);
+            log.error("打印错误", e);
         } catch (IOException e) {
-            log.error("打印错误",e);
+            log.error("打印错误", e);
         }
     }
 }
