@@ -12,10 +12,10 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class AuthCache {
 
-    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
+    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
     private Cache<String, LoginUser> platformUserCache;
 
-    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.REMOTE, expire = 1, timeUnit = TimeUnit.HOURS)
+    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
     private Cache<String, String> platformUserOnlineCache;
 
     public LoginUser getLoginUser(String userid){
