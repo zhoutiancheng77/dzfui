@@ -470,7 +470,14 @@ public class BDCorpController {
         if (StringUtils.isEmpty(corpId)) {
             corpId = SystemUtil.getLoginCorpId();
         }
-        DZFDouble rate = sys_corpserv.getTaxWarningRate(corpId);
+        CorpVO corp = sys_corpserv.queryByID(corpId);
+        DZFDouble rate;
+        String rateStr = corp.getDef19();
+        if (StringUtils.isEmpty(rateStr)) {
+            rate = sys_corpserv.getTaxWarningRate(corpId);
+        } else {
+            rate = new DZFDouble(rateStr);
+        }
         json.setData(rate);
         json.setSuccess(true);
         return ReturnData.ok().data(json);
