@@ -91,7 +91,7 @@ public class CorpTaxVo extends SuperVO {
     private DZFDate dukeydate;// UKEY到期日
     @JsonProperty("kjzc")
     private Integer ikjzc;// 会计政策(0-企业会计准则、1-小企业会计准则、2-企业会计制度、3-事业单位会计准则、4-民间非营利组织会计制度)(*)
-    @JsonProperty("ovince")
+//    @JsonProperty("ovince")
     public Integer tax_area;// 报税地区
     public Integer dr;
     public DZFDateTime ts;

@@ -125,6 +125,7 @@ public class HomeTaxController {
         }
         taxList.sort(Comparator.comparing(AddTaxInfoVO::getPeriod));
         json.setRows(taxList);
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 
