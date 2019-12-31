@@ -122,6 +122,9 @@ public class PermissionFilter extends ZuulFilter {
         String info = request.getHeader(name);
         if (StringUtils.isBlank(info)) {
             info = request.getParameter(name);
+            if(!StringUtils.isBlank(info)){
+                requestContext.addZuulRequestHeader(name, info);
+            }
         }
         return info;
     }
