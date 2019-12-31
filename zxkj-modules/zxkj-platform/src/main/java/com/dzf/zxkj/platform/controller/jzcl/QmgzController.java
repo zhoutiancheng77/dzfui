@@ -327,7 +327,7 @@ public class QmgzController  extends PrintAndExcelExportController {
 
 
     @PostMapping("fanGz")
-    public ReturnData fanGz(@MultiRequestBody QmclVO[] list ,String laterMonth, @MultiRequestBody String funname) {
+    public ReturnData fanGz(@MultiRequestBody QmclVO[] list ,@MultiRequestBody String laterMonth, @MultiRequestBody String funname) {
         Json grid = new Json();
         if(StringUtil.isEmpty(funname)){
             funname = "总账月末反关账";
@@ -339,7 +339,8 @@ public class QmgzController  extends PrintAndExcelExportController {
                 QmclVO vo = bodyvos[0];
                 if(vo.getIsgz()!=null && vo.getIsgz().booleanValue()){
                     qmgzService.cancelGzPeriodAndLater(bodyvos[0].getPk_corp(), bodyvos[0].getPeriod());
-                    grid.setMsg("1");
+                    grid.setMsg("反关账成功");
+                    grid.setSuccess(true);
                 } else {
                     throw new BusinessException(vo.getCorpname() + "在期间" + vo.getPeriod() + "未关账，不能反关账");
                 }
@@ -382,7 +383,6 @@ public class QmgzController  extends PrintAndExcelExportController {
                     grid.setSuccess(true);
                 }
             }
-
         } catch (Exception e) {
             printErrorLog(grid, e, "反关账失败！");
         }
