@@ -575,13 +575,10 @@ public class WorkbenchController extends BaseController {
      * 导出下载票据
      */
     @RequestMapping("/exportBill")
-    public ReturnData<Json>  exportBill(@RequestBody Map<String,String> param, HttpServletResponse response){
+    public ReturnData<Json>  exportBill(HttpServletResponse response,String ids,String period,String categoryid){
         //iInterfaceBill
         Json json = new Json();
         try{
-            String ids = param.get("ids");
-            String period = param.get("period");
-            String categoryid = param.get("categoryid");
             String pkcorp=SystemUtil.getLoginCorpId();
             String[] idArray = ids==null?null:ids.split(",");
             CorpVO corpVO2 = SystemUtil.getLoginCorpVo();//图片浏览查询框中公司pk
