@@ -349,14 +349,18 @@ public class KpglServiceImpl implements IKpglService {
                 vo.setZckm(vo.getZckmcode() + " " + accountMap.get(vo.getPk_zckm()).getFullname());
             }
             if (accountMap.get(vo.getPk_jskm()) != null) {
-                StringBuffer fzname = getFzName(accountMap, map, vo);
-                StringBuffer fzcode = getFzCode(accountMap, map, vo);
+                StringBuffer fzname = getFzName(accountMap, map, vo, "jsfzhsx", vo.getPk_jskm());
+                StringBuffer fzcode = getFzCode(accountMap, map, vo, "jsfzhsx", vo.getPk_jskm());
                 vo.setJskm(fzcode + " " + fzname.toString());
                 vo.setJskmcode(fzcode.toString());
             }
             if (accountMap.get(vo.getPk_zjfykm()) != null) {
-                vo.setZjfykmcode(accountMap.get(vo.getPk_zjfykm()).getAccountcode());
-                vo.setZjfykm(vo.getZjfykmcode() + " " + accountMap.get(vo.getPk_zjfykm()).getFullname());
+//                vo.setZjfykmcode(accountMap.get(vo.getPk_zjfykm()).getAccountcode());
+//                vo.setZjfykm(vo.getZjfykmcode() + " " + accountMap.get(vo.getPk_zjfykm()).getFullname());
+                StringBuffer fzname = getFzName(accountMap, map, vo, "zjfyfzhsx", vo.getPk_zjfykm());
+                StringBuffer fzcode = getFzCode(accountMap, map, vo, "zjfyfzhsx", vo.getPk_zjfykm());
+                vo.setZjfykm(fzcode + " " + fzname.toString());
+                vo.setZjfykmcode(fzcode.toString());
             }
             if (accountMap.get(vo.getPk_jtzjkm()) != null) {
                 vo.setJtzjkmcode(accountMap.get(vo.getPk_jtzjkm()).getAccountcode());
@@ -368,13 +372,13 @@ public class KpglServiceImpl implements IKpglService {
     }
 
     private StringBuffer getFzCode(HashMap<String, YntCpaccountVO> accountMap, Map<String, AuxiliaryAccountBVO> map,
-                                   AssetcardVO vo) {
+                                   AssetcardVO vo, String fieldName, String kmbm) {
         StringBuffer fzname = new StringBuffer();
-        fzname.append(accountMap.get(vo.getPk_jskm()).getAccountcode());
+        fzname.append(accountMap.get(kmbm).getAccountcode());
         String key = "";
         AuxiliaryAccountBVO fzvo = null;
         for (int i = 1; i <= 10; i++) {
-            key = (String) vo.getAttributeValue("jsfzhsx" + i);
+            key = (String) vo.getAttributeValue(fieldName + i);
             if (!StringUtil.isEmpty(key)) {
                 fzvo = map.get(key);
                 if (fzvo != null) {
@@ -386,13 +390,13 @@ public class KpglServiceImpl implements IKpglService {
     }
 
     private StringBuffer getFzName(HashMap<String, YntCpaccountVO> accountMap, Map<String, AuxiliaryAccountBVO> map,
-                                   AssetcardVO vo) {
+                                   AssetcardVO vo, String fieldName, String kmbm) {
         StringBuffer fzname = new StringBuffer();
-        fzname.append(accountMap.get(vo.getPk_jskm()).getAccountname());
+        fzname.append(accountMap.get(kmbm).getAccountname());
         String key = "";
         AuxiliaryAccountBVO fzvo = null;
         for (int i = 1; i <= 10; i++) {
-            key = (String) vo.getAttributeValue("jsfzhsx" + i);
+            key = (String) vo.getAttributeValue(fieldName + i);
             if (!StringUtil.isEmpty(key)) {
                 fzvo = map.get(key);
                 if (fzvo != null) {
