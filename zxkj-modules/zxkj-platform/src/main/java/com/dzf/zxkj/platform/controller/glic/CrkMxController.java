@@ -17,23 +17,28 @@ import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.glic.IcDetailVO;
 import com.dzf.zxkj.platform.model.report.IcDetailFzVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.glic.ICrkMxService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.SystemUtil;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.List;
 
 /**
  * 出入库明细
@@ -446,55 +451,54 @@ public class CrkMxController extends GlicReportController{
     /**
      * 联查出入库明细信息
      */
-    public void linkCrkmx() {
-//        Rectangle pageSize = PageSize.A4;
-//        float leftsize = 47f;
-//        float rightsize = 15f;
-//        float topsize = 36f;
-//        Document document = new Document(pageSize, leftsize, rightsize, topsize, 4);
-//        ByteArrayOutputStream buffer = null;
-//        try {
-//            String vicbillcode = getRequest().getParameter("vicbillcode");
-//            String rq = getRequest().getParameter("rq");
-//            Map<String, List<IcDetailVO>> crkmxlist = gl_rep_crkmxserv.queryCrkmxs(new String[]{vicbillcode},null, getLogincorppk(),rq);
-//            CorpVO cpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, getLogincorppk());
-//            buffer = new ByteArrayOutputStream();
-//            PdfWriter writer = PdfWriter.getInstance(document, buffer);
-//            document.open();
-//            PdfContentByte canvas = writer.getDirectContent();
-//            CrkPrintUtil printutil = new CrkPrintUtil();
-//            // 赋值首字符的值
-//            printutil.batchPrintCrkContent(leftsize, topsize, document, canvas, crkmxlist, cpvo);
-//        } catch (Exception e) {
-//            log.error("错误",e);
-//        } finally {
-//            document.close();
-//        }
-//        ServletOutputStream out = null;
-//        try {
-//            getResponse().setContentType("application/pdf");
-//            getResponse().setCharacterEncoding("utf-8");
-//            getResponse().setContentLength(buffer.size());
-//            out = getResponse().getOutputStream();
-//            buffer.writeTo(out);
-//            buffer.flush();// flush 放在finally的时候流关闭失败报错
-//            out.flush();
-//        } catch (IOException e) {
-//
-//        } finally {
-//            try {
-//                if (buffer != null) {
-//                    buffer.close();
-//                }
-//            } catch (IOException e) {
-//            }
-//            try {
-//                if (out != null) {
-//                    out.close();
-//                }
-//            } catch (IOException e) {
-//            }
-//        }
+    @RequestMapping("/linkCrkmx")
+    public void linkCrkmx(String vicbillcode,String rq,HttpServletResponse response) {
+        Rectangle pageSize = PageSize.A4;
+        float leftsize = 47f;
+        float rightsize = 15f;
+        float topsize = 36f;
+        Document document = new Document(pageSize, leftsize, rightsize, topsize, 4);
+        ByteArrayOutputStream buffer = null;
+        try {
+            Map<String, List<IcDetailVO>> crkmxlist = gl_rep_crkmxserv.queryCrkmxs(new String[]{vicbillcode},null, SystemUtil.getLoginCorpId(),rq);
+            CorpVO cpvo = SystemUtil.getLoginCorpVo();
+            buffer = new ByteArrayOutputStream();
+            PdfWriter writer = PdfWriter.getInstance(document, buffer);
+            document.open();
+            PdfContentByte canvas = writer.getDirectContent();
+            CrkPrintUtil printutil = new CrkPrintUtil();
+            // 赋值首字符的值
+            printutil.batchPrintCrkContent(leftsize, topsize, document, canvas, crkmxlist, cpvo);
+        } catch (Exception e) {
+            log.error("错误",e);
+        } finally {
+            document.close();
+        }
+        ServletOutputStream out = null;
+        try {
+            response.setContentType("application/pdf");
+            response.setCharacterEncoding("utf-8");
+            response.setContentLength(buffer.size());
+            out = response.getOutputStream();
+            buffer.writeTo(out);
+            buffer.flush();// flush 放在finally的时候流关闭失败报错
+            out.flush();
+        } catch (IOException e) {
+
+        } finally {
+            try {
+                if (buffer != null) {
+                    buffer.close();
+                }
+            } catch (IOException e) {
+            }
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+            }
+        }
     }
 
     private IcDetailVO[] reloadExcelData(QueryParamVO paramvo){
