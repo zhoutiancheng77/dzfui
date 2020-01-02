@@ -52,4 +52,12 @@ public class SysServiceImpl implements ISysService {
         corpModel.setUnitshortname(CodeUtils1.deCode(corpModel.getUnitshortname()));
         return corpModel;
     }
+
+    @Override
+    public UserModel queryByUserName(String username) {
+        QueryWrapper<UserModel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserModel::getUser_code, username).and(condition -> condition.eq(UserModel::getDr, "0").or().isNull(UserModel::getDr));
+        UserModel userModel = userMapper.selectOne(queryWrapper);
+        return userModel;
+    }
 }
