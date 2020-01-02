@@ -28,10 +28,10 @@ public class RptBillFactory {
 //	@Autowired
 //    @Qualifier("taxRptservice_jiangsu")
 //	private ITaxRptService taxRptservice_jiangsu;
-//
-//	@Autowired
-//    @Qualifier("taxRptservice_shandong")
-//	private ITaxRptService taxRptservice_shandong;
+
+	@Autowired
+    @Qualifier("taxRptservice_shandong")
+	private ITaxRptService taxRptservice_shandong;
 	
 	@Autowired
     @Qualifier("taxRptservice_tianjin")
@@ -154,8 +154,8 @@ public class RptBillFactory {
 			break;
 		case 16:
 			// 山东
-//			taxrpt = taxRptservice_shandong;
-//			break;
+			taxrpt = taxRptservice_shandong;
+			break;
 		case 17:
 			// 河南
 			taxrpt = taxRptservice_henan;
