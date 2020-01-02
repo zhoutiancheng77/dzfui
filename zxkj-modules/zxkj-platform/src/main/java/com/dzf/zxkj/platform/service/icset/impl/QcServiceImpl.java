@@ -434,7 +434,9 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 			if (StringUtil.isEmpty(msg.toString())) {
 				return null;
 			} else {
-				msg.append("成功导入 ").append(list.size()).append(" 条数据。失败 ").append(failCount).append(" 条");
+				StringBuilder sucmsg = new StringBuilder();
+				sucmsg.append("成功导入 ").append(list.size()).append(" 条数据。失败 ").append(failCount).append(" 条。<br>");
+				msg.insert(0,sucmsg.toString());
 				return msg.toString();
 			}
 		} catch (FileNotFoundException e) {
@@ -557,7 +559,9 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 
 		if (map != null && map.size() > 0) {
 			singleObjectBO.deleteByPKs(IcbalanceVO.class, map.values().toArray(new String[0]));
-			errmsg.append("<p>成功删除" + map.size() + "条库存期初记录!</p>");
+            StringBuilder sucmsg = new StringBuilder();
+            sucmsg.append("<p>成功删除" + map.size() + "条库存期初记录!</p>");
+            errmsg.insert(0,sucmsg.toString());
 		}
 
 		if (errmsg != null && errmsg.length() > 0) {

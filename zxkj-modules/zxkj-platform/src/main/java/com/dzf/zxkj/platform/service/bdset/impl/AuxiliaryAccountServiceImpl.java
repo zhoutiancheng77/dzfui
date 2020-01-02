@@ -1012,12 +1012,16 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 
                 setDefault(bvo);
             }
+            if (failCount > 0) {
+                StringBuilder sucmsg = new StringBuilder();
+                sucmsg.append("<font color = 'red'>导入失败 ").append(failCount).append(" 条记录。</font><br>");
+                msg.insert(0,sucmsg.toString());
+            }
             if (list != null && list.size() > 0) {
                 singleObjectBO.insertVOArr(pk_corp, list.toArray(new AuxiliaryAccountBVO[list.size()]));
-                msg.append("导入成功 ").append(list.size()).append(" 条记录<br> ");
-            }
-            if (failCount > 0) {
-                msg.append("<font color = 'red'>导入失败 ").append(failCount).append(" 条记录</font>");
+                StringBuilder sucmsg = new StringBuilder();
+                sucmsg.append("导入成功 ").append(list.size()).append(" 条记录。<br> ");
+                msg.insert(0,sucmsg.toString());
             }
             importResult.put("msg", msg.toString());
             importResult.put("failCount", failCount + "");
@@ -1398,10 +1402,10 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 
             if (succlist != null && succlist.size() > 0) {
                 singleObjectBO.updateAry(succlist.toArray(new AuxiliaryAccountBVO[0]), fields);
-                msg.append("更新导入成功 ").append(succlist.size()).append(" 条记录<br> ");
+                msg.append("更新导入成功 ").append(succlist.size()).append(" 条记录。<br> ");
             }
             if (errlist.size() > 0) {
-                msg.append("<font color = 'red'>更新导入失败 ").append(errlist.size()).append(" 条记录</font><br/>");
+                msg.append("<font color = 'red'>更新导入失败 ").append(errlist.size()).append(" 条记录。</font><br/>");
                 StringBuffer inner = new StringBuffer();
 
                 int count = 1;
@@ -1557,7 +1561,9 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         int total = bvos.length;
         int success = list.size();
         if (bvos.length > 1) {
-            msg.append("成功删除").append(success).append("条<br>");
+            StringBuilder sucmsg = new StringBuilder();
+            sucmsg.append("成功删除").append(success).append("条。<br>");
+            msg.insert(0,sucmsg.toString());
         } else if (success == 1) {
             msg.append("删除成功");
         }

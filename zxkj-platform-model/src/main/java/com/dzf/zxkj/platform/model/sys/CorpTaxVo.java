@@ -212,6 +212,15 @@ public class CorpTaxVo extends SuperVO {
     public DZFDate icbegindate;// 库存启用日期
     @JsonProperty("ctype")
     public String corptype;// 科目方案
+
+    //************************新版新增 begin  后续再调整
+    @JsonProperty("p1")
+    public String phone1;// 联系人电话
+    @JsonProperty("postadd")
+    public String postaddr;// 单位地址
+    @JsonProperty("buscope")
+    private String vbusinescope;// 经营范围
+    //************************新版新增 en  后续再调整
     //-----------不存库，不需要回写的字段  end----------------------------
 
     @JsonProperty("bgqj")
@@ -1083,4 +1092,27 @@ public class CorpTaxVo extends SuperVO {
         this.zxkcxj = zxkcxj;
     }
 
+    public String getPhone1() {
+        return phone1;
+    }
+
+    public void setPhone1(String phone1) {
+        this.phone1 = phone1;
+    }
+
+    public String getPostaddr() {
+        return postaddr;
+    }
+
+    public void setPostaddr(String postaddr) {
+        this.postaddr = postaddr;
+    }
+
+    public String getVbusinescope() {
+        return vbusinescope;
+    }
+
+    public void setVbusinescope(String vbusinescope) {
+        this.vbusinescope = vbusinescope;
+    }
 }

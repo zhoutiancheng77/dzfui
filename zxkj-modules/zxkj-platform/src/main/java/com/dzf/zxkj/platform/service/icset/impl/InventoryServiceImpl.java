@@ -485,7 +485,9 @@ public class InventoryServiceImpl implements IInventoryService {
 			goodsinvenservice.deleteCasCadeGoods(pks, pk_corp);
 			ic_invtoryaliasserv.deleteByInvs(pks, pk_corp);
 			if (errmsg != null && errmsg.length() > 0) {
-				errmsg.append("<p>成功删除" + map.size() + "条存货!</p>");
+                StringBuilder sucmsg = new StringBuilder();
+                sucmsg.append("<p>成功删除" + map.size() + "条存货!</p>");
+                errmsg.insert(0,sucmsg.toString());
 			}
 
 		}
@@ -939,7 +941,9 @@ public class InventoryServiceImpl implements IInventoryService {
 			if (StringUtil.isEmpty(msg.toString())) {
 				return null;
 			} else {
-				msg.append("成功导入 ").append(list.size()).append(" 条数据。失败 ").append(failCount).append(" 条");
+				StringBuilder sucmsg = new StringBuilder();
+				sucmsg.append("成功导入 ").append(list.size()).append(" 条数据。失败 ").append(failCount).append(" 条。<br>");
+				msg.insert(0,sucmsg.toString());
 				return msg.toString();
 			}
 		} catch (FileNotFoundException e) {

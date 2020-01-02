@@ -509,7 +509,7 @@ public class WorkbenchController extends BaseController {
         //iInterfaceBill
         Json json = new Json();
         try{
-            String ids = param.get("id");
+            String ids = param.get("ids");
             String[] idArray = ids.split(",");
             iInterfaceBill.updateInvalidBill(idArray,SystemUtil.getLoginCorpId());
             json.setSuccess(true);
