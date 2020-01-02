@@ -100,7 +100,7 @@ public class ZczjmxReportImpl implements IZczjmxReport {
 			}
 		}
 		if(!StringUtil.isEmpty(zcbm)){
-			qrysql.append(" and b.assetcode='"+zcbm+"'");
+			qrysql.append(" and b.assetcode like '%"+zcbm+"%'");
 			//qrysql.append("  and b.assetname like '%"+zcbm+"%'");
 		}
 		if(!StringUtil.isEmpty(asset_id)){
