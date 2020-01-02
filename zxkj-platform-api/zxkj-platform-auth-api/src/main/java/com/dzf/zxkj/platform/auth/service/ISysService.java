@@ -6,4 +6,5 @@ import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 public interface ISysService {
     UserModel queryByUserId(String userid);
     CorpModel queryCorpByPk(String pk_corp);
+    UserModel queryByUserName(String username);
 }

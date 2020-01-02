@@ -1,11 +1,13 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.service.INotifyService;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
+import com.dzf.zxkj.platform.auth.mapper.UserMapper;
 import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.ISysService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +28,24 @@ public class INotifyServiceImpl implements INotifyService {
     private ISysService sysService;
     @Autowired
     private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
+    @Autowired
+    private UserMapper userMapper;
+
+    private UserModel queryUser(String unifiedid) {
+        QueryWrapper<UserModel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserModel::getUnifiedid, unifiedid).and(condition -> condition.eq(UserModel::getDr, "0").or().isNull(UserModel::getDr));
+        return userMapper.selectOne(queryWrapper);
+    }
 
     @Override
     public void notify(NotifyType type, String token, UserVO uservo) {
         log.info("接收统一登录通知------>", token);
         if(NotifyType.update.equals(type)){
-            UserModel userModel = sysService.queryByUserName(uservo.getLoginName());
-            LoginUser loginUser = authCache.getLoginUser(userModel.getCuserid());
+            if(StringUtils.isBlank(uservo.getPlatformUserId())){
+                UserModel userModel = queryUser(String.valueOf(uservo.getId()));
+                uservo.setPlatformUserId(userModel.getCuserid());
+            }
+            LoginUser loginUser = authCache.getLoginUser(uservo.getPlatformUserId());
             if(loginUser != null && !StringUtils.isBlank(loginUser.getDzfAuthToken()) && loginUser.getDzfAuthToken().equals(token)){
                 Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
                 loginUser.setPlatformVOSet(list);

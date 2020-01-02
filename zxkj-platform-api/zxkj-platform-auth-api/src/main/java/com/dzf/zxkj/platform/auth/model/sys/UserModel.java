@@ -18,4 +18,6 @@ public class UserModel implements Serializable {
     private String cuserid;
     private String pk_corp;//所属公司
     private String dr;
+    @TableField("UNIFIEDID")
+    private String unifiedid;
 }
