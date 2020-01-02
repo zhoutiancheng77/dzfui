@@ -16,6 +16,6 @@ public class UserModel implements Serializable {
     private String user_name;// 用户名称
     @TableField("cuserid")
     private String cuserid;
-
+    private String pk_corp;//所属公司
     private String dr;
 }

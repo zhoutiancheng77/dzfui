@@ -46,5 +46,7 @@ public class CorpModel implements Serializable {
     @JsonProperty("fcorp")
     public String fathercorp;
 
+    private DZFBoolean ischannel;
+
     public String dr;
 }
