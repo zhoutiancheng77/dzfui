@@ -364,7 +364,7 @@ public class InventoryQcServiceImpl implements IInventoryQcService {
 			}
 			int addCount = qcList.size();
 			if(msg.length()>0){
-				msg.insert(0, "成功导入" + addCount + "条数据<br>");
+				msg.insert(0, "成功导入" + addCount + "条数据。<br>");
 			}
 			if (addCount > 0) {
 				InventoryQcVO[] insertVos = qcList

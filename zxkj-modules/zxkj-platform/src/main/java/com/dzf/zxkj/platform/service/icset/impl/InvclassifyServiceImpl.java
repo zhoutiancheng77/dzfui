@@ -288,7 +288,9 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 			if(StringUtil.isEmpty(msg.toString())){
 				return null;
 			}else{
-				msg.append("成功导入 ").append(list.size()).append(" 条数据。失败 ").append(failCount).append(" 条");
+                StringBuilder sucmsg = new StringBuilder();
+                sucmsg.append("成功导入 ").append(list.size()).append(" 条数据。失败 ").append(failCount).append(" 条。");
+                msg.insert(0,sucmsg.toString());
 				return msg.toString();
 			}
 		} catch (FileNotFoundException e) {
