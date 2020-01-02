@@ -203,7 +203,7 @@ public class AuthController {
                         json.setMsg("修改成功!");
                         json.setSuccess(true);
                         json.setStatus(200);
-                        Result<Boolean> booleanResult = passwordService.updatePassword(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getUsername(), updateUserVo.getPsw2());
+                        Result<Boolean> booleanResult = passwordService.updatePassword(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getUsername(), psw2);
                     }
                 }else{
                     json.setMsg("两次输入密码不一致，请检查！");
