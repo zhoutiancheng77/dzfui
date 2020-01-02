@@ -253,6 +253,7 @@ public class ZtszServiceImpl implements IZtszService {
 		sql.append(" a.legalbodycode,a.vcorporatephone, t.tradename as indusname,a.industry,a.unitname,a.chargedeptname, ");
 		sql.append(" a.icostforwardstyle, a.bbuildic, a.ishasaccount, a.holdflag, a.busibegindate, a.icbegindate, a.corptype, ");
 		sql.append(" a.vcustsource, a.vprovince, a.vcity, a.varea, a.vbankname, a.fathercorp, a.isseal, a.icompanytype, ");
+		sql.append(" a.phone1, a.postaddr, a.vbusinescope, ");
 //		sql.append(" b.unitname as def1 ,");
 //		sql.append(" b.def3      		,");
 //		sql.append(" b.def2     		,");
