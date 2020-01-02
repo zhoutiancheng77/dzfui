@@ -3,6 +3,8 @@ package com.dzf.zxkj.platform.auth.controller;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
+import com.dzf.auth.api.result.Result;
+import com.dzf.auth.api.service.IPasswordService;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -41,6 +43,10 @@ public class AuthController {
 
     @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private com.dzf.auth.api.service.ILoginService userService;
+
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    private IPasswordService passwordService;
+
     @Autowired
     private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
 
@@ -197,6 +203,7 @@ public class AuthController {
                         json.setMsg("修改成功!");
                         json.setSuccess(true);
                         json.setStatus(200);
+                        Result<Boolean> booleanResult = passwordService.updatePassword(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getUsername(), updateUserVo.getPsw2());
                     }
                 }else{
                     json.setMsg("两次输入密码不一致，请检查！");
