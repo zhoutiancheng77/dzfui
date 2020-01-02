@@ -1,9 +1,8 @@
-package com.dzf.zxkj.platform.util.taxrpt.shandong;
+package com.dzf.zxkj.platform.util.taxrpt.shandong.deal;
 
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.tax.TaxPosContrastVO;
 import com.dzf.zxkj.platform.model.taxrpt.shandong.TaxQcQueryVO;
-import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.TaxParamUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -20,6 +19,8 @@ import java.util.UUID;
  */
 @Slf4j
 public class XMLUtils {
+
+//	private static Logger log = Logger.getLogger(XMLUtils.class);
 
 	/**
 	 * 创建一个上传报文
