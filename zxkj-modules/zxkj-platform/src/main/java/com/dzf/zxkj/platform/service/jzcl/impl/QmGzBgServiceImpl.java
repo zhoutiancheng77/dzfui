@@ -1111,7 +1111,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 			map.put("enddate", DateUtils.getPeriodEndDate(period));
 			map.put("qjq", period);
 			map.put("qjz", period);
-
+			map.put("corpIds", pk_corp);
 //			begindate: 2017-02-01
 //			qjz: 2017-02
 //			enddate: 2017-02-28

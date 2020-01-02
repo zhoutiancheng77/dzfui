@@ -582,10 +582,19 @@ public class XqyZcfzBReportService {
 					vo.setQcye1(ufd);
 				} else {
 					ufd = VoUtils.getDZFDouble(vo.getQmye2());
-					ufd = ufd.add(VoUtils.getDZFDouble(fvo.getQmjf())).add(VoUtils.getDZFDouble(fvo.getQmdf()));// 只有一方有值
+					if (fvo.getKmbm().equals("222112")) {
+						ufd = ufd.sub(VoUtils.getDZFDouble(fvo.getQmjf())).add(VoUtils.getDZFDouble(fvo.getQmdf()));// 只有一方有值
+					} else {
+						ufd = ufd.add(VoUtils.getDZFDouble(fvo.getQmjf())).add(VoUtils.getDZFDouble(fvo.getQmdf()));// 只有一方有值
+					}
+
 					vo.setQmye2(ufd);
 					ufd = VoUtils.getDZFDouble(vo.getNcye2());
-					ufd = ufd.add(VoUtils.getDZFDouble(fvo.getQcjf())).add(VoUtils.getDZFDouble(fvo.getQcdf()));// 只有一方有值
+					if (fvo.getKmbm().equals("222112")) {
+						ufd = ufd.sub(VoUtils.getDZFDouble(fvo.getQcjf())).add(VoUtils.getDZFDouble(fvo.getQcdf()));// 只有一方有值
+					}else {
+						ufd = ufd.add(VoUtils.getDZFDouble(fvo.getQcjf())).add(VoUtils.getDZFDouble(fvo.getQcdf()));// 只有一方有值
+					}
 					vo.setNcye2(ufd);
 
 					// 本月期初
