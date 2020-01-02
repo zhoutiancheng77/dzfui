@@ -78,6 +78,10 @@ public class PermissionFilter extends ZuulFilter {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
         }
 
+        if(request.getRequestURL().indexOf("/api/auth/to") != -1){
+            return null;
+        }
+
         //校验token内userid与消息头的userid是否一致
         String useridFormToken = ijwtInfo.getBody();
         String useridFromHeader = getLoginInfo(requestContext, ISysConstant.LOGIN_USER_ID);
