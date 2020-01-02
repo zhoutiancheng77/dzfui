@@ -647,10 +647,10 @@ public class TerminalSettleImpl implements ITerminalSettle {
 				if(jzvo.getJzfinish()==null||!jzvo.getJzfinish().booleanValue()){
 					tips += "当前期间"+jzvo.getPeriod()+"【尚未结账】" ;
 				}
-				
-				if(!tips.equals("")){
-					tips += "\n" ;
-				}
+//
+//				if(!tips.equals("")){
+//					tips += "\n" ;
+//				}
 				
 		}
 		
