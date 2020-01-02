@@ -114,8 +114,15 @@ public class SystemController {
         queryWrapper.lambda().eq(YntParameterSet::getParameterbm, "dzf003").eq(YntParameterSet::getPk_corp, SystemUtil.getLoginCorpId()).and(condition -> condition.eq(YntParameterSet::getDr, "0").or().isNull(YntParameterSet::getDr));
         YntParameterSet yntParameterSet = yntParameterSetMapper.selectOne(queryWrapper);
 
+        if(yntParameterSet == null){
+            queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(YntParameterSet::getParameterbm, "dzf003").eq(YntParameterSet::getPk_corp, corpModel.getFathercorp()).and(condition -> condition.eq(YntParameterSet::getDr, "0").or().isNull(YntParameterSet::getDr));
+            yntParameterSet = yntParameterSetMapper.selectOne(queryWrapper);
+        }
+
+        YntParameterSet finalYntParameterSet = yntParameterSet;
         funNodeList.removeIf(vo -> (
-                (yntParameterSet == null || yntParameterSet.getPardetailvalue() == 1) && "出纳签字".equals(vo.getName())
+                (finalYntParameterSet == null || finalYntParameterSet.getPardetailvalue() == 1) && "出纳签字".equals(vo.getName())
         ));
 
         List<String> routerNames = funNodeList.stream().map(v -> v.getRouter()).collect(Collectors.toList());

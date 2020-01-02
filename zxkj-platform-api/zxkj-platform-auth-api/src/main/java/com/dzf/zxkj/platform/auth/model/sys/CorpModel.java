@@ -43,5 +43,8 @@ public class CorpModel implements Serializable {
     @JsonProperty("buildicstyle")
     private Integer ibuildicstyle;// 存货核算类型--针对启用进销存[ 0或者空为老模式库存。 ] [ 1为新模式库存。 ]
 
+    @JsonProperty("fcorp")
+    public String fathercorp;
+
     public String dr;
 }
