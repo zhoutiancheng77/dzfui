@@ -167,6 +167,12 @@ public class AuthController {
         }
         return ReturnData.ok().data(grid);
     }
+    @GetMapping("selectSys")
+    public ReturnData<LoginUser> selectSys(){
+        LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
+        return ReturnData.ok().data(loginUser);
+    }
+
     @PostMapping("updatePassword")
     public ReturnData updatePassword(@RequestBody UpdateUserVo updateUserVo){
         Json json = new Json();
