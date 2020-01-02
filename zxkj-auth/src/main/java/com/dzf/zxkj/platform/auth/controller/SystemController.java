@@ -14,8 +14,10 @@ import com.dzf.zxkj.platform.auth.entity.YntParameterSet;
 import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
 import com.dzf.zxkj.platform.auth.mapper.YntParameterSetMapper;
 import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
+import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.service.ISysService;
+import com.dzf.zxkj.platform.auth.service.IVersionMngService;
 import com.dzf.zxkj.platform.auth.util.PermissionFilter;
 import com.dzf.zxkj.platform.auth.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -49,6 +52,9 @@ public class SystemController {
     private ISysService sysService;
     @Autowired
     private YntParameterSetMapper yntParameterSetMapper;
+
+    @Autowired
+    private IVersionMngService versionMngService;
 
     /**
      * 跳去别处
@@ -84,7 +90,14 @@ public class SystemController {
     @GetMapping("queryFunNode")
     public ReturnData<Grid> queryFunNode() {
         List<FunNode> funNodeList = funNodeMapper.getFunNodeByUseridAndPkCorp(SystemUtil.getLoginUserId(), SystemUtil.getLoginCorpId());
+        UserModel userModel = sysService.queryByUserId(SystemUtil.getLoginUserId());
 
+        String[] funcodes = versionMngService.queryCorpVersion(userModel.getPk_corp());
+
+        if(funcodes != null && funcodes.length>0){
+            List<String> funcodeList = Arrays.asList(funcodes);
+            funNodeList = funNodeList.stream().filter(v -> funcodeList.contains(v.getPk_funnode())).collect(Collectors.toList());
+        }
         CorpModel corpModel = sysService.queryCorpByPk(SystemUtil.getLoginCorpId());
         //资产是否开启
         DZFBoolean holdflag = corpModel.getHoldflag() == null ? DZFBoolean.FALSE : corpModel.getHoldflag();//holdflag
