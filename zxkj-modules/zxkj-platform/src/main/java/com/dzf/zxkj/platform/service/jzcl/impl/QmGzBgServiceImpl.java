@@ -1004,6 +1004,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		vo.setVmemo("通过");
 		vo.setXm("往来挂账超过一年");
 		Map<String, Object> map = getPubParam(cpvo);
+		map.put("kmbm", "1122");
+		map.put("fzlb", "-1");
+		map.put("corp", pk_corp);
+		map.put("enddate", DateUtils.getPeriodEndDate(period));
+		map.put("zllx", 2);
+		map.put("unit", 360);
+		map.put("jz_date", cpvo.getBegindate());
+		map.put("pk_age", "00000100000000ZZnTcA002K");
 		vo.setParamstr(JsonUtils.serialize(map));
 		vo.setUrl("wlzlye-report");
 //		vo.setUrl("gl/gl_kmreport/gl_rep_zlyeb.jsp?"+getPubParam(cpvo));
@@ -1095,9 +1103,18 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 				vo1.setVmemo("存在挂账混乱的往来"+fzyeData.size()+"家未通过");
 			}
+			map = getPubParam(cpvo);
 			vo1.setXm("往来挂账混乱");
 			vo1.setName("辅助余额表");
 			vo1.setUrl("auxiliary-balance-report");
+			map.put("begindate", DateUtils.getPeriodStartDate(period));
+			map.put("enddate", DateUtils.getPeriodEndDate(period));
+			map.put("qjq", period);
+			map.put("qjz", period);
+
+//			begindate: 2017-02-01
+//			qjz: 2017-02
+//			enddate: 2017-02-28
 			vo1.setParamstr(JsonUtils.serialize(map));
 		} catch (DAOException e) {
 			handleError(vo1, e);
