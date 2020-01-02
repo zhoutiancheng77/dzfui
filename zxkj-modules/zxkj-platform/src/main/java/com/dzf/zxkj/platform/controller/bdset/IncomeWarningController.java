@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -53,6 +54,7 @@ public class IncomeWarningController{
 
             //优化 gzhx
             IncomeWarningVO[] incomeWarningVOS = iw_serv.queryIncomeWaringVos(pk_corp,nowDate, filflg);
+            VOUtil.ascSort(incomeWarningVOS, new String[]{"ts"});
             json.setSuccess(true);
             json.setRows(incomeWarningVOS);
         } catch (Exception e) {
