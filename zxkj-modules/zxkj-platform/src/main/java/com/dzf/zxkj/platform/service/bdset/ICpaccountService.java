@@ -9,6 +9,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface ICpaccountService {
 
@@ -88,10 +89,15 @@ public interface ICpaccountService {
     String getNewSubCode(YntCpaccountVO vo, CorpVO corpvo);
 
     /**
-     * 查询被使用的币种pk
+     * 查询科目币种是否被引用
      *
      */
     boolean checkCurrencyRef(String corpId, String subjectId) throws DZFWarpException;
+    /**
+     * 查询被使用的币种pk
+     *
+     */
+    Set<String> getCurrencyRefSet(String corpId, String subjectId) throws DZFWarpException;
 
     /**
      * 查询所有的现金类科目

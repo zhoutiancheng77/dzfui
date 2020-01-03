@@ -813,6 +813,20 @@ public class CpaccountServiceImpl implements ICpaccountService {
 
     @Override
     public boolean checkCurrencyRef(String corpId, String subjectId) throws DZFWarpException {
+        Set<String> set = getCurrencyRefSet(corpId, subjectId);
+        int size = set.size();
+        if (set.contains(IGlobalConstants.RMB_currency_id)) {
+            size--;
+        }
+        boolean hasRef = false;
+        if (size > 0) {
+            hasRef = true;
+        }
+        return hasRef;
+    }
+
+    @Override
+    public Set<String> getCurrencyRefSet(String corpId, String subjectId) throws DZFWarpException {
         SQLParameter sqlp = new SQLParameter();
         sqlp.addParam(subjectId);
         sqlp.addParam(corpId);
@@ -832,15 +846,7 @@ public class CpaccountServiceImpl implements ICpaccountService {
         set.addAll(list1);
         set.addAll(list2);
         set.addAll(list3);
-        int size = set.size();
-        if (set.contains(IGlobalConstants.RMB_currency_id)) {
-            size--;
-        }
-        boolean hasRef = false;
-        if (size > 0) {
-            hasRef = true;
-        }
-        return hasRef;
+        return set;
     }
 
     // 同步行业科目方案，如果科目编码被占用，则此类数据不能同步。

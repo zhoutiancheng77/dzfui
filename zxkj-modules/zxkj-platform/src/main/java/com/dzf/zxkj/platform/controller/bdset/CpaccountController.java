@@ -6,6 +6,7 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
@@ -180,14 +181,20 @@ public class CpaccountController {
     @PostMapping("/checkOnEdit")
     public ReturnData checkOnEdit(@RequestBody YntCpaccountVO data) {
         Json json = new Json();
-        Map<String, Boolean> checkData = new HashMap<>();
+        Map<String, Object> checkData = new HashMap<>();
         String corpId = SystemUtil.getLoginCorpId();
         boolean pzRef = cpaccountService.checkIsPzRef(corpId, data.getPk_corp_account());
         boolean qcRef = cpaccountService.checkBeginDataRef(corpId, data.getPk_corp_account());
         boolean parentVerification = cpaccountService.checkParentVerification(corpId, data.getAccountcode());
         if (data.getIswhhs() != null && data.getIswhhs().booleanValue()) {
-            boolean currencyRef = cpaccountService.checkCurrencyRef(corpId, data.getPk_corp_account());
-            checkData.put("currencyRef", currencyRef);
+            Set<String> currencyRefSet = cpaccountService.getCurrencyRefSet(corpId, data.getPk_corp_account());
+            boolean currencyRefExist = false;
+            if (currencyRefSet.size() > 1 || currencyRefSet.size() == 1
+                    && !currencyRefSet.contains(IGlobalConstants.RMB_currency_id)) {
+                currencyRefExist = true;
+            }
+            checkData.put("currencyRefId", currencyRefSet);
+            checkData.put("currencyRef", currencyRefExist);
         }
         checkData.put("ref", pzRef || qcRef);
         checkData.put("parentVerification", parentVerification);
