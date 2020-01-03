@@ -246,7 +246,7 @@ public class VATInComInvoiceServiceImpl implements IVATInComInvoiceService {
 		// sb.append(" 1 != 1 ");
 		// }
 
-		if (paramvo.getIoperatetype() != null) {// 操作类型
+		if (!StringUtil.isEmpty(paramvo.getIoperatetype())) {// 操作类型
 			sb.append(" and y.ioperatetype = ? ");
 			sp.addParam(paramvo.getIoperatetype());
 		}

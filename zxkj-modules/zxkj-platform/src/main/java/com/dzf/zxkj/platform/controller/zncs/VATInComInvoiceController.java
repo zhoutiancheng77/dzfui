@@ -112,13 +112,26 @@ public class VATInComInvoiceController extends BaseController {
             if(StringUtil.isEmpty(SystemUtil.getLoginCorpId())){//corpVo.getPrimaryKey()
                 throw new BusinessException("出现数据无权问题！");
             }
-            String head = param.get("para");
-            String sort = param.get("sort");
-            String order = param.get("order");
             Integer page = StringUtil.isEmpty(param.get("page"))?1:Integer.parseInt(param.get("page"));
             Integer rows = StringUtil.isEmpty(param.get("rows"))?50:Integer.parseInt(param.get("rows"));
-            InvoiceParamVO paramvo = getQueryParamVO(head);
-
+            InvoiceParamVO paramvo = new InvoiceParamVO();
+            String sort = param.get("sort");
+            String order = param.get("order");
+            paramvo.setBegindate(new DZFDate(param.get("begindate")));
+            paramvo.setBegindate2(new DZFDate(param.get("begindate2")));
+            paramvo.setEnddate(new DZFDate(param.get("enddate")));
+            paramvo.setEnddate2(new DZFDate(param.get("enddate2")));
+            paramvo.setFpdm(param.get("fpdm"));
+            paramvo.setFphm(param.get("fphm"));
+            paramvo.setIoperatetype(param.get("ioperatetype"));
+            paramvo.setIspz(param.get("ispz"));
+            paramvo.setIszh(param.get("iszh"));
+            paramvo.setPage(page);
+            paramvo.setRows(rows);
+            paramvo.setSerdate(param.get("serdate"));
+            paramvo.setStartYear2(param.get("startYear2"));
+            paramvo.setStartMonth2(param.get("startMonth2"));
+            paramvo.setPk_corp(SystemUtil.getLoginCorpId());
             List<VATInComInvoiceVO> list = gl_vatincinvact.quyerByPkcorp(paramvo, sort, order);
             //list变成数组
             grid.setTotal((long) (list==null ? 0 : list.size()));
