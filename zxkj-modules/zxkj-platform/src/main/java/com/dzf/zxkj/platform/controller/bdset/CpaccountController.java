@@ -186,16 +186,14 @@ public class CpaccountController {
         boolean pzRef = cpaccountService.checkIsPzRef(corpId, data.getPk_corp_account());
         boolean qcRef = cpaccountService.checkBeginDataRef(corpId, data.getPk_corp_account());
         boolean parentVerification = cpaccountService.checkParentVerification(corpId, data.getAccountcode());
-        if (data.getIswhhs() != null && data.getIswhhs().booleanValue()) {
-            Set<String> currencyRefSet = cpaccountService.getCurrencyRefSet(corpId, data.getPk_corp_account());
-            boolean currencyRefExist = false;
-            if (currencyRefSet.size() > 1 || currencyRefSet.size() == 1
-                    && !currencyRefSet.contains(IGlobalConstants.RMB_currency_id)) {
-                currencyRefExist = true;
-            }
-            checkData.put("currencyRefId", currencyRefSet);
-            checkData.put("currencyRef", currencyRefExist);
+        Set<String> currencyRefSet = cpaccountService.getCurrencyRefSet(corpId, data.getPk_corp_account());
+        boolean currencyRefExist = false;
+        if (currencyRefSet.size() > 1 || currencyRefSet.size() == 1
+                && !currencyRefSet.contains(IGlobalConstants.RMB_currency_id)) {
+            currencyRefExist = true;
         }
+        checkData.put("currencyRefId", currencyRefSet);
+        checkData.put("currencyRef", currencyRefExist);
         checkData.put("ref", pzRef || qcRef);
         checkData.put("parentVerification", parentVerification);
         json.setData(checkData);
