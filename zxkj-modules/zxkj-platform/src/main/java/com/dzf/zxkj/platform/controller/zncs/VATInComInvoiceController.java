@@ -104,7 +104,7 @@ public class VATInComInvoiceController extends BaseController {
 
 
     @RequestMapping("/queryInfo")
-    public ReturnData queryInfo(@RequestBody Map<String,String> param){
+    public ReturnData queryInfo(@RequestBody InvoiceParamVO paramvo){
 
         Grid grid = new Grid();
         try {
@@ -112,33 +112,15 @@ public class VATInComInvoiceController extends BaseController {
             if(StringUtil.isEmpty(SystemUtil.getLoginCorpId())){//corpVo.getPrimaryKey()
                 throw new BusinessException("出现数据无权问题！");
             }
-            Integer page = StringUtil.isEmpty(param.get("page"))?1:Integer.parseInt(param.get("page"));
-            Integer rows = StringUtil.isEmpty(param.get("rows"))?50:Integer.parseInt(param.get("rows"));
-            InvoiceParamVO paramvo = new InvoiceParamVO();
-            String sort = param.get("sort");
-            String order = param.get("order");
-            paramvo.setBegindate(new DZFDate(param.get("begindate")));
-            paramvo.setBegindate2(new DZFDate(param.get("begindate2")));
-            paramvo.setEnddate(new DZFDate(param.get("enddate")));
-            paramvo.setEnddate2(new DZFDate(param.get("enddate2")));
-            paramvo.setFpdm(param.get("fpdm"));
-            paramvo.setFphm(param.get("fphm"));
-            paramvo.setIoperatetype(param.get("ioperatetype"));
-            paramvo.setIspz(param.get("ispz"));
-            paramvo.setIszh(param.get("iszh"));
-            paramvo.setPage(page);
-            paramvo.setRows(rows);
-            paramvo.setSerdate(param.get("serdate"));
-            paramvo.setStartYear2(param.get("startYear2"));
-            paramvo.setStartMonth2(param.get("startMonth2"));
+
             paramvo.setPk_corp(SystemUtil.getLoginCorpId());
-            List<VATInComInvoiceVO> list = gl_vatincinvact.quyerByPkcorp(paramvo, sort, order);
+            List<VATInComInvoiceVO> list = gl_vatincinvact.quyerByPkcorp(paramvo, paramvo.getSort(), paramvo.getOrder());
             //list变成数组
             grid.setTotal((long) (list==null ? 0 : list.size()));
             //分页
             VATInComInvoiceVO[] vos = null;
             if(list!=null && list.size()>0){
-                vos = getPagedZZVOs(list.toArray(new VATInComInvoiceVO[0]),page,rows);
+                vos = getPagedZZVOs(list.toArray(new VATInComInvoiceVO[0]),paramvo.getPage(),paramvo.getRows());
                 for (VATInComInvoiceVO vo:vos) {
                     //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
                     if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
@@ -174,22 +156,6 @@ public class VATInComInvoiceController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    /**
-     * 获取参数
-     * @return
-     */
-    private InvoiceParamVO getQueryParamVO(String head){
-
-
-        InvoiceParamVO paramvo = JsonUtils.deserialize(head, InvoiceParamVO.class);
-
-        if(paramvo == null){
-            paramvo = new InvoiceParamVO();
-        }
-        paramvo.setPk_corp(SystemUtil.getLoginCorpId());
-
-        return paramvo;
-    }
 
     private VATInComInvoiceVO[] getPagedZZVOs(VATInComInvoiceVO[] vos, int page, int rows) {
         int beginIndex = rows * (page-1);

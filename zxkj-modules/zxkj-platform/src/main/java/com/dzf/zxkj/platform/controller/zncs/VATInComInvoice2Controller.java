@@ -123,7 +123,6 @@ public class VATInComInvoice2Controller extends BaseController {
                 throw new BusinessException("出现数据无权问题！");
             }
             paramvo.setPk_corp(SystemUtil.getLoginCorpId());
-//            InvoiceParamVO paramvo = getQueryParamVO(head);
 
             List<VATInComInvoiceVO2> list = gl_vatincinvact2.quyerByPkcorp(paramvo, paramvo.getSort(), paramvo.getOrder());
             //list变成数组
@@ -176,27 +175,6 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    /**
-     * 获取参数
-     * @return
-     */
-    private InvoiceParamVO getQueryParamVO(String head){
-
-
-//          JSON headjs = (JSON) JSON.parse(head);
-//        Map<String, String> headmaping = FieldMapping.getFieldMapping(new InvoiceParamVO());
-//        InvoiceParamVO paramvo = DzfTypeUtils.cast(headjs, headmaping, InvoiceParamVO.class,
-//                JSONConvtoJAVA.getParserConfig());
-//        JSONObject jsonObject= JSONObject.fromObject(head);
-//        InvoiceParamVO paramvo=(InvoiceParamVO)JSONObject.toBean(jsonObject, InvoiceParamVO.class);
-        InvoiceParamVO paramvo=JSON.parseObject(head,InvoiceParamVO.class);
-        if(paramvo == null){
-            paramvo = new InvoiceParamVO();
-        }
-        paramvo.setPk_corp(SystemUtil.getLoginCorpId());
-
-        return paramvo;
-    }
 
     private VATInComInvoiceVO2[] getPagedZZVOs(VATInComInvoiceVO2[] vos, int page, int rows) {
         int beginIndex = rows * (page-1);
