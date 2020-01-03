@@ -936,7 +936,7 @@ public class CashFlowAnalyse {
 					return sumdouble;//直接返回
 				}
 			}
-			tempres = tempmny.add(slvalue.div(sumvalue).multiply(tempmny).setScale(2, DZFDouble.ROUND_HALF_UP));
+			tempres = tempmny.add(slvalue.div(sumvalue).multiply(tempmny).setScale(2, DZFDouble.ROUND_UP));
 		}else{
 			tempres = tempmny;
 		}
