@@ -823,32 +823,36 @@ public class VoucherController {
         int fail = 0;
         Map<String, Boolean> statusMap = new HashMap<String, Boolean>();
         StringBuilder msg = new StringBuilder();
-        String reason = "";
+        String errorMsg = null;
 
         List<TzpzHVO> hvos = gl_tzpzserv.queryVoucherByIds(Arrays.asList(idsArray),
                 false, false, false);
         if (hvos == null) {
             throw new BusinessException("凭证信息为空!");
         }
+
         Map<String, Boolean> closeStatus = new HashMap<>();
         for (TzpzHVO hvo : hvos) {
             if (checkCloseStatus(hvo.getPk_corp(), hvo.getPeriod(), closeStatus)) {
                 fail++;
-                if (reason.equals("")) {
-                    reason = " 原因：已年结不能取消审核";
+                if (errorMsg == null) {
+                    errorMsg = "已年结不能取消审核";
                 }
                 continue;
             }
             if (hvo.getIshasjz() != null && hvo.getIshasjz().booleanValue()) {
                 fail++;
+                if (errorMsg == null) {
+                    errorMsg = "已记账,不能取消审核";
+                }
                 continue;
             }
-            if (hvo.getVbillstatus() == IVoucherConstants.TEMPORARY) {// 暂存态不能反审核
+            if (hvo.getVbillstatus() == IVoucherConstants.TEMPORARY
+                    || hvo.getVbillstatus() == IVoucherConstants.FREE) {
                 fail++;
-                continue;
-            }
-            if (hvo.getVbillstatus() == IVoucherConstants.FREE) {// 自由态(8)
-                fail++;
+                if (errorMsg == null) {
+                    errorMsg = "未审核,不能取消审核";
+                }
                 continue;
             }
             if (!corpSet.contains(hvo.getPk_corp())) {
@@ -862,17 +866,31 @@ public class VoucherController {
         if (success > 0) {
             gl_pzglserv.updateUnAudit(updateList);
         }
-        if (fail > 0) {
-            json.setStatus(2);
-            msg.append("成功：" + success + "，失败：" + fail + reason);
+        if (idsArray.length == 1) {
+            if (fail > 0) {
+                json.setMsg(errorMsg);
+                json.setSuccess(false);
+            } else {
+                json.setMsg("反审核成功");
+                json.setSuccess(true);
+            }
         } else {
-            json.setStatus(0);
-            msg.append("反审核成功" + success + "条");
+            if (fail > 0) {
+                json.setStatus(2);
+                msg.append("成功：")
+                        .append(updateList.size())
+                        .append("，失败：").append(fail);
+                if (errorMsg != null) {
+                    msg.append(",原因：").append(errorMsg);
+                }
+            } else {
+                json.setStatus(0);
+                msg.append("反审核成功" + success + "条");
+            }
+            json.setMsg(msg.toString());
+            json.setSuccess(true);
         }
         json.setData(statusMap);
-        json.setSuccess(true);
-        json.setMsg(msg.toString());
-
         return ReturnData.ok().data(json);
     }
 
@@ -1993,6 +2011,31 @@ public class VoucherController {
             json.setSuccess(false);
             json.setMsg("未选择凭证！");
         }
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 查询凭证是否已经回冲过
+     * 根据摘要判断
+     * 摘要：红冲 + 制单日期 + 回冲的凭证号
+     */
+    @GetMapping("/checkHasScarletLetter")
+    public ReturnData checkHasScarletLetter(@RequestParam String pzh, @RequestParam String date) {
+        Json json = new Json();
+        VoucherParamVO param = new VoucherParamVO();
+        param.setPzh(pzh);
+        param.setZdrq(new DZFDate(date));
+        param.setPk_corp(SystemUtil.getLoginCorpId());
+        //参数： 制单日期和需要回冲的凭证号
+        List<TzpzHVO> list = gl_tzpzserv.serHasRedBack(param);
+        if (list == null || list.size() == 0) {
+            json.setMsg("该凭证可以进行红字回冲");
+            json.setData(false);
+        } else {
+            json.setMsg("该凭证不可再进行红字回冲");
+            json.setData(true);
+        }
+        json.setSuccess(true);
         return ReturnData.ok().data(json);
     }
 }
