@@ -184,7 +184,7 @@ public class XszController  extends ReportBaseController {
                 list.add(new ColumnCellAttr("日期",null,null,2,"rq",1));
                 list.add(new ColumnCellAttr("年度",null,null,2,"year",1));
                 list.add(new ColumnCellAttr("期间",null,null,2,"qj",1));
-                list.add(new ColumnCellAttr("凭证字",null,null,2,"pzz",1));
+//                list.add(new ColumnCellAttr("凭证字",null,null,2,"pzz",1));
                 list.add(new ColumnCellAttr(" 凭证号",null,null,2,"pzh",1));
                 list.add(new ColumnCellAttr("摘要",null,null,2,"zy",1));
                 list.add(new ColumnCellAttr("科目编码",null,null,2,"kmbm",1));
