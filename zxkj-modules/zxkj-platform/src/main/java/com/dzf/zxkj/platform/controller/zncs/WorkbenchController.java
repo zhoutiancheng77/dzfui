@@ -1427,12 +1427,7 @@ public class WorkbenchController extends BaseController {
                 throw new BusinessException("当前公司未启用库存核算!");
             }
             String pk_corp = corpvo.getPk_corp();
-            JSONArray array = (JSONArray) JSON.parseArray(goods);
-//            Map<String, String> goodsmapping = FieldMapping.getFieldMapping(
-//                    new VatGoosInventoryRelationVO());
-//            VatGoosInventoryRelationVO []vos = DzfTypeUtils.cast(array, goodsmapping,
-//                    VatGoosInventoryRelationVO[].class, JSONConvtoJAVA.getParserConfig());
-            VatGoosInventoryRelationVO[] vos = array.toArray(new VatGoosInventoryRelationVO[0]);
+            VatGoosInventoryRelationVO[] vos = JsonUtils.deserialize(goods,VatGoosInventoryRelationVO[].class);
             if(vos==null||vos.length==0)throw new BusinessException("未勾选数据，请检查!");
             iInterfaceBill.updateGoodsInvenRela(vos, SystemUtil.getLoginUserId(), pk_corp);
             //grid.setTotal(total);
