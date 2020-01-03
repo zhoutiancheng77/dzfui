@@ -889,7 +889,7 @@ public class QmclController {
                 try {
                     pk_corp = vo.getPk_corp();
                     period = vo.getPeriod();
-                    forwardtype = vo.getIcosttype();
+                    forwardtype = getIcosttypeValue(vo);
                     unitname = vo.getCorpname();
                     msg.append("公司：").append(unitname).append(",期间").append(period);
                     if (forwardtype != null && (forwardtype == 2 || forwardtype == 3)) {
@@ -950,7 +950,7 @@ public class QmclController {
             String userid = userVO.getCuserid();
             QmclVO resvos = null;
             // 成本结转方式为手工结转 和 比例结转
-            Integer forwardtype = qmvo.getIcosttype();
+            Integer forwardtype = getIcosttypeValue(qmvo);
             // 在特殊情况下，大账房公司，这里强制按 0 进行处理
             boolean dzfflag = qmjzByDzfConfig.dzf_pk_gs.equals(qmvo.getPk_corp());
             if(dzfflag){
@@ -989,7 +989,7 @@ public class QmclController {
         QmclVO resvos = null;
         try {
             // 上一期成本是否结转校验
-            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(qmvo.getIcosttype()));
+            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(getIcosttypeValue(qmvo)));
             CorpVO cpvo = corpService.queryByPk(qmvo.getPk_corp());
             if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){ // 启用进销存的
                 resvos = gl_qmclserv.saveCbjz(qmvo, userid);
@@ -1034,6 +1034,20 @@ public class QmclController {
         return ReturnData.ok().data(grid);
     }
 
+    private Integer getIcosttypeValue(QmclVO qmvo) {
+        if(qmvo == null){
+            return 0;
+        }
+        Integer forwardtype = qmvo.getIcosttype();
+        if(forwardtype == null){
+            CorpVO cpvo = corpService.queryByPk(qmvo.getPk_corp());
+            forwardtype = cpvo.getIcostforwardstyle();
+            if(forwardtype == null){
+                forwardtype = 0;
+            }
+        }
+        return forwardtype;
+    }
 
     // 工业成本结转
     public ReturnData<Grid> onIndustrycbjz(QmclVO qmvo, UserVO userVO) {
@@ -1041,7 +1055,7 @@ public class QmclController {
         String userid = userVO.getCuserid();
         try {
             // 上一期成本是否结转校验
-            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(qmvo.getIcosttype()));
+            gl_qmclnoicserv.judgeLastPeriod(qmvo.getPk_corp(), userid, qmvo.getPeriod(), String.valueOf(getIcosttypeValue(qmvo)));
             CorpVO cpvo = corpService.queryByPk(qmvo.getPk_corp());
             if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){ //启用进销存的
                 grid.setSuccess(true);
