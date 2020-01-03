@@ -38,7 +38,7 @@ public class DcPzmbController {
     @Autowired
     private IDcpzService dcpzjmbserv;
     @Autowired
-    private ICorpService corpserv;
+    private ICorpService corpService;
 
     //保存
     @PostMapping("/save")
@@ -388,7 +388,7 @@ public class DcPzmbController {
          * 行业字段为空，显示在之后 
          * 行业字段为非当前公司所属行业，不显示
          */
-        CorpVO corpvo = corpserv.queryByPk(corpid);
+        CorpVO corpvo = corpService.queryByPk(corpid);
         List<DcModelHVO> listup = new ArrayList<>();
         List<DcModelHVO> listdown = new ArrayList<>();
         for (DcModelHVO vo : list) {

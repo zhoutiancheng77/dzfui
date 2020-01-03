@@ -13,10 +13,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
-import com.dzf.zxkj.base.utils.DZFValueCheck;
-import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.utils.FieldMapping;
-import com.dzf.zxkj.base.utils.VOUtil;
+import com.dzf.zxkj.base.utils.*;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
@@ -5532,7 +5529,7 @@ public class VATInComInvoiceServiceImpl implements IVATInComInvoiceService {
 			return null;
 		}
 		//过滤数据
-		DcPzmbController mb = new DcPzmbController();
+		DcPzmbController mb = SpringUtils.getBean(DcPzmbController.class);
 		mb.sortH(dcList, null, "Y", null);
 		dcList = mb.filterDataCommon(dcList, pk_corp, null, "Y", null, null);
 

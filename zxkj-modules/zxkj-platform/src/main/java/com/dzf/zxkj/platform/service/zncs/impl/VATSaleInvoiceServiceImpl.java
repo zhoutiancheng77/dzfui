@@ -38,6 +38,7 @@ import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.FieldMapping;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.entity.Grid;
@@ -6029,7 +6030,7 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 			return null;
 		}
 		//过滤数据
-		DcPzmbController mb = new DcPzmbController();
+		DcPzmbController mb = SpringUtils.getBean(DcPzmbController.class);
 		mb.sortH(dcList, null, null, "Y");
 		dcList = mb.filterDataCommon(dcList, pk_corp, null, null, "Y", null);
 		

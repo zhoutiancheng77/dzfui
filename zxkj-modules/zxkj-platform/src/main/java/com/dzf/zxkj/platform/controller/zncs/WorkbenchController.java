@@ -1419,7 +1419,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(grid);
     }
     @RequestMapping("/saveVatGoosInventory_long")
-    public ReturnData<Grid> saveVatGoosInventory_long(@RequestBody String goods){
+    public ReturnData<Grid> saveVatGoosInventory_long(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try{
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
@@ -1427,6 +1427,7 @@ public class WorkbenchController extends BaseController {
                 throw new BusinessException("当前公司未启用库存核算!");
             }
             String pk_corp = corpvo.getPk_corp();
+            String goods = param.get("goods");
             VatGoosInventoryRelationVO[] vos = JsonUtils.deserialize(goods,VatGoosInventoryRelationVO[].class);
             if(vos==null||vos.length==0)throw new BusinessException("未勾选数据，请检查!");
             iInterfaceBill.updateGoodsInvenRela(vos, SystemUtil.getLoginUserId(), pk_corp);

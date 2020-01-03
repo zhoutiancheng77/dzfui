@@ -23,6 +23,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.utils.FieldMapping;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -5062,7 +5063,7 @@ public class BankStatementServiceImpl implements IBankStatementService {
 				}
 			});
 			
-			dcList = new DcPzmbController().filterDataCommon(dcList, pk_corp,
+			dcList = SpringUtils.getBean(DcPzmbController.class).filterDataCommon(dcList, pk_corp,
 					"Y", null, null, null);
 			
 			Map<String, String> map = new HashMap<String, String>();
