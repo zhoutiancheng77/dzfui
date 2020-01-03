@@ -278,6 +278,7 @@ public class ZtszServiceImpl implements IZtszService {
 
 		if (queryvo.getCorpcode() != null && queryvo.getCorpcode().trim().length() > 0) {
 			sql.append(" and a.innercode like ? ");
+			sp.addParam(queryvo.getCorpcode());
 		}
 
 		if (queryvo.getBegindate1() != null && queryvo.getEnddate() != null) {
