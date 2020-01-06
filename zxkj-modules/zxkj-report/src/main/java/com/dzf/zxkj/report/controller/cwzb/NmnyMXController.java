@@ -2,8 +2,10 @@ package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
@@ -22,6 +24,7 @@ import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.excel.cwzb.NmnyDetailExcelField;
 import com.dzf.zxkj.report.service.cwzb.INummnyReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
@@ -43,7 +46,7 @@ import java.util.*;
 @RestController
 @RequestMapping("gl_rep_sljemxzact")
 @Slf4j
-public class NmnyMXController {
+public class NmnyMXController extends ReportBaseController {
     @Autowired
     private SingleObjectBO singleObjectBO;
     @Autowired
@@ -168,9 +171,9 @@ public class NmnyMXController {
         //日志记录
         String qjq = paramvo.getBegindate1() != null ? paramvo.getBegindate1().getYear() + "-" +paramvo.getBegindate1().getMonth() : "";
         String qjm = paramvo.getEnddate() != null ? paramvo.getEnddate().getYear() + "-" +paramvo.getEnddate().getMonth() : "";
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                new StringBuffer().append("数量金额明细账查询:")
-//                        .append(qjq).append("-").append(qjm).toString(), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                new StringBuffer().append("数量金额明细账查询:")
+                        .append(qjq).append("-").append(qjm).toString(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 
     }
@@ -413,6 +416,7 @@ public class NmnyMXController {
     //导出excel
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody PrintParamVO printParamVO,
+                            @MultiRequestBody QueryParamVO paramvo,
                             @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
 //        QueryParamVO paramvo = (QueryParamVO) DzfTypeUtils.cast(getRequest(), new QueryParamVO());
         String strlist = printParamVO.getList();
@@ -471,11 +475,11 @@ public class NmnyMXController {
             }
         }
 
-//        String qjq = paramvo.getBegindate1() != null ? paramvo.getBegindate1().getYear() + "-" +paramvo.getBegindate1().getMonth() : "";
-//        String qjm = paramvo.getEnddate() != null ? paramvo.getEnddate().getYear() + "-" +paramvo.getEnddate().getMonth() : "";
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                new StringBuffer().append("数量金额明细账导出:")
-//                        .append(qjq).append("-").append(qjm).toString(), ISysConstants.SYS_2);
+        String qjq = paramvo.getBegindate1() != null ? paramvo.getBegindate1().getYear() + "-" +paramvo.getBegindate1().getMonth() : "";
+        String qjm = paramvo.getEnddate() != null ? paramvo.getEnddate().getYear() + "-" +paramvo.getEnddate().getMonth() : "";
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                new StringBuffer().append("数量金额明细账导出:")
+                        .append(qjq).append("-").append(qjm).toString(), ISysConstants.SYS_2);
     }
 
     private void setExprotInfo(NmnyDetailExcelField xsz){

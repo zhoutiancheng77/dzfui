@@ -1,8 +1,11 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
@@ -42,7 +45,7 @@ import java.util.concurrent.Future;
 @RestController
 @RequestMapping("/gl/gl_backupact")
 @Slf4j
-public class BackupAndRestoreController {
+public class BackupAndRestoreController extends BaseController {
 
 	@Autowired
 	private IDataBackUp gl_databackup;
@@ -113,7 +116,7 @@ public class BackupAndRestoreController {
 			json.setMsg("保存成功");
 			json.setSuccess(true);
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "数据备份", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据备份", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -210,7 +213,8 @@ public class BackupAndRestoreController {
 			json.setSuccess(false);
 			json.setMsg(e instanceof BusinessException ? e.getMessage() : "更新失败");
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "数据备注更新", ISysConstants.SYS_2);
+
+		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据备注更新", ISysConstants.SYS_2);
 
 		return ReturnData.ok().data(json);
 	}
@@ -244,7 +248,7 @@ public class BackupAndRestoreController {
 			json.setMsg("恢复成功");
 			json.setSuccess(true);
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "数据恢复", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据恢复", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -263,7 +267,7 @@ public class BackupAndRestoreController {
 			json.setSuccess(false);
 			json.setMsg(e instanceof BusinessException ? e.getMessage() : "恢复失败！");
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "数据恢复", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据恢复", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -283,7 +287,7 @@ public class BackupAndRestoreController {
 			json.setSuccess(false);
 			json.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败！");
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH.getValue(), "备份删除", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "备份删除", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 

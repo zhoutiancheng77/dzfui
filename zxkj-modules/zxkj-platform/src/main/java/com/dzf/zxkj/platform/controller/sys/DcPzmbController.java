@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.FieldConstant;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -33,7 +36,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/sys/sys_dcpzmb")
 @Slf4j
-public class DcPzmbController {
+public class DcPzmbController extends BaseController{
 
     @Autowired
     private IDcpzService dcpzjmbserv;
@@ -60,9 +63,9 @@ public class DcPzmbController {
             String errorinfo = dcpzjmbserv.check(corpid,headvo);
             if(errorinfo == null || errorinfo.length() == 0){
                 if(StringUtil.isEmpty(headvo.getPrimaryKey())){
-                    tips= "新增数据中心凭证模板";
+                    tips= "新增业务类型模板";
                 }else{
-                    tips= "修改数据中心凭证模板";
+                    tips= "修改业务类型模板";
                 }
                 DcModelHVO savevo = dcpzjmbserv.save(headvo);
                 DcModelBVO[] savebody = (DcModelBVO[])savevo.getChildren();
@@ -80,7 +83,7 @@ public class DcPzmbController {
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败!");
         }
-//        writeLogRecord(LogRecordEnum.OPE_JITUAN_PZMB.getValue(), tips, ISysConstants.SYS_0);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, tips, ISysConstants.SYS_2);
 
         return ReturnData.ok().data(json);
     }
@@ -191,7 +194,7 @@ public class DcPzmbController {
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败!");
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_JITUAN_PZMB.getValue(), "删除数据中心凭证模板", ISysConstants.SYS_0);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "删除业务类型模板", ISysConstants.SYS_0);
         return ReturnData.ok().data(json);
     }
 
@@ -240,7 +243,7 @@ public class DcPzmbController {
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "复制失败!");
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "复制业务模板到其它公司", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "复制业务模板到其它公司", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -552,7 +555,7 @@ public class DcPzmbController {
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "导入失败!");
         }
-
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,"导入业务类型模板", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 

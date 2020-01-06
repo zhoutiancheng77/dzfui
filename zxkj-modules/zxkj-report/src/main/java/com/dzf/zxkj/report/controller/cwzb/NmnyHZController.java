@@ -2,9 +2,11 @@ package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
@@ -93,6 +95,11 @@ public class NmnyHZController extends ReportBaseController {
             grid.setRows(new ArrayList<NumMnyGlVO>());
 			grid.setMsg("查询失败:"+e.getMessage());
         }
+        //日志记录
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                new StringBuffer().append("数量金额总账查询:").
+                        append(paramVO.getQjq()).append("-").append(paramVO.getQjz()).toString(),
+                ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
     private List<NumMnyGlVO> conversionTree(List<NumMnyGlVO> kmmxvos, Integer cjq,Integer cjz,String pk_corp) {
@@ -327,9 +334,9 @@ public class NmnyHZController extends ReportBaseController {
             }
         }
         //日志记录
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                new StringBuffer().append("数量金额总账导出:")
-//                        .append(qj).toString(), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                new StringBuffer().append("数量金额总账导出:")
+                        .append(qj).toString(), ISysConstants.SYS_2);
     }
 
 

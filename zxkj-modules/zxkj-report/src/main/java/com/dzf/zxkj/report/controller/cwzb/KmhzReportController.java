@@ -1,8 +1,10 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -74,6 +76,9 @@ public class KmhzReportController extends ReportBaseController {
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException? e.getMessage() : "查询失败！");
         }
+
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "科目汇总表查询:" + vo.getBegindate1() +"-"+ vo.getEnddate(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -199,6 +204,7 @@ public class KmhzReportController extends ReportBaseController {
      */
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody PrintParamVO printParamVO,
+                            @MultiRequestBody QueryParamVO qryvo,
                             @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
 //        HttpServletRequest request = getRequest();
         String strlist = printParamVO.getList();
@@ -247,8 +253,8 @@ public class KmhzReportController extends ReportBaseController {
 
 //        QueryParamVO qryvo = getQueryParamVO();
 //
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "科目汇总表导出:"+qryvo.getBegindate1() +"-"+ qryvo.getEnddate(), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "科目汇总表导出:"+ qryvo.getBegindate1() +"-"+ qryvo.getEnddate(), ISysConstants.SYS_2);
     }
 
 }

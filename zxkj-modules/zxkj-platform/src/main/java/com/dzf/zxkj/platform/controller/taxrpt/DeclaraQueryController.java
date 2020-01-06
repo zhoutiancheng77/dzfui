@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.taxrpt;
 
+import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -24,7 +27,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/taxrpt/declaraquery")
 @Slf4j
-public class DeclaraQueryController {
+public class DeclaraQueryController extends BaseController {
     @Autowired
     private ITaxDeclarationService taxDeclarationService;
     @Autowired
@@ -56,6 +59,9 @@ public class DeclaraQueryController {
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败");
         }
+
+        // 日志记录
+        writeLogRecord(LogRecordEnum.OPE_KJ_TAX, "纳税申报查询", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
