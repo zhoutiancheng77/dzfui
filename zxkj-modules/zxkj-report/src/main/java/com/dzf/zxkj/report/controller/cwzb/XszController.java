@@ -89,6 +89,16 @@ public class XszController  extends ReportBaseController {
         return queryvo;
     }
 
+    private void formaterColumn( XsZVO[] kmmxvos) {
+        if (kmmxvos!= null && kmmxvos.length > 0) {
+            for (XsZVO xszvo:kmmxvos) {
+                if (!StringUtil.isEmpty(xszvo.getPzh())) {
+                    xszvo.setPzh("记" + xszvo.getPzh());
+                }
+            }
+        }
+    }
+
     private XsZVO[] queryVOsFromCon( KmReoprtQueryParamVO queryvo,CorpVO corpVO) {
         String pk_corp = queryvo.getPk_corp();
         /** 验证 查询范围应该在当前登录人的权限范围内 */
@@ -137,6 +147,7 @@ public class XszController  extends ReportBaseController {
         String gs= excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
         XsZVO[] listVo = queryVOsFromCon(queryparamvo,corpVO);
+        formaterColumn(listVo);
         String currencyname = new ReportUtil().getCurrencyDw(queryparamvo.getCurrency());
         String[] periods = new String[]{qj};
         String[] allsheetname = new String[]{"序时账"};
@@ -177,6 +188,7 @@ public class XszController  extends ReportBaseController {
             printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));
             XsZVO[] bodyvos = reloadNewValue(printParamVO.getTitleperiod(),printParamVO.getCorpName(),queryParamvo,corpVO);
 
+            formaterColumn(bodyvos);
             ColumnCellAttr[] columncellattrvos = null;
             String isxshl= printParamVO.getIsxshl();
             List<ColumnCellAttr> list = new ArrayList<ColumnCellAttr>();
