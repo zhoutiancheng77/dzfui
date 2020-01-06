@@ -140,11 +140,11 @@ public class VATInComInvoiceController extends BaseController {
     }
 
     @RequestMapping("/queryInfoByID")
-    public ReturnData queryInfoByID(@RequestBody Map<String,String> param){
+    public ReturnData queryInfoByID(String id){
         Json json = new Json();
 
         try {
-            VATInComInvoiceVO hvo = gl_vatincinvact.queryByID(param.get("id"));
+            VATInComInvoiceVO hvo = gl_vatincinvact.queryByID(id);
 
             json.setData(hvo);
             json.setSuccess(true);
