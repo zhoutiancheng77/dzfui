@@ -423,14 +423,8 @@ public class WorkbenchController extends BaseController {
         try{
             String head = param.get("head");
             String body = param.get("body");
-//            JSON headjs = (JSON) JSON.parse(head);
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-//            Map<String,String> headmaping=FieldMapping.getFieldMapping(new CategorysetVO());
-//            Map<String,String> bodymapping=FieldMapping.getFieldMapping(new CategorysetBVO());
-//            CategorysetVO headvo = DzfTypeUtils.cast(headjs,headmaping, CategorysetVO.class, JSONConvtoJAVA.getParserConfig());
-//            CategorysetBVO[] bodyvos =DzfTypeUtils.cast(array,bodymapping, CategorysetBVO[].class, JSONConvtoJAVA.getParserConfig());
-            CategorysetVO headvo = JSON.parseObject(head,CategorysetVO.class);
-            CategorysetBVO[] bodyvos = array.toArray(new CategorysetBVO[0]);
+            CategorysetVO headvo = JsonUtils.deserialize(head,CategorysetVO.class);
+            CategorysetBVO[] bodyvos = JsonUtils.deserialize(body,CategorysetBVO[].class);
             String pk_corp=SystemUtil.getLoginCorpId();
             iEditDirectory.saveAuxiliaryAccountVO(pk_corp, headvo, bodyvos);
             json.setSuccess(true);
