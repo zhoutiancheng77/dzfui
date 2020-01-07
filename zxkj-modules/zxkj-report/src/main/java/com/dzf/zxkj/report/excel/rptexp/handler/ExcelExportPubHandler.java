@@ -127,17 +127,17 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
             case "25": //山西
                 if (cwbbType == CwbbType.ZCFZB) {
                     putValue(sheet, "C4", nsrmc); //C4 - CorpName
-                    putValue(sheet, "G4", bbrq); //G4 - EndDate
+                    putValue(sheet, "G4", bbrq); //G4 - EndDate //K4
                 } else if (cwbbType == CwbbType.LRB) {
                     putValue(sheet, "C4", nsrmc); //C4 - CorpName
-                    putValue(sheet, "E4", bbrq); //E4 - EndDate
+                    putValue(sheet, "E4", bbrq); //E4 - EndDate //F4
                 } else if (cwbbType == CwbbType.XJLLB) {
                     putValue(sheet, "A3", "编制单位：" + nsrmc); //A3 - "编制单位："+CorpName
                     if (is07zz(corpType)) {
                         String perioddesc = String.format("       日期：%d年%s月%s日 至 %d年%s月%s日", sDate.getYear(), sDate.getStrMonth(), sDate.getStrDay(), eDate.getYear(), eDate.getStrMonth(), eDate.getStrDay());
                         putValue(sheet, "A2", perioddesc); //A2 - "       日期：yyyy年mm月dd日 至 yyyy年mm月dd日"
-                    } else {
-                        putValue(sheet, "A2", getEndDate("                 报表日期：yyyy年MM月dd日")); //A2 - "                 报表日期：yyyy年mm月dd日"
+                    } else { /*                 */
+                        putValue(sheet, "A2", getEndDate("                报表日期：yyyy年MM月dd日")); //A2 - "                 报表日期：yyyy年mm月dd日"
                     }
                 }
                 break;
@@ -189,6 +189,7 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
                 sheet = sheet.getWorkbook().getSheet("公共信息表");
                 putValue(sheet, "B5", nsrsbh); //B5 - TaxNo
                 putValue(sheet, "B6", nsrmc); //B6 - CorpName
+                //日期短一点，要不单元格写不下
                 putValue(sheet, "B7", sDate.getYear()); //B7 - BeginDate.Year
                 putValue(sheet, "D7", sDate.getMonth()); //D7 - BeginDate.Month
                 putValue(sheet, "F7", sDate.getDay()); //F7 - BeginDate.Day
@@ -202,23 +203,23 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
         }
     }
 
-    public void putValue(Sheet sheet, String tocell, Object value) {
-        //B5 --> R5C2：rowno=4，colno=1
-        int rowno = 0, colno = 0;
-        char c;
-        for (int i = 0; i < tocell.length(); i++) {
-            c = tocell.charAt(i);
-            if (c >= 'A' && c <= 'Z') {
-                colno += colno * 26 + (c - 'A' + 1);
-            } else {
-                rowno += rowno * 10 + (c - '0');
-            }
-        }
-        rowno--;
-        colno--;
-
-        sheet.getRow(rowno).getCell(colno).setCellValue(value != null ? value.toString() : "");
-    }
+//    public void putValue(Sheet sheet, String tocell, Object value) {
+//        //B5 --> R5C2：rowno=4，colno=1
+//        int rowno = 0, colno = 0;
+//        char c;
+//        for (int i = 0; i < tocell.length(); i++) {
+//            c = tocell.charAt(i);
+//            if (c >= 'A' && c <= 'Z') {
+//                colno += colno * 26 + (c - 'A' + 1);
+//            } else {
+//                rowno += rowno * 10 + (c - '0');
+//            }
+//        }
+//        rowno--;
+//        colno--;
+//
+//        sheet.getRow(rowno).getCell(colno).setCellValue(value != null ? value.toString() : "");
+//    }
 
     /**
      * 得到指定地区指定会计准则指定报表的列映射规则（colnos-目标位置，fields-数据来源）
@@ -232,14 +233,18 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
     private ColMapInfo getColumnMappingInfo(String areaType, String corpType, CwbbType cwbbType) {
         Integer[] colnos = null;
         String[] fields = null;
+        //是否肤浅地区：宁波、江西、黑龙江等地区没有现金流量表、且一般企业利润表不取去年同期金额
+        boolean isSimpleArea = areaType.equals("29") || areaType.equals("30") || areaType.equals("31");
+        //是否统一格式的3个地区：陕西、大连、青海的表样格式一样
+        boolean isUniformArea = areaType.equals("26") || areaType.equals("28") || areaType.equals("32");
         if (cwbbType == CwbbType.ZCFZB) {          //资产负债表
-            if (areaType.equals("25")) { //山西
+            if (isSimpleArea) { //宁波、江西、黑龙江
+                colnos = new Integer[]{0, 2, 3, 4, 6, 7};
+            } else if (areaType.equals("25")) { //山西
                 colnos = new Integer[]{1, 4, 5, 6, 9, 10};
             } else if (areaType.equals("27")) { //新疆
                 colnos = new Integer[]{0, 4, 5, 7, 12, 13};
-            } else if (areaType.equals("29") || areaType.equals("30") || areaType.equals("31")) { //宁波、江西、黑龙江
-                colnos = new Integer[]{0, 2, 3, 4, 6, 7};
-            } else if (areaType.equals("26") || areaType.equals("28") || areaType.equals("32")) { //陕西、大连、青海
+            } else if (isUniformArea) { //陕西、大连、青海
                 if (is07zz(corpType))
                     colnos = new Integer[]{2, 3, 4, 5, 6, 7};
                 else
@@ -247,29 +252,28 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
             }
             fields = new String[]{"qmye1", "ncye1", "qmye2", "ncye2"};
         } else if (cwbbType == CwbbType.LRB) {     //利润表
-            if (areaType.equals("25") || areaType.equals("27")) { //山西、新疆
+            if (isSimpleArea) { //宁波、江西、黑龙江：利润表不区分07企业和13小企业
+                colnos = new Integer[]{0, 2, 3};
+            } else if (areaType.equals("25") || areaType.equals("27")) { //山西、新疆
                 if (areaType.equals("25")) { //山西
                     colnos = new Integer[]{1, 4, 5};
                 } else if (areaType.equals("27")) { //新疆
                     colnos = new Integer[]{0, 6, 9};
                 }
-                if (is07zz(corpType)) { //07企业：本期、上期
-                    fields = new String[]{"bnljje", "lastyear_bnljje"};
-                } else {                //13小企业：本年累计、本月
-                    fields = new String[]{"bnljje", "byje"};
-                }
-            } else if (areaType.equals("29") || areaType.equals("30") || areaType.equals("31")) { //宁波、江西、黑龙江：利润表和现金流量表不区分07企业和13小企业
-                colnos = new Integer[]{0, 2, 3};
-                if (areaType.equals("31")) //黑龙江是本年累计、本月
-                    fields = new String[]{"bnljje", "byje"};
-                else //本月、本年累计
-                    fields = new String[]{"byje", "bnljje"};
-            } else if (areaType.equals("26") || areaType.equals("28") || areaType.equals("32")) { //陕西、大连、青海
-                if (is07zz(corpType)) { //07企业：本期、上期
+            } else if (isUniformArea) { //陕西、大连、青海
+                if (is07zz(corpType)) { //07企业
                     colnos = new Integer[]{2, 3, 4};
-                    fields = new String[]{"bnljje", "lastyear_bnljje"};
-                } else {                //13小企业：本月、本年累计
+                } else {                //13小企业
                     colnos = new Integer[]{2, 7, 8};
+                }
+            }
+
+            if (!isSimpleArea && is07zz(corpType)) { //严格地区的 07一般企业：本期、上期
+                fields = new String[]{"bnljje", "lastyear_bnljje"};
+            } else {                //肤浅地区或13小企业：本月、本年累计
+                if (areaType.equals("27") || areaType.equals("31")) { //现在只有新疆和黑龙江是本年累计、本月，剩下都是本月、本年累计
+                    fields = new String[]{"bnljje", "byje"};
+                } else { //本月、本年累计
                     fields = new String[]{"byje", "bnljje"};
                 }
             }
@@ -280,17 +284,19 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
                 } else if (areaType.equals("27")) { //新疆
                     colnos = new Integer[]{0, 4, 5};
                 }
-                if (is07zz(corpType)) { //07企业：本期、上期
-                    fields = new String[]{"sqje", "sqje_last"};
-                } else {                //13小企业：本年累计、本月
-                    fields = new String[]{"sqje", "bqje"};
-                }
-            } else if (areaType.equals("26") || areaType.equals("28") || areaType.equals("32")) { //陕西、大连、青海
-                if (is07zz(corpType)) { //07企业：本期、上期
+            } else if (isUniformArea) { //陕西、大连、青海
+                if (is07zz(corpType)) { //07企业
                     colnos = new Integer[]{2, 3, 4};
-                    fields = new String[]{"sqje", "sqje_last"};
-                } else {                //13小企业：本月、本年累计
+                } else {                //13小企业
                     colnos = new Integer[]{2, 7, 9};
+                }
+            }
+            if (is07zz(corpType)) { //07企业：本期、上期
+                fields = new String[]{"sqje", "sqje_last"};
+            } else {                //13小企业：本月、本年累计
+                if (areaType.equals("27")) { //只有新疆是本年累计、本月
+                    fields = new String[]{"sqje", "bqje"};
+                } else { //本月、本年累计
                     fields = new String[]{"bqje", "sqje"};
                 }
             }
