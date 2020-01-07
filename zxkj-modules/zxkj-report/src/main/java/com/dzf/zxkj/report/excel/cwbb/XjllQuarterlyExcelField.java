@@ -28,6 +28,7 @@ public class XjllQuarterlyExcelField implements IExceport<XjllquarterlyVo> {
 
 	private Fieldelement[] fields = new Fieldelement[] {
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
+			new Fieldelement("hc", "行次", false, 0, false,60,false),
 			new Fieldelement("bnlj", "本年累计", true, 2, true), 
 			new Fieldelement("jd1", "第一季度", true, 2, true),
 			new Fieldelement("jd2", "第二季度", true, 2, true),

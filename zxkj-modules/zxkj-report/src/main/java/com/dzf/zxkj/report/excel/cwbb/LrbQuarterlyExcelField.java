@@ -38,6 +38,7 @@ public class LrbQuarterlyExcelField implements IExceport<LrbquarterlyVO> {
 
 	private Fieldelement[] fields = new Fieldelement[] {
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
+			new Fieldelement("hs", "行次", false, 0, false,10,false),
 			new Fieldelement("bnlj", "本年累计", true, 2, true), 
 			new Fieldelement("quarterFirst", "第一季度", true, 2, true),
 			new Fieldelement("quarterSecond", "第二季度", true, 2, true),
@@ -47,24 +48,28 @@ public class LrbQuarterlyExcelField implements IExceport<LrbquarterlyVO> {
 
 	private Fieldelement[] fields_jd1 = new Fieldelement[] { 
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
+			new Fieldelement("hs", "行次", false, 0, false,10,false),
 			new Fieldelement("bnlj", "本年累计", true, 2, true), 
 			new Fieldelement("quarterFirst", "第一季度", true, 2, true),
 			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
 	
 	private Fieldelement[] fields_jd2 = new Fieldelement[] { 
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
+			new Fieldelement("hs", "行次", false, 0, false,10,false),
 			new Fieldelement("bnlj", "本年累计", true, 2, true), 
 			new Fieldelement("quarterSecond", "第二季度", true, 2, true),
 			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
 	
 	private Fieldelement[] fields_jd3 = new Fieldelement[] { 
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
+			new Fieldelement("hs", "行次", false, 0, false,10,false),
 			new Fieldelement("bnlj", "本年累计", true, 2, true), 
 			new Fieldelement("quarterThird", "第三季度", true, 2, true),
 			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
 	
 	private Fieldelement[] fields_jd4 = new Fieldelement[] { 
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
+			new Fieldelement("hs", "行次", false, 0, false,10,false),
 			new Fieldelement("bnlj", "本年累计", true, 2, true), 
 			new Fieldelement("quarterFourth", "第四季度", true, 2, true),
 			new Fieldelement("sntqs", "上年同期数", true, 2, true)};

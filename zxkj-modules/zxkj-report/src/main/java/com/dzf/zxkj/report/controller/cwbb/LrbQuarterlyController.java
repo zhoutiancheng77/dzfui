@@ -242,9 +242,9 @@ public class LrbQuarterlyController extends ReportBaseController {
         Object[] obj = new Object[4];
         switch (type) {
             case 0:
-                obj[0] = new String[]{"xm","bnlj","quarterFirst","quarterSecond","quarterThird","quarterFourth","sntqs"};
-                obj[1] = new String[]{"项目","本年累计","第一季度","第二季度","第三季度","第四季度","上年同期数"};
-                obj[2] = new int[]{6,2,2,2,2,2,2};
+                obj[0] = new String[]{"xm","hs","bnlj","quarterFirst","quarterSecond","quarterThird","quarterFourth","sntqs"};
+                obj[1] = new String[]{"项目","行次","本年累计","第一季度","第二季度","第三季度","第四季度","上年同期数"};
+                obj[2] = new int[]{6,1,2,2,2,2,2,2};
                 obj[3] = 20;
                 break;
             default:
@@ -257,9 +257,9 @@ public class LrbQuarterlyController extends ReportBaseController {
         Object[] obj = new Object[4];
         switch (type) {
             case 0:
-                obj[0] = new String[]{"xm","bnlj","quarterFirst","sntqs"};
-                obj[1] = new String[]{"项目","本年累计","第一季度","上年同期数"};
-                obj[2] = new int[]{6,2,2,2};
+                obj[0] = new String[]{"xm","hs","bnlj","quarterFirst","sntqs"};
+                obj[1] = new String[]{"项目","行次","本年累计","第一季度","上年同期数"};
+                obj[2] = new int[]{6,1,2,2,2};
                 obj[3] = 20;
                 break;
             default:
@@ -272,9 +272,9 @@ public class LrbQuarterlyController extends ReportBaseController {
         Object[] obj = new Object[4];
         switch (type) {
             case 0:
-                obj[0] = new String[]{"xm","bnlj","quarterSecond","sntqs"};
-                obj[1] = new String[]{"项目","本年累计","第二季度","上年同期数"};
-                obj[2] = new int[]{6,2,2,2};
+                obj[0] = new String[]{"xm","hs","bnlj","quarterSecond","sntqs"};
+                obj[1] = new String[]{"项目","行次","本年累计","第二季度","上年同期数"};
+                obj[2] = new int[]{6,1,2,2,2};
                 obj[3] = 20;
                 break;
             default:
@@ -288,9 +288,9 @@ public class LrbQuarterlyController extends ReportBaseController {
         Object[] obj = new Object[4];
         switch (type) {
             case 0:
-                obj[0] = new String[]{"xm","bnlj","quarterThird","sntqs"};
-                obj[1] = new String[]{"项目","本年累计","第三季度","上年同期数"};
-                obj[2] = new int[]{6,2,2,2};
+                obj[0] = new String[]{"xm","hs","bnlj","quarterThird","sntqs"};
+                obj[1] = new String[]{"项目","行次","本年累计","第三季度","上年同期数"};
+                obj[2] = new int[]{6,1,2,2,2};
                 obj[3] = 20;
                 break;
             default:
@@ -303,9 +303,9 @@ public class LrbQuarterlyController extends ReportBaseController {
         Object[] obj = new Object[4];
         switch (type) {
             case 0:
-                obj[0] = new String[]{"xm","bnlj","quarterFourth","sntqs"};
-                obj[1] = new String[]{"项目","本年累计","第四季度","上年同期数"};
-                obj[2] = new int[]{6,2,2,2};
+                obj[0] = new String[]{"xm","hs","bnlj","quarterFourth","sntqs"};
+                obj[1] = new String[]{"项目","行次","本年累计","第四季度","上年同期数"};
+                obj[2] = new int[]{6,1,2,2,2};
                 obj[3] = 20;
                 break;
             default:
