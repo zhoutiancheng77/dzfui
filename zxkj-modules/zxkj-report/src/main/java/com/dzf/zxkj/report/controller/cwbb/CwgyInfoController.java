@@ -429,7 +429,7 @@ public class CwgyInfoController extends ReportBaseController {
                                 if(!StringUtil.isEmpty(svalue)){
                                     textValue=svalue;
                                 }
-                                if ("10".equals(t.getAttributeValue("hs")) && "".equals(t.getAttributeValue("xm"))) {
+                                if ("10".equals(t.getAttributeValue("hs")) && StringUtil.isEmpty((String)t.getAttributeValue("xm"))) {
                                     if (fieldName.equals("bnljje")) {
                                         if (t.getAttributeValue("bnljje") != null) {
                                             if (t.getAttributeValue("bnljje").equals(new DZFDouble(100))) {
@@ -466,9 +466,10 @@ public class CwgyInfoController extends ReportBaseController {
                             cell.setCellValue(richString);
                         }
 
-                        if (fieldName.equals("hs") || fieldName.equals("xmfl")) {
+                        if (fieldName.equals("hs") || fieldName.equals("xmfl") || fieldName.equals("xm")) {
                             // style2.setAlignment(HSSFCellStyle.ALIGN_CENTER);//
                             // 内容左右居中
+                            style2.setAlignment(HorizontalAlignment.LEFT);
                             style2.setVerticalAlignment(VerticalAlignment.CENTER);// 内容上下居中
                             cell.setCellStyle(style2);
                         }
@@ -520,7 +521,7 @@ public class CwgyInfoController extends ReportBaseController {
         style2.setBorderLeft(BorderStyle.THIN);//(short) 1
         style2.setBorderRight(BorderStyle.THIN);//(short) 1
         style2.setBorderTop(BorderStyle.THIN);//(short) 1
-        style2.setAlignment(HorizontalAlignment.CENTER);//(short) 1
+        style2.setAlignment(HorizontalAlignment.RIGHT);//(short) 1
         HSSFFont font2 = workbook.createFont();
         style2.setFont(font2);
         return style2;
@@ -550,7 +551,8 @@ public class CwgyInfoController extends ReportBaseController {
 
     private HSSFCellStyle createTitleStyle4(HSSFWorkbook workbook, short color) {
         HSSFCellStyle rightstyle = createTitleStyle3(workbook, color);
-        rightstyle.setAlignment(HorizontalAlignment.CENTER);//(short) 3
+
+        rightstyle.setAlignment(HorizontalAlignment.RIGHT);//(short) 3
         return rightstyle;
     }
 }
