@@ -199,7 +199,7 @@ public class CwgyInfoReportImpl implements ICwgyInfoReport {
 			if (endDate.before(jzdate)) {
 				endDate = jzdate;
 			}
-			zxkjPlatformService.queryFseInfo(ivos, pk_corp, endDate.toString());
+			ivos = zxkjPlatformService.queryFseInfo(ivos, pk_corp, endDate.toString());
 			CwgyInfoVO vo1 = new CwgyInfoVO();
 			vo1.setColspan(7);
 			vo1.setCol(col);

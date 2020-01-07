@@ -277,7 +277,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 	}
 
 	@Override
-	public FseJyeVO[] queryFseInfo(IncomeWarningVO[] ivos, String pk_corp,
+	public IncomeWarningVO[] queryFseInfo(IncomeWarningVO[] ivos, String pk_corp,
 								   String enddate) throws DZFWarpException {
 		if (ivos == null || ivos.length == 0) {
 			return null;
@@ -384,7 +384,7 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 				ivo.setInfonumber(new DZFDouble(ivo.getSrsx()).sub(fsTotal));
 			}
 		}
-		return null;
+		return ivos;
 	}
 
 	public String[] getPeriodRangeSpe(String period, Integer periodType){
