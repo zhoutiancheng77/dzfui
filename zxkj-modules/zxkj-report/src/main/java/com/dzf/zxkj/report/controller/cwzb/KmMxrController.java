@@ -18,6 +18,7 @@ import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.pdf.ReportCoverPrintUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.KmConFzVoTreeStrategy;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
@@ -31,8 +32,9 @@ import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwzb.KmmxExcelField;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.utils.ReportUtil;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfContentByte;
+import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,9 +42,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("gl_rep_kmmxjact")
@@ -457,6 +462,68 @@ public class KmMxrController extends ReportBaseController {
             log.error("打印错误",e);
         } catch (IOException e) {
             log.error("打印错误",e);
+        }
+    }
+    @PostMapping("printcover/pdf")
+    public void printCover(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
+        Rectangle pageSize = PageSize.A4;
+        if("2".equals(printParamVO.getType())){
+            pageSize = PageSize.B5;
+        }else{
+            if("Y".equals(printParamVO.getPageOrt())){//横向
+                pageSize =new  Rectangle(pageSize.getHeight(), pageSize.getWidth());
+            }
+        }
+        String page_num = pmap1.get("pagenum");
+        if(StringUtil.isEmpty(page_num)){
+            page_num = "1";
+        }
+        float leftsize = Float.parseFloat(printParamVO.getLeft())*2.83f;
+        float topsize = Float.parseFloat(printParamVO.getTop())*2.83f;
+        Document document = new Document(pageSize, leftsize, 0, topsize, 4);
+        ByteArrayOutputStream buffer = null;
+        try {
+            String cids = pmap1.get("corpIds");
+            if(StringUtil.isEmpty(cids)){
+                cids = corpVO.getPk_corp();
+            }
+            buffer = new ByteArrayOutputStream();
+            PdfWriter writer = PdfWriter.getInstance(document, buffer);
+            document.open();
+            PdfContentByte canvas = writer.getDirectContent();
+            ReportCoverPrintUtil printutil = new ReportCoverPrintUtil(zxkjPlatformService);
+            // 赋值首字符的值
+            printutil.kmCoverPrint(leftsize, topsize, document, canvas, cids.split(","),page_num,"");
+        } catch (Exception e) {
+            log.error("错误",e);
+        } finally {
+            document.close();
+        }
+        ServletOutputStream out = null;
+        try {
+            response.setContentType("application/pdf");
+            response.setCharacterEncoding("utf-8");
+            response.setContentLength(buffer.size());
+            out = response.getOutputStream();
+            buffer.writeTo(out);
+            buffer.flush();// flush 放在finally的时候流关闭失败报错
+            out.flush();
+        } catch (IOException e) {
+
+        } finally {
+            try {
+                if (buffer != null) {
+                    buffer.close();
+                }
+            } catch (IOException e) {
+            }
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+            }
         }
     }
 

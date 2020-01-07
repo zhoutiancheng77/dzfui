@@ -24,6 +24,8 @@ public interface IZxkjPlatformService {
 
     CorpVO queryCorpByPk(String pk_corp);
 
+    CorpVO[] queryCorpByPks(String[] pk_corps);
+
     Integer getAccountSchema(String pk_corp);
 
     IncomeWarningVO[] queryIncomeWarningVOs(String pk_corp);
