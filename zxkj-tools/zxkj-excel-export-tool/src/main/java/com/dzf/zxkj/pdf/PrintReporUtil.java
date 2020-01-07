@@ -828,9 +828,9 @@ public class PrintReporUtil {
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     if (tilename.equals("资 产 负 债 表") && ("hc1".equals(key) || "hc2".equals(key))) {
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    } else if ((tilename.equals("利 润 表") || tilename.equals("分 部 利 润 表")) && "hs".equals(key)) {
+                    } else if ((tilename.equals("利 润 表") || tilename.equals("分 部 利 润 表") || tilename.equals("利 润 表 季 报"))  && "hs".equals(key)) {
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    } else if (tilename.equals("现 金 流 量 表") && "hc".equals(key)) {
+                    } else if ((tilename.equals("现 金 流 量 表") || tilename.equals("现 金 流 量 表 季 报")) && "hc".equals(key)) {
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                     } else {
                         cell.setHorizontalAlignment(Element.ALIGN_LEFT);
