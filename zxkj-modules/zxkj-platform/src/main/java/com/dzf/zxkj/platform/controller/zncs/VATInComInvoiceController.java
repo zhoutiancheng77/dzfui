@@ -145,7 +145,6 @@ public class VATInComInvoiceController extends BaseController {
 
         try {
             VATInComInvoiceVO hvo = gl_vatincinvact.queryByID(id);
-
             json.setData(hvo);
             json.setSuccess(true);
             json.setMsg("查询成功");

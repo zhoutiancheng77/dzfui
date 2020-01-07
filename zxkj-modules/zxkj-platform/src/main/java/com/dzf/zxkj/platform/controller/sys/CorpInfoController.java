@@ -100,7 +100,6 @@ public class CorpInfoController extends BaseController {
         Grid grid = new Grid();
         try {
               CorpVO[] corpvo = corpInfoSer.queryCorpInfo(id);
-              log.info("企业信息查询成功！");
               for(CorpVO vo:corpvo){
                   vo.setPhone1(CodeUtils1.deCode(vo.getPhone1()));
                   vo.setUnitname(CodeUtils1.deCode(vo.getUnitname()));

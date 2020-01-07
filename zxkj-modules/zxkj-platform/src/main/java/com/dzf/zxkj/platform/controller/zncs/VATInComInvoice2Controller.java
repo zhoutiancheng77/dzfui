@@ -2975,7 +2975,7 @@ public class VATInComInvoice2Controller extends BaseController {
         try {
             String pk_corp = SystemUtil.getLoginCorpId();
             CorpReferenceVO referenceVO = gl_vatincinvact2.queryCorpReference(pk_corp,0);
-            log.info("查询成功！");
+
             json.setData(referenceVO);
             json.setSuccess(true);
             json.setMsg("查询成功");
