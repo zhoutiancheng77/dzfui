@@ -160,7 +160,7 @@ public class ZtszServiceImpl implements IZtszService {
 
 		for(CorpTaxVo vo : vos){
 			if(flag){
-				if(filter.equals(vo.getUnitname())){
+				if(vo.getUnitname().contains(filter)){
 					setCorpTaxDefaultValue(vo);
 					list.add(vo);
 				}
@@ -278,6 +278,7 @@ public class ZtszServiceImpl implements IZtszService {
 
 		if (queryvo.getCorpcode() != null && queryvo.getCorpcode().trim().length() > 0) {
 			sql.append(" and a.innercode like ? ");
+			sp.addParam("%" + queryvo.getCorpcode() + "%");
 		}
 
 		if (queryvo.getBegindate1() != null && queryvo.getEnddate() != null) {

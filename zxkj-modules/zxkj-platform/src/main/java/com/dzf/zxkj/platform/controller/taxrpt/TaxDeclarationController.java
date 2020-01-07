@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.taxrpt;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -25,7 +28,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/taxrpt/taxDeclarAction")
 @Slf4j
-public class TaxDeclarationController {
+public class TaxDeclarationController  extends BaseController {
 
     @Autowired
     private ITaxDeclarationService taxDeclarationService;
@@ -224,8 +227,8 @@ public class TaxDeclarationController {
             rsjson.setStatus(200);
             rsjson.setSuccess(true);
             rsjson.setMsg("删除成功!");
-//            writeLogRecord(LogRecordEnum.OPE_KJ_TAX.getValue(),
-//                    "所属期间为" + period + "的税表" + sbname + "删除成功", ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_TAX,
+                    "所属期间为" + period + "的税表" + sbname + "删除成功", ISysConstants.SYS_2);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rsjson.setSuccess(true);
@@ -289,6 +292,8 @@ public class TaxDeclarationController {
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "上报失败");
         }
+
+        writeLogRecord(LogRecordEnum.OPE_KJ_TAX, "增值税申报上报", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

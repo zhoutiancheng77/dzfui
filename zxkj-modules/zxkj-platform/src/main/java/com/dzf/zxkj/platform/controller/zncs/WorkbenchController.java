@@ -423,14 +423,8 @@ public class WorkbenchController extends BaseController {
         try{
             String head = param.get("head");
             String body = param.get("body");
-//            JSON headjs = (JSON) JSON.parse(head);
-            JSONArray array = (JSONArray) JSON.parseArray(body);
-//            Map<String,String> headmaping=FieldMapping.getFieldMapping(new CategorysetVO());
-//            Map<String,String> bodymapping=FieldMapping.getFieldMapping(new CategorysetBVO());
-//            CategorysetVO headvo = DzfTypeUtils.cast(headjs,headmaping, CategorysetVO.class, JSONConvtoJAVA.getParserConfig());
-//            CategorysetBVO[] bodyvos =DzfTypeUtils.cast(array,bodymapping, CategorysetBVO[].class, JSONConvtoJAVA.getParserConfig());
-            CategorysetVO headvo = JSON.parseObject(head,CategorysetVO.class);
-            CategorysetBVO[] bodyvos = array.toArray(new CategorysetBVO[0]);
+            CategorysetVO headvo = JsonUtils.deserialize(head,CategorysetVO.class);
+            CategorysetBVO[] bodyvos = JsonUtils.deserialize(body,CategorysetBVO[].class);
             String pk_corp=SystemUtil.getLoginCorpId();
             iEditDirectory.saveAuxiliaryAccountVO(pk_corp, headvo, bodyvos);
             json.setSuccess(true);
@@ -1419,7 +1413,7 @@ public class WorkbenchController extends BaseController {
         return ReturnData.ok().data(grid);
     }
     @RequestMapping("/saveVatGoosInventory_long")
-    public ReturnData<Grid> saveVatGoosInventory_long(@RequestBody String goods){
+    public ReturnData<Grid> saveVatGoosInventory_long(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try{
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
@@ -1427,12 +1421,8 @@ public class WorkbenchController extends BaseController {
                 throw new BusinessException("当前公司未启用库存核算!");
             }
             String pk_corp = corpvo.getPk_corp();
-            JSONArray array = (JSONArray) JSON.parseArray(goods);
-//            Map<String, String> goodsmapping = FieldMapping.getFieldMapping(
-//                    new VatGoosInventoryRelationVO());
-//            VatGoosInventoryRelationVO []vos = DzfTypeUtils.cast(array, goodsmapping,
-//                    VatGoosInventoryRelationVO[].class, JSONConvtoJAVA.getParserConfig());
-            VatGoosInventoryRelationVO[] vos = array.toArray(new VatGoosInventoryRelationVO[0]);
+            String goods = param.get("goods");
+            VatGoosInventoryRelationVO[] vos = JsonUtils.deserialize(goods,VatGoosInventoryRelationVO[].class);
             if(vos==null||vos.length==0)throw new BusinessException("未勾选数据，请检查!");
             iInterfaceBill.updateGoodsInvenRela(vos, SystemUtil.getLoginUserId(), pk_corp);
             //grid.setTotal(total);

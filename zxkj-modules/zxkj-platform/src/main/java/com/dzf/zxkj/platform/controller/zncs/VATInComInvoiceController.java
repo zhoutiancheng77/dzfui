@@ -104,7 +104,7 @@ public class VATInComInvoiceController extends BaseController {
 
 
     @RequestMapping("/queryInfo")
-    public ReturnData queryInfo(@RequestBody Map<String,String> param){
+    public ReturnData queryInfo(@RequestBody InvoiceParamVO paramvo){
 
         Grid grid = new Grid();
         try {
@@ -112,20 +112,15 @@ public class VATInComInvoiceController extends BaseController {
             if(StringUtil.isEmpty(SystemUtil.getLoginCorpId())){//corpVo.getPrimaryKey()
                 throw new BusinessException("出现数据无权问题！");
             }
-            String head = param.get("para");
-            String sort = param.get("sort");
-            String order = param.get("order");
-            Integer page = StringUtil.isEmpty(param.get("page"))?1:Integer.parseInt(param.get("page"));
-            Integer rows = StringUtil.isEmpty(param.get("rows"))?50:Integer.parseInt(param.get("rows"));
-            InvoiceParamVO paramvo = getQueryParamVO(head);
 
-            List<VATInComInvoiceVO> list = gl_vatincinvact.quyerByPkcorp(paramvo, sort, order);
+            paramvo.setPk_corp(SystemUtil.getLoginCorpId());
+            List<VATInComInvoiceVO> list = gl_vatincinvact.quyerByPkcorp(paramvo, paramvo.getSort(), paramvo.getOrder());
             //list变成数组
             grid.setTotal((long) (list==null ? 0 : list.size()));
             //分页
             VATInComInvoiceVO[] vos = null;
             if(list!=null && list.size()>0){
-                vos = getPagedZZVOs(list.toArray(new VATInComInvoiceVO[0]),page,rows);
+                vos = getPagedZZVOs(list.toArray(new VATInComInvoiceVO[0]),paramvo.getPage(),paramvo.getRows());
                 for (VATInComInvoiceVO vo:vos) {
                     //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
                     if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
@@ -145,12 +140,11 @@ public class VATInComInvoiceController extends BaseController {
     }
 
     @RequestMapping("/queryInfoByID")
-    public ReturnData queryInfoByID(@RequestBody Map<String,String> param){
+    public ReturnData queryInfoByID(String id){
         Json json = new Json();
 
         try {
-            VATInComInvoiceVO hvo = gl_vatincinvact.queryByID(param.get("id"));
-
+            VATInComInvoiceVO hvo = gl_vatincinvact.queryByID(id);
             json.setData(hvo);
             json.setSuccess(true);
             json.setMsg("查询成功");
@@ -161,22 +155,6 @@ public class VATInComInvoiceController extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    /**
-     * 获取参数
-     * @return
-     */
-    private InvoiceParamVO getQueryParamVO(String head){
-
-
-        InvoiceParamVO paramvo = JsonUtils.deserialize(head, InvoiceParamVO.class);
-
-        if(paramvo == null){
-            paramvo = new InvoiceParamVO();
-        }
-        paramvo.setPk_corp(SystemUtil.getLoginCorpId());
-
-        return paramvo;
-    }
 
     private VATInComInvoiceVO[] getPagedZZVOs(VATInComInvoiceVO[] vos, int page, int rows) {
         int beginIndex = rows * (page-1);

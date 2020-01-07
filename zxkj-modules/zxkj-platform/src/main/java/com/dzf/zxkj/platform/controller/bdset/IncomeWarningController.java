@@ -1,10 +1,13 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.VOUtil;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -24,7 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/gl/gl_incomewarning")
 @Slf4j
-public class IncomeWarningController{
+public class IncomeWarningController extends BaseController {
     @Autowired
     private IIncomeWarningService iw_serv;//预警信息
 
@@ -41,8 +44,8 @@ public class IncomeWarningController{
             grid.setMsg(e instanceof BusinessException ? e.getMessage() : "查询失败！");
         }
         //日志记录
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(),
-//                "收入预警设置查询", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                "收入预警设置查询", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -118,8 +121,8 @@ public class IncomeWarningController{
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败!");
         }
         //日志记录
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(),
-//                "收入预警设置保存", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                "收入预警设置保存", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -153,8 +156,8 @@ public class IncomeWarningController{
             json.setMsg("删除失败！");
         }
         //日志记录
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(),
-//                "收入预警设置删除", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                "收入预警设置删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

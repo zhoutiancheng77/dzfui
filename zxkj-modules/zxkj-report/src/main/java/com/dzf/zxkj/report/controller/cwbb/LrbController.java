@@ -343,12 +343,12 @@ public class LrbController extends ReportBaseController {
         Object[] obj = new Object[4];
         if ("on".equalsIgnoreCase(columnOrder)) {
             obj[0] = new String[]{"xm", "hs", "byje", "bnljje"};
-            obj[1] = new String[]{"项            目", "行数", "本月金额", "本年累计金额"};
+            obj[1] = new String[]{"项            目", "行次", "本月金额", "本年累计金额"};
             obj[2] = new int[]{5, 1, 2, 2};
             obj[3] = 20;
         } else {
             obj[0] = new String[]{"xm", "hs", "bnljje", "byje"};
-            obj[1] = new String[]{"项            目", "行数", "本年累计金额", "本月金额"};
+            obj[1] = new String[]{"项            目", "行次", "本年累计金额", "本月金额"};
             obj[2] = new int[]{5, 1, 2, 2};
             obj[3] = 20;
         }

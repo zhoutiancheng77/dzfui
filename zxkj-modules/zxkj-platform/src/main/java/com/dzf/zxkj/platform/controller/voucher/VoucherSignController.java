@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.voucher;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
@@ -25,7 +28,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/voucher-manage/vouchersign")
 @Slf4j
-public class VoucherSignController {
+public class VoucherSignController extends BaseController {
 
     @Autowired
     private IPzqzService gl_pzqzserv;
@@ -128,8 +131,8 @@ public class VoucherSignController {
             }
             json.setSuccess(true);
             json.setMsg(msg.toString());
-//            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER.getValue(),
-//                    "签字成功" + success + "条", ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,
+                    "签字成功" + success + "条", ISysConstants.SYS_2);
         }catch(Exception e){
             log.error(e.getMessage(), e);
             json.setSuccess(false);
@@ -209,8 +212,8 @@ public class VoucherSignController {
             }
             json.setSuccess(true);
             json.setMsg(msg.toString());
-//            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER.getValue(),
-//                    "取消签字成功" + success + "条", ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,
+                    "取消签字成功" + success + "条", ISysConstants.SYS_2);
         }catch(Exception e){
             log.error(e.getMessage(), e);
             json.setSuccess(false);

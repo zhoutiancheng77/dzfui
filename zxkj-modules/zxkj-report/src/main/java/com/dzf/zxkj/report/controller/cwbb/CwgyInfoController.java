@@ -2,8 +2,10 @@ package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.WiseRunException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
@@ -20,6 +22,7 @@ import com.dzf.zxkj.platform.model.report.LrbVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.service.cwbb.ICwgyInfoReport;
 import com.dzf.zxkj.report.utils.SystemUtil;
 import com.itextpdf.text.DocumentException;
@@ -47,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 @RequestMapping("gl_rep_cwgyinfoact")
 @Slf4j
-public class CwgyInfoController {
+public class CwgyInfoController extends ReportBaseController {
 
     @Autowired
     private ICwgyInfoReport gl_rep_cwgyinfoserv;
@@ -94,8 +97,8 @@ public class CwgyInfoController {
         }
 
         // 日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(), "财务概要信息查询:" + queryParamvo.getBegindate1().toString(),
-//                2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "财务概要信息查询:" + queryParamvo.getBegindate1().toString(),
+                ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -278,7 +281,7 @@ public class CwgyInfoController {
             }
         }
         // 日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT.getValue(), "财务概要信息导出:" + qj, 2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "财务概要信息导出:" + qj, 2);
     }
 
     private byte[] exportExcelKhywl(String title, String[] headers, String[] headers2, int[] colspans, String[] fields,

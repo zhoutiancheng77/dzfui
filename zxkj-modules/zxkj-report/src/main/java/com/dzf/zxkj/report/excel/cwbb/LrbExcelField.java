@@ -42,7 +42,7 @@ public class LrbExcelField extends MuiltSheetAndTitleExceport<LrbVO> {
 
 	private Fieldelement[] fields = new Fieldelement[] {
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行数", false, 0, false),
+			new Fieldelement("hs", "行次", false, 0, false),
 			new Fieldelement("byje", "本月金额", true, 2, true),
 			new Fieldelement("bnljje", "本年累计金额", true, 2, true),
 			};
@@ -50,7 +50,7 @@ public class LrbExcelField extends MuiltSheetAndTitleExceport<LrbVO> {
 	
 	private Fieldelement[] fields1 = new Fieldelement[] { 
 			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行数", false, 0, false),
+			new Fieldelement("hs", "行次", false, 0, false),
 			new Fieldelement("bnljje", "本年累计金额", true, 2, true),
 			new Fieldelement("byje", "本月金额", true, 2, true),
 			}; 

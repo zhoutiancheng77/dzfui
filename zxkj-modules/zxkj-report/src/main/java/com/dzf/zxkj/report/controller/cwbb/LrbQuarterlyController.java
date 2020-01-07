@@ -127,6 +127,25 @@ public class LrbQuarterlyController extends ReportBaseController {
     }
 
 
+    private void formaterColumn(LrbquarterlyVO[] listVo, String qj ) {
+        if (listVo != null && listVo.length > 0) {
+            if (!StringUtil.isEmpty(qj)) {
+                for (LrbquarterlyVO vo: listVo) {
+                    if (qj.indexOf("第一季度") >= 0) {
+                        vo.setSntqs(vo.getLastquarterFirst());
+                    } else if (qj.indexOf("第二季度") >= 0) {
+                        vo.setSntqs(vo.getLastquarterSecond());
+                    } else if (qj.indexOf("第三季度") >= 0) {
+                        vo.setSntqs(vo.getLastquarterThird());
+                    }else if (qj.indexOf("第四季度") >= 0) {
+                        vo.setSntqs(vo.getLastquarterFourth());
+                    }
+                }
+            }
+
+        }
+    }
+
     //导出Excel
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
@@ -134,6 +153,7 @@ public class LrbQuarterlyController extends ReportBaseController {
         LrbquarterlyVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), LrbquarterlyVO[].class);
         String gs=  excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
+        formaterColumn(listVo, qj);
         Excelexport2003<LrbquarterlyVO> lxs = new Excelexport2003<LrbquarterlyVO>();
         LrbQuarterlyExcelField lrb = new LrbQuarterlyExcelField(excelExportVO.getCurrjd());
         lrb.setLrbvos(listVo);
@@ -166,6 +186,7 @@ public class LrbQuarterlyController extends ReportBaseController {
                 return;
             }
             LrbquarterlyVO[] bodyvos = JsonUtils.deserialize(strlist, LrbquarterlyVO[].class);
+            formaterColumn(bodyvos, printParamVO.getTitleperiod());
             Map<String,String> tmap=new LinkedHashMap<String,String>();//声明一个map用来存前台传来的设置参数
             tmap.put("公司",  printParamVO.getCorpName());
             tmap.put("期间",  printParamVO.getTitleperiod());
