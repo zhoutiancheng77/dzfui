@@ -9,7 +9,9 @@ import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.mapper.LoginUserMapper;
+import com.dzf.zxkj.platform.auth.mapper.UserMapper;
 import com.dzf.zxkj.platform.auth.model.jwt.JWTInfo;
+import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.utils.JWTUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,9 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private com.dzf.auth.api.service.ILoginService userService;
 
@@ -48,8 +53,8 @@ public class LoginServiceImpl implements ILoginService {
             UserVO userVO = getRemoteLoginUser(username, password);
             if (userVO != null) {
                 if(StringUtils.isBlank(userVO.getPlatformUserId())){
-                    LoginUser loginUser = queryLoginUser(username);
-                    userVO.setPlatformUserId(loginUser.getUserid());
+                    UserModel userModel = queryUser(String.valueOf(userVO.getId()));
+                    userVO.setPlatformUserId(userModel.getCuserid());
                 }
                 return transfer(userVO);
             }
@@ -108,6 +113,12 @@ public class LoginServiceImpl implements ILoginService {
     }
 
     private LoginUser transferToZxkjUser(UserVO uservo) {
+
+        if(StringUtils.isBlank(uservo.getPlatformUserId())){
+            UserModel userModel = queryUser(String.valueOf(uservo.getId()));
+            uservo.setPlatformUserId(userModel.getCuserid());
+        }
+
         LoginUser loginUser = new LoginUser();
 
         if (StringUtils.equalsAny(uservo.getPlatformTag(), zxkjPlatformAuthConfig.getPlatformName(), zxkjPlatformAuthConfig.getPlatformAdminName())) {
@@ -159,6 +170,12 @@ public class LoginServiceImpl implements ILoginService {
     @Override
     public void refresh(String token) {
 
+    }
+
+    private UserModel queryUser(String unifiedid) {
+        QueryWrapper<UserModel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserModel::getUnifiedid, unifiedid).and(condition -> condition.eq(UserModel::getDr, "0").or().isNull(UserModel::getDr));
+        return userMapper.selectOne(queryWrapper);
     }
 
     @Override
