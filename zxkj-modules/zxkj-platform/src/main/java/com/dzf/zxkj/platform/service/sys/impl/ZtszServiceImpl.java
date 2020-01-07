@@ -160,7 +160,7 @@ public class ZtszServiceImpl implements IZtszService {
 
 		for(CorpTaxVo vo : vos){
 			if(flag){
-				if(filter.equals(vo.getUnitname())){
+				if(vo.getUnitname().contains(filter)){
 					setCorpTaxDefaultValue(vo);
 					list.add(vo);
 				}
