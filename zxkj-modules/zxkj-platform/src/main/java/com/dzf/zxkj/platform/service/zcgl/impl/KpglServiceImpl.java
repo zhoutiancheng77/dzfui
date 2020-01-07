@@ -793,6 +793,11 @@ public class KpglServiceImpl implements IKpglService {
         Map<String, AuxiliaryAccountBVO[]> fzmap = new HashMap<String, AuxiliaryAccountBVO[]>();
         for (int i = 0; i < len; i++) {
             try {
+                if(selectedVOs[i].getZccode() != null && selectedVOs[i].getZccode().length() > 15){
+                    tips.append("资产编码:" + selectedVOs[i].getZccode()
+                            + "长度超过15位<br>");
+                    continue;
+                }
                 String assetcode = String.format("%06d", maxCode + (i + 1));
                 if (selectedVOs[i].getZjtype() == 1) {//工作量法
                     selectedVOs[i].setUselimit(null);//预计使用年限为空
