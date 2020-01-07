@@ -1,13 +1,17 @@
 package com.dzf.zxkj.platform.controller.voucher;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.voucher.PzglmessageVO;
 import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -16,12 +20,13 @@ import java.util.concurrent.Callable;
 public class VoucherDeleteTask implements Callable<String> {
     public VoucherDeleteTask(TzpzHVO delData, Set<String> powerCorpSet, List<PzglmessageVO> errorlist,
                              IPzglService gl_pzglserv,
-                             IVoucherService gl_tzpzserv) {
+                             IVoucherService gl_tzpzserv, HttpServletRequest request) {
         this.delData = delData;
         this.powerCorpSet = powerCorpSet;
         this.errorlist = errorlist;
         this.gl_pzglserv = gl_pzglserv;
         this.gl_tzpzserv = gl_tzpzserv;
+        this.request = request;
     }
 
     private TzpzHVO delData;
@@ -29,6 +34,7 @@ public class VoucherDeleteTask implements Callable<String> {
     private List<PzglmessageVO> errorlist;
     private IPzglService gl_pzglserv;
     private IVoucherService gl_tzpzserv;
+    private HttpServletRequest request;
 
     @Override
     public String call() {
@@ -53,6 +59,10 @@ public class VoucherDeleteTask implements Callable<String> {
             tzpzH.setIsqxsy(DZFBoolean.TRUE);
             tzpzH.setIssvbk(DZFBoolean.FALSE);
             gl_tzpzserv.deleteVoucher(tzpzH);
+            SystemUtil.writeLogRecord(LogRecordEnum.OPE_KJ_DELVOUCHER,
+                    "批量删除凭证：" + DateUtils.getPeriod(tzpzH.getDoperatedate())
+                            + "，公司:" + delData.getVdef4() + "，凭证号：记_" + tzpzH.getPzh(),
+                    request);
         } catch (Exception e) {
             String msg = null;
             if (e instanceof BusinessException) {
