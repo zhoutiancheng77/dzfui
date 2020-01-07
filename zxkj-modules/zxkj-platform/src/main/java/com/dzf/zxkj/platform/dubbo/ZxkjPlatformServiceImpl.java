@@ -104,6 +104,16 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     }
 
     @Override
+    public CorpVO[] queryCorpByPks(String[] pk_corps) {
+        try {
+            return corpService.queryByPks(pk_corps);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryCorpByPk异常,参数:{pk_corp=%s},异常信息:%s", pk_corps, e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
     public Integer getAccountSchema(String pk_corp) {
         try {
             return yntBoPubUtil.getAccountSchema(pk_corp);

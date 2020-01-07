@@ -5,4 +5,6 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 
 public interface ICorpService {
     CorpVO queryByPk(String pk_corp) throws DZFWarpException;
+
+    CorpVO[] queryByPks(String[] pk_corps) throws DZFWarpException;
 }
