@@ -89,6 +89,10 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
 
+        if(request.getContentType() != null && request.getContentType().equalsIgnoreCase("application/x-www-form-urlencoded;charset=UTF-8")){
+            return null;
+        }
+
         if(request.getRequestURL().indexOf("/api/auth/to") != -1){
             return null;
         }
@@ -100,6 +104,7 @@ public class PermissionFilter extends ZuulFilter {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
             return null;
         }
+
         String clientId = getLoginInfo(requestContext, ISysConstant.CLIENT_ID);
 
         //判断是否唯一登录
