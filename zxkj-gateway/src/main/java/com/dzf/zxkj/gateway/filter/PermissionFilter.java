@@ -88,7 +88,7 @@ public class PermissionFilter extends ZuulFilter {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
             return null;
         }
-
+        //form表单提交不进行下面校验
         if(request.getContentType() != null && request.getContentType().equalsIgnoreCase("application/x-www-form-urlencoded;charset=UTF-8")){
             return null;
         }
