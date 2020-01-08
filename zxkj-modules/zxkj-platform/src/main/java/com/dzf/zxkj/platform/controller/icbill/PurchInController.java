@@ -586,12 +586,17 @@ public class PurchInController {
 			boolean isCombin = false;
 
 			if (printParamVO != null && !StringUtil.isEmpty(printParamVO.getIsmerge())
-					&& printParamVO.getIsmerge().equals("Y")) {
+					&& (printParamVO.getIsmerge().equals("Y") || printParamVO.getIsmerge().equals("true"))) {
 				isCombin = true;
 			}
             printReporUtil.setLineheight(22f);
 			Map<String, String> invmaps = new HashMap<>();
-			invmaps.put("isHiddenPzh", printParamVO.getIshidepzh());
+			if(printParamVO != null && !StringUtil.isEmpty(printParamVO.getIshidepzh())
+					&& (printParamVO.getIshidepzh().equals("Y") || printParamVO.getIshidepzh().equals("true"))){
+				invmaps.put("isHiddenPzh","Y");
+			}else{
+				invmaps.put("isHiddenPzh","N");
+			}
 
             Map<String, List<SuperVO>> vomap = getVoMap(printParamVO);
 			if (pmap.get("type").equals("3")) {// 发票纸模板打印
