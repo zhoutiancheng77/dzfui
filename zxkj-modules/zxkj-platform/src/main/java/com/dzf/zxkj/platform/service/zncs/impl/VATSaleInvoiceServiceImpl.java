@@ -169,6 +169,7 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 	private IQmclService gl_qmclserv;
 	@Autowired
 	private IInventoryAccSetService gl_ic_invtorysetserv;
+	@Autowired
 	private ICorpService corpService;
 	@Autowired
 	private IAccountService accountService;
