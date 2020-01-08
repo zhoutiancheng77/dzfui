@@ -1,18 +1,13 @@
 package com.dzf.zxkj.pdf;
 
-import java.io.IOException;
-
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
+
+import java.io.IOException;
 
 /**
  * 页面封皮打印
@@ -39,7 +34,7 @@ public class ReportCoverPrintUtil {
 	 */
 	public void kmCoverPrint( float leftsize, float topsize, Document document,
 			PdfContentByte canvas, String[] cpids, String page_num,String start_page_num) throws DocumentException, IOException {
-		BaseFont bf = BaseFont.createFont("/data1/webApp/font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+		BaseFont bf = BaseFont.createFont("font/simsun.ttc,0", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 		Font titlefont = new Font(bf, 15, Font.BOLD);
 		Font titlefont1 = new Font(bf, 20, Font.BOLD);//
 		Font titlefont_kh = new Font(bf, 12, Font.BOLD);// 括号
