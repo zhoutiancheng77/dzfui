@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -437,9 +438,9 @@ public class ExportExcel<T> {
 			}
 
 			//合并单元格设置边框
-//			setRegionStyle(sheet, region, headstyle);
-//			setRegionStyle(sheet, reg3_0, leftstyle);
-//			setRegionStyle(sheet, reg3_1, rightstyle);
+			setRegionStyle(sheet, region, headstyle);
+			setRegionStyle(sheet, reg3_0, leftstyle);
+			setRegionStyle(sheet, reg3_1, rightstyle);
 
 			for (int i = 0; i < array.size(); i++) {
 				HSSFRow row1 = sheet.createRow(i + index + 1);
@@ -514,13 +515,10 @@ public class ExportExcel<T> {
 	 */
 	@SuppressWarnings("deprecation")
 	private void setRegionStyle(HSSFSheet sheet, CellRangeAddress region, HSSFCellStyle cs) {
-		for (int i = region.getFirstRow(); i <= region.getLastRow(); i++) {
-			HSSFRow row = sheet.getRow(i);
-			for (int j = region.getFirstColumn(); j <= region.getLastColumn(); j++) {
-				HSSFCell cell = row.getCell(j);
-				cell.setCellStyle(cs);
-			}
-		}
+		RegionUtil.setBorderBottom(cs.getBorderBottomEnum(),region, sheet);
+		RegionUtil.setBorderTop(cs.getBorderBottomEnum(),region, sheet);
+		RegionUtil.setBorderLeft(cs.getBorderBottomEnum(),region, sheet);
+		RegionUtil.setBorderRight(cs.getBorderBottomEnum(),region, sheet);
 	}
 
 }

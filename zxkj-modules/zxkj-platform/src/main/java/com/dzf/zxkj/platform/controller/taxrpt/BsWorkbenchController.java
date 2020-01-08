@@ -452,8 +452,6 @@ public class BsWorkbenchController extends BaseController {
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             byte[] length = ex.expBsWorkbenchExcel("纳税工作台", exptitls, expfieids, hbltitls, hblindexs, hbhtitls,
                     hbhindexs, array, toClient, "", strslist, mnylist, stalist, taxlist, workBenchExportVo.getCorpname(), workBenchExportVo.getPeriod());
-            String srt2 = new String(length, "UTF-8");
-            response.addHeader("Content-Length", srt2);
         } catch (IOException e) {
             log.error("错误", e);
         } finally {
