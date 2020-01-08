@@ -2435,7 +2435,8 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 
 	private void hashlizeDcModel(List<DcModelHVO> dcModelList, Map<String, DcModelHVO> dcmap, String pk_gs) {
 
-		dcModelList = new DcPzmbController().filterDataCommon(dcModelList, pk_gs, null, null, "Y", null);
+		DcPzmbController dcPzmbController = SpringUtils.getBean(DcPzmbController.class);
+		dcModelList = dcPzmbController.filterDataCommon(dcModelList, pk_gs, null, null, "Y", null);
 		if (dcModelList == null || dcModelList.size() == 0) {
 			return;
 		}
@@ -3511,7 +3512,8 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 		List<DcModelHVO> dcList = dcpzjmbserv.query(pk_corp);
 		List<String> busiList = new LinkedList<String>();
 		if (dcList != null && dcList.size() > 0) {
-			dcList = new DcPzmbController().filterDataCommon(dcList, pk_corp,
+			DcPzmbController dcPzmbController = SpringUtils.getBean(DcPzmbController.class);
+			dcList = dcPzmbController.filterDataCommon(dcList, pk_corp,
 					null, null, "Y", null);
 			String businame;
 			Map<String, DcModelHVO> map = new HashMap<String, DcModelHVO>();

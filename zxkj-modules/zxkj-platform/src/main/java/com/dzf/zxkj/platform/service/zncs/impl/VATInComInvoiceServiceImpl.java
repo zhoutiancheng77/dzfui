@@ -3796,7 +3796,8 @@ public class VATInComInvoiceServiceImpl implements IVATInComInvoiceService {
 		List<DcModelHVO> dcList = dcpzjmbserv.query(pk_corp);
 		List<String> busiList = new LinkedList<String>();
 		if (dcList != null && dcList.size() > 0) {
-			dcList = new DcPzmbController().filterDataCommon(dcList, pk_corp,
+			DcPzmbController dcPzmbController = SpringUtils.getBean(DcPzmbController.class);
+			dcList = dcPzmbController.filterDataCommon(dcList, pk_corp,
 					null, "Y", null, null);
 			String businame;
 			Map<String, DcModelHVO> map = new HashMap<String, DcModelHVO>();
