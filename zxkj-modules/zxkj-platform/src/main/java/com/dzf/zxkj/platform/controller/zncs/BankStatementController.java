@@ -681,8 +681,6 @@ public class BankStatementController extends BaseController {
 
         try {
             String str = param.get("row");
-            str = str.replace("}{", "},{");
-            str = "[" + str + "]";
             if (str == null) {
                 throw new BusinessException("数据为空,请检查!");
             }

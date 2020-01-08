@@ -490,16 +490,16 @@ public class VATInComInvoiceController extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData impExcel(@RequestBody VATInComInvoiceVO pvo, MultipartFile impfile){
+    public ReturnData impExcel(@RequestBody MultipartFile file){
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
         try {
 
-            if(impfile == null || impfile.getSize()==0){
+            if(file == null || file.getSize()==0){
                 throw new BusinessException("请选择导入文件!");
             }
-            String fileName = impfile.getOriginalFilename();
+            String fileName = file.getOriginalFilename();
             String fileType = null;
             if (fileName != null && fileName.length() > 0) {
 
@@ -510,14 +510,14 @@ public class VATInComInvoiceController extends BaseController {
             VATInComInvoiceVO paramvo = new VATInComInvoiceVO();
             paramvo.setInperiod(DateUtils.getPeriod(new DZFDate(SystemUtil.getLoginDate())));
             StringBuffer msg = new StringBuffer();
-            gl_vatincinvact.saveImp(impfile, paramvo, pk_corp, fileType, userid, msg);
+            gl_vatincinvact.saveImp(file, paramvo, pk_corp, fileType, userid, msg);
 
             json.setHead(paramvo);
             json.setMsg(msg.toString());
             json.setSuccess(paramvo.getCount()==0 ? false : true);
 
-            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入进项发票：" + (pvo != null && pvo.getBeginrq() != null ? pvo.getBeginrq() : ""), ISysConstants.SYS_2);
+//            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
+//                    "导入进项发票：" + (pvo != null && pvo.getBeginrq() != null ? pvo.getBeginrq() : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json,  e, "导入失败!");
         }
