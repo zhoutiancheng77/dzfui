@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
 import com.dzf.zxkj.platform.auth.mapper.UserCorpRelationMapper;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
 import com.dzf.zxkj.platform.auth.service.impl.fallback.AuthServiceFallBack;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service(version = "1.0.0", timeout = 2 * 60 * 1000)
+@Slf4j
 @SuppressWarnings("all")
 public class AuthServiceImpl implements IAuthService {
 
@@ -43,7 +45,7 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
 
-//    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    //    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private ILoginService userService;
 
     @Override
@@ -84,7 +86,7 @@ public class AuthServiceImpl implements IAuthService {
     public boolean validateTokenEx(String userid, String clientId) {
         //过期返回true 结合redis实现
         LoginUser loginUser = authCache.getLoginUser(userid);
-        if(loginUser == null){
+        if (loginUser == null) {
             return true;
         }
         authCache.putLoginUser(userid, loginUser);
@@ -95,15 +97,21 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     @SentinelResource(value = "auth-resource", fallbackClass = AuthServiceFallBack.class, fallback = "validateTokenByInter")
     public boolean validateTokenByInter(String token) {
-        Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(),token);
-        if(rs.getData() != null){
-           return true;
+        Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(), token);
+        if (rs.getData() != null) {
+            return true;
         }
         return false;
     }
 
     @Override
     public boolean validateMultipleLogin(String userid, String clientid) {
-        return authCache.checkIsMulti(userid, clientid);
+        boolean r = false;
+        try {
+            r = authCache.checkIsMulti(userid, clientid);
+        } catch (Exception e) {
+            log.error(String.format("authCache方法：checkIsMulti异常: %s, 参数{userid：%s, clientid：%s}]", e.getMessage(), userid, clientid), e);
+        }
+        return r;
     }
 }
