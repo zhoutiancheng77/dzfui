@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.controller.message;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.MsgtypeEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.message.MsgAdminVO;
 import com.dzf.zxkj.platform.model.message.MsgSysVO;
@@ -135,6 +136,25 @@ public class MessageController {
                 msg.setVsenddate(formatDate(curDate, msg.getVsenddate()));
             }
         }
+        json.setRows(msgs);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
+    /**
+     * 读取当天平台公告
+     * @return
+     */
+    @GetMapping("/readAnnouncement")
+    public ReturnData readAnnouncement() {
+        Json json = new Json();
+        MsgAdminVO param = new MsgAdminVO();
+        String date = new DZFDate().toString();
+        param.setBdate(date);
+        param.setEdate(date);
+        param.setMsgtype(MsgtypeEnum.MSG_TYPE_DZFPTGG.getValue());
+        param.setSys_receive("dzf_kj");
+        MsgAdminVO[] msgs = msgServiceImpl.query(null, param);
         json.setRows(msgs);
         json.setSuccess(true);
         return ReturnData.ok().data(json);
