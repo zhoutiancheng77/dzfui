@@ -544,4 +544,28 @@ public abstract class ExcelExportHander {
         }
     }
 
+    /**
+     * 给Excel单元格赋值。按A1、B2的格式指定单元格位置
+     *
+     * @param sheet
+     * @param tocell
+     * @param value
+     */
+    public void putValue(Sheet sheet, String tocell, Object value) {
+        //如：B5，指R5C2，即rowno=4，colno=1。更复杂的如：AZ37，指行37列52
+        int rowno = 0, colno = 0;
+        char c;
+        for (int i = 0; i < tocell.length(); i++) {
+            c = tocell.charAt(i);
+            if (c >= 'A' && c <= 'Z') {
+                colno += colno * 26 + (c - 'A' + 1);
+            } else {
+                rowno += rowno * 10 + (c - '0');
+            }
+        }
+        rowno--;
+        colno--;
+
+        sheet.getRow(rowno).getCell(colno).setCellValue(value != null ? value.toString() : "");
+    }
 }

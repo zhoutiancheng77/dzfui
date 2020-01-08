@@ -2873,11 +2873,11 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		sql = " delete from ynt_ictradeout where pk_corp =? ";
 		singleObjectBO.executeUpdate(sql, sp);
 
-		if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle().intValue() != 1) {
+//		if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle().intValue() != 1) {
 			// 删除销售单据（老模式）
 			sql = " delete from ynt_subinvtory where pk_corp = ?  ";
 			singleObjectBO.executeUpdate(sql, sp);
-		} else {
+//		} else {
 			// 删除出入库单主表（新模式）
 			sql = " delete from ynt_ictrade_h where pk_corp = ?  ";
 			singleObjectBO.executeUpdate(sql, sp);
@@ -2886,7 +2886,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 			sql = " delete from bd_invaccset where pk_corp =? ";
 			singleObjectBO.executeUpdate(sql, sp);
 
-		}
+//		}
 		
 		// 更新销进项清单的出入库标志
 		sql = " update ynt_vatsaleinvoice set pk_ictrade_h = null where pk_corp =? ";

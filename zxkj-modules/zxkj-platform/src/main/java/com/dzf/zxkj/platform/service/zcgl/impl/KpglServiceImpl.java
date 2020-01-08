@@ -896,7 +896,7 @@ public class KpglServiceImpl implements IKpglService {
         Object[] objs = new Object[3];
         objs[0] = resassetvos.toArray(new AssetcardVO[0]);
         if (tips.length() > 0) {
-            objs[1] = "导入失败:<br>" + tips.toString();
+            objs[1] = "导入成功"+resassetvos.size()+"条,导入失败"+(len-resassetvos.size())+"条<br>" + tips.toString();
         } else {
             objs[1] = "";
         }

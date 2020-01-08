@@ -162,9 +162,9 @@ public class XjllbQuarterlyController extends ReportBaseController {
             printReporUtil.setBasecolor(new BaseColor(0,0,0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(),bodyvos,"现 金 流 量 表 季 报",
-                    new String[]{"xm","bnlj","jd1","jd2","jd3","jd4","bf_bnlj"},
-                    new String[]{"项目","本年累计","第一季度","第二季度","第三季度","第四季度","上年同期数"},
-                    new int[]{6,2,2,2,2,2,2},20,pmap,tmap);
+                    new String[]{"xm","hc","bnlj","jd1","jd2","jd3","jd4","bf_bnlj"},
+                    new String[]{"项目","行次","本年累计","第一季度","第二季度","第三季度","第四季度","上年同期数"},
+                    new int[]{6,1,2,2,2,2,2,2},20,pmap,tmap);
         } catch (DocumentException e) {
             log.error("打印失败", e);
         } catch (IOException e) {

@@ -3,7 +3,6 @@ package com.dzf.zxkj.platform.service.bdset;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.bdset.IncomeWarningVO;
-import com.dzf.zxkj.platform.model.report.FseJyeVO;
 
 public interface IIncomeWarningService {
 
@@ -17,7 +16,7 @@ public interface IIncomeWarningService {
 
     void delete(IncomeWarningVO vo) throws DZFWarpException;
 
-    FseJyeVO[] queryFseInfo(IncomeWarningVO[] ivos, String pk_corp, String enddate);
+    IncomeWarningVO[] queryFseInfo(IncomeWarningVO[] ivos, String pk_corp, String enddate);
 
     IncomeWarningVO[] queryIncomeWaringVos(String pk_corp, String period, String filflg) throws DZFWarpException;
 

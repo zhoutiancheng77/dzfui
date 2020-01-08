@@ -1469,12 +1469,13 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		if(v == null)
 			return -1;
 		//这个字段，有时候不好使。这里即使用借贷方判断即可。2018.9.27
-//		if(v.getVdirect() != null)
-//			return v.getVdirect().intValue();
 		if(v.getJfmny() != null && v.getJfmny().doubleValue() != 0)
 			return 0;
 		if(v.getDfmny()!=null && v.getDfmny().doubleValue() != 0)
 			return 1;
+		//如果借方 贷方都为零  通过凭证方向判断借贷方
+		if(v.getVdirect() != null)
+			return v.getVdirect().intValue();
 		return -1;
 	}
 	

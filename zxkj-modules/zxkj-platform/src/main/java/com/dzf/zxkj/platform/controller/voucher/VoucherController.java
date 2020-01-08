@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.controller.voucher;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
@@ -13,6 +14,7 @@ import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
@@ -68,6 +70,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
@@ -80,7 +83,7 @@ import java.util.concurrent.Future;
 @RestController
 @RequestMapping("/voucher-manage/voucher")
 @Slf4j
-public class VoucherController {
+public class VoucherController extends BaseController {
     @Autowired
     private IVoucherService gl_tzpzserv;
     @Autowired
@@ -424,6 +427,12 @@ public class VoucherController {
         }
         json.setSuccess(true);
         json.setMsg(msg.toString());
+        if (sourceVouchers == null) {
+            writeLogRecord(LogRecordEnum.OPE_KJ_ADDVOUCHER, "从"
+                    + copyPeriod + "复制到" + aimPeriod);
+        } else {
+            writeLogRecord(LogRecordEnum.OPE_KJ_ADDVOUCHER, "部分复制到"+ aimPeriod);
+        }
         return ReturnData.ok().data(json);
     }
 
@@ -509,6 +518,15 @@ public class VoucherController {
             json.setStatus(200);
             json.setSuccess(true);
             json.setData(headvo);
+            if (isNew) {
+                writeLogRecord(LogRecordEnum.OPE_KJ_ADDVOUCHER,
+                        "新增凭证：" + DateUtils.getPeriod(headvo.getDoperatedate())
+                                + "，凭证号：记_" + headvo.getPzh());
+            } else {
+                writeLogRecord(LogRecordEnum.OPE_KJ_EDITVOUCHER,
+                        "修改凭证：" + DateUtils.getPeriod(headvo.getDoperatedate())
+                                + "，凭证号：记_" + headvo.getPzh());
+            }
         } catch (BusinessException e) {
             String errorMsg = e.getMessage();
             json.setMsg(errorMsg);
@@ -517,7 +535,8 @@ public class VoucherController {
             }
             if (errorMsg.startsWith(IVoucherConstants.EXE_INVGL_CODE)) {
                 errorMsg = errorMsg.replaceAll(IVoucherConstants.EXE_INVGL_CODE, "");
-                errorMsg = errorMsg + "点击[<font color='blue'>确定</font>]按钮，该凭证继续保存，影响成本核算，请后续修改！<br>点击[<font color='blue'>取消</font>]按钮，即取消本次保存操作！";
+                errorMsg = errorMsg + "点击[<font color='blue'>确定</font>]按钮，该凭证继续保存，" +
+                        "影响成本核算，请后续修改！<br>点击[<font color='blue'>取消</font>]按钮，即取消本次保存操作！";
                 json.setStatus(IVoucherConstants.STATUS_INVGL_CODE);
                 json.setMsg(errorMsg);
             }
@@ -788,6 +807,9 @@ public class VoucherController {
             } else {
                 json.setMsg("审核成功");
                 json.setSuccess(true);
+                writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,
+                        "审核凭证：" + DateUtils.getPeriod(hvos.get(0).getDoperatedate())
+                                + "，凭证号：记_" + hvos.get(0).getPzh());
             }
         } else {
             StringBuilder msg = new StringBuilder();
@@ -803,6 +825,8 @@ public class VoucherController {
             }
             json.setMsg(msg.toString());
             json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,
+                    "审核成功" + updateList.size() + "条");
         }
         json.setData(statusMap);
 
@@ -873,6 +897,9 @@ public class VoucherController {
             } else {
                 json.setMsg("反审核成功");
                 json.setSuccess(true);
+                writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,
+                        "反审核凭证：" + DateUtils.getPeriod(hvos.get(0).getDoperatedate())
+                                + "，凭证号：记_" + hvos.get(0).getPzh());
             }
         } else {
             if (fail > 0) {
@@ -889,6 +916,7 @@ public class VoucherController {
             }
             json.setMsg(msg.toString());
             json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "反审核成功" + success + "条");
         }
         json.setData(statusMap);
         return ReturnData.ok().data(json);
@@ -960,6 +988,7 @@ public class VoucherController {
             json.setStatus(0);
             msg.append("记账成功" + updateList.size() + "条");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "记账成功" + updateList.size() + "条");
         json.setData(statusMap);
         json.setSuccess(true);
         json.setMsg(msg.toString());
@@ -1030,6 +1059,7 @@ public class VoucherController {
             json.setStatus(0);
             msg.append("取消记账成功").append(success).append("条");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "取消记账成功" + success + "条");
         json.setData(statusMap);
         json.setSuccess(true);
         json.setMsg(msg.toString());
@@ -1050,6 +1080,7 @@ public class VoucherController {
         DZFDate bdate = DateUtils.getPeriodStartDate(beginPeriod);
         DZFDate edate = DateUtils.getPeriodEndDate(endPeriod);
         String sort_type = param.get("sort_type");
+
         Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
         if (companys != null && companys.length > 0) {
             for (String pk_corp : companys) {
@@ -1059,17 +1090,24 @@ public class VoucherController {
             }
         }
         String msg = null;
+        String sort_label = "";
         if ("auto_date".equals(sort_type)) {
+            sort_label = "按凭证日期次序重新编号";
             msg = gl_pzglserv.updateNumByDate(companys, bdate, edate);
         } else if ("auto_number".equals(sort_type)) {
+            sort_label = "按凭证号顺次前移补齐断号";
             msg = gl_pzglserv.doVoucherOrder(companys, bdate, edate);
         } else if ("auto_uploadpic".equals(sort_type)) {
+            sort_label = "按图片上传顺序，凭证号顺序编号";
             msg = gl_pzglserv.pzsortByuploadpic(companys, bdate, edate);
         } else if ("auto_churukubillcode".equals(sort_type)) {
+            sort_label = "按出入库单据编号顺次前移补齐断号";
             msg = gl_pzglserv.savechurukubillcodesort(companys, bdate, edate);
         }
         json.setSuccess(true);
         json.setMsg(msg);
+        writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,
+                "凭证整理：" + DateUtils.getPeriod(bdate) + "到" + DateUtils.getPeriod(edate) + "，" + sort_label);
         return ReturnData.ok().data(json);
     }
 
@@ -1090,9 +1128,10 @@ public class VoucherController {
         try {
             pool = Executors.newFixedThreadPool(Math.min(100, dataArray.length));
             List<Future<String>> vc = new Vector<>();
+            HttpServletRequest request = SystemUtil.getRequest();
             for (TzpzHVO obj : dataArray) {
                 Future<String> future = pool.submit(new VoucherDeleteTask(obj, powerCorpSet,
-                        errorlist, gl_pzglserv, gl_tzpzserv));
+                        errorlist, gl_pzglserv, gl_tzpzserv, request));
                 vc.add(future);
             }
             // 默认执行 线程池操作结果，等待本组数据执行完成
@@ -1126,6 +1165,9 @@ public class VoucherController {
                 gl_tzpzserv.deleteVoucher(data);
                 json.setMsg("删除成功");
                 json.setSuccess(true);
+                writeLogRecord(LogRecordEnum.OPE_KJ_DELVOUCHER,
+                        "删除凭证：" + DateUtils.getPeriod(data.getDoperatedate())
+                                + "，凭证号：记_" + data.getPzh());
             } catch (Exception e) {
                 json.setSuccess(false);
                 if (e instanceof BusinessException) {
@@ -1175,18 +1217,26 @@ public class VoucherController {
     @PostMapping("/modifyCreator")
     public ReturnData modifyCreator(@RequestBody Map<String, String> param) {
         Json json = new Json();
-        String ids = param.get("ids");
-        if (StringUtils.isEmpty(ids)) {
+        String vouchersStr = param.get("vouchers");
+        if (StringUtils.isEmpty(vouchersStr)) {
             throw new BusinessException("请选择凭证");
         }
+        TzpzHVO[] vouchers = JsonUtils.deserialize(vouchersStr, TzpzHVO[].class);
         String newCreator = param.get("creator");
         if (StringUtils.isEmpty(newCreator)) {
             throw new BusinessException("请选择制单人");
         }
-        String[] pklist = ids.split(",");
-        gl_pzglserv.updateCreator(Arrays.asList(pklist), newCreator);
+        List<String> pklist = new ArrayList<>();
+        for (TzpzHVO voucher : vouchers) {
+            pklist.add(voucher.getPk_tzpz_h());
+        }
+        gl_pzglserv.updateCreator(pklist, newCreator);
         json.setSuccess(true);
         json.setMsg("修改成功！");
+        for (TzpzHVO voucher : vouchers) {
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,
+                    "修改制单人：" + voucher.getPeriod() + "，" + "凭证号：记_" + voucher.getPzh());
+        }
         return ReturnData.ok().data(json);
     }
 
@@ -1207,10 +1257,11 @@ public class VoucherController {
         }
         // 合并后的凭证ID
         json.setData(rs[0]);
-        /*String logMsg = rs[2];
+        String logMsg = rs[2];
         if (StringUtils.isEmpty(logMsg)) {
             logMsg = "无合并成功凭证";
-        }*/
+        }
+        writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,"合并凭证：" + logMsg);
         return ReturnData.ok().data(json);
     }
 
@@ -1529,6 +1580,9 @@ public class VoucherController {
         json.setMsg("保存成功");
         json.setSuccess(true);
         json.setRows(rs);
+        writeLogRecord(LogRecordEnum.OPE_KJ_EDITVOUCHER,
+                "修改凭证现金流量：" + DateUtils.getPeriod(rs.get(0).getDoperatedate())
+                        + "，凭证号：记_" + rs.get(0).getPzh());
         return ReturnData.ok().data(json);
     }
 
@@ -1549,6 +1603,7 @@ public class VoucherController {
             toClient.write(gl_pzglserv.exportExcel(ids));
             toClient.flush();
             response.getOutputStream().flush();
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "导出凭证");
         } catch (IOException e) {
             log.error("凭证导出错误", e);
         } finally {
@@ -2007,6 +2062,8 @@ public class VoucherController {
             gl_pzglserv.doVoucherOrder3(corp, array);
             json.setSuccess(true);
             json.setMsg("整理成功");
+            String date = ((JSONObject) array.get(0)).getString("zdrq");
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "凭证整理：" + date.substring(0, 7) + "，手工整理");
         } else {
             json.setSuccess(false);
             json.setMsg("未选择凭证！");

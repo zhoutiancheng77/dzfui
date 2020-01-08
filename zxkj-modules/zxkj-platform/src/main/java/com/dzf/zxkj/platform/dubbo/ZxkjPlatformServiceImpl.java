@@ -135,12 +135,13 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Override
     public IncomeWarningVO[] queryFseInfo(IncomeWarningVO[] ivos, String pk_corp, String enddate) {
+        IncomeWarningVO[] iList = null;
         try {
-            iw_serv.queryFseInfo(ivos, pk_corp, enddate);
+            iList =iw_serv.queryFseInfo(ivos, pk_corp, enddate);
         } catch (Exception e) {
             log.error(String.format("调用queryFseInfo异常,参数:{pk_corp=%s,enddate=%s},异常信息:%s", pk_corp, enddate, e.getMessage()), e);
         }
-        return ivos;
+        return iList;
     }
 
     @Override

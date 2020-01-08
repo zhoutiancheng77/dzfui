@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.excel.rptexp.handler;
 
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.report.LrbVO;
 import com.dzf.zxkj.platform.model.report.XjllbVO;
 import com.dzf.zxkj.platform.model.report.ZcFzBVO;
@@ -40,15 +41,45 @@ public class ExcelExportQingDaoHander extends ExcelExportHander implements OneWo
     public Workbook createWorkBookKj2013(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) throws Exception{
         Resource resource = ResourceUtil.get(ExportTemplateEnum.QINGDAO, ResourceUtil.ResourceEnum.KJ2013ALL);
         Workbook workbook = WorkbookFactory.create(resource.getInputStream());
+
+        String nsrsbh = getNsrsbh();
+        String nsrmc = getNsrmc();
+        DZFDate sDate = new DZFDate(getInnerBeginDate()); //税款所属期起
+        DZFDate eDate = new DZFDate(getInnerEndDate()); //税款所属期止
+        //String bbrq = getEndDate("yyyy年MM月dd日"); //资产负债表日
+        String tbrq = getCurrDate("yyyy-M-d"); //报税日期取当前系统日期？
+
+        //北京、青岛、陕西、大连、青海等使用通用表头格式
+
+        //直接修改《公共信息表》页单元格即可
+        Sheet sheet = workbook.getSheet("公共信息表");
+        putValue(sheet, "B5", nsrsbh); //B5 - TaxNo
+        putValue(sheet, "B6", nsrmc); //B6 - CorpName
+        //财报所属期起、止
+        putValue(sheet, "B7", sDate.getYear()); //B7 - BeginDate.Year
+        putValue(sheet, "D7", sDate.getMonth()); //D7 - BeginDate.Month
+        putValue(sheet, "F7", sDate.getDay()); //F7 - BeginDate.Day
+        putValue(sheet, "B8", eDate.getYear()); //B8 - EndDate.Year
+        putValue(sheet, "D8", eDate.getMonth()); //D8 - EndDate.Month
+        putValue(sheet, "F8", eDate.getDay()); //F8 - EndDate.Day
+        putValue(sheet, "B9", eDate.getYear()); //B9 - EndDate.Year
+        putValue(sheet, "D9", eDate.getMonth()); //D9 - EndDate.Month
+        putValue(sheet, "F9", eDate.getDay()); //F9 - EndDate.Day
+
         //资产负债表
-        Sheet sheet = workbook.getSheetAt(1);
+        sheet = workbook.getSheetAt(1);
         handleZcfzbSheet(sheet, zcfzTaxVoMap, zcFzBVOMap, 3, new Integer[]{2, 4, 5, 6, 9, 10},new String[]{"qmye1","ncye1","qmye2","ncye2"});
         //利润表
         sheet = workbook.getSheetAt(2);
-        handleLrbSheet(sheet, lrbTaxVoMap,lrbVOMap, 3, new Integer[]{2,7,8},new String[]{"byje","bnljje"});
+        putValue(sheet, "F3", tbrq); //F3 - tbrq
+        handleLrbSheet(sheet, lrbTaxVoMap,lrbVOMap, 3, new Integer[]{2,7,8},new String[]{"byje","bnljje"}); //本月、本年累计
         //现金流量表
         sheet = workbook.getSheetAt(3);
-        handleXjllSheet(sheet, xjllTaxVoMap, xjllbVOMap, 3, new Integer[]{2,7,8}, new String[]{"sqje","sqje_last"});
+        putValue(sheet, "F3", tbrq); //F3 - tbrq
+        handleXjllSheet(sheet, xjllTaxVoMap, xjllbVOMap, 3, new Integer[]{2,7,9}, new String[]{"bqje","sqje"}); //本月、本年累计
+
+        //北京、青岛、陕西、大连、青海等有公共信息表的，需要全表重算
+        workbook.setForceFormulaRecalculation(true);
         return workbook;
     }
 }

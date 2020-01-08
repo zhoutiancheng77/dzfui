@@ -677,13 +677,13 @@ public class PrintReporUtil {
                             if (!StringUtil.isEmpty(svalue)) {
                                 tvalue = svalue;
                             }
-                            if ("10".equals(bvo.getAttributeValue("hs")) && "".equals(bvo.getAttributeValue("xm"))) {
-                                if (bvo.getAttributeValue("bnljje") != null) {
+                            if ("10".equals(bvo.getAttributeValue("hs")) && StringUtil.isEmpty((String)bvo.getAttributeValue("xm"))) {
+                                if (bvo.getAttributeValue("bnljje") != null && "bnljje".equals(key)) {
                                     if (bvo.getAttributeValue("bnljje").equals(new DZFDouble(100))) {
                                         tvalue = "销项发票";
                                     }
                                 }
-                                if (bvo.getAttributeValue("byje") != null) {
+                                if (bvo.getAttributeValue("byje") != null  && "byje".equals(key)) {
                                     if (bvo.getAttributeValue("byje").equals(new DZFDouble(101))) {
                                         tvalue = "进项发票";
                                     }
@@ -828,9 +828,9 @@ public class PrintReporUtil {
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     if (tilename.equals("资 产 负 债 表") && ("hc1".equals(key) || "hc2".equals(key))) {
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    } else if ((tilename.equals("利 润 表") || tilename.equals("分 部 利 润 表")) && "hs".equals(key)) {
+                    } else if ((tilename.equals("利 润 表") || tilename.equals("分 部 利 润 表") || tilename.equals("利 润 表 季 报"))  && "hs".equals(key)) {
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-                    } else if (tilename.equals("现 金 流 量 表") && "hc".equals(key)) {
+                    } else if ((tilename.equals("现 金 流 量 表") || tilename.equals("现 金 流 量 表 季 报")) && "hc".equals(key)) {
                         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                     } else {
                         cell.setHorizontalAlignment(Element.ALIGN_LEFT);

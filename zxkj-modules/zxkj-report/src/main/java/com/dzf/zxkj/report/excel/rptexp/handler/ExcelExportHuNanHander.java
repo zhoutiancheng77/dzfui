@@ -49,9 +49,12 @@ public class ExcelExportHuNanHander extends ExcelExportHander implements OneWork
         Sheet sheet = workbook.getSheetAt(0);
         handleZcfzbSheet(sheet, zcfzTaxVoMap, zcFzBVOMap, 8, new Integer[]{2, 3, 4, 6, 7, 8},new String[]{"qmye1","ncye1","qmye2","ncye2"});
         Row row = sheet.getRow(4);
+        row.getCell(0).setCellValue(getNsrsbh());
+        row.getCell(1).setCellValue(getNsrmc());
         row.getCell(2).setCellValue(getEndQj());
         row.getCell(3).setCellValue(getBeginQj());
         row.getCell(4).setCellValue(getEndQj());
+
         //利润表
         sheet = workbook.getSheetAt(1);
         handleLrbSheet(sheet, lrbTaxVoMap,lrbVOMap, 4, new Integer[]{1,2,3}, new String[]{"byje","bnljje"});
