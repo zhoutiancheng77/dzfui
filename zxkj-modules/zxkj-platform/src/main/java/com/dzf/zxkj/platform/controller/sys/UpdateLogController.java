@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,19 +29,28 @@ public class UpdateLogController extends BaseController {
         Json json = new Json();
         try {
             String module = "dzfkj";
-            UpdateVersionVO vo = gl_logpicserv.query(SystemUtil.getLoginUserId(),module);
-            if(vo!=null && !StringUtil.isEmpty(vo.getPk_userversion())){
+            UpdateVersionVO vo = gl_logpicserv.query(SystemUtil.getLoginUserId(), module);
+            if (vo != null && !StringUtil.isEmpty(vo.getPk_userversion())) {
                 vo.setIsread(DZFBoolean.TRUE);
-            }else{
+            } else {
                 vo.setIsread(DZFBoolean.FALSE);
             }
             json.setSuccess(true);
             json.setData(vo);
             json.setMsg("查询成功！");
             log.info("查询成功！");
-        } catch ( Exception e) {
+        } catch (Exception e) {
             printErrorLog(json, e, "查询失败！");
         }
+        return ReturnData.ok().data(json);
+    }
+
+    @GetMapping("save")
+    public ReturnData save(@RequestParam String versionId) {
+        Json json = new Json();
+        gl_logpicserv.save(SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), versionId);
+        json.setSuccess(true);
+        json.setMsg("保存成功");
         return ReturnData.ok().data(json);
     }
 }
