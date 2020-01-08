@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
 @Component
 @Slf4j
 public class PermissionFilter extends ZuulFilter {
@@ -42,12 +44,16 @@ public class PermissionFilter extends ZuulFilter {
 
     @Override
     public String filterType() {
-        return "pre";
+        return PRE_TYPE;
     }
 
     @Override
     public int filterOrder() {
         return 0;
+    }
+
+    public boolean isStaticFilter() {
+        return false;
     }
 
     @Override
@@ -66,8 +72,12 @@ public class PermissionFilter extends ZuulFilter {
         RequestContext requestContext = RequestContext.getCurrentContext();
         HttpServletRequest request = requestContext.getRequest();
         String token = getLoginInfo(requestContext, ISysConstant.TOKEN);
+        String useridFromHeader = getLoginInfo(requestContext, ISysConstant.LOGIN_USER_ID);
+        String currentCorp = getLoginInfo(requestContext, ISysConstant.LOGIN_PK_CORP);
+
         if (StringUtils.isBlank(token)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
+            return null;
         }
         //token校验
         IJWTInfo ijwtInfo = null;
@@ -76,6 +86,7 @@ public class PermissionFilter extends ZuulFilter {
         } catch (Exception e) {
             log.info("token验证失败！");
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
+            return null;
         }
 
         if(request.getRequestURL().indexOf("/api/auth/to") != -1){
@@ -84,32 +95,35 @@ public class PermissionFilter extends ZuulFilter {
 
         //校验token内userid与消息头的userid是否一致
         String useridFormToken = ijwtInfo.getBody();
-        String useridFromHeader = getLoginInfo(requestContext, ISysConstant.LOGIN_USER_ID);
+
         if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
+            return null;
         }
         String clientId = getLoginInfo(requestContext, ISysConstant.CLIENT_ID);
 
         //判断是否唯一登录
         if (!StringUtils.isBlank(clientId) && authService.validateMultipleLogin(useridFormToken, clientId)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, requestContext);
+            return null;
         }
 
         //token过期时间校验
         if (authService.validateTokenEx(useridFormToken, clientId)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, requestContext);
+            return null;
         }
 
         if (StringUtils.equalsAnyIgnoreCase(request.getRequestURI(), "/api/zxkj/sm_user/gsQuery", "/api/zxkj/sm_user/gsSelect")) {
             return null;
         }
 
-        String currentCorp = getLoginInfo(requestContext, ISysConstant.LOGIN_PK_CORP);
         //用户与公司关联校验
         List<String> corps = authService.getPkCorpByUserId(useridFormToken);
         if (corps == null || corps.contains(currentCorp)) {
             log.info("用户没有操作公司权限！");
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
+            return null;
         }
 
         //查询公司和用户vo
@@ -117,6 +131,7 @@ public class PermissionFilter extends ZuulFilter {
         final UserModel userModel = sysService.queryByUserId(useridFormToken);
         if (corpModel == null || userModel == null) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_INVALID_CODE, requestContext);
+            return null;
         }
         return null;
     }
