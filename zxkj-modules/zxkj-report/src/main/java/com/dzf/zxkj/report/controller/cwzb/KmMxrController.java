@@ -504,7 +504,7 @@ public class KmMxrController extends ReportBaseController {
         try {
             response.setContentType("application/pdf");
             response.setCharacterEncoding("utf-8");
-            response.setContentLength(buffer.size());
+//            response.setContentLength(buffer.size());
             out = response.getOutputStream();
             buffer.writeTo(out);
             buffer.flush();// flush 放在finally的时候流关闭失败报错
