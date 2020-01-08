@@ -4,12 +4,14 @@ import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.concurrent.TimeUnit;
 
 @Configuration
+@Slf4j
 public class AuthCache {
 
     @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
@@ -31,6 +33,9 @@ public class AuthCache {
     }
 
     public boolean checkIsMulti(String userid, String clientId){
+        log.info("platformUserOnlineCache------->", platformUserOnlineCache.get(userid));
+        log.info("userid-------------------->", userid);
+        log.info("clientId------------------->", clientId);
         return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid)) && !platformUserOnlineCache.get(userid).equals(clientId);
     }
 

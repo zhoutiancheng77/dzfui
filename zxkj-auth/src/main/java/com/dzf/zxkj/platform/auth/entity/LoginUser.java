@@ -39,4 +39,6 @@ public class LoginUser implements Serializable {
     @TableField(exist = false)
     @JsonProperty("force")
     private String f;
+    @JsonProperty("phonenum")
+    private String phone;// 手机号
 }

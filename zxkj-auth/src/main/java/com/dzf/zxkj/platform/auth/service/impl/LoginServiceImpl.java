@@ -152,7 +152,7 @@ public class LoginServiceImpl implements ILoginService {
     }
 
     private LoginUser transfer(UserVO uservo) {
-        LoginUser loginUser = new LoginUser();
+        LoginUser loginUser = queryUserById(uservo.getPlatformUserId());
         loginUser.setUsername(uservo.getLoginName());
         loginUser.setDzfAuthToken(uservo.getUserToken());
         loginUser.setUserid(uservo.getPlatformUserId());
