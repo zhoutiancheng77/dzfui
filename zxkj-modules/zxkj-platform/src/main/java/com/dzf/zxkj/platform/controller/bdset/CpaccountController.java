@@ -1,10 +1,12 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -28,7 +30,7 @@ import java.util.*;
 @RestController
 @Slf4j
 @RequestMapping("/bdset/gl_cpacckmact")
-public class CpaccountController {
+public class CpaccountController extends BaseController {
     @Autowired
     private ICpaccountService cpaccountService;
     @Autowired
@@ -98,6 +100,8 @@ public class CpaccountController {
         json.setRows(accvo);
         json.setSuccess(true);
         json.setStatus(200);
+
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "会计科目新增：" + (accvo != null ? accvo.getAccountcode() : ""));
         return ReturnData.ok().data(json);
     }
 
@@ -129,6 +133,7 @@ public class CpaccountController {
         json.setMsg("修改成功");
         json.setSuccess(true);
         json.setStatus(200);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "会计科目修改：" + (data != null ? data.getAccountcode() : ""));
         return ReturnData.ok().data(json);
     }
 
@@ -143,6 +148,7 @@ public class CpaccountController {
         json.setMsg("删除成功");
         json.setSuccess(true);
         json.setStatus(200);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "会计科目删除成功：" + data.getAccountcode());
         return ReturnData.ok().data(json);
     }
 
@@ -264,7 +270,7 @@ public class CpaccountController {
                 json.setMsg("传参数为空！");
             } else {
                 CorpVO corp = SystemUtil.getLoginCorpVo();
-                if(StringUtil.isEmpty(pk_corp))
+                if (StringUtil.isEmpty(pk_corp))
                     pk_corp = corp.getPk_corp();
                 YntCpaccountVO[] vos = cpaccountService.queryAccountVOSByCorp(
                         pk_corp, Integer.valueOf(accindex));
@@ -309,6 +315,8 @@ public class CpaccountController {
             cpaccountService.saveKmzhuanFz(userid, pk_corp, pk_km, pk_fz);
             json.setSuccess(true);
             json.setMsg("科目下级转换辅助成功");
+            YntCpaccountVO vo = cpaccountService.queryById(pk_km);
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "会计科目下级转辅助：" + vo.getAccountname());
         }
         return ReturnData.ok().data(json);
     }
@@ -327,6 +335,7 @@ public class CpaccountController {
         cpaccountService.updateSeal(accvo);
         json.setMsg("封存成功");
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "会计科目封存：" + accvo.getAccountcode());
         return ReturnData.ok().data(json);
     }
 
@@ -340,6 +349,7 @@ public class CpaccountController {
         cpaccountService.updateUnSeal(data);
         json.setMsg("解除封存成功");
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "会计科目取消封存：" + data.getAccountcode());
         return ReturnData.ok().data(json);
     }
 }

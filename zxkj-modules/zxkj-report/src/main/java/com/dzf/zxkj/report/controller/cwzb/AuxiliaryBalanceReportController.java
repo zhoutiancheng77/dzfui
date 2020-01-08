@@ -81,6 +81,9 @@ public class AuxiliaryBalanceReportController extends BaseController {
             grid.setRows(new ArrayList<FzYebVO>());
             grid.setMsg("查询为空!");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "辅助余额表查询:" + queryParam.getBegindate1().toString().substring(0, 7)
+                        + "-" + queryParam.getEnddate().toString().substring(0, 7));
         return ReturnData.ok().data(grid);
     }
 

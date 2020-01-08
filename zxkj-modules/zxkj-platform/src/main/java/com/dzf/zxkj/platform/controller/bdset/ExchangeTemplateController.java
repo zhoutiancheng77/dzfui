@@ -1,9 +1,11 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.bdset.RemittanceVO;
 import com.dzf.zxkj.platform.service.bdset.IRemittanceService;
@@ -18,7 +20,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/bdset/gl_remittance")
-public class ExchangeTemplateController {
+public class ExchangeTemplateController extends BaseController {
     @Autowired
     private IRemittanceService gl_remitserv;
 
@@ -39,6 +41,7 @@ public class ExchangeTemplateController {
         json.setSuccess(true);
         json.setRows(data);
         json.setMsg("保存成功");
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "汇兑损益结转模板保存");
         return ReturnData.ok().data(json);
     }
 
@@ -51,6 +54,7 @@ public class ExchangeTemplateController {
             grid.setRows(list);
             grid.setSuccess(true);
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "汇兑损益结转模板查询");
         return ReturnData.ok().data(grid);
     }
 

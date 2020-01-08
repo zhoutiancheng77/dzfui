@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.controller.bdset;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
@@ -9,6 +10,7 @@ import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryPageVO;
@@ -50,7 +52,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/bdset/gl_fzhsact")
 @Slf4j
-public class AuxiliaryAccountController {
+public class AuxiliaryAccountController extends BaseController {
 
     @Autowired
     private IAuxiliaryAccountService gl_fzhsserv;
@@ -209,7 +211,9 @@ public class AuxiliaryAccountController {
         if (StringUtils.isBlank(bvo.getPk_corp())) {
             bvo.setPk_corp(login_corp);
         }
+        String operateType = "新增";
         if (!StringUtil.isEmptyWithTrim(bvo.getPk_auacount_b())) {
+            operateType = "修改";
             AuxiliaryAccountBVO qvo = gl_fzhsserv.queryBByID(bvo.getPk_auacount_b(), bvo.getPk_corp());
             if (qvo != null && !qvo.getCode().trim().equals(bvo.getCode().trim())) {
                 gl_fzhsserv.checkBRef(bvo, 0);
@@ -219,6 +223,9 @@ public class AuxiliaryAccountController {
         json.setMsg("保存成功");
         json.setData(bvo);
         json.setSuccess(true);
+        AuxiliaryAccountHVO typeVo = gl_fzhsserv.queryHByID(bvo.getPk_auacount_h());
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                typeVo.getName() + operateType + " 编码：" + bvo.getCode() + "，名称：" + bvo.getName() + "；");
         return ReturnData.ok().data(json);
     }
 
@@ -302,16 +309,25 @@ public class AuxiliaryAccountController {
             // aabvo.setPrimaryKey(idsArr[i]);
             bvolist.add(aabvo);
         }
+        if (bvolist.size() == 0) {
+            throw new BusinessException("没有可更新数据");
+        }
         String[] modifyFiled = fileds.split(",");
         int results = gl_fzhsserv.updateBatchAuxiliaryAccountByIDS(bvolist, modifyFiled);
+        String firstCode = bvolist.get(0).getCode();
+        String firstName = bvolist.get(0).getName();
         if (results > 0) {
             json.setMsg("保存成功");
             json.setRows(results);
             json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                    "存货档案_批量修改存货成功 : 编码：" + firstCode + "， 名称：" + firstName + "，等" + bvolist.size() + "条；");
         } else {
             json.setMsg("保存失败");
             json.setRows(results);
             json.setSuccess(false);
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                    "存货档案_批量修改存货失败 : 编码：" + firstCode + "， 名称：" + firstName + "，等" + bvolist.size() + "条；");
         }
         return ReturnData.ok().data(json);
     }
@@ -332,6 +348,7 @@ public class AuxiliaryAccountController {
         gl_fzhsserv.delete(qvo);
         json.setMsg("删除成功");
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "辅助核算类别删除: " + qvo.getName());
         return ReturnData.ok().data(json);
     }
 
@@ -342,6 +359,13 @@ public class AuxiliaryAccountController {
         String[] msg = gl_fzhsserv.delete(bvos);
         json.setMsg(msg[0]);
         json.setSuccess(true);
+        if (msg.length > 1) {
+            AuxiliaryAccountHVO typeVo = gl_fzhsserv.queryHByID(bvos[0].getPk_auacount_h());
+            for (int i = 1; i < msg.length; i++) {
+                // 日志记录
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, typeVo.getName() + "删除成功：" + msg[i]);
+            }
+        }
         return ReturnData.ok().data(json);
     }
 
@@ -364,6 +388,9 @@ public class AuxiliaryAccountController {
                     hid, pk_corp, fileType);
             json.setMsg(result.get("msg"));
             json.setSuccess(true);
+            AuxiliaryAccountHVO typeVo = gl_fzhsserv.queryHByID(hid);
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                    "辅助核算_" + typeVo.getName() + "导入： 成功" + result.get("successCount") + "条，失败" + result.get("failCount") + "条");
         } catch (IOException e) {
             json.setMsg("导入失败");
         }
@@ -386,6 +413,9 @@ public class AuxiliaryAccountController {
                     pk_corp, fileType, getExpFieldMap());
             json.setMsg(result.get("msg"));
             json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                    "存货更新导入： 成功"
+                            + result.get("successCount") + "条，失败" + result.get("failCount") + "条");
         } catch (IOException e) {
             json.setMsg("导入失败");
         }
@@ -404,15 +434,16 @@ public class AuxiliaryAccountController {
         int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
         byte[] bytes = exportExcel(fieldColumn, array, "fztemplatezzhsCHup.xls", price);
         String formattedName = "更新存货档案";
-        try{
-             formattedName = URLEncoder.encode(formattedName, "UTF-8");
+        try {
+            formattedName = URLEncoder.encode(formattedName, "UTF-8");
         } catch (IOException e) {
             log.error("excel导出错误", e);
         }
 
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "导出存货档案");
         HttpHeaders header = new HttpHeaders();
         header.setContentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName+ ".xls");
+        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName + ".xls");
         header.setContentLength(bytes.length);
         response = new HttpEntity<>(bytes, header);
         return response;
@@ -598,6 +629,7 @@ public class AuxiliaryAccountController {
         AuxiliaryAccountBVO vo = gl_fzhsserv.saveMergeData(pk_corp, spid, bodyvos);
         json.setMsg("存货合并成功");
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货合并");
         return ReturnData.ok().data(json);
     }
 
@@ -605,7 +637,7 @@ public class AuxiliaryAccountController {
     @GetMapping("/getChukuKm")
     public ReturnData<Json> getChukuKm() {
         Json json = new Json();
-        YntCpaccountVO[] accounts =accountService.queryByPk(SystemUtil.getLoginCorpId());
+        YntCpaccountVO[] accounts = accountService.queryByPk(SystemUtil.getLoginCorpId());
         CorpVO corpVo = corpService.queryByPk(SystemUtil.getLoginCorpId());
         List<String> chukukm = Kmschema.getChukuKm(corpVo.getCorptype(), accounts);
         json.setRows(chukukm.toArray(new String[chukukm.size()]));
@@ -618,7 +650,7 @@ public class AuxiliaryAccountController {
     @GetMapping("/getKmclassify")
     public ReturnData<Json> getKmclassify() {
         Json json = new Json();
-        YntCpaccountVO[] accounts =accountService.queryByPk(SystemUtil.getLoginCorpId());
+        YntCpaccountVO[] accounts = accountService.queryByPk(SystemUtil.getLoginCorpId());
         CorpVO corpVo = corpService.queryByPk(SystemUtil.getLoginCorpId());
         //得到分类科目
         List<String> classify = Kmschema.getKmclassify(corpVo.getCorptype(), accounts);
@@ -634,32 +666,32 @@ public class AuxiliaryAccountController {
         OutputStream toClient = null;
         try {
             response.reset();
-            String  fileName = "fztemplate.xls";
+            String fileName = "fztemplate.xls";
             // 设置response的Header
             String date = "自定义辅助模板";
             String hid = pmap.get("hid");
             if (AuxiliaryConstant.ITEM_INVENTORY.equals(hid)) {
                 fileName = "fztemplateCH.xls";
-                date="存货模板";
-            } else  if (AuxiliaryConstant.ITEM_CUSTOMER.equals(hid)){
+                date = "存货模板";
+            } else if (AuxiliaryConstant.ITEM_CUSTOMER.equals(hid)) {
                 fileName = "fztemplateTax.xls";
-                date="客户模板";
-            }  else  if (AuxiliaryConstant.ITEM_SUPPLIER.equals(hid)){
+                date = "客户模板";
+            } else if (AuxiliaryConstant.ITEM_SUPPLIER.equals(hid)) {
                 fileName = "fztemplateTax.xls";
-                date="供应商模板";
-            } else  if (AuxiliaryConstant.ITEM_STAFF.equals(hid)){
+                date = "供应商模板";
+            } else if (AuxiliaryConstant.ITEM_STAFF.equals(hid)) {
                 fileName = "fztemplateZY.xls";
-                date="职员模板";
-            } else  if (AuxiliaryConstant.ITEM_PROJECT.equals(hid)){
+                date = "职员模板";
+            } else if (AuxiliaryConstant.ITEM_PROJECT.equals(hid)) {
                 fileName = "fztemplate.xls";
-                date="项目模板";
-            } else  if (AuxiliaryConstant.ITEM_DEPARTMENT.equals(hid)){
+                date = "项目模板";
+            } else if (AuxiliaryConstant.ITEM_DEPARTMENT.equals(hid)) {
                 fileName = "fztemplate.xls";
-                date="部门模板";
+                date = "部门模板";
             }
             String formattedName = URLEncoder.encode(date, "UTF-8");
             response.addHeader("Content-Disposition",
-                    "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName+ ".xls");
+                    "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName + ".xls");
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             ExcelReport<AuxiliaryAccountBVO> ex = new ExcelReport<>();

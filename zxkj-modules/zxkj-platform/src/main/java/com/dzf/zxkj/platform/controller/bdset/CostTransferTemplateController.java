@@ -1,9 +1,11 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.SafeCompute;
@@ -20,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/bdset/gl_cpcbmbact")
-public class CostTransferTemplateController {
+public class CostTransferTemplateController extends BaseController {
     @Autowired
     private ICBMBService gl_cpcbmbserv;
 
@@ -73,6 +75,8 @@ public class CostTransferTemplateController {
             grid.setSuccess(true);
             grid.setMsg("查询成功");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                "成本结转模板查询");
         return ReturnData.ok().data(grid);
     }
 

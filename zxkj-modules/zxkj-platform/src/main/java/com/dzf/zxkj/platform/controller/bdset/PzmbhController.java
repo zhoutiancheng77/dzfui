@@ -1,9 +1,11 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
@@ -26,7 +28,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/bdset/gl_cymb")
-public class PzmbhController {
+public class PzmbhController extends BaseController {
     @Autowired
     private IPzmbhService pzmbhService;
 
@@ -118,6 +120,8 @@ public class PzmbhController {
         } else {
             grid.setTotal(Long.valueOf(list.size()));
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                "常用凭证模板查询");
         return ReturnData.ok().data(grid);
     }
 
@@ -168,6 +172,8 @@ public class PzmbhController {
         }
         json.setSuccess(true);
         json.setMsg("删除成功!");
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                "常用凭证模板删除");
         return ReturnData.ok().data(json);
     }
 
@@ -180,6 +186,8 @@ public class PzmbhController {
         String msg = pzmbhService.copy(tmpsStr.split(","), corps, SystemUtil.getLoginCorpId());
         json.setSuccess(true);
         json.setMsg(msg);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                "常用凭证模板设置-跨公司复制");
         return ReturnData.ok().data(json);
     }
 
