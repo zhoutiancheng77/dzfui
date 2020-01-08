@@ -33,9 +33,6 @@ public class AuthCache {
     }
 
     public boolean checkIsMulti(String userid, String clientId){
-        log.info("platformUserOnlineCache------->", platformUserOnlineCache.get(userid));
-        log.info("userid-------------------->", userid);
-        log.info("clientId------------------->", clientId);
         return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid)) && !platformUserOnlineCache.get(userid).equals(clientId);
     }
 
