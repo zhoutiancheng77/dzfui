@@ -37,6 +37,7 @@ import com.dzf.zxkj.platform.util.ImageCopyUtil;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.TZPZHVOSort;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -2483,7 +2484,9 @@ public class PzglServiceImpl implements IPzglService {
 		if (setting == null) {
 			setting = getDefaultMergeSetting();
 		}
-		setting.setZy(zy);
+		if (!StringUtils.isEmpty(zy)) {
+			setting.setZy(zy);
+		}
 		List<String> strlist = new ArrayList<String>();
 		List<TzpzHVO> toMergeList = new LinkedList<TzpzHVO>();
 //		List<TzpzHVO> list2 = new ArrayList<TzpzHVO>();
