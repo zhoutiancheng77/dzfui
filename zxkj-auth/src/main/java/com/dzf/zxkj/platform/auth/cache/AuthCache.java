@@ -36,9 +36,12 @@ public class AuthCache {
         return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid)) && !platformUserOnlineCache.get(userid).equals(clientId);
     }
 
-    public void logout(String userid){
-        platformUserOnlineCache.remove(userid);
-        platformUserCache.remove(userid);
+    public void logout(String userid, String client){
+        String clt = platformUserOnlineCache.get(userid);
+        if(clt != null && clt.equalsIgnoreCase(client)){
+            platformUserOnlineCache.remove(userid);
+            platformUserCache.remove(userid);
+        }
     }
 
 }
