@@ -230,6 +230,9 @@ public class BsWorkbenchController extends BaseController {
                     CorpVO corpvo = null;
                     for (BsWorkbenchVO bsvo : bsVOs) {
                         try {
+                            if(StringUtils.isBlank(bsvo.getPeriod())){
+                                continue;
+                            }
                             if (!corpSet.contains(bsvo.getPk_corp())) {
                                 corpvo = corpService.queryByPk(bsvo.getPk_corp());
                                 if (corpvo != null) {
