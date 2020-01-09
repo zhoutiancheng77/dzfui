@@ -208,7 +208,7 @@ public class CwgyInfoReportImpl implements ICwgyInfoReport {
 			for (IncomeWarningVO invo : ivos) {
 				CwgyInfoVO info = new CwgyInfoVO();
 				info.setXmfl(invo.getXmmc());
-				info.setXm("连续12月收入");
+				info.setXm(getXmByPeriodType(invo.getPeriod_type()) + "收入");
 				info.setHs(Integer.toString(num));
 				info.setBnljje(invo.getFstotal());
 				info.setColspan(4);
@@ -261,6 +261,26 @@ public class CwgyInfoReportImpl implements ICwgyInfoReport {
 			list.add(info2);
 		}
 		return list;
+	}
+
+	private String getXmByPeriodType(Integer period_type){
+		String name = "";
+		switch (period_type) {
+			case 0:
+				name = "月度";
+				break;
+			case 1:
+				name = "季度";
+				break;
+			case 2:
+				name = "年度";
+				break;
+			default:
+				name = "连续12月";
+				break;
+		}
+
+		return name;
 	}
 
 	public List<VATSaleInvoiceVO> quyerSaleInvoiceVO(String qj, String pk_corp) throws DZFWarpException {
