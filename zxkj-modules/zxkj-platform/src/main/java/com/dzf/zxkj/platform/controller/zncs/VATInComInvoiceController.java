@@ -861,7 +861,7 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData combinePZ(@RequestBody Map<String,String> param){
         VatInvoiceSetVO setvo = queryRuleByType();
         ReturnData data= null;
-        String lwstr = param.get("lwflag");
+        String lwstr = param.get("lwstr");
         String body = param.get("head");
         if(setvo == null
                 || setvo.getValue() == null
@@ -1689,12 +1689,6 @@ public class VATInComInvoiceController extends BaseController {
             if(storeList == null || storeList.size() == 0){
                 throw new BusinessException("查询进项发票失败，请检查");
             }
-
-//			List<InventoryVO> invList = inventoryserv.query(pk_corp);//只针对库存新模式
-//			AuxiliaryAccountBVO[] supplList = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_SUPPLIER, pk_corp, null);
-//			Map<String, InventoryVO> invMap = new HashMap<String, InventoryVO>();//存货
-//			Map<String, AuxiliaryAccountBVO> supplMap = new HashMap<String, AuxiliaryAccountBVO>();
-//			buildInventoryMap(invList, invMap, supplList, supplMap);
 
             YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);
 
