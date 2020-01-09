@@ -119,14 +119,16 @@ public class LoginServiceImpl implements ILoginService {
             uservo.setPlatformUserId(userModel.getCuserid());
         }
 
-        LoginUser loginUser = new LoginUser();
+        LoginUser loginUser = queryUserById(uservo.getPlatformUserId());
 
         if (StringUtils.equalsAny(uservo.getPlatformTag(), zxkjPlatformAuthConfig.getPlatformName(), zxkjPlatformAuthConfig.getPlatformAdminName())) {
             loginUser.setUsername(uservo.getLoginName());
             loginUser.setDzfAuthToken(uservo.getUserToken());
             loginUser.setUserid(uservo.getPlatformUserId());
-            Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
-            loginUser.setPlatformVOSet(list);
+            if(uservo.getCanJumpPlatforms() != null && uservo.getCanJumpPlatforms().size() > 0){
+                Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
+                loginUser.setPlatformVOSet(list);
+            }
             try {
                 createToken(loginUser);
             } catch (Exception e) {
@@ -138,8 +140,10 @@ public class LoginServiceImpl implements ILoginService {
                 loginUser.setUsername(v.getLoginName());
                 loginUser.setDzfAuthToken(uservo.getUserToken());
                 loginUser.setUserid(v.getPlatformUserId());
-                Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
-                loginUser.setPlatformVOSet(list);
+                if(uservo.getCanJumpPlatforms() != null && uservo.getCanJumpPlatforms().size() != 0){
+                    Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
+                    loginUser.setPlatformVOSet(list);
+                }
                 try {
                     createToken(loginUser);
                 } catch (Exception e) {
