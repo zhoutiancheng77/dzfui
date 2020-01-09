@@ -2266,6 +2266,9 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				DZFDouble spsl = null;
 				int rowno=1;
 				for(CaiFangTongBVO hbvo : hbvos){
+					if(!StringUtils.isEmpty(hbvo.getSpmc())&&hbvo.getSpmc().contains("详见销货清单")){
+						continue;
+					}
 					bvo = new VATInComInvoiceBVO2();
 					bvo.setRowno(rowno);//设置行号
 					rowno++;
