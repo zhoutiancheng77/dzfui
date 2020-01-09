@@ -7,4 +7,6 @@ public interface ICorpService {
     CorpVO queryByPk(String pk_corp) throws DZFWarpException;
 
     CorpVO[] queryByPks(String[] pk_corps) throws DZFWarpException;
+
+    String getDefaultLoginDate(String pk_corp) throws DZFWarpException;
 }

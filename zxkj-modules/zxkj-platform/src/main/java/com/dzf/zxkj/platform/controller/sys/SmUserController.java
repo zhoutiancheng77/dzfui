@@ -161,4 +161,12 @@ public class SmUserController {
         return ReturnData.ok().data(json);
     }
 
+    @GetMapping("/getDefaultLoginDate")
+    public ReturnData getDefaultLoginDate(String corpId) {
+        Json json = new Json();
+        String date = corpService.getDefaultLoginDate(corpId);
+        json.setData(date);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
 }
