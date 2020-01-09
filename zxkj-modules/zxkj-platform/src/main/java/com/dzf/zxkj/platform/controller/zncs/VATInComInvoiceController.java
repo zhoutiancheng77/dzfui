@@ -866,9 +866,9 @@ public class VATInComInvoiceController extends BaseController {
         if(setvo == null
                 || setvo.getValue() == null
                 || setvo.getValue() == IBillManageConstants.HEBING_GZ_01){//不合并
-            createPZ(lwstr,body);
+            data = createPZ(lwstr,body);
         }else{
-            combinePZ1(lwstr,body);
+            data = combinePZ1(lwstr,body);
         }
         return data;
     }
