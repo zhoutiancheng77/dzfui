@@ -677,20 +677,26 @@ public class PrintReporUtil {
                             if (!StringUtil.isEmpty(svalue)) {
                                 tvalue = svalue;
                             }
+                            boolean bcenter = false;
                             if ("10".equals(bvo.getAttributeValue("hs")) && StringUtil.isEmpty((String)bvo.getAttributeValue("xm"))) {
                                 if (bvo.getAttributeValue("bnljje") != null && "bnljje".equals(key)) {
                                     if (bvo.getAttributeValue("bnljje").equals(new DZFDouble(100))) {
                                         tvalue = "销项发票";
+                                        bcenter = true;
                                     }
                                 }
                                 if (bvo.getAttributeValue("byje") != null  && "byje".equals(key)) {
                                     if (bvo.getAttributeValue("byje").equals(new DZFDouble(101))) {
                                         tvalue = "进项发票";
+                                        bcenter = true;
                                     }
                                 }
                             }
                             cell = new PdfPCell(new Phrase(tvalue, PrintUtil.getAutoFont(fonts, tvalue,
                                     totalwidthmap.get(key), totalMnyHight, DZFBoolean.TRUE)));
+                            if (bcenter) {
+                                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                            }
                             int colspan = bvo.getAttributeValue("colspan") == null ? 1
                                     : (Integer) bvo.getAttributeValue("colspan");
                             if (colspan > 1) {
@@ -734,7 +740,12 @@ public class PrintReporUtil {
                         cell.setBorderColor(getBasecolor());
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                    cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    // 如果设置为居中，则不居右显示
+                    if (cell.getHorizontalAlignment() == Element.ALIGN_CENTER) {
+                        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    } else {
+                        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                    }
 //					cell.setFixedHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
                         cell.setFixedHeight(totalMnyHight);
