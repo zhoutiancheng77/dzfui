@@ -20,12 +20,14 @@ import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@SuppressWarnings("all")
 public class LoginServiceImpl implements ILoginService {
 
     @Autowired
@@ -125,10 +127,18 @@ public class LoginServiceImpl implements ILoginService {
             loginUser.setUsername(uservo.getLoginName());
             loginUser.setDzfAuthToken(uservo.getUserToken());
             loginUser.setUserid(uservo.getPlatformUserId());
-            if(uservo.getCanJumpPlatforms() != null && uservo.getCanJumpPlatforms().size() > 0){
-                Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
-                loginUser.setPlatformVOSet(list);
+            Set<PlatformVO> platformVOS = uservo.getCanJumpPlatforms() != null ? uservo.getCanJumpPlatforms().stream().filter(vo -> vo.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(vo.getPlatformTag())).collect(Collectors.toSet()) : new HashSet<>();
+            boolean isExistsXwwy = platformVOS.stream().anyMatch(vo -> zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(vo.getPlatformTag()));
+            if(!isExistsXwwy){
+                PlatformVO platformVO = new PlatformVO();
+                platformVO.setPlatformName("小微无忧");
+                platformVO.setPlatformDomain("http://ntadmin.dazhangfang.vip");
+                platformVO.setPlatformTag("xwwy");
+                platformVO.setPlatformIndexPage("/auth/jumpToAdmin");
+                platformVO.setShow(true);
+                platformVOS.add(platformVO);
             }
+            loginUser.setPlatformVOSet(platformVOS);
             try {
                 createToken(loginUser);
             } catch (Exception e) {
@@ -140,10 +150,18 @@ public class LoginServiceImpl implements ILoginService {
                 loginUser.setUsername(v.getLoginName());
                 loginUser.setDzfAuthToken(uservo.getUserToken());
                 loginUser.setUserid(v.getPlatformUserId());
-                if(uservo.getCanJumpPlatforms() != null && uservo.getCanJumpPlatforms().size() != 0){
-                    Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
-                    loginUser.setPlatformVOSet(list);
+                Set<PlatformVO> platformVOS = uservo.getCanJumpPlatforms() != null ? uservo.getCanJumpPlatforms().stream().filter(vo -> vo.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(vo.getPlatformTag())).collect(Collectors.toSet()) : new HashSet<>();
+                boolean isExistsXwwy = platformVOS.stream().anyMatch(vo -> zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(vo.getPlatformTag()));
+                if(!isExistsXwwy){
+                    PlatformVO platformVO = new PlatformVO();
+                    platformVO.setPlatformName("小微无忧");
+                    platformVO.setPlatformDomain("http://ntadmin.dazhangfang.vip");
+                    platformVO.setPlatformTag("xwwy");
+                    platformVO.setPlatformIndexPage("/auth/jumpToAdmin");
+                    platformVO.setShow(true);
+                    platformVOS.add(platformVO);
                 }
+                loginUser.setPlatformVOSet(platformVOS);
                 try {
                     createToken(loginUser);
                 } catch (Exception e) {
@@ -160,8 +178,18 @@ public class LoginServiceImpl implements ILoginService {
         loginUser.setUsername(uservo.getLoginName());
         loginUser.setDzfAuthToken(uservo.getUserToken());
         loginUser.setUserid(uservo.getPlatformUserId());
-        Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(v -> v.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(v.getPlatformTag())).collect(Collectors.toSet());
-        loginUser.setPlatformVOSet(list);
+        Set<PlatformVO> platformVOS = uservo.getCanJumpPlatforms() != null ? uservo.getCanJumpPlatforms().stream().filter(vo -> vo.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(vo.getPlatformTag())).collect(Collectors.toSet()) : new HashSet<>();
+        boolean isExistsXwwy = platformVOS.stream().anyMatch(vo -> zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(vo.getPlatformTag()));
+        if(!isExistsXwwy){
+            PlatformVO platformVO = new PlatformVO();
+            platformVO.setPlatformName("小微无忧");
+            platformVO.setPlatformDomain("http://ntadmin.dazhangfang.vip");
+            platformVO.setPlatformTag("xwwy");
+            platformVO.setPlatformIndexPage("/auth/jumpToAdmin");
+            platformVO.setShow(true);
+            platformVOS.add(platformVO);
+        }
+        loginUser.setPlatformVOSet(platformVOS);
         try {
             createToken(loginUser);
         } catch (Exception e) {
