@@ -264,20 +264,19 @@ public class CwgyInfoReportImpl implements ICwgyInfoReport {
 	}
 
 	private String getXmByPeriodType(Integer period_type){
-		String name = "";
-		switch (period_type) {
-			case 0:
-				name = "月度";
-				break;
-			case 1:
-				name = "季度";
-				break;
-			case 2:
-				name = "年度";
-				break;
-			default:
-				name = "连续12月";
-				break;
+		String name = "连续12月";
+		if(period_type != null){
+			switch (period_type) {
+				case 0:
+					name = "月度";
+					break;
+				case 1:
+					name = "季度";
+					break;
+				case 2:
+					name = "年度";
+					break;
+			}
 		}
 
 		return name;
