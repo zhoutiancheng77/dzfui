@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.icbill;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
@@ -7,11 +8,13 @@ import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcConst;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -62,7 +65,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/icbill/purchinact")
 @Slf4j
-public class PurchInController {
+public class PurchInController extends BaseController {
 
 	@Autowired
     IPurchInService ic_purchinserv;
@@ -99,6 +102,20 @@ public class PurchInController {
             grid.setSuccess(true);
             grid.setMsg("查询成功！");
         }
+        String begindate = null;
+        String endate = null;
+        DZFDate udate = new DZFDate();
+        // 日志记录
+        if (paramvo == null) {
+            begindate = udate.toString();
+            endate = udate.toString();
+        } else {
+            begindate = paramvo.getBegindate() == null ? udate.toString() : paramvo.getBegindate().toString();
+            endate = paramvo.getEnddate() == null ? udate.toString() : paramvo.getEnddate().toString();
+        }
+//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI,
+//                new StringBuffer().append("入库单查询:").append(begindate).append("-").append(endate).toString(),
+//                ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 	}
 
@@ -172,14 +189,14 @@ public class PurchInController {
         json.setMsg("保存成功!");
 		if (isadd) {
 			if (headvo != null && !StringUtil.isEmpty(headvo.getDbillid())) {
-//				writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "新增入库单：" + headvo.getDbillid(),
-//						ISysConstants.SYS_2);
+				writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "新增入库单：" + headvo.getDbillid(),
+						ISysConstants.SYS_2);
 			}
 
 		} else {
 			if (headvo != null && !StringUtil.isEmpty(headvo.getDbillid())) {
-//				writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "修改入库单：" + headvo.getDbillid(),
-//						ISysConstants.SYS_2);
+				writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "修改入库单：" + headvo.getDbillid(),
+						ISysConstants.SYS_2);
 			}
 		}
         return ReturnData.ok().data(json);
@@ -240,32 +257,20 @@ public class PurchInController {
 			json.setSuccess(false);
 			json.setMsg(strb.toString());
 		}
-//		writeLogRecords(bodyvos, "删除入库单");
+		writeLogRecords(bodyvos, "删除入库单");
 //		writeJson(json);
         return ReturnData.ok().data(json);
 	}
-
-    private void printErrorLog(Json json, Throwable e, String errorinfo){
-        if(StringUtil.isEmpty(errorinfo))
-            errorinfo = "操作失败";
-        if(e instanceof BusinessException){
-            json.setMsg(e.getMessage());
-        }else{
-            json.setMsg(errorinfo);
-            log.error(errorinfo,e);
-        }
-        json.setSuccess(false);
-    }
 	private void writeLogRecords(IntradeHVO[] bodyvos, String msg) {
 
 		if (bodyvos == null || bodyvos.length == 0)
 			return;
 		if (bodyvos.length == 1) {
-//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), msg + ",单据号" + bodyvos[0].getDbillid() + ".",
-//					ISysConstants.SYS_2);
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, msg + ",单据号" + bodyvos[0].getDbillid() + ".",
+					ISysConstants.SYS_2);
 		} else {
-//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "批量删除入库单，单据号" + bodyvos[0].getDbillid() + "等.",
-//					ISysConstants.SYS_2);
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "批量删除入库单，单据号" + bodyvos[0].getDbillid() + "等.",
+					ISysConstants.SYS_2);
 		}
 
 	}
@@ -313,7 +318,7 @@ public class PurchInController {
 			json.setSuccess(false);
 			json.setMsg(strb.toString());
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "入库单转总账", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单转总账", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 
@@ -432,7 +437,7 @@ public class PurchInController {
 			json.setSuccess(false);
 			json.setMsg(strb.toString());
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "入库单汇总转总账", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单汇总转总账", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 
@@ -484,7 +489,7 @@ public class PurchInController {
 			json.setSuccess(false);
 			json.setMsg(strb.toString());
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "入库单取消转总账", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单取消转总账", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 
@@ -626,7 +631,7 @@ public class PurchInController {
 				log.error("入库单打印错误", e);
 			}
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "打印入库单", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "打印入库单", ISysConstants.SYS_2);
 	}
 
     private Map<String, List<SuperVO>> getVoMap(PrintParamVO printParamVO) {
@@ -705,6 +710,7 @@ public class PurchInController {
     @PostMapping("/expExcel")
     public void expExcel(HttpServletResponse response,  @RequestParam Map<String, String> pmap) {
 		OutputStream toClient = null;
+		String title = "";
 		try {
 
             PrintParamVO printParamVO =  JsonUtils.convertValue(pmap,PrintParamVO.class);
@@ -717,7 +723,7 @@ public class PurchInController {
 			boolean isexp = false;
 			if (list.contains("download")) {
 				aggvos = new AggIcTradeVO[1];
-				exName = "入库单导入模板.xls";
+                title ="入库单导入模板";
 				AggIcTradeVO aggvo = new AggIcTradeVO();
 				aggvo.setVcorpname(SystemUtil.getLoginCorpVo().getUnitname());
 				DZFDate billdate = new DZFDate(SystemUtil.getLoginDate());
@@ -728,7 +734,7 @@ public class PurchInController {
 			} else {
 //				String where = list.substring(2, list.length() - 1);
 				aggvos = ic_purchinserv.queryAggIntradeVOByID(list, SystemUtil.getLoginCorpId());
-				exName = "入库单.xls";
+                title ="入库单";
 				List<AggIcTradeVO> tlist = calTotalRow(aggvos);
 				aggvos = tlist.toArray(new AggIcTradeVO[tlist.size()]);
 			}
@@ -736,7 +742,7 @@ public class PurchInController {
 			Map<String, Integer> preMap = getPreMap();// 设置精度
 
 			response.reset();
-
+            exName = title+".xls";
 			String formattedName = URLEncoder.encode(exName, "UTF-8");
 			response.addHeader("Content-Disposition",
 					"attachment;filename=" + exName + ";filename*=UTF-8''" + formattedName);
@@ -769,9 +775,8 @@ public class PurchInController {
 			} catch (IOException e) {
 				log.error("入库单excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "导出"+title, ISysConstants.SYS_2);
 		}
-
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(), "导出入库单", ISysConstants.SYS_2);
 	}
 
 	private List<AggIcTradeVO> calTotalRow(AggIcTradeVO[] aggvos) {
@@ -863,6 +868,7 @@ public class PurchInController {
             json.setMsg(msg);
             json.setSuccess(true);
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "导入入库单", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 

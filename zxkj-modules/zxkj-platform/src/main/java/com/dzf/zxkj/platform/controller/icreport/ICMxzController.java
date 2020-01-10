@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.icreport;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
@@ -56,7 +59,7 @@ import static com.dzf.zxkj.platform.util.SystemUtil.getRequest;
 @RestController
 @RequestMapping("/icreport/mxzact")
 @Slf4j
-public class ICMxzController {
+public class ICMxzController extends BaseController {
 
 	@Autowired
 	private IICMxz ic_rep_mxzserv;
@@ -69,6 +72,7 @@ public class ICMxzController {
 	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
 
+    // 查询
 	@GetMapping("/queryAction")
 	public ReturnData queryAction(@RequestParam Map<String, String> param) {
 		ReportDataGrid grid = new ReportDataGrid();
@@ -118,6 +122,7 @@ public class ICMxzController {
 		grid.setRows(list == null ? new ArrayList<>() : list);
 		grid.setIcDetail(list == null ? new ArrayList<>() : list);
 		grid.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存明细账查询", ISysConstants.SYS_2);
 		return ReturnData.ok().data(grid);
 	}
 
@@ -542,6 +547,7 @@ public class ICMxzController {
                 log.error("库存明细账打印错误", e);
             }
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存明细账打印", ISysConstants.SYS_2);
 	}
 
 	private IcDetailVO[] queryVos(QueryParamVO queryParamVO,String currsp) {
@@ -713,6 +719,7 @@ public class ICMxzController {
 			} catch (IOException e) {
 				log.error("库存明细账excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存明细账导出", ISysConstants.SYS_2);
 		}
 	}
 }

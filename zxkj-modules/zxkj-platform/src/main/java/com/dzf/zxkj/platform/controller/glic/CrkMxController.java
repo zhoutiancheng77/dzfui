@@ -2,7 +2,9 @@ package com.dzf.zxkj.platform.controller.glic;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -76,6 +78,7 @@ public class CrkMxController extends GlicReportController{
         grid.setRows(list == null ? new ArrayList<>() : list);
         grid.setKcDetail(list == null ? new ArrayList<>() : list);
         grid.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"出入库明细表查询:", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -315,8 +318,8 @@ public class CrkMxController extends GlicReportController{
             }
         }
 //        //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                "出入库明细表:打印期间“" + period + "”存货数据", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                "出入库明细表:打印期间“" + period + "”存货数据", ISysConstants.SYS_2);
     }
 
     private QueryParamVO getQueryParamVO( QueryParamVO paramvo){
@@ -442,10 +445,10 @@ public class CrkMxController extends GlicReportController{
             } catch (IOException e) {
                 log.error("excel导出错误", e);
             }
+            //日志记录接口
+            writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                    "出入库明细表:导出期间“" + qj + "”存货数据", ISysConstants.SYS_2);
         }
-//        //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                "出入库明细表:导出期间“" + qj + "”存货数据", ISysConstants.SYS_2);
     }
 
     /**
@@ -499,6 +502,7 @@ public class CrkMxController extends GlicReportController{
             } catch (IOException e) {
             }
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"联查出入库明细信息", ISysConstants.SYS_2);
     }
 
     private IcDetailVO[] reloadExcelData(QueryParamVO paramvo){

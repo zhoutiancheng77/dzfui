@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -38,7 +41,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/icset/invclassify")
 @Slf4j
-public class InvclassifyController {
+public class InvclassifyController extends BaseController{
 
 	@Autowired
 	private IInvclassifyService ic_inclsserv = null;
@@ -87,8 +90,8 @@ public class InvclassifyController {
 			json.setSuccess(false);
 			json.setMsg("失败");
 		}
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货分类设置", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "存货分类设置", ISysConstants.SYS_2);
 	}
 
 	@GetMapping("/query")
@@ -142,7 +145,7 @@ public class InvclassifyController {
             json.setSuccess(true);
             json.setMsg(errmsg);
         }
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "删除存货分类", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除存货分类", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -162,7 +165,7 @@ public class InvclassifyController {
 		String msg = ic_inclsserv.saveImp(infile, pk_corp, fileType);
 		json.setMsg(msg);
 		json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "导入存货分类", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入存货分类", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -213,6 +216,7 @@ public class InvclassifyController {
 			} catch (Exception e) {
 				log.error("excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导出存货分类模板", ISysConstants.SYS_2);
 		}
 	}
 }

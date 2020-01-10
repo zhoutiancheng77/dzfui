@@ -1,10 +1,13 @@
 package com.dzf.zxkj.platform.controller.icreport;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -48,7 +51,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/icreport/rep_hzbact")
 @Slf4j
-public class ICHzbController {
+public class ICHzbController  extends BaseController {
 
 	@Autowired
 	private IICHzb ic_rep_hzbserv;
@@ -85,6 +88,7 @@ public class ICHzbController {
 		grid.setRows(list == null ? new ArrayList<IcDetailVO>() : list);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功！");
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存汇总表查询", ISysConstants.SYS_2);
 		return ReturnData.ok().data(grid);
 	}
 
@@ -261,6 +265,7 @@ public class ICHzbController {
                 log.error("库存汇总表打印错误", e);
             }
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存汇总表打印", ISysConstants.SYS_2);
 	}
 
 	private IcDetailVO[] queryVos(QueryParamVO queryParamVO) {
@@ -389,6 +394,7 @@ public class ICHzbController {
 			} catch (IOException e) {
 				log.error("库存汇总表excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存汇总表导出", ISysConstants.SYS_2);
 		}
 	}
 

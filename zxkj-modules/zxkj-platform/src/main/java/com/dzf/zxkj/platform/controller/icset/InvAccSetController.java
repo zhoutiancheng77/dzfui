@@ -1,7 +1,10 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.icset.InvAccSetVO;
 import com.dzf.zxkj.platform.service.icset.IInvAccSetService;
@@ -18,7 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/icset/chkmszact")
 @Slf4j
-public class InvAccSetController {
+public class InvAccSetController extends BaseController {
 
 	@Autowired
 	private IInvAccSetService ic_chkmszserv = null;
@@ -46,7 +49,7 @@ public class InvAccSetController {
 		json.setRows(vo);
 		json.setMsg("保存成功");
 		json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "库存入账设置", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账保存", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -57,7 +60,7 @@ public class InvAccSetController {
 		json.setRows(vo);
 		json.setMsg("获取入账科目成功");
 		json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "库存入账设置获取入账科目", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账默认设置", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 }

@@ -629,7 +629,7 @@ public class AuxiliaryAccountController extends BaseController {
         AuxiliaryAccountBVO vo = gl_fzhsserv.saveMergeData(pk_corp, spid, bodyvos);
         json.setMsg("存货合并成功");
         json.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货合并");
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "存货合并");
         return ReturnData.ok().data(json);
     }
 

@@ -1,12 +1,15 @@
 package com.dzf.zxkj.platform.controller.icreport;
 
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -49,7 +52,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/icreport/rep_cbbact")
 @Slf4j
-public class ICbbController  {
+public class ICbbController  extends BaseController {
 	@Autowired
 	private IQueryLastNum ic_rep_cbbserv;
 	@Autowired
@@ -93,8 +96,8 @@ public class ICbbController  {
         grid.setMsg("查询成功");
 
 //		// 日志记录
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT.getValue(),
-//				new StringBuffer().append("库存成本表查询:").append(qryDate).toString(), ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,
+				new StringBuffer().append("库存成本表查询:").append(qryDate).toString(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 	}
 
@@ -256,6 +259,7 @@ public class ICbbController  {
                 log.error("库存成本表打印错误", e);
             }
         }
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存成本表打印", ISysConstants.SYS_2);
 	}
 
 	private void setDefaultValue(IcbalanceVO[] bodyvos, String pk_corp) {
@@ -321,6 +325,7 @@ public class ICbbController  {
 			} catch (IOException e) {
 				log.error("库存成本表excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存成本表导出", ISysConstants.SYS_2);
 		}
 	}
 
