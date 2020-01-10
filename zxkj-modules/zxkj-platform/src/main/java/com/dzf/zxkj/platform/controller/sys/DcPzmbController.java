@@ -543,7 +543,7 @@ public class DcPzmbController extends BaseController{
             String fileName = file.getOriginalFilename();
             String fileType = null;
             if (!StringUtil.isEmpty(fileName)) {
-                fileType = fileName.substring(fileName.indexOf(".") + 1, fileName.length());
+                fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
             }
             String pk_corp = SystemUtil.getLoginCorpId();
             //
@@ -564,9 +564,9 @@ public class DcPzmbController extends BaseController{
         OutputStream toClient = null;
         try {
             response.reset();
-            String  fileName = "yewuleixingmoban.xls";
+            String  fileName = "yewuleixingmoban";
             // 设置response的Header
-            String date = "yewuleixingmoban.xls";
+            String date = "yewuleixingmoban";
 
             String formattedName = URLEncoder.encode(date, "UTF-8");
             response.addHeader("Content-Disposition",
