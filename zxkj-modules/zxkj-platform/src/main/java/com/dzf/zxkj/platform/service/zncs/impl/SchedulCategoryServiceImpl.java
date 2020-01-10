@@ -2098,6 +2098,7 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 				{
 					CheckOcrInvoiceVO checkvo = new CheckOcrInvoiceVO();
 					checkvo.setPk_invoice(ocrVO.getPk_invoice());
+					checkvo.setId(ocrVO.getPk_invoice());
 					checkvo.setErrordesc((errordesc == null ? "" : errordesc) + (ocrVO.getErrordesc2() == null ? "" : ocrVO.getErrordesc2()));
 					checkvo.setBilltitle(ocrVO.getBilltitle());
 					checkvo.setWebid(ocrVO.getWebid());

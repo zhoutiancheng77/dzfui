@@ -10,16 +10,20 @@ import com.dzf.zxkj.common.model.SuperVO;
  */
 public class CheckOcrInvoiceVO extends SuperVO {
 	private String pk_invoice;//票据主键
+	private String id;
 	private String webid;//图片id
 	private String errordesc;//问题描述
 	private String ocraddress;//图片路径
 	private String categoryname;//分类名称
 	private String billtitle;//票据名称
 
-	
-	
-	
-	
+
+
+
+	public String getId() { return id; }
+
+	public void setId(String id) { this.id = id; }
+
 	public String getBilltitle() {
 		return billtitle;
 	}
