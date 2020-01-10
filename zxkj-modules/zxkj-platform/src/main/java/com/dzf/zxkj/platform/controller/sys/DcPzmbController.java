@@ -564,7 +564,7 @@ public class DcPzmbController extends BaseController{
         OutputStream toClient = null;
         try {
             response.reset();
-            String  fileName = "yewuleixingmoban";
+            String  fileName = "yewuleixingmoban.xls";
             // 设置response的Header
             String date = "yewuleixingmoban";
 
