@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.salary;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -27,7 +30,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/salary/gl_gzbbase")
 @Slf4j
-public class SalaryBaseController {
+public class SalaryBaseController extends BaseController {
 
     @Autowired
     private ISalaryBaseService gl_gzbbaseserv;
@@ -86,7 +89,7 @@ public class SalaryBaseController {
         json.setMsg("社保公积金保存成功");
         json.setRows(vos);
         json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "社保公积金保存", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "社保公积金保存", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -112,7 +115,7 @@ public class SalaryBaseController {
         json.setRows(vo);
         json.setMsg("删除成功");
         json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资表删除", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "社保公积金删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -162,7 +165,7 @@ public class SalaryBaseController {
         }
         json.setMsg("调整基数成功");
         json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "调整基数", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "批量调整基数", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -182,7 +185,7 @@ public class SalaryBaseController {
         }
         json.setMsg("统一基数设置成功");
         json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "调整基数", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "统一基数设置", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

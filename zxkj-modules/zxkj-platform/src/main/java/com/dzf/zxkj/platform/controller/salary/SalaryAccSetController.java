@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.salary;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.gzgl.SalaryAccSetVO;
@@ -24,7 +27,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/salary/gl_gzkmszact2")
 @Slf4j
-public class SalaryAccSetController {
+public class SalaryAccSetController extends BaseController {
 
     /**
      *
@@ -69,7 +72,7 @@ public class SalaryAccSetController {
         json.setRows(vo);
         json.setMsg("保存成功");
         json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资科目设置保存", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资科目设置保存", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -81,7 +84,7 @@ public class SalaryAccSetController {
         json.setRows(vo);
         json.setMsg("获取入账科目成功");
         json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资科目设置获取入账科目", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资科目设置获取入账科目", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -113,7 +116,7 @@ public class SalaryAccSetController {
         json.setRows(vos);
         json.setMsg("保存部门费用科目成功");
         json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资科目设置获取入账科目", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资科目设置部门费用科目", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

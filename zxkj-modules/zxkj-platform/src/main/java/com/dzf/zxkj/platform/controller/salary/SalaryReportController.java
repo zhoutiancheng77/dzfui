@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.controller.salary;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -9,8 +10,10 @@ import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.ValueUtils;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -71,7 +74,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/salary/gl_gzbact2")
 @Slf4j
-public class SalaryReportController {
+public class SalaryReportController  extends BaseController {
 
     @Autowired
     private ISalaryReportService gl_gzbserv = null;
@@ -162,7 +165,6 @@ public class SalaryReportController {
         json.setMsg(msg);
         json.setSuccess(true);
         log.info("查询成功");
-
         return ReturnData.ok().data(json);
     }
 
@@ -196,8 +198,7 @@ public class SalaryReportController {
                 info = "取消关账：";
             }
             if (!StringUtil.isEmpty(info)) {
-//                writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(),
-//                        info + from.getYear() + "年" + from.getMonth() + "月", ISysConstants.SYS_2);
+                writeLogRecord(LogRecordEnum.OPE_KJ_SALARY,info + from.getYear() + "年" + from.getMonth() + "月", ISysConstants.SYS_2);
             }
         }
         return ReturnData.ok().data(json);
@@ -230,7 +231,7 @@ public class SalaryReportController {
         json.setMsg("工资表保存成功");
         json.setRows(vos);
         json.setSuccess(true);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资表保存", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资表保存", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -253,7 +254,7 @@ public class SalaryReportController {
         json.setRows(vo);
         json.setMsg("删除成功");
         json.setSuccess(true);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资表删除", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资表删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -261,8 +262,6 @@ public class SalaryReportController {
     public ReturnData<Json> check(@RequestParam("opdate") String qj,
                                   @RequestParam("operate") String str, @RequestParam("pk_corp") String pk_corp) {
         Json json = new Json();
-
-
         if (StringUtil.isEmpty(qj))
             throw new BusinessException("期间为空");
         if (StringUtil.isEmpty(pk_corp)) {
@@ -274,7 +273,6 @@ public class SalaryReportController {
         }
         gl_gzbserv.checkPz(pk_corp, qj, str, true);
         json.setSuccess(true);
-
         return ReturnData.ok().data(json);
 
     }
@@ -293,11 +291,9 @@ public class SalaryReportController {
 
         CorpVO corp = corpService.queryByPk(pk_corp);
         TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, qj, SystemUtil.getLoginUserId(),"gzjt");
-        // json.setHvo(msg);
         json.setData(msg);
         json.setSuccess(true);
-
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资计提", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资计提", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -334,7 +330,7 @@ public class SalaryReportController {
         }
         grid.setSuccess(true);
         grid.setMsg("联查成功！");
-
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资联查凭证", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -354,7 +350,7 @@ public class SalaryReportController {
         json.setData(msg);
         json.setSuccess(true);
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "工资发放", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资发放", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -410,11 +406,11 @@ public class SalaryReportController {
         log.info("复制成功");
 
         if (!StringUtil.isEmpty(copyFromdate)) {// &&
-//            DZFDate from = new DZFDate(copyFromdate + "-01");
-//            DZFDate to = new DZFDate(copyTodate + "-01");
-//            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(),
-//                    "复制工资表：" + from.getYear() + "年" + from.getMonth() + "月-" + to.getYear() + "年" + to.getMonth() + "月",
-//                    ISysConstants.SYS_2);
+            DZFDate from = new DZFDate(copyFromdate + "-01");
+            DZFDate to = new DZFDate(copyTodate + "-01");
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY,
+                    "复制工资表：" + from.getYear() + "年" + from.getMonth() + "月-" + to.getYear() + "年" + to.getMonth() + "月",
+                    ISysConstants.SYS_2);
         }
         return ReturnData.ok().data(json);
     }
@@ -444,6 +440,7 @@ public class SalaryReportController {
      */
     @PostMapping("print")
     public void printAction(PrintParamVO printParamVO, @RequestParam Map<String, String> map, HttpServletResponse response) {
+        String opdate = null;
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
@@ -454,7 +451,7 @@ public class SalaryReportController {
             String pk_corp = map.get("pk_corp");
             if (StringUtil.isEmpty(billtype))
                 throw new BusinessException("公司为空");
-            String opdate = map.get("opdate");
+            opdate = map.get("opdate");
             if (StringUtil.isEmpty(opdate))
                 throw new BusinessException("期间为空");
 //            setIscross(DZFBoolean.TRUE);// 是否横向
@@ -525,11 +522,11 @@ public class SalaryReportController {
                 log.error("工资表打印错误", e);
             }
         }
-//        if (!StringUtil.isEmpty(qijian)) {
-//            DZFDate from = new DZFDate(qijian + "-01");
-//            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(),
-//                    "工资表打印：" + from.getYear() + "年" + from.getMonth() + "月", ISysConstants.SYS_2);
-//        }
+        if (!StringUtil.isEmpty(opdate)) {
+            DZFDate from = new DZFDate(opdate + "-01");
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY,
+                    "工资表打印：" + from.getYear() + "年" + from.getMonth() + "月", ISysConstants.SYS_2);
+        }
     }
 
     @PostMapping("/impExcel")
@@ -566,9 +563,9 @@ public class SalaryReportController {
             JsonErrorUtil.jsonErrorLog(json, log, e, "文件导入失败!");
         }
         if (!StringUtil.isEmpty(opdate)) {
-//            DZFDate date = new DZFDate(opdate + "-01");
-//            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(),
-//                    "导入工资表：" + date.getYear() + "年" + date.getMonth() + "月", ISysConstants.SYS_2);
+            DZFDate date = new DZFDate(opdate + "-01");
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY,
+                    "导入工资表：" + date.getYear() + "年" + date.getMonth() + "月", ISysConstants.SYS_2);
         }
         return ReturnData.ok().data(json);
     }
@@ -726,9 +723,9 @@ public class SalaryReportController {
             } catch (IOException e) {
                 log.error("excel导出错误", e);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "导出工资表：" + qjval[0] + "年" + qjval[1] + "月",
+                ISysConstants.SYS_2);
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "导出工资表：" + qjval[0] + "年" + qjval[1] + "月",
-//                ISysConstants.SYS_2);
     }
 
     @PostMapping("/expExcel")
@@ -800,6 +797,7 @@ public class SalaryReportController {
             } catch (Exception e) {
                 log.error("excel导出错误", e);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "导出工资表模版", ISysConstants.SYS_2);
         }
     }
 
@@ -876,9 +874,9 @@ public class SalaryReportController {
             } catch (Exception e) {
                 log.error("excel导出错误", e);
             }
-//            String date[] = period.split("-");
-//            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "导出纳税申报表：" + date[0] + "年" + date[1] + "月",
-//                    ISysConstants.SYS_2);
+            String date[] = period.split("-");
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "导出纳税申报表：" + date[0] + "年" + date[1] + "月",
+                    ISysConstants.SYS_2);
         }
     }
 
@@ -1023,9 +1021,9 @@ public class SalaryReportController {
             } catch (Exception e) {
                 log.error("excel导出错误", e);
             }
-//            String date[] = period.split("-");
-//            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "个人信息：" + date[0] + "年" + date[1] + "月",
-//                    ISysConstants.SYS_2);
+            String date[] = period.split("-");
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "导出个人信息：" + date[0] + "年" + date[1] + "月",
+                    ISysConstants.SYS_2);
         }
     }
 
@@ -1102,7 +1100,7 @@ public class SalaryReportController {
         gl_gzbserv.updateFykm(pk_corp, fykmid, primaryKey, qj, billtype);
         json.setMsg("更新费用科目成功");
         json.setSuccess(true);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "更新费用科目", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "更新费用科目", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -1132,7 +1130,7 @@ public class SalaryReportController {
         json.setMsg("更新部门成功");
         json.setSuccess(true);
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "更新费用科目", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "更新费用科目", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -1198,11 +1196,11 @@ public class SalaryReportController {
         json.setMsg("调整基数成功");
         json.setSuccess(true);
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY.getValue(), "调整基数", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "调整基数", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
-    @GetMapping("/changeNum")
+    @GetMapping("/checkJzDate")
     public ReturnData<Json> checkJzDate(@RequestParam("date") String date, @RequestParam("corp_id") String pk_corp) {
 
         Json json = new Json();

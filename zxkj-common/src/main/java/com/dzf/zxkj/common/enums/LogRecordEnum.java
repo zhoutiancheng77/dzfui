@@ -12,7 +12,7 @@ public enum LogRecordEnum {
 	OPE_KJ_SYS(0, "系统"), OPE_KJ_ADDVOUCHER(1, "新增凭证"), OPE_KJ_EDITVOUCHER(2, "修改凭证"), 
 	OPE_KJ_DELVOUCHER(3,"删除凭证"), OPE_KJ_OTHERVOUCHER(4, "凭证其他操作"), OPE_KJ_SETTLE(5, "结账办理"), 
 	OPE_KJ_KMREPORT(6,"账簿查询"), OPE_KJ_CWREPORT(7, "报表查询"), OPE_KJ_TAX(8, "纳税申报"), 
-	OPE_KJ_SALARY(9,"工资表查询"), OPE_KJ_BDSET(10, "基础设置"), OPE_KJ_SJWH(11, "数据维护"), 
+	OPE_KJ_SALARY(9,"工资管理"), OPE_KJ_BDSET(10, "基础设置"), OPE_KJ_SJWH(11, "数据维护"),
 	OPE_KJ_ZCGL(12,"资产管理"), OPE_KJ_ZCREPROT(13, "资产报表"), OPE_KJ_IC_SET(14, "库存基础设置"), 
 	OPE_KJ_IC_BUSI(15, "库存日常业务处理"), OPE_KJ_IC_REPORT(16, "库存报表查询"), OPE_KJ_PJGL(17, "票据管理"),
 	OPE_KJ_NSGZT(120, "纳税工作台"),OPE_KJ_CHGL(125, "存货管理"),OPE_KJ_QYXX(130, "企业信息"),
