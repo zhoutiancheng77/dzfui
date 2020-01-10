@@ -84,9 +84,11 @@ public class LoginServiceImpl implements ILoginService {
             if(zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(userVO.getPlatformTag())){
                 return transferToZxkjUser(userVO);
             }else{
-                Optional<UserVO> u = userVO.getBindUsers().stream().filter(v -> zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(v.getPlatformTag()) ||zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(v.getPlatformTag())).findFirst();
-                if(u.isPresent()){
-                    return transferToZxkjUser(u.get());
+                if(userVO.getBindUsers() != null){
+                    Optional<UserVO> u = userVO.getBindUsers().stream().filter(v -> zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(v.getPlatformTag()) ||zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(v.getPlatformTag())).findFirst();
+                    if(u.isPresent()){
+                        return transferToZxkjUser(u.get());
+                    }
                 }
             }
         }
