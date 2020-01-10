@@ -849,12 +849,15 @@ public class PzglServiceImpl implements IPzglService {
 			return null;
 		}
 		SQLParameter sp = new SQLParameter();
-		sp.addParam(pk_corp);
 		StringBuilder sql = new StringBuilder();
 		sql.append(" select e.*,oy.crelationid ocr_id from ynt_interface_invoice e ");
 		sql.append(" join ynt_image_ocrlibrary oy on e.ocr_id = oy.pk_image_ocrlibrary ");
-		sql.append(" where nvl(e.dr,0) = 0 and nvl(oy.dr,0) = 0 and e.pk_corp = ? and ")
+		sql.append(" where nvl(e.dr,0) = 0 and nvl(oy.dr,0) = 0 and ")
 			.append(SqlUtil.buildSqlForIn("oy.crelationid", groups.toArray(new String[0])));
+		if (!StringUtil.isEmpty(pk_corp)) {
+            sql.append(" and e.pk_corp = ? ");
+            sp.addParam(pk_corp);
+        }
 		List<OcrInvoiceVO> invoiceList = (List<OcrInvoiceVO>) singleObjectBO.executeQuery(sql.toString(), sp,
 				new BeanListProcessor(OcrInvoiceVO.class));
 		

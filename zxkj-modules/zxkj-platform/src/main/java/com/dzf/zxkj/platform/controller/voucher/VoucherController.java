@@ -431,7 +431,7 @@ public class VoucherController extends BaseController {
             writeLogRecord(LogRecordEnum.OPE_KJ_ADDVOUCHER, "从"
                     + copyPeriod + "复制到" + aimPeriod);
         } else {
-            writeLogRecord(LogRecordEnum.OPE_KJ_ADDVOUCHER, "部分复制到"+ aimPeriod);
+            writeLogRecord(LogRecordEnum.OPE_KJ_ADDVOUCHER, "部分复制到" + aimPeriod);
         }
         return ReturnData.ok().data(json);
     }
@@ -696,14 +696,28 @@ public class VoucherController extends BaseController {
     @GetMapping("/getImageById")
     public ReturnData getImageById(@RequestParam String id) {
         Json json = new Json();
-        ImageLibraryVO[] imageArray = gl_tzpzserv.queryImageVO(id);
-        if (imageArray != null && imageArray.length > 0) {
-            ImageGroupVO groupVo = gl_tzpzserv.queryImageGroupByPrimaryKey(id);
-            groupVo.setChildren(imageArray);
-            json.setData(groupVo);
-            json.setSuccess(true);
+        if (gl_tzpzserv.checkImageGroupExist(id)) {
+            ImageLibraryVO[] imageArray = gl_tzpzserv.queryImageVO(id);
+            if (imageArray != null && imageArray.length > 0) {
+                ImageGroupVO groupVo = gl_tzpzserv.queryImageGroupByPrimaryKey(id);
+                groupVo.setChildren(imageArray);
+                json.setData(groupVo);
+                json.setSuccess(true);
+            } else {
+                throw new BusinessException("无图片信息");
+            }
+
         } else {
-            throw new BusinessException("无图片信息");
+            // 按library处理
+            ImageParamVO param = new ImageParamVO();
+            param.setImgIds(id);
+            List<ImageGroupVO> list = gl_tzpzserv.queryImageGroupByPicture(param);
+            if (list.size() > 0) {
+                json.setData(list.get(0));
+                json.setSuccess(true);
+            } else {
+                throw new BusinessException("无图片信息");
+            }
         }
         return ReturnData.ok().data(json);
     }
@@ -1261,7 +1275,7 @@ public class VoucherController extends BaseController {
         if (StringUtils.isEmpty(logMsg)) {
             logMsg = "无合并成功凭证";
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER,"合并凭证：" + logMsg);
+        writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "合并凭证：" + logMsg);
         return ReturnData.ok().data(json);
     }
 

@@ -113,6 +113,15 @@ public interface IVoucherService {
             throws DZFWarpException;
 
     /**
+     * 检查图片组是否存在,包括删除数据
+     * @param id
+     * @return
+     * @throws DZFWarpException
+     */
+    boolean checkImageGroupExist(String id)
+            throws DZFWarpException;
+
+    /**
      * 校验暂估生成的凭证不可删除
      *
      * @param pk_corp
