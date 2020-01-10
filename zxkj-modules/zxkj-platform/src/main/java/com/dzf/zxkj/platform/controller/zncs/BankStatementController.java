@@ -79,6 +79,12 @@ public class BankStatementController extends BaseController {
             BankStatementVO[] vos = null;
             if(list!=null && list.size()>0){
                 vos = getPagedZZVOs(list.toArray(new BankStatementVO[0]),bvo.getPage(),bvo.getRows());
+                for (BankStatementVO vo: vos) {
+                    //处理改版前的图片路径，将/gl/gl_imgview!search.action替换成/zncs/gl_imgview/search
+                    if(!StringUtil.isEmpty(vo.getImgpath())&&vo.getImgpath().contains("/gl/gl_imgview!search.action")){
+                        vo.setImgpath(vo.getImgpath().replace("/gl/gl_imgview!search.action","/zncs/gl_imgview/search"));
+                    }
+                }
             }
 
             vos = filterByBillStatus(vos,bvo.getFlag());

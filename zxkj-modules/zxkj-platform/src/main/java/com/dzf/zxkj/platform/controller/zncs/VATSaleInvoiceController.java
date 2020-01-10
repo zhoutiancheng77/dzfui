@@ -485,19 +485,19 @@ public class VATSaleInvoiceController extends BaseController {
     }
 
     @RequestMapping("/impExcel")
-    public ReturnData impExcel(MultipartFile infile,String flag,VATSaleInvoiceVO vvo){
+    public ReturnData impExcel(@RequestBody MultipartFile file,String impForce){
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
         try {
 //			String source = null;//arr[data.getSourcetem() - 1];
 
-            DZFBoolean isFlag = "Y".equals(flag) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
+            DZFBoolean isFlag = "Y".equals(impForce) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
 
-            if(infile == null || infile.getSize()==0){
+            if(file == null || file.getSize()==0){
                 throw new BusinessException("请选择导入文件!");
             }
-            String fileName = infile.getOriginalFilename();
+            String fileName = file.getOriginalFilename();
             String fileType = null;
             if (fileName != null && fileName.length() > 0) {
                 fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
@@ -508,14 +508,14 @@ public class VATSaleInvoiceController extends BaseController {
 
             paramvo.setIsFlag(isFlag);//设置是否强制导入
             StringBuffer msg = new StringBuffer();
-            gl_vatsalinvserv.saveImp(infile, fileName, paramvo, pk_corp, fileType, userid, msg);
+            gl_vatsalinvserv.saveImp(file, fileName, paramvo, pk_corp, fileType, userid, msg);
 
             json.setHead(paramvo);
             json.setMsg(msg.toString());
             json.setSuccess(paramvo.getCount()==0 ? false : true);
 
-            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入销项发票：" + (vvo != null && vvo.getBeginrq() != null ? vvo.getBeginrq() : ""), ISysConstants.SYS_2);
+//            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
+//                    "导入销项发票：" + (vvo != null && vvo.getBeginrq() != null ? vvo.getBeginrq() : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             if(e instanceof BusinessException
                     && IBillManageConstants.ERROR_FLAG.equals(((BusinessException) e).getErrorCodeString())){
@@ -1314,8 +1314,10 @@ public class VATSaleInvoiceController extends BaseController {
         String strrows = param.get("daterows");
 
         JSONArray array = JSON.parseArray(strrows);
-        VATSaleInvoiceVO[] listvo = JsonUtils.deserialize(strrows, VATSaleInvoiceVO[].class);
-
+        VATSaleInvoiceVO[] listvo = null;
+        if(!StringUtils.isEmpty(strrows)){
+            listvo = JsonUtils.deserialize(strrows, VATSaleInvoiceVO[].class);
+        }
         OutputStream toClient = null;
         try {
             response.reset();

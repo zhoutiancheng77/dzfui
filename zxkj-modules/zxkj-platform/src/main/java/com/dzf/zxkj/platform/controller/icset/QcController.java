@@ -1,13 +1,16 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -43,7 +46,7 @@ import static com.dzf.zxkj.platform.util.SystemUtil.getRequest;
 @RestController
 @RequestMapping("/icset/qcact")
 @Slf4j
-public class QcController {
+public class QcController  extends BaseController {
 
 	@Autowired
 	private IQcService iservice;
@@ -72,6 +75,7 @@ public class QcController {
 		grid.setRows(list == null ? new ArrayList<IcbalanceVO>() : list);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功");
+//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"库存期初查询", ISysConstants.SYS_2);
 		return ReturnData.ok().data(grid);
 	}
 
@@ -111,7 +115,7 @@ public class QcController {
 		iservice.save(pk_corp, bodyvos,SystemUtil.getLoginUserId()); // 保存数据
 		json.setSuccess(true);
 		json.setMsg("保存成功");
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "库存期初设置", 2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存期初设置", 2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -148,8 +152,7 @@ public class QcController {
 		}else{
 			json.setMsg(errmsg);
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "删除库存期初", ISysConstants.SYS_2);
-//		writeJson(json);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除库存期初", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -173,8 +176,8 @@ public class QcController {
 		String msg = iservice.saveImp(infile, corpvo.getPk_corp(), fileType, userid, icdate);
 		json.setMsg(msg);
 		json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入库存期初", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "导入库存期初", ISysConstants.SYS_2);
 	}
 
 	// 将查询后的结果分页
@@ -237,6 +240,7 @@ public class QcController {
 			} catch (Exception e) {
 				log.error("excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导出库存期初模板", ISysConstants.SYS_2);
 		}
 	}
 

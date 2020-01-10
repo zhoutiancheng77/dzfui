@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -42,7 +45,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/icset/meausreact")
 @Slf4j
-public class MeasureController{
+public class MeasureController extends BaseController {
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
     @Autowired
@@ -67,6 +70,7 @@ public class MeasureController{
 		} else {
 			grid.setSuccess(false);
 		}
+//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"计量单位查询", ISysConstants.SYS_2);
 		return ReturnData.ok().data(grid);
 //		writeJson(grid);
 	}
@@ -135,8 +139,9 @@ public class MeasureController{
         json.setStatus(200);
         json.setSuccess(true);
         json.setMsg("保存成功！");
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "计量单位设置", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "计量单位设置", ISysConstants.SYS_2);
+//
 	}
 
 	// 删除记录
@@ -157,7 +162,7 @@ public class MeasureController{
             json.setSuccess(true);
             json.setMsg(errmsg);
         }
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "删除计量单位", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除计量单位", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
     @PostMapping("/impExcel")
@@ -178,8 +183,8 @@ public class MeasureController{
         String msg = ims.saveImp(infile, pk_corp, fileType, userid);
         json.setMsg(msg);
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入计量单位", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "导入计量单位", ISysConstants.SYS_2);
 	}
 
 	// 查询单据号
@@ -230,6 +235,7 @@ public class MeasureController{
             } catch (Exception e) {
                 log.error("excel导出错误", e);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导出计量单位模板", ISysConstants.SYS_2);
         }
     }
 

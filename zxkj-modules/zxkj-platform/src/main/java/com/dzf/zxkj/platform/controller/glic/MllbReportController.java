@@ -1,9 +1,11 @@
 package com.dzf.zxkj.platform.controller.glic;
 
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.query.PrintParamVO;
@@ -68,6 +70,7 @@ public class MllbReportController  extends GlicReportController{
         grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
         grid.setRows(list == null ? new ArrayList<>() : list);
         grid.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"毛利率统计表查询:", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -226,8 +229,8 @@ public class MllbReportController  extends GlicReportController{
             }
         }
         //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                "毛利率统计表:打印期间“" + period + "”存货数据", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                "毛利率统计表:打印期间“" + period + "”存货数据", ISysConstants.SYS_2);
     }
 
     /**
@@ -289,9 +292,9 @@ public class MllbReportController  extends GlicReportController{
             } catch (IOException e) {
                 log.error("毛利率统计表excel导出错误", e);
             }
+            //日志记录接口
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                "毛利率统计表:导出期间“" + qj + "”存货数据", ISysConstants.SYS_2);
         }
-        //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                "毛利率统计表:导出期间“" + qj + "”存货数据", ISysConstants.SYS_2);
     }
 }

@@ -11,11 +11,13 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.model.tax.SpecDeductHistVO;
 import com.dzf.zxkj.platform.service.sys.IBDCorpTaxService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IZtszService;
@@ -171,10 +173,40 @@ public class ZtszServiceImpl implements IZtszService {
 
 		}
 
+		if(!StringUtil.isEmpty(queryvo.getPk_corp())){//专项扣除
+            buildZxKc(list);
+        }
+
 		VOUtil.sort(list, new String[]{"innercode"}, new int[]{VOUtil.ASC});
 
 		return list;
 	}
+
+	private void buildZxKc(List<CorpTaxVo> list){
+	    if(list != null && list.size() != 0){
+	        CorpTaxVo vo = list.get(0);
+	        if(vo.getTaxlevytype() == 1 && vo.getIncomtaxtype()==1){
+                setZxKc(vo, vo.getPk_corp());
+            }
+        }
+    }
+
+    private void setZxKc(CorpTaxVo vo, String pk_corp) {
+        List list = bdcorptaxserv.querySpecChargeHis(pk_corp);
+        if (list == null || list.size() == 0)
+            return;
+        SpecDeductHistVO svo = (SpecDeductHistVO) list.get(0);
+        vo.setYanglaobx(svo.getYanglaobx());
+        vo.setYiliaobx(svo.getYiliaobx());
+        vo.setShiyebx(svo.getShiyebx());
+        vo.setZfgjj(svo.getZfgjj());
+        vo.setBgperiod(svo.getBgperiod());
+        DZFDouble zxkcxj = SafeCompute.add(vo.getYanglaobx(), vo.getYiliaobx());
+        zxkcxj = SafeCompute.add(zxkcxj, vo.getShiyebx());
+        zxkcxj = SafeCompute.add(zxkcxj, vo.getZfgjj());
+        vo.setZxkcxj(zxkcxj);
+
+    }
 
 	//默认值
 	private void setCorpTaxDefaultValue(CorpTaxVo vo){

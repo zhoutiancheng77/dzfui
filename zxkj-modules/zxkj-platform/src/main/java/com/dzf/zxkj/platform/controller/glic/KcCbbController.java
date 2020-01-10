@@ -3,9 +3,11 @@ package com.dzf.zxkj.platform.controller.glic;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.VOSortUtils;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
@@ -73,6 +75,7 @@ public class KcCbbController extends GlicReportController{
         grid.setKcDetail(list);
         grid.setRows(list);
         grid.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"库存成本表查询:", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -309,6 +312,11 @@ public class KcCbbController extends GlicReportController{
         json.setSuccess(flag);
         json.setHead(headvo);
         json.setMsg(flag ? "查询成功" : period + "没有结转凭证，请检查");
+
+        if(flag){
+            writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                    "库存成本表:存货成本调整", ISysConstants.SYS_2);
+        }
         return ReturnData.ok().data(json);
     }
 
@@ -328,8 +336,8 @@ public class KcCbbController extends GlicReportController{
         grid.setSuccess(true);
         grid.setMsg("暂估处理成功");
 //        //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                "库存成本表:存货暂估期间“" + period + "”存货数据", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                "库存成本表:存货暂估期间“" + period + "”存货数据", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -400,8 +408,8 @@ public class KcCbbController extends GlicReportController{
             }
         }
 //        //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                "库存成本表:打印期间“" + period + "”存货数据", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                "库存成本表:打印期间“" + period + "”存货成本数据", ISysConstants.SYS_2);
     }
 
     private QueryParamVO getQueryParamVO( QueryParamVO paramvo){
@@ -487,10 +495,10 @@ public class KcCbbController extends GlicReportController{
             } catch (IOException e) {
                 log.error("库存成本表excel导出错误", e);
             }
+            //日志记录接口
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                "库存成本表:导出期间“" + qj + "”存货成本数据", ISysConstants.SYS_2);
         }
-//        //日志记录接口
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                "库存成本表:导出期间“" + qj + "”存货数据", ISysConstants.SYS_2);
     }
 
     @GetMapping("/getClassifyFlag")

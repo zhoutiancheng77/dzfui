@@ -1,10 +1,13 @@
 package com.dzf.zxkj.platform.controller.glic;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.DZFConstant;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -35,7 +38,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/glic/gl_icinvqc")
 @Slf4j
-public class InvtoryQcController {
+public class InvtoryQcController extends BaseController {
     @Autowired
     private IInventoryQcService gl_ic_invtoryqcserv;
 
@@ -82,9 +85,8 @@ public class InvtoryQcController {
         json.setRows(vo);
         json.setMsg("保存成功");
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，保存", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
-//                "总账存货管理-存货期初，保存", ISysConstants.SYS_2);
     }
 
     @PostMapping("/onDelete")
@@ -102,8 +104,7 @@ public class InvtoryQcController {
         json.setMsg("删除成功");
         json.setSuccess(true);
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
-//                "总账存货管理-存货期初，删除", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -114,8 +115,7 @@ public class InvtoryQcController {
                 SystemUtil.getLoginCorpId(), date);
         json.setMsg("同步成功");
         json.setSuccess(true);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
-//                "总账存货管理-存货期初，同步", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，同步", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -125,8 +125,7 @@ public class InvtoryQcController {
         gl_ic_invtoryqcserv.updateDate( SystemUtil.getLoginCorpId(), date);
         json.setMsg("修改成功");
         json.setSuccess(true);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
-//                "总账存货管理-存货期初，修改启用期间", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，修改启用期间", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -149,8 +148,7 @@ public class InvtoryQcController {
         json.setMsg(msg);
         json.setSuccess(true);
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
-//                "总账存货管理-存货期初，导入", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，导入", ISysConstants.SYS_2);
 //        writeJson(json);
         return ReturnData.ok().data(json);
     }
@@ -192,6 +190,8 @@ public class InvtoryQcController {
             } catch (Exception e) {
                 log.error("excel导出错误", e);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                    "存货期初模板导出", ISysConstants.SYS_2);
         }
     }
 
@@ -245,8 +245,7 @@ public class InvtoryQcController {
         json.setData(date.toString());
         json.setMsg("修改成功");
         json.setSuccess(true);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
-//                "总账存货管理-存货期初，修改启用期间", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，修改启用期间", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

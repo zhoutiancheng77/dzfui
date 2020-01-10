@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.glic;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Set;
 
 @Slf4j
-public class GlicReportController {
+public class GlicReportController extends BaseController {
     @Autowired
     private IUserService userService;
 

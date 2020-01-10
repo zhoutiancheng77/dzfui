@@ -1,10 +1,13 @@
 package com.dzf.zxkj.platform.controller.icbill;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -46,7 +49,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/icbill/tradeinact")
 @Slf4j
-public class TradeinController{
+public class TradeinController extends BaseController {
 
 	@Autowired
 	private ITradeinService ic_tradeinserv = null;
@@ -92,7 +95,7 @@ public class TradeinController{
             begindate = paramvo.getBegindate1() == null ? udate.toString() : paramvo.getBegindate1().toString();
             endate = paramvo.getEnddate() == null ? udate.toString() : paramvo.getEnddate().toString();
         }
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(),
+//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI,
 //				new StringBuffer().append("入库单查询:").append(begindate).append("-").append(endate).toString(),
 //				ISysConstants.SYS_2);
 //		writeJson(grid);
@@ -171,6 +174,7 @@ public class TradeinController{
 				log.error("入库单打印错误", e);
 			}
 		}
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "打印入库单", ISysConstants.SYS_2);
 	}
 
     private IctradeinVO calTotal(SuperVO[] bodyvos) {
@@ -237,10 +241,8 @@ public class TradeinController{
 			} catch (IOException e) {
 				log.error("入库单excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI,"导出入库单",ISysConstants.SYS_2);
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(),
-//				"导出入库单",
-//				ISysConstants.SYS_2);
 	}
 
 	private Map<String, Integer> getPreMap(){

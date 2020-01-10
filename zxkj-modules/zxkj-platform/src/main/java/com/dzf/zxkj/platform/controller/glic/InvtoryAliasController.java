@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.glic;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -26,7 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/glic/gl_icinvalias")
 @Slf4j
-public class InvtoryAliasController {
+public class InvtoryAliasController extends BaseController {
     @Autowired
     private IInventoryAccAliasService gl_ic_invtoryaliasserv = null;
 
@@ -73,7 +76,7 @@ public class InvtoryAliasController {
         json.setRows(vo);
         json.setMsg("保存成功");
         json.setSuccess(true);
-//        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "存货档案_"+operateType+"存货'"+cateName+"'别名：别名："+data.getAliasname()+";", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "存货档案_"+operateType+"存货'"+cateName+"'别名：别名："+data.getAliasname()+";", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -91,7 +94,7 @@ public class InvtoryAliasController {
         gl_ic_invtoryaliasserv.deleteByPks(pkss, SystemUtil.getLoginCorpId());
         json.setMsg("删除成功");
         json.setSuccess(true);
-//            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET.getValue(), "存货档案_删除存货'"+cateName+"'别名：别名："+aliasname,ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "存货档案_删除存货'"+cateName+"'别名：别名："+aliasname,ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

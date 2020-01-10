@@ -1,7 +1,10 @@
 package com.dzf.zxkj.platform.controller.glic;
 
+import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
@@ -20,7 +23,7 @@ import java.util.Map;
 @RestController("glicnvtorySetController")
 @RequestMapping("/glic/gl_icinvset")
 @Slf4j
-public class InvtorySetController {
+public class InvtorySetController extends BaseController {
     @Autowired
     private IInventoryAccSetService gl_ic_invtorysetserv = null;
 
@@ -59,8 +62,8 @@ public class InvtorySetController {
         }
 
         if(!StringUtil.isEmpty(vo.getLoginfo())){
-//                writeLogRecord(LogRecordEnum.OPE_KJ_CHGL.getValue(),
-//                        vo.getLoginfo(), ISysConstants.SYS_2);
+                writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                        vo.getLoginfo(), ISysConstants.SYS_2);
         }
         return ReturnData.ok().data(json);
     }
@@ -72,6 +75,7 @@ public class InvtorySetController {
         json.setRows(vo);
         json.setMsg("设置默认数据成功");
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货设置默认设置数据", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

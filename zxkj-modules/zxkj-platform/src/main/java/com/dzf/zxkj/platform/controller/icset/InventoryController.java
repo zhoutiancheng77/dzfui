@@ -1,13 +1,16 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -50,7 +53,7 @@ import static com.dzf.zxkj.platform.util.SystemUtil.getRequest;
 @RestController
 @RequestMapping("/icset/inventoryact")
 @Slf4j
-public class InventoryController {
+public class InventoryController extends BaseController {
 
 	@Autowired
 	private IInventoryService iservice;
@@ -314,6 +317,7 @@ public class InventoryController {
 		}
 		json.setSuccess(true);
 		json.setMsg("保存成功");
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货保存", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -358,17 +362,18 @@ public class InventoryController {
 		String susflag = iservice.updateBatch(pk_corp, ids, update);
 		if (!StringUtil.isEmpty(susflag)) {
 			// 日志记录
-//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
+//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,
 //					"存货档案_批量修改存货成功 : 编码：" + firstCode + "， 名称：" + firstName + "，等" + total + "条；",
 //					ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"存货档案_批量修改存货成功",ISysConstants.SYS_2);
 			log.info("保存成功");
 			json.setMsg("保存成功");
 			json.setSuccess(true);
 		} else {
-//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(),
+//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,
 //					"存货档案_批量修改存货失败 : 编码：" + firstCode + "， 名称：" + firstName + "，等" + total + "条；",
 //					ISysConstants.SYS_2);
-			log.info("保存失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"存货档案_批量修改存货失败",ISysConstants.SYS_2);
 			json.setMsg("保存失败");
 			json.setSuccess(false);
 		}
@@ -397,7 +402,7 @@ public class InventoryController {
 		json.setMsg("存货合并成功");
 		json.setSuccess(true);
 
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "存货合并", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货合并", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -437,7 +442,7 @@ public class InventoryController {
 		} else {
 			json.setMsg(errmsg);
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "删除存货", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除存货", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -471,8 +476,8 @@ public class InventoryController {
 		String msg = iservice.saveImp(infile, pk_corp, fileType, userid);
 		json.setMsg(msg);
 		json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入存货", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "导入存货", ISysConstants.SYS_2);
 	}
 
 	// 将查询后的结果分页
@@ -530,7 +535,7 @@ public class InventoryController {
 		iservice.createPrice(pk_corp,priceway,bili, vchStr,bodyvos);
 		json.setMsg("生成结算价成功");
 		json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "生成结算价", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "生成结算价", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -570,6 +575,7 @@ public class InventoryController {
 			} catch (Exception e) {
 				log.error("excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导出存货模板", ISysConstants.SYS_2);
 		}
 	}
 }

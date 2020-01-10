@@ -1,10 +1,13 @@
 package com.dzf.zxkj.platform.controller.icbill;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -33,7 +36,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 出库单
@@ -43,7 +49,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/icbill/tradeoutact")
 @Slf4j
-public class TradeoutController{
+public class TradeoutController extends BaseController {
 
 	@Autowired
 	private ITradeoutService ic_tradeoutserv = null;
@@ -86,7 +92,7 @@ public class TradeoutController{
 			begindate = paramvo.getBegindate1() == null ? udate.toString() : paramvo.getBegindate1().toString();
 			endate = paramvo.getEnddate() == null ? udate.toString() : paramvo.getEnddate().toString();
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(),
+//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI,
 //				new StringBuffer().append("出库单查询:").append(begindate).append("-").append(endate).toString(),
 //				ISysConstants.SYS_2);
 		return ReturnData.ok().data(grid);
@@ -163,6 +169,7 @@ public class TradeoutController{
 				log.error("出库单打印错误", e);
 			}
 		}
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "打印出库单", ISysConstants.SYS_2);
 	}
 
 	private IntradeoutVO calTotal(SuperVO[] bodyvos) {
@@ -231,8 +238,8 @@ public class TradeoutController{
 			} catch (IOException e) {
 				log.error("出库单excel导出错误", e);
 			}
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI,"导出出库单",ISysConstants.SYS_2);
 		}
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI.getValue(),"导出出库单",ISysConstants.SYS_2);
 	}
 
 	private Map<String, Integer> getPreMap(){

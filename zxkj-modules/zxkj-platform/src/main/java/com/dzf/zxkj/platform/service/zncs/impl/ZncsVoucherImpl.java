@@ -3305,7 +3305,10 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 				}else{
 					throw new BusinessException("会计科目不存在，请确认设置的会计科目是否已删除！");//按理不会走到这里
 				}
+			}else if(accountVO.getBisseal()!=null && accountVO.getBisseal().booleanValue()){
+				throw new BusinessException("会计科目"+accountVO.getAccountcode()+" "+accountVO.getAccountname()+"已封存，请检查！");
 			}
+
 			String unitName=corp.getUnitname();
 			String saleName=StringUtil.isEmpty(invoiceVO.getVsalename())?"":invoiceVO.getVsalename();
 			//如果科目是1002，如果1002有下级用下级替换1002，如果没有银行辅助核算(自定义7)

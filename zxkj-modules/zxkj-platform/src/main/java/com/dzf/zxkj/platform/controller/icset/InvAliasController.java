@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.icset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -28,7 +31,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/icset/invalias")
 @Slf4j
-public class InvAliasController {
+public class InvAliasController extends BaseController {
 
 	@Autowired
 	private IInvAccAliasService ic_invtoryaliasserv = null;
@@ -75,8 +78,8 @@ public class InvAliasController {
 		json.setRows(vo);
 		json.setMsg("保存成功");
 		json.setSuccess(true);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货档案_"+operateType+"存货'"+cateName+"'别名：别名："+data.getAliasname()+";", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "存货档案_"+operateType+"存货'"+cateName+"'别名：别名："+data.getAliasname()+";", ISysConstants.SYS_2);
 	}
 
 	@PostMapping("/onDelete")
@@ -93,7 +96,7 @@ public class InvAliasController {
 		ic_invtoryaliasserv.deleteByPks(pkss, SystemUtil.getLoginCorpId());
 		json.setMsg("删除成功");
 		json.setSuccess(true);
-//		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET.getValue(), "总账存货管理-存货档案，删除",ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除存货别名",ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 }
