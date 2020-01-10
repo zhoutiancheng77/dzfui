@@ -80,7 +80,15 @@ public class LoginServiceImpl implements ILoginService {
     public LoginUser exchange(String resource) throws Exception {
         Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(),resource);
         if (rs.getCode() == 200) {
-            return transferToZxkjUser(rs.getData());
+            UserVO userVO = rs.getData();
+            if(zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(userVO.getPlatformTag())){
+                return transferToZxkjUser(userVO);
+            }else{
+                Optional<UserVO> u = userVO.getBindUsers().stream().filter(v -> zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(v.getPlatformTag()) ||zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(v.getPlatformTag())).findFirst();
+                if(u.isPresent()){
+                    return transferToZxkjUser(u.get());
+                }
+            }
         }
         return null;
     }
