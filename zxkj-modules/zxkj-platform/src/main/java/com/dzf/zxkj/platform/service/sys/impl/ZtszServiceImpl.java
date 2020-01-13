@@ -163,11 +163,11 @@ public class ZtszServiceImpl implements IZtszService {
 		for(CorpTaxVo vo : vos){
 			if(flag){
 				if(vo.getUnitname().contains(filter)){
-					setCorpTaxDefaultValue(vo);
+					buildCorpTaxDefaultValue(vo, null);
 					list.add(vo);
 				}
 			}else{
-				setCorpTaxDefaultValue(vo);
+				buildCorpTaxDefaultValue(vo, null);
 				list.add(vo);
 			}
 
@@ -213,12 +213,14 @@ public class ZtszServiceImpl implements IZtszService {
     }
 
 	//默认值
-	private void setCorpTaxDefaultValue(CorpTaxVo vo){
+	public void buildCorpTaxDefaultValue(CorpTaxVo vo, CorpVO corpVO){
 //		CorpVO corpVO = (CorpVO) singleObjectBO.queryVOByID(pk_corp,
 //				CorpVO.class);
 
+		boolean flag = corpVO == null;
+
 		String yhzc = vo.getVyhzc();//优惠政策
-		Integer comtype = vo.getIcompanytype();
+		Integer comtype = flag ? vo.getIcompanytype() : corpVO.getIcompanytype();
 		if(StringUtil.isEmpty(yhzc)
 				&& (comtype == null ||
 				(comtype != 2 && comtype != 20 && comtype != 21))){
@@ -241,11 +243,12 @@ public class ZtszServiceImpl implements IZtszService {
 
 		//设置报税地区默认值
 		if (vo.getTax_area() == null) {
-			Integer city = vo.getVcity();
+			Integer city = flag ? vo.getVcity() : corpVO.getVcity();
+			Integer vprovince = flag ? vo.getVprovince() : corpVO.getVcity();
 			if (city != null && (city == 151 || city == 171 || city == 234)) { //3个单独申报的地区/市：厦门、青岛、深圳
 				vo.setDefTaxArea(city); //默认值仅在tax_area为空时才有值和起作用
-			} else if (vo.getVprovince() != null) { //省
-				vo.setDefTaxArea(vo.getVprovince());
+			} else if (vprovince != null) { //省
+				vo.setDefTaxArea(vprovince);
 			}
 		}
 
@@ -259,7 +262,7 @@ public class ZtszServiceImpl implements IZtszService {
 			vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_QY);
 		}
 
-		String corptype = vo.getCorptype();
+		String corptype = flag ? vo.getCorptype() : corpVO.getCorptype();
 		if(!"00000100AA10000000000BMD".equals(corptype)){//不是13小企业 不设默认值
 			return;
 		}

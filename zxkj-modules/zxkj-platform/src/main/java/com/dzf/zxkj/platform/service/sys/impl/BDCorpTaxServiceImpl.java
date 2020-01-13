@@ -121,7 +121,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 					//赋值所得税类型
 					for(CorpTaxVo vo : cptaxvos){
 						corpvo = corpmap.get(vo.getPk_corp());
-						setCorpTaxDefaultValue(vo, corpvo);
+						new ZtszServiceImpl().buildCorpTaxDefaultValue(vo, corpvo);
 					}
 				}
 			}
@@ -192,7 +192,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 					//赋值所得税类型
 					for(CorpTaxVo vo : vos){
 						corpvo = corpmap.get(vo.getPk_corp());
-						setCorpTaxDefaultValue(vo, corpvo);
+						new ZtszServiceImpl().buildCorpTaxDefaultValue(vo, corpvo);
 					}
 				}
 			}
@@ -520,79 +520,79 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		}
 		
 		CorpVO corpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);
-		setCorpTaxDefaultValue(vo, corpvo);
+		new ZtszServiceImpl().buildCorpTaxDefaultValue(vo, corpvo);
 		return vo;
 	}
 	
-	//默认值
-	private void setCorpTaxDefaultValue(CorpTaxVo vo, CorpVO corpVO){
-//		CorpVO corpVO = (CorpVO) singleObjectBO.queryVOByID(pk_corp,
-//				CorpVO.class);
-		if(corpVO == null)
-			return;
-		vo.setChargedeptname(corpVO.getChargedeptname());
-		String yhzc = vo.getVyhzc();//优惠政策
-		Integer comtype = corpVO.getIcompanytype();
-		if(StringUtil.isEmpty(yhzc)
-				&& (comtype == null ||
-					  (comtype != 2 && comtype != 20 && comtype != 21))){
-			vo.setVyhzc("0");//默认为小型微利
-		}
-
-		//设置附加税税目默认税率
-		DZFDouble citytax = vo.getCitybuildtax();//城建税
-		if(citytax == null){
-			vo.setCitybuildtax(new DZFDouble(0.07));
-		}
-		DZFDouble localtax = vo.getLocaleducaddtax();
-		if(localtax == null){
-			vo.setLocaleducaddtax(new DZFDouble(0.02));
-		}
-//		DZFDouble educaddtax = vo.getEducaddtax();//教育费附加
-//		if(educaddtax == null){
-//			vo.setEducaddtax(new DZFDouble(0.03));
+//	//默认值
+//	private void setCorpTaxDefaultValue(CorpTaxVo vo, CorpVO corpVO){
+////		CorpVO corpVO = (CorpVO) singleObjectBO.queryVOByID(pk_corp,
+////				CorpVO.class);
+//		if(corpVO == null)
+//			return;
+//		vo.setChargedeptname(corpVO.getChargedeptname());
+//		String yhzc = vo.getVyhzc();//优惠政策
+//		Integer comtype = corpVO.getIcompanytype();
+//		if(StringUtil.isEmpty(yhzc)
+//				&& (comtype == null ||
+//					  (comtype != 2 && comtype != 20 && comtype != 21))){
+//			vo.setVyhzc("0");//默认为小型微利
 //		}
-
-		//设置报税地区默认值
-		if (vo.getTax_area() == null) {
-			Integer city = corpVO.getVcity();
-			if (city != null && (city == 151 || city == 171 || city == 234)) { //3个单独申报地区(市)（厦门、青岛、深圳）
-				vo.setTax_area(city);
-			} else if (corpVO.getVprovince() != null) { //省
-				vo.setTax_area(corpVO.getVprovince());
-			}
-		}
-
-		String corptype = corpVO.getCorptype();
-		if(!"00000100AA10000000000BMD".equals(corptype)){//不是13小企业 不设默认值
-			return;
-		}
-		
-		Integer intype = vo.getIncomtaxtype();
-		if(intype == null){
-			if(comtype == null ||
-					( comtype != 2 && comtype != 20 && comtype != 21)){
-				vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_QY);
-			}else{
-				vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_GR);
-			}
-		}
-		
-		Integer taxletype = vo.getTaxlevytype();
-		if(taxletype == null){
-			vo.setTaxlevytype(TaxRptConstPub.TAXLEVYTYPE_CZZS);//查账征收
-		}
-		
-		taxletype = vo.getTaxlevytype();
-		if(taxletype == TaxRptConstPub.TAXLEVYTYPE_HDZS
-				&& vo.getVerimethod() == null){
-			vo.setVerimethod(0);//核定应税所得率(能核算收入总额的)
-		}
-		
-	}
+//
+//		//设置附加税税目默认税率
+//		DZFDouble citytax = vo.getCitybuildtax();//城建税
+//		if(citytax == null){
+//			vo.setCitybuildtax(new DZFDouble(0.07));
+//		}
+//		DZFDouble localtax = vo.getLocaleducaddtax();
+//		if(localtax == null){
+//			vo.setLocaleducaddtax(new DZFDouble(0.02));
+//		}
+////		DZFDouble educaddtax = vo.getEducaddtax();//教育费附加
+////		if(educaddtax == null){
+////			vo.setEducaddtax(new DZFDouble(0.03));
+////		}
+//
+//		//设置报税地区默认值
+//		if (vo.getTax_area() == null) {
+//			Integer city = corpVO.getVcity();
+//			if (city != null && (city == 151 || city == 171 || city == 234)) { //3个单独申报地区(市)（厦门、青岛、深圳）
+//				vo.setTax_area(city);
+//			} else if (corpVO.getVprovince() != null) { //省
+//				vo.setTax_area(corpVO.getVprovince());
+//			}
+//		}
+//
+//		String corptype = corpVO.getCorptype();
+//		if(!"00000100AA10000000000BMD".equals(corptype)){//不是13小企业 不设默认值
+//			return;
+//		}
+//
+//		Integer intype = vo.getIncomtaxtype();
+//		if(intype == null){
+//			if(comtype == null ||
+//					( comtype != 2 && comtype != 20 && comtype != 21)){
+//				vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_QY);
+//			}else{
+//				vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_GR);
+//			}
+//		}
+//
+//		Integer taxletype = vo.getTaxlevytype();
+//		if(taxletype == null){
+//			vo.setTaxlevytype(TaxRptConstPub.TAXLEVYTYPE_CZZS);//查账征收
+//		}
+//
+//		taxletype = vo.getTaxlevytype();
+//		if(taxletype == TaxRptConstPub.TAXLEVYTYPE_HDZS
+//				&& vo.getVerimethod() == null){
+//			vo.setVerimethod(0);//核定应税所得率(能核算收入总额的)
+//		}
+//
+//	}
 	
-	private void dealChargeHis(CorpTaxVo vo, 
-			CorpTaxVo oldvo, 
+	private void dealChargeHis(CorpTaxVo vo,
+			CorpTaxVo oldvo,
 			List<TaxEffeHistVO> hiss,
 			String pk_corp,
 			StringBuffer msg){
@@ -600,23 +600,23 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		DZFDate begindate = corpvo.getBegindate();
 		String jzper = DateUtils.getPeriod(begindate);
-		
+
 		//旧值
 		Integer oldcomtype = corpvo.getIcompanytype();
 		Integer oldTaxType = oldvo.getTaxlevytype();
-		
+
 		//新值
 		Integer newcomtype = vo.getIcompanytype();
 		Integer newTaxType = vo.getTaxlevytype();
 		Integer newComTaxtype = vo.getIncomtaxtype();
-		
+
 		if(oldcomtype == null || oldcomtype.intValue() != newcomtype){
 			msg.append("公司类型;");
 		}
 		if(oldTaxType == null || oldTaxType.intValue() != newTaxType){
 			msg.append("征收方式;");
 		}
-		
+
 		if(taxtype != null && taxtype == 0){//核定征收
 			//重新设值
 			vo.setBegprodate(oldvo.getBegprodate());//开始经营生产时间为空
@@ -630,28 +630,28 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 			String endPer = vo.getSxendperiod();
 			DZFDouble taxrate = vo.getIncometaxrate();
 			Integer newVerIme = vo.getVerimethod();
-			
+
 			if(!beginPer.equals(oldBeginPer)){
 				msg.append("生效开始期间;");
 			}
 			if(!endPer.equals(oldEndPer)){
 				msg.append("生效结束期间;");
 			}
-			
+
 //			if(beginPer.equals(oldBeginPer) && endPer.equals(oldEndPer)){
 //				return;
 //			}
-			
-			if(oldtaxrate == null 
+
+			if(oldtaxrate == null
 					|| SafeCompute.div(oldtaxrate, taxrate).doubleValue() != 0){
 				msg.append("应税所得率;");
 			}
-			
-			if(oldVerIme == null 
+
+			if(oldVerIme == null
 					|| oldVerIme.intValue() != newVerIme){
 				msg.append("核定征收方式;");
 			}
-			
+
 			if(StringUtil.isEmpty(beginPer)
 					|| StringUtil.isEmpty(endPer)){
 				throw new BusinessException("核定征收时，生效期间不允许为空");
@@ -660,7 +660,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 			}else if(beginPer.compareTo(endPer) > 0){
 				throw new BusinessException("核定征收时，生效开始期间不允许晚于生效结束期间");
 			}
-			
+
 			DZFDouble sdsl = SafeCompute.add(taxrate, DZFDouble.ZERO_DBL);
 			if(sdsl.doubleValue() <=0 || sdsl.doubleValue() >=100){
 				throw new BusinessException("应税所得率请录入0-100之间的数值");
@@ -668,9 +668,9 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 //			else if(!endPer.endsWith("12")){
 //				throw new BusinessException("核定征收时，生效结束期间必须是年末最后期间");
 //			}
-			
+
 			checkValidBefSave(pk_corp, beginPer, endPer);
-			
+
 			if(hiss == null || hiss.size() == 0){
 				if(beginPer.equals(jzper)){
 					TaxEffeHistVO vo1 = new TaxEffeHistVO();
@@ -684,7 +684,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 					vo2.setTaxlevytype(1);
 					vo2.setSxbegperiod(jzper);
 					vo2.setSxendperiod(DateUtils.getPreviousPeriod(beginPer));//往前一个月
-					
+
 					TaxEffeHistVO vo3 = new TaxEffeHistVO();
 					BeanUtils.copyNotNullProperties(vo, vo3);
 					vo3.setPrimaryKey(null);
@@ -703,34 +703,34 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 					if(!newp.equals(effendPer)){
 						throw new BusinessException("修改后的生效开始期间必须与历史记录中最大结束期间连续");
 					}
-					
+
 				}
-				
+
 				String effBegPer = vo4.getSxbegperiod();
 				if(taxType4 == 1 && effBegPer.compareTo(beginPer) >= 0){//查账征收
 					throw new BusinessException("修改后的生效开始期间必须晚于历史记录中最大开始期间");
 				}
-				
+
 				TaxEffeHistVO vo5 = new TaxEffeHistVO();
 				BeanUtils.copyNotNullProperties(vo, vo5);
 				vo5.setPrimaryKey(null);
 				singleObjectBO.saveObject(pk_corp, vo5);
-				
+
 				if(taxType4 == 1){
 					DZFDate d = DateUtils.getPeriodStartDate(beginPer);
 					d = d.getDateBefore(1);
 					vo4.setSxendperiod(DateUtils.getPeriod(d));
 					singleObjectBO.update(vo4, new String[]{ "sxendperiod" });
 				}
-				
+
 			}
-			
+
 		}else{
 			DZFDate oldBegpro = oldvo.getBegprodate();
-			
+
 			vo.setVerimethod(null);
 			vo.setIncometaxrate(null);
-			
+
 			DZFDate begPro = vo.getBegprodate();
 			if(newComTaxtype != null && newComTaxtype == TaxRptConstPub.INCOMTAXTYPE_GR
 //					&& vo.getIsbegincom() != null && vo.getIsbegincom().booleanValue()
@@ -743,16 +743,16 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 					throw new BusinessException("查账征收时，开始生产经营日期不能晚于建账日期");
 				}
 			}
-			
-			
+
+
 			if(newComTaxtype == TaxRptConstPub.INCOMTAXTYPE_GR &&
 					(oldBegpro == null || !oldBegpro.equals(begPro))){
 				msg.append("开始生产经营日期;");
 			}
-			
+
 			if(hiss == null || hiss.size() == 0){
-				vo.setSxbegperiod(jzper);//生效开始期间 
-				
+				vo.setSxbegperiod(jzper);//生效开始期间
+
 				TaxEffeHistVO vo1 = new TaxEffeHistVO();
 				BeanUtils.copyNotNullProperties(vo, vo1);
 				vo1.setSxbegperiod(jzper);
@@ -772,23 +772,23 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 					vo3.setSxbegperiod(per);
 					vo3.setPrimaryKey(null);
 					singleObjectBO.saveObject(pk_corp, vo3);
-					
+
 					vo.setSxbegperiod(per);
 				}
-				
+
 			}
 		}
 	}
-	
-	private void dealSpecialDeductionHis(CorpTaxVo vo, 
-			CorpTaxVo oldvo, 
+
+	private void dealSpecialDeductionHis(CorpTaxVo vo,
+			CorpTaxVo oldvo,
 			List<SpecDeductHistVO> hiss,
 			String pk_corp,
 			StringBuffer msg) {
 		if(DZFValueCheck.isEmpty(vo.getBgperiod())){
 			throw new BusinessException("变更日期不能为空");
 		}
-		
+
 		Integer taxtype = vo.getTaxlevytype();// 征收方式
 		msg.append("专项扣除;");
 		if (taxtype != null && taxtype == 0) {//核定征收
@@ -821,12 +821,12 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 	}
 
 	@Override
-	public void saveCharge(CorpTaxVo vo, 
-			String pk_corp, 
+	public void saveCharge(CorpTaxVo vo,
+			String pk_corp,
 			String userid,
 			StringBuffer msg) throws DZFWarpException {
 		CorpTaxVo oldvo = queryCorpTaxVO(pk_corp);
-		
+
 		List<TaxEffeHistVO> hiss = corpTaxact.queryChargeHis(pk_corp);
 		dealChargeHis(vo, oldvo, hiss, pk_corp, msg);
 		//选中变更期间  增加专项扣除记录
@@ -834,7 +834,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 			List<SpecDeductHistVO> hisss = querySpecChargeHis(pk_corp);
 			dealSpecialDeductionHis(vo, oldvo, hisss, pk_corp, msg);
 		}
-		
+
 		if(oldvo != null && !StringUtil.isEmpty(oldvo.getPrimaryKey())){
 			vo.setPrimaryKey(oldvo.getPrimaryKey());
 			List<String> upfs = new ArrayList<String>();
@@ -845,34 +845,34 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 			upfs.add("incometaxrate");//所得税税率
 			upfs.add("begprodate");
 			upfs.add("verimethod");
-			
+
 			singleObjectBO.update(vo, upfs.toArray(new String[0]));
 		}else{
 			vo.setPrimaryKey(null);
 			vo.setPk_corp(pk_corp);
 			saveNew(vo);
 		}
-		
+
 		CorpVO corpvo = new CorpVO();
 		corpvo.setPk_corp(pk_corp);
 		corpvo.setIcompanytype(vo.getIcompanytype());
 		singleObjectBO.update(corpvo, new String[]{"icompanytype"});
 	}
-	
+
 	private void checkValidBefSave(String pk_corp, String beginPer, String endPer){
 		//校验期末处理计提所得税
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		String sql = "select max(period) from  ynt_qmcl where nvl(dr,0) = 0 and pk_corp = ? and nvl(qysdsjz,'N') = 'Y' ";
-		String maxPer = (String) singleObjectBO.executeQuery(sql, 
+		String maxPer = (String) singleObjectBO.executeQuery(sql,
 				sp, new ColumnProcessor());
-		
-		if(!StringUtil.isEmpty(maxPer) 
+
+		if(!StringUtil.isEmpty(maxPer)
 				&& (maxPer.compareTo(beginPer) >= 0
 						|| maxPer.compareTo(endPer) >= 0)){
 			throw new BusinessException("期间:" + maxPer + "已计提所得税,请检查");
 		}
-		
+
 		//校验税表
 //		List<TaxReportVO> taxlist = taxDeclarationService.queryTaxReprotVOs(
 //				begPer, endPer, pk_corp, null);
@@ -886,9 +886,9 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		if(StringUtil.isEmpty(taxvo.getPrimaryKey())){
 			return;
 		}
-		
-		String[] fields = { "incomtaxtype", "taxlevytype", 
-				"sxbegperiod", "sxendperiod", 
+
+		String[] fields = { "incomtaxtype", "taxlevytype",
+				"sxbegperiod", "sxendperiod",
 				"verimethod", "incometaxrate"};
 		taxvo.setIncomtaxtype(effvo.getIncomtaxtype());
 		taxvo.setTaxlevytype(effvo.getTaxlevytype());
@@ -896,8 +896,8 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		taxvo.setSxendperiod(effvo.getSxendperiod());
 		taxvo.setVerimethod(effvo.getVerimethod());
 		taxvo.setIncometaxrate(effvo.getIncometaxrate());
-		
-		
+
+
 		singleObjectBO.update(taxvo, fields);
 	}
 
@@ -914,20 +914,20 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		if(!key.equals(pk)){
 			throw new BusinessException("历史记录请按顺序删除");
 		}
-		
+
 		TaxEffeHistVO firstVO = new TaxEffeHistVO();
 		TaxEffeHistVO secondVO = null;
 		if(efflist.size() > 1){
 			firstVO = efflist.get(1);
 			secondVO = efflist.get(1);
-			
+
 			Integer taxtype = secondVO.getTaxlevytype();
 			if(taxtype == null || taxtype == 0){//核定征收
 				secondVO = null;
 			}
-			
+
 		}
-		
+
 		String begPer = vo.getSxbegperiod();
 		String endPer = vo.getSxendperiod();
 		if(!StringUtil.isEmpty(begPer)){
@@ -936,15 +936,15 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 			}
 			checkValidBefSave(pk_corp, begPer, endPer);
 		}
-		
+
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(pk);
 		String sql = "delete from ynt_taxeff_his y where y.pk_corp = ? and y.pk_taxeff_his = ? ";
 		singleObjectBO.executeUpdate(sql, sp);
-		
+
 		cascadeUpHis(pk_corp, firstVO);
-		
+
 		if(secondVO != null){
 			secondVO.setSxendperiod(null);
 			singleObjectBO.update(secondVO, new String[]{ "sxendperiod" });
@@ -974,7 +974,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		if (!key.equals(pk)) {
 			throw new BusinessException("历史记录请按顺序删除");
 		}
-		
+
 		String begPer = vo.getBgperiod();
 		if (!StringUtil.isEmpty(begPer)) {
 				String endPer = "2099-12";
