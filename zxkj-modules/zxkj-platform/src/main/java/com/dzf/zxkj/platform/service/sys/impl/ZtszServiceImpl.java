@@ -267,6 +267,13 @@ public class ZtszServiceImpl implements IZtszService {
 		}
 
 		taxletype = vo.getTaxlevytype();
+		intype = vo.getIncomtaxtype();
+		if(vo.getIsbegincom() == null
+				&& taxletype == TaxRptConstPub.TAXLEVYTYPE_CZZS
+				&& intype == TaxRptConstPub.INCOMTAXTYPE_GR){
+			vo.setIsbegincom(DZFBoolean.TRUE);
+		}
+
 		if(taxletype == TaxRptConstPub.TAXLEVYTYPE_HDZS
 				&& vo.getVerimethod() == null){
 			vo.setVerimethod(0);//核定应税所得率(能核算收入总额的)

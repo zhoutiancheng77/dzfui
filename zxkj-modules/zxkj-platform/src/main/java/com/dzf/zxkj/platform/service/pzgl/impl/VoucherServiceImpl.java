@@ -3099,10 +3099,41 @@ public class VoucherServiceImpl implements IVoucherService {
 		}
 		// 排序
 		Collections.sort(list, new ImageGroupSort());
+        // imgIds合并为一个group
+        if (!StringUtil.isEmpty(param.getImgIds()) && list.size() > 0) {
+            ImageGroupVO firstGroup = list.get(0);
+            StringBuilder groupId = new StringBuilder(firstGroup.getPk_image_group());
+            List<ImageLibraryVO> childList = new ArrayList<>();
+            childList.addAll(Arrays.asList((ImageLibraryVO[]) firstGroup.getChildren()));
+            for (int i = 1; i < list.size(); i++) {
+                ImageGroupVO groupVO = list.get(i);
+                groupId.append(",").append(groupVO.getPk_image_group());
+                childList.addAll(Arrays.asList((ImageLibraryVO[]) groupVO.getChildren()));
+            }
+            String groupIdStr = groupId.toString();
+            for (ImageLibraryVO child: childList) {
+                child.setPk_image_group(groupIdStr);
+            }
+            firstGroup.setPk_image_group(groupIdStr);
+            firstGroup.setChildren(childList.toArray(new ImageLibraryVO[0]));
+            list = new ArrayList<>();
+            list.add(firstGroup);
+        }
 		return list;
 	}
 
-	private Map<String, ImageGroupVO> queryImageGroupByPks(Map<String, List<ImageLibraryVO>> library)
+    @Override
+    public boolean checkImageGroupExist(String id) throws DZFWarpException {
+	    if (id.length() > 24) {
+            id = id.substring(0, 24);
+        }
+	    String sql = "select 1 from ynt_image_group where pk_image_group = ? ";
+	    SQLParameter sp = new SQLParameter();
+	    sp.addParam(id);
+        return singleObjectBO.isExists(null, sql, sp);
+    }
+
+    private Map<String, ImageGroupVO> queryImageGroupByPks(Map<String, List<ImageLibraryVO>> library)
 			throws DZFWarpException {
 		Map<String, ImageGroupVO> imgGrpMap = new HashMap<String, ImageGroupVO>();
 		String[] imgGrppks = library.keySet().toArray(new String[0]);

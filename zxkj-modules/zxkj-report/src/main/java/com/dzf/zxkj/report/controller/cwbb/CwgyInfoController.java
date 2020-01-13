@@ -384,7 +384,7 @@ public class CwgyInfoController extends ReportBaseController {
             }
 
             for (int i = 0; i < headers2.length; i++) {
-                HSSFCell celltitle1m = rowtitle1m.createCell(i);
+                HSSFCell celltitle1m = rowtitle1m.createCell(i*2+3);
                 celltitle1m.setCellValue(new HSSFRichTextString(headers2[i]));
                 celltitle1m.setCellStyle(stylegsm); // 居中
                 int mergeEnd = colIndex + colspans[i] - 1;
