@@ -372,11 +372,14 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 			throw new BusinessException("没有需要成本结转的数据！");
 		}
 		List<QMJzsmNoICVO> list1 = new ArrayList<QMJzsmNoICVO>();
-		for (QMJzsmNoICVO vo : list) {
-			if (vo.getKmid() != null && vo.getKmid().length() > 0) {
-				list1.add(vo);
-			}
-		}
+		if(list != null && list.size() >0){
+            for (QMJzsmNoICVO vo : list) {
+                if (vo.getKmid() != null && vo.getKmid().length() > 0) {
+                    list1.add(vo);
+                }
+            }
+        }
+
 		if (jztype1 == null || jztype1.length() == 0) {
 			jztype1 = "3";
 		}
