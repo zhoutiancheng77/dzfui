@@ -185,6 +185,10 @@ public class ZtszServiceImpl implements IZtszService {
 	private void buildZxKc(List<CorpTaxVo> list){
 	    if(list != null && list.size() != 0){
 	        CorpTaxVo vo = list.get(0);
+			String corptype = vo.getCorptype();
+			if(!"00000100AA10000000000BMD".equals(corptype)){//不是13小企业 不设默认值
+				return;
+			}
 	        if(vo.getTaxlevytype() == 1 && vo.getIncomtaxtype()==1){
                 setZxKc(vo, vo.getPk_corp());
             }
@@ -245,25 +249,29 @@ public class ZtszServiceImpl implements IZtszService {
 			}
 		}
 
+		Integer taxletype = vo.getTaxlevytype();
+		if(taxletype == null){
+			vo.setTaxlevytype(TaxRptConstPub.TAXLEVYTYPE_CZZS);//查账征收
+		}
+
+		Integer intype = vo.getIncomtaxtype();
+		if(intype == null){
+			vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_QY);
+		}
 
 		String corptype = vo.getCorptype();
 		if(!"00000100AA10000000000BMD".equals(corptype)){//不是13小企业 不设默认值
 			return;
 		}
 
-		Integer intype = vo.getIncomtaxtype();
-		if(intype == null){
+//		intype = vo.getIncomtaxtype();
+		if(intype == null){//用上边的字段
 			if(comtype == null ||
 					( comtype != 2 && comtype != 20 && comtype != 21)){
 				vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_QY);
 			}else{
 				vo.setIncomtaxtype(TaxRptConstPub.INCOMTAXTYPE_GR);
 			}
-		}
-
-		Integer taxletype = vo.getTaxlevytype();
-		if(taxletype == null){
-			vo.setTaxlevytype(TaxRptConstPub.TAXLEVYTYPE_CZZS);//查账征收
 		}
 
 		taxletype = vo.getTaxlevytype();
