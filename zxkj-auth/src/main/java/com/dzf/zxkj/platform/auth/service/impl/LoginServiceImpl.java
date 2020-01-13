@@ -87,7 +87,11 @@ public class LoginServiceImpl implements ILoginService {
                 if(userVO.getBindUsers() != null){
                     Optional<UserVO> u = userVO.getBindUsers().stream().filter(v -> zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(v.getPlatformTag()) ||zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(v.getPlatformTag())).findFirst();
                     if(u.isPresent()){
-                        return transferToZxkjUser(u.get());
+                        UserVO uvo = u.get();
+                        uvo.setUserToken(userVO.getUserToken());
+                        uvo.setCanJumpPlatforms(userVO.getCanJumpPlatforms());
+                        uvo.setBindUsers(userVO.getBindUsers());
+                        return transferToZxkjUser(uvo);
                     }
                 }
             }
