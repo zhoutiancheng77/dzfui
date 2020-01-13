@@ -4245,11 +4245,11 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		Integer vvvalue = setvo.getValue();//凭证合并的规则
 		vvvalue = vvvalue == null ? IBillManageConstants.HEBING_GZ_01 : vvvalue;//默认不合并
 		
-		if (vvvalue != IBillManageConstants.HEBING_GZ_01
-				&& type != IBillManageConstants.HEBING_FL_03) {
-			sortEntryByDirection(tzpzlist, pk_corp);
-		}
-		
+//		if (vvvalue != IBillManageConstants.HEBING_GZ_01
+//				&& type != IBillManageConstants.HEBING_FL_03) {
+//			sortEntryByDirection(tzpzlist, pk_corp);
+//		}
+		sortEntryByDirection(tzpzlist, pk_corp);
 		int rowno = 1;
 		for (TzpzBVO bvo : tzpzlist) {
 			if (type == IBillManageConstants.HEBING_FL_02 && isbk.booleanValue()

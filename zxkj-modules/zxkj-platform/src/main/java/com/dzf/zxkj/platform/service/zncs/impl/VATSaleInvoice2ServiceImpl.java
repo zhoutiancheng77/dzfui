@@ -4538,11 +4538,11 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		Integer vvvalue = setvo.getValue();//凭证合并的规则
 		vvvalue = vvvalue == null ? IBillManageConstants.HEBING_GZ_01 : vvvalue;//默认不合并
 
-		if (vvvalue != IBillManageConstants.HEBING_GZ_01
-				&& type != IBillManageConstants.HEBING_FL_03) {
-			sortEntryByDirection(tzpzlist, pk_corp);
-		}
-		
+//		if (vvvalue != IBillManageConstants.HEBING_GZ_01
+//				&& type != IBillManageConstants.HEBING_FL_03) {
+//			sortEntryByDirection(tzpzlist, pk_corp);
+//		}
+		sortEntryByDirection(tzpzlist, pk_corp);
 		Map<String, TzpzBVO> tzpzmap = new HashMap<String, TzpzBVO>();
 		List<TzpzBVO> finalList = new ArrayList<TzpzBVO>();
 		List<TzpzBVO> afterList = new ArrayList<TzpzBVO>();

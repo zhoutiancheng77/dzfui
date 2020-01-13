@@ -5776,11 +5776,11 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		//合并后 分录按借借贷
 //		if((type == IBillManageConstants.HEBING_FL_02 
 //				|| type == IBillManageConstants.HEBING_FL_04) && tzpzlist.size() > 2){
-		if(vvvalue != IBillManageConstants.HEBING_GZ_01
-				&& type != IBillManageConstants.HEBING_FL_03){
-			sortEntryByDirection(tzpzlist, pk_corp);
-		}
-		
+//		if(vvvalue != IBillManageConstants.HEBING_GZ_01
+//				&& type != IBillManageConstants.HEBING_FL_03){
+//			sortEntryByDirection(tzpzlist, pk_corp);
+//		}
+		sortEntryByDirection(tzpzlist, pk_corp);
 		Map<String, Boolean> map = new HashMap<String, Boolean>();
 		String zy = buildZy(setvo, vo, map);
 		Boolean isaddZy = map.get("flag");
