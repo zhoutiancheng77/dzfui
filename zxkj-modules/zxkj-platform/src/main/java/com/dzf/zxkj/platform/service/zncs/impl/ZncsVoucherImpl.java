@@ -6,7 +6,6 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
-import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.base.framework.processor.ObjectProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
@@ -1021,7 +1020,8 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		}
 		//17、处理非自定义票据
 		if (invoiceMap.get("fzdy").size() > 0) {
-			returnList.addAll(createFZdyVoucherInvoice(invoiceMap.get("fzdy"), pk_corp, categoryMap, paramList, levelList, pk_user, currMap, rateMap, groupMap, categorysetMap, bankAccountMap, accountMap, checkMsgMap, inventorySetVO, null, fzhsHeadMap, fzhsBodyMap, assistMap, zyFzhsList, fzhsBMMap, corp, accsetMap, accsetKeywordBVO2Map, jituanSubMap, accVOs, tradeCode, newrule, chFzhsBodyVOs,isBankSubjLeaf));
+			LinkedList<YntCpaccountVO> listaccVOs = new LinkedList(Arrays.asList(accVOs));
+			returnList.addAll(createFZdyVoucherInvoice(invoiceMap.get("fzdy"), pk_corp, categoryMap, paramList, levelList, pk_user, currMap, rateMap, groupMap, categorysetMap, bankAccountMap, accountMap, checkMsgMap, inventorySetVO, null, fzhsHeadMap, fzhsBodyMap, assistMap, zyFzhsList, fzhsBMMap, corp, accsetMap, accsetKeywordBVO2Map, jituanSubMap, listaccVOs, tradeCode, newrule, chFzhsBodyVOs,isBankSubjLeaf));
 		}
 		//18、错误凭证
 		if(invoiceMap.get("error").size()>0){
@@ -1404,6 +1404,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		ICpaccountService gl_cpacckmserv = (ICpaccountService) SpringUtils.getBean("gl_cpacckmserv");
 		String newrule = gl_cpacckmserv.queryAccountRule(corp.getPk_corp());
 		YntCpaccountVO[] accVOs=accountService.queryByPk(corp.getPk_corp());
+		LinkedList<YntCpaccountVO> listaccVOs = new LinkedList(Arrays.asList(accVOs));
 		//9、获得当前公司行业编码，关键字规则用
 		String tradeCode=getCurTradeCode(corp.getIndustry());
 		//10、存货辅助核算
@@ -1432,7 +1433,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 				tzpzMap=new HashMap<String, List<TzpzHVO>>();
 				for(int i=0;i<curInvoiceList.size();i++){
 					OcrInvoiceVO invoiceVO=curInvoiceList.get(i);
-					TzpzHVO tzpzVO=creatTzpzVOByAccset(invoiceVO, StringUtil.isEmpty(invoiceVO.getPk_image_group())?null:groupMap.get(invoiceVO.getPk_image_group()), accsetMap, accsetKeywordBVO2Map, categorysetMap, categoryMap, paramList,corp,pk_user,bankAccountMap,jituanSubMap,newrule,accountMap,accVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
+					TzpzHVO tzpzVO=creatTzpzVOByAccset(invoiceVO, StringUtil.isEmpty(invoiceVO.getPk_image_group())?null:groupMap.get(invoiceVO.getPk_image_group()), accsetMap, accsetKeywordBVO2Map, categorysetMap, categoryMap, paramList,corp,pk_user,bankAccountMap,jituanSubMap,newrule,accountMap,listaccVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
 					if(tzpzMap.containsKey(invoiceVO.getPk_billcategory())){
 						tzpzMap.get(invoiceVO.getPk_billcategory()).add(tzpzVO);
 					}else{
@@ -1501,7 +1502,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 				//3处理银行账号暂时都是非强制
 				checkBankCode(corp, invoiceVO, bankAccountMap, checkMsgMap,isBankSubjLeaf);
 				//10、生成凭证VO
-				TzpzHVO tzpzVO=creatTzpzVOByAccset(invoiceVO, StringUtil.isEmpty(invoiceVO.getPk_image_group())?null:groupMap.get(invoiceVO.getPk_image_group()), accsetMap, accsetKeywordBVO2Map, categorysetMap, categoryMap, paramList,corp,pk_user,bankAccountMap,jituanSubMap,newrule,accountMap,accVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
+				TzpzHVO tzpzVO=creatTzpzVOByAccset(invoiceVO, StringUtil.isEmpty(invoiceVO.getPk_image_group())?null:groupMap.get(invoiceVO.getPk_image_group()), accsetMap, accsetKeywordBVO2Map, categorysetMap, categoryMap, paramList,corp,pk_user,bankAccountMap,jituanSubMap,newrule,accountMap,listaccVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
 				if(tzpzMap.containsKey(invoiceVO.getPk_billcategory())){
 					tzpzMap.get(invoiceVO.getPk_billcategory()).add(tzpzVO);
 				}else{
@@ -2505,12 +2506,12 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	private TzpzHVO creatTzpzVOByAccset(OcrInvoiceVO invoiceVO, ImageGroupVO groupVO,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, CategorysetVO> categorysetMap,Map<String, Object[]> categoryMap,List<Object> paramList,CorpVO corp,String pk_user,Map<String, String> bankAccountMap,Map<String, String> jituanSubMap,String newrule,Map<String,YntCpaccountVO> accountMap,YntCpaccountVO[] accVOs,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,String tradeCode,List<AuxiliaryAccountBVO> chFzhsBodyVOs,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Set<String> zyFzhsList,Map<String, InventoryAliasVO> fzhsBMMap) throws DZFWarpException {
+	private TzpzHVO creatTzpzVOByAccset(OcrInvoiceVO invoiceVO, ImageGroupVO groupVO,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, CategorysetVO> categorysetMap,Map<String, Object[]> categoryMap,List<Object> paramList,CorpVO corp,String pk_user,Map<String, String> bankAccountMap,Map<String, String> jituanSubMap,String newrule,Map<String,YntCpaccountVO> accountMap,List<YntCpaccountVO> listaccVOs,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,String tradeCode,List<AuxiliaryAccountBVO> chFzhsBodyVOs,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Set<String> zyFzhsList,Map<String, InventoryAliasVO> fzhsBMMap) throws DZFWarpException {
 		TzpzHVO headVO=new TzpzHVO();
 		//表头
 		headVO=createTzpzHVO(headVO, groupVO,paramList,invoiceVO,pk_user,categoryMap);
 		//表体
-		TzpzBVO[] bodyVOs=createTzpzBVOByAccset(invoiceVO, groupVO, accsetMap,accsetKeywordBVO2Map,categorysetMap,categoryMap,corp,paramList,bankAccountMap,jituanSubMap,newrule,accountMap,accVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
+		TzpzBVO[] bodyVOs=createTzpzBVOByAccset(invoiceVO, groupVO, accsetMap,accsetKeywordBVO2Map,categorysetMap,categoryMap,corp,paramList,bankAccountMap,jituanSubMap,newrule,accountMap,listaccVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
 		//合并
 		headVO.setChildren(bodyVOs);
 		return headVO;
@@ -2588,7 +2589,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	private TzpzBVO[] createTzpzBVOByAccset(OcrInvoiceVO invoiceVO, ImageGroupVO groupVO,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, CategorysetVO> categorysetMap,Map<String, Object[]> categoryMap,CorpVO corp,List<Object> paramList,Map<String, String> bankAccountMap,Map<String, String> jituanSubMap,String newrule,Map<String,YntCpaccountVO> accountMap,YntCpaccountVO[] accVOs,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,String tradeCode,List<AuxiliaryAccountBVO> chFzhsBodyVOs,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Set<String> zyFzhsList,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
+	private TzpzBVO[] createTzpzBVOByAccset(OcrInvoiceVO invoiceVO, ImageGroupVO groupVO,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, CategorysetVO> categorysetMap,Map<String, Object[]> categoryMap,CorpVO corp,List<Object> paramList,Map<String, String> bankAccountMap,Map<String, String> jituanSubMap,String newrule,Map<String,YntCpaccountVO> accountMap,List<YntCpaccountVO> listaccVOs,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,String tradeCode,List<AuxiliaryAccountBVO> chFzhsBodyVOs,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Set<String> zyFzhsList,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
 		//1、取票据表体
 		OcrInvoiceDetailVO[] detailVOs= (OcrInvoiceDetailVO[])invoiceVO.getChildren();
 		String fplx=invoiceVO.getIstate();//发票类型
@@ -2606,7 +2607,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			}
 			AccsetVO accsetVO=getAccsetVOByCategory(pk_category, accsetMap, categoryMap, corp,invoiceVO,zyFzhsList);
 			AccsetKeywordBVO2 accsetKeywordBVO2=getAccsetKeywordBVO2ByCategory(accsetVO.getPk_basecategory(), accsetKeywordBVO2Map, categoryMap, corp,invoiceVO,detailVOs[i],tradeCode);//有可能是null
-			TzpzBVO[] bodyVOs=buildTzpzBVOsByAccset(accsetVO, accsetKeywordBVO2, invoiceVO, corp, accountMap, categorysetMap, bankAccountMap, categoryMap, isHasSH, paramList,detailVOs[i],jituanSubMap,newrule,accVOs,currMap,rateMap,checkMsgMap,inventorySetVO,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,fzhsBMMap);
+			TzpzBVO[] bodyVOs=buildTzpzBVOsByAccset(accsetVO, accsetKeywordBVO2, invoiceVO, corp, accountMap, categorysetMap, bankAccountMap, categoryMap, isHasSH, paramList,detailVOs[i],jituanSubMap,newrule,listaccVOs,currMap,rateMap,checkMsgMap,inventorySetVO,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,fzhsBMMap);
 			returnList.addAll(Arrays.asList(bodyVOs));
 		}
 		return returnList.toArray(new TzpzBVO[0]);
@@ -3043,7 +3044,9 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 	
 	// 匹配科目 匹配不上新建
 	private YntCpaccountVO matchAccount(String pk_corp, YntCpaccountVO account, String name,
-			YntCpaccountVO[] accounts, String newrule) {
+										List<YntCpaccountVO> listaccounts, String newrule) {
+
+		YntCpaccountVO[] accounts = listaccounts.toArray(new YntCpaccountVO[0]);
 
 		String pcode = account.getAccountcode();
 		YntCpaccountVO nextvo = getXJAccountVOByName(name, pcode, pk_corp, accounts);
@@ -3056,7 +3059,39 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			//保存前查下数据库
 			YntCpaccountVO saveEd=querySubjByName(nextvo);
 			if(saveEd!=null)return saveEd;
-			cpaccountService.saveNew(nextvo);
+
+			String tmpaccount = nextvo.getAccountcode();
+			String[] sarule = newrule.split("/");
+			int length = 0;
+			for (int n = 0; n < sarule.length; n++)
+			{
+				String srule = sarule[n];
+				tmpaccount = tmpaccount.substring(Integer.parseInt(srule));
+				if (tmpaccount.length() <= Integer.parseInt(sarule[n + 1]))
+				{
+					length = Integer.parseInt(sarule[n + 1]);
+					break;
+				}
+			}
+			if (length == 2 && "99".equals(tmpaccount) || length == 3 && "999".equals(tmpaccount))
+			{
+				throw new BusinessException("创建往来科目 " + nextvo.getAccountcode() + " 已达到限定数量，请修改科目编码规则或下级科目转辅助");
+			}
+
+			YntCpaccountVO newvo = cpaccountService.saveNew(nextvo);
+			int iPos = -1;
+			for (int i = 0; i < listaccounts.size(); i++)
+			{
+				if (newvo.getAccountcode().compareTo(listaccounts.get(i).getAccountcode()) < 0)
+				{
+					iPos = i;
+					break;
+				}
+			}
+			if (iPos >= 0)
+			{
+				listaccounts.add(iPos, newvo);
+			}
 		}
 		return nextvo;
 
@@ -3253,7 +3288,10 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			return null;
 		}
 	}
-	private TzpzBVO[] buildTzpzBVOsByAccset(AccsetVO accsetVO,AccsetKeywordBVO2 accsetKeywordBVO2,OcrInvoiceVO invoiceVO,CorpVO corp,Map<String,YntCpaccountVO> accountMap,Map<String, CategorysetVO> categorysetMap,Map<String, String> bankAccountMap,Map<String, Object[]> categoryMap,DZFBoolean isHasSH,List<Object> paramList,OcrInvoiceDetailVO detailVO,Map<String, String> jituanSubMap,String newrule,YntCpaccountVO[] accVOs,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,List<AuxiliaryAccountBVO> chFzhsBodyVOs,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
+	private TzpzBVO[] buildTzpzBVOsByAccset(AccsetVO accsetVO,AccsetKeywordBVO2 accsetKeywordBVO2,OcrInvoiceVO invoiceVO,CorpVO corp,Map<String,YntCpaccountVO> accountMap,Map<String, CategorysetVO> categorysetMap,Map<String, String> bankAccountMap,Map<String, Object[]> categoryMap,DZFBoolean isHasSH,List<Object> paramList,OcrInvoiceDetailVO detailVO,Map<String, String> jituanSubMap,String newrule,List<YntCpaccountVO> listaccVOs,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,List<AuxiliaryAccountBVO> chFzhsBodyVOs,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Map<String, InventoryAliasVO> fzhsBMMap)throws DZFWarpException{
+
+		YntCpaccountVO[] accVOs = listaccVOs.toArray(new YntCpaccountVO[0]);
+
 		int bodyCount=invoiceVO.getChildren().length;
 		TzpzBVO[] tzpzBVOs=new TzpzBVO[DZFBoolean.TRUE.equals(isHasSH)?3:2];
 		for (int j = 0; j < tzpzBVOs.length; j++) {
@@ -3363,7 +3401,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 				}
 				if(!StringUtil.isEmpty(khGysName)){
 					// 供应商 客户类科目（应付账款 应收账款）
-					YntCpaccountVO account1 = matchAccount(corp.getPk_corp(), accountVO, khGysName, accVOs, newrule);
+					YntCpaccountVO account1 = matchAccount(corp.getPk_corp(), accountVO, khGysName, listaccVOs, newrule);
 					if (account1 != null) {
 						accountVO = account1;
 						tzpzBVO.setPk_accsubj(accountVO.getPk_corp_account());
@@ -6695,6 +6733,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		ICpaccountService gl_cpacckmserv = (ICpaccountService) SpringUtils.getBean("gl_cpacckmserv");
 		String newrule = gl_cpacckmserv.queryAccountRule(corp.getPk_corp());
 		YntCpaccountVO[] accVOs=accountService.queryByPk(corp.getPk_corp());
+		LinkedList<YntCpaccountVO> listaccVOs = new LinkedList<YntCpaccountVO>(Arrays.asList(accVOs));
 		//6、得到所有表体行的公司分类、对应base分类、以及对应map
 		Set<String> baseKeySet=new HashSet<String>();//这个变量要去数据库查入账规则和关键字规则
 		Map<String, String> categoryAndBaseMap=new HashMap<String, String>();//记录公司分类和对应base
@@ -6764,7 +6803,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 				}
 				if(!StringUtil.isEmpty(khGysName)){
 					// 供应商 客户类科目（应付账款 应收账款）
-					YntCpaccountVO account1 = matchAccount(corp.getPk_corp(), accountVO1, khGysName, accVOs, newrule);
+					YntCpaccountVO account1 = matchAccount(corp.getPk_corp(), accountVO1, khGysName, listaccVOs, newrule);
 					if (account1 != null) {
 						accountVO1 = account1;
 						card.setPk_zckm(accountVO1.getPk_corp_account());
@@ -6801,7 +6840,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 				}
 				if(!StringUtil.isEmpty(khGysName)){
 					// 供应商 客户类科目（应付账款 应收账款）
-					YntCpaccountVO account1 = matchAccount(corp.getPk_corp(), accountVO2, khGysName, accVOs, newrule);
+					YntCpaccountVO account1 = matchAccount(corp.getPk_corp(), accountVO2, khGysName, listaccVOs, newrule);
 					if (account1 != null) {
 						accountVO2 = account1;
 						card.setPk_jskm(accountVO2.getPk_corp_account());
@@ -8297,7 +8336,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 		return returnMap;
 	}
 	private List<TzpzHVO> createFZdyVoucherInvoice(List<OcrInvoiceVO> invoiceList,String pk_corp,Map<String, Object[]> categoryMap,List<Object> paramList,List<List<Object[]>> levelList,String pk_user,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, ImageGroupVO> groupMap,Map<String, CategorysetVO> categorysetMap,Map<String, String> bankAccountMap,Map<String,YntCpaccountVO> accountMap,Map<String, Map<String, Object>> checkMsgMap,InventorySetVO inventorySetVO,String collectCategory,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,Map<String, AuxiliaryAccountBVO> assistMap,Set<String> zyFzhsList,Map<String, InventoryAliasVO> fzhsBMMap
-			,CorpVO corp,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, String> jituanSubMap,YntCpaccountVO[] accVOs
+			,CorpVO corp,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, String> jituanSubMap,List<YntCpaccountVO> listaccVOs
 			,String tradeCode,String newrule,List<AuxiliaryAccountBVO> chFzhsBodyVOs,DZFBoolean isBankSubjLeaf)throws DZFWarpException{
 		//1、要返回的凭证集合
 		List<TzpzHVO> returnLists=new ArrayList<TzpzHVO>();
@@ -8310,7 +8349,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			//3处理银行账号暂时都是非强制
 			checkBankCode(corp, invoiceVO, bankAccountMap, checkMsgMap,isBankSubjLeaf);
 			//10、生成凭证VO
-			TzpzHVO tzpzVO=creatTzpzVOByAccset(invoiceVO, StringUtil.isEmpty(invoiceVO.getPk_image_group())?null:groupMap.get(invoiceVO.getPk_image_group()), accsetMap, accsetKeywordBVO2Map, categorysetMap, categoryMap, paramList,corp,pk_user,bankAccountMap,jituanSubMap,newrule,accountMap,accVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
+			TzpzHVO tzpzVO=creatTzpzVOByAccset(invoiceVO, StringUtil.isEmpty(invoiceVO.getPk_image_group())?null:groupMap.get(invoiceVO.getPk_image_group()), accsetMap, accsetKeywordBVO2Map, categorysetMap, categoryMap, paramList,corp,pk_user,bankAccountMap,jituanSubMap,newrule,accountMap,listaccVOs,currMap,rateMap,checkMsgMap,inventorySetVO,tradeCode,chFzhsBodyVOs,fzhsHeadMap,fzhsBodyMap,zyFzhsList,fzhsBMMap);
 			if(tzpzMap.containsKey(invoiceVO.getPk_billcategory())){
 				tzpzMap.get(invoiceVO.getPk_billcategory()).add(tzpzVO);
 			}else{
