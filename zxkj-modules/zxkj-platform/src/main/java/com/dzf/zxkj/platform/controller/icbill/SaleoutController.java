@@ -88,8 +88,7 @@ public class SaleoutController extends BaseController {
         if (paramvo != null) {
             List<IntradeHVO> list = ic_saleoutserv.query(paramvo);
 			IntradeHVO[] vos = null;
-			grid.setTotal(Long.valueOf(vos == null ? 0 : vos.length));
-
+			grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 			if (list != null && list.size() > 0) {
 				vos = getPagedZZVOs(list.toArray(new IntradeHVO[list.size()]), page, rows);
             }
