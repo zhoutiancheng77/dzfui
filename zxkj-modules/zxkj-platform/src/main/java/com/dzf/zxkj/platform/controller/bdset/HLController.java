@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -22,13 +25,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/bdset/gl_bdhlact")
 @Slf4j
-public class HLController {
+public class HLController extends BaseController {
     @Autowired
     private IHLService gl_bdhlserv;
 
     @PostMapping("/save")
     public ReturnData<Json> save(@RequestBody ExrateVO exrateVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
         Json json = new Json();
+        StringBuffer sf = new StringBuffer();
         try {
             if (!StringUtil.isEmptyWithTrim(exrateVO.getPk_exrate())) {
                 //校验
@@ -38,9 +42,11 @@ public class HLController {
 
                 setDefaultValue(exrateVO, corpVO, userVO);
                 gl_bdhlserv.update(exrateVO);//更新
+                sf.append("更新汇率："+exrateVO.getCurrencyname()+"，成功");
             } else {
                 setDefaultValue(exrateVO, corpVO, userVO);
                 gl_bdhlserv.save(exrateVO);//新增
+                sf.append("新增汇率："+exrateVO.getCurrencyname()+"，成功");
             }
             json.setSuccess(true);
             json.setRows(exrateVO);
@@ -53,9 +59,15 @@ public class HLController {
             json.setSuccess(false);
             log.error("保存失败！", e);
         }
-
-
+        // 日志操作
+        doRecord(sf);
         return ReturnData.ok().data(json);
+    }
+
+    private void doRecord (StringBuffer sf) {
+        if(sf.length() > 0){
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, sf.toString(), ISysConstants.SYS_2);
+        }
     }
 
     /**
@@ -141,15 +153,17 @@ public class HLController {
     @PostMapping("/delete")
     public ReturnData<Json> delete(@RequestBody ExrateVO ervo) throws BusinessException {
         Json json = new Json();
+        StringBuffer sf = new StringBuffer();
         if (ervo != null) {
             try{
-                ervo = gl_bdhlserv.queryById(ervo.getPrimaryKey());
-                if (ervo == null)
-                    throw new BusinessException("该数据不存在或已删除，请核对！");
+//                ervo = gl_bdhlserv.queryById(ervo.getPrimaryKey());
+//                if (ervo == null)
+//                    throw new BusinessException("该数据不存在或已删除，请核对！");
                 gl_bdhlserv.delete(ervo);
                 json.setSuccess(true);
                 json.setRows(ervo);
                 json.setMsg("删除成功！");
+                sf.append("删除汇率："+ervo.getCurrencyname()+"，成功");
             }catch(Exception e){
                 json.setMsg("删除失败！");
                 if(e instanceof BusinessException){
@@ -162,7 +176,8 @@ public class HLController {
             json.setSuccess(false);
             json.setMsg("删除失败！");
         }
-
+        // 日志操作
+        doRecord(sf);
         return ReturnData.ok().data(json);
     }
 }

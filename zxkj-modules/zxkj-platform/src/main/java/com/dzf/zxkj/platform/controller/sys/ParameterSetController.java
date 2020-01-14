@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -23,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/sys/sys_parameteract")
 @Slf4j
-public class ParameterSetController {
+public class ParameterSetController extends BaseController {
     @Autowired
     private IParameterSetService iservice;
 
@@ -118,12 +121,14 @@ public class ParameterSetController {
     @PostMapping("/onSave")
     public ReturnData<Grid> onSave(@MultiRequestBody("setvo") YntParameterSet setvo, @MultiRequestBody CorpVO cpvo){
         Grid grid = new Grid();
+        StringBuffer sf = new StringBuffer();
         try{
             String pk_corp = cpvo.getPk_corp();
             if (setvo != null) {
                 iservice.saveParamter(pk_corp,setvo);
                 grid.setSuccess(true);
                 grid.setMsg("保存成功!");
+                sf.append("修改参数:"+setvo.getParameterbm()+"_"+setvo.getParametername()+"，成功");
             }else{
                 grid.setSuccess(false);
                 grid.setMsg("保存失败!");
@@ -136,6 +141,10 @@ public class ParameterSetController {
             grid.setSuccess(false);
             log.error("保存失败!", e);
         }
+        if(sf.length() > 0) {
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, sf.toString(), ISysConstants.SYS_2);
+        }
+
         return ReturnData.ok().data(grid);
     }
 }

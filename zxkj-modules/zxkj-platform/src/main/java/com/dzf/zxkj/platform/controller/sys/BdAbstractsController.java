@@ -1,10 +1,14 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.sys.BDabstractsVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -23,7 +27,7 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/sys/sys_zyact")
 @Slf4j
-public class BdAbstractsController {
+public class BdAbstractsController extends BaseController {
     @Autowired
     private IBDabstractsService sys_zyserv;
 
@@ -55,16 +59,24 @@ public class BdAbstractsController {
     @PostMapping("/save")
     public ReturnData<Json> save(@MultiRequestBody("bDabstractsVO") BDabstractsVO bDabstractsVO,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO){
         Json json = new Json();
+        StringBuffer sf = new StringBuffer();
         if (bDabstractsVO != null) {
             try{
                 bDabstractsVO.setDoperatedate(new DZFDate());
                 bDabstractsVO.setDr(0);
                 bDabstractsVO.setPk_corp(corpVO.getPk_corp());
                 sys_zyserv.existCheck(bDabstractsVO);
+                String pk_abstract = bDabstractsVO.getPk_abstracts();
                 bDabstractsVO = sys_zyserv.save(bDabstractsVO);
                 json.setSuccess(true);
                 json.setRows(bDabstractsVO);
                 json.setMsg("保存成功！");
+                // 操作日志
+                sf.append("新增常用摘要成功");
+                if(!StringUtil.isEmpty(pk_abstract)){
+                    sf.setLength(0);
+                    sf.append("修改常用摘要成功");
+                }
             }catch(Exception e){
                 json.setMsg("保存失败");
                 if(e instanceof BusinessException){
@@ -77,12 +89,22 @@ public class BdAbstractsController {
             json.setMsg("保存失败！");
             json.setSuccess(false);
         }
+        //日志记录
+        doRecord(sf,corpVO);
         return ReturnData.ok().data(json);
     }
 
+
+    private void doRecord (StringBuffer sf, CorpVO corpVO) {
+        if(sf.length() > 0){
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, sf.toString(), ISysConstants.SYS_2);
+        }
+    }
+
     @PostMapping("/onDelete")
-    public ReturnData<Json> onDelete(@MultiRequestBody("bavo") BDabstractsVO bavo){
+    public ReturnData<Json> onDelete(@MultiRequestBody("bavo") BDabstractsVO bavo,@MultiRequestBody CorpVO corpVO){
         Json json = new Json();
+        StringBuffer sf = new StringBuffer();
         if (bavo != null) {
             try{
                 bavo = sys_zyserv.queryByID(bavo.getPk_abstracts());
@@ -93,6 +115,7 @@ public class BdAbstractsController {
                 json.setSuccess(true);
                 json.setRows(bavo);
                 json.setMsg("删除成功！");
+                sf.append("删除常用摘要成功");
             }catch(Exception e){
                 json.setMsg("删除失败");
                 if(e instanceof BusinessException){
@@ -105,6 +128,8 @@ public class BdAbstractsController {
             json.setSuccess(false);
             json.setMsg("删除失败！");
         }
+        //日志记录
+        doRecord(sf,corpVO);
         return ReturnData.ok().data(json);
     }
 
