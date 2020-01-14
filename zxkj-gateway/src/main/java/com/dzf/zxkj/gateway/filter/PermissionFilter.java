@@ -107,7 +107,7 @@ public class PermissionFilter extends ZuulFilter {
 
         String clientId = getLoginInfo(requestContext, ISysConstant.CLIENT_ID);
 
-        //判断是否唯一登录
+        //判断是否处于登录状态
         if (!StringUtils.isBlank(clientId) && authService.validateMultipleLogin(useridFormToken, clientId)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, requestContext);
             return null;

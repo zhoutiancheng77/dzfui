@@ -33,7 +33,12 @@ public class AuthCache {
     }
 
     public boolean checkIsMulti(String userid, String clientId){
+        String client = platformUserOnlineCache.get(userid);
         return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid)) && !platformUserOnlineCache.get(userid).equals(clientId);
+    }
+
+    public boolean checkIsOnLine(String userid){
+        return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid));
     }
 
     public void logout(String userid, String client){
