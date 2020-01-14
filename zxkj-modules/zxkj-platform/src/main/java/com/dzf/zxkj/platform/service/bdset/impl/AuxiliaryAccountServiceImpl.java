@@ -2116,6 +2116,8 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         String nameInfoKey = getNameInfoKey(bvo);
         if (!StringUtil.isEmpty(nameInfoKey)) {
             if (nameSet.contains(nameInfoKey)) {
+                if(StringUtil.isEmpty(bvo.getSpec()))
+                    bvo.setSpec("");
                 dealMessage(message, row, "存货名称[" + bvo.getName() + "]、规格(型号)[" + bvo.getSpec() + "]、计量单位["
                         + bvo.getUnit() + "]至少有一项不同！");
             } else {
