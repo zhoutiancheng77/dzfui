@@ -648,32 +648,54 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 		String rname = null;
 		int rowIndex = 0;
 		int celIndex = 0;
+
+		int rowIndex1 = 0;
+		int celIndex1 = 0;
 		if(TaxRptConst.SB_ZLBH10412.equals(sbzlbh)){
 			rname = "A200000所得税月(季)度预缴纳税申报表";
 			
 			if(isXiamenCorp(corptaxvo)){//厦门特殊处理
 				rowIndex = 33;
 				celIndex = 8;
+
+				rowIndex1 = 0;
+				celIndex1 = 0;
 			}else if(isHubeiCorp(corptaxvo)){
 				rowIndex = 33;
 				celIndex = 3;
+
+				rowIndex1 = 0;
+				celIndex1 = 0;
 			}else{
 				rowIndex = 34;
 				celIndex = 8;
+
+				rowIndex1 = 34;
+				celIndex1 = 3;
 			}
 		}else if(TaxRptConst.SB_ZLBH10413.equals(sbzlbh)){
 			rname = "主表";
 			rowIndex = 24;
 			celIndex = 8;
+
+			rowIndex1 = 24;
+			celIndex1 = 3;
 		}
 		
 		if(!StringUtil.isEmpty(rname)){
 			
 			if(listReportName != null && listReportName.contains(rname)){
+				DZFDouble c = null;
+				if(rowIndex1 != 0){
+					c = getDzfDouble(spreadtool.getCellValue(mapJson, rname, rowIndex1, celIndex1));
+				}
 				DZFDouble d = getDzfDouble(spreadtool.getCellValue(mapJson, rname, rowIndex, celIndex));
-				if(d != null){
+				if(c != null || d != null){
 					String pk_corp = reportvo.getPk_corp();
 					corptaxvo = sys_corp_tax_serv.queryCorpTaxVO(pk_corp);
+					c = c != null ? c : DZFDouble.ZERO_DBL;
+					d = d != null ? d : DZFDouble.ZERO_DBL;
+					corptaxvo.setIfirdnumber(c.toString());
 					corptaxvo.setIdnumber(d.toString());
 					sbo.saveObject(pk_corp, corptaxvo);
 				}
