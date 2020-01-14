@@ -67,11 +67,11 @@ public class QcController  extends BaseController {
 		List<IcbalanceVO> list = iservice.quyerInfovoic(SystemUtil.getLoginCorpId());
 		String searchField = getRequest().getParameter("searchField");
 		list = filterData(list, searchField);
+		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 		if (list != null && list.size() > 0) {
 			IcbalanceVO[] pvos = getPageVOs(list.toArray(new IcbalanceVO[list.size()]), page, rows);
 			list = Arrays.asList(pvos);
 		}
-        grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 		grid.setRows(list == null ? new ArrayList<IcbalanceVO>() : list);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功");

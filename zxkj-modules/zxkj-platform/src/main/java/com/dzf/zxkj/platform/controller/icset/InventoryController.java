@@ -147,7 +147,7 @@ public class InventoryController extends BaseController {
 				vos = list.toArray(new InventoryVO[list.size()]);
 			}
 		}
-		grid.setTotal(vos == null ? 0L : vos.length );
+		grid.setTotal(list == null ? 0L : list.size() );
 		grid.setRows(vos == null ? new InventoryVO[0] : vos);
 		grid.setMsg("查询成功！");
 		grid.setSuccess(true);

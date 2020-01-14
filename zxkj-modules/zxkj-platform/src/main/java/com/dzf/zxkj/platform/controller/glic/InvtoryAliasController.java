@@ -41,6 +41,7 @@ public class InvtoryAliasController extends BaseController {
 
         String isfenye = param.get("isfenye");
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+        grid.setTotal(vos == null ? 0L : vos.length );
         if (vos != null && vos.length > 0) {
             if("Y".equals(isfenye)) {
                 int page = queryParamvo.getPage();
@@ -48,7 +49,6 @@ public class InvtoryAliasController extends BaseController {
                 vos = getPagedZZVOs(vos, page, rows);
             }
         }
-        grid.setTotal(vos == null ? 0L : vos.length );
         grid.setRows(vos == null ? new InventoryAliasVO[0] : vos);
         grid.setSuccess(true);
         return ReturnData.ok().data(grid);

@@ -76,10 +76,10 @@ public class TradeinController extends BaseController {
             list = ic_tradeinserv.query(paramvo);
         }
 		IctradeinVO[] vos = null;
+		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
         if (list != null && list.size() > 0) {
 			vos = getPageVOs(list.toArray(new IctradeinVO[list.size()]), page, rows);
         }
-		grid.setTotal(Long.valueOf(vos == null ? 0 : vos.length));
 		grid.setRows(vos == null ? new IctradeinVO[0] : vos);
         grid.setSuccess(true);
         grid.setMsg("查询成功");

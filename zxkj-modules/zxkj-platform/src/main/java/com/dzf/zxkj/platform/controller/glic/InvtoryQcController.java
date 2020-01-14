@@ -48,6 +48,7 @@ public class InvtoryQcController extends BaseController {
         List<InventoryQcVO> list = gl_ic_invtoryqcserv.query(SystemUtil.getLoginCorpId());
         String isfenye = param.get("isfenye");
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+        grid.setTotal(list == null ? 0L : list.size() );
         InventoryQcVO[]  vos = null;
         if (list != null && list.size() > 0) {
             // 分页
@@ -59,7 +60,6 @@ public class InvtoryQcController extends BaseController {
                 vos = list.toArray(new InventoryQcVO[list.size()]);
             }
         }
-        grid.setTotal(vos == null ? 0L : vos.length );
         grid.setRows(vos == null ? new InventoryQcVO[0] : vos);
         grid.setMsg("查询成功");
         grid.setSuccess(true);

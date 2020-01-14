@@ -74,7 +74,7 @@ public class CrkMxController extends GlicReportController{
         //将查询后的数据分页展示
         List<IcDetailVO> list = getPagedMXZVos(listsps, result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
         grid.setIccombox(listsps);
-        grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
+//        grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
         grid.setRows(list == null ? new ArrayList<>() : list);
         grid.setKcDetail(list == null ? new ArrayList<>() : list);
         grid.setSuccess(true);

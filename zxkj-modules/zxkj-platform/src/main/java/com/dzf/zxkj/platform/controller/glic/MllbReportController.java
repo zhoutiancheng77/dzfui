@@ -67,7 +67,6 @@ public class MllbReportController  extends GlicReportController{
         List<MllDetailVO> list = getPagedMllDetailVO(listsps,result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
 
         grid.setIccombox(listsps);
-        grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
         grid.setRows(list == null ? new ArrayList<>() : list);
         grid.setSuccess(true);
         writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"毛利率统计表查询:", ISysConstants.SYS_2);

@@ -73,10 +73,11 @@ public class TradeoutController extends BaseController {
 			list = ic_tradeoutserv.query(paramvo);
 		}
 		IntradeoutVO[] vos = null;
+		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 		if (list != null && list.size() > 0) {
 			vos = getPageVOs(list.toArray(new IntradeoutVO[list.size()]), page, rows);
 		}
-		grid.setTotal(Long.valueOf(vos == null ? 0 : vos.length));
+
 		grid.setRows(vos == null ? new IntradeoutVO[0] : vos);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功");

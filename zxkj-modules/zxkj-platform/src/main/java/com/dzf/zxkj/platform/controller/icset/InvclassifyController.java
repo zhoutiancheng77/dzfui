@@ -111,7 +111,7 @@ public class InvclassifyController extends BaseController{
 				vos = list.toArray(new InvclassifyVO[list.size()]);
 			}
 		}
-		grid.setTotal(vos == null ? 0L : vos.length );
+		grid.setTotal(list == null ? 0L : list.size() );
 		grid.setRows(vos == null ? new InvclassifyVO[0] : vos);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功");
