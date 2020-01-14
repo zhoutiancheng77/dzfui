@@ -606,15 +606,19 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 		Integer oldTaxType = oldvo.getTaxlevytype();
 
 		//新值
-		Integer newcomtype = vo.getIcompanytype();
-		Integer newTaxType = vo.getTaxlevytype();
-		Integer newComTaxtype = vo.getIncomtaxtype();
+		Integer newcomtype = vo.getIcompanytype();//公司类型
+		Integer newTaxType = vo.getTaxlevytype();//征收方式
+		Integer newComTaxtype = vo.getIncomtaxtype();//所得税类型
+
+		boolean flag = true;//用来判断是否进行征收调整
 
 		if(oldcomtype == null || oldcomtype.intValue() != newcomtype){
 			msg.append("公司类型;");
 		}
 		if(oldTaxType == null || oldTaxType.intValue() != newTaxType){
 			msg.append("征收方式;");
+
+			flag = false;
 		}
 
 		if(taxtype != null && taxtype == 0){//核定征收
@@ -633,9 +637,13 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 
 			if(!beginPer.equals(oldBeginPer)){
 				msg.append("生效开始期间;");
+
+				flag = false;
 			}
 			if(!endPer.equals(oldEndPer)){
 				msg.append("生效结束期间;");
+
+				flag = false;
 			}
 
 //			if(beginPer.equals(oldBeginPer) && endPer.equals(oldEndPer)){
@@ -643,13 +651,21 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 //			}
 
 			if(oldtaxrate == null
-					|| SafeCompute.div(oldtaxrate, taxrate).doubleValue() != 0){
+					|| SafeCompute.sub(oldtaxrate, taxrate).doubleValue() != 0){
 				msg.append("应税所得率;");
+
+				flag = false;
 			}
 
 			if(oldVerIme == null
 					|| oldVerIme.intValue() != newVerIme){
 				msg.append("核定征收方式;");
+
+				flag = false;
+			}
+
+			if(flag){//如果没有变化  就不往下走了
+				return;
 			}
 
 			if(StringUtil.isEmpty(beginPer)
@@ -733,7 +749,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 
 			DZFDate begPro = vo.getBegprodate();
 			if(newComTaxtype != null && newComTaxtype == TaxRptConstPub.INCOMTAXTYPE_GR
-//					&& vo.getIsbegincom() != null && vo.getIsbegincom().booleanValue()
+					&& vo.getIsbegincom() != null && vo.getIsbegincom().booleanValue()
 					)
 			{
 				if(begPro == null){
@@ -744,10 +760,14 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 				}
 			}
 
-
 			if(newComTaxtype == TaxRptConstPub.INCOMTAXTYPE_GR &&
 					(oldBegpro == null || !oldBegpro.equals(begPro))){
 				msg.append("开始生产经营日期;");
+
+			}
+
+			if(flag){//如果没有变化  就不往下走了
+				return;
 			}
 
 			if(hiss == null || hiss.size() == 0){
