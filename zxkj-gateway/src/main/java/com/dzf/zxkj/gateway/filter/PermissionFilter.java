@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
@@ -89,11 +90,11 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
         //form表单提交不进行下面校验
-        if(request.getContentType() != null && request.getContentType().equalsIgnoreCase("application/x-www-form-urlencoded;charset=UTF-8")){
+        if (request.getContentType() != null && request.getContentType().equalsIgnoreCase("application/x-www-form-urlencoded;charset=UTF-8")) {
             return null;
         }
 
-        if(request.getRequestURL().indexOf("/api/auth/to") != -1){
+        if (request.getRequestURL().indexOf("/api/auth/to") != -1) {
             return null;
         }
 
@@ -138,6 +139,20 @@ public class PermissionFilter extends ZuulFilter {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_INVALID_CODE, requestContext);
             return null;
         }
+
+        //权限校验
+        Set<String> allPermissions = authService.getAllPermission();
+        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
+
+        String path = request.getRequestURI();
+
+        String serverPath = path.replace("/api", "");
+
+        if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
+            sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
+            return null;
+        }
+
         return null;
     }
 
@@ -146,7 +161,7 @@ public class PermissionFilter extends ZuulFilter {
         String info = request.getHeader(name);
         if (StringUtils.isBlank(info)) {
             info = request.getParameter(name);
-            if(!StringUtils.isBlank(info)){
+            if (!StringUtils.isBlank(info)) {
                 requestContext.addZuulRequestHeader(name, info);
             }
         }
