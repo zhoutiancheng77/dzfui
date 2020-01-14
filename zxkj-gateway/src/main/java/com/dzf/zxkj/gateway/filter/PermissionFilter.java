@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Set;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
@@ -141,17 +140,17 @@ public class PermissionFilter extends ZuulFilter {
         }
 
         //权限校验
-        Set<String> allPermissions = authService.getAllPermission();
-        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
-
-        String path = request.getRequestURI();
-
-        String serverPath = path.replace("/api", "");
-
-        if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
-            sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
-            return null;
-        }
+//        Set<String> allPermissions = authService.getAllPermission();
+//        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
+//
+//        String path = request.getRequestURI();
+//
+//        String serverPath = path.replace("/api", "");
+//
+//        if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
+//            sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
+//            return null;
+//        }
 
         return null;
     }
