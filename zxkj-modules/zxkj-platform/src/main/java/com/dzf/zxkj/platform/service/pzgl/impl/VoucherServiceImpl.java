@@ -3217,7 +3217,8 @@ public class VoucherServiceImpl implements IVoucherService {
 				// throw new BusinessException("存在管理上传的图片,不允许合并生单！");
 				// 合并图片组
 				List<String> groups = Arrays.asList(mergeGroup.toArray(new String[0]));
-				gl_pzimageserv.processMergeGroup(pk_corp, pk_image_group, groups);
+				List<String> newGroups = new ArrayList<String>(groups);
+				gl_pzimageserv.processMergeGroup(pk_corp, pk_image_group, newGroups);
 			}
 		}
 

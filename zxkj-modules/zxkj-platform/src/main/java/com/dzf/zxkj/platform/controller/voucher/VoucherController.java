@@ -1798,6 +1798,7 @@ public class VoucherController extends BaseController {
             json.setStatus(200);
         } catch (Exception e) {
             json.setStatus(-200);
+            json.setMsg(e.getMessage());
             log.error("Export Error", e);
 
             if (e instanceof BusinessException) {
