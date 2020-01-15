@@ -226,6 +226,11 @@ public class ICHzbController  extends BaseController {
 			if (!dboolean.booleanValue()) {
 				bodyvos = queryVos(getQueryParamVO(queryParamvo));
 			}
+			if(bodyvos != null && bodyvos.length>0){
+                for(IcDetailVO icDetailVO : bodyvos){
+                    icDetailVO.setPk_corp(SystemUtil.getLoginCorpId());
+                }
+            }
 			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
 			tmap.put("公司", gs);
 			tmap.put("期间", period);
