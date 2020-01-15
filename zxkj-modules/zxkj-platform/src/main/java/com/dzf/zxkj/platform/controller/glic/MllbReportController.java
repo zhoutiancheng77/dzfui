@@ -206,8 +206,8 @@ public class MllbReportController  extends GlicReportController{
             list.add(new ColumnCellAttr("存货名称",null,null,null,"name",1));
             list.add(new ColumnCellAttr("规格(型号)",null,null,null,"spec",1));
             list.add(new ColumnCellAttr("计量单位",null,null,null,"unit",1));
-            list.add(new ColumnCellAttr("出库数量",null,null,null,"ckdj",1));
-            list.add(new ColumnCellAttr("出库单价",null,null,null,"code",1));
+            list.add(new ColumnCellAttr("出库数量",null,null,null,"cksl",1));
+            list.add(new ColumnCellAttr("出库单价",null,null,null,"ckdj",1));
             list.add(new ColumnCellAttr("销售单价",null,null,null,"xsdj",1));
             list.add(new ColumnCellAttr("毛利率",null,null,null,"mll",1));
             //初始化表体列编码和列名称

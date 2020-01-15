@@ -116,6 +116,26 @@ public class CrkMxNewExcelField implements IExceport<IcDetailVO> {
 				new Fieldelement("jcje", "结存金额",true,2,true)
 		};
 	}
+	public Fieldelement[] getFields2(){
+		return new Fieldelement[]{
+				new Fieldelement("dbilldate", "日期",false,0,false),
+				new Fieldelement("spmc", "存货名称",false,0,false),
+				new Fieldelement("zy", "摘要",false,0,false),
+				new Fieldelement("vicbillcode", "出入库单号",false,0,false),
+				new Fieldelement("pzh", "凭证号",false,0,false),
+				new Fieldelement("spgg", "规格(型号)",false,0,false),
+				new Fieldelement("jldw", "计量单位",false,0,false),
+				new Fieldelement("srsl", "入库数量",true, numPrecision,true),
+				new Fieldelement("srdj", "入库单价",true, pricePrecision,true),
+				new Fieldelement("srje", "入库金额",true,2,true),
+				new Fieldelement("fcsl", "出库数量",true, numPrecision,true),
+				new Fieldelement("fcdj", "出库单价",true, pricePrecision,true),
+				new Fieldelement("fcje", "出库金额",true,2,true),
+				new Fieldelement("jcsl", "结存数量",true, numPrecision,true),
+				new Fieldelement("jcdj", "结存单价",true, pricePrecision,true),
+				new Fieldelement("jcje", "结存金额",true,2,true)
+		};
+	}
 	
 	public Fieldelement[] getFields(){
 		return fields;

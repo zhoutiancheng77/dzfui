@@ -364,10 +364,10 @@ public class KcCbbController extends GlicReportController{
             //初始化表体列编码和列名称
             printReporUtil.setLineheight(22F);
             List<ColumnCellAttr> list = new ArrayList<>();
-            String strclassif = pmap.get("classif");
-            DZFBoolean flag = new DZFBoolean(strclassif);
-//            if(!flag.booleanValue())
-//             list.add(new ColumnCellAttr("存货类别",null,null,2,"spfl_name",3));
+            InventorySetVO inventorySetVO = gl_ic_invtorysetserv.query(SystemUtil.getLoginCorpId());
+            if(inventorySetVO != null && inventorySetVO.getChcbjzfs() == 1){
+                list.add(new ColumnCellAttr("存货类别",null,null,2,"spfl_name",3));
+            }
             list.add(new ColumnCellAttr("存货名称",null,null,2,"spmc",3));
             list.add(new ColumnCellAttr("规格(型号)",null,null,2,"spgg",3));
             list.add(new ColumnCellAttr("计量单位",null,null,2,"jldw",2));
@@ -430,8 +430,11 @@ public class KcCbbController extends GlicReportController{
         List<IcDetailFzVO> listsps = createRightTree(result,"all");
         //将查询后的数据分页展示
         List<IcDetailVO> list = getPagedMXZVos(listsps, result, 1, Integer.MAX_VALUE, new ReportDataGrid(), "all");
-
-        return list.stream().toArray(IcDetailVO[]::new);
+        IcDetailVO[] bodyvos = list.stream().toArray(IcDetailVO[]::new);
+        for(IcDetailVO icDetailVO : bodyvos){
+            icDetailVO.setPk_corp(SystemUtil.getLoginCorpId());
+        }
+        return bodyvos;
     }
     /**
      * 导出excel
@@ -441,11 +444,6 @@ public class KcCbbController extends GlicReportController{
         OutputStream toClient = null;
         String qj = "";
         try {
-            String strlist = param.get("list");
-            if (strlist == null) {
-                return;
-            }
-            String strclassif = param.get("classif");
             qj =  param.get("titlePeriod");
             String gs = param.get("gs");
             QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
@@ -459,8 +457,11 @@ public class KcCbbController extends GlicReportController{
 			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 
             KccbNewExcelField xsz = new KccbNewExcelField(num, price);
-            DZFBoolean flag = new DZFBoolean(strclassif);
-
+            InventorySetVO inventorySetVO = gl_ic_invtorysetserv.query(SystemUtil.getLoginCorpId());
+            DZFBoolean flag = DZFBoolean.TRUE;
+            if(inventorySetVO != null && inventorySetVO.getChcbjzfs() == 1){
+                flag = DZFBoolean.FALSE;
+            }
             xsz.setFields(flag.booleanValue() ? xsz.getFields2() : xsz.getFields1());
             xsz.setIcDetailVos(bodyvos);
             xsz.setQj(qj);

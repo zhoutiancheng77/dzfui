@@ -17,11 +17,13 @@ import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.excel.CrkMxNewExcelField;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.glic.IcDetailVO;
+import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.report.IcDetailFzVO;
 import com.dzf.zxkj.platform.model.report.ReportDataGrid;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.glic.ICrkMxService;
+import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -60,7 +62,8 @@ public class CrkMxController extends GlicReportController{
     private IZxkjPlatformService zxkjPlatformService;
     @Autowired
     private IParameterSetService parameterserv;
-
+    @Autowired
+    private IInventoryAccSetService gl_ic_invtorysetserv;
     @GetMapping("/query")
     public ReturnData queryAction(@RequestParam Map<String, String> param){
         ReportDataGrid grid = new ReportDataGrid();
@@ -274,8 +277,11 @@ public class CrkMxController extends GlicReportController{
             tmap.put("期间", period);
             printReporUtil.setTableHeadFount(new Font( printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
             List<ColumnCellAttr> list = new ArrayList<>();
-            String strclassif = pmap.get("classif");
-            DZFBoolean flag = new DZFBoolean(strclassif);
+            InventorySetVO inventorySetVO = gl_ic_invtorysetserv.query(SystemUtil.getLoginCorpId());
+            DZFBoolean flag = DZFBoolean.TRUE;
+            if(inventorySetVO != null && inventorySetVO.getChcbjzfs() == 1){
+                flag = DZFBoolean.FALSE;
+            }
             printReporUtil.setLineheight(22F);
             list.add(new ColumnCellAttr("日期",null,null,2,"dbilldate",1));
             if(!flag.booleanValue())
@@ -352,6 +358,7 @@ public class CrkMxController extends GlicReportController{
             }else{
                 icDetailVO.setSpfl("");
             }
+            icDetailVO.setPk_corp(SystemUtil.getLoginCorpId());
         }
         return bodyvos;
     }
@@ -413,7 +420,12 @@ public class CrkMxController extends GlicReportController{
 			int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 
             CrkMxNewExcelField xsz = new CrkMxNewExcelField(num, price);
-            xsz.setFields(xsz.getFields1());
+            InventorySetVO inventorySetVO = gl_ic_invtorysetserv.query(SystemUtil.getLoginCorpId());
+            DZFBoolean flag = DZFBoolean.TRUE;
+            if(inventorySetVO != null && inventorySetVO.getChcbjzfs() == 1){
+                flag = DZFBoolean.FALSE;
+            }
+            xsz.setFields(flag.booleanValue() ? xsz.getFields2() : xsz.getFields1());
             xsz.setIcDetailVos(vo);
             xsz.setQj(qj);
             xsz.setCreator(SystemUtil.getLoginUserVo().getUser_name());
