@@ -129,9 +129,9 @@ public class YyFpServiceImpl implements IYyFpService {
 						for (YyFpVO fpvo : lists) {
 							if (!StringUtil.isEmpty(hc)) {
 								if (hc.equals("hc"+fpvo.getHc1())) {
-									formula = formula.replace(hc, "" + VoUtils.getDZFDouble(fpvo.getJe1()));
+									formula = formula.replace(hc, "" + handleMny(fpvo.getJe1()));
 								} else if (hc.equals("hc"+fpvo.getHc2())) {
-									formula = formula.replace(hc, "" + VoUtils.getDZFDouble(fpvo.getJe2()));
+									formula = formula.replace(hc, "" + handleMny(fpvo.getJe2()));
 								}
 							}
 						}
@@ -148,6 +148,16 @@ public class YyFpServiceImpl implements IYyFpService {
 			}
 		}
 		yyfpvo.setAttributeValue(column, res);
+	}
+
+
+	private String handleMny (DZFDouble val) {
+		DZFDouble res = VoUtils.getDZFDouble(val);
+		if (res.doubleValue() < 0) {
+			return res.abs() + "*-1";
+		} else {
+			return res + "";
+		}
 	}
 
 }
