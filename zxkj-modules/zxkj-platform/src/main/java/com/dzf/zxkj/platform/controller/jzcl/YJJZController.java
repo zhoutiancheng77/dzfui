@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IQmclConstant;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -40,7 +43,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/gl/gl_yjjzact")
 @Slf4j
-public class YJJZController {
+public class YJJZController extends BaseController {
 
     @Autowired
     private IYJJZService gl_yjjzserv;
@@ -330,6 +333,7 @@ public class YJJZController {
     @PostMapping("/cancelYjjz")
     public ReturnData<Grid> cancelYjjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos, @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        StringBuffer sf = new StringBuffer();
         try {
             YjjzReturnVO returnvo = new YjjzReturnVO();
             String userid = userVO.getCuserid();
@@ -347,6 +351,7 @@ public class YJJZController {
                 YjjzOperateVO svo = list.get(i);
                 onjzcancel(svo,returnvo);
             }
+            sf.append("取消一键结转成功");
             grid.setMsg("取消一键结转成功！");
             grid.setRows(returnvo);
             grid.setSuccess(true);
@@ -360,6 +365,8 @@ public class YJJZController {
             grid.setRows(returnvo);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "取消一键结转失败！");
         }
+        // 日志操作
+        doRecord(sf);
         return ReturnData.ok().data(grid);
     }
 
@@ -570,6 +577,7 @@ public class YJJZController {
                                    @MultiRequestBody("list5")  CostForwardVO[] list5,
                                    @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        StringBuffer sf = new StringBuffer();
         try {
             YjjzPamterVO pamtervo = new YjjzPamterVO();
             pamtervo.setExrates(exrates);
@@ -610,6 +618,9 @@ public class YJJZController {
             }
             grid.setMsg("一键结转成功！");
             grid.setRows(returnvo);
+            if(!returnvo.isIsreturn()){
+                sf.append("一键结转成功");
+            }
             grid.setSuccess(true);
         }catch (Exception e) {
             log.error("错误",e);
@@ -621,6 +632,8 @@ public class YJJZController {
             grid.setRows(returnvo);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "一键结转失败！");
         }
+        // 日志记录
+        doRecord(sf);
         return ReturnData.ok().data(grid);
     }
 
@@ -952,5 +965,10 @@ public class YJJZController {
             }
         }
         return list;
+    }
+    private void doRecord (StringBuffer sf) {
+        if(sf.length() > 0){
+            writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, sf.toString(), ISysConstants.SYS_2);
+        }
     }
 }

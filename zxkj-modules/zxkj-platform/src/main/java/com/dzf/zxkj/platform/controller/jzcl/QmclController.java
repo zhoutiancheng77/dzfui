@@ -1,11 +1,14 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.VOSortUtils;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -50,7 +53,7 @@ import java.util.*;
 @RequestMapping("/gl/gl_qmclact")
 @Slf4j
 @SuppressWarnings("all")
-public class QmclController {
+public class QmclController extends BaseController {
 
     @Autowired
     private ICorpService corpService;
@@ -117,6 +120,7 @@ public class QmclController {
     @PostMapping("/onjtzj")
     public ReturnData<Grid> onjtzj(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (QmclVO votemp : qmvos) {
@@ -135,6 +139,8 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
+
+                result = getLogMsg("计提折旧", qmclvos, "asc");
 
                 for (QmclVO votemp : qmclvos) {
                     try {
@@ -167,13 +173,17 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "计提折旧失败！");
+            result = "计提折旧失败！";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
     @PostMapping("/canceljtzj")
     public ReturnData<Grid> canceljtzj(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
         Grid grid = new Grid();
+        String result = "";
         try {
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
@@ -194,6 +204,9 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+
+                result = getLogMsg("反计提折旧", qmclvos, "desc");
+
                 for (QmclVO votemp : qmclvos) {
                     try {
                         QmclVO resvos = gl_qmclserv.updateFanJiTiZheJiu(votemp);
@@ -219,7 +232,10 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反计提折旧失败！");
+            result = "反计提折旧失败！";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -227,6 +243,7 @@ public class QmclController {
     @PostMapping("/onzzsjz")
     public ReturnData<Grid> onzzsjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (QmclVO votemp : qmvos) {
@@ -245,6 +262,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
+                result = getLogMsg("增值税结转", qmclvos, "asc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), false,"不能增值税结转!");
@@ -272,7 +290,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "增值税结转失败！");
+            result = "增值税结转失败！";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -280,6 +301,7 @@ public class QmclController {
     @PostMapping("/cancelzzsjz")
     public ReturnData<Grid> cancelzzsjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
         Grid grid = new Grid();
+        String result = "";
         try {
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
@@ -300,6 +322,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+                result = getLogMsg("反增值税结转", qmclvos, "desc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         QmclVO resvos = gl_qmclserv.onfzzsjz(votemp);
@@ -325,13 +348,17 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反增值税结转失败！");
+            result = "反增值税结转失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
     @PostMapping("/onjtfjs")
     public ReturnData<Grid> onjtfjs(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             // 重复调用接口，公司+月份
             String kmmethod = null;
@@ -355,6 +382,7 @@ public class QmclController {
             for (String pk_corp : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(pk_corp);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
+                result = getLogMsg("计提附加税", qmclvos, "asc");
                 CorpVO cpvo = corpService.queryByPk(pk_corp);
                 kmmethod = cpvo.getCorptype();// 科目方案
 
@@ -397,7 +425,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "计提附加税失败！");
+            result = "计提附加税失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -405,6 +436,7 @@ public class QmclController {
     @PostMapping("/canceljtfjs")
     public ReturnData<Grid> canceljtfjs(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
         Grid grid = new Grid();
+        String result = "";
         try {
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
@@ -426,6 +458,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+                result = getLogMsg("反计提附加税", qmclvos, "desc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         QmclVO resvos = gl_qmclserv.updateFanJiTiShuiJin(votemp);
@@ -455,13 +488,17 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反计提附加税失败！");
+            result ="反计提附加税失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
     @PostMapping("/onjtsds")
     public ReturnData<Grid> onjtsds(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             String userid = userVO.getCuserid();
             // 重复调用接口，公司+月份
@@ -482,6 +519,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
+                result = getLogMsg("所得税计提", qmclvos, "asc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), false,"不能计提所得税!");
@@ -513,7 +551,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "计提所得税失败！");
+            result = "计提所得税失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -521,6 +562,7 @@ public class QmclController {
     @PostMapping("/canceljtsds")
     public ReturnData<Grid> canceljtsds(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
         Grid grid = new Grid();
+        String result = "";
         try {
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
@@ -542,6 +584,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+                result = getLogMsg("反所得税计提", qmclvos, "desc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         QmclVO resvos = gl_qmclserv.onfsdsjz(votemp);
@@ -571,7 +614,10 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反计提所得税失败！");
+            result = "反计提所得税失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -632,6 +678,7 @@ public class QmclController {
     @PostMapping("/onsyjz")
     public ReturnData<Grid> onsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             String userid = userVO.getCuserid();
             // 重复调用接口，公司+月份
@@ -652,6 +699,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "asc");
+                result = getLogMsg("损益结转", qmclvos, "asc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         gl_qmclserv.checkTemporaryIsExist(votemp.getPk_corp(), votemp.getPeriod(), false,"不能损益结转!");
@@ -683,7 +731,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "损益结转失败！");
+            result = "损益结转失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -691,6 +742,7 @@ public class QmclController {
     @PostMapping("/cancelsyjz")
     public ReturnData<Grid> cancelsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
         Grid grid = new Grid();
+        String result = "";
         try {
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
@@ -711,6 +763,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+                result = getLogMsg("反损益结转", qmclvos, "desc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         QmclVO resvos = gl_qmclserv.updateFanQiJianSunYiJieZhuan(votemp);
@@ -740,7 +793,10 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反损益结转失败！");
+            result = "反损益结转失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -770,6 +826,7 @@ public class QmclController {
     public ReturnData<Grid> onhdsytz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,
                                      @MultiRequestBody("exrates") AdjustExrateVO[] exrates,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             String userid = userVO.getCuserid();
             QmclVO qmclvo = qmvos[0];
@@ -783,6 +840,7 @@ public class QmclController {
                     grid.setRows(new ArrayList<QmclVO>());
                     grid.setMsg("处理失败：数据为空!");
                 } else {
+                    result = "期末调汇:"+qmclvo.getPeriod();
                     qmclvo.setCoperatorid(userid);
                     HashMap<String, AdjustExrateVO> mapExrate = new HashMap<String, AdjustExrateVO>();
                     String corp = qmclvo.getPk_corp();
@@ -812,7 +870,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "期末调汇失败！");
+            result = "期末调汇失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -820,6 +881,7 @@ public class QmclController {
     @PostMapping("/cancelhdsytz")
     public ReturnData<Grid> cancelhdsytz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
         Grid grid = new Grid();
+        String result = "";
         try {
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
@@ -840,6 +902,7 @@ public class QmclController {
             for (String str : qmclmap.keySet()) {
                 List<QmclVO> listtemp = qmclmap.get(str);
                 QmclVO[] qmclvos = sortQmclByPeriod(listtemp, "desc");
+                result = getLogMsg("反汇兑调整", qmclvos, "desc");
                 for (QmclVO votemp : qmclvos) {
                     try {
                         QmclVO resvos = gl_qmclserv.updateFanHuiDuiSunYiTiaoZheng(votemp);
@@ -869,7 +932,10 @@ public class QmclController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setSuccess(false);
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "反期末调汇失败！");
+            result ="反期末调汇失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -877,6 +943,7 @@ public class QmclController {
     @PostMapping("/onbatcbjz")
     public ReturnData<Grid> onbatcbjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos, @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             String cuserid= userVO.getCuserid();
             StringBuffer msg = new StringBuffer();
@@ -885,6 +952,7 @@ public class QmclController {
             String unitname = null;
             String period = null;
             List<QmclVO> list = new ArrayList<QmclVO>();
+            result = getLogMsg("成本结转", qmvos, "asc");
             for (QmclVO vo : qmvos) {
                 try {
                     pk_corp = vo.getPk_corp();
@@ -924,7 +992,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
+            result = "成本结转失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -936,6 +1007,7 @@ public class QmclController {
         Grid grid = new Grid();
         grid.setSuccess(false);
         grid.setRows(new ArrayList<QmclVO>());
+        String result = "";
         try {
             if(qmvo == null)
                 throw new BusinessException("请求参数为空");
@@ -956,6 +1028,7 @@ public class QmclController {
             if(dzfflag){
                 forwardtype = 0 ;
             }
+            result = "成本结转:"+qmvo.getPeriod();
             switch(forwardtype){
                 case 0:  //手工结转
                 case 1:{ //比例结转
@@ -978,7 +1051,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
+            result = "成本结转失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -1100,12 +1176,14 @@ public class QmclController {
     @PostMapping("/cancelCbjz")
     public ReturnData<Grid> cancelCbjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos, @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
+        String result = "";
         try {
             String pk_corp;
             String period = null;
             QmclVO qmclvo = null;
             StringBuffer msg = new StringBuffer();
             List<QmclVO> list = new ArrayList<QmclVO>();
+            result = getLogMsg("反成本结转", qmvos, "desc");
             for (int i = qmvos.length - 1; i >= 0; i--) {// 倒序执行
                 try {
                     qmclvo = qmvos[i];
@@ -1142,7 +1220,10 @@ public class QmclController {
             grid.setSuccess(false);
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "取消成本结转失败！");
+            result = "取消成本结转失败";
         }
+        // 日志记录
+        doRecord(result);
         return ReturnData.ok().data(grid);
     }
 
@@ -2799,6 +2880,12 @@ public class QmclController {
         });
 
         return qmclvos;
+    }
+
+    private void doRecord (String result) {
+        if(!StringUtil.isEmptyWithTrim(result)){
+            writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, result, ISysConstants.SYS_2);
+        }
     }
 
     private String getLogMsg(String ope, QmclVO[] qmclvos, String ident) {
