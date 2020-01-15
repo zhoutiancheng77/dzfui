@@ -424,6 +424,8 @@ public class CwgyInfoController extends ReportBaseController {
                             if (bValue == null || bValue.doubleValue() == 0.0D) {
                                 cell.setCellValue("");
                             } else {
+                                //设置小数位 2位
+                                bValue = bValue.setScale(2, DZFDouble.ROUND_HALF_UP);
                                 textValue = bValue.toString();
                                 String svalue =(String)t.getAttributeValue("s"+fieldName);
                                 if(!StringUtil.isEmpty(svalue)){
