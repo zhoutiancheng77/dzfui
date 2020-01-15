@@ -6515,7 +6515,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 				
 				icbvo.setAttributeValue("nprice", ((DZFDouble)icbvo.getAttributeValue("nymny")).div((DZFDouble)icbvo.getAttributeValue("nnum")).setScale(pricePrecision, DZFDouble.ROUND_HALF_UP));
 				
-				icbvo.setAttributeValue("ntax",OcrUtil.getInvoiceSL(details[j].getItemtaxrate()).div(100));
+				icbvo.setAttributeValue("ntax",OcrUtil.getInvoiceSL(details[j].getItemtaxrate()));
 				icbvo.setAttributeValue("ntaxmny", new DZFDouble(OcrUtil.turnMnyByCurrency(details[j].getItemtaxmny())));
 				icbvo.setAttributeValue("ntotaltaxmny", new DZFDouble(OcrUtil.turnMnyByCurrency(details[j].getItemmny())).add(new DZFDouble(OcrUtil.turnMnyByCurrency(details[j].getItemtaxmny()))));
 				icbvo.setAttributeValue("ncost", null);
