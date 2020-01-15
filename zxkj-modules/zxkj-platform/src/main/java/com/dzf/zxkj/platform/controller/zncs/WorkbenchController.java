@@ -883,9 +883,10 @@ public class WorkbenchController extends BaseController {
      * 自定义凭证模板保存
      */
     @RequestMapping("/saveVoucherTemplet")
-    public ReturnData<Json> saveVoucherTemplet(@RequestBody String templet){
+    public ReturnData<Json> saveVoucherTemplet(@RequestBody Map<String,String> param){
         Json json = new Json();
         try{
+            String templet = param.get("templet");
             ArrayList objMap = getObjectMapper().readValue(templet, ArrayList.class);
             List<VouchertempletHVO> templetList=turnVouchertempletHVO(objMap);
             String pk_corp=SystemUtil.getLoginCorpId();
