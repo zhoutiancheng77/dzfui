@@ -1,8 +1,11 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -26,7 +29,7 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/bdset/gl_synccpacckmact")
 @Slf4j
-public class SynCpaccountController {
+public class SynCpaccountController extends BaseController {
 
     @Autowired
     private ISynCpaccountService gl_syncpacckmserv;
@@ -89,11 +92,13 @@ public class SynCpaccountController {
     @PostMapping("/save")
     public ReturnData<Grid> save(@MultiRequestBody("list") YntCpaccountVO[] bodyvos, @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
+        StringBuffer sf = new StringBuffer();
         try {
             if(bodyvos != null && bodyvos.length > 0){
                 String reslist = gl_syncpacckmserv.saveCpacountVOS(bodyvos,corpVO.getPk_corp());
                 grid.setSuccess(true);
                 grid.setMsg(reslist);
+                sf.append("标准科目同步成功");
             } else {
                 grid.setMsg("同步失败");
                 grid.setSuccess(false);
@@ -106,6 +111,15 @@ public class SynCpaccountController {
             grid.setSuccess(false);
             log.error("同步失败", e);
         }
+        //日志记录
+        doRecord(sf);
         return ReturnData.ok().data(grid);
+    }
+
+
+    private void doRecord (StringBuffer sf) {
+        if(sf.length() > 0){
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, sf.toString(), ISysConstants.SYS_2);
+        }
     }
 }
