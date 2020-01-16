@@ -283,15 +283,16 @@ public class CrkMxController extends GlicReportController{
                 flag = DZFBoolean.FALSE;
             }
             printReporUtil.setLineheight(22F);
-            list.add(new ColumnCellAttr("日期",null,null,2,"dbilldate",1));
+
             if(!flag.booleanValue())
                 list.add(new ColumnCellAttr("存货类别",null,null,2,"spfl",1));
             list.add(new ColumnCellAttr("存货名称",null,null,2,"spmc",1));
-            list.add(new ColumnCellAttr("摘要",null,null,2,"zy",1));
-            list.add(new ColumnCellAttr("出入库单号",null,null,2,"vicbillcode",1));
-            list.add(new ColumnCellAttr("凭证号",null,null,2,"pzh",1));
             list.add(new ColumnCellAttr("规格(型号)",null,null,2,"spgg",1));
             list.add(new ColumnCellAttr("计量单位",null,null,2,"jldw",1));
+            list.add(new ColumnCellAttr("日期",null,null,2,"dbilldate",1));
+            list.add(new ColumnCellAttr("出入库单号",null,null,2,"vicbillcode",1));
+            list.add(new ColumnCellAttr("凭证号",null,null,2,"pzh",1));
+            list.add(new ColumnCellAttr("摘要",null,null,2,"zy",1));
             list.add(new ColumnCellAttr("入库",null,3,null,null,6));
             list.add(new ColumnCellAttr("出库",null,3,null,null,6));
             list.add(new ColumnCellAttr("结存",null,3,null,null,6));
