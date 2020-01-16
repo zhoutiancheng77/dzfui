@@ -142,8 +142,8 @@ public class AuthController {
     public ReturnData logout() {
         try{
             LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
-            userService.logout(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getDzfAuthToken());
             authCache.logout(SystemUtil.getLoginUserId(), SystemUtil.getClientId());
+            userService.logout(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getDzfAuthToken());
         }catch (Exception e){
             log.error("登出异常：",e);
         }
