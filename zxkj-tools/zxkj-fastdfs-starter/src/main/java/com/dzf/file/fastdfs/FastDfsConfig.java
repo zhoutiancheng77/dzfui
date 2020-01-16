@@ -1,9 +1,7 @@
 package com.dzf.file.fastdfs;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
 public class FastDfsConfig {
     @Value("${zxkj.fastdfs.connect_timeout}")
     public int connect_timeout;//连接tracker服务器超时时长
