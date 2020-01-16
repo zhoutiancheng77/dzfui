@@ -74,6 +74,7 @@ public class PermissionFilter extends ZuulFilter {
         String token = getLoginInfo(requestContext, ISysConstant.TOKEN);
         String useridFromHeader = getLoginInfo(requestContext, ISysConstant.LOGIN_USER_ID);
         String currentCorp = getLoginInfo(requestContext, ISysConstant.LOGIN_PK_CORP);
+        String clientId = getLoginInfo(requestContext, ISysConstant.CLIENT_ID);
 
         if (StringUtils.isBlank(token)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
@@ -105,10 +106,10 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
 
-        String clientId = getLoginInfo(requestContext, ISysConstant.CLIENT_ID);
+
 
         //判断是否处于登录状态
-        if (!StringUtils.isBlank(clientId) && authService.validateMultipleLogin(useridFormToken, clientId)) {
+        if (StringUtils.isNotBlank(clientId) && authService.validateMultipleLogin(useridFormToken, clientId)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, requestContext);
             return null;
         }
