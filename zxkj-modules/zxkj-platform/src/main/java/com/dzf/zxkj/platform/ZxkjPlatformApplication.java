@@ -13,7 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan(basePackages= {"com.dzf.zxkj.platform","com.dzf.zxkj.operate.log"})
+@ComponentScan(basePackages= {"com.dzf.zxkj.platform","com.dzf.zxkj.operate.log","com.dzf.file"})
 @EnableDzfRedis
 public class ZxkjPlatformApplication {
     public static void main(String[] args) {

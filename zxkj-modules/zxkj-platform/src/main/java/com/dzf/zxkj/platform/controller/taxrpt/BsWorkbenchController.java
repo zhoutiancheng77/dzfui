@@ -34,7 +34,6 @@ import com.dzf.zxkj.platform.vo.WorkBenchExportVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -50,7 +49,6 @@ import java.util.*;
 @RequestMapping("workbench")
 @SuppressWarnings("all")
 @Slf4j
-@ConditionalOnBean(FastDfsUtil.class)
 public class BsWorkbenchController extends BaseController {
     @Autowired
     private IbsWorkbenchService bs_workbenchserv;

@@ -7,7 +7,10 @@ import org.csource.common.NameValuePair;
 import org.csource.fastdfs.StorageClient1;
 import org.csource.fastdfs.StorageServer;
 import org.csource.fastdfs.TrackerServer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -25,9 +28,10 @@ import java.util.UUID;
  *
  */
 @Slf4j
+@Component("connectionPool")
 public class FastDfsUtil {
 	/** 连接池 */
-	private ConnectionPool connectionPool = null;
+
 	/** 连接池默认最小连接数 */
 	private long minPoolSize = 10;
 	/** 连接池默认最大连接数 */
@@ -37,17 +41,14 @@ public class FastDfsUtil {
 	/** 默认等待时间（单位：秒） */
 	private long waitTimes = 200;
 
-	private static FastDfsUtil fastutil ;
+	@Autowired
+	private FastDfsConfig fastDfsConfig;
 
-	private FastDfsUtil(){
-		init();
-	}
+	private ConnectionPool connectionPool;
 
-	public static synchronized FastDfsUtil getInstance(){
-		if(fastutil == null){
-			fastutil = new FastDfsUtil() ;// (FastDfsUtil) SpringUtils.getBean("connectionPool");
-		}
-		return fastutil;
+	@PostConstruct
+	public void init(){
+		connectionPool = new ConnectionPool(minPoolSize, maxPoolSize, waitTimes, fastDfsConfig);
 	}
 
 	/**
@@ -56,14 +57,6 @@ public class FastDfsUtil {
 	 * @Description:
 	 *
 	 */
-	public void init() {
-//		String logId = UUID.randomUUID().toString();
-//		LOGGER.info("[初始化线程池(Init)][" + logId + "][默认参数：minPoolSize="
-//				+ minPoolSize + ",maxPoolSize=" + maxPoolSize + ",waitTimes="
-//				+ waitTimes + "]");
-		connectionPool = new ConnectionPool(minPoolSize, maxPoolSize, waitTimes);
-	}
-
 
 	/**
 	 * 通过字节流上传文件

@@ -1,7 +1,6 @@
 package com.dzf.file.fastdfs;
 
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.csource.common.MyException;
@@ -44,7 +43,7 @@ public class ConnectionPool {
 	/**
 	 * 默认构造方法
 	 */
-	public ConnectionPool(long minPoolSize, long maxPoolSize, long waitTimes) {
+	public ConnectionPool(long minPoolSize, long maxPoolSize, long waitTimes, FastDfsConfig config) {
 		String logId = UUID.randomUUID().toString();
 		log.info("[线程池构造方法(ConnectionPool)][" + logId
 				+ "][默认参数：minPoolSize=" + minPoolSize + ",maxPoolSize="
@@ -53,7 +52,7 @@ public class ConnectionPool {
 		this.maxPoolSize = maxPoolSize;
 		this.waitTimes = waitTimes;
 
-		fastDfsConfig = SpringUtils.getBean(FastDfsConfig.class);
+		fastDfsConfig = config;
 
 		/** 初始化连接池 */
 		poolInit(logId);

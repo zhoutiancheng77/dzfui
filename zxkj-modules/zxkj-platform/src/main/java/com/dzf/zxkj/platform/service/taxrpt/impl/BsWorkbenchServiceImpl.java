@@ -59,6 +59,9 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
     
 	@Autowired
 	private SingleObjectBO singleObjectBO;
+
+	@Autowired
+	private FastDfsUtil fastDfsUtil;
 	
 	@Autowired
 	private IKmQryService kmQryService;
@@ -2113,7 +2116,7 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
 	private String upload(byte[] bytes, String filename) throws DZFWarpException {
 		String filepath = "";
 		try {
-			filepath = FastDfsUtil.getInstance().upload(bytes, filename, null);
+			filepath = fastDfsUtil.upload(bytes, filename, null);
 		} catch (AppException e) {
 			throw new BusinessException("附件上传错误");
 		}

@@ -89,6 +89,9 @@ public class DataBackUpImpl implements IDataBackUp {
 
     private SingleObjectBO singleObjectBO;
 
+    @Autowired
+    private FastDfsUtil fastDfsUtil;
+
     //private Logger log = Logger.getLogger(this.getClass());
 
     public SingleObjectBO getSingleObjectBO() {
@@ -329,7 +332,7 @@ public class DataBackUpImpl implements IDataBackUp {
         if (!StringUtil.isEmpty(fileName) && fileName.startsWith("*")) {
             String id = "";
             try {
-                id = FastDfsUtil.getInstance().upload(bytes, fileName, new HashMap());
+                id = fastDfsUtil.upload(bytes, fileName, new HashMap());
                 if (StringUtil.isEmpty(id)) {
                     throw new BusinessException("写入文件失败!");
                 }
@@ -375,7 +378,7 @@ public class DataBackUpImpl implements IDataBackUp {
         //读取文件
         if (!StringUtil.isEmpty(fileName) && fileName.startsWith("*")) {
             try {
-                byte[] bytes = FastDfsUtil.getInstance().downFile(fileName.substring(1));
+                byte[] bytes = fastDfsUtil.downFile(fileName.substring(1));
 
                 return bytes;
 
