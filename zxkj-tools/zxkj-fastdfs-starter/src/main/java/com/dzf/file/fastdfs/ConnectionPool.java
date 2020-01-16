@@ -1,17 +1,17 @@
 package com.dzf.file.fastdfs;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.csource.common.MyException;
 import org.csource.fastdfs.ClientGlobal;
 import org.csource.fastdfs.TrackerClient;
 import org.csource.fastdfs.TrackerGroup;
 import org.csource.fastdfs.TrackerServer;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +39,8 @@ public class ConnectionPool {
 	/** fastdfs客户端创建连接默认1次 */
 	private static final int COUNT = 1;
 
+	private FastDfsConfig fastDfsConfig;
+
 	/**
 	 * 默认构造方法
 	 */
@@ -50,6 +52,9 @@ public class ConnectionPool {
 		this.minPoolSize = minPoolSize;
 		this.maxPoolSize = maxPoolSize;
 		this.waitTimes = waitTimes;
+
+		fastDfsConfig = SpringUtils.getBean(FastDfsConfig.class);
+
 		/** 初始化连接池 */
 		poolInit(logId);
 		/** 注册心跳 */
@@ -221,26 +226,51 @@ public class ConnectionPool {
 	private void initClientGlobal() throws Exception {
 		try {
 //			URL xmlpath = this.getClass().getClassLoader().getResource("fdfs_client.conf");
-//			ClientGlobal.init(xmlpath.getPath());
-			URL xmlpath = this.getClass().getClassLoader().getResource("fdfs_client.conf");
-			log.info("+++++++连接池初始化this.getClass().getClassLoader().getResource" + xmlpath.getPath());
-			Resource resource = new ClassPathResource("/fdfs_client.conf");
-			URL xmlpath1 = resource.getURL();
-			log.info("+++++++连接池初始化this.getClass().getClassLoader().getResource" + xmlpath1.getPath());
-//			ClientGlobal.init(xmlpath.getPath());
-			try{
-				ClientGlobal.init(xmlpath.getPath());
-			}catch(Exception e){
-				log.error("连接池初始化失败!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", e);
-				log.error("先能用吧!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-				ClientGlobal.g_connect_timeout = 10 * 1000;
-				ClientGlobal.g_network_timeout = 30 * 1000;
-				ClientGlobal.g_charset = "UTF-8";
-				InetSocketAddress[] address = new InetSocketAddress[1];
-				address[0] = new InetSocketAddress("172.16.6.44", 22122);
-				ClientGlobal.g_tracker_group = new TrackerGroup(address);
-				ClientGlobal.g_tracker_http_port = 8888;
-			}
+//            ClientGlobal.init(xmlpath.getPath());
+            ClientGlobal.g_connect_timeout = fastDfsConfig.connect_timeout;
+            if (ClientGlobal.g_connect_timeout < 0) {
+                ClientGlobal.g_connect_timeout = 5;
+            }
+            ClientGlobal.g_connect_timeout *= 1000;
+            ClientGlobal.g_network_timeout = fastDfsConfig.network_timeout;
+            if (ClientGlobal.g_network_timeout < 0) {
+                ClientGlobal.g_network_timeout = 30;
+            }
+
+            ClientGlobal.g_network_timeout *= 1000;
+            ClientGlobal.g_charset = fastDfsConfig.charset;
+            if (ClientGlobal.g_charset == null || ClientGlobal.g_charset.length() == 0) {
+                ClientGlobal.g_charset = "ISO8859-1";
+            }
+
+            String tracker_server = fastDfsConfig.tracker_server;
+            String[] szTrackerServers = null;
+            if(!StringUtil.isEmpty(tracker_server)){
+                szTrackerServers = tracker_server.split(",");
+            }
+            if (szTrackerServers == null) {
+                throw new MyException("item \"tracker_server\" not found");
+            } else {
+                InetSocketAddress[] tracker_servers = new InetSocketAddress[szTrackerServers.length];
+
+                for(int i = 0; i < szTrackerServers.length; ++i) {
+                    String[] parts = szTrackerServers[i].split("\\:", 2);
+                    if (parts.length != 2) {
+                        throw new MyException("the value of item \"tracker_server\" is invalid, the correct format is host:port");
+                    }
+
+                    tracker_servers[i] = new InetSocketAddress(parts[0].trim(), Integer.parseInt(parts[1].trim()));
+                }
+
+                ClientGlobal.g_tracker_group = new TrackerGroup(tracker_servers);
+                ClientGlobal.g_tracker_http_port = fastDfsConfig.tracker_http_port;
+                String szValue = fastDfsConfig.anti_steal_token;
+                ClientGlobal.g_anti_steal_token = szValue.equalsIgnoreCase("yes") || szValue.equalsIgnoreCase("on") || szValue.equalsIgnoreCase("true") || szValue.equals("1");
+                if (ClientGlobal.g_anti_steal_token) {
+                    ClientGlobal.g_secret_key = fastDfsConfig.secret_key;
+                }
+
+            }
 		} catch (Exception e) {
 			throw new BusinessException("连接池初始化失败!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
