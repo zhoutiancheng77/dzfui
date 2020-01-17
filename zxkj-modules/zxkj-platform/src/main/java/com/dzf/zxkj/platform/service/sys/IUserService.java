@@ -215,13 +215,4 @@ public interface IUserService {
      * @throws DZFWarpException
      */
     boolean isExistCorpPower (List<String> corpList,String userid) throws DZFWarpException;
-
-    /**
-     * 查询用户有权限的公司
-     * @param userid
-     * @return
-     * @throws DZFWarpException
-     */
-    Set<String> getOwnCorpSet (String userid) throws DZFWarpException;
-
 }

@@ -544,17 +544,15 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public Set<String> querypowercorpSet(String userid) throws DZFWarpException{
-		if(StringUtil.isEmpty(userid))
-			return new HashSet<String>();
-		List<CorpVO> list = querypowercorp(userid);
-		Set<String> corpSet = null;
-		if(list != null && list.size() > 0){
-			corpSet = new HashSet<String>();
-			for(CorpVO cvo : list){
-				corpSet.add(cvo.getPk_corp());
-			}
-		}
-		return corpSet;
+        Set<String> set = new HashSet<>();
+		if(!StringUtil.isEmpty(userid)) {
+            SQLParameter sp = new SQLParameter();
+            sp.addParam(userid);
+            List<String> list = (List<String>) singleObjectBO.executeQuery(getQueryOwnCorpSql(),
+                    sp, new ColumnListProcessor());
+            set.addAll(list);
+        }
+        return set;
 	}
 
 	@Override
@@ -1485,21 +1483,10 @@ public class UserServiceImpl implements IUserService {
             sf.append(" and cp.pk_corp = ? ");
             isHav =singleObjectBO.isExists(corpList.get(0),sf.toString(),sp);
         }else{
-            Set<String> set = getOwnCorpSet(userid);
+            Set<String> set = querypowercorpSet(userid);
             isHav = set.containsAll(corpList);
         }
         return isHav;
-	}
-
-	@Override
-	public Set<String> getOwnCorpSet(String userid) throws DZFWarpException {
-        SQLParameter sp = new SQLParameter();
-        sp.addParam(userid);
-        List<String> list = (List<String>) singleObjectBO.executeQuery(getQueryOwnCorpSql(),
-                sp, new ColumnListProcessor());
-        Set<String> set = new HashSet<>();
-        set.addAll(list);
-        return set;
 	}
 
 	private String getQueryOwnCorpSql () {
