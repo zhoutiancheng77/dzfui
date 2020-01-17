@@ -343,8 +343,7 @@ public class SaleoutController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,转总账失败!");
 			}
-//			securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
-            checkSecurityData(bodyvos,null,null,false);
+            checkSecurityData(bodyvos,null,null,true);
 			String zy = "销售商品";
 			List<String> periodSet = new ArrayList<String>();
 			int flag = 0;
