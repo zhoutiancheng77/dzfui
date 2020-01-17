@@ -66,12 +66,16 @@ public class BaseController {
             log.error("错误", e);
         }
     }
+
+    public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid){
+        checkSecurityData(vos,corps,cuserid,false);
+    }
     /**
      *
      * @param vos 数组数据（数据中包含pk_corp）二者传其一就可
      * @param corps 公司数据      二者传其一就可
      * @param cuserid 用户 （不传默认登录用户）
-     * @param isCheckData 是否校验数据有效性
+     * @param isCheckData 是否校验数据有效性(根据主键校验是否存在)
      */
     public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData){
         zxkjPlatformService.checkSecurityData(vos,corps,cuserid,isCheckData);
