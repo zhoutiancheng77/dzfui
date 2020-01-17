@@ -52,6 +52,8 @@ public class SrzcController extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             String begindate = queryParamvo.getBegindate1().toString()
                     .substring(0, 7);
             String ishajz = "N";
@@ -92,6 +94,8 @@ public class SrzcController extends ReportBaseController {
     //导出Excel
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         SrzcBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), SrzcBVO[].class);//
         String gs = excelExportVO.getCorpName();
         String qj = excelExportVO.getTitleperiod();
@@ -116,6 +120,8 @@ public class SrzcController extends ReportBaseController {
 
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();

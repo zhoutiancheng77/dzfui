@@ -56,6 +56,8 @@ public class XjyhrjzController extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             int page = queryParamvo == null ? 1 : queryParamvo.getPage();
             int rows = queryParamvo == null ? 100000 : queryParamvo.getRows();
             /** 验证 查询范围应该在当前登录人的权限范围内 */
@@ -131,6 +133,8 @@ public class XjyhrjzController extends ReportBaseController {
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
+        // 校验
+        checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
 //        KmMxZVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), KmMxZVO[].class);
 //        CorpVO qrycorpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
         String gs = excelExportVO.getCorpName();
@@ -171,7 +175,8 @@ public class XjyhrjzController extends ReportBaseController {
 
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryParamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
-
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String lineHeight = pmap.get("lineHeight");

@@ -34,6 +34,8 @@ public class FKTjBgController extends BaseController {
     public ReturnData<Grid> query(@MultiRequestBody FktjQueryParam queryParam) {
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             FkTjSetVo[] setvos = gl_fktjbgserv.query(SystemUtil.getLoginCorpId(), queryParam.getBegindate(), queryParam.getEnddate());
             grid.setMsg("查询成功");
             grid.setTotal((long) (setvos == null ? 0 : setvos.length));
@@ -50,6 +52,8 @@ public class FKTjBgController extends BaseController {
     public ReturnData save() {
         Grid json = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             FkTjSetVo setvo = new FkTjSetVo();
             setvo.setPk_corp(SystemUtil.getLoginCorpId());
             setvo.setInspectdate(new DZFDateTime());
@@ -72,6 +76,8 @@ public class FKTjBgController extends BaseController {
     public ReturnData queryFktj(@MultiRequestBody CorpVO cpvo, @MultiRequestBody DZFDate idate) {
         Json json = new Json();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{cpvo.getPk_corp()},null);
             Map<String, Object> resmap = new HashMap<String, Object>();
             DZFDate enddate = DateUtils.getPeriodEndDate(DateUtils.getPeriod(idate));
             if (enddate.before(cpvo.getBegindate())) {
@@ -124,6 +130,8 @@ public class FKTjBgController extends BaseController {
         Grid json = new Grid();
 
         try {
+            // 校验
+            checkSecurityData(null, new String[]{cpvo.getPk_corp()},null);
             DZFDate enddate = DateUtils.getPeriodEndDate(date.getYear() + "-12");
             if (enddate.before(cpvo.getBegindate())) {
                 throw new BusinessException("查询开始日期不能在建账日期前");
@@ -148,6 +156,8 @@ public class FKTjBgController extends BaseController {
         DZFDate date = new DZFDate(idate);
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{cpvo.getPk_corp()},null);
             DZFDate enddate = DateUtils.getPeriodEndDate(date.getYear() + "-12");
             if (enddate.before(cpvo.getBegindate())) {
                 throw new BusinessException("查询开始日期不能在建账日期前");

@@ -85,6 +85,8 @@ public class ZcfzController extends ReportBaseController {
         ReportDataGrid grid = new ReportDataGrid();
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             String begindate = DateUtils.getPeriod(queryParamvo.getBegindate1());
             String ishajz = "N";
             if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
@@ -215,6 +217,8 @@ public class ZcfzController extends ReportBaseController {
      */
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
 
@@ -249,6 +253,8 @@ public class ZcfzController extends ReportBaseController {
      */
     @PostMapping("exportSj/excel")
     public void excelReportSj(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
 
@@ -421,6 +427,8 @@ public class ZcfzController extends ReportBaseController {
      */
     @PostMapping("export/excelEn")
     public void excelReportEn(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        // 校验
+        checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
         String gs = excelExportVO.getCorpName();
@@ -535,7 +543,8 @@ public class ZcfzController extends ReportBaseController {
 
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
-
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();

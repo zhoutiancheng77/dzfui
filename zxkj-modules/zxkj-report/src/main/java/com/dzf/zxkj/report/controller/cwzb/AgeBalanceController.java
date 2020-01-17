@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.common.entity.DynamicAttributeVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -35,7 +36,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("gl_rep_zlyebact")
 @Slf4j
-public class AgeBalanceController {
+public class AgeBalanceController extends BaseController {
 
     @Autowired
     private IAgeBalanceReportService gl_rep_zlyeb;
@@ -53,6 +54,9 @@ public class AgeBalanceController {
         if(StringUtil.isEmptyWithTrim(param.getPk_corp())){
             param.setPk_corp(SystemUtil.getLoginCorpId());
         }
+
+        // 校验
+        checkSecurityData(null, new String[]{param.getPk_corp()},null);
 
         CorpVO corpVO = zxkjPlatformService.queryCorpByPk(param.getPk_corp());
 

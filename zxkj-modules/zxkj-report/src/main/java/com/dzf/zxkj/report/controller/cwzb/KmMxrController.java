@@ -69,6 +69,8 @@ public class KmMxrController extends ReportBaseController {
         ReportDataGrid grid = new ReportDataGrid();
         KmReoprtQueryParamVO queryParamvo = (KmReoprtQueryParamVO)getQueryParamVO(queryparamvo,corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             int page = queryParamvo == null ?1: queryParamvo.getPage();
             if(queryParamvo.getBswitch()!=null && queryParamvo.getBswitch().booleanValue()){
                 page = 1;
@@ -356,6 +358,8 @@ public class KmMxrController extends ReportBaseController {
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
 
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         String gs= excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
         String pk_currency = queryparamvo.getPk_currency();
@@ -387,9 +391,11 @@ public class KmMxrController extends ReportBaseController {
     @PostMapping("print/pdf")
     public void printAction(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
-
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             KmReoprtQueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);
+
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
 
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
@@ -488,6 +494,8 @@ public class KmMxrController extends ReportBaseController {
             if(StringUtil.isEmpty(cids)){
                 cids = corpVO.getPk_corp();
             }
+            // 校验
+            checkSecurityData(null, cids.split(","),null);
             buffer = new ByteArrayOutputStream();
             PdfWriter writer = PdfWriter.getInstance(document, buffer);
             document.open();

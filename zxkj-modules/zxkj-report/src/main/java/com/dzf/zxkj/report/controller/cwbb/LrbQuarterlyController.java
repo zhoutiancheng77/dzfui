@@ -57,6 +57,8 @@ public class LrbQuarterlyController extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             queryParamvo.setRptsource("lrb");
             queryParamvo.setQjq(queryParamvo.getBegindate1().toString().substring(0, 7));
             queryParamvo.setQjz(queryParamvo.getBegindate1().toString().substring(0, 7));
@@ -149,7 +151,8 @@ public class LrbQuarterlyController extends ReportBaseController {
     //导出Excel
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
-
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         LrbquarterlyVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), LrbquarterlyVO[].class);
         String gs=  excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
@@ -176,6 +179,8 @@ public class LrbQuarterlyController extends ReportBaseController {
         try {
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();

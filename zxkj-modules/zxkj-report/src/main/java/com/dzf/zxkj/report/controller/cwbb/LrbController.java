@@ -61,6 +61,8 @@ public class LrbController extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             /** 来源利润表 */
             queryParamvo.setRptsource("lrb");
             queryParamvo.setQjz(queryParamvo.getQjq());
@@ -93,6 +95,8 @@ public class LrbController extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             queryParamvo.setRptsource("lrb");
             queryParamvo.setQjq(DateUtils.getPeriod(queryParamvo.getBegindate1()));
             queryParamvo.setQjz(DateUtils.getPeriod(queryParamvo.getBegindate1()));
@@ -126,6 +130,8 @@ public class LrbController extends ReportBaseController {
     public ReturnData<Grid> queryYearAction(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
             QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
             int year = queryParamvo.getBegindate1().getYear();
             Map<String, List<LrbVO>> maplist = gl_rep_lrbserv.getYearLrbMap(String.valueOf(year), queryParamvo.getPk_corp(), "", null, queryParamvo.getIshasjz());
@@ -163,6 +169,8 @@ public class LrbController extends ReportBaseController {
     public ReturnData<Json> queryQuarterlySdsShui(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         Json grid = new Json();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
             QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
             /** 开始日期应该在建账日期前,检查权限 */
             checkPowerDate(queryParamvo, corpVO);
@@ -186,6 +194,8 @@ public class LrbController extends ReportBaseController {
      */
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         LrbVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), LrbVO[].class);
         String gs = excelExportVO.getCorpName();
         String qj = excelExportVO.getTitleperiod();
@@ -282,6 +292,8 @@ public class LrbController extends ReportBaseController {
 
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();

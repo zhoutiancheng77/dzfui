@@ -53,6 +53,8 @@ public class XszController  extends ReportBaseController {
     public  ReturnData<Grid> queryAction(@MultiRequestBody KmReoprtQueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
             queryvo= getQueryParamVO(queryvo,corpVO);
             int page = queryvo.getPage();
             int rows = queryvo.getRows();
@@ -144,6 +146,8 @@ public class XszController  extends ReportBaseController {
         if(!bexport){
             return;
         }
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         String gs= excelExportVO.getCorpName();
         String qj=  excelExportVO.getTitleperiod();
         XsZVO[] listVo = queryVOsFromCon(queryparamvo,corpVO);
@@ -182,7 +186,8 @@ public class XszController  extends ReportBaseController {
 
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             KmReoprtQueryParamVO queryParamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);
-
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));

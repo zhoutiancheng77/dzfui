@@ -68,6 +68,8 @@ public class CwgyInfoController extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryParamVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             queryParamvo.setQjq(queryParamvo.getBegindate1().toString().substring(0, 7));
             queryParamvo.setQjz(queryParamvo.getBegindate1().toString().substring(0, 7));
             queryParamvo.setEnddate(queryParamvo.getBegindate1());
@@ -119,7 +121,8 @@ public class CwgyInfoController extends ReportBaseController {
     public void printAction(@RequestParam Map<String, String> pmap1,
                             @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
-
+            // 校验
+            checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> params = printReporUtil.getPrintMap(printParamVO);
@@ -233,6 +236,8 @@ public class CwgyInfoController extends ReportBaseController {
 //        Map<String, String> bodymapping = FieldMapping.getFieldMapping(new CwgyInfoVO());
 //        CwgyInfoVO[] listVo = DzfTypeUtils.cast(array, bodymapping, CwgyInfoVO[].class,
 //                JSONConvtoJAVA.getParserConfig());
+        // 校验
+        checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
         String strlist = printParamVO.getList();
         CwgyInfoVO[] listVo = JsonUtils.deserialize(strlist, CwgyInfoVO[].class);
         String gs = printParamVO.getCorpName();

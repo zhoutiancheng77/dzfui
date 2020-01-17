@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -25,7 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("gl_rep_zzsmxact")
 @Slf4j
-public class ZzsMxController {
+public class ZzsMxController  extends BaseController {
     @Autowired
     private IZzsmxService zzsmxService;
 
@@ -39,6 +40,8 @@ public class ZzsMxController {
             queryParamVO.setPk_corp(SystemUtil.getLoginCorpId());
         }
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamVO.getPk_corp()},null);
             long total = zzsmxService.getZzsmxCount(queryParamVO);
             grid.setTotal(total);
             List<DzfpscReqBVO> listvos = new ArrayList<DzfpscReqBVO>();
@@ -67,6 +70,8 @@ public class ZzsMxController {
             if (StringUtil.isEmptyWithTrim(queryParamVO.getPk_corp())) {
                 queryParamVO.setPk_corp(SystemUtil.getLoginCorpId());
             }
+            // 校验
+            checkSecurityData(null, new String[]{queryParamVO.getPk_corp()},null);
 
             if (StringUtil.isEmpty(busdatas)) {
                 throw new BusinessException("明细数据为空！");

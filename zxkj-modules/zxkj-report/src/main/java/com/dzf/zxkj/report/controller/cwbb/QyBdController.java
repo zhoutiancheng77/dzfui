@@ -52,6 +52,8 @@ public class QyBdController extends ReportBaseController {
                 // 如果编制单位为空则取当前默认公司
                 queryParamVO.setPk_corp(corpVO.getPk_corp());
             }
+            // 校验
+            checkSecurityData(null, new String[]{queryParamVO.getPk_corp()},null);
             List<QyBdVO> list = qybdser.queryList(queryParamVO);
             grid.setSuccess(true);
             grid.setRows(list);
@@ -81,6 +83,8 @@ public class QyBdController extends ReportBaseController {
     @PostMapping("print/pdf")
     public void print(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
+            // 校验
+            checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);

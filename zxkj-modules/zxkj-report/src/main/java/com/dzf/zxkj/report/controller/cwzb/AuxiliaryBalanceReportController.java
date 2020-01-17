@@ -70,6 +70,8 @@ public class AuxiliaryBalanceReportController extends BaseController {
         if (StringUtils.isBlank(queryParam.getPk_corp())) {
             queryParam.setPk_corp(corpVo.getPk_corp());
         }
+        // 校验
+        checkSecurityData(null, new String[]{queryParam.getPk_corp()},null);
 
         List<FzYebVO> fzyevoList = gl_rep_fzyebserv.getFzYebVOs(queryParam);
         if (fzyevoList != null && fzyevoList.size() > 0) {
@@ -91,7 +93,8 @@ public class AuxiliaryBalanceReportController extends BaseController {
     public void printPdf(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
         KmReoprtQueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);
-
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
         try {
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
@@ -204,7 +207,8 @@ public class AuxiliaryBalanceReportController extends BaseController {
     @PostMapping("/export/excel")
     public void excelReport(@MultiRequestBody ColumnCellAttr[] columncellattrvos, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @RequestParam Map<String, String> param, HttpServletResponse response) {
         FzYebVO[] listVo = JsonUtils.deserialize(queryparamvo.getList(), FzYebVO[].class);
-
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         ExcelReport1 ex = new ExcelReport1();
         ex.setCurrency(new ReportUtil(zxkjPlatformService).getCurrencyByPk(queryparamvo.getPk_currency()));
         Map<String, String> map = getExpFieldMap(columncellattrvos);

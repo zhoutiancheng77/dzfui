@@ -57,6 +57,8 @@ public class KmzzController extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             KmZzVO[] vos = null;
             /** 验证 查询范围应该在当前登录人的权限范围内 */
             checkPowerDate(queryParamvo, corpVO);
@@ -153,6 +155,8 @@ public class KmzzController extends ReportBaseController {
      */
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         String gs = excelExportVO.getCorpName();
         String qj = excelExportVO.getTitleperiod();
         String pk_currency = queryparamvo.getPk_currency();
@@ -189,6 +193,9 @@ public class KmzzController extends ReportBaseController {
 
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             KmReoprtQueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);
+
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
 
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);

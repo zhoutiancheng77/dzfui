@@ -69,6 +69,8 @@ public class XjllController extends ReportBaseController {
         ReportDataGrid grid = new ReportDataGrid();
         QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             if (vo != null) {
                 checkPowerDate(vo,corpVO);
                 XjllbVO[] xjllbvos = gl_rep_xjlybserv.query(vo);
@@ -133,6 +135,8 @@ public class XjllController extends ReportBaseController {
         Grid grid = new Grid();
         try {
             QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
+            // 校验
+            checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
             if(vo != null){
                 XjllMxvo[] xjllMxvo = gl_rep_xjlybserv.getXJllMX(vo.getQjq(), vo.getPk_corp(), vo.getHc());
                 if(xjllMxvo != null && xjllMxvo.length > 0){
@@ -158,6 +162,8 @@ public class XjllController extends ReportBaseController {
         Json json = new Json();
         try {
             QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
+            // 校验
+            checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             //凭证查询vo
             VoucherParamVO pzparamvo = new VoucherParamVO();
             pzparamvo.setPk_corp(vo.getPk_corp());
@@ -187,6 +193,8 @@ public class XjllController extends ReportBaseController {
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         XjllbVO[] listVo= JsonUtils.deserialize(excelExportVO.getList(),XjllbVO[].class);
 
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         String gs = excelExportVO.getCorpName();
         String qj = excelExportVO.getTitleperiod();
         String corpIds = queryparamvo.getPk_corp();
@@ -216,6 +224,8 @@ public class XjllController extends ReportBaseController {
     //导出Excel
     @PostMapping("export/excelmx")
     public void excelReportMx(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         XjllMxvo[] listVo = JsonUtils.deserialize(excelExportVO.getList(), XjllMxvo[].class);
         String gs = excelExportVO.getCorpName();
         String qj = excelExportVO.getTitleperiod();
@@ -305,6 +315,8 @@ public class XjllController extends ReportBaseController {
         try {
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();

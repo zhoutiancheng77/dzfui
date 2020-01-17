@@ -54,6 +54,8 @@ public class FzKmmxController extends ReportBaseController {
         ReportDataGrid grid = new ReportDataGrid();
         queryparamvo = (KmReoprtQueryParamVO)getQueryParamVO(queryparamvo,corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             /** 开始日期应该在建账日期前 */
             checkPowerDate(queryparamvo,corpVO);
             Object[] objs = gl_rep_fzkmmxjrptserv.getFzkmmxVos(queryparamvo, DZFBoolean.FALSE);
@@ -122,6 +124,8 @@ public class FzKmmxController extends ReportBaseController {
     public void excelReport( @MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         FzKmmxVO[] listVo = null;
         queryparamvo = (KmReoprtQueryParamVO)getQueryParamVO(queryparamvo, corpVO);
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         String gs = excelExportVO.getCorpName();
         String qj = "";
 
@@ -225,6 +229,8 @@ public class FzKmmxController extends ReportBaseController {
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             KmReoprtQueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);
 
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             String strlist = printParamVO.getList();
             if (strlist == null) {

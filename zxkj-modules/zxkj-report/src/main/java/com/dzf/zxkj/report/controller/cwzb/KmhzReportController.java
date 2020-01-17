@@ -57,6 +57,8 @@ public class KmhzReportController extends ReportBaseController {
         SubjectCollectGrid grid = new SubjectCollectGrid();
         QueryParamVO vo = JsonUtils.convertValue(param, QueryParamVO.class);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             /** 验证权限 */
             checkPowerDate(vo, corpVO);
             /** 查询 */
@@ -144,6 +146,8 @@ public class KmhzReportController extends ReportBaseController {
     public void printAction(@RequestParam Map<String, String> pmap1,
                             @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
+            // 校验
+            checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             SubjectCollectGrid collVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), SubjectCollectGrid.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
@@ -206,6 +210,8 @@ public class KmhzReportController extends ReportBaseController {
     public void excelReport(@MultiRequestBody PrintParamVO printParamVO,
                             @MultiRequestBody QueryParamVO qryvo,
                             @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
+        // 校验
+        checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
 //        HttpServletRequest request = getRequest();
         String strlist = printParamVO.getList();
 //        JSONArray array = (JSONArray) JSON.parseArray(strlist);

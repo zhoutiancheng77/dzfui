@@ -62,6 +62,8 @@ public class FsYeController  extends ReportBaseController {
         Grid grid = new Grid();
         QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
             /** 验证 查询范围应该在当前登录人的权限范围内 */
             checkPowerDate(queryvo,corpVO);
             DZFBoolean isshowfs = vo.getIshowfs();
@@ -285,6 +287,8 @@ public class FsYeController  extends ReportBaseController {
 
     @PostMapping("/queryYear")
     public ReturnData<Grid> queryYear(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
+        // 校验
+        checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
         Map<String,FseJyeVO[]> map = new HashMap<String,FseJyeVO[]>();
         QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
         String accountrule = zxkjPlatformService.queryAccountRule(vo.getPk_corp());
@@ -452,6 +456,8 @@ public class FsYeController  extends ReportBaseController {
         if(!bexport){
             return;
         }
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         Excelexport2003<FseJyeVO> lxs = new Excelexport2003<FseJyeVO>();
         FsYeBExcelField fsyebfield =  getFsExcel(excelExportVO,queryparamvo,corpVO);
         baseExcelExport(response,lxs,fsyebfield);
@@ -557,6 +563,8 @@ public class FsYeController  extends ReportBaseController {
         KmReoprtQueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);
 
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             /** 是否横向 */

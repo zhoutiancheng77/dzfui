@@ -53,6 +53,8 @@ public class XjllbQuarterlyController extends ReportBaseController {
         QueryParamVO vo = getQueryParamVO(queryvo,corpVO);
         String[] resvalue = getJdValue(vo.getBegindate1());
         try {
+            // 校验
+            checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             if (vo != null) {
                 checkPowerDate(vo,corpVO);
                 List<XjllquarterlyVo> xjllbvos = gl_rep_xjlyquarbserv.getXjllQuartervos(vo,resvalue[1]);
@@ -97,7 +99,8 @@ public class XjllbQuarterlyController extends ReportBaseController {
     //导出Excel
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response){
-
+        // 校验
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
         XjllquarterlyVo[] listVo = JsonUtils.deserialize(excelExportVO.getList(),XjllquarterlyVo[].class);//
         String gs=  excelExportVO.getCorpName();
         String qj= excelExportVO.getTitleperiod();
@@ -125,7 +128,8 @@ public class XjllbQuarterlyController extends ReportBaseController {
 
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
-
+            // 校验
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();

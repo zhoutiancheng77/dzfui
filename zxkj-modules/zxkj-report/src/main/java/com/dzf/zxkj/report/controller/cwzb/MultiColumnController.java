@@ -65,6 +65,8 @@ public class MultiColumnController extends ReportBaseController {
         ReportDataGrid grid = new ReportDataGrid();
         KmReoprtQueryParamVO vo = getQueryParamVO(queryvo, corpVO);
         try {
+            // 校验
+            checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             List<KmReportDatagridColumn> columnList = new ArrayList<KmReportDatagridColumn>();
             List<KmReportDatagridColumn> columnList2 = new ArrayList<KmReportDatagridColumn>();
             /** 先动态生成column数据 */
@@ -226,6 +228,8 @@ public class MultiColumnController extends ReportBaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             pk_corp = SystemUtil.getLoginCorpId();
         }
+        // 校验
+        checkSecurityData(null, new String[]{pk_corp},null);
         Grid grid = new Grid();
         try {
             AuxiliaryAccountHVO[] bvos = zxkjPlatformService.queryHByPkCorp(pk_corp);
@@ -247,6 +251,8 @@ public class MultiColumnController extends ReportBaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             pk_corp = SystemUtil.getLoginCorpId();
         }
+        // 校验
+        checkSecurityData(null, new String[]{pk_corp},null);
         Grid grid = new Grid();
         try {
             AuxiliaryAccountBVO[] bvos = zxkjPlatformService.queryAllB(pk_corp);
@@ -293,6 +299,8 @@ public class MultiColumnController extends ReportBaseController {
     public void print(@RequestParam Map<String, String> pmap1, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         try {
+            // 校验
+            checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
             ReportPrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), ReportPrintParamVO.class);
             MultiColumnPdfField columnPdfField = JsonUtils.deserialize(JsonUtils.serialize(pmap1), MultiColumnPdfField.class);
 
@@ -335,6 +343,8 @@ public class MultiColumnController extends ReportBaseController {
     @PostMapping("export/excel")
     public void export(@MultiRequestBody ReportExcelExportVO exportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
+        // 校验
+        checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
         String data = exportVO.getData();
 
         List<Map<String, String>> d = JsonUtils.deserialize(data, List.class, Map.class);

@@ -53,6 +53,8 @@ public class AgeDetailController extends BaseController {
             if(StringUtil.isEmptyWithTrim(ageReportQueryVO.getPk_corp())){
                 ageReportQueryVO.setPk_corp(SystemUtil.getLoginCorpId());
             }
+            // 校验
+            checkSecurityData(null, new String[]{ageReportQueryVO.getPk_corp()},null);
 
             CorpVO corpVO = zxkjPlatformService.queryCorpByPk(ageReportQueryVO.getPk_corp());
 

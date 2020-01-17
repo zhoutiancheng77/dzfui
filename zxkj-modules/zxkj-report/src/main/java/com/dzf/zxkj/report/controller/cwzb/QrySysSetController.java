@@ -39,6 +39,8 @@ public class QrySysSetController extends ReportBaseController {
         }
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{pk_corp},null);
             YntCpaccountVO[] bvos = zxkjPlatformService.queryByPk(pk_corp);
             grid.setRows(bvos);
             grid.setSuccess(true);
@@ -60,6 +62,8 @@ public class QrySysSetController extends ReportBaseController {
         }
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{pk_corp},null);
             QcYeCurrency[] bvos = zxkjPlatformService.queryCurrencyByPkCorp(pk_corp);
             bvos[0].setPk_currency("");//综合本位币去掉
             grid.setRows(bvos);
@@ -82,6 +86,8 @@ public class QrySysSetController extends ReportBaseController {
         }
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{pk_corp},null);
             AuxiliaryAccountHVO[] bvos = zxkjPlatformService.queryHByPkCorp(pk_corp);
             grid.setRows(bvos);
             grid.setSuccess(true);
@@ -103,6 +109,8 @@ public class QrySysSetController extends ReportBaseController {
         }
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{pk_corp},null);
             AuxiliaryAccountBVO[] bvos = zxkjPlatformService.queryAllB(pk_corp);
             grid.setRows(bvos);
             grid.setSuccess(true);
