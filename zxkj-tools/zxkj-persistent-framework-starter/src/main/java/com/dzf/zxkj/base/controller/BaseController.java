@@ -28,27 +28,27 @@ public class BaseController {
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
-    public void printErrorLog(Grid grid, Throwable e, String errorinfo){
-        if(StringUtil.isEmpty(errorinfo))
+    public void printErrorLog(Grid grid, Throwable e, String errorinfo) {
+        if (StringUtil.isEmpty(errorinfo))
             errorinfo = "操作失败";
-        if(e instanceof BusinessException){
+        if (e instanceof BusinessException) {
             grid.setMsg(e.getMessage());
-        }else{
+        } else {
             grid.setMsg(errorinfo);
-            log.error(errorinfo,e);
+            log.error(errorinfo, e);
         }
         grid.setSuccess(false);
     }
 
 
-    public void printErrorLog(Json json, Throwable e, String errorinfo){
-        if(StringUtil.isEmpty(errorinfo))
+    public void printErrorLog(Json json, Throwable e, String errorinfo) {
+        if (StringUtil.isEmpty(errorinfo))
             errorinfo = "操作失败";
-        if(e instanceof BusinessException){
+        if (e instanceof BusinessException) {
             json.setMsg(e.getMessage());
-        }else{
+        } else {
             json.setMsg(errorinfo);
-            log.error(errorinfo,e);
+            log.error(errorinfo, e);
         }
         json.setSuccess(false);
     }
@@ -66,24 +66,37 @@ public class BaseController {
             log.error("错误", e);
         }
     }
+
     /**
-     *
-     * @param vos 数组数据（数据中包含pk_corp）二者传其一就可
-     * @param corps 公司数据      二者传其一就可
+     * @param vos     数组数据（数据中包含pk_corp）二者传其一就可
+     * @param corps   公司数据      二者传其一就可
      * @param cuserid 用户 （不传默认登录用户）
      */
-    public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid){
-        checkSecurityData(vos,corps,cuserid,false);
+    public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid) {
+        checkSecurityData(vos, corps, cuserid, false);
     }
+
     /**
-     *
-     * @param vos 数组数据（数据中包含pk_corp）二者传其一就可
-     * @param corps 公司数据      二者传其一就可
-     * @param cuserid 用户 （不传默认登录用户）
+     * @param vos         数组数据（数据中包含pk_corp）二者传其一就可
+     * @param corps       公司数据      二者传其一就可
+     * @param cuserid     用户 （不传默认登录用户）
      * @param isCheckData 是否校验数据有效性(根据主键校验是否存在) 只有传vo数组时可用
      */
-    public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData){
-        zxkjPlatformService.checkSecurityData(vos,corps,cuserid,isCheckData);
+    public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid, boolean isCheckData) {
+        zxkjPlatformService.checkSecurityData(vos, corps, cuserid, isCheckData);
+    }
+
+    /**
+     * 校验登录用户是否有公司权限
+     *
+     * @param corpId
+     */
+    public void checkOwnCorp(String... corpId) {
+        zxkjPlatformService.checkSecurityData(null, corpId, getLoginUserId(), false);
+    }
+
+    public String getLoginUserId() {
+        return request.getHeader(ISysConstant.LOGIN_USER_ID);
     }
 
 }

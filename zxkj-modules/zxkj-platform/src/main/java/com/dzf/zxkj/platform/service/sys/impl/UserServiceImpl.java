@@ -1478,21 +1478,34 @@ public class UserServiceImpl implements IUserService {
         }
         SQLParameter sp = new SQLParameter();
         sp.addParam(userid);
-        StringBuffer sf  = new StringBuffer();
-        sf.append(" select cp.pk_corp from bd_corp cp ");
-        sf.append(" join sm_user_role re on re.pk_corp = cp.pk_corp ");
-        sf.append(" left join bd_corp_tax tax on tax.pk_corp = cp.pk_corp and nvl(tax.dr,0) = 0 ");
-        sf.append(" where re.cuserid = ? and nvl(re.dr,0) = 0 and nvl(cp.isaccountcorp,'N') = 'N' ");
-        sf.append(" and nvl(cp.isseal,'N') = 'N'   and nvl(cp.ishasaccount,'N') = 'Y' ");
         if(corpList.size() == 1){
             sp.addParam(corpList.get(0));
+            StringBuilder sf  = new StringBuilder();
+            sf.append(getQueryOwnCorpSql());
             sf.append(" and cp.pk_corp = ? ");
             isHav =singleObjectBO.isExists(corpList.get(0),sf.toString(),sp);
         }else{
-            List<String> list = (List<String>)singleObjectBO.executeQuery(sf.toString(), sp, new ColumnListProcessor());
-            corpList.removeAll(list);
-            isHav = corpList.size() == 0 ? true:false;
+            Set<String> set = getOwnCorpSet(userid);
+            isHav = set.containsAll(corpList);
         }
         return isHav;
 	}
+
+	@Override
+	public Set<String> getOwnCorpSet(String userid) throws DZFWarpException {
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(userid);
+        List<String> list = (List<String>) singleObjectBO.executeQuery(getQueryOwnCorpSql(),
+                sp, new ColumnListProcessor());
+        Set<String> set = new HashSet<>();
+        set.addAll(list);
+        return set;
+	}
+
+	private String getQueryOwnCorpSql () {
+        return " select cp.pk_corp from bd_corp cp" +
+                "  join sm_user_role re on re.pk_corp = cp.pk_corp " +
+                " where re.cuserid = ? and nvl(re.dr,0) = 0 and nvl(cp.isaccountcorp,'N') = 'N' " +
+                " and nvl(cp.isseal,'N') = 'N' and nvl(cp.ishasaccount,'N') = 'Y' ";
+    }
 }
