@@ -50,6 +50,8 @@ public class AmZcMxReportController extends BaseController {
     public ReturnData<Grid> queryAction(@MultiRequestBody QueryParamVO queryParamvo) {
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             ZcMxZVO[] zcmxvos = am_rep_zcmxserv
                     .queryAssetcardDetail(queryParamvo);
             grid.setTotal((long) (zcmxvos == null ? 0 : zcmxvos.length));
@@ -67,7 +69,8 @@ public class AmZcMxReportController extends BaseController {
     @PostMapping("print/pdf")
     public void printAction(@MultiRequestBody PrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
-
+            // 校验
+            checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
 
             String strlist = param.getList();

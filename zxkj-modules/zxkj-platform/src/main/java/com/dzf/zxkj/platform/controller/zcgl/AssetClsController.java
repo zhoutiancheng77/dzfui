@@ -47,6 +47,8 @@ public class AssetClsController extends BaseController {
     public ReturnData<Grid> query(@MultiRequestBody AssetQueryCdtionVO qryVO) {
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             if (qryVO != null) {
                 List<AssetCleanVO> list = am_assetclsserv.query(
                         SystemUtil.getLoginCorpId(), qryVO);
@@ -76,6 +78,8 @@ public class AssetClsController extends BaseController {
     @PostMapping("print/pdf")
     public void printAction(ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             Map<String, String> pmap = new HashMap<String, String>(10);// 声明一个map用来存前台传来的设置参数
 
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
@@ -122,6 +126,8 @@ public class AssetClsController extends BaseController {
     public ReturnData<Grid> onBoToGL(@MultiRequestBody AssetCleanVO vo, @MultiRequestBody CorpVO corpVO) {
         Grid json = new Grid();
             try {
+                // 校验
+                checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
                 if (vo.getIstogl() != null && vo.getIstogl().booleanValue()) {
                     json.setMsg("资产清理单已经转总账，不允许重复操作");
                     json.setSuccess(false);
@@ -146,6 +152,8 @@ public class AssetClsController extends BaseController {
     public ReturnData<Grid> delete(@MultiRequestBody AssetCleanVO data) {
         Grid json = new Grid();
             try {
+                // 校验
+                checkSecurityData(null, new String[]{data.getPk_corp()},null);
                 AssetCleanVO vo = am_assetclsserv.queryById(data
                         .getPrimaryKey());
                 if (!vo.getPk_corp().equals(SystemUtil.getLoginCorpId()))

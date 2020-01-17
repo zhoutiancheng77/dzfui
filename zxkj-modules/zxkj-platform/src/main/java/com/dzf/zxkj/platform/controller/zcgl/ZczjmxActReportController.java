@@ -70,6 +70,8 @@ public class ZczjmxActReportController extends BaseController {
                 // 如果编制单位为空则取当前默认公司
                 queryParamvo.setPk_corp(SystemUtil.getLoginCorpId());
             }
+            // 校验
+            checkSecurityData(null,new String[]{queryParamvo.getPk_corp()},null);
 
             AssetDepreciaTionVO[] assetdepreciationvos = null;//gl_rep_fsyebserv.getKMZZVOs(vo);
 
@@ -165,6 +167,8 @@ public class ZczjmxActReportController extends BaseController {
     public ReturnData<Grid> linkAction(@MultiRequestBody QueryParamVO paramvo) {
         Grid grid = new Grid();
         try {
+            // 校验
+            checkSecurityData(null,new String[]{paramvo.getPk_corp()},null);
             AssetDepreciaTionVO[] vos = am_rep_zczjmxserv.linkZczjMxVOs(paramvo);
             log.info("查询成功！");
             if (vos != null && vos.length > 0) {
@@ -185,6 +189,8 @@ public class ZczjmxActReportController extends BaseController {
     @PostMapping("print/pdf")
     public void printAction(@MultiRequestBody ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
+            // 校验
+            checkSecurityData(null,new String[]{corpVO.getPk_corp()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             pmap.put("type", printParamVO.getType());

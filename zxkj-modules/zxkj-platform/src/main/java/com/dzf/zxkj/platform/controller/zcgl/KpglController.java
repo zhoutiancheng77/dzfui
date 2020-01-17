@@ -66,6 +66,8 @@ public class KpglController extends BaseController {
     public ReturnData doAdd() throws DZFWarpException {//新增默认值
         Grid json = new Grid();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             String newcode = am_kpglserv.buildAssetcardCode(SystemUtil.getLoginCorpId());
             json.setSuccess(true);
             json.setMsg("获取成功");
@@ -102,6 +104,8 @@ public class KpglController extends BaseController {
                 if (!StringUtil.isEmpty(data.getPrimaryKey())) {
                     checkCorp(SystemUtil.getLoginCorpId(), data);
                 }
+                // 校验
+                checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
                 CorpVO corpvo = corpService.queryByPk(SystemUtil.getLoginCorpId());
                 setDefaultValue(data);
                 data = am_kpglserv.save(corpvo, data);
@@ -138,6 +142,8 @@ public class KpglController extends BaseController {
         try {
             if (paramvo != null) {
                 paramvo = getQueryParamVO(paramvo, corpVO);
+                // 校验
+                checkSecurityData(null, new String[]{paramvo.getPk_corp()},null);
                 List<AssetcardVO> list = am_kpglserv.query(paramvo);
                 if (list != null && list.size() > 0) {
                     grid.setRows(getPagedCardVOs(list, paramvo.getPage(), paramvo.getRows(), grid));
@@ -187,6 +193,8 @@ public class KpglController extends BaseController {
         if (data != null) {
             try {
                 CorpVO corp = corpService.queryByPk(SystemUtil.getLoginCorpId());
+                // 校验
+                checkSecurityData(null, new String[]{corp.getPk_corp()},null);
                 checkCorp(corp.getPk_corp(), data);
                 am_kpglserv.update(corp, data);
                 json.setSuccess(true);
@@ -253,6 +261,8 @@ public class KpglController extends BaseController {
                 paramvo.setPk_assetcard(data.getPk_assetcard());
             }
             paramvo.setPk_corp(SystemUtil.getLoginCorpId());
+            // 校验
+            checkSecurityData(null, new String[]{paramvo.getPk_corp()},null);
             if (paramvo != null) {
                 List<AssetcardVO> list = am_kpglserv.query(paramvo);
                 if (list != null && list.size() > 0) {
@@ -367,6 +377,8 @@ public class KpglController extends BaseController {
             try {
                 String loginDate = SystemUtil.getLoginDate();
                 checkCorp(corp.getPk_corp(), data);
+                // 校验
+                checkSecurityData(null, new String[]{corp.getPk_corp()},null);
                 am_kpglserv.updateAssetClear(loginDate, corp,
                         new AssetcardVO[]{data}, SystemUtil.getLoginUserId());
                 json.setSuccess(true);
@@ -454,6 +466,8 @@ public class KpglController extends BaseController {
             String[] assetidstrs = assetids.split(",");
             DZFBoolean bmerge = new DZFBoolean(merge);
             DZFDate date = new DZFDate(SystemUtil.getLoginDate());
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             String tips = am_kpglserv.saveVoucherFromZc(assetidstrs, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), date, bmerge);
             if (!StringUtil.isEmpty(tips)) {
                 throw new BusinessException(tips);
@@ -716,6 +730,8 @@ public class KpglController extends BaseController {
     public ReturnData doOrder() {
         Json json = new Json();
         try {
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             am_kpglserv.updateOrder(SystemUtil.getLoginCorpId());
             json.setSuccess(true);
             json.setMsg("整理成功");
@@ -969,6 +985,11 @@ public class KpglController extends BaseController {
         Json json = new Json();
 
         try {
+            // 校验
+            AssetcardVO tt = new AssetcardVO();
+            tt.setPrimaryKey(id);
+            checkCorp(SystemUtil.getLoginCorpId(),tt);
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
 //            Integer limit = new Integer(newlimit);
             am_kpglserv.updateAdjustLimit(id, newlimit);
             json.setSuccess(true);

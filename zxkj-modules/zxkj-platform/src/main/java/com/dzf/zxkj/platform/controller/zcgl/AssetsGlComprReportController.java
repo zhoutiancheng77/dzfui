@@ -21,6 +21,7 @@ import com.dzf.zxkj.platform.model.zcgl.AssetQueryCdtionVO;
 import com.dzf.zxkj.platform.model.zcgl.ZcdzVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.zcgl.IZczzdzReportService;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +52,8 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
     public ReturnData<Grid> query(@MultiRequestBody AssetQueryCdtionVO qryVO, @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
         try {
-
+            // 校验
+            checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
             ZcdzVO[] zcmxvos = null;
             if (qryVO != null) {
                 if (qryVO.getStart_date() == null) {
@@ -93,6 +95,8 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
     @PostMapping("print/pdf")
     public void print(@MultiRequestBody String corpName, @MultiRequestBody String period, @MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
+            // 校验
+            checkSecurityData(null, new String[]{SystemUtil.getLoginCorpId()},null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             String strlist = printParamVO.getList();
             if (strlist == null) {

@@ -13,6 +13,7 @@ import com.dzf.zxkj.platform.model.sys.BdTradeAssetCheckVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.zcgl.IHyAssetCheckService;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,8 @@ public class BdHyAssetCheckController extends BaseController {
 	public ReturnData<Grid> query(@MultiRequestBody CorpVO corpVo) {
 		Grid grid = new Grid();
 		try {
+			// 校验
+			checkSecurityData(null, new String[]{corpVo.getPk_corp()},null);
 			List<BdTradeAssetCheckVO> list = null;
 			list = sys_zczzdzbserv.queryAssCheckVOs(corpVo.getPk_corp(), "");
 			grid.setTotal(list == null ? 0 : (long) list.size());
@@ -58,6 +61,8 @@ public class BdHyAssetCheckController extends BaseController {
 	public ReturnData onSaveNew(@MultiRequestBody BdTradeAssetCheckVO data, @MultiRequestBody CorpVO corpVO , @MultiRequestBody UserVO uservo) {
 		Json json = new Json();
 		if (data != null) {
+			// 校验
+			checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
 			data.setPk_corp(corpVO.getPk_corp());
 			if (!corpVO.getPk_corp().equals(IGlobalConstants.currency_corp)) {
 				data.setPk_trade_accountschema(corpVO.getCorptype());// 如果是公司的科目方案直接去公司的
@@ -94,6 +99,8 @@ public class BdHyAssetCheckController extends BaseController {
 		Json json = new Json();
 		if (data != null) {
 			try {
+				// 校验
+				checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
 				if (corpVO.getPk_corp().equals(data.getPk_corp())) {
 					data.setPk_corp(corpVO.getPk_corp());
                     sys_zczzdzbserv.deleteInfovo(data);

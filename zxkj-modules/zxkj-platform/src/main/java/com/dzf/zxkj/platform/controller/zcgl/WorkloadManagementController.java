@@ -49,12 +49,14 @@ public class WorkloadManagementController extends BaseController {
         DZFDate begindate = DateUtils.getPeriodStartDate(workloadManagementParamVO.getPeriod());
         DZFDate enddate = DateUtils.getPeriodEndDate(workloadManagementParamVO.getPeriod());
         try {
-
             // 把字符串变成codelist集合
             if (queryParamvo.getPk_corp() != null && queryParamvo.getPk_corp().length() > 0) {
                 List<String> codelist = Arrays.asList(queryParamvo.getPk_corp().split(","));
                 queryParamvo.setCorpslist(codelist);
+                // 校验
+                checkSecurityData(null, codelist.toArray(new String[0]),null);
             }
+
             queryParamvo.setUserid(SystemUtil.getLoginUserId());
 
             QueryParamVO paramvo = new QueryParamVO();
@@ -172,6 +174,8 @@ public class WorkloadManagementController extends BaseController {
     public ReturnData<Grid> save(@MultiRequestBody WorkloadManagementVO[] list) {
         Grid json = new Grid();
         if (list != null && list.length > 0) {
+            // 校验
+            checkSecurityData(null,new String[]{SystemUtil.getLoginCorpId()},null);
             for (WorkloadManagementVO workloadManagementVO: list) {
                 if (workloadManagementVO.getBygzl() == null) {
                     json.setSuccess(false);
@@ -205,6 +209,8 @@ public class WorkloadManagementController extends BaseController {
         paramvo.setBegindate1(DateUtils.getPeriodStartDate(prePeriod));
         paramvo.setEnddate(DateUtils.getPeriodEndDate(prePeriod));
         try {
+            // 校验
+            checkSecurityData(null,new String[]{paramvo.getPk_corp()},null);
             List<WorkloadManagementVO> list = am_workloadmagserv.queryBypk_assetcard(paramvo);
             if (list != null && list.size() > 0) {
                 json.setSuccess(true);
