@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.service;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.*;
@@ -97,5 +98,7 @@ public interface IZxkjPlatformService {
     DZFDouble getQuarterlySdsShui(String pk_corp, String period);
 
     List<CorpTaxVo> queryTaxVoByParam(QueryParamVO paramvo, UserVO uservo);
+
+    void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData);
 
 }

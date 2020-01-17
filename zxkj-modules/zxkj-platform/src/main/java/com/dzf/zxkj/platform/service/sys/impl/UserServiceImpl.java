@@ -7,6 +7,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.DataSourceFactory;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
+import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
@@ -568,7 +569,6 @@ public class UserServiceImpl implements IUserService {
         user.setUser_name(SecretCodeUtils.deCode(user.getUser_name()));
 		return user;
 	}
-	
 	public CorpVO[] getValidateCorpByUserId(String dsName,
 			String userID) throws DZFWarpException {
 		java.util.Vector v = new java.util.Vector();
@@ -1470,4 +1470,29 @@ public class UserServiceImpl implements IUserService {
         }
         return map;
     }
+
+    public boolean isExistCorpPower (List<String> corpList,String userid) throws DZFWarpException {
+        boolean isHav = false;
+        if(corpList == null || corpList.size()==0 || StringUtil.isEmpty(userid)){
+            return isHav;
+        }
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(userid);
+        StringBuffer sf  = new StringBuffer();
+        sf.append(" select cp.pk_corp from bd_corp cp ");
+        sf.append(" join sm_user_role re on re.pk_corp = cp.pk_corp ");
+        sf.append(" left join bd_corp_tax tax on tax.pk_corp = cp.pk_corp and nvl(tax.dr,0) = 0 ");
+        sf.append(" where re.cuserid = ? and nvl(re.dr,0) = 0 and nvl(cp.isaccountcorp,'N') = 'N' ");
+        sf.append(" and nvl(cp.isseal,'N') = 'N'   and nvl(cp.ishasaccount,'N') = 'Y' ");
+        if(corpList.size() == 1){
+            sp.addParam(corpList.get(0));
+            sf.append(" and cp.pk_corp = ? ");
+            isHav =singleObjectBO.isExists(corpList.get(0),sf.toString(),sp);
+        }else{
+            List<String> list = (List<String>)singleObjectBO.executeQuery(sf.toString(), sp, new ColumnListProcessor());
+            corpList.removeAll(list);
+            isHav = corpList.size() == 0 ? true:false;
+        }
+        return isHav;
+	}
 }

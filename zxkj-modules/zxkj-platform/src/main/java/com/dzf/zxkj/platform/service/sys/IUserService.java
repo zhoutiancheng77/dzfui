@@ -110,7 +110,7 @@ public interface IUserService {
     /**
      * 更新登录标记
      *
-     * @param vos
+     * @param
      * @throws DZFWarpException
      */
     void updateLoginFlag(UserVO vo) throws DZFWarpException;
@@ -135,8 +135,8 @@ public interface IUserService {
     /**
      * 导入保存
      *
-     * @param uvo
-     * @param pk_corp
+     * @param
+     * @param
      * @throws DZFWarpException
      */
     List<UserVO> onImportSave(UserVO[] uvos, CorpVO cvo, String loginUserid) throws DZFWarpException;
@@ -180,7 +180,6 @@ public interface IUserService {
     /**
      * 检查是否有未完成的业务
      *
-     * @param vo
      * @return
      * @throws DZFWarpException
      * @author gejw
@@ -207,5 +206,14 @@ public interface IUserService {
      * @time 上午9:23:51
      */
     HashMap<String, UserVO> queryUserMap(String pk_corp, boolean isDel) throws DZFWarpException;
+
+    /**
+     * 根据用户校验小客户是否有权限
+     * @param corpList 小客户list
+     * @param userid 用户id
+     * @return
+     * @throws DZFWarpException
+     */
+    boolean isExistCorpPower (List<String> corpList,String userid) throws DZFWarpException;
 
 }

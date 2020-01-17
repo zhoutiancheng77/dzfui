@@ -7,8 +7,10 @@ import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.tool.IpUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,6 +25,8 @@ public class BaseController {
     @Autowired(required = false)
     private IOperatorLogService operatorLogService;
 
+    @Autowired
+    private IZxkjPlatformService zxkjPlatformService;
 
     public void printErrorLog(Grid grid, Throwable e, String errorinfo){
         if(StringUtil.isEmpty(errorinfo))
@@ -62,7 +66,15 @@ public class BaseController {
             log.error("错误", e);
         }
     }
-
-
+    /**
+     *
+     * @param vos 数组数据（数据中包含pk_corp）二者传其一就可
+     * @param corps 公司数据      二者传其一就可
+     * @param cuserid 用户 （不传默认登录用户）
+     * @param isCheckData 是否校验数据有效性
+     */
+    public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData){
+        zxkjPlatformService.checkSecurityData(vos,corps,cuserid,isCheckData);
+    }
 
 }

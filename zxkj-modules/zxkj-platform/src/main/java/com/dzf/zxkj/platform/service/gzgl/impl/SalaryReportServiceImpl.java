@@ -177,7 +177,9 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 						vo.setVphone(personvo.getVphone());
 						if (StringUtil.isEmpty(personvo.getVarea())) {
 							if (isAll) {
-								vo.setVarea(SalaryReportEnum.getTypeEnumByValue(personvo.getZjlx()).getArea());
+								SalaryReportEnum typeEnum =SalaryReportEnum.getTypeEnumByValue(personvo.getZjlx());
+								if(typeEnum != null)
+									vo.setVarea(typeEnum.getArea());
 							}
 						} else {
 							vo.setVarea(personvo.getVarea());
@@ -1172,6 +1174,9 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				continue;
 			if (aumap.get(vo.getCpersonid()) == null)
 				throw new BusinessException("员工[" + vo.getYgname() + "]不存在,或者已删除!");
+            if(StringUtil.isEmpty(aumap.get(vo.getCpersonid()).getZjbm())){
+                throw new BusinessException("员工[" + vo.getYgname() + "]证件编码为空,请到职员信息节点补全个人信息!");
+            }
 		}
 
 	}

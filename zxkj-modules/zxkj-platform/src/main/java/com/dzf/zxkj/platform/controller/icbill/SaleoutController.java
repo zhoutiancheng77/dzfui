@@ -162,7 +162,8 @@ public class SaleoutController extends BaseController {
 			if (StringUtil.isEmpty(headvo.getPk_ictrade_h())) {
 				isadd = true;
 			}
-			securityserv.checkSecurityForSave(IntradeHVO.class, headvo.getPrimaryKey(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+//			securityserv.checkSecurityForSave(IntradeHVO.class, headvo.getPrimaryKey(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+			checkSecurityData(new IntradeHVO[]{headvo},null,null,false);
 			headvo.setCreator(SystemUtil.getLoginUserId());
 			headvo.setPk_corp(SystemUtil.getLoginCorpId());
 			headvo.setChildren(bodyvos);
@@ -342,7 +343,8 @@ public class SaleoutController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,转总账失败!");
 			}
-			securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+//			securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+            checkSecurityData(bodyvos,null,null,false);
 			String zy = "销售商品";
 			List<String> periodSet = new ArrayList<String>();
 			int flag = 0;

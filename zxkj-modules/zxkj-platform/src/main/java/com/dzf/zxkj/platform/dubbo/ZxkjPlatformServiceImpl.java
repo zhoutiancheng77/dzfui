@@ -5,6 +5,7 @@ import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.*;
@@ -20,6 +21,7 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.*;
+import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
@@ -92,6 +94,8 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IXssrTemService xssrTemService;
+    @Autowired
+    private ISecurityService securityserv;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -455,6 +459,10 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
             log.error(String.format("调用queryTaxVoByParam异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
+    }
+    @Override
+    public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData){
+        securityserv.checkSecurityData(vos,corps,cuserid,isCheckData);
     }
 
 }
