@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service("ic_securityserv")
 
@@ -35,14 +36,10 @@ public class SecurityServiceImpl implements ISecurityService {
                 if(isCheckData){
                     checkData(vos);
                 }
-                corpList = new ArrayList<>();
-                String pk_corp = "";
-                for(SuperVO vo:vos){
-                    pk_corp = (String)vo.getAttributeValue("pk_corp");
-                    if(!corpList.contains(pk_corp)){
-                        corpList.add(pk_corp);
-                    }
-                }
+                corpList = Arrays.stream(vos).filter(item -> !StringUtil.isEmpty((String)item.getAttributeValue("pk_corp")))
+                        .map(item -> {
+                            return (String)item.getAttributeValue("pk_corp");
+                        }).collect(Collectors.toList());
             }
         }
         checkSecurityForCorp(corpList,cuserid);
@@ -53,14 +50,12 @@ public class SecurityServiceImpl implements ISecurityService {
         if(vos == null || vos.length==0){
             return ;
         }
-        List<String> pkList = new ArrayList<>();
-        String pk = null;
-        for(SuperVO vo:vos){
-            pk = (String)vo.getAttributeValue(vos[0].getPKFieldName());
-            if(!StringUtil.isEmpty(pk)){
-                pkList.add(pk);
-            }
-        }
+        String pkFieldName = vos[0].getPKFieldName();
+        List<String> pkList = Arrays.stream(vos).filter(item -> !StringUtil.isEmpty((String)item.getAttributeValue(pkFieldName)))
+                .map(item -> {
+                    return (String)item.getAttributeValue(pkFieldName);
+                }).collect(Collectors.toList());
+//        pkList = pkList.stream().distinct().filter(v -> !StringUtil.isEmpty(v)).collect(Collectors.toList());
         if(pkList.size() ==0){
             return;
         }
@@ -76,13 +71,9 @@ public class SecurityServiceImpl implements ISecurityService {
     }
     private void checkSecurityForCorp(List<String> corpList,String cuserid){
 
-	    if(corpList == null || corpList.size()==0){
-            throw new BusinessException("出现数据无权问题，无权操作！");
-        }
-        for(String corp :corpList){
-            if(StringUtil.isEmpty(corp)){
-                throw new BusinessException("出现数据无权问题，无权操作！");
-            }
+        corpList = corpList.stream().distinct().filter(v -> !StringUtil.isEmpty(v)).collect(Collectors.toList());
+        if(corpList == null || corpList.size()==0){
+            return;
         }
         if (StringUtil.isEmpty(cuserid)) {
             cuserid = SystemUtil.getLoginUserId();
