@@ -100,6 +100,7 @@ public class InvtoryQcController extends BaseController {
         if (vos == null || vos.length == 0) {
             throw new BusinessException("数据为空,删除失败!");
         }
+        checkSecurityData(vos,null,null);
         gl_ic_invtoryqcserv.delete(vos);
         json.setMsg("删除成功");
         json.setSuccess(true);
