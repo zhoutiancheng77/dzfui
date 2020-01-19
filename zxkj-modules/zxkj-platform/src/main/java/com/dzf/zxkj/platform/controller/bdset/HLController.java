@@ -34,6 +34,9 @@ public class HLController extends BaseController {
         Json json = new Json();
         StringBuffer sf = new StringBuffer();
         try {
+            if(exrateVO!=null){
+                checkSecurityData(null,new String[]{exrateVO.getPk_corp()},userVO.getCuserid());
+            }
             if (!StringUtil.isEmptyWithTrim(exrateVO.getPk_exrate())) {
                 //校验
                 ExrateVO vo = gl_bdhlserv.queryById(exrateVO.getPrimaryKey());
@@ -151,11 +154,12 @@ public class HLController extends BaseController {
     }
 
     @PostMapping("/delete")
-    public ReturnData<Json> delete(@RequestBody ExrateVO ervo) throws BusinessException {
+    public ReturnData<Json> delete(@RequestBody ExrateVO ervo, @MultiRequestBody UserVO userVO) throws BusinessException {
         Json json = new Json();
         StringBuffer sf = new StringBuffer();
         if (ervo != null) {
             try{
+                checkSecurityData(null,new String[]{ervo.getPk_corp()},userVO.getCuserid());
 //                ervo = gl_bdhlserv.queryById(ervo.getPrimaryKey());
 //                if (ervo == null)
 //                    throw new BusinessException("该数据不存在或已删除，请核对！");

@@ -123,6 +123,7 @@ public class QmclController extends BaseController {
         String result = "";
         try {
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             for (QmclVO votemp : qmvos) {
                 String pk_corp = votemp.getPk_corp();
                 if (qmclmap.containsKey(pk_corp)) {
@@ -181,11 +182,12 @@ public class QmclController extends BaseController {
     }
 
     @PostMapping("/canceljtzj")
-    public ReturnData<Grid> canceljtzj(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+    public ReturnData<Grid> canceljtzj(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         String result = "";
         try {
             // 重复调用接口，公司+月份
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (int i = qmvos.length - 1; i >= 0; i--) {
                 QmclVO votemp = qmvos[i];
@@ -245,6 +247,7 @@ public class QmclController extends BaseController {
         Grid grid = new Grid();
         String result = "";
         try {
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (QmclVO votemp : qmvos) {
                 String pk_corp = votemp.getPk_corp();
@@ -299,10 +302,11 @@ public class QmclController extends BaseController {
 
 
     @PostMapping("/cancelzzsjz")
-    public ReturnData<Grid> cancelzzsjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+    public ReturnData<Grid> cancelzzsjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         String result = "";
         try {
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (int i = qmvos.length - 1; i >= 0; i--) {
@@ -361,6 +365,7 @@ public class QmclController extends BaseController {
         String result = "";
         try {
             // 重复调用接口，公司+月份
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             String kmmethod = null;
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (QmclVO votemp : qmvos) {
@@ -434,10 +439,11 @@ public class QmclController extends BaseController {
 
 
     @PostMapping("/canceljtfjs")
-    public ReturnData<Grid> canceljtfjs(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+    public ReturnData<Grid> canceljtfjs(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         String result = "";
         try {
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
 
@@ -501,6 +507,7 @@ public class QmclController extends BaseController {
         String result = "";
         try {
             String userid = userVO.getCuserid();
+            checkSecurityData(qmvos,null,userid);
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (QmclVO votemp : qmvos) {
@@ -560,13 +567,13 @@ public class QmclController extends BaseController {
 
 
     @PostMapping("/canceljtsds")
-    public ReturnData<Grid> canceljtsds(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+    public ReturnData<Grid> canceljtsds(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         String result = "";
         try {
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
-
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             for (int i = qmvos.length - 1; i >= 0; i--) {
                 QmclVO votemp = qmvos[i];
                 String pk_corp = votemp.getPk_corp();
@@ -645,7 +652,7 @@ public class QmclController extends BaseController {
 
 
     @PostMapping("/updateqmLoss")
-    public ReturnData<Grid> updateqmLoss(@RequestBody Map<String, String> param) {
+    public ReturnData<Grid> updateqmLoss(@RequestBody Map<String, String> param,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         String begindate = param.get("begindate");
         String pk_corp = param.get("pk_corp");
@@ -661,6 +668,7 @@ public class QmclController extends BaseController {
         }
         String year = begindate.substring(0, 4);
         try {
+            checkSecurityData(null,new String[]{pk_corp},userVO.getCuserid());
             QmLossesVO lossvo = gl_qmclserv.updateLossmny(new DZFDate(begindate), pk_corp, new DZFDouble(lossvalue));
             grid.setRows(lossvo);
             grid.setSuccess(true);
@@ -682,6 +690,7 @@ public class QmclController extends BaseController {
         try {
             String userid = userVO.getCuserid();
             // 重复调用接口，公司+月份
+            checkSecurityData(qmvos,null,userid);
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (QmclVO votemp : qmvos) {
                 String pk_corp = votemp.getPk_corp();
@@ -740,11 +749,12 @@ public class QmclController extends BaseController {
 
 
     @PostMapping("/cancelsyjz")
-    public ReturnData<Grid> cancelsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+    public ReturnData<Grid> cancelsyjz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         String result = "";
         try {
             // 重复调用接口，公司+月份
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (int i = qmvos.length - 1; i >= 0; i--) {
                 QmclVO votemp = qmvos[i];
@@ -830,6 +840,7 @@ public class QmclController extends BaseController {
         try {
             String userid = userVO.getCuserid();
             QmclVO qmclvo = qmvos[0];
+            checkSecurityData(qmvos,null,userid);
             if (qmclvo.getIshdsytz() != null && qmclvo.getIshdsytz().booleanValue()) {
                 grid.setSuccess(false);
                 grid.setRows(new ArrayList<QmclVO>());
@@ -879,10 +890,11 @@ public class QmclController extends BaseController {
 
 
     @PostMapping("/cancelhdsytz")
-    public ReturnData<Grid> cancelhdsytz(@MultiRequestBody("qmvos")  QmclVO[] qmvos) {
+    public ReturnData<Grid> cancelhdsytz(@MultiRequestBody("qmvos")  QmclVO[] qmvos,@MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         String result = "";
         try {
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             // 重复调用接口，公司+月份
             Map<String, List<QmclVO>> qmclmap = new HashMap<String, List<QmclVO>>();
             for (int i = qmvos.length - 1; i >= 0; i--) {
@@ -945,6 +957,7 @@ public class QmclController extends BaseController {
         Grid grid = new Grid();
         String result = "";
         try {
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             String cuserid= userVO.getCuserid();
             StringBuffer msg = new StringBuffer();
             String pk_corp;
@@ -1011,6 +1024,7 @@ public class QmclController extends BaseController {
         try {
             if(qmvo == null)
                 throw new BusinessException("请求参数为空");
+            checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
             if(qmvo.getIscbjz() != null && qmvo.getIscbjz().booleanValue())
                 throw new BusinessException("已经成本结转，请勿重复结转");
             if(zgdata != null && zgdata.length > 0){
@@ -1184,6 +1198,7 @@ public class QmclController extends BaseController {
             StringBuffer msg = new StringBuffer();
             List<QmclVO> list = new ArrayList<QmclVO>();
             result = getLogMsg("反成本结转", qmvos, "desc");
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             for (int i = qmvos.length - 1; i >= 0; i--) {// 倒序执行
                 try {
                     qmclvo = qmvos[i];
@@ -1328,6 +1343,7 @@ public class QmclController extends BaseController {
                                      @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         Map<QmclVO, List<QMJzsmNoICVO>> map = new HashMap<QmclVO, List<QMJzsmNoICVO>>();
+        checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
         if(qmvo != null){
             qmvo.setZgdata(zgdata);
             map.put(qmvo,new ArrayList<QMJzsmNoICVO>(Arrays.asList(noicjzvos)));
@@ -1705,6 +1721,7 @@ public class QmclController extends BaseController {
             if (cbjz4 != null && cbjz4.length > 0) {
                 list5 = new ArrayList<CostForwardVO>(Arrays.asList(cbjz4));
             }
+            checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
             // 暂估数据
             qmvo.setZgdata(zgdata);
             TransFerVOInfo fervo = new TransFerVOInfo();
@@ -2677,6 +2694,7 @@ public class QmclController extends BaseController {
                                            @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         try {
+            checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
             QmclVO resvos = gl_qmclnoicserv.rollbackCbjzNoic(qmvo, cbjzCount);
             grid.setMsg("反操作成功!");
             grid.setTotal(Long.valueOf(1));
@@ -2704,6 +2722,7 @@ public class QmclController extends BaseController {
             if (isgy != null && "Y".equals(isgy)) {
                 isgybool = true;
             }
+            checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
             List<CostForwardVO> list = gl_industryserv.queryIndustCFVO(qmvo, isgybool);
             String pk_corp = qmvo.getPk_corp();
             if(list == null){
@@ -2737,6 +2756,7 @@ public class QmclController extends BaseController {
             if (isgy != null && "Y".equals(isgy)) {
                 isgybool = true;
             }
+            checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
             List<CostForwardVO> list = gl_industryserv.queryIndustCFVO(qmvo, isgybool);
             String pk_corp = qmvo.getPk_corp();
             if(list == null){
@@ -2771,6 +2791,7 @@ public class QmclController extends BaseController {
             if (isgy != null && "Y".equals(isgy)) {
                 isgybool = true;
             }
+            checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
             List<CostForwardVO> list = gl_industryserv.queryIndustCFVO(qmvo, isgybool);
             String pk_corp = qmvo.getPk_corp();
             if(list == null){
@@ -2835,6 +2856,7 @@ public class QmclController extends BaseController {
         Grid grid = new Grid();
         try {
             Map<QmclVO, List<CostForwardInfo>> map = new HashMap<QmclVO, List<CostForwardInfo>>();
+            checkSecurityData(new QmclVO[]{qmvo},null,userVO.getCuserid());
             List<CostForwardInfo> list = null;
             if(cbjz3 == null || cbjz3.length == 0){
                 list = new ArrayList<CostForwardInfo>();

@@ -11,6 +11,7 @@ import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import lombok.extern.slf4j.Slf4j;
@@ -119,12 +120,15 @@ public class ParameterSetController extends BaseController {
      * 保存方法
      */
     @PostMapping("/onSave")
-    public ReturnData<Grid> onSave(@MultiRequestBody("setvo") YntParameterSet setvo, @MultiRequestBody CorpVO cpvo){
+    public ReturnData<Grid> onSave(@MultiRequestBody("setvo") YntParameterSet setvo, @MultiRequestBody CorpVO cpvo,@MultiRequestBody UserVO userVO){
         Grid grid = new Grid();
         StringBuffer sf = new StringBuffer();
         try{
             String pk_corp = cpvo.getPk_corp();
             if (setvo != null) {
+                if(!IDefaultValue.DefaultGroup.equals(setvo.getPk_corp())){
+                    checkSecurityData(null,new String[]{setvo.getPk_corp()},userVO.getCuserid());
+                }
                 iservice.saveParamter(pk_corp,setvo);
                 grid.setSuccess(true);
                 grid.setMsg("保存成功!");

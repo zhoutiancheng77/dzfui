@@ -291,7 +291,8 @@ public class YJJZController extends BaseController {
      */
     @PostMapping("/savejzSet")
     public ReturnData<Grid> savejzSet(@MultiRequestBody("corpid")  String pk_corp,
-                                      @MultiRequestBody("res")  SetJz[] bodyvos){
+                                      @MultiRequestBody("res")  SetJz[] bodyvos,
+                                      @MultiRequestBody UserVO userVO){
         Grid grid = new Grid();
         try {
             if (StringUtil.isEmpty(pk_corp))
@@ -299,6 +300,7 @@ public class YJJZController extends BaseController {
             if(bodyvos == null || bodyvos.length == 0)
                 throw new BusinessException("请选择数据，保存失败！");
             String z = "";
+            checkSecurityData(bodyvos,null,userVO.getCuserid());
             for(SetJz jz : bodyvos){
                 if(z.length()>0){
                     z = z +","+jz.getId();
@@ -335,6 +337,7 @@ public class YJJZController extends BaseController {
         Grid grid = new Grid();
         StringBuffer sf = new StringBuffer();
         try {
+            checkSecurityData(qmvos,null,userVO.getCuserid());
             YjjzReturnVO returnvo = new YjjzReturnVO();
             String userid = userVO.getCuserid();
             List<YjjzOperateVO> list = checkcancelQmvos(qmvos,userid);
@@ -579,6 +582,7 @@ public class YJJZController extends BaseController {
         Grid grid = new Grid();
         StringBuffer sf = new StringBuffer();
         try {
+            checkSecurityData(qmclvos,null,userVO.getCuserid());
             YjjzPamterVO pamtervo = new YjjzPamterVO();
             pamtervo.setExrates(exrates);
             pamtervo.setQmclvos(qmclvos);

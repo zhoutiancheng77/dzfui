@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.bdset.ISynCpaccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,11 +91,12 @@ public class SynCpaccountController extends BaseController {
      * 同步科目数据
      */
     @PostMapping("/save")
-    public ReturnData<Grid> save(@MultiRequestBody("list") YntCpaccountVO[] bodyvos, @MultiRequestBody CorpVO corpVO) {
+    public ReturnData<Grid> save(@MultiRequestBody("list") YntCpaccountVO[] bodyvos, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO) {
         Grid grid = new Grid();
         StringBuffer sf = new StringBuffer();
         try {
             if(bodyvos != null && bodyvos.length > 0){
+                checkSecurityData(bodyvos,null,userVO.getCuserid());
                 String reslist = gl_syncpacckmserv.saveCpacountVOS(bodyvos,corpVO.getPk_corp());
                 grid.setSuccess(true);
                 grid.setMsg(reslist);

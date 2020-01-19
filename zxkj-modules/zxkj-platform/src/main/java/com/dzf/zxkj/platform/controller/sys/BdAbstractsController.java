@@ -62,6 +62,7 @@ public class BdAbstractsController extends BaseController {
         StringBuffer sf = new StringBuffer();
         if (bDabstractsVO != null) {
             try{
+                checkSecurityData(null,new String[]{bDabstractsVO.getPk_corp()},userVO.getCuserid());
                 bDabstractsVO.setDoperatedate(new DZFDate());
                 bDabstractsVO.setDr(0);
                 bDabstractsVO.setPk_corp(corpVO.getPk_corp());
@@ -102,11 +103,12 @@ public class BdAbstractsController extends BaseController {
     }
 
     @PostMapping("/onDelete")
-    public ReturnData<Json> onDelete(@MultiRequestBody("bavo") BDabstractsVO bavo,@MultiRequestBody CorpVO corpVO){
+    public ReturnData<Json> onDelete(@MultiRequestBody("bavo") BDabstractsVO bavo,@MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO){
         Json json = new Json();
         StringBuffer sf = new StringBuffer();
         if (bavo != null) {
             try{
+                checkSecurityData(null,new String[]{bavo.getPk_corp()},userVO.getCuserid());
                 bavo = sys_zyserv.queryByID(bavo.getPk_abstracts());
                 if (bavo == null) {
                     throw new BusinessException("摘要不存在，或已被删除！");
@@ -163,10 +165,11 @@ public class BdAbstractsController extends BaseController {
 
     //会计工厂保存摘要，公司pk为图片pk
     @PostMapping("/saveByFct")
-    public ReturnData<Json> saveByFct(@MultiRequestBody("bdAbstractsVO") BDabstractsVO vo, @RequestParam("id") String corpid){
+    public ReturnData<Json> saveByFct(@MultiRequestBody("bdAbstractsVO") BDabstractsVO vo, @RequestParam("id") String corpid , @MultiRequestBody UserVO userVO){
         Json json = new Json();
         if (vo != null) {
             try{
+                checkSecurityData(null,new String[]{vo.getPk_corp()},userVO.getCuserid());
                 vo.setDoperatedate(new DZFDate());
                 vo.setPk_corp(corpid);
                 vo.setDr(0);
