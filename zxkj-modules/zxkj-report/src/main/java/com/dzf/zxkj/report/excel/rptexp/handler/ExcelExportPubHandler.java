@@ -38,7 +38,7 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
         Workbook workbook = WorkbookFactory.create(resource.getInputStream());
         Sheet sheet = workbook.getSheetAt(0); //单张表的Excel，报表一般是第1个sheet
 
-        int rowBegin = 4; //多数报表的表格数据区域都是从4行及以后开始的
+        int rowBegin = 3; //多数报表的表格数据区域都是从4行(i=3)及以后开始的
         //准备colnos、fields
         ColMapInfo info = getColumnMappingInfo(areaType, corpType, cwbbType);
         if (info == null) {
@@ -82,7 +82,7 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
         boolean isPubInfoPage = areaType.equals("26") || areaType.equals("28") || areaType.equals("32");
         ColMapInfo info;
         HashMap taxVoMap;
-        int rowBegin = 4; //多数报表的表格数据区域都是从4行及以后开始的
+        int rowBegin = 3; //多数报表的表格数据区域都是从4行(i=3)及以后开始的
         for (int i = 0; i < 3; i++) {
             sheet = getCwbbSheet(workbook, cwbbTypes[i]);
             taxVoMap = taxVoMaps[i];
@@ -238,7 +238,7 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
         //是否统一格式的3个地区：陕西、大连、青海的表样格式一样
         boolean isUniformArea = areaType.equals("26") || areaType.equals("28") || areaType.equals("32");
         if (cwbbType == CwbbType.ZCFZB) {          //资产负债表
-            if (isSimpleArea) { //宁波、江西、黑龙江
+            if (isSimpleArea || areaType.equals("22")) { //宁波、江西、黑龙江、内蒙古
                 colnos = new Integer[]{0, 2, 3, 4, 6, 7};
             } else if (areaType.equals("25")) { //山西
                 colnos = new Integer[]{1, 4, 5, 6, 9, 10};
@@ -252,7 +252,7 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
             }
             fields = new String[]{"qmye1", "ncye1", "qmye2", "ncye2"};
         } else if (cwbbType == CwbbType.LRB) {     //利润表
-            if (isSimpleArea) { //宁波、江西、黑龙江：利润表不区分07企业和13小企业
+            if (isSimpleArea || areaType.equals("22")) { //宁波、江西、黑龙江、内蒙古：利润表不区分07企业和13小企业
                 colnos = new Integer[]{0, 2, 3};
             } else if (areaType.equals("25") || areaType.equals("27")) { //山西、新疆
                 if (areaType.equals("25")) { //山西
@@ -278,8 +278,8 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
                 }
             }
         } else if (cwbbType == CwbbType.XJLLB) {   //现金流量表
-            if (areaType.equals("25") || areaType.equals("27")) { //山西、新疆
-                if (areaType.equals("25")) { //山西
+            if (areaType.equals("22") || areaType.equals("25") || areaType.equals("27")) { //内蒙古、山西、新疆
+                if (areaType.equals("22") || areaType.equals("25")) { //内蒙古、山西
                     colnos = new Integer[]{0, 2, 3};
                 } else if (areaType.equals("27")) { //新疆
                     colnos = new Integer[]{0, 4, 5};

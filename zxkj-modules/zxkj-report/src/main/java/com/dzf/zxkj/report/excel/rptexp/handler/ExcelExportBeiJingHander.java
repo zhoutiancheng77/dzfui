@@ -45,7 +45,7 @@ public class ExcelExportBeiJingHander extends ExcelExportHander implements OneWo
         DZFDate eDate = new DZFDate(getInnerEndDate()); //税款所属期止
         //String bbrq = getEndDate("yyyy年MM月dd日"); //资产负债表日
 
-        //北京、青岛、陕西、大连、青海等使用通用表头格式
+        //北京、青岛、广东、陕西、大连、青海等使用通用表头格式
 
         //直接修改《公共信息表》页单元格即可
         Sheet sheet = workbook.getSheet("公共信息表");
@@ -72,7 +72,7 @@ public class ExcelExportBeiJingHander extends ExcelExportHander implements OneWo
         sheet = workbook.getSheetAt(3);
         handleXjllSheet(sheet, xjllTaxVoMap, xjllbVOMap, 5, new Integer[]{1,3,4}, new String[]{"sqje","bqje"}); //改为本年累计、本月
 
-        //北京、青岛、陕西、大连、青海等有公共信息表的，需要全表重算
+        //北京、青岛、广东、陕西、大连、青海等有公共信息表的，需要全表重算
         workbook.setForceFormulaRecalculation(true);
         return workbook;
     }

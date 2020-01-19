@@ -51,7 +51,7 @@ public abstract class ExcelExportHander {
     }
 
     public String getCurrDate() {
-        return getBeginDate("yyyy-MM-dd");
+        return getCurrDate("yyyy-MM-dd");
     }
 
     /**
@@ -204,11 +204,16 @@ public abstract class ExcelExportHander {
         return str.replaceAll(" ", "");
     }
 
+    /**
+     * 设置地区、单/多Excel、会计制度等
+     * @param areaType
+     * @param corpType
+     */
     public void init(String areaType, String corpType) {
         //地区
         this.areaType = areaType;
-        //多excel的地区：浙江、上海、河南、厦门、山西、新疆、宁波、江西等
-        List<String> moreDocArea = Arrays.asList("2", "5", "8", "16", "25", "27", "29", "30");
+        //多excel的地区：浙江、上海、河南、厦门、内蒙古、山西、新疆、宁波、江西等
+        List<String> moreDocArea = Arrays.asList("2", "5", "8", "16", "22", "25", "27", "29", "30");
         //是否多文件
         this.isMoreDoc = moreDocArea.contains(areaType);
         //会计制度（企业会计准则、小企业会计准则等）
@@ -379,7 +384,7 @@ public abstract class ExcelExportHander {
                 if (rptBook != null)
                     workBookMap.put(kjzd + "现金流量表", rptBook);
             } else {
-                //创建多表（单文件）
+                //创建单文件（多表）
                 Workbook rptBook = excelCreator.createFullRptBook(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap, zcFzBVOMap, lrbVOMap, xjllbVOMap);
                 if (rptBook != null)
                     workBookMap.put(kjzd + "财务报表报送与信息采集", rptBook);
@@ -529,12 +534,12 @@ public abstract class ExcelExportHander {
                 if (!StringUtil.isEmpty(xmm) && rptTaxVoMap.containsKey(xmm)) {
                     String hc_ref = rptTaxVoMap.get(xmm);
                     if (rptVOMap.containsKey(hc_ref)) {
-                        SuperVO lrbVO = rptVOMap.get(hc_ref);
-                        Object value1 = lrbVO.getAttributeValue(fields[i * 2]);
+                        SuperVO rptVO = rptVOMap.get(hc_ref);
+                        Object value1 = rptVO.getAttributeValue(fields[i * 2]);
                         if (value1 != null) {
                             row.getCell(nums[i * 3 + 1]).setCellValue(new DZFDouble(Double.parseDouble(value1.toString()), 2).doubleValue());
                         }
-                        Object value2 = lrbVO.getAttributeValue(fields[i * 2 + 1]);
+                        Object value2 = rptVO.getAttributeValue(fields[i * 2 + 1]);
                         if (value2 != null) {
                             row.getCell(nums[i * 3 + 2]).setCellValue(new DZFDouble(Double.parseDouble(value2.toString()), 2).doubleValue());
                         }
