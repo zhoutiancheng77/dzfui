@@ -61,6 +61,8 @@ public class VoucherPicController extends BaseController {
     @RequestMapping("/uploadMultiFile")
     public ReturnData<Json> uploadMultiFile(MultipartFile[] infiles) {
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
             UserVO userVo = SystemUtil.getLoginUserVo();
@@ -147,7 +149,7 @@ public class VoucherPicController extends BaseController {
                     throw new BusinessException("无权操作");
                 }
             }
-
+            checkSecurityData(null,new String[]{pk_corp}, null);
             corpvo = corpService.queryByPk(pk_corp);
             //((MultiPartRequestWrapper) getRequest()).getParameterMap();
 //            File[] infiles = ((MultiPartRequestWrapper) getRequest())

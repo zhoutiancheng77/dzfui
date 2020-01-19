@@ -210,10 +210,11 @@ public class VATSaleInvoice2Controller extends BaseController {
     public ReturnData<Json> saveOrUpdate(@RequestBody Map<String,String> param) {
         String msg = "";//记录日志
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String head = param.get("header");
             String body = param.get("body");
-            String pk_corp = SystemUtil.getLoginCorpId();
             Map<String, VATSaleInvoiceVO2[]> sendData = new HashMap<String, VATSaleInvoiceVO2[]>();
             VATSaleInvoiceVO2 headvo = JsonUtils.deserialize(head, VATSaleInvoiceVO2.class);
             VATSaleInvoiceBVO2[] bodyvos = JsonUtils.deserialize(body, VATSaleInvoiceBVO2[].class);
@@ -445,15 +446,15 @@ public class VATSaleInvoice2Controller extends BaseController {
         json.setSuccess(false);
         StringBuffer strb = new StringBuffer();
         VATSaleInvoiceVO2[] bodyvos = null;
-        String pk_corp = "";
-
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         String msg = "";
         List<String> sucHM = new ArrayList<String>();
         List<String> errHM = new ArrayList<String>();
         boolean lock = false;
         try {
             String body = param.get("head");
-            pk_corp = SystemUtil.getLoginCorpId();
+
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiangdel"+pk_corp);
             if (!lock) {//处理
@@ -526,6 +527,8 @@ public class VATSaleInvoice2Controller extends BaseController {
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             DZFBoolean isFlag = "Y".equals(impForce) ? DZFBoolean.TRUE : DZFBoolean.FALSE;
 
@@ -537,7 +540,6 @@ public class VATSaleInvoice2Controller extends BaseController {
             if (fileName != null && fileName.length() > 0) {
                 fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
             }
-            String pk_corp = SystemUtil.getLoginCorpId();
 
             VATSaleInvoiceVO2 paramvo = new VATSaleInvoiceVO2();
             if (fileName == null || fileName.length() == 0) {
@@ -607,10 +609,10 @@ public class VATSaleInvoice2Controller extends BaseController {
     public ReturnData<Json> createPZ(String lwstr, String body, String good) {
         Json json = new Json();
         VATSaleInvoiceVO2[] vos = null;
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         try {
-            pk_corp = SystemUtil.getLoginCorpId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiangcreatepz"+pk_corp);
             if(!lock){//处理
@@ -927,10 +929,11 @@ public class VATSaleInvoice2Controller extends BaseController {
     @RequestMapping("/getGoodsInvenRela_long")
     public ReturnData<Grid> getGoodsInvenRela_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String body = param.get("head");
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
-            String pk_corp = corpvo.getPk_corp();
             if (!corpvo.getBbuildic().equals(IcCostStyle.IC_OFF)) {
                 if (body == null) {
                     throw new BusinessException("数据为空,生成凭证失败!");
@@ -1054,12 +1057,12 @@ public class VATSaleInvoice2Controller extends BaseController {
     public ReturnData<Json> combinePZ1(VatInvoiceSetVO setvo,String lwstr,String body,String good){
         Json json = new Json();
         VATSaleInvoiceVO2[] vos = null;
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        String userid  = SystemUtil.getLoginUserId();
+        checkSecurityData(null,new String[]{pk_corp}, userid);
         boolean lock = false;
         try {
 
-            pk_corp = SystemUtil.getLoginCorpId();
-            String userid  = SystemUtil.getLoginUserId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiangcombinepz"+pk_corp);
             if(!lock){//处理
@@ -1501,9 +1504,9 @@ public class VATSaleInvoice2Controller extends BaseController {
     public ReturnData<Json> setBusiperiod(@RequestParam("rows")String data,String period){
         Json json = new Json();
         json.setSuccess(false);
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
-
-            String pk_corp = SystemUtil.getLoginCorpId();
             if(StringUtil.isEmptyWithTrim(data)
                     || StringUtil.isEmptyWithTrim(period)){
                 throw new BusinessException("传入后台参数为空，请检查");
@@ -1615,7 +1618,8 @@ public class VATSaleInvoice2Controller extends BaseController {
     @RequestMapping("/getTzpzHVOByID")
     public ReturnData<Json> getTzpzHVOByID(@RequestParam("row")String str){
         Json json = new Json();
-
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
 //			if(StringUtil.isEmptyWithTrim(data.getPrimaryKey()))
 //				throw new BusinessException("获取前台参数失败，请检查");
@@ -1624,14 +1628,11 @@ public class VATSaleInvoice2Controller extends BaseController {
             if (array == null) {
                 throw new BusinessException("数据为空,请检查!");
             }
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            VATSaleInvoiceVO2[] listvo = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class, JSONConvtoJAVA.getParserConfig());
             VATSaleInvoiceVO2[] listvo = array.toArray(new VATSaleInvoiceVO2[0]);
             if(listvo == null || listvo.length == 0){
                 throw new BusinessException("转化后数据为空,请检查!");
             }
 
-            String pk_corp = SystemUtil.getLoginCorpId();
             boolean accway = getAccWay(pk_corp);
             VatInvoiceSetVO setvo = queryRuleByType();
             TzpzHVO hvo = gl_vatsalinvserv2.getTzpzHVOByID(listvo,
@@ -1751,14 +1752,14 @@ public class VATSaleInvoice2Controller extends BaseController {
     public ReturnData<Json> onTicket(@RequestBody Map<String,String> param){
         Json json = new Json();
         VATSaleInvoiceVO2 paramvo = new VATSaleInvoiceVO2();
-        String pk_corp = null;
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         try{
             String ccrecode = param.get("ccrecode");
             String f2 = param.get("f2");
             String period = param.get("period");
             paramvo.setKprj(new DZFDate(SystemUtil.getLoginDate()));//参数：当前登录时间
-            pk_corp = SystemUtil.getLoginCorpId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock(paramvo.getTableName()+pk_corp);
             if(!lock){
@@ -2299,6 +2300,8 @@ public class VATSaleInvoice2Controller extends BaseController {
     @RequestMapping("/combineRule")
     public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String pzrq = param.get("pzrq");
             String pzrule = param.get("pzrule");
@@ -2311,7 +2314,6 @@ public class VATSaleInvoice2Controller extends BaseController {
                 throw new BusinessException("合并规则设置失败，请重试");
             }
 
-            String pk_corp = SystemUtil.getLoginCorpId();
             VatInvoiceSetVO vo = new VatInvoiceSetVO();
             String[] fields = new String[]{ "pzrq","value", "entry_type", "isbank", "zy" };
             if(!StringUtil.isEmpty(setId)){
@@ -2350,11 +2352,11 @@ public class VATSaleInvoice2Controller extends BaseController {
     public ReturnData<Json> createIC(@RequestParam("head") String body,String good){
         Json json = new Json();
         VATSaleInvoiceVO2[] vos = null;
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         try {
 
-            pk_corp = SystemUtil.getLoginCorpId();
             String userid  = SystemUtil.getLoginUserId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiang2ic"+pk_corp);
@@ -2517,19 +2519,17 @@ public class VATSaleInvoice2Controller extends BaseController {
     @RequestMapping("/matchInventoryData_long")
     public ReturnData<Grid> matchInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String body = param.get("head");
             String isshow = param.get("ishow");
             String goods = param.get("goods");
-            String pk_corp = SystemUtil.getLoginCorpId();
 
             if (body == null) {
                 throw new BusinessException("数据为空,存货匹配失败!");
             }
 
-//            Map<String, String> bodymapping = FieldMapping.getFieldMapping(new VATSaleInvoiceVO2());
-//            VATSaleInvoiceVO2[] vos = DzfTypeUtils.cast(array, bodymapping, VATSaleInvoiceVO2[].class,
-//                    JSONConvtoJAVA.getParserConfig());
             VATSaleInvoiceVO2[] vos = JsonUtils.deserialize(body, VATSaleInvoiceVO2[].class);
             if (vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,存货匹配失败，请检查");
@@ -2634,11 +2634,11 @@ public class VATSaleInvoice2Controller extends BaseController {
     @RequestMapping("/saveInventoryData")
     public ReturnData<Grid> saveInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         String goods = param.get("goods");
         try {
-            pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiang2pp"+pk_corp);
             if (!lock) {// 处理
@@ -2684,11 +2684,11 @@ public class VATSaleInvoice2Controller extends BaseController {
         String inperiod = param.get("inperiod");
         String goods = param.get("goods");
         Grid grid = new Grid();
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         String sourceName = StringUtil.isEmpty(sourcename)?"填制凭证_":sourcename+"_";
         try {
-            pk_corp = SystemUtil.getLoginCorpId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiang2pz"+pk_corp);
             if(!lock){//处理
@@ -3177,6 +3177,8 @@ public class VATSaleInvoice2Controller extends BaseController {
     @RequestMapping("/updateCategoryset")
     public ReturnData<Grid> updateCategoryset(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String pk_model_h = param.get("pk_model_h");
             String busisztypecode = param.get("busisztypecode");
@@ -3187,7 +3189,6 @@ public class VATSaleInvoice2Controller extends BaseController {
             String shkm = param.get("shkm");
             String zdyzy = param.get("zdyzy");
             String id = param.get("id");
-            String pk_corp = SystemUtil.getLoginCorpId();
             String[] ids = id.split(",");
 //			for (String pk_vatsaleinvoice : ids) {
 //				gl_vatsalinvserv2.checkvoPzMsg(pk_vatsaleinvoice);

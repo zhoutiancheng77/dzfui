@@ -14,6 +14,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -188,7 +189,7 @@ public class BankStatementController extends BaseController {
             String deldoc = param.get("deldoc");
             String uptdoc = param.get("upddoc");
             String pk_corp = SystemUtil.getLoginCorpId();
-
+            checkSecurityData(null,new String[]{pk_corp}, null);
             checkValidData(bvo);
 
             HashMap<String, BankStatementVO[]> sendData = new HashMap<String, BankStatementVO[]>();
@@ -310,6 +311,7 @@ public class BankStatementController extends BaseController {
         try{
             String body = param.get("head");
             pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null,new String[]{pk_corp}, null);
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("duizhangdandel"+pk_corp);
             if(!lock){//处理
@@ -363,6 +365,8 @@ public class BankStatementController extends BaseController {
         Json json = new Json();
         json.setSuccess(false);
         try {
+            String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null,new String[]{pk_corp}, null);
             if(bvo == null || bvo.getSourcetem() == 0)
                 throw new BusinessException("未选择上传文档，请检查");
             bvo = getParamVO(bvo, sourcetem);
@@ -428,10 +432,9 @@ public class BankStatementController extends BaseController {
             if(vos == null || vos.length == 0)
                 throw new BusinessException("数据为空,生成凭证失败，请检查");
 
-
             String pk_corp = SystemUtil.getLoginCorpId();
             String userid  = SystemUtil.getLoginUserId();
-
+            checkSecurityData(null,new String[]{pk_corp}, userid);
             Map<String, DcModelHVO> dcmap = gl_yhdzdserv.queryDcModelVO(pk_corp);
             List<BankStatementVO> storeList = gl_yhdzdserv.construcBankStatement(vos, pk_corp);
             if(storeList == null || storeList.size() == 0){
@@ -554,6 +557,8 @@ public class BankStatementController extends BaseController {
         json.setSuccess(false);
 
         try {
+            String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null,new String[]{pk_corp}, null);
             String data = param.get("rows");
             String busiid = param.get("busiid");
             String businame = param.get("businame");
@@ -573,7 +578,7 @@ public class BankStatementController extends BaseController {
 
             //重新查询
             String[] pks = buildPks(listvo);
-            List<BankStatementVO> newList = gl_yhdzdserv.queryByPks(pks, SystemUtil.getLoginCorpId());
+            List<BankStatementVO> newList = gl_yhdzdserv.queryByPks(pks, pk_corp);
 
             json.setRows(newList);
             json.setMsg(msg);
@@ -593,6 +598,8 @@ public class BankStatementController extends BaseController {
         json.setSuccess(false);
 
         try {
+            String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null,new String[]{pk_corp}, null);
             String data = param.get("rows");
             String period = param.get("period");
 
@@ -612,7 +619,7 @@ public class BankStatementController extends BaseController {
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("解析前台参数失败，请检查");
 
-            String pk_corp = SystemUtil.getLoginCorpId();
+
             String msg = gl_yhdzdserv.saveBusiPeriod(listvo, pk_corp, period);
 
             json.setRows(null);
@@ -686,6 +693,8 @@ public class BankStatementController extends BaseController {
         Json json = new Json();
 
         try {
+            String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null,new String[]{pk_corp}, null);
             String str = param.get("row");
             if (str == null) {
                 throw new BusinessException("数据为空,请检查!");
@@ -697,11 +706,11 @@ public class BankStatementController extends BaseController {
                 throw new BusinessException("转化后数据为空,请检查!");
 
             BankAccountVO bankAccVO = getBankAccountVO(listvo[0]);
-            boolean accway = getAccWay(SystemUtil.getLoginCorpId());
+            boolean accway = getAccWay(pk_corp);
             VatInvoiceSetVO setvo = queryRuleByType();
 
             TzpzHVO hvo = gl_yhdzdserv.getTzpzHVOByID(listvo, bankAccVO,
-                    SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), setvo, accway);
+                    pk_corp, SystemUtil.getLoginUserId(), setvo, accway);
             json.setData(hvo);
             json.setSuccess(true);
             json.setMsg("凭证分录构造成功");
@@ -744,7 +753,7 @@ public class BankStatementController extends BaseController {
 
             String pk_corp = SystemUtil.getLoginCorpId();
             String userid  = SystemUtil.getLoginUserId();
-
+            checkSecurityData(null,new String[]{pk_corp}, null);
 //			VatInvoiceSetVO setvo = queryRuleByType();
 
             Map<String, DcModelHVO> dcmap = gl_yhdzdserv.queryDcModelVO(pk_corp);
@@ -1092,6 +1101,8 @@ public class BankStatementController extends BaseController {
     public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
+            String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null,new String[]{pk_corp}, null);
             String pzrule = param.get("pzrule");
             String flrule = param.get("flrule");
             String zy = param.get("zy");
@@ -1103,7 +1114,6 @@ public class BankStatementController extends BaseController {
                 throw new BusinessException("设置失败，请重试");
             }
 
-            String pk_corp = SystemUtil.getLoginCorpId();
             VatInvoiceSetVO vo = new VatInvoiceSetVO();
             String[] fields = new String[]{ "value", "entry_type", "isbank", "zy" };
             if(!StringUtil.isEmpty(setId)){

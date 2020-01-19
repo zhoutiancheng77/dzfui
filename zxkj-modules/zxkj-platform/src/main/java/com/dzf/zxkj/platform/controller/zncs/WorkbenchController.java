@@ -211,9 +211,9 @@ public class WorkbenchController extends BaseController {
         Json json = new Json();
         String pType = param.get("pType");
         String pValue = param.get("pValue");
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
-
-            String pk_corp=SystemUtil.getLoginCorpId();
             iParaSet.saveParaSet(pk_corp,pType, pValue);
             json.setSuccess(true);
             json.setMsg("设置成功");
@@ -251,12 +251,13 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveNewCategory")
     public ReturnData<Json> saveNewCategory(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String bills = param.get("ids");
             String treeid= param.get("treeid");
             String period= param.get("period");
             checkPeriod(period, true);
-            String pk_corp=SystemUtil.getLoginCorpId();
             iBillcategory.saveNewCategory(bills.split(","), treeid, pk_corp, period);
             json.setSuccess(true);
             json.setMsg("设置成功");
@@ -337,6 +338,8 @@ public class WorkbenchController extends BaseController {
     public ReturnData<Json> saveBlackList(@RequestBody Map<String,String> param){
         Json json = new Json();
         String blackListnames = param.get("names");
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
 
             if (StringUtil.isEmpty(blackListnames))
@@ -350,7 +353,6 @@ public class WorkbenchController extends BaseController {
                     throw new BusinessException("黑名单内容非法");
                 }
             }
-            String pk_corp=SystemUtil.getLoginCorpId();
             List<BlackListVO> saveList=iBlackList.saveBlackListVO(pk_corp, blackListnames);
             json.setSuccess(true);
             json.setRows(saveList);
@@ -368,9 +370,10 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/deleteBlackList")
     public ReturnData<Json> deleteBlackList(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String pk_blacklist = param.get("id");
-            String pk_corp= SystemUtil.getLoginCorpId();
             iBlackList.deleteBlackListVO(pk_corp, pk_blacklist);
             json.setSuccess(true);
             json.setMsg("删除成功");
@@ -420,12 +423,13 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveEditDirectory")
     public ReturnData<Json> saveEditDirectory(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String head = param.get("head");
             String body = param.get("body");
             CategorysetVO headvo = JsonUtils.deserialize(head,CategorysetVO.class);
             CategorysetBVO[] bodyvos = JsonUtils.deserialize(body,CategorysetBVO[].class);
-            String pk_corp=SystemUtil.getLoginCorpId();
             iEditDirectory.saveAuxiliaryAccountVO(pk_corp, headvo, bodyvos);
             json.setSuccess(true);
             json.setMsg("设置成功");
@@ -502,10 +506,12 @@ public class WorkbenchController extends BaseController {
     public ReturnData<Json>  invalidBill(@RequestBody Map<String,String> param){
         //iInterfaceBill
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String ids = param.get("ids");
             String[] idArray = ids.split(",");
-            iInterfaceBill.updateInvalidBill(idArray,SystemUtil.getLoginCorpId());
+            iInterfaceBill.updateInvalidBill(idArray,pk_corp);
             json.setSuccess(true);
             json.setMsg("作废成功");
         } catch(Exception e) {
@@ -525,6 +531,8 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/invalidBatchBill")
     public ReturnData<Json> invalidBatchBill(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             BillcategoryQueryVO paramVO=buildParamVO(param);
             iInterfaceBill.updateInvalidBatchBill(paramVO);
@@ -619,6 +627,8 @@ public class WorkbenchController extends BaseController {
         //iInterfaceBill
         Json json = new Json();
         String period = param.get("period");
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String ids = param.get("ids");
             checkPeriod(period, true);		//检查期间的合法性
@@ -752,8 +762,9 @@ public class WorkbenchController extends BaseController {
         String period = param.get("period");
         String pk_parent = param.get("pk_parent");
         checkPeriod(period, true);		//检查期间合法性
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
-            String pk_corp=SystemUtil.getLoginCorpId();
             iDirectory.saveNewDirectory(dirName, pk_parent, pk_corp, period,SystemUtil.getLoginUserId());
             json.setSuccess(true);
             json.setMsg("创建成功");
@@ -774,9 +785,9 @@ public class WorkbenchController extends BaseController {
         String id = param.get("id");
         String pk_parent = param.get("pid");
         checkPeriod(period, true);		//检查期间合法性
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
-
-            String pk_corp=SystemUtil.getLoginCorpId();
             iDirectory.deleteDirectory(id, pk_parent, pk_corp, period);
             json.setSuccess(true);
             json.setMsg("删除成功");
@@ -885,11 +896,12 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveVoucherTemplet")
     public ReturnData<Json> saveVoucherTemplet(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String templet = param.get("templet");
             ArrayList objMap = getObjectMapper().readValue(templet, ArrayList.class);
             List<VouchertempletHVO> templetList=turnVouchertempletHVO(objMap);
-            String pk_corp=SystemUtil.getLoginCorpId();
             iVoucherTemplet.saveVoucherTempletList(templetList, pk_corp);
             json.setSuccess(true);
             json.setMsg("保存成功");
@@ -925,6 +937,8 @@ public class WorkbenchController extends BaseController {
         Grid grid = new Grid();
         boolean lock = false;
         int count = 0;
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String pk_category = param.get("categoryid");
             String pk_parent = param.get("pk_parent");
@@ -933,7 +947,6 @@ public class WorkbenchController extends BaseController {
             if(StringUtils.isEmpty(period)){
                 throw new BusinessException("参数异常");
             }
-            String pk_corp=SystemUtil.getLoginCorpId();
             while (lock == false && count < 10)
             {
                 lock = redissonDistributedLock.tryGetDistributedFairLock("zncsCategory_"+pk_corp+period);
@@ -997,6 +1010,8 @@ public class WorkbenchController extends BaseController {
     public ReturnData<Json> changeBatchPeorid_long(@RequestBody Map<String,String> param){
         Json json = new Json();
         BillcategoryQueryVO paramVO=buildParamVO(param);
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             CorpVO currcorp = SystemUtil.getLoginCorpVo();
             DZFDate begdate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(currcorp.getBegindate())) ;
@@ -1024,6 +1039,8 @@ public class WorkbenchController extends BaseController {
     public ReturnData<Json> saveOcrInvoiceVO(@RequestBody Map<String,String> param){
         Json json = new Json();
         String webid=null;
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String head = param.get("head");
             String body = param.get("body");
@@ -1032,7 +1049,7 @@ public class WorkbenchController extends BaseController {
 
             OcrInvoiceVO headvo = JsonUtils.deserialize(head, OcrInvoiceVO.class);
             OcrInvoiceDetailVO[] bodyvos = JsonUtils.deserialize(body,OcrInvoiceDetailVO[].class);
-            if(!headvo.getPk_corp().equals(SystemUtil.getLoginCorpId())){
+            if(!headvo.getPk_corp().equals(pk_corp)){
                 throw new BusinessException("无权操作此数据.");
             }
 //            OcrInvoiceDetailVO[] bodyvos =DzfTypeUtils.cast(array,bodymapping, OcrInvoiceDetailVO[].class, JSONConvtoJAVA.getParserConfig());
@@ -1074,6 +1091,8 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/combineRule")
     public ReturnData<Json> combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String pzrule = param.get("pzrule");
             String flrule = param.get("flrule");
@@ -1084,7 +1103,6 @@ public class WorkbenchController extends BaseController {
                     || StringUtil.isEmpty(flrule)){
                 throw new BusinessException("合并规则设置失败，请重试");
             }
-            String pk_corp = SystemUtil.getLoginCorpId();
             VatInvoiceSetVO vo = new VatInvoiceSetVO();
             String[] fields = new String[]{ "value", "entry_type", "isbank", "zy" };
             if(!StringUtil.isEmpty(setId)){
@@ -1131,7 +1149,8 @@ public class WorkbenchController extends BaseController {
         String isforce = param.get("isforce");
         String pk_bankcode = param.get("pk_bankcode");
         Json json = new Json();
-        String pk_corp=SystemUtil.getLoginCorpId();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         try{
             lock = redissonDistributedLock.tryGetDistributedFairLock("zncsVoucher"+pk_corp+period);
@@ -1210,15 +1229,15 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveInventoryData_long")
     public ReturnData<Grid> saveInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-        String pk_corp = "";
         boolean lock = false;
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             InventorySetVO inventorySetVO = gl_ic_invtorysetserv.query(SystemUtil.getLoginCorpId());
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
             if(!IcCostStyle.IC_INVTENTORY.equals(corpvo.getBbuildic())){//启用库存 --匹配存货
                 throw new BusinessException("当前公司未启用总账库存核算!");
             }
-            pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("zncswb2pp"+pk_corp);
             if (!lock) {// 处理
@@ -1295,7 +1314,6 @@ public class WorkbenchController extends BaseController {
 //					error = error.replaceAll("<br>", " ");
 //					throw new BusinessException("进项发票存货匹配失败:"+error);
 //				}
-
                 checkPeriod(period, true);		//检查期间合法性
 //				if(StringUtil.isEmpty(period)){
 //					throw new BusinessException("期间不能为空!");
@@ -1416,12 +1434,13 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveVatGoosInventory_long")
     public ReturnData<Grid> saveVatGoosInventory_long(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
             if(!IcCostStyle.IC_ON.equals(corpvo.getBbuildic())){//启用库存 --匹配存货
                 throw new BusinessException("当前公司未启用库存核算!");
             }
-            String pk_corp = corpvo.getPk_corp();
             String goods = param.get("goods");
             VatGoosInventoryRelationVO[] vos = JsonUtils.deserialize(goods,VatGoosInventoryRelationVO[].class);
             if(vos==null||vos.length==0)throw new BusinessException("未勾选数据，请检查!");
@@ -1496,6 +1515,8 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveTzpzHVOs")
     public ReturnData<Json> saveTzpzHVOs(@RequestBody String vouchers){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             ArrayList objMap = getObjectMapper().readValue(vouchers, ArrayList.class);
             List<TzpzHVO> tzpzHVOs=turnTzpzHVOs(objMap);
@@ -1644,6 +1665,8 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/handVoucher")
     public ReturnData<Json> handVoucher(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String pk_category = param.get("categoryid");
             String pk_parent = param.get("parentid");
@@ -1654,7 +1677,6 @@ public class WorkbenchController extends BaseController {
             if(!StringUtil.isEmpty(pk_bankcode)&&!pk_category.startsWith("bank_")){
                 pk_parent=pk_bankcode;
             }
-            String pk_corp=SystemUtil.getLoginCorpId();
             Map<String, Object> billMap=iZncsVoucher.generalHandTzpzVOs(pk_category, pk_bills, period, pk_corp,pk_parent);
             json.setSuccess(true);
             json.setRows(billMap);
@@ -1672,6 +1694,8 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveHandTzpzHVOs")
     public ReturnData<Json> saveHandTzpzHVOs(@RequestBody String vouchers){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             ArrayList objMap = getObjectMapper().readValue(vouchers, ArrayList.class);
             List<TzpzHVO> tzpzHVOs=turnTzpzHVOs(objMap);
@@ -1728,13 +1752,13 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveNewCategoryBody")
     public ReturnData<Json> saveNewCategoryBody(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try{
             String bills = param.get("ids");
             String treeid = param.get("treeid");
             String period = param.get("period");
             checkPeriod(period, true);		//检查期间合法性
-
-            String pk_corp=SystemUtil.getLoginCorpId();
             iBillcategory.saveNewCategoryBody(bills.split(","), treeid, pk_corp, period);
             json.setSuccess(true);
             json.setMsg("设置成功");
@@ -1976,6 +2000,8 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/changeCorp_long")
     public ReturnData<Grid> changeCorp_long(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             String bills = param.get("ids");
             String corpid = param.get("corpid");
@@ -2021,6 +2047,8 @@ public class WorkbenchController extends BaseController {
     public ReturnData<Json> saveVouchers_long(@RequestBody String vchData,@RequestBody VoucherParamVO paramvo){
         //ZncsVoucherSaveInfo
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             ZncsVoucherSaveInfo voucherinfo = new ZncsVoucherSaveInfo();
             JSONArray array = JSON.parseArray(vchData);

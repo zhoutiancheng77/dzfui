@@ -82,6 +82,10 @@ public class PzglController extends BaseController {
         String delOthDataString = param.get("delOthData");
         String clzBidDateString = param.get("clzBidDate");
         String pk_corp = param.get("pk_corp");
+        if(StringUtil.isEmpty(pk_corp)){
+            pk_corp = SystemUtil.getLoginCorpId();
+        }
+        checkSecurityData(null,new String[]{pk_corp}, null);
         Json json = new Json();
         json.setSuccess(false);
         try {
@@ -100,9 +104,6 @@ public class PzglController extends BaseController {
             }
             if(!StringUtil.isEmpty(clzBidDateString)){
                 clzBidDate = clzBidDateString.split(",");
-            }
-            if(StringUtil.isEmpty(pk_corp)){
-                pk_corp = SystemUtil.getLoginCorpId();
             }
 
             Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());

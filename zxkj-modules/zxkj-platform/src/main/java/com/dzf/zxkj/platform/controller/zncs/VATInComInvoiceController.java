@@ -171,8 +171,9 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData onUpdate(@RequestBody Map<String,String> param){
         String msg = "";//记录日志
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try{
-            String pk_corp = SystemUtil.getLoginCorpId();
 
             Map<String, VATInComInvoiceVO[]> sendData = new HashMap<String, VATInComInvoiceVO[]>();
 
@@ -420,13 +421,14 @@ public class VATInComInvoiceController extends BaseController {
         json.setSuccess(false);
         StringBuffer strb = new StringBuffer();
         VATInComInvoiceVO[] bodyvos = null;
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         String msg = "";
         List<String> sucHM = new ArrayList<String>();
         List<String> errHM = new ArrayList<String>();
         try{
-            pk_corp = SystemUtil.getLoginCorpId();
+
             //加锁
           lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangdel"+pk_corp);
             if(!lock){//处理
@@ -494,8 +496,9 @@ public class VATInComInvoiceController extends BaseController {
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
-
             if(file == null || file.getSize()==0){
                 throw new BusinessException("请选择导入文件!");
             }
@@ -505,7 +508,6 @@ public class VATInComInvoiceController extends BaseController {
 
                 fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
             }
-            String pk_corp = SystemUtil.getLoginCorpId();
 
             VATInComInvoiceVO paramvo = new VATInComInvoiceVO();
             paramvo.setInperiod(DateUtils.getPeriod(new DZFDate(SystemUtil.getLoginDate())));
@@ -532,9 +534,10 @@ public class VATInComInvoiceController extends BaseController {
         Json json = new Json();
         VATInComInvoiceVO[] vos = null;
         boolean lock = false;
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
-            pk_corp = SystemUtil.getLoginCorpId();
+
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcreatepz"+pk_corp);
             if(!lock){//处理
@@ -673,7 +676,8 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData setBusiType(@RequestBody Map<String,String> param){
         Json json = new Json();
         json.setSuccess(false);
-
+        String pk_corp = SystemUtil.getLoginUserId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
             String data = param.get("rows");
             String busiid = param.get("busiid");//历史主键
@@ -690,7 +694,7 @@ public class VATInComInvoiceController extends BaseController {
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("解析前台参数失败，请检查");
 
-            String msg = gl_vatincinvact.saveBusiType(listvo, busiid, businame, selvalue, SystemUtil.getLoginUserId(),SystemUtil.getLoginCorpId());
+            String msg = gl_vatincinvact.saveBusiType(listvo, busiid, businame, selvalue, pk_corp,SystemUtil.getLoginCorpId());
 
             //重新查询
             String[] pks = buildPks(listvo);
@@ -712,7 +716,8 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData setBusiperiod(@RequestBody Map<String,String> param){
         Json json = new Json();
         json.setSuccess(false);
-
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
             String data = param.get("rows");
             String ruzperiod = param.get("ruzper");
@@ -726,8 +731,6 @@ public class VATInComInvoiceController extends BaseController {
 
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("解析前台参数失败，请检查");
-
-            String pk_corp = SystemUtil.getLoginCorpId();
 
             String msg = "";
             String msg1;
@@ -827,10 +830,9 @@ public class VATInComInvoiceController extends BaseController {
     @RequestMapping("/getTzpzHVOByID")
     public ReturnData getTzpzHVOByID(@RequestBody Map<String,String> param){
         Json json = new Json();
-
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
-//			if(StringUtil.isEmptyWithTrim(data.getPrimaryKey()))
-//				throw new BusinessException("获取前台参数失败，请检查");
             String str = param.get("row");
             if (str == null) {
                 throw new BusinessException("数据为空,请检查!");
@@ -840,7 +842,6 @@ public class VATInComInvoiceController extends BaseController {
 
             if(listvo == null || listvo.length == 0)
                 throw new BusinessException("转化后数据为空,请检查!");
-            String pk_corp = SystemUtil.getLoginCorpId();
             boolean accway = getAccWay(pk_corp);
             VatInvoiceSetVO setvo = queryRuleByType();
 
@@ -876,10 +877,10 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData combinePZ1(String lwstr,String body){
         Json json = new Json();
         VATInComInvoiceVO[] vos = null;
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         try {
-            pk_corp = SystemUtil.getLoginCorpId();
             //加锁
            lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcombinepz"+pk_corp);
             if(!lock){//处理
@@ -1227,11 +1228,11 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData onTicket(@RequestBody Map<String,String> param){
         Json json = new Json();
         VATInComInvoiceVO paramvo = new VATInComInvoiceVO();
-        String pk_corp = null;
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         try{
             paramvo.setKprj(new DZFDate(SystemUtil.getLoginDate()));//参数：当前登录时间
-            pk_corp = SystemUtil.getLoginCorpId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock(paramvo.getTableName()+pk_corp);
             if(!lock){//处理
@@ -1608,6 +1609,8 @@ public class VATInComInvoiceController extends BaseController {
     @RequestMapping("/combineRule")
     public ReturnData combineRule(@RequestBody Map<String,String> param){
         Json json = new Json();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
             String pzrule = param.get("pzrule");
             String flrule = param.get("flrule");
@@ -1620,7 +1623,6 @@ public class VATInComInvoiceController extends BaseController {
                 throw new BusinessException("设置失败，请重试");
             }
 
-            String pk_corp = SystemUtil.getLoginCorpId();
             VatInvoiceSetVO vo = new VatInvoiceSetVO();
             String[] fields = new String[]{ "value", "entry_type", "isbank", "zy" };
             if(!StringUtil.isEmpty(setId)){
@@ -1657,10 +1659,10 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData createIC(@RequestBody Map<String,String> param){
         Json json = new Json();
         VATInComInvoiceVO[] vos = null;
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         try {
-            pk_corp = SystemUtil.getLoginCorpId();
             String userid  = SystemUtil.getLoginUserId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangic"+pk_corp);
@@ -1763,6 +1765,8 @@ public class VATInComInvoiceController extends BaseController {
     @RequestMapping("/matchInventoryData")
     public ReturnData matchInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
             String good = param.get("goods");
             String body = param.get("head");
@@ -1809,7 +1813,6 @@ public class VATInComInvoiceController extends BaseController {
                     throw new BusinessException("进项发票存货匹配失败:"+error);
                 }
 
-                String pk_corp = SystemUtil.getLoginCorpId();
                 List<InventoryAliasVO> relvos = gl_vatincinvact.matchInventoryData(pk_corp, vos,invsetvo);
 
                 if(relvos != null && relvos.size()>0){
@@ -1865,11 +1868,11 @@ public class VATInComInvoiceController extends BaseController {
     @RequestMapping("/saveInventoryData")
     public ReturnData saveInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         String good = param.get("goods");
         try {
-            pk_corp = SystemUtil.getLoginCorpId();
             // 加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangpp"+pk_corp);
             if (!lock) {// 处理
@@ -1903,13 +1906,13 @@ public class VATInComInvoiceController extends BaseController {
     @RequestMapping("/createPzData")
     public ReturnData createPzData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
-        String pk_corp = "";
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         String sourceName = StringUtil.isEmpty(param.get("sourcename"))?"填制凭证_":param.get("sourcename")+"_";
         try {
             String body = param.get("head");
             String goodData = param.get("goods");
-            pk_corp = SystemUtil.getLoginCorpId();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangpz"+pk_corp);
 
@@ -2266,8 +2269,10 @@ public class VATInComInvoiceController extends BaseController {
     public ReturnData chooseTicketWay(){
         Json json = new Json();
         json.setSuccess(false);
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp},null);
         try {
-            CorpVO corpvo = gl_vatincinvact.chooseTicketWay(SystemUtil.getLoginCorpId());
+            CorpVO corpvo = gl_vatincinvact.chooseTicketWay(pk_corp);
             json.setHead(corpvo);
             json.setMsg("查询成功");
             json.setSuccess(true);

@@ -16,6 +16,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -209,7 +210,7 @@ public class BankStatement2Controller extends BaseController {
             String uptdoc = param.get("upddoc");
             String pk_corp = SystemUtil.getLoginCorpId();
             checkValidData(bvo);
-
+            checkSecurityData(null, new String[]{pk_corp}, null);
             HashMap<String, BankStatementVO2[]> sendData = new HashMap<String, BankStatementVO2[]>();
             if(!StringUtil.isEmpty(adddoc)){
                 adddoc = adddoc.replace("}{", "},{");
@@ -334,9 +335,10 @@ public class BankStatement2Controller extends BaseController {
         BankStatementVO2[] bodyvos = null;
         int errorCount = 0;
         boolean lock = false;
-                String pk_corp = "";
+        String pk_corp = "";
         try{
             pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null, new String[]{pk_corp}, null);
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("duizhangdandel"+pk_corp);
             if(!lock){//处理
@@ -393,7 +395,8 @@ public class BankStatement2Controller extends BaseController {
         Json json = new Json();
         json.setSuccess(false);
         try {
-
+            String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null, new String[]{pk_corp}, null);
             if(bvo == null || sourcetem == 0)
                 throw new BusinessException("未选择上传文档，请检查");
             bvo = getParamVO(bvo, sourcetem);
@@ -455,6 +458,7 @@ public class BankStatement2Controller extends BaseController {
         BankStatementVO2[] vos = null;
         boolean lock = false;
         String pk_corp =  SystemUtil.getLoginCorpId();
+        checkSecurityData(null, new String[]{pk_corp}, null);
         try {
             lock = redissonDistributedLock.tryGetDistributedFairLock("yhdzd2createpz"+pk_corp);
             if(!lock){//处理
@@ -701,6 +705,8 @@ public class BankStatement2Controller extends BaseController {
         json.setSuccess(false);
 
         try {
+            CorpVO corpVO = SystemUtil.getLoginCorpVo();
+            checkSecurityData(null, new String[]{corpVO.getPk_corp()}, null);
             String data = param.get("rows");
             String period = param.get("period");
             if(StringUtil.isEmptyWithTrim(data)
@@ -725,7 +731,7 @@ public class BankStatement2Controller extends BaseController {
                 }
             }
 
-            CorpVO corpVO = SystemUtil.getLoginCorpVo();
+
             List<BillCategoryVO> list2 = schedulCategoryService.queryBillCategoryByCorpAndPeriod(corpVO.getPk_corp(), period);
             if (list2 == null || list2.size() == 0) {
 
@@ -808,6 +814,8 @@ public class BankStatement2Controller extends BaseController {
     public ReturnData<Json> getTzpzHVOByID(@RequestBody Map<String,String> param){
         Json json = new Json();
         try {
+            String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null, new String[]{pk_corp}, null);
             String str = param.get("row");
             if (str == null) {
                 throw new BusinessException("数据为空,请检查!");
@@ -818,11 +826,11 @@ public class BankStatement2Controller extends BaseController {
                 throw new BusinessException("转化后数据为空,请检查!");
 
             BankAccountVO bankAccVO = getBankAccountVO(listvo[0]);
-            boolean accway = getAccWay(SystemUtil.getLoginCorpId());
+            boolean accway = getAccWay(pk_corp);
             VatInvoiceSetVO setvo = queryRuleByType();
 
             TzpzHVO hvo = gl_yhdzdserv2.getTzpzHVOByID(listvo, bankAccVO,
-                    SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), setvo, accway);
+                    pk_corp, SystemUtil.getLoginUserId(), setvo, accway);
             json.setData(hvo);
             json.setSuccess(true);
             json.setMsg("凭证分录构造成功");
@@ -863,7 +871,7 @@ public class BankStatement2Controller extends BaseController {
 
             String pk_corp = SystemUtil.getLoginCorpId();
             String userid  = SystemUtil.getLoginUserId();
-
+            checkSecurityData(null,new String[]{pk_corp}, userid);
             List<BankStatementVO2> storeList = gl_yhdzdserv2.construcBankStatement(vos, pk_corp);
             if(storeList == null || storeList.size() == 0){
                 throw new BusinessException("合并制证：查询银行对账数据失败，请检查");
@@ -1272,6 +1280,7 @@ public class BankStatement2Controller extends BaseController {
             }
 
             String pk_corp = SystemUtil.getLoginCorpId();
+            checkSecurityData(null,new String[]{pk_corp},null);
             VatInvoiceSetVO vo = new VatInvoiceSetVO();
             String[] fields = new String[]{ "pzrq","value", "entry_type", "isbank", "zy" };
             if(!StringUtil.isEmpty(setId)){
@@ -1379,14 +1388,11 @@ public class BankStatement2Controller extends BaseController {
     @RequestMapping("/updateCategoryset")
     public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busitypetempname,String pk_basecategory,String zdyzy,String rzkm ){
         Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
         try {
-
-//            JSONObject jsonObject= JSONObject.fromObject(rows);
-//            BankStatementVO2 vo=(BankStatementVO2)JSONObject.toBean(jsonObject, BankStatementVO2.class);
-            String pk_corp = SystemUtil.getLoginCorpId();
             List<BankStatementVO2> list=gl_yhdzdserv2.updateVO(id , pk_model_h,busitypetempname,pk_corp,rzkm,pk_basecategory,zdyzy);
-//			gl_vatincinvact2.updateCategoryset(pk_model_h,null,pk_basecategory,pk_corp,rzkm,null,zdyzy);
-//			List<BankStatementVO2> list = gl_yhdzdserv2.queryByIDs(id);
+
             log.info("设置成功！");
             grid.setRows(list);
             grid.setSuccess(true);

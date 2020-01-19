@@ -70,6 +70,7 @@ public class ImageViewController extends BaseController {
 
         //当前登录公司ID
         String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
 //        String Pk_image_library = getRequest().getParameter("id");
 //        //查询结果中数据库存储的公司ID
 //        String pk_cprp_ser = getRequest().getParameter("pk_corp");
@@ -267,6 +268,7 @@ public class ImageViewController extends BaseController {
                     return ReturnData.error().data(json);
                 }
             }
+            checkSecurityData(null,new String[]{pk_corp}, null);
             Map<String, Object> statistics = gl_pzimageserv.getPicStatistics(
                     pk_corp, beginDate, endDate, serdate);
             json.setRows(statistics);
