@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
@@ -25,7 +26,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/sys/sys_zxkj_corpact")
 @Slf4j
-public class ZxkjBDCorpController {
+public class ZxkjBDCorpController  extends BaseController {
 
     @Autowired
     private IBDCorpTaxService sys_corp_tax_serv;
@@ -133,6 +134,8 @@ public class ZxkjBDCorpController {
             String pk_corp = pk_gs;
             if(StringUtil.isEmpty(pk_corp)){
                 pk_corp = SystemUtil.getLoginCorpId();
+            }else{
+                checkOwnCorp(pk_corp);
             }
 
             if("specHis".equals(type)){
@@ -186,6 +189,8 @@ public class ZxkjBDCorpController {
             String pk_corp = pk_gs;
             if(StringUtil.isEmpty(pk_corp)){
                 pk_corp = SystemUtil.getLoginCorpId();
+            }else{
+                checkOwnCorp(pk_corp);
             }
             if("specHis".equals(type)){
                 list =sys_corp_tax_serv.querySpecChargeHis(pk_corp);

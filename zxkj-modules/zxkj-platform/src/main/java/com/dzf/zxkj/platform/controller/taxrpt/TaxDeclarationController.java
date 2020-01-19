@@ -45,6 +45,7 @@ public class TaxDeclarationController  extends BaseController {
             DZFDate nowDate = new DZFDate();
             String period = DateUtils.getPeriod(nowDate);
             UserVO uservo = SystemUtil.getLoginUserVo();
+            checkOwnCorp(pk_corp);
             List<TaxReportVO> list = taxDeclarationService.initGetTypeList(pk_corp, uservo,
                     period, uservo.getCuserid(), nowDate.toString());
             if (list != null && list.size() > 0) {
@@ -81,11 +82,11 @@ public class TaxDeclarationController  extends BaseController {
         try {
 
             //校验当前公司权限
-            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
-            if (!nnmnc.contains(pk_corp)) {
-                throw new BusinessException("当前操作人，不包含该公司权限");
-            }
-
+//            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+//            if (!nnmnc.contains(pk_corp)) {
+//                throw new BusinessException("当前操作人，不包含该公司权限");
+//            }
+            checkOwnCorp(pk_corp);
             String spreadjson = taxDeclarationService.getSpreadJSData(pk_taxreport,
                     SystemUtil.getLoginUserVo(), null, isReadonly);
 
@@ -117,11 +118,11 @@ public class TaxDeclarationController  extends BaseController {
             String calall = param.get("calall");
 
             //校验当前公司权限
-            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
-            if (!nnmnc.contains(pk_corp)) {
-                throw new BusinessException("当前操作人，不包含该公司权限");
-            }
-
+//            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+//            if (!nnmnc.contains(pk_corp)) {
+//                throw new BusinessException("当前操作人，不包含该公司权限");
+//            }
+            checkOwnCorp(pk_corp);
             String spreadjson = taxDeclarationService.onRecal(jsonString, pk_taxreport, SystemUtil.getLoginUserVo(),
                     pk_corp, reportname,(calall != null && calall.equals("Y")), "");
 
@@ -173,11 +174,11 @@ public class TaxDeclarationController  extends BaseController {
         Json rsjson = new Json();
         try {
             //校验当前公司权限
-            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
-            if (!nnmnc.contains(corpid)) {
-                throw new BusinessException("当前操作人，不包含该公司权限");
-            }
-
+//            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+//            if (!nnmnc.contains(corpid)) {
+//                throw new BusinessException("当前操作人，不包含该公司权限");
+//            }
+            checkOwnCorp(corpid);
             String message = taxDeclarationService.saveReport(pk_taxreport, corpid, jsonString,
                     SystemUtil.getLoginUserVo(), SystemUtil.getLoginDate(), null);
 
@@ -217,11 +218,11 @@ public class TaxDeclarationController  extends BaseController {
             sbname = param.get("sbname");
 
             //校验当前公司权限
-            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
-            if (!nnmnc.contains(corpid)) {
-                throw new BusinessException("当前操作人，不包含该公司权限");
-            }
-
+//            Set<String> nnmnc = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+//            if (!nnmnc.contains(corpid)) {
+//                throw new BusinessException("当前操作人，不包含该公司权限");
+//            }
+            checkOwnCorp(corpid);
             taxDeclarationService.processDelete(pk_taxreport, corpid,
                     SystemUtil.getLoginDate(), SystemUtil.getLoginUserVo(), "");
             rsjson.setStatus(200);
@@ -281,7 +282,7 @@ public class TaxDeclarationController  extends BaseController {
             String corpid = param.get("pk_corp");
             if (StringUtil.isEmpty(pk_taxreport))//|| StringUtil.isEmpty(pk_taxtypelistdetail)
                 throw new BusinessException("纳税申报信息出错");
-
+            checkOwnCorp(corpid);
             TaxReportVO reportvo = (TaxReportVO)taxDeclarationService.processSendTaxReport(SystemUtil.getLoginCorpVo(),
                     SystemUtil.getLoginUserVo(), corpid, pk_taxreport);
             json.setSuccess(true);

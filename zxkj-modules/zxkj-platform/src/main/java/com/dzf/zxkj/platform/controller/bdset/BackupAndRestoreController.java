@@ -107,6 +107,7 @@ public class BackupAndRestoreController extends BaseController {
 //			}finally {
 //				LockUtil.getInstance().unLock_Key("DELETEPZ", finalid, requestid);
 //			}
+			checkSecurityData(listVo, null, null);
 			saveBatch(listVo, json, tips);
 		}
 		if (tips.length() > 0) {
@@ -230,6 +231,7 @@ public class BackupAndRestoreController extends BaseController {
 
 		CorpVO[] listVo = JsonUtils.deserialize(strlist, CorpVO[].class);
 		if (listVo != null && listVo.length > 0) {
+			checkSecurityData(listVo, null, null);
 			for (CorpVO cpvo : listVo) {
 				try {
 					BackupVO oldvo = gl_databackup.queryNewByCorp(cpvo.getPk_corp());

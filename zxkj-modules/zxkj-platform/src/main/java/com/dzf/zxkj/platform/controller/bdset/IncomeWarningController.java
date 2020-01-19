@@ -35,7 +35,8 @@ public class IncomeWarningController extends BaseController {
     public ReturnData<Grid> query(){
         Grid grid = new Grid();
         try {
-            IncomeWarningVO[] ivos = iw_serv.query(SystemUtil.getLoginCorpId());
+            String pk_corp = SystemUtil.getLoginCorpId();
+            IncomeWarningVO[] ivos = iw_serv.query(pk_corp);
             List<IncomeWarningVO> list = Arrays.asList(ivos);
             grid.setRows(list);
         } catch (Exception e) {
@@ -54,7 +55,6 @@ public class IncomeWarningController extends BaseController {
         Json json = new Json();
         try {
             String pk_corp = SystemUtil.getLoginCorpId();
-
             //优化 gzhx
             IncomeWarningVO[] incomeWarningVOS = iw_serv.queryIncomeWaringVos(pk_corp,nowDate, filflg);
             VOUtil.ascSort(incomeWarningVOS, new String[]{"ts"});
@@ -76,6 +76,7 @@ public class IncomeWarningController extends BaseController {
             IncomeWarningVO data = JsonUtils.convertValue(param, IncomeWarningVO.class);
                     String pk_corp = SystemUtil.getLoginCorpId();
 //                HttpServletRequest request = getRequest();
+            checkOwnCorp(pk_corp);
             IncomeWarningVO[] ivos = iw_serv.query(pk_corp);
             Integer period_type = data.getPeriod_type();
             if (period_type == null) {

@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
@@ -34,7 +35,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/sys/sys_kj_ztsz")
 @Slf4j
-public class ZtszController {
+public class ZtszController extends BaseController {
 
     @Autowired
     private SingleObjectBO singleObjectBO;
@@ -59,6 +60,7 @@ public class ZtszController {
             try {
 
                 // 判断操作用户是否为当前登录公司
+                checkOwnCorp(data.getPk_corp());
                 CorpVO curcorpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, SystemUtil.getLoginCorpId());
                 String pk_corp = curcorpvo.getFathercorp();
                 if (pk_corp.equals(data.getFathercorp())) {
@@ -140,6 +142,7 @@ public class ZtszController {
         try {
             if(StringUtil.isEmpty(pk_gs))
                 throw new BusinessException("参数不完整");
+            checkOwnCorp(pk_gs);
             CorpTaxVo vo = sys_corp_tax_serv.queryCorpTaxVOByType(pk_gs, null);
             json.setData(vo);
             json.setSuccess(true);

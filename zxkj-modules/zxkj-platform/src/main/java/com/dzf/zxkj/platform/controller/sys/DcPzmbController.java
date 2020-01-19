@@ -57,7 +57,6 @@ public class DcPzmbController extends BaseController{
 
             DcModelHVO headvo = JsonUtils.deserialize(head, DcModelHVO.class);
             DcModelBVO[] bodyvos = JsonUtils.deserialize(body, DcModelBVO[].class);
-
             setDefaultInfo(headvo,bodyvos);
             headvo.setChildren(bodyvos);
             String errorinfo = dcpzjmbserv.check(corpid,headvo);
@@ -231,6 +230,7 @@ public class DcPzmbController extends BaseController{
                 String[] idss = ids.split(",");
                 String userid = SystemUtil.getLoginUserId();
                 String corppk = SystemUtil.getLoginCorpId();
+                checkOwnCorp(gsss);
                 String msg = dcpzjmbserv.copyCorpToCorp(gsss, idss, userid, corppk);
                 json.setSuccess(true);
                 if(StringUtil.isEmpty(msg)){

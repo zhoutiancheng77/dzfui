@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/taxrpt/declaraquery")
@@ -39,10 +38,11 @@ public class DeclaraQueryController extends BaseController {
         Grid grid = new Grid();
         try {
             //校验当前公司权限
-            Set<String> nnmnc = iuserService.querypowercorpSet(SystemUtil.getLoginUserId());
-            if (!nnmnc.contains(pk_corp)) {
-                throw new BusinessException("当前操作人，不包含该公司权限");
-            }
+//            Set<String> nnmnc = iuserService.querypowercorpSet(SystemUtil.getLoginUserId());
+//            if (!nnmnc.contains(pk_corp)) {
+//                throw new BusinessException("当前操作人，不包含该公司权限");
+//            }
+            checkOwnCorp(pk_corp);
             List<TaxReportVO> list = taxDeclarationService.queryTaxReprotVOs(periodfrom, periodto, pk_corp, sbzt_dm);
             if (list == null || list.size() == 0) {
                 grid.setTotal(Long.valueOf(0));
@@ -73,11 +73,11 @@ public class DeclaraQueryController extends BaseController {
         grid.setSuccess(false);
         try {
             //校验当前公司权限
-            Set<String> nnmnc = iuserService.querypowercorpSet(SystemUtil.getLoginUserId());
-            if (!nnmnc.contains(pk_corp)) {
-                throw new BusinessException("当前操作人，不包含该公司权限");
-            }
-
+//            Set<String> nnmnc = iuserService.querypowercorpSet(SystemUtil.getLoginUserId());
+//            if (!nnmnc.contains(pk_corp)) {
+//                throw new BusinessException("当前操作人，不包含该公司权限");
+//            }
+            checkOwnCorp(pk_corp);
             List<TaxReportDetailVO> list = taxDeclarationService.queryTaxReprotDetailsVOs(pk_corp, pk_taxreport);
 
             if (list != null && list.size() > 0) {
@@ -116,11 +116,11 @@ public class DeclaraQueryController extends BaseController {
         Json json = new Json();
         try {
             //校验当前公司权限
-            Set<String> nnmnc = iuserService.querypowercorpSet(SystemUtil.getLoginUserId());
-            if (!nnmnc.contains(pk_corp)) {
-                throw new BusinessException("当前操作人，不包含该公司权限");
-            }
-
+//            Set<String> nnmnc = iuserService.querypowercorpSet(SystemUtil.getLoginUserId());
+//            if (!nnmnc.contains(pk_corp)) {
+//                throw new BusinessException("当前操作人，不包含该公司权限");
+//            }
+            checkOwnCorp(pk_corp);
             String spreadjson = taxDeclarationService.getSpreadJSData(pk_taxreport, SystemUtil.getLoginUserVo(),reportname, true);
             if (spreadjson != null) {
                 json.setData(spreadjson);

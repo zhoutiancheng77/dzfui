@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.controller.taxrpt;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -17,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/sys/corpTaxact")
 @Slf4j
-public class CorpTaxController {
+public class CorpTaxController  extends BaseController {
 
     @Autowired
     private ICorpTaxService corpTaxact;
@@ -27,6 +28,7 @@ public class CorpTaxController {
 
         Grid grid = new Grid();
         try {
+            checkOwnCorp(paramvo.getPk_corp());
             List<TaxRptTempletVO> revo = corpTaxact.queryCorpTaxRpt(paramvo);
             int len = revo==null?0:revo.size();
             if(len > 0){
