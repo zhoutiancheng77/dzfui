@@ -63,6 +63,7 @@ public class NmnyHZController extends ReportBaseController {
         QueryCondictionVO paramVO = new  QueryCondictionVO();
         try {
             paramVO = JsonUtils.convertValue(param, QueryCondictionVO.class);
+            checkOwnCorp(paramVO.getPk_corp());
             //前台传参三个值,前两个值为必输项目，第三个为非必输项目
             CorpVO corp = zxkjPlatformService.queryCorpByPk(SystemUtil.getLoginCorpId());
             paramVO.setPk_corp(corp.getPk_corp());

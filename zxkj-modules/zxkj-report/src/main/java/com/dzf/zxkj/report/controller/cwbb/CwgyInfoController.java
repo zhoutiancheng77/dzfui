@@ -110,6 +110,8 @@ public class CwgyInfoController extends ReportBaseController {
             // 如果编制单位为空则取当前默认公司
             String corpVo = SystemUtil.getLoginCorpId();
             paramvo.setPk_corp(corpVo);
+        }else{
+            checkOwnCorp(paramvo.getPk_corp());
         }
         return paramvo;
     }
