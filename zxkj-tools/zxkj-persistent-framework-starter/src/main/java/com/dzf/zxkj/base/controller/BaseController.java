@@ -12,6 +12,7 @@ import com.dzf.zxkj.common.tool.IpUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +69,13 @@ public class BaseController {
     }
 
     /**
+     * @param vos 数组数据（需包含pk_corp字段）
+     */
+    public void checkSecurityData(SuperVO[] vos) {
+        checkSecurityData(vos, null, null, false);
+    }
+
+    /**
      * @param vos     数组数据（数据中包含pk_corp）二者传其一就可
      * @param corps   公司数据      二者传其一就可
      * @param cuserid 用户 （不传默认登录用户）
@@ -83,6 +91,9 @@ public class BaseController {
      * @param isCheckData 是否校验数据有效性(根据主键校验是否存在) 只有传vo数组时可用
      */
     public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid, boolean isCheckData) {
+        if (StringUtils.isEmpty(cuserid)) {
+            cuserid = getLoginUserId();
+        }
         zxkjPlatformService.checkSecurityData(vos, corps, cuserid, isCheckData);
     }
 
@@ -92,7 +103,7 @@ public class BaseController {
      * @param corpId
      */
     public void checkOwnCorp(String... corpId) {
-        zxkjPlatformService.checkSecurityData(null, corpId, getLoginUserId(), false);
+        checkSecurityData(null, corpId, null, false);
     }
 
     public String getLoginUserId() {
