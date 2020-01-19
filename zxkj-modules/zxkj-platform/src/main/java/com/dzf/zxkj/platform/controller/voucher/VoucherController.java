@@ -119,13 +119,13 @@ public class VoucherController extends BaseController {
     @GetMapping("/query")
     public ReturnData query(VoucherParamVO paramvo) {
         Grid grid = new Grid();
-        List<String> pkcorp_list = new ArrayList<>();
+        String[] corps;
         String corps_id = paramvo.getPk_corp();
         if (!StringUtils.isEmpty(corps_id)) {
-            pkcorp_list = Arrays.asList(corps_id.split(","));
-
+            corps = corps_id.split(",");
+            checkOwnCorp(corps);
         } else {
-            pkcorp_list.add(SystemUtil.getLoginCorpId());
+            corps = new String[]{SystemUtil.getLoginCorpId()};
         }
         if ("2".equals(paramvo.getDateType())) {
             paramvo.setBegindate(DateUtils.getPeriodStartDate(paramvo.getBeginPeriod()));
@@ -133,7 +133,7 @@ public class VoucherController extends BaseController {
         }
         List<PzglPageVo> pzglList = new ArrayList<>();
         long total = 0;
-        for (String pk_corp : pkcorp_list) {
+        for (String pk_corp : corps) {
             CorpVO corpVo = corpService.queryByPk(pk_corp);
 
             paramvo.setPk_corp(pk_corp);
@@ -1175,6 +1175,7 @@ public class VoucherController extends BaseController {
 
         if (data != null) {
             data.setIsqxsy(DZFBoolean.TRUE);
+            checkOwnCorp(data.getPk_corp());
             try {
                 gl_tzpzserv.deleteVoucher(data);
                 json.setMsg("删除成功");
