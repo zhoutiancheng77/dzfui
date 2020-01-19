@@ -111,11 +111,6 @@ public class InventoryServiceImpl implements IInventoryService {
 		InventoryVO ivo = vos[0];
 		if (!pk_corp.equals(ivo.getPk_corp()))// 要进行操作的公司是否为登录公司
 			throw new BusinessException("对不起，您无操作权限！");
-		// 修改保存前数据安全验证
-		InventoryVO getvo = queryByPrimaryKey(ivo.getPrimaryKey());
-		if (getvo != null && !pk_corp.equals(getvo.getPk_corp())) {
-			throw new BusinessException("出现数据无权问题，无法修改！");
-		}
 
 		HashMap<String, InventoryVO> map = new HashMap<>();
 		HashSet<String> pkSet = new HashSet<String>();
@@ -440,8 +435,10 @@ public class InventoryServiceImpl implements IInventoryService {
 	// 批量删除 ， 被引用的存货不能被删除
 	public String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException {
 		String strids = SqlUtil.buildSqlConditionForIn(ids);
+		SQLParameter param = new SQLParameter();
+		param.addParam(pk_corp);
 		InventoryVO[] invos = (InventoryVO[]) singleObjectBO.queryByCondition(InventoryVO.class,
-				" pk_inventory in ( " + strids + " ) ", null);
+				" pk_corp = ? and pk_inventory in ( " + strids + " ) ", param);
 
 		if (invos == null || invos.length == 0)
 			throw new BusinessException("存货不存在，或已经删除！");

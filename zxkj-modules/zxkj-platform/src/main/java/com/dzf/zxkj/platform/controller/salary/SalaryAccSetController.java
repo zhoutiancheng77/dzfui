@@ -7,12 +7,12 @@ import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.gzgl.SalaryAccSetVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryKmDeptVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryAccSetService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +36,6 @@ public class SalaryAccSetController extends BaseController {
     @Autowired
     private ISalaryAccSetService gl_gzkmszserv = null;
 
-    @Autowired
-    private ISecurityService securityserv;
-
     @GetMapping("/query")
     public ReturnData<Json> query(@MultiRequestBody CorpVO corpVO) {
 
@@ -59,15 +56,14 @@ public class SalaryAccSetController extends BaseController {
             throw new BusinessException("数据为空,保存失败!");
         }
         String pk_corp = SystemUtil.getLoginCorpId();
-        String cuserid = SystemUtil.getLoginUserId();
         SalaryAccSetVO vo = JsonUtils.deserialize(szdata, SalaryAccSetVO.class);
         if (vo == null) {
             throw new BusinessException("数据为空,保存失败!");
         }
-        securityserv.checkSecurityForSave(pk_corp, pk_corp, cuserid);
         if (DZFValueCheck.isEmpty(vo.getPk_corp())) {
             vo.setPk_corp(pk_corp);
         }
+        checkSecurityData(new SalaryAccSetVO[]{vo},null,null, !StringUtil.isEmpty(vo.getPk_salaryaccset()));
         vo = gl_gzkmszserv.save(vo);
         json.setRows(vo);
         json.setMsg("保存成功");

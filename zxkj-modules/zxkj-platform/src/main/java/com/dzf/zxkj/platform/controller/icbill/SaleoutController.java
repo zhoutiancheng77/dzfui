@@ -30,7 +30,6 @@ import com.dzf.zxkj.platform.model.icset.IntradeoutVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.icbill.ISaleoutService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -66,8 +65,6 @@ public class SaleoutController extends BaseController {
     ISaleoutService ic_saleoutserv;
 	@Autowired
 	private IParameterSetService parameterserv;
-	@Autowired
-	private ISecurityService securityserv;
     @Autowired
     IPurchInService ic_purchinserv;
 	@Autowired
@@ -162,10 +159,9 @@ public class SaleoutController extends BaseController {
 			if (StringUtil.isEmpty(headvo.getPk_ictrade_h())) {
 				isadd = true;
 			}
-//			securityserv.checkSecurityForSave(IntradeHVO.class, headvo.getPrimaryKey(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
-			checkSecurityData(new IntradeHVO[]{headvo},null,null,false);
 			headvo.setCreator(SystemUtil.getLoginUserId());
 			headvo.setPk_corp(SystemUtil.getLoginCorpId());
+            checkSecurityData(new IntradeHVO[]{headvo},null,null,StringUtil.isEmpty(headvo.getPk_ictrade_h()));
 			headvo.setChildren(bodyvos);
 			if (DZFBoolean.valueOf(repeat).booleanValue()) {
 				ic_saleoutserv.saveSale(headvo, false, false);
@@ -236,6 +232,7 @@ public class SaleoutController extends BaseController {
 		Json json = new Json();
 		String ignoreCheck = param.get("ignoreCheck");
 		IntradeHVO vo = ic_saleoutserv.queryIntradeHVOByID(param.get("id_ictrade_h"), SystemUtil.getLoginCorpId());
+        checkSecurityData(new IntradeHVO[]{vo},null,null,true);
 		if (!"Y".equals(ignoreCheck)) {
             ic_saleoutserv.check(vo, SystemUtil.getLoginCorpId(), iscopy);
 			if (iscopy) {
@@ -287,7 +284,7 @@ public class SaleoutController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,删除失败!!");
 			}
-			securityserv.checkSecurityForDelete(bodyvos[0].getPk_corp(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+			checkSecurityData(bodyvos,null,null);
 			for (IntradeHVO head : bodyvos) {
 				try {
 					ic_saleoutserv.deleteSale(head, SystemUtil.getLoginCorpId());
@@ -402,7 +399,7 @@ public class SaleoutController extends BaseController {
 				throw new BusinessException("数据为空,转总账失败!");
 			}
 			String zy = "销售商品";
-			securityserv.checkSecurityForSave( SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+            checkSecurityData(bodyvos,null,null,true);
 			Map<String, List<IntradeHVO>> map = new LinkedHashMap<String, List<IntradeHVO>>();
 			List<IntradeHVO> list = null;
 			List<IntradeHVO> zlist = null;
@@ -517,7 +514,7 @@ public class SaleoutController extends BaseController {
 						throw new BusinessException("单据日期不晚于登录期间，请确认!");
 					}
 				}
-				securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+                checkSecurityData(new IntradeHVO[]{data},null,null,true);
 				ic_saleoutserv.saveDashBack(data, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserId(), SystemUtil.getLoginDate());
 				List<String> periodSet = new ArrayList<String>();
 				periodSet.add(SystemUtil.getLoginDate().substring(0, 7));
@@ -583,7 +580,7 @@ public class SaleoutController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,取消转总账失败!");
 			}
-			securityserv.checkSecurityForSave( SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+            checkSecurityData(bodyvos,null,null,true);
 			Map<String, DZFBoolean> map = new HashMap<>();
 			List<String> periodSet = new ArrayList<String>();
 			int flag = 0;
@@ -946,7 +943,6 @@ public class SaleoutController extends BaseController {
         int index = filename.lastIndexOf(".");
         String fileType = filename.substring(index + 1);
         String pk_corp = SystemUtil.getLoginCorpId();
-        securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
         String msg = ic_saleoutserv.saveImp(infile, pk_corp, fileType, SystemUtil.getLoginUserId());
         if (StringUtil.isEmpty(msg)) {
             json.setSuccess(true);

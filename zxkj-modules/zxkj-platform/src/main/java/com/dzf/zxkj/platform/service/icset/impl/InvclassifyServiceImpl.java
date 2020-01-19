@@ -99,8 +99,10 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 	// 批量删除 ， 被引用的存货分类不能被删除
 	public String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException {
 		String strids = SqlUtil.buildSqlConditionForIn(ids);
+		SQLParameter param = new SQLParameter();
+		param.addParam(pk_corp);
         InvclassifyVO[] invos = (InvclassifyVO[]) getSingleObjectBO().queryByCondition(InvclassifyVO.class,
-				" pk_invclassify in ( " + strids + " ) ", null);
+				"  pk_corp=? and pk_invclassify in ( " + strids + " ) ", param);
 
 		if (invos == null || invos.length == 0)
 			throw new BusinessException("存货分类不存在，或已经删除！");

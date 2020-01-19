@@ -35,7 +35,6 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryBaseService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryReportExcel;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryReportService;
@@ -78,8 +77,6 @@ public class SalaryReportController  extends BaseController {
 
     @Autowired
     private ISalaryReportService gl_gzbserv = null;
-    @Autowired
-    private ISecurityService securityserv;
     @Autowired
     private SingleObjectBO singlebo = null;
     @Autowired
@@ -223,7 +220,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
-        securityserv.checkSecurityForSave(pk_corp, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         List<SalaryReportVO> list = new ArrayList<>();
         SalaryReportVO vo = JsonUtils.deserialize(strArr, SalaryReportVO.class);
         list.add(vo);
@@ -249,7 +246,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(primaryKey)) {
             throw new BusinessException("删除数据为空");
         }
-        securityserv.checkSecurityForDelete(pk_corp, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         SalaryReportVO[] vo = gl_gzbserv.delete(pk_corp, primaryKey, qj);
         json.setRows(vo);
         json.setMsg("删除成功");
@@ -287,8 +284,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
-        securityserv.checkSecurityForSave(pk_corp, pk_corp, SystemUtil.getLoginUserId());
-
+        checkOwnCorp(pk_corp);
         CorpVO corp = corpService.queryByPk(pk_corp);
         TzpzHVO msg = gl_gzbserv.saveToVoucher(corp, qj, SystemUtil.getLoginUserId(),"gzjt");
         json.setData(msg);
@@ -306,6 +302,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
+        checkOwnCorp(pk_corp);
         sourcebilltype = pk_corp + period + "gzjt," + pk_corp + period + "gzff";
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_corp);
@@ -344,7 +341,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
-        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         CorpVO corp = corpService.queryByPk(pk_corp);
         TzpzHVO msg = gl_gzbserv.saveToVoucher(corp,  qj, SystemUtil.getLoginUserId(), "gzff");
         json.setData(msg);
@@ -361,6 +358,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
+        checkOwnCorp(pk_corp);
         SalaryReportVO[] vos = gl_gzbserv.queryAllType(pk_corp, copyTodate);// 查询工资表数据
         if (vos != null && vos.length > 0) {
 
@@ -388,7 +386,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
-        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         SalaryReportVO[] vos = null;
         if (!StringUtil.isEmpty(auto)) {
             // 复制最近月份工资表到当前月份
@@ -553,7 +551,7 @@ public class SalaryReportController  extends BaseController {
             if (StringUtil.isEmpty(pk_corp)) {
                 throw new BusinessException("公司为空");
             }
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+            checkOwnCorp(pk_corp);
             CorpVO corpvo = corpService.queryByPk(pk_corp);
             Object[] vos = onBoImp(infile, opdate, filetype, billtype, corpvo);
             json.setMsg("");
@@ -817,8 +815,9 @@ public class SalaryReportController  extends BaseController {
             String pk_corp = pmap.get("pk_corp");
             if (StringUtil.isEmpty(pk_corp))
                 throw new BusinessException("公司为空");
+            // 查询工资表数据
+            // 查询工资表数据
 
-            securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
             // 查询工资表数据
             SalaryReportVO[] vos = gl_gzbserv.query(pk_corp, period, billtype);
             if (vos.length == 0)
@@ -911,7 +910,6 @@ public class SalaryReportController  extends BaseController {
             throw new BusinessException("公司为空");
 
         List<SalaryReportVO> list = new ArrayList<>();
-        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
         // 查询工资表数据
         SalaryReportVO[] vos = gl_gzbserv.queryAllType(pk_corp, period);
         if (vos == null || vos.length == 0)
@@ -1096,7 +1094,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(primaryKey)) {
             throw new BusinessException("更新数据为空");
         }
-        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         gl_gzbserv.updateFykm(pk_corp, fykmid, primaryKey, qj, billtype);
         json.setMsg("更新费用科目成功");
         json.setSuccess(true);
@@ -1125,7 +1123,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(primaryKey)) {
             throw new BusinessException("更新数据为空");
         }
-        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         gl_gzbserv.updateDeptid(pk_corp, cdeptid, primaryKey, qj, billtype);
         json.setMsg("更新部门成功");
         json.setSuccess(true);
@@ -1186,7 +1184,7 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(primaryKey)) {
             throw new BusinessException("更新数据为空");
         }
-        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         String strlist = map.get("chgdata");
         if (!StringUtil.isEmpty(strlist) && (billtype.equals(SalaryTypeEnum.NORMALSALARY.getValue())
                 || billtype.equals(SalaryTypeEnum.FOREIGNSALARY.getValue()))) {
@@ -1204,7 +1202,7 @@ public class SalaryReportController  extends BaseController {
     public ReturnData<Json> checkJzDate(@RequestParam("date") String date, @RequestParam("corp_id") String pk_corp) {
 
         Json json = new Json();
-        securityserv.checkSecurityForSave(null, null, pk_corp, pk_corp, SystemUtil.getLoginUserId());
+        checkOwnCorp(pk_corp);
         CorpVO corpVo = corpService.queryByPk(pk_corp);
         if (corpVo == null)
             throw new BusinessException("选择公司出错！");
@@ -1218,7 +1216,6 @@ public class SalaryReportController  extends BaseController {
     @GetMapping("/getNationalArea")
     public ReturnData<Json> getNationalArea() {
         Json json = new Json();
-        securityserv.checkSecurityForSave(null, null, SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
         String nationalArea = NationalAreaUtil.getNationalArea();
         String[] nationals = nationalArea.split(",");
         List<SalaryReportVO> list = new ArrayList<>();

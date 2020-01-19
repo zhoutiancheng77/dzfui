@@ -21,7 +21,6 @@ import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
@@ -63,10 +62,6 @@ public class InventoryController extends BaseController {
 	private IYntBoPubUtil yntBoPubUtil;
 	@Autowired
 	private IParameterSetService parameterserv;
-	@Autowired
-	private ISecurityService securityserv;
-	@Autowired
-	private SingleObjectBO singleObjectBO;
 	@Autowired
 	private ICorpService corpService;
 
@@ -299,7 +294,6 @@ public class InventoryController extends BaseController {
 		String pk_corp = SystemUtil.getLoginCorpId(); // 获取公司主键
 		setAddDefaultValue(bodyvos); // 设置公司名、创建时间、创建者
 		String action = param.get("action"); // 获得前台传进来的
-		securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
 		String ids = param.get("ids");
 		// 存货合并
 		if (!StringUtil.isEmpty(ids)) {
@@ -351,7 +345,7 @@ public class InventoryController extends BaseController {
 		if (StringUtil.isEmpty(pk_corp)) {
 			pk_corp = SystemUtil.getLoginCorpId();
 		} else {
-			securityserv.checkSecurityForSave(pk_corp, SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
+            checkSecurityData(null,new String[]{pk_corp},null);
 		}
 
 		InventoryVO update = new InventoryVO();
@@ -388,7 +382,7 @@ public class InventoryController extends BaseController {
 		if (StringUtil.isEmpty(pk_corp)) {
 			pk_corp = SystemUtil.getLoginCorpId();
 		} else {
-			securityserv.checkSecurityForSave(pk_corp, SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
+            checkSecurityData(null,new String[]{pk_corp},null);
 		}
 		String body = param.get("body"); // 子表
 		body = body.replace("}{", "},{");
@@ -398,6 +392,7 @@ public class InventoryController extends BaseController {
 		}
 		if(DZFValueCheck.isEmpty(spid))
 			throw new BusinessException("合并的存货不允许为空!");
+        checkSecurityData(bodyvos,null,null,true);
 		InventoryVO vo = iservice.saveMergeData(pk_corp, spid, bodyvos);
 		json.setMsg("存货合并成功");
 		json.setSuccess(true);
@@ -434,7 +429,6 @@ public class InventoryController extends BaseController {
 			json.setMsg("您无操作权限！");
 			return ReturnData.error().data(json);
 		}
-		securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
 		String errmsg = iservice.deleteBatch(pkss, SystemUtil.getLoginCorpId());
 		json.setSuccess(true);
 		if (StringUtil.isEmpty(errmsg)) {
@@ -472,7 +466,6 @@ public class InventoryController extends BaseController {
 		int index = filename.lastIndexOf(".");
 		String fileType = filename.substring(index + 1);
 		String pk_corp = SystemUtil.getLoginCorpId();
-		securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
 		String msg = iservice.saveImp(infile, pk_corp, fileType, userid);
 		json.setMsg(msg);
 		json.setSuccess(true);
@@ -511,7 +504,7 @@ public class InventoryController extends BaseController {
 		if (StringUtil.isEmpty(pk_corp)) {
 			pk_corp = SystemUtil.getLoginCorpId();
 		} else {
-			securityserv.checkSecurityForSave(pk_corp, SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
+            checkSecurityData(null,new String[]{pk_corp},null);
 		}
 		String bili = param.get("bili");
 		String priceway = param.get("priceway");
@@ -532,6 +525,7 @@ public class InventoryController extends BaseController {
 		if (DZFValueCheck.isEmpty(bodyvos)) {
 			throw new BusinessException("生成结算价的存货不允许为空!");
 		}
+        checkSecurityData(bodyvos,null,null,true);
 		iservice.createPrice(pk_corp,priceway,bili, vchStr,bodyvos);
 		json.setMsg("生成结算价成功");
 		json.setSuccess(true);

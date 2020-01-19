@@ -15,7 +15,6 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.MeasureVO;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.util.ExcelReport;
@@ -48,8 +47,6 @@ import java.util.Map;
 public class MeasureController extends BaseController {
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
-    @Autowired
-    private ISecurityService securityserv;
 	@Autowired
 	private IMeasureService ims;
 
@@ -124,7 +121,7 @@ public class MeasureController extends BaseController {
         }
         list.add(lastVo);
         if (!isAddNew.booleanValue()) {
-            securityserv.checkSecurityForSave(list.get(0).getPk_corp(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+            checkSecurityData(list.toArray(new MeasureVO[list.size()]),null,null,true);
         }
 //        String spInfo = getRequest().getParameter("action"); // 获得前台传进来的
         // 参照新增保存
@@ -154,7 +151,6 @@ public class MeasureController extends BaseController {
         if (DZFValueCheck.isEmpty(pkss)){
             throw new BusinessException("数据为空,删除失败!");
         }
-        securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
         String errmsg = ims.deleteBatch(pkss, SystemUtil.getLoginCorpId());
         if (StringUtil.isEmpty(errmsg)) {
             json.setSuccess(true);

@@ -17,7 +17,6 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icset.IQcService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -50,8 +49,6 @@ public class QcController  extends BaseController {
 
 	@Autowired
 	private IQcService iservice;
-	@Autowired
-	private ISecurityService securityserv;
 	@Autowired
 	private IParameterSetService parameterserv;
 
@@ -110,8 +107,10 @@ public class QcController  extends BaseController {
 			json.setRows(bodyvos[0]);
 		}
 		String pk_corp = SystemUtil.getLoginCorpId(); // 获取公司主键
-		securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
 		setAddDefaultValue(bodyvos); // 设置公司名、创建时间、创建者
+        if(bodyvos != null && bodyvos.length>0){
+            checkSecurityData(bodyvos,null,null, !StringUtil.isEmpty(bodyvos[0].getPk_icbalance()));
+        }
 		iservice.save(pk_corp, bodyvos,SystemUtil.getLoginUserId()); // 保存数据
 		json.setSuccess(true);
 		json.setMsg("保存成功");
@@ -135,15 +134,10 @@ public class QcController  extends BaseController {
 		String paramValues = param.get("ids");
 		String pk_corp = param.get("pk_corp");
 		Json json = new Json();
-		securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
+        checkSecurityData(null,new String[]{pk_corp},null);
 		String[] pkss = DZFStringUtil.getString2Array(paramValues, ",");
 		if (DZFValueCheck.isEmpty(pkss)){
 			throw new BusinessException("数据为空,删除失败!");
-		}
-		if (!SystemUtil.getLoginCorpId().equals(pk_corp)) {
-			json.setSuccess(false);
-			json.setMsg("您无操作权限！");
-			return ReturnData.error().data(json);
 		}
 		String errmsg = iservice.deleteBatch(pkss, SystemUtil.getLoginCorpId());
 		json.setSuccess(true);
@@ -172,7 +166,6 @@ public class QcController  extends BaseController {
 
 		CorpVO corpvo = SystemUtil.getLoginCorpVo();
 		DZFDate icdate = corpvo.getIcbegindate();
-		securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
 		String msg = iservice.saveImp(infile, corpvo.getPk_corp(), fileType, userid, icdate);
 		json.setMsg(msg);
 		json.setSuccess(true);

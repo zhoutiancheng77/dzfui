@@ -13,7 +13,6 @@ import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.gzgl.SalaryAccSetVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryBaseVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryBaseService;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +33,6 @@ public class SalaryBaseController extends BaseController {
 
     @Autowired
     private ISalaryBaseService gl_gzbbaseserv;
-
-    @Autowired
-    private ISecurityService securityserv;
 
     @GetMapping("/query")
     public ReturnData<Json> query(Integer page, Integer rows, @RequestParam("opdate") String qj,
@@ -79,11 +75,10 @@ public class SalaryBaseController extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
-        String logincorp = SystemUtil.getLoginCorpId();
-        String cuserid = SystemUtil.getLoginUserId();
-        securityserv.checkSecurityForSave(pk_corp, logincorp, cuserid);
         List<SalaryBaseVO> list = new ArrayList<>();
         SalaryBaseVO vo = JsonUtils.deserialize(strArr, SalaryBaseVO.class);
+        vo.setPk_corp(pk_corp);
+        checkSecurityData(new SalaryBaseVO[]{vo},null,null, !StringUtil.isEmpty(vo.getPk_sqlarybase()));
         list.add(vo);
         SalaryBaseVO[] vos = gl_gzbbaseserv.save(pk_corp, list, qj);
         json.setMsg("社保公积金保存成功");
@@ -108,9 +103,7 @@ public class SalaryBaseController extends BaseController {
         if (StringUtil.isEmpty(ids)) {
             throw new BusinessException("删除数据为空");
         }
-        String logincorp = SystemUtil.getLoginCorpId();
-        String cuserid = SystemUtil.getLoginUserId();
-        securityserv.checkSecurityForDelete(pk_corp, logincorp, cuserid);
+        checkSecurityData(null,new String[]{pk_corp},null);
         SalaryBaseVO[] vo = gl_gzbbaseserv.delete(pk_corp, ids, qj);
         json.setRows(vo);
         json.setMsg("删除成功");
@@ -160,7 +153,7 @@ public class SalaryBaseController extends BaseController {
                 basevo.setPk_corp(logincorp);
             }
             String pk_corp = basevo.getPk_corp();
-            securityserv.checkSecurityForSave(pk_corp, logincorp, cuserid);
+            checkSecurityData(null,new String[]{pk_corp},null);
             gl_gzbbaseserv.saveChangeNum(pk_corp, cuserid, ids, basevo, accsetvo, qj);
         }
         json.setMsg("调整基数成功");
@@ -177,10 +170,8 @@ public class SalaryBaseController extends BaseController {
         if (!StringUtil.isEmpty(chgdata)) {
             chgdata = chgdata.replaceAll("data.", "");
             SalaryAccSetVO accsetvo = JsonUtils.deserialize(chgdata, SalaryAccSetVO.class);
-
             String logincorp = SystemUtil.getLoginCorpId();
             String cuserid = SystemUtil.getLoginUserId();
-            securityserv.checkSecurityForSave(logincorp, logincorp, cuserid);
             gl_gzbbaseserv.saveChangeNumGroup(logincorp, cuserid, accsetvo);
         }
         json.setMsg("统一基数设置成功");

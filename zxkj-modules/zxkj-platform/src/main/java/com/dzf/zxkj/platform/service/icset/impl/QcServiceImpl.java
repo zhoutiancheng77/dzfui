@@ -522,9 +522,10 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 		}
 
 		checkIsCbjz(pk_corp);
-
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(pk_corp);
 		IcbalanceVO[] invos = (IcbalanceVO[]) singleObjectBO.queryByCondition(IcbalanceVO.class,
-				" pk_icbalance in ( " + strids + " ) ", null);
+				" pk_icbalance in ( " + strids + " ) and pk_corp = ? ", sp);
 
 		if (invos == null || invos.length == 0)
 			throw new BusinessException("库存期初记录不存在，或已经删除！");

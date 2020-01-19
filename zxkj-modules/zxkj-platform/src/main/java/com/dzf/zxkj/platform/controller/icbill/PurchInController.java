@@ -33,7 +33,6 @@ import com.dzf.zxkj.platform.model.icset.IntradeParamVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
@@ -71,8 +70,6 @@ public class PurchInController extends BaseController {
     IPurchInService ic_purchinserv;
 	@Autowired
 	private IParameterSetService parameterserv;
-	@Autowired
-	private ISecurityService securityserv;
     @Autowired
     private ICorpService corpService;
 	@Autowired
@@ -169,7 +166,7 @@ public class PurchInController extends BaseController {
             pk_corp = SystemUtil.getLoginCorpId();
             headvo.setPk_corp(pk_corp);
         }
-        securityserv.checkSecurityForSave(pk_corp, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+		checkSecurityData(new IntradeHVO[]{headvo},null,null,!StringUtil.isEmpty(headvo.getPk_ictrade_h()));
         if (StringUtil.isEmpty(headvo.getPk_ictrade_h())) {
             isadd = true;
         }
@@ -236,7 +233,7 @@ public class PurchInController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,删除失败!!");
 			}
-			securityserv.checkSecurityForDelete(bodyvos[0].getPk_corp(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+			checkSecurityData(bodyvos,null,null);
 			for (IntradeHVO head : bodyvos) {
 				try {
 					ic_purchinserv.delete(head, SystemUtil.getLoginCorpId());
@@ -288,7 +285,7 @@ public class PurchInController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,转总账失败!");
 			}
-			securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+            checkSecurityData(bodyvos,null,null,true);
 			List<String> periodSet = new ArrayList<String>();
 			int flag = 0;
 			for (IntradeHVO head : bodyvos) {
@@ -335,7 +332,7 @@ public class PurchInController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,转总账失败!");
 			}
-			securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+            checkSecurityData(bodyvos,null,null,true);
 			int flag = 0;
 			Map<String, List<IntradeHVO>> map = new LinkedHashMap<String, List<IntradeHVO>>();
 			List<IntradeHVO> list = null;
@@ -453,7 +450,7 @@ public class PurchInController extends BaseController {
 			if (bodyvos == null || bodyvos.length == 0) {
 				throw new BusinessException("数据为空,取消转总账失败!");
 			}
-			securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
+            checkSecurityData(bodyvos,null,null,true);
 			Map<String, DZFBoolean> map = new HashMap<>();
 
 			int flag = 0;
@@ -507,6 +504,7 @@ public class PurchInController extends BaseController {
 		Json json = new Json();
         String ignoreCheck = param.get("ignoreCheck");
         IntradeHVO vo = ic_purchinserv.queryIntradeHVOByID(param.get("id_ictrade_h"), SystemUtil.getLoginCorpId());
+        checkSecurityData(new IntradeHVO[]{vo},null,null,true);
         if (!"Y".equals(ignoreCheck)) {
             ic_purchinserv.check(vo, SystemUtil.getLoginCorpId(), iscopy, false);
             if (iscopy) {
@@ -859,8 +857,6 @@ public class PurchInController extends BaseController {
         int index = filename.lastIndexOf(".");
         String fileType = filename.substring(index + 1);
         String pk_corp = SystemUtil.getLoginCorpId();
-
-        securityserv.checkSecurityForSave(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId());
         String msg = ic_purchinserv.saveImp(infile, pk_corp, fileType, SystemUtil.getLoginUserId());
         if (StringUtil.isEmpty(msg)) {
             json.setSuccess(true);

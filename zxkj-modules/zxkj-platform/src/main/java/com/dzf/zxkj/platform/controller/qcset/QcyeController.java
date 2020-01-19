@@ -25,7 +25,6 @@ import com.dzf.zxkj.platform.model.qcset.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.qcset.IFzhsqcService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
@@ -41,7 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
@@ -60,8 +58,6 @@ public class QcyeController extends BaseController {
     private IFzhsqcService gl_fzhsqcserv;
     @Autowired
     private IQmgzService qmgzService;
-    @Autowired
-    private ISecurityService securityserv;
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
@@ -107,7 +103,7 @@ public class QcyeController extends BaseController {
     public ReturnData kcsync(String pk_corp, @MultiRequestBody CorpVO corpVO,@MultiRequestBody UserVO userVO) {
         Json json = new Json();
         try {
-            securityserv.checkSecurityForOther(pk_corp, corpVO.getPk_corp(), userVO.getCuserid());
+            checkSecurityData(null,new String[]{pk_corp},null);
             /*
              *  库存老模式：总账同步到库存
              *	库存新模式：库存同步到总账

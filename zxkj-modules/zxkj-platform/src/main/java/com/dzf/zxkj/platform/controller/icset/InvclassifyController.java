@@ -14,7 +14,6 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.util.ExcelReport;
@@ -45,8 +44,6 @@ public class InvclassifyController extends BaseController{
 
 	@Autowired
 	private IInvclassifyService ic_inclsserv = null;
-    @Autowired
-    private ISecurityService securityserv;
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
 
@@ -73,15 +70,9 @@ public class InvclassifyController extends BaseController{
 		if (data != null) {
 			// 验证 根据主键校验为当前公司的记录
 			String pk_corp =SystemUtil.getLoginCorpId();
-			// 修改保存前数据安全验证
-			String primaryKey = data.getPrimaryKey();
-			if (!StringUtil.isEmpty(primaryKey)) {
-				InvclassifyVO getvo = ic_inclsserv.queryByPrimaryKey(primaryKey);
-				if (getvo != null && !pk_corp.equals(getvo.getPk_corp())) {
-					throw new BusinessException("出现数据无权问题，无法修改！");
-				}
-			}
+
 			data.setPk_corp(pk_corp);
+            checkSecurityData(new InvclassifyVO[]{data},null,null,!StringUtil.isEmpty(data.getPk_invclassify()));
 			ic_inclsserv.save(data);
 			json.setData(data);
 			json.setSuccess(true);
@@ -137,7 +128,6 @@ public class InvclassifyController extends BaseController{
         if (DZFValueCheck.isEmpty(pkss)){
             throw new BusinessException("数据为空,删除失败!");
         }
-        securityserv.checkSecurityForDelete(SystemUtil.getLoginCorpId(), SystemUtil.getLoginCorpId(),SystemUtil.getLoginUserId());
         String errmsg = ic_inclsserv.deleteBatch(pkss, SystemUtil.getLoginCorpId());
         if (StringUtil.isEmpty(errmsg)) {
             json.setSuccess(true);

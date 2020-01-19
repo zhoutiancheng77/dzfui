@@ -96,8 +96,10 @@ public class MeasureServiceImpl implements IMeasureService {
 	// 批量删除 ， 被引用的计量单位不能被删除
 	public String deleteBatch(String[] ids, String pk_corp) throws DZFWarpException {
 		String strids = SqlUtil.buildSqlConditionForIn(ids);
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(pk_corp);
 		MeasureVO[] invos = (MeasureVO[]) getSingleObjectBO().queryByCondition(MeasureVO.class,
-				" pk_measure in ( " + strids + " ) ", null);
+				" pk_measure in ( " + strids + " ) and pk_corp = ? ", sp);
 
 		if (invos == null || invos.length == 0)
 			throw new BusinessException("计量单位不存在，或已经删除！");
