@@ -356,6 +356,7 @@ public class AuxiliaryAccountController extends BaseController {
     public ReturnData<Json> deleteB(@RequestBody AuxiliaryAccountBVO[] bvos) {
         Json json = new Json();
         json.setSuccess(false);
+        checkSecurityData(bvos);
         String[] msg = gl_fzhsserv.delete(bvos);
         json.setMsg(msg[0]);
         json.setSuccess(true);
