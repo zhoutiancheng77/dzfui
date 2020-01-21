@@ -388,6 +388,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		//取得当前公司的科目map..zpm
 		Map<String, YntCpaccountVO> kmsmap = accService.queryMapByPk(corpVo.getPk_corp());
 		CpcosttransVO mbvos[] = queryCbmbvos(corpVo.getPk_corp(), jztype);
+		ExBusinessException ex = new ExBusinessException("");
 		for (CpcosttransVO mbvo : mbvos) {
 			String jfkmid = mbvo.getPk_debitaccount();
 			String dfkmid = mbvo.getPk_creditaccount();
@@ -404,7 +405,10 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 			// }
 			// }
 			setNullToFalse(qmclvo);
-			saveSalenoicVoucher(qmclvo, list1, corpVo, mbvo, jfkmvo, cbjzCount, listdfkm, xjxcf,userid,kmsmap);
+			saveSalenoicVoucher(qmclvo, list1, corpVo, mbvo, jfkmvo, cbjzCount, listdfkm, xjxcf,userid,kmsmap,ex);
+		}
+		if(ex.getLmap() != null && ex.getLmap().size()>0){
+			throw ex;
 		}
 		return qmclvo;
 	}
@@ -1828,7 +1832,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 	}
 
 	public QmclVO saveSalenoicVoucher(QmclVO qmclvo, List<QMJzsmNoICVO> list, CorpVO corpVo, CpcosttransVO mbvo,
-			YntCpaccountVO jfkmvo, String cbjzCount, List<String> listdfkm, String xjxcf,String userid,Map<String, YntCpaccountVO> kmsmap) throws BusinessException {
+			YntCpaccountVO jfkmvo, String cbjzCount, List<String> listdfkm, String xjxcf,String userid,Map<String, YntCpaccountVO> kmsmap, ExBusinessException ex) throws BusinessException {
 		// CorpVO corpVo1 =
 		// (CorpVO)singleObjectBO.queryByPrimaryKey(CorpVO.class,
 		// corpVo.getPk_corp());
@@ -1867,18 +1871,19 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		}
 
 		NumberForward nf = new NumberForward(yntBoPubUtil, singleObjectBO, ic_rep_cbbserv, voucher,parameterserv,accountService);
-		ExBusinessException ex = new ExBusinessException("");
 		List<TempInvtoryVO> zlist = nf.numberForwardNoIC(mbvo, qmclvo, corpVo, list, jfkmvo, cbjzCount, listdfkm,
 				isxjxcf,userid,datafer);
 		if (zlist != null && zlist.size() > 0) {
-			if (ex.getLmap() == null) {
+			if (ex.getLmap() == null || ex.getLmap().size() == 0 ) {
 				Map<String, List<TempInvtoryVO>> map = new HashMap<String, List<TempInvtoryVO>>();
 				map.put(qmclvo.getPk_corp(), zlist);
 				ex.setLmap(map);
 			} else {
+			    if(ex.getLmap().containsKey(qmclvo.getPk_corp())){
+                    zlist.addAll(ex.getLmap().get(qmclvo.getPk_corp()));
+                }
 				ex.getLmap().put(qmclvo.getPk_corp(), zlist);
 			}
-			throw ex;
 		}
 		return qmclvo;
 	}
