@@ -9,7 +9,7 @@
             fun_code as code,
             module,
             router,
-            nodeurl,
+            server_url as nodeurl,
             dr,
             pk_parent_new as pk_parent,
             file_dir as component,
