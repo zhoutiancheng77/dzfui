@@ -156,6 +156,12 @@ public class PermissionFilter extends ZuulFilter {
         log.info(serverPath);
         log.info("***************serverPath end*********************");
 
+        log.info("***************myPermisssions begin*********************");
+        myPermisssions.stream().forEach(v ->{
+            log.info(v);
+        });
+        log.info("***************myPermisssions end*********************");
+
         if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
             sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
             return null;
