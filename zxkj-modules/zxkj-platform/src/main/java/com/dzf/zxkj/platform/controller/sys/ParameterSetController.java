@@ -126,9 +126,9 @@ public class ParameterSetController extends BaseController {
         try{
             String pk_corp = cpvo.getPk_corp();
             if (setvo != null) {
-                if(!IDefaultValue.DefaultGroup.equals(setvo.getPk_corp())){
-                    checkSecurityData(null,new String[]{setvo.getPk_corp()},userVO.getCuserid());
-                }
+//                if(!IDefaultValue.DefaultGroup.equals(setvo.getPk_corp())){
+//                    checkSecurityData(null,new String[]{setvo.getPk_corp()},userVO.getCuserid());
+//                }
                 iservice.saveParamter(pk_corp,setvo);
                 grid.setSuccess(true);
                 grid.setMsg("保存成功!");
