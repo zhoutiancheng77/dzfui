@@ -146,8 +146,15 @@ public class PermissionFilter extends ZuulFilter {
         Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
 
         String path = request.getRequestURI();
+        log.info("***************path begin*********************");
+        log.info(path);
+        log.info("***************path end*********************");
 
         String serverPath = path.replace("/api", "");
+
+        log.info("***************serverPath begin*********************");
+        log.info(serverPath);
+        log.info("***************serverPath end*********************");
 
         if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
             sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
