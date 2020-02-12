@@ -26,6 +26,7 @@ import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
 import com.dzf.zxkj.platform.model.glic.InventoryQcVO;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
@@ -45,6 +46,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.AccountUtil;
 import com.dzf.zxkj.platform.util.Kmschema;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.TaxClassifyGetValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -511,6 +513,14 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         return qvo;
     }
 
+    private String getNameInfoKey(InventoryAliasVO invo) {
+        StringBuffer strb = new StringBuffer();
+        strb.append(appendIsNull(invo.getAliasname()));
+        strb.append(appendIsNull(invo.getSpec()));
+        strb.append(appendIsNull(invo.getInvtype()));
+        strb.append(appendIsNull(invo.getUnit()));
+        return strb.toString();
+    }
     private String getNameInfoKey(AuxiliaryAccountBVO invo) {
         StringBuffer strb = new StringBuffer();
         strb.append(appendIsNull(invo.getName()));
@@ -518,7 +528,6 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         strb.append(appendIsNull(invo.getInvtype()));
         strb.append(appendIsNull(invo.getUnit()));
         return strb.toString();
-
     }
 
     private String appendIsNull(String info) {
@@ -2133,6 +2142,35 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         // 判断出库科目是否合规
         if (!StringUtil.isEmpty(bvo.getChukukmname()) && StringUtil.isEmpty(bvo.getChukukmid())) {
             dealMessage(message, row, "出库科目：" + bvo.getChukukmname() + "未匹配上!");
+        }
+
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(bvo.getPk_corp());
+        InventoryAliasVO[] bvos = (InventoryAliasVO[]) singleObjectBO.queryByCondition(InventoryAliasVO.class,
+                " nvl(dr,0) = 0 and pk_corp = ? ", sp);
+        if(bvos != null && bvos.length>0){
+            HashSet<String> nameInfoSet = new HashSet<String>();
+            for (InventoryAliasVO vo : bvos) {
+                nameInfoSet.add(getNameInfoKey(vo));
+            }
+            nameInfoKey = getNameInfoKey(bvo);
+            if (nameInfoSet.contains(nameInfoKey)) {
+                StringBuffer namemsg = new StringBuffer();
+                if (!StringUtil.isEmpty(bvo.getName())) {
+                    namemsg.append("别名[" + bvo.getName() + "]、");
+                }
+                if (!StringUtil.isEmpty(bvo.getSpec())) {
+                    namemsg.append("规格(型号)[" + bvo.getSpec() + "]、");
+                } else {
+                    namemsg.append("规格(型号)、");
+                }
+                if (!StringUtil.isEmpty(bvo.getUnit())) {
+                    namemsg.append("计量单位[" + bvo.getUnit() + "]");
+                } else {
+                    namemsg.append("计量单位");
+                }
+                dealMessage(message, row, namemsg.toString() + "与该存货重复，保存失败!");
+            }
         }
     }
 

@@ -16,6 +16,7 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
 import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
@@ -138,6 +139,16 @@ public class InventoryServiceImpl implements IInventoryService {
 
 		Set<String> error_msg = new HashSet<>();
 		InventoryVO oldvo = null;
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(pk_corp);
+		InventoryAliasVO[] bvos = (InventoryAliasVO[]) singleObjectBO.queryByCondition(InventoryAliasVO.class,
+				" nvl(dr,0) = 0 and pk_corp = ? ", sp);
+		HashSet<String> alnameInfoSet = new HashSet<String>();
+		if(bvos != null && bvos.length>0) {
+			for (InventoryAliasVO vo : bvos) {
+				alnameInfoSet.add(getNameInfoKey(vo));
+			}
+		}
 		for (InventoryVO invo : vos) {
 			// 检查编码是否已存在
 			oldvo = null;
@@ -202,7 +213,27 @@ public class InventoryServiceImpl implements IInventoryService {
 			} else {
 				nameInfoSet.add(nameInfoKey);
 			}
+
+			nameInfoKey = getInvNameInfoKey(invo);
+			if (alnameInfoSet.contains(nameInfoKey)) {
+				StringBuffer namemsg = new StringBuffer();
+				if (!StringUtil.isEmpty(invo.getName())) {
+					namemsg.append("别名[" + invo.getName() + "]、");
+				}
+				if (!StringUtil.isEmpty(invo.getInvspec())) {
+					namemsg.append("规格(型号)[" + invo.getInvspec() + "]、");
+				} else {
+					namemsg.append("规格(型号)、");
+				}
+				if (!StringUtil.isEmpty(invo.getMeasurename())) {
+					namemsg.append("计量单位[" + invo.getMeasurename() + "]");
+				} else {
+					namemsg.append("计量单位");
+				}
+				error_msg.add(namemsg.toString() + "与该存货重复，保存失败!");
+			}
 		}
+
 
 		if (!error_msg.isEmpty()) {
 			StringBuffer sb = new StringBuffer();
@@ -231,7 +262,21 @@ public class InventoryServiceImpl implements IInventoryService {
 		strb.append(appendIsNull(invo.getInvspec()));
 		strb.append(appendIsNull(invo.getPk_measure()));
 		return strb.toString();
+	}
 
+	private String getInvNameInfoKey(InventoryVO invo) {
+		StringBuffer strb = new StringBuffer();
+		strb.append(appendIsNull(invo.getName()));
+		strb.append(appendIsNull(invo.getInvspec()));
+		strb.append(appendIsNull(invo.getMeasurename()));
+		return strb.toString();
+	}
+	private String getNameInfoKey(InventoryAliasVO invo) {
+		StringBuffer strb = new StringBuffer();
+		strb.append(appendIsNull(invo.getAliasname()));
+		strb.append(appendIsNull(invo.getSpec()));
+		strb.append(appendIsNull(invo.getUnit()));
+		return strb.toString();
 	}
 
 	private String appendIsNull(String info) {

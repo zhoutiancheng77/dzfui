@@ -6,9 +6,13 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
+import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
+import com.dzf.zxkj.platform.model.icset.InventoryVO;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.glic.IInvAccAliasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +26,8 @@ public class InvAccAliasServiceImpl implements IInvAccAliasService {
 
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-
+	@Autowired
+	private IAuxiliaryAccountService gl_fzhsserv;
 	@Override
 	public InventoryAliasVO[] query(String pk_corp, String pk_inventory) throws DZFWarpException {
 		SQLParameter sp = new SQLParameter();
@@ -97,6 +102,40 @@ public class InvAccAliasServiceImpl implements IInvAccAliasService {
 		if (list != null && list.size() > 0) {
 			throw new BusinessException("[" + list.get(0) + "]里存在该别名，保存失败");
 		}
+		AuxiliaryAccountBVO[] bvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, vo1.getPk_corp(),null);
+		if(bvos != null && bvos.length>0){
+			HashSet<String> nameInfoSet = new HashSet<String>();
+			for (AuxiliaryAccountBVO vo : bvos) {
+				nameInfoSet.add(getNameInfoKey(vo));
+			}
+			String nameInfoKey = getNameInfoKey(vo1);
+			if (nameInfoSet.contains(nameInfoKey)) {
+				StringBuffer namemsg = new StringBuffer();
+				if (!StringUtil.isEmpty(vo1.getAliasname())) {
+					namemsg.append("存货名称[" + vo1.getAliasname() + "]、");
+				}
+				if (!StringUtil.isEmpty(vo1.getSpec())) {
+					namemsg.append("规格(型号)[" + vo1.getSpec() + "]、");
+				} else {
+					namemsg.append("规格(型号)、");
+				}
+				if (!StringUtil.isEmpty(vo1.getUnit())) {
+					namemsg.append("计量单位[" + vo1.getUnit() + "]");
+				} else {
+					namemsg.append("计量单位");
+				}
+				throw new BusinessException(namemsg.toString() + "与该别名重复，保存失败");
+			}
+		}
+	}
+
+	private String getNameInfoKey(AuxiliaryAccountBVO invo) {
+		StringBuffer strb = new StringBuffer();
+		strb.append(appendIsNull(invo.getName()));
+		strb.append(appendIsNull(invo.getSpec()));
+		strb.append(appendIsNull(invo.getInvtype()));
+		strb.append(appendIsNull(invo.getUnit()));
+		return strb.toString();
 	}
 
 	@Override
