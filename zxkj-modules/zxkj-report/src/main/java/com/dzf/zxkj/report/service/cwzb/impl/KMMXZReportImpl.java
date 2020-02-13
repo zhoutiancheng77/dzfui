@@ -714,6 +714,23 @@ public class KMMXZReportImpl implements IKMMXZReport {
 					}
 				}
 				return tt;
+			}else if("dlz".equals(vo.getRptsource())){
+				List<KmMxZVO> tt = new ArrayList<KmMxZVO>();
+				//过滤借贷方金额与方向不相符的结果集
+				for(KmMxZVO mxvo : vec) {
+					if(mxvo.getBqc() == null || !mxvo.getBqc().booleanValue()) {
+						if("借".equals(mxvo.getFx())
+								&& SafeCompute.add(mxvo.getDf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+							continue;
+						}else if("贷".equals(mxvo.getFx())
+								&& SafeCompute.add(mxvo.getJf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+							continue;
+						}
+					}
+
+					tt.add(mxvo);
+				}
+				return tt;
 			}
 		}
 		return vec;

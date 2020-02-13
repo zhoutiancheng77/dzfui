@@ -74,6 +74,8 @@ public class MultiColumnController extends ReportBaseController {
             checkPowerDate(vo, corpVO);
             /** 是否显示当年的本年累计 */
             vo.setBtotalyear(DZFBoolean.TRUE);
+            /** 设置来源 */
+            vo.setRptsource("dlz");
             /** 动态的列数 */
             Object[] objs = gl_rep_multiserv.getMulColumns(vo);
 
