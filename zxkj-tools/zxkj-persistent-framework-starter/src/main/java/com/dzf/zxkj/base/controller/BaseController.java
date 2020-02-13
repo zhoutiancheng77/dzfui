@@ -59,6 +59,11 @@ public class BaseController {
     }
 
     public void writeLogRecord(LogRecordEnum recordEnum, String msg, Integer ident) {
+        String notRecord = request.getParameter("unjl");
+        if ("Y".equals(notRecord)) {
+            // 不记录日志
+            return;
+        }
         try {
             String login_corp = request.getHeader(ISysConstant.LOGIN_PK_CORP);
             String login_userid = request.getHeader(ISysConstant.LOGIN_USER_ID);
