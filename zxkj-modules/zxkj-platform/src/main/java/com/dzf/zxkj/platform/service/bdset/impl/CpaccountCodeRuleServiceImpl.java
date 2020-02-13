@@ -3,7 +3,7 @@ package com.dzf.zxkj.platform.service.bdset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
+import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -51,11 +51,28 @@ public class CpaccountCodeRuleServiceImpl implements ICpaccountCodeRuleService {
 		
 		YntCpaccountVO[] vos =(YntCpaccountVO[]) getSbo().queryByCondition(YntCpaccountVO.class,"pk_corp=? and nvl(dr,0)=0 order by accountcode ", sp);// AccountCache.getInstance().get(null, pk_corp);
 
-		List<String> repeatcolumns = (List<String>) getSbo().executeQuery("select accountcode from ynt_cpaccount where pk_corp=? and nvl(dr,0)=0 group by accountcode having count(1)>1", sp, new ColumnListProcessor());
-		
-		if(repeatcolumns!=null && repeatcolumns.size()>0){
+		String repeatSql = "select accountcode, accountname from ynt_cpaccount where" +
+				" pk_corp=  ? and nvl(dr,0)=0 group by accountcode, accountname having count(1)>1";
+		List<YntCpaccountVO> repeatAccounts = (List<YntCpaccountVO>) getSbo()
+				.executeQuery(repeatSql, sp, new BeanListProcessor(YntCpaccountVO.class));
+
+		if (repeatAccounts != null && repeatAccounts.size() > 0) {
 			log.info("存在重复的会计科目，请联系客服。");
-			throw new BusinessException("存在重复的会计科目，请联系客服。");
+			StringBuilder msg = new StringBuilder();
+			msg.append("存在重复的会计科目(");
+			for (int i = 0; i < repeatAccounts.size(); i++) {
+				if (i > 0) {
+					msg.append(",");
+				}
+				YntCpaccountVO repeatAccount = repeatAccounts.get(i);
+				msg.append(repeatAccount.getAccountcode()).append("_").append(repeatAccount.getAccountname());
+			}
+			for (YntCpaccountVO repeatAccount : repeatAccounts) {
+				msg.append(repeatAccount.getAccountcode()).append("_").append(repeatAccount.getAccountname());
+			}
+
+			msg.append(")，请联系客服。");
+			throw new BusinessException(msg.toString());
 		}
 		
 		if(vos==null||vos.length==0){
