@@ -2244,7 +2244,10 @@ public class PrintReporUtil {
                                    CorpVO corpvo) {
         StringBuffer value = new StringBuffer();
         String username = getUsername(kmList);
-        value.append("制单人：" + username);
+//        value.append("制单人：" + username);
+        value.append("会计：" + username);
+        value.append(PrintUtil.getSpace(15));
+        value.append("库管员：" + username);
         value.append(PrintUtil.getSpace(15));
         value.append("打印日期：" + pmap.get("printdate"));
         return value.toString();
