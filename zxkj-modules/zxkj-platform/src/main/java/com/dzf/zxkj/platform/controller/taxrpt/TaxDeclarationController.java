@@ -170,6 +170,8 @@ public class TaxDeclarationController  extends BaseController {
         String pk_taxreport = param.get("pk_taxreport");
         String corpid = param.get("pk_corp");
         String jsonString = param.get("jsonString");
+        String sbname = param.get("sbname");
+        String period = param.get("period");
 
         Json rsjson = new Json();
         try {
@@ -190,6 +192,7 @@ public class TaxDeclarationController  extends BaseController {
             }else{
                 rsjson.setMsg("保存成功!");
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_TAX,"保存期间为" + period + sbname + "税表", ISysConstants.SYS_2);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rsjson.setSuccess(false);

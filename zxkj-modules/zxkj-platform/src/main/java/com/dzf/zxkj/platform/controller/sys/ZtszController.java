@@ -3,9 +3,11 @@ package com.dzf.zxkj.platform.controller.sys;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
@@ -83,6 +85,9 @@ public class ZtszController extends BaseController {
                     json.setRows(datas[0]);
                     // 附件信息（此处有问题：返回的附件信息仅是新增的数据，但是现在保存后直接返回列表界面，故不作处理）
                     json.setMsg("更新成功");
+                    // 日志记录
+                    writeLogRecord(LogRecordEnum.OPE_KJ_TAX, "修改客户:客户编码" + corp.getUnitcode(),
+                            ISysConstants.SYS_0);
                 } else {
                     json.setMsg("对不起，您无操作权限！");
                     json.setSuccess(false);

@@ -73,6 +73,8 @@ public class DcPzmbController extends BaseController{
                 json.setMsg("保存成功!");
                 json.setHead(savevo);
                 json.setChilds(setGrid(savebody));
+
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, tips, ISysConstants.SYS_2);//保存成功添加日志
             }else{
                 json.setSuccess(false);
                 json.setMsg(errorinfo);
@@ -82,7 +84,6 @@ public class DcPzmbController extends BaseController{
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败!");
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, tips, ISysConstants.SYS_2);
 
         return ReturnData.ok().data(json);
     }
