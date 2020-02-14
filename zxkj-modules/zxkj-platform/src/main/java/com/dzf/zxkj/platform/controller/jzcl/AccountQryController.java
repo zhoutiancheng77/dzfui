@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -26,7 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("workbench/accountqry")
 @Slf4j
-public class AccountQryController {
+public class AccountQryController extends BaseController {
     @Autowired
     private IAccountQryService accqryser;
     @Autowired
@@ -77,6 +80,7 @@ public class AccountQryController {
             if (grid.isSuccess() && grid.getRows() != null && grid.getRows().size() > 0) {
                 grid.setRows(accqryser.queryYjxxByMulti(grid.getRows(), pamvo.getQjq()));
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE,"会计记账查询", ISysConstants.SYS_2);
         } catch (Exception e) {
             if (e instanceof BusinessException) {
                 grid.setMsg(e.getMessage());
