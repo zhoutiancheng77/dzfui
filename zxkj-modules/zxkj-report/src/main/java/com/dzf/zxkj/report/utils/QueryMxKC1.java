@@ -22,6 +22,7 @@ import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.report.NumMnyDetailVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import io.swagger.models.auth.In;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -970,7 +971,11 @@ public class QueryMxKC1 {
             return;
         for (int i = 0; i < zlist1.size(); i++) {
             if ("期初余额".equals(zlist1.get(i).getZy()) && ReportUtil.bSysZy(zlist1.get(i))) {
-                zlist1.get(i).setDir(getkmdir(cpamap, zlist1.get(i).getPk_subject()).toString());
+                Integer t = getkmdir(cpamap, zlist1.get(i).getPk_subject());
+                if(t != null){
+                    zlist1.get(i).setDir(t.toString());
+                }
+
                 continue;
             } else if (("本年累计".equals(zlist1.get(i).getZy()) && ReportUtil.bSysZy(zlist1.get(i)))
                     || ("本期合计".equals(zlist1.get(i).getZy()) && ReportUtil.bSysZy(zlist1.get(i)))) {
@@ -979,7 +984,11 @@ public class QueryMxKC1 {
                 zlist1.get(i).setNymny(zlist1.get(i - 1).getNymny());
                 zlist1.get(i).setDir(zlist1.get(i - 1).getDir());
             } else {
-                zlist1.get(i).setDir(getkmdir(cpamap, zlist1.get(i).getPk_subject()).toString());
+                Integer t = getkmdir(cpamap, zlist1.get(i).getPk_subject());
+                if(t != null){
+                    zlist1.get(i).setDir(t.toString());
+                }
+
                 DZFDouble z1 = zlist1.get(i - 1).getNynum();
                 DZFDouble z2 = zlist1.get(i - 1).getNymny();
                 DZFDouble z3 = DZFDouble.ZERO_DBL;
@@ -1678,7 +1687,11 @@ public class QueryMxKC1 {
             calcnumqc(qcvos, banvo);
             DZFDouble mny = banvo.getThismonthqc();
             DZFDouble num = banvo.getMonthqmnum();
-            cvo.setDir(getkmdir(cpamap, cvo.getPk_subject()).toString());
+            Integer t = getkmdir(cpamap, cvo.getPk_subject());
+            if(t != null){
+                cvo.setDir(t.toString());
+            }
+
             if ("1".equals(cvo.getDir())) {
                 num = SafeCompute.multiply(num, new DZFDouble(-1));
                 mny = SafeCompute.multiply(mny, new DZFDouble(-1));

@@ -163,6 +163,7 @@ public class NmnyMXController extends ReportBaseController {
                 grid.setMsg("查询失败:查询开始日期，应该在查询结束日期前!!");
             }
         } catch (Exception e) {
+            log.error("错误", e);
             grid.setRows(new ArrayList<NumMnyDetailVO>());
 //            printErrorLog(grid, log, e, "查询失败!");
             grid.setSuccess(false);
