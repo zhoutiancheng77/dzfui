@@ -5061,7 +5061,13 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			}
 			if(!StringUtil.isEmpty(istate)&&istate.equals(ZncsConst.SBZT_3)&&!StringUtil.isEmpty(invoicetype)&&(invoicetype.indexOf("增值税专用发票")>-1||invoicetype.indexOf("机动车销售统一发票")>-1||invoicetype.indexOf("通行费增值税电子普通发票")>-1)){
 				headVO.setFp_style(2);
-			}else{
+			}else if (!StringUtil.isEmpty(istate)&&istate.equals(ZncsConst.SBZT_3)&&!StringUtil.isEmpty(invoicetype)&&(invoicetype.indexOf("二手车销售统一发票")>-1)){
+                if(!"小规模纳税人".equals(corp.getChargedeptname())){
+                    headVO.setFp_style(1);
+                }else{
+                    headVO.setFp_style(3);
+                }
+            }else{
 				headVO.setFp_style(1);
 			}
 		}else if(!StringUtil.isEmpty(invoiceVO.getIstate())&&invoiceVO.getIstate().equals(ZncsConst.SBZT_1)){
