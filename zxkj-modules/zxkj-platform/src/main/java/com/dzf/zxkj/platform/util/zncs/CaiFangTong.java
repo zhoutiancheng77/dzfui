@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.piaotong.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -40,23 +41,21 @@ public class CaiFangTong {
 	private static String encryptCode = null;
 	
 	static{
-		InputStream is = null;
-		Properties prop = new Properties();
-		try {
-			Resource exportTemplate = new ClassPathResource("properties"+ File.separator+"zncsConfig.properties");
-			is = exportTemplate.getInputStream();
-			prop.load(is);
-			busiurl = prop.getProperty("cft_busiurl");
-			getcorpnameurl = prop.getProperty("cft_getcorpnameurl");
-			appId = prop.getProperty("cft_appId");
-			version = prop.getProperty("cft_version");
-			randnum = prop.getProperty("cft_randnum");
-			regpwd = prop.getProperty("cft_regpwd");
-			encryptCode = prop.getProperty("cft_encryptCode");
+		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		busiurl = zncsUrlConfig.cft_busiurl;
+
+		getcorpnameurl = zncsUrlConfig.cft_getcorpnameurl;
+
+		appId = zncsUrlConfig.cft_appId;
+
+		version = zncsUrlConfig.cft_version;
+
+		randnum = zncsUrlConfig.cft_randnum;
+
+		regpwd = zncsUrlConfig.cft_regpwd;
+
+		encryptCode = zncsUrlConfig.cft_encryptCode;
 	}
 	
 	//请求参数

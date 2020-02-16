@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.util.zncs;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import java.io.File;
@@ -17,19 +18,11 @@ public class PropertyGetter {
 	public static String webrow = null;// 清单总行数
 	public static String ptjx_url = null; //票通进项
 	static {
-		InputStream is = null;
-		Properties prop = new Properties();
-		try {
-			Resource exportTemplate = new ClassPathResource("properties"+ File.separator+"zncsConfig.properties");
-			is = exportTemplate.getInputStream();
-			prop.load(is);
-			// / 加载属性列表
-			inv_ip = prop.getProperty("ocr_inv_ip");
-			webrow = prop.getProperty("ocr_webrow");
-			ptjx_url = prop.getProperty("ptjx_url");
-			} catch (IOException e) {
-				e.printStackTrace();
-				}
+		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
+		// / 加载属性列表
+		inv_ip = zncsUrlConfig.inv_ip;
+		webrow = zncsUrlConfig.webrow;
+		ptjx_url = zncsUrlConfig.ptjx_ptjxurl;
 		}
 }
 

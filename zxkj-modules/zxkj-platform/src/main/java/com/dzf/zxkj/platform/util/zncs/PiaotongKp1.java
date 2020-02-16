@@ -15,6 +15,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import com.dzf.zxkj.platform.model.piaotong.*;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -60,26 +61,17 @@ public class PiaotongKp1 {
 	private int ly;
 	
 	static{
-		InputStream is = null;
-		Properties prop = new Properties();
-		try {
-			Resource exportTemplate = new ClassPathResource("properties"+ File.separator+"zncsConfig.properties");
-			is = exportTemplate.getInputStream();
-			prop.load(is);
-			// / 加载属性列表
-			ptxxurl = prop.getProperty("ptb_ptxxurl");
-			xxptbm = prop.getProperty("ptb_xxptbm");
-			platformCode = prop.getProperty("ptb_platformCode");
-			signType = prop.getProperty("ptb_signType");
-			format = prop.getProperty("ptb_format");
-			xxversion = prop.getProperty("ptb_xxversion");
-			xxpwd = prop.getProperty("ptb_xxpwd");
-			xxsize = prop.getProperty("ptb_xxsize");
-			privateKey = prop.getProperty("ptb_privateKey");
-			publicKey = prop.getProperty("ptb_publicKey");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
+		ptxxurl = zncsUrlConfig.ptb_ptxxurl;
+		xxptbm = zncsUrlConfig.ptb_xxptbm;
+		platformCode = zncsUrlConfig.ptb_platformCode;
+		signType = zncsUrlConfig.ptb_signType;
+		format = zncsUrlConfig.ptb_format;
+		xxversion = zncsUrlConfig.ptb_xxversion;
+		xxpwd = zncsUrlConfig.ptb_xxpwd;
+		xxsize = zncsUrlConfig.ptb_xxsize;
+		privateKey = zncsUrlConfig.ptb_privateKey;
+		publicKey = zncsUrlConfig.ptb_publicKey;
 	}
 
 	public PiaotongKp1(String taxpayerNum,

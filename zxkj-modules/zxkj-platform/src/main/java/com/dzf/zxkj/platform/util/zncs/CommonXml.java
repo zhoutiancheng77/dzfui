@@ -4,6 +4,7 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
+import com.dzf.zxkj.platform.config.ZncsUrlConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -77,33 +78,26 @@ public class CommonXml {
 	//根据短信验证码获取token
 	public static String ACCESS_TOKEN = "ACCESS_TOKEN";
 	static {
-		InputStream is = null;
-		Properties prop = new Properties();
-		try {
-			Resource exportTemplate = new ClassPathResource("properties"+ File.separator+"zncsConfig.properties");
-			is = exportTemplate.getInputStream();
-			prop.load(is);
-			// / 加载属性列表
-			fpcyurl = prop.getProperty("fpcy_fpcyurl");
-			ocrurl = prop.getProperty("fpcy_ocrurl");
-			busiurl = prop.getProperty("fpcy_busiurl");
-			authurl = prop.getProperty("fpcy_authurl");
-			version = prop.getProperty("fpcy_version");
-			appKey = prop.getProperty("fpcy_appKey");
-			appSecret = prop.getProperty("fpcy_appSecret");
-			uid = prop.getProperty("fpcy_uid");
-			unzip = prop.getProperty("fpcy_unzip");
-			unencry = prop.getProperty("fpcy_unencry");
-			endes = prop.getProperty("fpcy_endes");
-			enca = prop.getProperty("fpcy_enca");
-			codeType = prop.getProperty("fpcy_codeType");
-			standardtime = prop.getProperty("fpcy_standardtime");
-			regpwd = prop.getProperty("fpcy_regpwd");
-			pagesize = prop.getProperty("fpcy_pagesize");
-			randnum = prop.getProperty("fpcy_randnum");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
+		ocrurl =  zncsUrlConfig.fpcy_ocrurl;
+		busiurl = zncsUrlConfig.fpcy_busiurl;
+		authurl = zncsUrlConfig.fpcy_authurl;
+
+		fpcyurl = zncsUrlConfig.fpcy_fpcyurl;
+
+		version = zncsUrlConfig.fpcy_version;
+		appKey = zncsUrlConfig.fpcy_appKey;
+		appSecret = zncsUrlConfig.fpcy_appSecret;
+		uid = zncsUrlConfig.fpcy_uid;
+		randnum = zncsUrlConfig.fpcy_randnum;
+		unzip = zncsUrlConfig.fpcy_unzip;
+		unencry = zncsUrlConfig.fpcy_unencry;
+		endes = zncsUrlConfig.fpcy_endes;
+		enca = zncsUrlConfig.fpcy_enca;
+		codeType = zncsUrlConfig.fpcy_codeType;
+		standardtime = zncsUrlConfig.fpcy_standardtime;
+		regpwd = zncsUrlConfig.fpcy_regpwd;
+		pagesize = zncsUrlConfig.fpcy_pagesize;
 	}
 	
 	public static String getCurDate(){
