@@ -2244,11 +2244,18 @@ public class PrintReporUtil {
                                    CorpVO corpvo) {
         StringBuffer value = new StringBuffer();
         String username = getUsername(kmList);
-//        value.append("制单人：" + username);
-        if(pmap.containsKey("会计"))
+        if(pmap.containsKey("会计") && pmap.containsKey("库管员")){
+            if(pmap.containsKey("会计"))
             value.append("会计：" + getPrintString(username));
         if(pmap.containsKey("库管员"))
             value.append("库管员：" +  getPrintString(pmap.get("库管员")));
+        }else{
+        if(pmap.containsKey("会计"))
+            value.append("会计：" +username);
+        if(pmap.containsKey("库管员"))
+            value.append("库管员：" +  PrintUtil.getSpace(6));
+            value.append(PrintUtil.getSpace(15));
+        }
         value.append("打印日期：" + pmap.get("printdate"));
         return value.toString();
     }
