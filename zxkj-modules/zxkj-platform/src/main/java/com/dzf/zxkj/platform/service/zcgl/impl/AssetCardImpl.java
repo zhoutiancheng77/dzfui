@@ -650,7 +650,8 @@ public class AssetCardImpl implements IAssetCard {
         Map<String, YntCpaccountVO> cpamap = accountService.queryMapByPk(corpvo.getPk_corp());
         for (AssetcardVO assetcardVO : assetcardVOList) {
             // 生成凭证, 查询资产类型编码
-            if (categoryVoMap.get(assetcardVO.getAssetcategory()) == null) {
+            BdAssetCategoryVO bdAssetCategoryVO = categoryVoMap.get(assetcardVO.getAssetcategory());
+            if (bdAssetCategoryVO == null) {
                 throw new BusinessException(String.format("资产类别错误！"));
             }
             String key = corpvo.getPk_corp() + assetcardVO.getAssetcategory();
@@ -689,7 +690,7 @@ public class AssetCardImpl implements IAssetCard {
                     creditVO = new TzpzBVO();
                     Jfmny = Jfmny.add(assetdepVO.getOriginalvalue());
                     creditVO.setPk_accsubj(assetcardVO.getPk_zjfykm());
-                    creditVO.setZy(period + "月折旧(摊销)");
+                    creditVO.setZy(period + "月"+createZtzjZy(bdAssetCategoryVO.getAssetproperty()));
                     creditVO.setVcode(cpamap.get(assetcardVO.getPk_zjfykm())
                             .getAccountcode());
                     creditVO.setVname(cpamap.get(assetcardVO.getPk_zjfykm())
@@ -730,7 +731,7 @@ public class AssetCardImpl implements IAssetCard {
                 } else {
                     debitVO = new TzpzBVO();
                     debitVO.setPk_accsubj(assetcardVO.getPk_jtzjkm());
-                    debitVO.setZy(period + "月折旧(摊销)");
+                    debitVO.setZy(period + "月"+createZtzjZy(bdAssetCategoryVO.getAssetproperty()));
                     debitVO.setVcode(cpamap.get(assetcardVO.getPk_jtzjkm())
                             .getAccountcode());
                     debitVO.setVname(cpamap.get(assetcardVO.getPk_jtzjkm())
@@ -858,6 +859,16 @@ public class AssetCardImpl implements IAssetCard {
         return Jfmny;
     }
 
+    private String createZtzjZy(Integer assetProperty){
+        if (assetProperty == 0)
+            return "折旧";
+        else if (assetProperty == 1)
+            return "摊销";
+        else if (assetProperty == 3)
+            return "摊销";
+        else
+            return "摊销";
+    }
 
     private DZFDouble executeAssetCardCategory(CorpVO corpvo, String period,
                                                AssetcardVO[] assetcardVOs, DZFDate currDate, DZFDate businessDate,
