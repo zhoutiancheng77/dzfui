@@ -86,7 +86,7 @@ public class ZtszController extends BaseController {
                     // 附件信息（此处有问题：返回的附件信息仅是新增的数据，但是现在保存后直接返回列表界面，故不作处理）
                     json.setMsg("更新成功");
                     // 日志记录
-                    writeLogRecord(LogRecordEnum.OPE_KJ_TAX, "修改客户:客户编码" + corp.getUnitcode(),
+                    writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX, "修改客户:客户编码" + corp.getUnitcode(),
                             ISysConstants.SYS_0);
                 } else {
                     json.setMsg("对不起，您无操作权限！");
