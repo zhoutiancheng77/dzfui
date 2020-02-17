@@ -96,7 +96,7 @@ public class InvAliasController extends BaseController {
 		ic_invtoryaliasserv.deleteByPks(pkss, SystemUtil.getLoginCorpId());
 		json.setMsg("删除成功");
 		json.setSuccess(true);
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除存货别名",ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除"+"存货'"+cateName+"'别名：别名："+aliasname+";",ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
 	}
 }

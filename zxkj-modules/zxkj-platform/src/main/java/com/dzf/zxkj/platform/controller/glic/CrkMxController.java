@@ -81,7 +81,7 @@ public class CrkMxController extends GlicReportController{
         grid.setRows(list == null ? new ArrayList<>() : list);
         grid.setKcDetail(list == null ? new ArrayList<>() : list);
         grid.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"出入库明细表查询:", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,new StringBuffer().append("出入库明细表查询:").append(param.get("beginPeriod")).append("至").append(param.get("endPeriod")).toString(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
