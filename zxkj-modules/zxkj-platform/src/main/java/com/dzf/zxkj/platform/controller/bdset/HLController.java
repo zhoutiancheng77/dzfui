@@ -123,6 +123,8 @@ public class HLController extends BaseController {
             grid.setSuccess(false);
             log.error("查询失败！", e);
         }
+
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "编辑汇率档案");
         return ReturnData.ok().data(grid);
     }
 

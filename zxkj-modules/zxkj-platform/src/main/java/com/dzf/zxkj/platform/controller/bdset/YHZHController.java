@@ -1,11 +1,13 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.constant.IBillManageConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -28,7 +30,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/bdset/gl_yhzhact")
 @Slf4j
-public class YHZHController {
+public class YHZHController extends BaseController {
     @Autowired
     private IYHZHService gl_yhzhserv;
     @Autowired
@@ -98,10 +100,13 @@ public class YHZHController {
                 if (beforeSave(bankAccountVO, isAdd)) {
                     if (isAdd) {
                         gl_yhzhserv.save(bankAccountVO);
+                        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                                "银行账户保存");
                     } else {
                         gl_yhzhserv.update(bankAccountVO,
                                 new String[]{"bankcode", "bankname", "bankaccount",
                                         "relatedsubj", "modifyoperid", "modifydatetime"});
+                        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "编辑银行账户");
                     }
                     json.setSuccess(true);
                     json.setRows(bankAccountVO);
@@ -164,6 +169,7 @@ public class YHZHController {
             json.setSuccess(false);
             json.setMsg("删除失败");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "银行账户删除");
         return ReturnData.ok().data(json);
     }
 
@@ -191,6 +197,7 @@ public class YHZHController {
             json.setSuccess(false);
             json.setMsg("启用失败");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "银行账户启用");
         return ReturnData.ok().data(json);
     }
 
@@ -227,6 +234,7 @@ public class YHZHController {
             json.setSuccess(false);
             json.setMsg("停用失败");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "银行账户停用");
         return ReturnData.ok().data(json);
     }
 
