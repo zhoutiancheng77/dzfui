@@ -1,7 +1,10 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountChangeVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
@@ -21,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("gl_dataupgrade")
 @Slf4j
-public class AccountCodeRuleController {
+public class AccountCodeRuleController extends BaseController {
     @Autowired
     private ICpaccountCodeRuleService codeRuleService;
 
@@ -50,6 +53,7 @@ public class AccountCodeRuleController {
             }
             grid.setSuccess(true);
             log.info("没有变更数据");
+            writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据升级查询", ISysConstants.SYS_2);
         } catch (Exception e) {
             log.info("加载数据失败！");
             grid.setRows(list);
@@ -83,6 +87,7 @@ public class AccountCodeRuleController {
             }
             grid.setSuccess(true);
             log.info("更新成功！");
+            writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据升级", ISysConstants.SYS_2);
         } catch ( Exception e) {
             log.info("更新失败！");
             grid.setRows(list);

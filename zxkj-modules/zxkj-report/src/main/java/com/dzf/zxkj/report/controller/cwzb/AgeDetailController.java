@@ -2,9 +2,11 @@ package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.DynamicAttributeVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.param.Fieldelement;
@@ -66,6 +68,7 @@ public class AgeDetailController extends BaseController {
             json.setRows(rs);
             json.setSuccess(true);
             json.setMsg("查询成功");
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "往来账龄明细账查询：" + ageReportQueryVO.getEnd_date(), ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json,e, "查询失败");
         }
@@ -101,6 +104,7 @@ public class AgeDetailController extends BaseController {
             lxs.exportExcel(field, toClient);
             toClient.flush();
             response.getOutputStream().flush();
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "往来账龄明细账导出：" + excelExportVO.getQj(), ISysConstants.SYS_2);
         } catch (IOException e) {
             log.error("excel导出错误",e);
         } finally {
