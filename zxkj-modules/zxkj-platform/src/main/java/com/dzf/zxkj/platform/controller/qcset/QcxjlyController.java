@@ -1,9 +1,12 @@
 package com.dzf.zxkj.platform.controller.qcset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Page;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
@@ -26,7 +29,7 @@ import java.util.List;
 @RequestMapping("gl_qcxjlyact")
 @SuppressWarnings("all")
 @Slf4j
-public class QcxjlyController {
+public class QcxjlyController extends BaseController {
     @Autowired
     private IQcxjlyService qcxjlyService;
     @Autowired
@@ -53,6 +56,7 @@ public class QcxjlyController {
                 grid.setSuccess(true);
                 grid.setRows(yntXjllqcyePageVO);
                 grid.setMsg("保存成功");
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "期初现金流量编辑", ISysConstants.SYS_2);
             } catch (BusinessException bs){
                 grid.setSuccess(false);
                 grid.setMsg(bs.getMessage());
@@ -105,6 +109,7 @@ public class QcxjlyController {
                 json.setSuccess(true);
                 json.setRows(yntXjllqcyePageVO);
                 json.setMsg("修改成功");
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "期初现金流量编辑", ISysConstants.SYS_2);
             } catch (BusinessException bs){
                 json.setSuccess(false);
                 json.setMsg(bs.getMessage());
@@ -143,6 +148,7 @@ public class QcxjlyController {
                 json.setSuccess(true);
                 // json.setObj(data);
                 json.setMsg("删除成功！");
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "期初现金流量删除", ISysConstants.SYS_2);
             } catch (BusinessException bs){
                 json.setSuccess(false);
                 json.setMsg(bs.getMessage());
@@ -173,6 +179,7 @@ public class QcxjlyController {
                     : list);
             grid.setSuccess(true);
             grid.setMsg("查询成功");
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "期初现金流量查询", ISysConstants.SYS_2);
         } catch (Exception e) {
             grid.setSuccess(false);
             grid.setMsg("查询失败");
