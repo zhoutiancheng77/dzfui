@@ -3,8 +3,10 @@ package com.dzf.zxkj.report.controller.cwzb;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
@@ -215,9 +217,9 @@ public class MultiColumnController extends ReportBaseController {
             printErrorLog(grid, e, "查询失败!");
         }
 
-//        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT.getValue(),
-//                "多栏账查询:"+vo.getBegindate1().toString().substring(0, 7)
-//                        +"-"+ vo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                "多栏账查询:"+vo.getBegindate1().toString().substring(0, 7)
+                        +"-"+ vo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -337,6 +339,7 @@ public class MultiColumnController extends ReportBaseController {
             List<Map<String, String>> data = JsonUtils.deserialize(columnPdfField.getData(), List.class, Map.class);
 
             printReporUtil.printMultiColumn(data, columnPdfField.getTitle() + "多栏账", headslist, fields, widths, 20, Arrays.asList(columncellattrvos), pmap, response);
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "多栏账打印：" + columnPdfField.getPeriod(), ISysConstants.SYS_2);
         } catch (IOException e) {
             log.error("打印失败", e);
         }
@@ -383,6 +386,9 @@ public class MultiColumnController extends ReportBaseController {
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
             toClient.flush();
             response.getOutputStream().flush();
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "多栏账导出:"+exportVO.getBeginDate().toString().substring(0, 7)
+                            +"-"+ exportVO.getEndDate().toString().substring(0, 7), ISysConstants.SYS_2);
         } catch (IOException e) {
             log.error("excel导出错误", e);
         } finally {
