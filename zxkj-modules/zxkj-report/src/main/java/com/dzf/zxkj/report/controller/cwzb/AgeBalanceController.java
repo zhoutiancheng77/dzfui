@@ -112,6 +112,7 @@ public class AgeBalanceController extends BaseController {
             lxs.exportExcel(field, toClient);
             toClient.flush();
             response.getOutputStream().flush();
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "往来账龄余额表导出：" + excelExportVO.getQj(), ISysConstants.SYS_2);
         } catch (IOException e) {
             log.error("excel导出错误",e);
         } finally {
