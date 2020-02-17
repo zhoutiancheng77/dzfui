@@ -88,7 +88,7 @@ public class ICHzbController  extends BaseController {
 		grid.setRows(list == null ? new ArrayList<IcDetailVO>() : list);
 		grid.setSuccess(true);
 		grid.setMsg("查询成功！");
-        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存汇总表查询", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,new StringBuffer().append("库存汇总表查询:").append(param.get("beginPeriod")).append("至").append(param.get("endPeriod")).toString(), ISysConstants.SYS_2);
 		return ReturnData.ok().data(grid);
 	}
 
