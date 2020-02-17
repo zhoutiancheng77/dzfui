@@ -387,11 +387,19 @@ public class NmnyMXController extends ReportBaseController {
                 printReporUtil.printB5(mxmap, new SuperVO[]{}, "数 量 金 额 明 细 账", colmnkeylist.toArray(new String[0]), null, columnlist, converListToint(columnintlist), 0,invmaps,pmap,tmap);
             }
 
+            String qjq = pmap1.get("begindate");
+            String qjm = pmap1.get("enddate");
+            qjq = StringUtil.isEmpty(qjq) ? "" : qjq.substring(0, 7);
+            qjm = StringUtil.isEmpty(qjm) ? "" : qjm.substring(0, 7);
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    new StringBuffer().append("数量金额明细账打印:")
+                            .append(qjq).append("-").append(qjm).toString(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {
             log.error("打印错误",e);
         }
+
     }
 
     private int[] converListToint(List<Integer> columnintlist) {
