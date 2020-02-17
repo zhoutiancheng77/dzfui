@@ -122,7 +122,7 @@ public class ICMxzController extends BaseController {
 		grid.setRows(list == null ? new ArrayList<>() : list);
 		grid.setIcDetail(list == null ? new ArrayList<>() : list);
 		grid.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,"库存明细账查询", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_IC_REPORT,new StringBuffer().append("库存明细账查询:").append(param.get("beginPeriod")).append("至").append(param.get("endPeriod")).toString(), ISysConstants.SYS_2);
 		return ReturnData.ok().data(grid);
 	}
 

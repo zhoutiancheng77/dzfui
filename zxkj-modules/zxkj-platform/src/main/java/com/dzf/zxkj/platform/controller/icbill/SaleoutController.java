@@ -105,7 +105,7 @@ public class SaleoutController extends BaseController {
             endate = paramvo.getEnddate() == null ? udate.toString() : paramvo.getEnddate().toString();
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI,
-                new StringBuffer().append("出库单查询:").append(begindate).append("-").append(endate).toString(),
+                new StringBuffer().append("出库单查询:").append(begindate).append("至").append(endate).toString(),
                 ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 	}
