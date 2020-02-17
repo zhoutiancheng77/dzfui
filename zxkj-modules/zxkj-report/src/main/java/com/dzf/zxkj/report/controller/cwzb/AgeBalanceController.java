@@ -1,9 +1,11 @@
 package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.controller.BaseController;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.DynamicAttributeVO;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.param.Fieldelement;
@@ -72,6 +74,7 @@ public class AgeBalanceController extends BaseController {
             json.setRows(rs);
             json.setSuccess(true);
             json.setMsg("查询成功");
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "往来账龄余额表查询：" + param.getEnd_date(), ISysConstants.SYS_2);
         } catch (Exception e) {
             json.setSuccess(false);
             json.setMsg("查询失败");
