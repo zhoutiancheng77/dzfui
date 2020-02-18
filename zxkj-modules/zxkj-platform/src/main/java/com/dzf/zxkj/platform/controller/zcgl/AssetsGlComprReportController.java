@@ -92,7 +92,7 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
 
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void print(@MultiRequestBody String corpName, @MultiRequestBody String period, @MultiRequestBody PrintParamVO printParamVO, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
             // 校验

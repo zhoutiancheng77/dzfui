@@ -87,7 +87,7 @@ public class ZczzReportController extends BaseController {
     /**
      * 打印操作
      */
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void printAction(@MultiRequestBody  ZczzPrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);

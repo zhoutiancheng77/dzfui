@@ -191,7 +191,7 @@ public class OperatorLogController {
      * 打印
      */
     @SuppressWarnings("unchecked")
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void print(@RequestBody Map<String, String> params,
                       @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try{

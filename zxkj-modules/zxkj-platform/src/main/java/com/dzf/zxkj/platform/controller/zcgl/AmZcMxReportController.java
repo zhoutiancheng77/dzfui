@@ -66,7 +66,7 @@ public class AmZcMxReportController extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void printAction(@MultiRequestBody PrintParamVO param, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
             // 校验

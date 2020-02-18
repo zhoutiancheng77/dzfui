@@ -143,7 +143,7 @@ public class ZjhzReportController extends BaseController {
     /**
      * 打印操作
      */
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void printAction( @MultiRequestBody  ZczjmxPrintParamVO printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         try {
 

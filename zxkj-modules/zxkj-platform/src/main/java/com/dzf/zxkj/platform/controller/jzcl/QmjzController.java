@@ -365,7 +365,7 @@ public class QmjzController extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void print(@MultiRequestBody QmjzPrintVo printParamVO, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         try {
