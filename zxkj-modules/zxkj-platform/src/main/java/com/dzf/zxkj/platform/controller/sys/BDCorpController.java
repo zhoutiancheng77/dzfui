@@ -1,11 +1,13 @@
 package com.dzf.zxkj.platform.controller.sys;
 
 import cn.jiguang.common.utils.StringUtils;
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -24,7 +26,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/sys/sys_corpact")
 @Slf4j
-public class BDCorpController {
+public class BDCorpController extends BaseController {
 
     @Autowired
     private IBDCorpService sys_corpserv;
@@ -73,6 +75,8 @@ public class BDCorpController {
                             }
                         }
                         sys_corpserv.updateStGenledic(corp);
+                        writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX, "启用总账存货成功。客户编码：" + corpVO.getInnercode()+",客户名称："+unitname,
+                                ISysConstants.SYS_2);
                     } catch (Exception e) {
                         if (e instanceof BusinessException) {
                             statusMsg.append(unitname).append(e.getMessage()).append("<br>");
@@ -154,6 +158,8 @@ public class BDCorpController {
                             }
                         }
                         sys_corpserv.updateSpGenledic(corp);
+                        writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX, "停用总账存货。客户编码：" + corpVO.getInnercode() + ",客户名称："+unitname,
+                                ISysConstants.SYS_2);
                     } catch (Exception e) {
                         if (e instanceof BusinessException) {
                             statusMsg.append(unitname).append(e.getMessage()).append("<br>");
@@ -220,6 +226,9 @@ public class BDCorpController {
                         corpVO.setBusibegindate(new DZFDate(SystemUtil.getLoginDate()));
                     }
                     sys_corpserv.updateHflagSer(corpVO);
+                    writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX,
+                            "启用固定资产成功。客户编码："+corpVO.getInnercode()+",客户名称：" + corpVO.getUnitname(),
+                            ISysConstants.SYS_2);
                 } catch (Exception e) {
                     if (e instanceof BusinessException) {
                         statusMsg.append(corpVO.getUnitname()).append(e.getMessage()).append("<br>");
@@ -291,6 +300,9 @@ public class BDCorpController {
                         corpVO.setBusibegindate(null);
                         corpVO.setHoldflag(DZFBoolean.FALSE);
                         sys_corpserv.updateHflagTy(corpVO);
+                        writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX,
+                                "停止固定资产成功。客户编码："+corpVO.getInnercode()+ ",客户名称："+unitname,
+                                ISysConstants.SYS_2);
                     } catch (Exception e) {
                         if (e instanceof BusinessException) {
                             statusMsg.append(unitname).append(e.getMessage()).append("<br>");
@@ -360,6 +372,9 @@ public class BDCorpController {
                             corpVO.setIcbegindate(new DZFDate(SystemUtil.getLoginDate()));
                         }
                         sys_corpserv.updateBuildicSer(corpVO);
+                        writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX,
+                                "启用库存成功。客户编码："+corpVO.getInnercode()+",客户名称："+unitname,
+                                ISysConstants.SYS_2);
                     } catch (Exception e) {
                         if (e instanceof BusinessException) {
                             statusMsg.append(unitname).append(e.getMessage()).append("<br>");
@@ -432,6 +447,9 @@ public class BDCorpController {
                         corpVO.setIcbegindate(null);
                         corpVO.setBbuildic(IcCostStyle.IC_OFF);
                         sys_corpserv.updateBuildicTy(corpVO);
+                        writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX,
+                                "停止库存成功:客户编码"+corpVO.getInnercode()+",客户名名称：" + unitname,
+                                ISysConstants.SYS_2);
                     } catch (Exception e) {
                         if (e instanceof BusinessException) {
                             statusMsg.append(unitname).append(e.getMessage()).append("<br>");

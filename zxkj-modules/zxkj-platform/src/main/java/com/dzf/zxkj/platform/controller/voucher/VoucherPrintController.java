@@ -1,8 +1,10 @@
 package com.dzf.zxkj.platform.controller.voucher;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
@@ -52,7 +54,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/voucher-manage/voucherPrint")
 @Slf4j
-public class VoucherPrintController {
+public class VoucherPrintController extends BaseController {
 
     @Autowired
     private IPzglService gl_pzglserv;
@@ -80,6 +82,11 @@ public class VoucherPrintController {
         }
         VoucherPrintAssitSetVO[] printAssitSetVOs = gl_pzglserv.queryPrintAssistSetting(pk_corp);
         param.setAssistSetting(printAssitSetVOs);
+
+        try {
+            writeLogRecord(LogRecordEnum.OPE_KJ_DELVOUCHER, "打印凭证");
+        } catch (Exception e) {
+        }
 
         printVoucherByTemplate(param, response);
     }
@@ -1026,7 +1033,10 @@ public class VoucherPrintController {
                            @RequestParam int page,
                            HttpServletResponse response) {
         VoucherPrintTemplate template = getTemplate(param);
-
+        try {
+            writeLogRecord(LogRecordEnum.OPE_KJ_DELVOUCHER, "打印凭证封皮");
+        } catch (Exception e) {
+        }
         // 打印页面总数
         int pdfTotalPage = 0;
         float originalTop = template.getMarginTop();

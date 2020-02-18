@@ -181,13 +181,13 @@ public class BankStatementController extends BaseController {
     public ReturnData<Json> onUpdate(@RequestBody Map<String,String> param){
         Json json = new Json();
 //		String[] strArr = getRequest().getParameterValues("strArr[]");
+        BankStatementVO bvo = new BankStatementVO();
+        String bankaccid = param.get("bankaccid");
+        bvo.setPk_bankaccount(bankaccid);
+        String adddoc = param.get("adddoc");
+        String deldoc = param.get("deldoc");
+        String uptdoc = param.get("upddoc");
         try{
-            BankStatementVO bvo = new BankStatementVO();
-            String bankaccid = param.get("bankaccid");
-            bvo.setPk_bankaccount(bankaccid);
-            String adddoc = param.get("adddoc");
-            String deldoc = param.get("deldoc");
-            String uptdoc = param.get("upddoc");
             String pk_corp = SystemUtil.getLoginCorpId();
             checkSecurityData(null,new String[]{pk_corp}, null);
             checkValidData(bvo);
@@ -239,7 +239,7 @@ public class BankStatementController extends BaseController {
             printErrorLog(json, e, "保存失败");
         }
 
-        writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "银行对账单编辑", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, StringUtil.isEmpty(adddoc)?"银行对账单修改":"银行对账单新增", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
     /**
@@ -356,7 +356,7 @@ public class BankStatementController extends BaseController {
             json.setSuccess(false);
             json.setMsg(strb.toString());
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "银行对账单编辑", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "银行对账单删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -391,7 +391,7 @@ public class BankStatementController extends BaseController {
             json.setSuccess(true);
 
             writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入银行对账单：" + (bvo != null && !StringUtil.isEmpty(bvo.getPeriod()) ? bvo.getPeriod() : ""), ISysConstants.SYS_2);
+                    "导入银行对账单：" + (DateUtils.getPeriod(new DZFDate(SystemUtil.getLoginDate())) != null ? DateUtils.getPeriod(new DZFDate(SystemUtil.getLoginDate())) : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             if(e instanceof BusinessException
                     && IBillManageConstants.ERROR_FLAG.equals(((BusinessException) e).getErrorCodeString())){
@@ -1053,7 +1053,7 @@ public class BankStatementController extends BaseController {
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                "导出银行对账单" + (StringUtil.isEmpty(opdate) ? "" : "：" + opdate), ISysConstants.SYS_2);
+                !StringUtil.isEmpty(strrows)?"导出银行对账单":"", ISysConstants.SYS_2);
     }
 
     /**

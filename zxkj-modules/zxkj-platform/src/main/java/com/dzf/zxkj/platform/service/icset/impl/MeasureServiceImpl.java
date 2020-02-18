@@ -305,10 +305,13 @@ public class MeasureServiceImpl implements IMeasureService {
 				pkSet.add(vo.getPk_measure());
 		}
 		HashSet<String> nameSet = new HashSet<String>();
+		HashSet<String> codeSet = new HashSet<String>();
 		if (listAll != null && listAll.size() != 0) {
 			for (MeasureVO vo : listAll) {
-				if (!pkSet.contains(vo.getPk_measure()))
+				if (!pkSet.contains(vo.getPk_measure())){
 					nameSet.add(vo.getName());
+					codeSet.add(vo.getCode());
+				}
 			}
 		}
 		StringBuffer message = new StringBuffer();
@@ -321,6 +324,15 @@ public class MeasureServiceImpl implements IMeasureService {
 				}
 			} else {
 				message.append("名称不能为空！");
+			}
+			if (!StringUtil.isEmpty(vo.getCode())) {
+				if (codeSet.contains(vo.getCode())) {
+					message.append("编码为：" + vo.getCode() + "已存在！" + "<br>");
+				} else {
+					codeSet.add(vo.getCode());
+				}
+			} else {
+				message.append("编码不能为空！");
 			}
 		}
 

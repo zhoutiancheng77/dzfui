@@ -252,6 +252,9 @@ public class NmnyHZController extends ReportBaseController {
                         columnameslist.toArray(new String[0]), columnlist, columnints, 0,null,pmap,tmap);
             }
 
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    new StringBuffer().append("数量金额总账打印:")
+                            .append(bodyvos[0].getTitlePeriod()).toString(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

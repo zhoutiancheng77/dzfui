@@ -102,10 +102,13 @@ public class AuxiliaryBalanceReportController extends BaseController {
             printReporUtil.setIscross(DZFBoolean.TRUE);
             FzYebVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(), FzYebVO[].class);
             printReporUtil.setDefaultValue(printParamVO.getShowbm(), bodyvos);
+            String period = bodyvos[0].getTitlePeriod();
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "辅助余额表打印:" + period);
             /** 声明一个map用来存前台传来的设置参数 */
             Map<String, String> tmap = new LinkedHashMap<>();
             tmap.put("公司", bodyvos[0].getGs());
-            tmap.put("期间", bodyvos[0].getTitlePeriod());
+            tmap.put("期间", period);
             tmap.put("单位", new ReportUtil(zxkjPlatformService).getCurrencyByPk(bodyvos[0].getPk_currency()));
             /** 设置表头字体*/
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));

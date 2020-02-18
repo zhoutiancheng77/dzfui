@@ -15,7 +15,7 @@ public enum LogRecordEnum {
 	OPE_KJ_SALARY(9,"工资管理"), OPE_KJ_BDSET(10, "基础设置"), OPE_KJ_SJWH(11, "数据维护"),
 	OPE_KJ_ZCGL(12,"资产管理"), OPE_KJ_ZCREPROT(13, "资产报表"), OPE_KJ_IC_SET(14, "库存基础设置"), 
 	OPE_KJ_IC_BUSI(15, "库存日常业务处理"), OPE_KJ_IC_REPORT(16, "库存报表查询"), OPE_KJ_PJGL(17, "票据管理"),
-	OPE_KJ_NSGZT(120, "纳税工作台"),OPE_KJ_CHGL(125, "存货管理"),OPE_KJ_QYXX(130, "企业信息"),
+	OPE_KJ_NSGZT(120, "纳税工作台"),OPE_KJ_CHGL(125, "存货管理"),OPE_KJ_QYXX(130, "企业信息"),OPE_KJ_ZTXX(135, "账套信息"),
 	
 	/**
 	 * 管理平台
@@ -74,7 +74,7 @@ public enum LogRecordEnum {
 		return new LogRecordEnum[] { OPE_ALL_SYS,OPE_KJ_SYS, OPE_KJ_ADDVOUCHER, OPE_KJ_EDITVOUCHER, 
 				OPE_KJ_DELVOUCHER, OPE_KJ_OTHERVOUCHER, OPE_KJ_SETTLE, OPE_KJ_KMREPORT, 
 				OPE_KJ_CWREPORT, OPE_KJ_TAX, OPE_KJ_SALARY,OPE_KJ_BDSET,OPE_KJ_SJWH,OPE_KJ_PJGL,
-				OPE_KJ_QYXX};
+				OPE_KJ_QYXX, OPE_KJ_ZTXX};
 	}
 	
 	/**

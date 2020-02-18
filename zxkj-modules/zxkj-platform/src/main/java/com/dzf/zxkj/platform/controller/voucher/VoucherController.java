@@ -1576,6 +1576,12 @@ public class VoucherController extends BaseController {
         gl_tzpzserv.deleteCashFlow(id, SystemUtil.getLoginCorpId());
         json.setSuccess(true);
         json.setMsg("删除成功");
+        TzpzHVO voucher = gl_tzpzserv.queryVoucherById(id);
+        if (voucher != null) {
+            writeLogRecord(LogRecordEnum.OPE_KJ_EDITVOUCHER,
+                    "删除凭证现金流量：" + DateUtils.getPeriod(voucher.getDoperatedate())
+                            + "，凭证号：记_" + voucher.getPzh());
+        }
         return ReturnData.ok().data(json);
     }
 
@@ -1684,6 +1690,7 @@ public class VoucherController extends BaseController {
                 json.setMsg("导入失败");
             }
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "导入凭证");
         return ReturnData.ok().data(json);
     }
 

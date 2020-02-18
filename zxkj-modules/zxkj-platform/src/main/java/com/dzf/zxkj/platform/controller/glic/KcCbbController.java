@@ -75,7 +75,7 @@ public class KcCbbController extends GlicReportController{
         grid.setKcDetail(list);
         grid.setRows(list);
         grid.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"库存成本表查询:", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,new StringBuffer().append("库存成本表查询:").append(param.get("beginPeriod")).append("至").append(param.get("endPeriod")).toString(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 

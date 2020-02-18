@@ -184,11 +184,12 @@ public class AuxiliaryAccountController extends BaseController {
         Json json = new Json();
         String pk_corp = SystemUtil.getLoginCorpId();
         AuxiliaryAccountHVO hvo = data;
+        AuxiliaryAccountHVO savedData = null;
         if (!StringUtil.isEmptyWithTrim(hvo.getPk_auacount_h())) {
-            AuxiliaryAccountHVO qvo = gl_fzhsserv.queryHByID(hvo.getPk_auacount_h());
-            if (qvo != null) {
-                hvo.setCode(qvo.getCode());
-                hvo.setPk_corp(qvo.getPk_corp());
+            savedData = gl_fzhsserv.queryHByID(hvo.getPk_auacount_h());
+            if (savedData != null) {
+                hvo.setCode(savedData.getCode());
+                hvo.setPk_corp(savedData.getPk_corp());
             }
         }
         if (hvo.getPk_corp() != null && !hvo.getPk_corp().equals(pk_corp)) {
@@ -200,6 +201,12 @@ public class AuxiliaryAccountController extends BaseController {
             json.setRows(hvo);
             json.setMsg("保存成功");
             json.setSuccess(true);
+            if (savedData != null && !savedData.getName().equals(hvo.getName())) {
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "辅助类别修改:"
+                        + savedData.getName() + "->" + hvo.getName());
+            } else {
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "辅助类别新增:" + hvo.getName());
+            }
         }
         return ReturnData.ok().data(json);
     }

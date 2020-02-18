@@ -516,8 +516,8 @@ public class VATSaleInvoiceController extends BaseController {
             json.setMsg(msg.toString());
             json.setSuccess(paramvo.getCount()==0 ? false : true);
 
-//            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-//                    "导入销项发票：" + (vvo != null && vvo.getBeginrq() != null ? vvo.getBeginrq() : ""), ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
+                    "导入销项发票：" + (DateUtils.getPeriod(new DZFDate(SystemUtil.getLoginDate())) != null ? DateUtils.getPeriod(new DZFDate(SystemUtil.getLoginDate())) : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             if(e instanceof BusinessException
                     && IBillManageConstants.ERROR_FLAG.equals(((BusinessException) e).getErrorCodeString())){
@@ -1360,7 +1360,7 @@ public class VATSaleInvoiceController extends BaseController {
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                "导出销项发票", ISysConstants.SYS_2);
+                !StringUtils.isEmpty(strrows)?"导出销项发票":"", ISysConstants.SYS_2);
     }
 
     private void speTransValue(JSONArray arr){

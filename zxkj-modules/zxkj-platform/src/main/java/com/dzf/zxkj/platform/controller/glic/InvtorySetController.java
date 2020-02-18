@@ -64,6 +64,9 @@ public class InvtorySetController extends BaseController {
         if(!StringUtil.isEmpty(vo.getLoginfo())){
                 writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
                         vo.getLoginfo(), ISysConstants.SYS_2);
+        }else{
+            writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
+                    "存货设置保存成功", ISysConstants.SYS_2);
         }
         return ReturnData.ok().data(json);
     }
