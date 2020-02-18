@@ -108,7 +108,7 @@ public class YwHdController  extends ReportBaseController {
         baseExcelExport(response,lxs,yhd);
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void printAction(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);

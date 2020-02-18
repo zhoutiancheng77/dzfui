@@ -299,7 +299,7 @@ public class MultiColumnController extends ReportBaseController {
         return paramvo;
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void print(@RequestParam Map<String, String> pmap1, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
 
         try {

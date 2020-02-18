@@ -80,7 +80,7 @@ public class QyBdController extends ReportBaseController {
         baseExcelExport(response,lxs,qyBdExcelField);
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void print(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
             // 校验

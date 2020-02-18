@@ -89,7 +89,7 @@ public class AuxiliaryBalanceReportController extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void printPdf(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
         KmReoprtQueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), KmReoprtQueryParamVO.class);

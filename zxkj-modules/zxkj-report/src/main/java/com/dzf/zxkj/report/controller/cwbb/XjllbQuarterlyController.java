@@ -122,7 +122,7 @@ public class XjllbQuarterlyController extends ReportBaseController {
     /**
      * 打印操作
      */
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void printAction(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
 

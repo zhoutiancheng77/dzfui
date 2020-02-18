@@ -147,7 +147,7 @@ public class NmnyHZController extends ReportBaseController {
         }
     }
 
-    @PostMapping("print/pdf")
+    @PostMapping("print")
     public void print(@RequestParam Map<String, String> pmap1,
                       @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response){
         try {
