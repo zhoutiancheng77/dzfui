@@ -353,15 +353,15 @@ public class ZtszServiceImpl implements IZtszService {
 				sp.addParam(queryvo.getBcreatedate());
 			} else {
 				sql.append(" and (a.begindate >= ? and a.begindate <= ? )");
-				sql.append(queryvo.getBcreatedate());
-				sql.append(queryvo.getEcreatedate());
+				sp.addParam(queryvo.getBcreatedate());
+				sp.addParam(queryvo.getEcreatedate());
 			}
 		} else if (queryvo.getBcreatedate() != null) {// 建账日期只录入开始日期或结束日期
 			sql.append(" and a.begindate >= ? ");
-			sql.append(queryvo.getBcreatedate());
+			sp.addParam(queryvo.getBcreatedate());
 		} else if (queryvo.getEcreatedate() != null) {
 			sql.append(" and a.begindate <= ? ");
-			sql.append(queryvo.getEcreatedate());
+			sp.addParam(queryvo.getEcreatedate());
 		}
 
 		sql.append(" and  nvl(a.isaccountcorp,'N') = 'N' ");
