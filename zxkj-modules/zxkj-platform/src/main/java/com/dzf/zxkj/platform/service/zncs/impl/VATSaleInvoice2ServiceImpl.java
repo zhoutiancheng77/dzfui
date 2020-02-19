@@ -2249,6 +2249,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 			paramvo.setBeginrq(beginrq != null ? DateUtils.getPeriodStartDate(DateUtils.getPeriod(beginrq)) : null);
 			paramvo.setEndrq(endrq != null ? DateUtils.getPeriodEndDate(DateUtils.getPeriod(endrq)) : null);
+			//打印日志入账期间
+			paramvo.setPeriod(vos[0].getInperiod());
 		}
 	}
 

@@ -863,7 +863,10 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 //			}
 //			
 //			periodvo.setPeriod(firstPeriod);
+			//打印日志导入期间
+			periodvo.setPeriod(vos[0].getInperiod());
 		}
+
 	}
 	
 //	private BankAccountVO getBankAccountVO(BankStatementVO2 paramvo){
