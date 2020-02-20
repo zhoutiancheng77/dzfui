@@ -260,6 +260,7 @@ public class AuxiliaryAccountController extends BaseController {
         gl_fzhsserv.updateBatchAuxiliaryAccountByID(list.toArray(new AuxiliaryAccountBVO[list.size()]), new String[]{xglx});
         json.setMsg("保存成功");
         json.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,  "辅助核算: 职员批量修改");
         return ReturnData.ok().data(json);
     }
 
@@ -381,25 +382,26 @@ public class AuxiliaryAccountController extends BaseController {
     public ReturnData<Json> importArchive(@RequestParam("impfile") MultipartFile file,
                                           @RequestParam("hid") String hid) {
         Json json = new Json();
-        if (file == null) {
-            throw new BusinessException("请选择要导入的文件！");
-        }
-        String fileName = file.getOriginalFilename();
-        String fileType = null;
-        if (!StringUtils.isBlank(fileName)) {
-            fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
-        }
-
-        String pk_corp = SystemUtil.getLoginCorpId();
+        AuxiliaryAccountHVO typeVo = gl_fzhsserv.queryHByID(hid);
         try {
+            if (file == null) {
+                throw new BusinessException("请选择要导入的文件！");
+            }
+            String fileName = file.getOriginalFilename();
+            String fileType = null;
+            if (!StringUtils.isBlank(fileName)) {
+                fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+            }
+
+            String pk_corp = SystemUtil.getLoginCorpId();
             Map<String, String> result = gl_fzhsserv.saveBImp(file.getInputStream(),
                     hid, pk_corp, fileType);
             json.setMsg(result.get("msg"));
             json.setSuccess(true);
-            AuxiliaryAccountHVO typeVo = gl_fzhsserv.queryHByID(hid);
             writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
                     "辅助核算_" + typeVo.getName() + "导入： 成功" + result.get("successCount") + "条，失败" + result.get("failCount") + "条");
-        } catch (IOException e) {
+        } catch (Exception e) {
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, typeVo.getName() + "导入失败: 文件格式错误;");
             json.setMsg("导入失败");
         }
         return ReturnData.ok().data(json);

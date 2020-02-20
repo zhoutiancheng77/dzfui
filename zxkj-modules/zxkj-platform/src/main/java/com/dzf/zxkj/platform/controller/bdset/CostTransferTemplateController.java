@@ -76,7 +76,7 @@ public class CostTransferTemplateController extends BaseController {
             grid.setMsg("查询成功");
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
-                "成本结转模板查询");
+                "成本结转设置");
         return ReturnData.ok().data(grid);
     }
 

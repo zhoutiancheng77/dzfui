@@ -1,9 +1,11 @@
 package com.dzf.zxkj.platform.controller.bdset;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.bdset.YntCptranslrHVO;
@@ -21,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/bdset/gl_cplrmbact")
-public class ProfitCarryoverTemplateController {
+public class ProfitCarryoverTemplateController extends BaseController {
     @Autowired
     private ICptransLrService gl_cplrmbserv;
     @Autowired
@@ -47,6 +49,7 @@ public class ProfitCarryoverTemplateController {
         } else {
             grid.setTotal(Long.valueOf(0));
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "利润结转模板设置");
         return ReturnData.ok().data(grid);
     }
 
