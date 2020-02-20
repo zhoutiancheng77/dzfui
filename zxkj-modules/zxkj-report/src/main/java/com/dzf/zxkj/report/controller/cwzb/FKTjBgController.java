@@ -2,9 +2,11 @@ package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.DateUtils;
@@ -41,6 +43,9 @@ public class FKTjBgController extends BaseController {
             grid.setTotal((long) (setvos == null ? 0 : setvos.length));
             grid.setSuccess(true);
             grid.setRows(setvos != null ? Arrays.asList(setvos) : new ArrayList<FkTjSetVo>());
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "风控体检查询:"+queryParam.getBegindate().toString().substring(0, 7)
+                            +"-"+ queryParam.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");
             log.error("查询失败", e);
@@ -60,6 +65,8 @@ public class FKTjBgController extends BaseController {
             setvo.setQj(SystemUtil.getLoginDate().substring(0, 4) + "-01~" + SystemUtil.getLoginDate().substring(0, 7));
             setvo.setVinspector(SystemUtil.getLoginUserId());
             gl_fktjbgserv.save(setvo);
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "风控体检:"+setvo.getQj(), ISysConstants.SYS_2);
             json.setMsg("保存成功");
             json.setSuccess(true);
         } catch (Exception e) {
@@ -91,6 +98,8 @@ public class FKTjBgController extends BaseController {
             json.setSuccess(true);
             json.setMsg("查询成功");
             json.setRows(bgvos);
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "风控体检报告查询:"+enddate, ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "查询失败");
             log.error("查询失败", e);
