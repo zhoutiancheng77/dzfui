@@ -387,8 +387,7 @@ public class MultiColumnController extends ReportBaseController {
             toClient.flush();
             response.getOutputStream().flush();
             writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
-                    "多栏账导出:"+exportVO.getBeginDate().toString().substring(0, 7)
-                            +"-"+ exportVO.getEndDate().toString().substring(0, 7), ISysConstants.SYS_2);
+                    "多栏账导出:"+exportVO.getPeriod(), ISysConstants.SYS_2);
         } catch (IOException e) {
             log.error("excel导出错误", e);
         } finally {
