@@ -358,6 +358,7 @@ public class BackupAndRestoreController extends BaseController {
 			json.setSuccess(false);
 			json.setMsg(e instanceof BusinessException ? e.getMessage() : "上传失败！");
 		}
+		writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "上传本地备份", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 
