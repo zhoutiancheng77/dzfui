@@ -85,7 +85,7 @@ public class InvtoryQcController extends BaseController {
         json.setRows(vo);
         json.setMsg("保存成功");
         json.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，保存", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"总账存货管理-存货期初，保存", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -105,7 +105,7 @@ public class InvtoryQcController extends BaseController {
         json.setMsg("删除成功");
         json.setSuccess(true);
 
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，删除", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"总账存货管理-存货期初，删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -116,7 +116,7 @@ public class InvtoryQcController extends BaseController {
                 SystemUtil.getLoginCorpId(), date);
         json.setMsg("同步成功");
         json.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，同步", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"总账存货管理-存货期初，同步", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -126,7 +126,7 @@ public class InvtoryQcController extends BaseController {
         gl_ic_invtoryqcserv.updateDate( SystemUtil.getLoginCorpId(), date);
         json.setMsg("修改成功");
         json.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，修改启用期间", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"总账存货管理-存货期初，修改启用期间", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -149,7 +149,7 @@ public class InvtoryQcController extends BaseController {
         json.setMsg(msg);
         json.setSuccess(true);
 
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，导入", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"总账存货管理-存货期初，导入", ISysConstants.SYS_2);
 //        writeJson(json);
         return ReturnData.ok().data(json);
     }
@@ -192,7 +192,7 @@ public class InvtoryQcController extends BaseController {
                 log.error("excel导出错误", e);
             }
             writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
-                    "存货期初模板导出", ISysConstants.SYS_2);
+                    "总账存货管理-存货期初模板导出", ISysConstants.SYS_2);
         }
     }
 
@@ -246,7 +246,7 @@ public class InvtoryQcController extends BaseController {
         json.setData(date.toString());
         json.setMsg("修改成功");
         json.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"存货期初，修改启用期间", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,"总账存货管理-存货期初，修改启用期间", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

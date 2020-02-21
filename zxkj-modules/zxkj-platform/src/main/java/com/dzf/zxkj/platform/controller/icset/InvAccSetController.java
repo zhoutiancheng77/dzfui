@@ -43,24 +43,34 @@ public class InvAccSetController extends BaseController {
 	@PostMapping("/save")
 	public ReturnData save(@RequestBody Map<String, String> param) {
 		Json json = new Json();
-		InvAccSetVO data = JsonUtils.convertValue(param, InvAccSetVO.class);
-		data.setPk_corp(SystemUtil.getLoginCorpId());
-		InvAccSetVO vo = ic_chkmszserv.save(data);
-		json.setRows(vo);
-		json.setMsg("保存成功");
-		json.setSuccess(true);
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账保存", ISysConstants.SYS_2);
+		try {
+			InvAccSetVO data = JsonUtils.convertValue(param, InvAccSetVO.class);
+			data.setPk_corp(SystemUtil.getLoginCorpId());
+			InvAccSetVO vo = ic_chkmszserv.save(data);
+			json.setRows(vo);
+			json.setMsg("保存成功");
+			json.setSuccess(true);
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账保存", ISysConstants.SYS_2);
+		} catch (Exception e) {
+			printErrorLog(json,e,"保存失败");
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账保存失败", ISysConstants.SYS_2);
+		}
 		return ReturnData.ok().data(json);
 	}
 
 	@GetMapping("/saveGroup")
 	public ReturnData saveGroup() {
 		Json json = new Json();
-		InvAccSetVO vo = ic_chkmszserv.saveGroupVO(SystemUtil.getLoginCorpVo());
-		json.setRows(vo);
-		json.setMsg("获取入账科目成功");
-		json.setSuccess(true);
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账默认设置", ISysConstants.SYS_2);
+        try {
+            InvAccSetVO vo = ic_chkmszserv.saveGroupVO(SystemUtil.getLoginCorpVo());
+            json.setRows(vo);
+            json.setMsg("获取入账科目成功");
+            json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账默认设置", ISysConstants.SYS_2);
+        } catch (Exception e) {
+            printErrorLog(json,e,"库存入账默认设置失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存入账默认设置失败", ISysConstants.SYS_2);
+        }
 		return ReturnData.ok().data(json);
 	}
 }

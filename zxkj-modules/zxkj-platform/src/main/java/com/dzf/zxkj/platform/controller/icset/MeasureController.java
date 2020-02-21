@@ -57,7 +57,7 @@ public class MeasureController extends BaseController {
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
 		String sort = queryParamvo.getSort();
 		if (StringUtil.isEmpty(sort))
-			sort = "pk_measure";
+			sort = "code";
 		list = ims.quyerByPkcorp(SystemUtil.getLoginCorpId(), sort, queryParamvo.getOrder());
 		if (list != null && list.size() > 0) {
 			log.info("查询成功！");
@@ -76,8 +76,11 @@ public class MeasureController extends BaseController {
 	public ReturnData queryInfo(@RequestParam Map<String, String> param) {
 		Grid grid = new Grid();
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
+        String sort = queryParamvo.getSort();
+        if (StringUtil.isEmpty(sort))
+            sort = "code";
         // 查询并分页
-        List<MeasureVO> list = ims.quyerByPkcorp(SystemUtil.getLoginCorpId(), queryParamvo.getSort(), queryParamvo.getOrder());
+        List<MeasureVO> list = ims.quyerByPkcorp(SystemUtil.getLoginCorpId(), sort, queryParamvo.getOrder());
         // list变成数组
         grid.setTotal((long) (list == null ? 0 : list.size()));
         // 分页

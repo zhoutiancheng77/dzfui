@@ -96,25 +96,30 @@ public class QcController  extends BaseController {
 	@PostMapping("/onUpdate")
 	public ReturnData onUpdate(@RequestBody Map<String, String> param) {
 		Json json = new Json();
-		IcbalanceVO[] bodyvos;
-		String spInfo =param.get("body"); // 获得前台传进来的
-		if (!StringUtil.isEmpty(spInfo)) {
-			spInfo = spInfo.replace("}{", "},{"); // 修改格式，对象之间用 "," 分隔
-			spInfo = "[" + spInfo + "]"; // 最外层加上中括号，转化为json数组的格式
-			bodyvos = JsonUtils.convertValue(spInfo, IcbalanceVO[].class);
-		} else {
-			bodyvos = new IcbalanceVO[] { JsonUtils.convertValue(param, IcbalanceVO.class) };// form提交保存
-			json.setRows(bodyvos[0]);
+		try {
+			IcbalanceVO[] bodyvos;
+			String spInfo =param.get("body"); // 获得前台传进来的
+			if (!StringUtil.isEmpty(spInfo)) {
+				spInfo = spInfo.replace("}{", "},{"); // 修改格式，对象之间用 "," 分隔
+				spInfo = "[" + spInfo + "]"; // 最外层加上中括号，转化为json数组的格式
+				bodyvos = JsonUtils.convertValue(spInfo, IcbalanceVO[].class);
+			} else {
+				bodyvos = new IcbalanceVO[] { JsonUtils.convertValue(param, IcbalanceVO.class) };// form提交保存
+				json.setRows(bodyvos[0]);
+			}
+			String pk_corp = SystemUtil.getLoginCorpId(); // 获取公司主键
+			setAddDefaultValue(bodyvos); // 设置公司名、创建时间、创建者
+			if(bodyvos != null && bodyvos.length>0){
+				checkSecurityData(bodyvos,null,null, !StringUtil.isEmpty(bodyvos[0].getPk_icbalance()));
+			}
+			iservice.save(pk_corp, bodyvos,SystemUtil.getLoginUserId()); // 保存数据
+			json.setSuccess(true);
+			json.setMsg("保存成功");
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存期初设置", 2);
+		} catch (Exception e) {
+			printErrorLog(json,e,"保存失败");
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存期初保存失败", ISysConstants.SYS_2);
 		}
-		String pk_corp = SystemUtil.getLoginCorpId(); // 获取公司主键
-		setAddDefaultValue(bodyvos); // 设置公司名、创建时间、创建者
-        if(bodyvos != null && bodyvos.length>0){
-            checkSecurityData(bodyvos,null,null, !StringUtil.isEmpty(bodyvos[0].getPk_icbalance()));
-        }
-		iservice.save(pk_corp, bodyvos,SystemUtil.getLoginUserId()); // 保存数据
-		json.setSuccess(true);
-		json.setMsg("保存成功");
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "库存期初设置", 2);
 		return ReturnData.ok().data(json);
 	}
 
@@ -134,19 +139,24 @@ public class QcController  extends BaseController {
 		String paramValues = param.get("ids");
 		String pk_corp = param.get("pk_corp");
 		Json json = new Json();
-        checkSecurityData(null,new String[]{pk_corp},null);
-		String[] pkss = DZFStringUtil.getString2Array(paramValues, ",");
-		if (DZFValueCheck.isEmpty(pkss)){
-			throw new BusinessException("数据为空,删除失败!");
-		}
-		String errmsg = iservice.deleteBatch(pkss, SystemUtil.getLoginCorpId());
-		json.setSuccess(true);
-		if(StringUtil.isEmpty(errmsg)){
-			json.setMsg("删除成功!");
-		}else{
-			json.setMsg(errmsg);
-		}
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除库存期初", ISysConstants.SYS_2);
+        try {
+            checkSecurityData(null,new String[]{pk_corp},null);
+            String[] pkss = DZFStringUtil.getString2Array(paramValues, ",");
+            if (DZFValueCheck.isEmpty(pkss)){
+                throw new BusinessException("数据为空,删除失败!");
+            }
+            String errmsg = iservice.deleteBatch(pkss, SystemUtil.getLoginCorpId());
+            json.setSuccess(true);
+            if(StringUtil.isEmpty(errmsg)){
+                json.setMsg("删除成功!");
+            }else{
+                json.setMsg(errmsg);
+            }
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除库存期初"+json.getMsg(), ISysConstants.SYS_2);
+        } catch (Exception e) {
+            printErrorLog(json,e,"删除失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除库存期初失败", ISysConstants.SYS_2);
+        }
 		return ReturnData.ok().data(json);
 	}
 
@@ -154,22 +164,27 @@ public class QcController  extends BaseController {
 	public ReturnData impExcel(HttpServletRequest request) {
 		Json json = new Json();
 		json.setSuccess(false);
-		String userid =SystemUtil.getLoginUserId();
-		MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
-		MultipartFile infile = multipartRequest.getFile("impfile");
-		if (infile == null) {
-			throw new BusinessException("请选择导入文件!");
-		}
-		String filename = infile.getOriginalFilename();
-		int index = filename.lastIndexOf(".");
-		String fileType = filename.substring(index + 1);
+        try {
+            String userid =SystemUtil.getLoginUserId();
+            MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+            MultipartFile infile = multipartRequest.getFile("impfile");
+            if (infile == null) {
+                throw new BusinessException("请选择导入文件!");
+            }
+            String filename = infile.getOriginalFilename();
+            int index = filename.lastIndexOf(".");
+            String fileType = filename.substring(index + 1);
 
-		CorpVO corpvo = SystemUtil.getLoginCorpVo();
-		DZFDate icdate = corpvo.getIcbegindate();
-		String msg = iservice.saveImp(infile, corpvo.getPk_corp(), fileType, userid, icdate);
-		json.setMsg(msg);
-		json.setSuccess(true);
-        writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入库存期初", ISysConstants.SYS_2);
+            CorpVO corpvo = SystemUtil.getLoginCorpVo();
+            DZFDate icdate = corpvo.getIcbegindate();
+            String msg = iservice.saveImp(infile, corpvo.getPk_corp(), fileType, userid, icdate);
+            json.setMsg(msg);
+            json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入库存期初", ISysConstants.SYS_2);
+        } catch (Exception e) {
+            printErrorLog(json,e,"导入库存期初失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入库存期初失败", ISysConstants.SYS_2);
+        }
 		return ReturnData.ok().data(json);
 	}
 

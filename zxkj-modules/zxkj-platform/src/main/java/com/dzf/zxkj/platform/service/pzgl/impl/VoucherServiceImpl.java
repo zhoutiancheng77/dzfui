@@ -3506,22 +3506,13 @@ public class VoucherServiceImpl implements IVoucherService {
 		sqlp.addParam(hvo.getPk_corp());
 		CorpVO corp = corpService.queryByPk(hvo.getPk_corp());
 		if (corp.getIbuildicstyle() != null && corp.getIbuildicstyle() == 1) {
-			if (!StringUtil.isEmpty(hvo.getSourcebilltype())) {
-				if (hvo.getSourcebilltype().equals(IBillTypeCode.HP70)) {
-
-					singleObjectBO.executeUpdate(" update ynt_ictrade_h set pzh= ? where pzid= ? and pk_corp = ? ",
-							sqlp);
-					singleObjectBO.executeUpdate(
-							" update ynt_ictradein set pzh= ? where pk_voucher= ? and pk_corp = ? ", sqlp);
-				} else if (hvo.getSourcebilltype().equals(IBillTypeCode.HP75)) {
-					singleObjectBO.executeUpdate(" update ynt_ictrade_h set pzh= ? where pzid= ? and pk_corp = ? ",
-							sqlp);
-					singleObjectBO.executeUpdate(
-							" update ynt_ictradeout set pzh= ? where pk_voucher= ? and pk_corp = ? ", sqlp);
-				}
-			}
+			singleObjectBO.executeUpdate(" update ynt_ictrade_h set pzh= ? where pzid= ? and pk_corp = ? ",
+					sqlp);
+			singleObjectBO.executeUpdate(
+					" update ynt_ictradein set pzh= ? where pk_voucher= ? and pk_corp = ? ", sqlp);
+			singleObjectBO.executeUpdate(
+					" update ynt_ictradeout set pzh= ? where pk_voucher= ? and pk_corp = ? ", sqlp);
 		}
-
 	}
 
 	private void dealTaxItem(TzpzHVO hvo, CorpVO corpvo) {
