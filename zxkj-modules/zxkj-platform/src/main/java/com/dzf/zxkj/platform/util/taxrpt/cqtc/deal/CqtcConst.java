@@ -35,11 +35,11 @@ public interface CqtcConst {
 	// openid超时返回值
 	public static final int FAIL_TIMEOUT = 55;
 	
-	//双方系统约定authkey
-	public static String AUTHKEY = CqtcPropertyUtils.getProperties().getProperty("authkey");
-	//限定的ip
-	public static String IPENABLE = CqtcPropertyUtils.getProperties().getProperty("ipEnable");
-	public static String IPADDRS = CqtcPropertyUtils.getProperties().getProperty("ipAddrs");
+//	//双方系统约定authkey
+//	public static String AUTHKEY = CqtcPropertyUtils.getProperties().getProperty("authkey");
+//	//限定的ip
+//	public static String IPENABLE = CqtcPropertyUtils.getProperties().getProperty("ipEnable");
+//	public static String IPADDRS = CqtcPropertyUtils.getProperties().getProperty("ipAddrs");
 	/***
 	 * 方法名对照
 	 */

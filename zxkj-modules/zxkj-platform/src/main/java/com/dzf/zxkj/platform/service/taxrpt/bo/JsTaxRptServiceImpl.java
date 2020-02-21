@@ -20,6 +20,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.config.TaxJstcConfig;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.BondedSetVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
@@ -58,7 +59,6 @@ import com.dzf.zxkj.platform.util.taxrpt.TaxReportPath;
 import com.dzf.zxkj.platform.util.taxrpt.TaxRptemptools;
 import com.dzf.zxkj.platform.util.taxrpt.jiangsu.EncryptDecrypt;
 import com.dzf.zxkj.platform.util.taxrpt.jiangsu.HttpUtil;
-import com.dzf.zxkj.platform.util.taxrpt.jiangsu.JSTaxPropUtil;
 import com.dzf.zxkj.platform.util.taxrpt.jiangsu.ZipUtil;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -96,6 +96,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	private IAccountService accountService;
 	@Autowired
 	private ICorpService corpService;
+	@Autowired
+	private TaxJstcConfig taxJstcConfig;
 //	public ITaxRequestSrv getTaxrequestsrv() {
 //		if (taxrequestsrv == null) {
 //			taxrequestsrv = new TaxRequestSrvImpl();
@@ -362,7 +364,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		String ywbw = OFastJSON.toJSONString(map);
 		String ywbw = JsonUtils.serialize(map);
 
-		ywbw = EncryptDecrypt.encode(ywbw, JSTaxPropUtil.getprop("app_secret"));
+		ywbw = EncryptDecrypt.encode(ywbw, taxJstcConfig.app_secret);
 		baseReq.getBody().setYwbw(ywbw);
 
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -372,7 +374,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		String encode = ZipUtil.zipEncode(bw, true);
 		params.put("request", encode);
 
-		Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
 
 		String result = HttpUtil.parseRes(rmap.get("response"));
@@ -564,7 +566,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
 
 		//调用初始化接口获取期初数据
-		if ("on".equals(JSTaxPropUtil.getprop("service_switch"))
+		if ("on".equals(taxJstcConfig.service_switch)
 				&& !StringUtil.isEmpty(corpvo.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())
 				&& corpvo.getVsoccrecode().length() > 1
@@ -589,7 +591,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	public Object sendTaxReport(CorpVO corpVO, UserVO userVO, Map objMapReport,
 			SpreadTool spreadtool, TaxReportVO reportvo, SingleObjectBO sbo)
 			throws DZFWarpException {
-		if (!"on".equals(JSTaxPropUtil.getprop("service_switch"))) {
+		if (!"on".equals(taxJstcConfig.service_switch)) {
 			throw new BusinessException("申报接口未启用");
 		}
 		if (!TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())
@@ -623,7 +625,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				|| isbzt_dm == TaxRptConst.iSBZT_DM_ReportCancel)) {
 			throw new BusinessException("报表的申报状态是" + TaxRptConst.getSBzt_mc(isbzt_dm) + ", 不能重复申报");
 		}
-		if (!"true".equals(JSTaxPropUtil.getprop("dev_mode"))) {
+		if (!"true".equals(taxJstcConfig.dev_mode)) {
 			if (TaxRptConst.SB_ZLBHC1.equals(reportvo.getSb_zlbh())
 					|| TaxRptConst.SB_ZLBHC2.equals(reportvo.getSb_zlbh())
 					|| TaxRptConst.SB_ZLBH29805.equals(reportvo.getSb_zlbh())) {
@@ -652,7 +654,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		Map<String, String> params = new HashMap<String, String>();
 		String encode = ZipUtil.zipEncode(bw, true);
 		params.put("request", encode);
-		Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
 		
 		String result = HttpUtil.parseRes(rmap.get("response"));
@@ -763,7 +765,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		baseRequest.getBody()
 				.setYwbw(
 						EncryptDecrypt.encode(ywbw,
-								JSTaxPropUtil.getprop("app_secret")));
+								taxJstcConfig.app_secret));
 
 //		return OFastJSON.toJSONString(baseRequest);
 		return JsonUtils.serialize(baseRequest);
@@ -773,16 +775,16 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		BaseRequestVO base = new BaseRequestVO();
 		base.setAsynserviceid("");
 		base.setBwlx("json");
-		base.setClientid(JSTaxPropUtil.getprop("clientid"));
+		base.setClientid(taxJstcConfig.clientid);
 
 		String dealid = UUID.randomUUID().toString().replaceAll("-", "");
 		base.setDealid(dealid);
 
 		RequestBodyVO body = new RequestBodyVO();
 		base.setBody(body);
-		body.setAction(JSTaxPropUtil.getprop("action"));
+		body.setAction(taxJstcConfig.action);
 		body.setLogin_user(corpVO.getVsoccrecode());
-		body.setLogin_pwd(EncryptDecrypt.encode(taxvo.getVstatetaxpwd(), JSTaxPropUtil.getprop("app_secret")));
+		body.setLogin_pwd(EncryptDecrypt.encode(taxvo.getVstatetaxpwd(), taxJstcConfig.app_secret));
 
 		return base;
 	}
@@ -1014,7 +1016,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		String encode = ZipUtil.zipEncode(bw, true);
 		params.put("request", encode);
 
-		Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
 
 		String result = HttpUtil.parseRes(rmap.get("response"));
@@ -1180,7 +1182,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		String ywbw = OFastJSON.toJSONString(params);
 		String ywbw = JsonUtils.serialize(params);
 
-		ywbw = EncryptDecrypt.encode(ywbw, JSTaxPropUtil.getprop("app_secret"));
+		ywbw = EncryptDecrypt.encode(ywbw, taxJstcConfig.app_secret);
 
 		return ywbw;
 	}
@@ -1188,7 +1190,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	@Override
 	public void getDeclareStatus(CorpVO corpvo, CorpTaxVo taxvo,TaxReportVO reportvo)
 			throws DZFWarpException {
-		if (!"on".equals(JSTaxPropUtil.getprop("service_switch"))) {
+		if (!"on".equals(taxJstcConfig.service_switch)) {
 			return;
 		}
 		if (StringUtil.isEmpty(corpvo.getVsoccrecode())
@@ -1224,7 +1226,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			baseRequest.setServiceid("FW_DZSWJ_DYBBSBQKCX");
 			baseRequest.getBody().setSign("querySbqk");
 			
-			String ywbw = EncryptDecrypt.encode("{\"LSH\":\"''" + lsh + "''\"}", JSTaxPropUtil.getprop("app_secret"));
+			String ywbw = EncryptDecrypt.encode("{\"LSH\":\"''" + lsh + "''\"}", taxJstcConfig.app_secret);
 			
 			baseRequest.getBody().setYwbw(ywbw);
 			
@@ -1235,7 +1237,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("request", encode);
 			
-			Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+			Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 					params);
 			
 			String result = HttpUtil.parseRes(rmap.get("response"));
@@ -1304,7 +1306,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	public void processObsoleteDeclare(CorpVO corpvo, TaxReportVO reportvo)
 			throws DZFWarpException {
 		
-		if (!"on".equals(JSTaxPropUtil.getprop("service_switch"))) {
+		if (!"on".equals(taxJstcConfig.service_switch)) {
 			return;
 		}
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
@@ -1337,7 +1339,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		
 		String ywbw = EncryptDecrypt.encode("{\"YZPZXH\":\""
 				+ yzpz + "\", \"ZFLAG\":\"" + zflag + "\"}",
-				JSTaxPropUtil.getprop("app_secret"));
+				taxJstcConfig.app_secret);
 		
 		baseRequest.getBody().setYwbw(ywbw);
 		
@@ -1348,7 +1350,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("request", encode);
 
-		Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
 		
 		String result = HttpUtil.parseRes(rmap.get("response"));
@@ -1752,7 +1754,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		String ywbw = OFastJSON.toJSONString(map);
 		String ywbw = JsonUtils.serialize(map);
 
-		ywbw = EncryptDecrypt.encode(ywbw, JSTaxPropUtil.getprop("app_secret"));
+		ywbw = EncryptDecrypt.encode(ywbw, taxJstcConfig.app_secret);
 		baseReq.getBody().setYwbw(ywbw);
 
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -1763,7 +1765,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		String encode = ZipUtil.zipEncode(bw, true);
 		params.put("request", encode);
 
-		Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
 
 		String result = HttpUtil.parseRes(rmap.get("response"));
@@ -1820,7 +1822,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		String ywbw = OFastJSON.toJSONString(map);
 		String ywbw = JsonUtils.serialize(map);
 
-		ywbw = EncryptDecrypt.encode(ywbw, JSTaxPropUtil.getprop("app_secret"));
+		ywbw = EncryptDecrypt.encode(ywbw, taxJstcConfig.app_secret);
 		baseReq.getBody().setYwbw(ywbw);
 
 		HashMap<String, String> params = new HashMap<String, String>();
@@ -1831,7 +1833,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		String encode = ZipUtil.zipEncode(bw, true);
 		params.put("request", encode);
 
-		Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
 
 		String result = HttpUtil.parseRes(rmap.get("response"));
@@ -2430,8 +2432,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		// 用户勾选的报表
 		List<String> checkedRpt = super.queryCorpTaxRptVO(corpvo, period);
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
-		if ("on".equals(JSTaxPropUtil.getprop("service_switch"))
-				&& !"true".equals(JSTaxPropUtil.getprop("dev_mode"))
+		if ("on".equals(taxJstcConfig.service_switch)
+				&& !"true".equals(taxJstcConfig.dev_mode)
 				&& !StringUtil.isEmpty(corpvo.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
 			// 国税接口查询的税种
@@ -2464,7 +2466,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			List<TaxReportVO> adddetails,String period) {
 		List<TaxReportDetailVO> allDetails = new ArrayList<TaxReportDetailVO>();
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpVO.getPk_corp());
-		if ("on".equals(JSTaxPropUtil.getprop("service_switch"))
+		if ("on".equals(taxJstcConfig.service_switch)
 				&& !StringUtil.isEmpty(corpVO.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
 			// 用户勾选的表
@@ -2593,7 +2595,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		params.put("JKRQZ", reportvo.getPeriodto());
 
 //		String ywbw = EncryptDecrypt.encode(OFastJSON.toJSONString(params), JSTaxPropUtil.getprop("app_secret"));
-		String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(params), JSTaxPropUtil.getprop("app_secret"));
+		String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(params), taxJstcConfig.app_secret);
 
 		baseRequest.getBody().setYwbw(ywbw);
 		
@@ -2604,7 +2606,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		HashMap<String, String> requestParam = new HashMap<String, String>();
 		requestParam.put("request", encode);
 		
-		Map<String, String> rmap = HttpUtil.post(JSTaxPropUtil.getprop("url"),
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				requestParam);
 		
 		String result = HttpUtil.parseRes(rmap.get("response"));
@@ -2646,7 +2648,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			msg = "纳税人识别号为空";
 		} else if (StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
 			msg = "国税密码为空";
-		} else if ("on".equals(JSTaxPropUtil.getprop("service_switch"))) {
+		} else if ("on".equals(taxJstcConfig.service_switch)) {
 			if (list != null && list.size() > 0) {
 				String period = DateUtils.getPeriod(new DZFDate());
 				JSONObject rsJosn = getInventoryJson(period, corpvo,taxvo);

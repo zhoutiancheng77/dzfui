@@ -1,8 +1,11 @@
 package com.dzf.zxkj.platform.controller.taxrpt;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -24,7 +27,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/cqtc/service_10102")
 @Slf4j
-public class CqtcTaxController {
+public class CqtcTaxController extends BaseController {
 
     @Autowired
     private IUserService iuserService;
@@ -69,6 +72,8 @@ public class CqtcTaxController {
             json.setStatus(-200);
             json.setSuccess(false);
         }
+
+        writeLogRecord(LogRecordEnum.OPE_KJ_TAX, "获取期初", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.TaxSdtcConfig;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.TaxPosContrastVO;
@@ -42,6 +43,8 @@ public class TaxReportServiceImpl implements ITaxReportService {
 	private SingleObjectBO sbo;
 	@Autowired
 	private IBDCorpTaxService sys_corp_tax_serv;
+	@Autowired
+	private TaxSdtcConfig taxSdtcConfig;
 
 	// 发送增值税小规模
 	@Override
@@ -122,7 +125,7 @@ public class TaxReportServiceImpl implements ITaxReportService {
 			qcvo.setSssqZ(DateUtils.getPeriodEndDate(period).toString());
 		}
 		String yjsbBwXml = XMLUtils.createBusinessXML(vos, xmlType);
-		String supplier = TaxParamUtils.SUPPLIER;
+		String supplier = taxSdtcConfig.supplier;
 		yjsbBwXml = yjsbBwXml.replace("**", "");
 		yjsbBwXml = yjsbBwXml.replace("——", "");
 		// yjsbBwXml = yjsbBwXml.replace(">", "&gt;");
@@ -192,7 +195,7 @@ public class TaxReportServiceImpl implements ITaxReportService {
 		// String nsrsbh = "371325751788249";
 		String ywlx = TaxConst.SERVICE_CODE_NSRDLYZ;
 
-		String supplier = TaxParamUtils.SUPPLIER;
+		String supplier = taxSdtcConfig.supplier;
 
 		// 加密内容，格式为 业务报文xml+ supplier
 		String yzBwXml = XMLUtils.createYzdlXML(nsrsbh, vstatetaxpwd);
@@ -214,7 +217,7 @@ public class TaxReportServiceImpl implements ITaxReportService {
 	/**
 	 * 创建纳税申报信息
 	 * 
-	 * @param pk_taxtypelistdetail
+	 * @param
 	 * @return
 	 */
 	private TaxPosContrastVO[] createTaxPosContrastVOS(CorpVO corpVO, Map objMapReport, SpreadTool spreadtool,

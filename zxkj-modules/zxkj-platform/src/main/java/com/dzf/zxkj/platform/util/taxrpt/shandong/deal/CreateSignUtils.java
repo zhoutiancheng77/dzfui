@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.util.taxrpt.shandong.deal;
 
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.platform.config.TaxSdtcConfig;
 import com.dzf.zxkj.platform.model.taxrpt.shandong.TaxConst;
 import com.dzf.zxkj.platform.service.taxrpt.shandong.impl.WebServiceProxy;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +37,8 @@ public class CreateSignUtils {
 
 	public static String getPrivateKey() {
 		String key = PROPRIVATEKEY;
-		if ("true".equals(TaxParamUtils.ISTEST)) {
+		TaxSdtcConfig taxSdtcConfig = SpringUtils.getBean(TaxSdtcConfig.class);
+		if ("true".equals(taxSdtcConfig.istest)) {
 			key = TESTPRIVATEKEY;
 		}
 		return key;

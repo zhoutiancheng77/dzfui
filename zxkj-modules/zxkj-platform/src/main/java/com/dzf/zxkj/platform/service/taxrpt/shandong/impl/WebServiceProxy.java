@@ -2,8 +2,10 @@ package com.dzf.zxkj.platform.service.taxrpt.shandong.impl;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.TaxSdtcConfig;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.taxrpt.shandong.TaxConst;
@@ -11,7 +13,6 @@ import com.dzf.zxkj.platform.model.taxrpt.shandong.TaxQcQueryVO;
 import com.dzf.zxkj.platform.service.taxrpt.shandong.IYjsbWebService;
 import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.CreateSignUtils;
 import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.ParseJsonData;
-import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.TaxParamUtils;
 import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.XMLUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -39,13 +40,24 @@ public class WebServiceProxy {
 	private static int RETRY_TIMES = 1;
 	private static int SO_TIMEOUT = 20000;
 
+	private static TaxSdtcConfig taxSdtcConfig = null;
+
 	private static String getTaxUrl() {
-		String taxurl = TaxParamUtils.PROTAXURL;
-		if ("true".equals(TaxParamUtils.ISTEST)) {
-			taxurl = TaxParamUtils.TESTTAXURL;
+		String taxurl = getTaxSdtcConfig().protaxurl;
+		if ("true".equals(getTaxSdtcConfig().istest)) {
+			taxurl = getTaxSdtcConfig().testtaxurl;
 		}
 		return taxurl;
 	}
+
+	private static TaxSdtcConfig getTaxSdtcConfig() {
+		if(taxSdtcConfig == null) {
+			taxSdtcConfig = SpringUtils.getBean(TaxSdtcConfig.class);
+		}
+
+		return taxSdtcConfig;
+	}
+
 
 	public static IYjsbWebService getWebService() {
 		try {
@@ -192,7 +204,7 @@ public class WebServiceProxy {
 		 log.info("税号：" + corpvo.getVsoccrecode() + "----yzBwXml----验证报文-:\n" + yzBwXml);
 
 		// 私钥加密过程
-		String supplier = TaxParamUtils.SUPPLIER;
+		String supplier = getTaxSdtcConfig().supplier;
 		String cipher = sbbwEncode(yzBwXml, supplier);
 
 		String reStrYz = WebServiceProxy.yzNsrxx(nsrsbh, supplier, ywlx, yzBwXml, cipher);
@@ -308,7 +320,7 @@ public class WebServiceProxy {
 		} 
 		log.info("税号：" + corpvo.getVsoccrecode() + msg1 + yjsbBwXml);
 //		 System.out.println(yjsbBwXml);
-		String supplier = TaxParamUtils.SUPPLIER;
+		String supplier = getTaxSdtcConfig().supplier;
 		String cipher = sbbwEncode(yjsbBwXml, supplier);
 //		System.out.println(yjsbBwXml);
 		String reStrYz = WebServiceProxy.yjsbBw(nsrsbh, supplier, qcvo.getYwlx(), yjsbBwXml, cipher,
@@ -364,7 +376,7 @@ public class WebServiceProxy {
 				new DZFDate().toString(), nsrsbh, vstatetaxpwd, qcvo.getImpl(), qcvo.getDjxh());
 		 log.info("税号：" + corpvo.getVsoccrecode() + "----yzBwXml----获取清册上传报文-:\n" + yjsbBwXml);
 
-		String supplier = TaxParamUtils.SUPPLIER;
+		String supplier = getTaxSdtcConfig().supplier;
 		String cipher = sbbwEncode(yjsbBwXml, supplier);
 
 		String reStrYz = WebServiceProxy.sbqcCx(nsrsbh, supplier, qcvo.getYwlx(), yjsbBwXml, cipher,

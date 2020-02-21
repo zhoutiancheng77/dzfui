@@ -20,6 +20,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.config.TaxCqtcConfig;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.*;
 import com.dzf.zxkj.platform.model.tax.cqtc.*;
@@ -34,7 +35,6 @@ import com.dzf.zxkj.platform.service.taxrpt.shandong.datagetter.TaxTempletVOGett
 import com.dzf.zxkj.platform.service.taxrpt.spreadjs.SpreadTool;
 import com.dzf.zxkj.platform.util.taxrpt.TaxReportPath;
 import com.dzf.zxkj.platform.util.taxrpt.cqtc.CQXMLUtil;
-import com.dzf.zxkj.platform.util.taxrpt.cqtc.deal.CqtcPropertyUtils;
 import com.dzf.zxkj.platform.util.taxrpt.cqtc.deal.DESHelper;
 import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.XMLUtils;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -67,6 +67,8 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 	private SingleObjectBO sbo;
 	@Autowired
 	private ITaxBalaceCcrService taxbalancesrv;
+	@Autowired
+	private static TaxCqtcConfig cqtcConfig;
 
 	@Override
 	public String processSendTaxReport(CQTaxReportVO taxInfo) throws DZFWarpException {
@@ -845,7 +847,8 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 	}
 
 	private static String doPost(String xml, String charset) {
-		String url = CqtcPropertyUtils.getProperties().getProperty("url");
+//		String url = CqtcPropertyUtils.getProperties().getProperty("url");
+		String url = cqtcConfig.url;
 		HttpClient httpClient = null;
 		HttpPost httpPost = null;
 		String result = null;
