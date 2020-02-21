@@ -856,7 +856,9 @@ public class TerminalSettleImpl implements ITerminalSettle {
 			zyr=list.get(0).getAbstracts();
 			zyc = list.get(0).getAbstracts1();
 			lrbm=list.get(0).getVcode();//不同行业科目的利润科目编码
-			wfplr=list.get(0).getAccountcode();//不同行业科目的未分配利润科目编码
+//			wfplr=list.get(0).getAccountcode();//不同行业科目的未分配利润科目编码
+			YntCpaccountVO yntCpaccountVO = cpaccountserv.queryById(list.get(0).getPk_transferinaccount());
+			wfplr = yntCpaccountVO.getAccountcode();
 		}
 		if(lrbm==null||wfplr==null){
 			throw new BusinessException("利润结转模版不存在！");
