@@ -1,8 +1,11 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.jzcl.KMQMJZVO;
@@ -19,7 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("gl_kmjzqueryact")
 @Slf4j
-public class KmQmQueryController {
+public class KmQmQueryController extends BaseController {
 
     @Autowired
     private IKmQmQueryService gl_kmqmqueryserv;
@@ -46,7 +49,7 @@ public class KmQmQueryController {
 
             grid.setSuccess(false);
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE.getValue(), "年末结账查询", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SETTLE, "年末结账查询:"+queryParamvo.getEnddate().getYear(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
