@@ -164,6 +164,7 @@ public class ZczzReportController extends BaseController {
                 printReporUtil.printA5(null, bodyvos, "资 产 总 账", columnkeys, columnames, columnlist,
                         new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1}, 0, null, pmap, tmap);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "资产总账打印"+ param.getPeriod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("资产总账打印失败", e);
         } catch (IOException e) {

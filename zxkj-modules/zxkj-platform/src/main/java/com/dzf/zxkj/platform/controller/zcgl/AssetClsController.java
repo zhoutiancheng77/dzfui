@@ -109,6 +109,7 @@ public class AssetClsController extends BaseController {
                             "istogl", "voucherno" }, new String[] { "资产卡片",
                             "清理日期", "转凭证", "凭证号" }, new int[] { 3, 3, 3, 3 },
                     20,  pmap, tmap);
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"资产清理打印"+printParamVO.getPeriod(),ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("资产清理打印失败", e);
         } catch (IOException e) {

@@ -103,6 +103,7 @@ public class AmZcMxReportController extends BaseController {
                             "累计折旧余额", "净值余额"}, new int[]{4, 4, 4, 7, 4, 3,
                             4, 4, 4, 4, 4, 4, 4, 4}, 20,
                     pmap, tmap);
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "资产明细账打印"+ param.getPeriod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("资产明细账打印失败", e);
         } catch (IOException e) {

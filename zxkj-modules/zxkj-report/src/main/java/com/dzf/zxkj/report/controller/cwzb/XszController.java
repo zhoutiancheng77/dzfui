@@ -235,7 +235,9 @@ public class XszController  extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
             //初始化表体列编码和列名称
             printReporUtil.printReport(bodyvos,"序 时 账", Arrays.asList(columncellattrvos),18,pmap.get("type"),pmap,tmap);
-
+            //日志记录
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "序时账打印:"+queryParamvo.getBegindate1() +"-"+ queryParamvo.getEnddate(), ISysConstants.SYS_2);
         } catch (Exception e) {
             log.error("打印错误",e);
         }

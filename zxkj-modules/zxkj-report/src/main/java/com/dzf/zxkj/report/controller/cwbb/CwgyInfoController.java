@@ -185,6 +185,7 @@ public class CwgyInfoController extends ReportBaseController {
                 printReporUtil.printB5(new HashMap<String, List<SuperVO>>(), bodyvos, "财 务 概 要 信 息", columnkeys, columnames,
                         columnlist, new int[] { 2, 3, 5, 3, 3, 3, 3, 3 }, 0, null, pmap, tmap);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "财务概要信息打印:" +  printParamVO.getTitleperiod(), 2);
         } catch (DocumentException e) {
             log.error("打印失败", e);
         } catch (IOException e) {

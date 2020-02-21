@@ -271,6 +271,7 @@ public class QcyeController extends BaseController {
             gl_qcyeserv.saveVerifyBegin(pk_km, corp, vos);
             json.setMsg("保存成功");
             json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "未核销期初保存", ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "保存未核销期初失败！");
         }
@@ -349,6 +350,7 @@ public class QcyeController extends BaseController {
                                 "本月期初金额" }, new int[] { 5, 3, 1, 3, 3, 3, 3 },
                         50, pmap,tmap);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "科目期初打印", ISysConstants.SYS_2);
         } catch (Exception e) {
             log.error("打印错误:", e);
         }
@@ -475,6 +477,7 @@ public class QcyeController extends BaseController {
             }
             json.setSuccess(true);
             json.setMsg("导入成功");
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "科目期初导入", ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "导入失败");
         }

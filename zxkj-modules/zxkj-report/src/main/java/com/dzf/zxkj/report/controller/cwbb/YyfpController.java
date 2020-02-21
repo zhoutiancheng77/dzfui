@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
@@ -67,7 +68,7 @@ public class YyfpController extends ReportBaseController {
             printErrorLog(grid, e, "查询失败");
             log.error("查询失败", e);
         }
-//        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"查询盈余分配表");
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表查询"+queryParamVO.getBegindate1(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -81,7 +82,7 @@ public class YyfpController extends ReportBaseController {
         yhd.setQj(excelExportVO.getPeriod());
         yhd.setCreator(userVO.getCuserid());
         yhd.setCorpName(excelExportVO.getCorpName());
-
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表导出:"+excelExportVO.getPeriod(), ISysConstants.SYS_2);
         baseExcelExport(response,lxs,yhd);
 
     }
@@ -111,6 +112,7 @@ public class YyfpController extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             //初始化表体列编码和列名称
             printReporUtil.printReport(bodyvos, "盈余分配表", Arrays.asList(columncellattrvos), 18, printParamVO.getType(), pmap, tmap);
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表打印:"+printParamVO.getPeriod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {

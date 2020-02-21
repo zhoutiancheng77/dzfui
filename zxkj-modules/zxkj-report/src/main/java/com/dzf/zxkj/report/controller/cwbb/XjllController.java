@@ -368,7 +368,8 @@ public class XjllController extends ReportBaseController {
                         new int[]{7,1,2,2},20,pmap,tmap);
 
             }
-
+            // 日志记录接口
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "现金流量表打印:" +    printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

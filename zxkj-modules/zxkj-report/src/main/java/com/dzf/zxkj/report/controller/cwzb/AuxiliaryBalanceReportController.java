@@ -125,6 +125,8 @@ public class AuxiliaryBalanceReportController extends BaseController {
                 printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, titlename,
                         getColumn(printParamVO.getShowbm()), getColumnName(printParamVO.getShowbm()), getColumnWidth(printParamVO.getShowbm()), 0, printParamVO.getType(), pmap, tmap);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "辅助余额表打印:" + period, ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {

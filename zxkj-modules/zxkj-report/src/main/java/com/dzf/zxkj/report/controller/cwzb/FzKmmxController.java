@@ -299,6 +299,7 @@ public class FzKmmxController extends ReportBaseController {
             printReporUtil.printHz(pagemap, bodyvos, titlename,
                     (String[])columns.get(0), (String[])columns.get(1), (int[])columns.get(2), 20, pmap,tmap);
 
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "辅助明细账打印:"+printParamVO.getTitleperiod());
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

@@ -108,7 +108,9 @@ public class SrzcController extends ReportBaseController {
         field.setCorpName(gs);
 
         baseExcelExport(response, lxs, field);
-
+        //日志记录接口
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "收入支出表导出:" + qj, ISysConstants.SYS_2);
     }
 
     /**
@@ -136,6 +138,9 @@ public class SrzcController extends ReportBaseController {
                     new String[]{"xm", "monnum", "yearnum"},
                     new String[]{"项目", "本月数", "本年累计数"},
                     new int[]{5, 2, 2}, 20, pmap, tmap);
+            //日志记录接口
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                    "收入支出表打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {

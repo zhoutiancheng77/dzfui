@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.controller.cwbb;
 
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.query.PrintParamVO;
@@ -58,6 +59,9 @@ public class QyBdController extends ReportBaseController {
             grid.setSuccess(true);
             grid.setRows(list);
             grid.setMsg("查询成功");
+            //日志记录接口
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                    "权益变动查询:"+ queryParamVO.getBegindate1(),2);
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败");
             log.error("查询失败", e);
@@ -104,6 +108,9 @@ public class QyBdController extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             //初始化表体列编码和列名称
             printReporUtil.printReport(bodyvos, QyBdPdfField.name, Arrays.asList(columncellattrvos), 18, printParamVO.getType(), pmap, tmap);
+            //日志记录接口
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                    "权益变动打印:"+ printParamVO.getPeriod(),2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {

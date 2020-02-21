@@ -259,6 +259,7 @@ public class ZczjmxActReportController extends BaseController {
                                 "N".equals(printParamVO.getZjnx()) ? 0 : 3,
                                 4, 4, 4, 4}, 20,  pmap, tmap);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "折旧明细账打印"+printParamVO.getPeriod());
         } catch (DocumentException e) {
             log.error("折旧明细账打印失败", e);
         } catch (IOException e) {

@@ -584,6 +584,9 @@ public class ZcfzController extends ReportBaseController {
             Object[] obj = getPrintXm(0);
             printReporUtil.printHz(getZcfzMap(queryparamvo), null, "资 产 负 债 表",
                     (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
+            //日志记录
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                    "资产负债打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {
