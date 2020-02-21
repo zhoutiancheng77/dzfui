@@ -20,11 +20,13 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.qcset.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.qcset.IFzhsqcService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
@@ -60,6 +62,8 @@ public class QcyeController extends BaseController {
     private IQmgzService qmgzService;
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
+    @Autowired
+    private ICpaccountService cpaccountService;
 
     @GetMapping("query")
     public ReturnData<QueryVOClassify> query(String rmb,String isShowFc) {
@@ -462,8 +466,12 @@ public class QcyeController extends BaseController {
             jzDate = DZFDate.getDate(DateUtils.getPeriod(jzDate) + "-01");
             if ("Y".equals(isFzqc)) {
                 gl_qcyeserv.processFzImportExcel(corp, SystemUtil.getLoginUserId(), pk_km, jzDate, file.getInputStream());
+                YntCpaccountVO account = cpaccountService.queryById(pk_km);
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET,
+                        "导入" + account.getAccountcode() + "_" + account.getAccountname() + "辅助期初");
             } else {
                 gl_qcyeserv.processImportExcel(corp.getPk_corp(), jzDate,  file.getInputStream());
+                writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "科目期初导入");
             }
             json.setSuccess(true);
             json.setMsg("导入成功");

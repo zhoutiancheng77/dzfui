@@ -84,7 +84,7 @@ public class VoucherPrintController extends BaseController {
         param.setAssistSetting(printAssitSetVOs);
 
         try {
-            writeLogRecord(LogRecordEnum.OPE_KJ_DELVOUCHER, "打印凭证");
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "打印凭证");
         } catch (Exception e) {
         }
 
@@ -1034,7 +1034,7 @@ public class VoucherPrintController extends BaseController {
                            HttpServletResponse response) {
         VoucherPrintTemplate template = getTemplate(param);
         try {
-            writeLogRecord(LogRecordEnum.OPE_KJ_DELVOUCHER, "打印凭证封皮");
+            writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "打印凭证封皮");
         } catch (Exception e) {
         }
         // 打印页面总数
