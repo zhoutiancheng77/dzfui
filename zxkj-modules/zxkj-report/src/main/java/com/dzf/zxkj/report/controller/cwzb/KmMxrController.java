@@ -464,6 +464,8 @@ public class KmMxrController extends ReportBaseController {
                 printReporUtil.printHz(new HashMap<String, List<SuperVO>>() ,bodyvos,"科目明细账",(String[])obj[0],
                         (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "科目明细账打印:"+printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

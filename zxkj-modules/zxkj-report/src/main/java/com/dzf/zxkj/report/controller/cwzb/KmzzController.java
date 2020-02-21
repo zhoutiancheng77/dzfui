@@ -271,6 +271,8 @@ public class KmzzController extends ReportBaseController {
                     bodyvos[i].setKm(bodyvos[i].getKm().substring(bodyvos[i].getKm().lastIndexOf('_') + 1));
                 }
             }
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "科目总账打印:" +  printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("错误", e);
         } catch (IOException e) {

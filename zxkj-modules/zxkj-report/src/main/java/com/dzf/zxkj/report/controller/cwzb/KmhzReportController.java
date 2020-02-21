@@ -197,6 +197,8 @@ public class KmhzReportController extends ReportBaseController {
                     new String[] { "kmlb", "kmbm", "kmmc", "fsjf", "fsdf" },
                     new String[] { "科目类别", "科目编码", "科目名称", "本期发生借方", "本期发生贷方" }, new int[] { 1, 1, 3, 2, 2 }, 0, type,
                     pmap,tmap);
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "科目汇总表打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

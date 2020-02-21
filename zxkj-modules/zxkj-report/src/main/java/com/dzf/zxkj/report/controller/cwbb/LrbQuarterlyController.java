@@ -219,6 +219,10 @@ public class LrbQuarterlyController extends ReportBaseController {
             Object[] obj = getPrintXm(0,curr_jd);
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(),bodyvos,"利 润 表 季 报",
                     (String[])obj[0], (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+
+            //日志记录接口
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                    "利润表季报打印:"+ printParamVO.getTitleperiod(),2);
         } catch (DocumentException e) {
             log.error("打印失败", e);
         } catch (IOException e) {

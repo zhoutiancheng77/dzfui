@@ -105,7 +105,11 @@ public class YwHdController  extends ReportBaseController {
         yhd.setCreator(userVO.getCuserid());
         yhd.setCorpName(gs);
 
+        //日志记录接口
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                "业务活动表导出:"+qj, ISysConstants.SYS_2);
         baseExcelExport(response,lxs,yhd);
+
     }
 
     @PostMapping("print")
@@ -155,7 +159,9 @@ public class YwHdController  extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));//设置表头字体
             //初始化表体列编码和列名称
             printReporUtil.printReport(bodyvos,"业 务 活 动 表", columncellattrlist,18,pmap.get("type"),pmap,tmap);
-
+            //日志记录接口
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                    "业务活动表打印:"+printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

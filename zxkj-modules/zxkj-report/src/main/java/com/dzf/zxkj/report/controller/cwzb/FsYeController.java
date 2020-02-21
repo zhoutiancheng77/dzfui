@@ -588,6 +588,9 @@ public class FsYeController  extends ReportBaseController {
             }
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>() ,bodyvos,"发 生 额 及 余 额 表",(String[])obj[0],
                     (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT, "发生额及余额表打印:"
+                            + printParamVO.getTitleperiod(),
+                    ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

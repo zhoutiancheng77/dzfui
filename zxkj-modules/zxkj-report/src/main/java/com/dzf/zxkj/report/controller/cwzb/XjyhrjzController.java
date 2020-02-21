@@ -202,6 +202,8 @@ public class XjyhrjzController extends ReportBaseController {
             Object[] obj = getPrintXm(0);
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(),bodyvos,"现金/银行日记账",(String[])obj[0],
                     (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
+            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+                    "现金/银行日记账打印:"+printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误",e);
         } catch (IOException e) {

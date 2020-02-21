@@ -85,7 +85,7 @@ public class LrbController extends ReportBaseController {
 
         /** 日志记录接口 */
         writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
-                "利润表查询:" + DateUtils.getPeriod(queryParamvo.getBegindate1()), ISysConstants.SYS_2);
+                "利润表查询:" + DateUtils.getPeriod(queryParamvo.getEnddate()), ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
     }
@@ -117,7 +117,7 @@ public class LrbController extends ReportBaseController {
 
         /** 日志记录接口 */
         writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
-                "分部利润表查询", ISysConstants.SYS_2);
+                "分部利润表查询"+DateUtils.getPeriod(queryParamvo.getEnddate()), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 
     }
@@ -221,7 +221,7 @@ public class LrbController extends ReportBaseController {
         }
         /** 日志记录接口 */
         writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
-                title + "导出:" + qj, ISysConstants.SYS_2);
+                title + "利润表导出:" + qj, ISysConstants.SYS_2);
     }
 
     private void getLrbExcel(ReportExcelExportVO excelExportVO, CorpVO corpVO, KmReoprtQueryParamVO queryParamvo, UserVO userVO, LrbVO[] listVo, String gs, String qj, LrbExcelField lrb) {
@@ -344,6 +344,9 @@ public class LrbController extends ReportBaseController {
                 printReporUtil.printHz(qrymap, null, titlename,
                         (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
             }
+            /** 日志记录接口 */
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
+                    titlename + "打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {
