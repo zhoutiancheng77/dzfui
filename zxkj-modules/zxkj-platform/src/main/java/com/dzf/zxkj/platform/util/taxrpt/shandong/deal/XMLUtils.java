@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.util.taxrpt.shandong.deal;
 
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.TaxSdtcConfig;
 import com.dzf.zxkj.platform.model.tax.TaxPosContrastVO;
 import com.dzf.zxkj.platform.model.taxrpt.shandong.TaxQcQueryVO;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +32,7 @@ public class XMLUtils {
 	 */
 	public static String createScBwXml(String xml, String serviceId, String sessionId, String tranReqDate,
 			String nsrsbh, String pwd, String impl, String djxh) {
-
+		TaxSdtcConfig taxSdtcConfig = SpringUtils.getBean(TaxSdtcConfig.class);
 		// 创建Document对象
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement("tiripPackage", "http://www.chinatax.gov.cn/dataspec/");
@@ -46,7 +48,7 @@ public class XMLUtils {
 		Element em21 = em2.addElement("serviceId");// 登录验证报文固定格式
 		em21.addText(serviceId);
 		Element em22 = em2.addElement("clientNo");// 客户端号
-		em22.addText(TaxParamUtils.CLIENTNO);
+		em22.addText(taxSdtcConfig.clientno);
 		Element em23 = em2.addElement("tranSeq");// 随机生成的流水号
 		em23.addText(UUID.randomUUID().toString());
 		// em23.addText("PERSON_TRANSEQ");
@@ -58,16 +60,16 @@ public class XMLUtils {
 		Element em3 = root.addElement("identity");
 		Element em31 = em3.addElement("application");
 		Element em311 = em31.addElement("applicationId");// id
-		em311.addText(TaxParamUtils.APPLICATIONID);
+		em311.addText(taxSdtcConfig.applicationid);
 		Element em312 = em31.addElement("supplier");// 大账房
-		em312.addText(TaxParamUtils.SUPPLIER);
+		em312.addText(taxSdtcConfig.supplier);
 		Element em313 = em31.addElement("version");// 版本
 		em313.addText("1");
 		Element em314 = em31.addElement("authenticateType");
 		em314.addText("2");
 		em31.addElement("cert");
 		Element em316 = em31.addElement("password");// 密码
-		em316.addText(TaxParamUtils.PASSWORD);
+		em316.addText(taxSdtcConfig.password);
 
 		Element em32 = em3.addElement("customer");
 		Element em321 = em32.addElement("customerId");// 纳税人识别号

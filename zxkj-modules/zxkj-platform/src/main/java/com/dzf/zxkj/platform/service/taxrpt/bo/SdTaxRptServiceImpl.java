@@ -5,6 +5,7 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.constant.TaxRptConst;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.TaxSdtcConfig;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -16,7 +17,6 @@ import com.dzf.zxkj.platform.service.taxrpt.shandong.impl.TaxCategoryFactory;
 import com.dzf.zxkj.platform.service.taxrpt.shandong.impl.WebServiceProxy;
 import com.dzf.zxkj.platform.service.taxrpt.spreadjs.SpreadTool;
 import com.dzf.zxkj.platform.util.ThreadImgPoolExecutorFactory;
-import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.TaxParamUtils;
 import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.XMLUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,8 @@ public class SdTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 	@Autowired
 	private TaxCategoryFactory taxFact;
+	@Autowired
+	private TaxSdtcConfig taxSdtcConfig;
 
 	@Override
 	public String[] getCondition(String pk_taxreport, UserVO userVO, TaxReportVO reportvo, SingleObjectBO sbo)
@@ -44,7 +46,7 @@ public class SdTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	public Object sendTaxReport(CorpVO corpVO, UserVO userVO, Map objMapReport, SpreadTool spreadtool,
 								TaxReportVO reportvo, SingleObjectBO sbo) throws DZFWarpException {
 
-		if ("true".equals(TaxParamUtils.ENABLED)) {
+		if ("true".equals(taxSdtcConfig.enabled)) {
 			ITaxCategoryService taxCate = taxFact.produce(reportvo.getSb_zlbh());
 			taxCate.sendTaxReport(corpVO, objMapReport, spreadtool, reportvo, userVO);
 			// 更新 reportvo 状态为已提交
@@ -62,7 +64,7 @@ public class SdTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		HashMap<String, Object> hmQCData = new HashMap<String, Object>();
 		// try {
 		// 调用初始化接口获取期初数据
-		if ("true".equals(TaxParamUtils.ENABLED) &&reportvo.getSbzt_dm() =="101") {
+		if ("true".equals(taxSdtcConfig.enabled) &&reportvo.getSbzt_dm() =="101") {
 			// 申报成功的不在获取期初
 			ITaxCategoryService taxCate = taxFact.produce(reportvo.getSb_zlbh());
 			hmQCData = taxCate.getQcData(corpvo, reportvo);
@@ -102,7 +104,7 @@ public class SdTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	public void getDeclareStatus(CorpVO corpvo, CorpTaxVo corptaxvo, TaxReportVO reportvo) throws DZFWarpException {
 		// try {
 		// 调用初始化接口获取期初数据
-		if ("true".equals(TaxParamUtils.ENABLED)) {
+		if ("true".equals(taxSdtcConfig.enabled)) {
 			queryDeclareStatus(corpvo, corptaxvo, reportvo);
 		}
 	}
