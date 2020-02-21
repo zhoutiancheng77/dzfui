@@ -372,7 +372,7 @@ public class BsWorkbenchController extends BaseController {
 
             json.setSuccess(true);
             json.setRows(0);
-            writeLogRecord(LogRecordEnum.OPE_ADMIN_NSGZT, "修改提醒设置", ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_NSGZT, "发送提醒", ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "提醒设置失败");
             log.error("提醒设置失败", e);
@@ -779,6 +779,7 @@ public class BsWorkbenchController extends BaseController {
                 }
             }
             retmsg.append("成功设置").append(rignum).append("个客户。");
+            writeLogRecord(LogRecordEnum.OPE_KJ_NSGZT, "修改提醒设置", ISysConstants.SYS_2);
             if (errmsg != null && errmsg.length() > 0) {
                 json.setStatus(-1);
                 retmsg.append("其中").append(errmsg.substring(0, errmsg.length() - 1)).append("设置失败");
@@ -1008,6 +1009,7 @@ public class BsWorkbenchController extends BaseController {
             json.setRows(0);
             json.setSuccess(true);
             json.setMsg("保存成功");
+            writeLogRecord(LogRecordEnum.OPE_KJ_NSGZT, "上传附件"+files.length+"张", ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "上传失败");
         }
