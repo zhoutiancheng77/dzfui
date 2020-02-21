@@ -121,7 +121,7 @@ public class AssetsGlComprReportController extends PrintAndExcelExportController
                             "资产属性", "资产类别", "资产科目", "总账科目编号", "总账科目名称", "资产金额",
                             "总账" }, new int[] { 1, 1, 1, 1, 1, 1, 1 }, 20,
                      pmap, tmap);
-
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"资产总账对账表打印"+printParamVO.getPeriod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {

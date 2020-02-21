@@ -6,8 +6,10 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DzfTypeUtils;
 import com.dzf.zxkj.base.utils.FieldMapping;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -147,6 +149,7 @@ public class FzhsqcController extends BaseController {
             }
             json.setMsg("保存成功");
             json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "辅助期初保存", ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "保存失败！");
         }

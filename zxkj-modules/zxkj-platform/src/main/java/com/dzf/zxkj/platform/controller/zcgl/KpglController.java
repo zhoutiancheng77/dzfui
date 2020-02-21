@@ -393,6 +393,8 @@ public class KpglController extends BaseController {
             json.setSuccess(false);
             json.setMsg("资产清理失败:数据为空。");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "资产清理",
+                ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -429,6 +431,11 @@ public class KpglController extends BaseController {
             }
             am_kpglserv.checkCorp(corpVO.getPk_corp(), ids);
             am_kpglserv.delete(vos);
+            StringBuffer codestr = new StringBuffer();
+            for(AssetcardVO data:vos) {
+                codestr.append(data.getAssetcode()+",");
+            }
+            writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL,"删除资产卡片,卡片编码:" + codestr.toString(), ISysConstants.SYS_2);
         }
     }
 
@@ -455,6 +462,8 @@ public class KpglController extends BaseController {
             json.setSuccess(false);
             json.setMsg("资产清理失败:数据为空。");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "资产清理",
+                ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -478,6 +487,8 @@ public class KpglController extends BaseController {
             printErrorLog(json, e, "操作失败");
             log.error("操作失败", e);
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_ZCGL, "资产转总账",
+                ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
