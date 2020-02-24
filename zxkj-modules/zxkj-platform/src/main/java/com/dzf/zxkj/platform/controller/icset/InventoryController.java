@@ -1,7 +1,6 @@
 package com.dzf.zxkj.platform.controller.icset;
 
 import com.dzf.zxkj.base.controller.BaseController;
-import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
@@ -282,124 +281,142 @@ public class InventoryController extends BaseController {
 	public ReturnData save(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		InventoryVO[] bodyvos;
-		String spInfo =param.get("body"); // 获得前台传进来的
-		if (!StringUtil.isEmpty(spInfo)) {
-			spInfo = spInfo.replace("}{", "},{"); // 修改格式，对象之间用 "," 分隔
-			spInfo = "[" + spInfo + "]"; // 最外层加上中括号，转化为json数组的格式
-			bodyvos = JsonUtils.convertValue(spInfo, InventoryVO[].class);
-		} else {
-			bodyvos = new InventoryVO[] {  JsonUtils.convertValue(param, InventoryVO.class)  };// form提交保存
-			json.setRows(bodyvos[0]);
-		}
-		String pk_corp = SystemUtil.getLoginCorpId(); // 获取公司主键
-		setAddDefaultValue(bodyvos); // 设置公司名、创建时间、创建者
-		String action = param.get("action"); // 获得前台传进来的
-		String ids = param.get("ids");
-		// 存货合并
-		if (!StringUtil.isEmpty(ids)) {
-			InventoryVO rtndata = iservice.saveMergeData(pk_corp, ids,bodyvos);
-			json.setData(rtndata);
-		} else {
-			// 参照新增保存 节点单行修改保存
-			if (!StringUtil.isEmpty(action) && "add".equals(action)) {
-				InventoryVO[] rtndata = iservice.save1(pk_corp, bodyvos);
+		try {
+			String spInfo =param.get("body"); // 获得前台传进来的
+			if (!StringUtil.isEmpty(spInfo)) {
+				spInfo = spInfo.replace("}{", "},{"); // 修改格式，对象之间用 "," 分隔
+				spInfo = "[" + spInfo + "]"; // 最外层加上中括号，转化为json数组的格式
+				bodyvos = JsonUtils.convertValue(spInfo, InventoryVO[].class);
+			} else {
+				bodyvos = new InventoryVO[] {  JsonUtils.convertValue(param, InventoryVO.class)  };// form提交保存
+				json.setRows(bodyvos[0]);
+			}
+			String pk_corp = SystemUtil.getLoginCorpId(); // 获取公司主键
+			setAddDefaultValue(bodyvos); // 设置公司名、创建时间、创建者
+			String action = param.get("action"); // 获得前台传进来的
+			String ids = param.get("ids");
+			// 存货合并
+			if (!StringUtil.isEmpty(ids)) {
+				InventoryVO rtndata = iservice.saveMergeData(pk_corp, ids,bodyvos);
 				json.setData(rtndata);
 			} else {
-				// 节点保存
-				iservice.save(pk_corp, bodyvos); // 保存数据，返回一个标志位，如果是true添加成功，false为失败
+				// 参照新增保存 节点单行修改保存
+				if (!StringUtil.isEmpty(action) && "add".equals(action)) {
+					InventoryVO[] rtndata = iservice.save1(pk_corp, bodyvos);
+					json.setData(rtndata);
+				} else {
+					// 节点保存
+					iservice.save(pk_corp, bodyvos); // 保存数据，返回一个标志位，如果是true添加成功，false为失败
+				}
 			}
+			json.setSuccess(true);
+			json.setMsg("保存成功");
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货保存，存货"+bodyvos[0].getCode()+"_"+bodyvos[0].getName(), ISysConstants.SYS_2);
+		} catch (Exception e) {
+			printErrorLog(json,e,"存货保存失败");
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货保存失败", ISysConstants.SYS_2);
 		}
-		json.setSuccess(true);
-		json.setMsg("保存成功");
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货保存", ISysConstants.SYS_2);
+
 		return ReturnData.ok().data(json);
 	}
 
 	@PostMapping("/batchSave")
 	public ReturnData batchSave(@RequestBody Map<String, String> param) {
 		Json json = new Json();
-		String firstCode = null;
-		String firstName = null;
-		int total = 0;
+        try {
+            String ids = param.get("ids");
+            String codes = param.get("codes");
+            String names = param.get("names");
+            String[] idsArr = DZFStringUtil.getString2Array(ids, ",");
+            if (DZFValueCheck.isEmpty(idsArr)){
+                throw new BusinessException("您未选择要更新的行数据!");
+            }
+            String spflid = param.get("splxidbatch");
+            String unit = param.get("jldwidbatch");
+            String spec = param.get("specbatch");
+            String invtype = param.get("typebatch");
+            if (StringUtil.isEmpty(invtype) && StringUtil.isEmpty(spflid) && StringUtil.isEmpty(unit)
+                    && StringUtil.isEmpty(spec)) {
+                throw new BusinessException("没有可以修改的数据");
+            }
 
-		String ids = param.get("ids");
-		String codes = param.get("codes");
-		String names = param.get("names");
-		String[] idsArr = ids.split(",");
-		if (idsArr.length < 1) {
-			throw new BusinessException("您未选择要更新的行数据");
-		}
-		firstCode = codes.split(",")[0];
-		firstName = names.split(",")[0];
-		total = idsArr.length;
-		String spflid = param.get("splxidbatch");
-		String unit = param.get("jldwidbatch");
-		String spec = param.get("specbatch");
-		String invtype = param.get("typebatch");
-		if (StringUtil.isEmpty(invtype) && StringUtil.isEmpty(spflid) && StringUtil.isEmpty(unit)
-				&& StringUtil.isEmpty(spec)) {
-			throw new BusinessException("没有可以修改的数据");
-		}
+            String pk_corp = param.get("pk_corp");
+            if (StringUtil.isEmpty(pk_corp)) {
+                pk_corp = SystemUtil.getLoginCorpId();
+            } else {
+                checkSecurityData(null,new String[]{pk_corp},null);
+            }
 
-		String pk_corp = param.get("pk_corp");
-		if (StringUtil.isEmpty(pk_corp)) {
-			pk_corp = SystemUtil.getLoginCorpId();
-		} else {
-            checkSecurityData(null,new String[]{pk_corp},null);
-		}
-
-		InventoryVO update = new InventoryVO();
-		update.setPk_invclassify(spflid);
-		update.setPk_measure(unit);
-		update.setInvspec(spec);
-//			update.setInvtype(invtype);
-		String susflag = iservice.updateBatch(pk_corp, ids, update);
-		if (!StringUtil.isEmpty(susflag)) {
-			// 日志记录
-//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,
-//					"存货档案_批量修改存货成功 : 编码：" + firstCode + "， 名称：" + firstName + "，等" + total + "条；",
-//					ISysConstants.SYS_2);
-            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"存货档案_批量修改存货成功",ISysConstants.SYS_2);
-			log.info("保存成功");
-			json.setMsg("保存成功");
-			json.setSuccess(true);
-		} else {
-//			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,
-//					"存货档案_批量修改存货失败 : 编码：" + firstCode + "， 名称：" + firstName + "，等" + total + "条；",
-//					ISysConstants.SYS_2);
-            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"存货档案_批量修改存货失败",ISysConstants.SYS_2);
-			json.setMsg("保存失败");
-			json.setSuccess(false);
-		}
+            InventoryVO update = new InventoryVO();
+            update.setPk_invclassify(spflid);
+            update.setPk_measure(unit);
+            update.setInvspec(spec);
+    //			update.setInvtype(invtype);
+            String susflag = iservice.updateBatch(pk_corp, ids, update);
+            if (!StringUtil.isEmpty(susflag)) {
+                // 日志记录
+                writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"批量修改"+getLogInfo(codes,names,idsArr.length), ISysConstants.SYS_2);
+                log.info("保存成功");
+                json.setMsg("保存成功");
+                json.setSuccess(true);
+            } else {
+                writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET,"批量修改存货失败",ISysConstants.SYS_2);
+                json.setMsg("存货档案_批量修改失败");
+                json.setSuccess(false);
+            }
+        } catch (Exception e) {
+            printErrorLog(json,e,"存货档案_批量修改失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货档案_批量修改失败", ISysConstants.SYS_2);
+        }
 		return ReturnData.ok().data(json);
 	}
 
 	@PostMapping("/mergeData")
 	public ReturnData mergeData(@RequestBody Map<String, String> param) {
 		Json json = new Json();
-		String spid = param.get("spid");
-		String pk_corp = param.get("pk_corp");
-		if (StringUtil.isEmpty(pk_corp)) {
-			pk_corp = SystemUtil.getLoginCorpId();
-		} else {
-            checkSecurityData(null,new String[]{pk_corp},null);
-		}
-		String body = param.get("body"); // 子表
-		body = body.replace("}{", "},{");
-		InventoryVO[] bodyvos = JsonUtils.deserialize(body, InventoryVO[].class);
-		if (DZFValueCheck.isEmpty(bodyvos)) {
-			throw new BusinessException("被合并的存货不允许为空!");
-		}
-		if(DZFValueCheck.isEmpty(spid))
-			throw new BusinessException("合并的存货不允许为空!");
-        checkSecurityData(bodyvos,null,null,true);
-		InventoryVO vo = iservice.saveMergeData(pk_corp, spid, bodyvos);
-		json.setMsg("存货合并成功");
-		json.setSuccess(true);
 
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货合并", ISysConstants.SYS_2);
+		String pk_corp = param.get("pk_corp");
+        try {
+            String spid = param.get("spid");
+            String codename = param.get("codename");
+            if (StringUtil.isEmpty(pk_corp)) {
+                pk_corp = SystemUtil.getLoginCorpId();
+            } else {
+                checkSecurityData(null,new String[]{pk_corp},null);
+            }
+            String body = param.get("body"); // 子表
+            body = body.replace("}{", "},{");
+            InventoryVO[] bodyvos = JsonUtils.deserialize(body, InventoryVO[].class);
+            if (DZFValueCheck.isEmpty(bodyvos)) {
+                throw new BusinessException("被合并的存货不允许为空!");
+            }
+            if(DZFValueCheck.isEmpty(spid))
+                throw new BusinessException("合并的存货不允许为空!");
+            checkSecurityData(bodyvos,null,null,true);
+            InventoryVO vo = iservice.saveMergeData(pk_corp, spid, bodyvos);
+            json.setMsg("存货合并成功");
+            json.setSuccess(true);
+
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, getMergeLogInfo(codename,bodyvos), ISysConstants.SYS_2);
+        } catch (Exception e) {
+            printErrorLog(json,e,"存货合并失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货合并失败", ISysConstants.SYS_2);
+        }
 		return ReturnData.ok().data(json);
 	}
+
+    private String getMergeLogInfo(String codename ,InventoryVO[] bodyvos){
+        StringBuffer strb = new StringBuffer();
+        strb.append("存货合并为").append(codename).append("(");
+       for(InventoryVO body:bodyvos){
+           strb.append(body.getCode()).append("_").append(body.getName()).append(",");
+       }
+        String str = strb.substring(0,strb.length()-1);
+        strb.setLength(0);
+        strb.append(str);
+        strb.append(")");
+        return strb.toString();
+    }
 
 	private void setAddDefaultValue(InventoryVO[] vos) {
 		if (vos == null || vos.length == 0)
@@ -416,29 +433,62 @@ public class InventoryController extends BaseController {
 	// 删除记录
 	@PostMapping("/onDelete")
 	public ReturnData onDelete(@RequestBody Map<String, String> param) {
-		String paramValues = param.get("ids");
+		String ids = param.get("ids");
 		String pk_corps= param.get("gs");
-
-		String[] pkss = DZFStringUtil.getString2Array(paramValues, ",");
-		if (DZFValueCheck.isEmpty(pkss)){
-			throw new BusinessException("数据为空,删除失败!");
-		}
-		Json json = new Json();
-		if (!SystemUtil.getLoginCorpId().equals(pk_corps)) {
-			json.setSuccess(false);
-			json.setMsg("您无操作权限！");
-			return ReturnData.error().data(json);
-		}
-		String errmsg = iservice.deleteBatch(pkss, SystemUtil.getLoginCorpId());
-		json.setSuccess(true);
-		if (StringUtil.isEmpty(errmsg)) {
-			json.setMsg("删除成功!");
-		} else {
-			json.setMsg(errmsg);
-		}
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除存货", ISysConstants.SYS_2);
+        Json json = new Json();
+        try {
+            String codes = param.get("codes");
+            String names = param.get("names");
+            String[] idsArr = DZFStringUtil.getString2Array(ids, ",");
+            if (DZFValueCheck.isEmpty(idsArr)){
+                throw new BusinessException("数据为空,删除失败!");
+            }
+            if (!SystemUtil.getLoginCorpId().equals(pk_corps)) {
+                json.setSuccess(false);
+                json.setMsg("您无操作权限！");
+                return ReturnData.error().data(json);
+            }
+            String errmsg = iservice.deleteBatch(idsArr, SystemUtil.getLoginCorpId());
+            json.setSuccess(true);
+            if (StringUtil.isEmpty(errmsg)) {
+                json.setMsg("删除成功!");
+                writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除"+getLogInfo(codes,names,idsArr.length), ISysConstants.SYS_2);
+            } else {
+                json.setMsg(errmsg);
+               int idex = errmsg.indexOf("成功删除");
+                int idex1 = errmsg.indexOf("条存货!");
+                if(idex>=0){
+                    writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "成功删除"+errmsg.substring(idex+4,idex1)+"条存货!", ISysConstants.SYS_2);
+                }else{
+                    writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除存货失败!", ISysConstants.SYS_2);
+                }
+            }
+        } catch (Exception e) {
+            printErrorLog(json,e,"删除存货失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "删除存货失败", ISysConstants.SYS_2);
+        }
 		return ReturnData.ok().data(json);
 	}
+
+	private String getLogInfo(String codes,String names,int total){
+	    StringBuffer strb = new StringBuffer();
+        String[] codeArr = DZFStringUtil.getString2Array(codes, ",");
+        String[] nameArr = DZFStringUtil.getString2Array(names, ",");
+        strb.append("存货");
+        int len = total>10? 10:total;
+        for(int i=0; i<len;i++){
+            strb.append(codeArr[i]).append("_").append(nameArr[i]).append(",");
+        }
+        String str = strb.substring(0,strb.length()-1);
+        strb.setLength(0);
+        strb.append(str);
+        if(total>10){
+            strb.append("等").append(codeArr.length).append("条");
+        }else{
+            strb.append("共").append(codeArr.length).append("条");
+        }
+        return strb.toString();
+    }
 
 	// 查询特定科目信息
 	@GetMapping("/queryBySpecialKM")
@@ -500,36 +550,41 @@ public class InventoryController extends BaseController {
 	@PostMapping("/createPrice")
 	public ReturnData createPrice(@RequestBody Map<String, String> param) {
 		Json json = new Json();
-		String pk_corp = param.get("pk_corp");
-		if (StringUtil.isEmpty(pk_corp)) {
-			pk_corp = SystemUtil.getLoginCorpId();
-		} else {
-            checkSecurityData(null,new String[]{pk_corp},null);
-		}
-		String bili = param.get("bili");
-		String priceway = param.get("priceway");
-		String vchStr = param.get("vdate");
-		if (StringUtil.isEmpty(priceway)) {
-			throw new BusinessException("生成结算价的规则不允许为空!");
-		}
-		if("2".equals(priceway)){
-			if (StringUtil.isEmpty(bili)) {
-				throw new BusinessException("销售平均单价的比例不能为空!");
-			}
-		}
+        try {
+            String pk_corp = param.get("pk_corp");
+            if (StringUtil.isEmpty(pk_corp)) {
+                pk_corp = SystemUtil.getLoginCorpId();
+            } else {
+                checkSecurityData(null,new String[]{pk_corp},null);
+            }
+            String bili = param.get("bili");
+            String priceway = param.get("priceway");
+            String vchStr = param.get("vdate");
+            if (StringUtil.isEmpty(priceway)) {
+                throw new BusinessException("生成结算价的规则不允许为空!");
+            }
+            if("2".equals(priceway)){
+                if (StringUtil.isEmpty(bili)) {
+                    throw new BusinessException("销售平均单价的比例不能为空!");
+                }
+            }
 
-		String body = param.get("body"); // 子表
-		body = body.replace("}{", "},{");
-//		body = "[" + body + "]";
-		InventoryVO[] bodyvos = JsonUtils.deserialize(body, InventoryVO[].class);
-		if (DZFValueCheck.isEmpty(bodyvos)) {
-			throw new BusinessException("生成结算价的存货不允许为空!");
-		}
-        checkSecurityData(bodyvos,null,null,true);
-		iservice.createPrice(pk_corp,priceway,bili, vchStr,bodyvos);
-		json.setMsg("生成结算价成功");
-		json.setSuccess(true);
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "生成结算价", ISysConstants.SYS_2);
+            String body = param.get("body"); // 子表
+            body = body.replace("}{", "},{");
+    //		body = "[" + body + "]";
+            InventoryVO[] bodyvos = JsonUtils.deserialize(body, InventoryVO[].class);
+            if (DZFValueCheck.isEmpty(bodyvos)) {
+                throw new BusinessException("生成结算价的存货不允许为空!");
+            }
+            checkSecurityData(bodyvos,null,null,true);
+            iservice.createPrice(pk_corp,priceway,bili, vchStr,bodyvos);
+            json.setMsg("生成存货结算价成功");
+            json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "生成存货结算价", ISysConstants.SYS_2);
+        } catch (Exception e) {
+            printErrorLog(json,e,"生成存货结算价失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "生成存货结算价失败", ISysConstants.SYS_2);
+        }
 		return ReturnData.ok().data(json);
 	}
 
