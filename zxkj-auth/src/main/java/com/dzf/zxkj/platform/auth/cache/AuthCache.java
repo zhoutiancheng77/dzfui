@@ -17,7 +17,7 @@ public class AuthCache {
     @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
     private Cache<String, LoginUser> platformUserCache;
 
-    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
+    @CreateCache(name = "zxkj:platform:online", cacheType = CacheType.LOCAL, expire = 8, timeUnit = TimeUnit.HOURS)
     private Cache<String, String> platformUserOnlineCache;
 
     public LoginUser getLoginUser(String userid){
@@ -34,6 +34,10 @@ public class AuthCache {
 
     public boolean checkIsMulti(String userid, String clientId){
         String client = platformUserOnlineCache.get(userid);
+        log.info("checkIsMulti--------begin--------------");
+        log.info("client-------->", client);
+        log.info("userid-------->", userid);
+        log.info("checkIsMulti--------end--------------");
         return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid)) && !platformUserOnlineCache.get(userid).equals(clientId);
     }
 
