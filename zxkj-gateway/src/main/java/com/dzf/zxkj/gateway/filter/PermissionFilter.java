@@ -77,6 +77,8 @@ public class PermissionFilter extends ZuulFilter {
         String currentCorp = getLoginInfo(requestContext, ISysConstant.LOGIN_PK_CORP);
         String clientId = getLoginInfo(requestContext, ISysConstant.CLIENT_ID);
 
+        log.info("网关-----"+clientId);
+
         if (StringUtils.isBlank(token)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
             return null;
