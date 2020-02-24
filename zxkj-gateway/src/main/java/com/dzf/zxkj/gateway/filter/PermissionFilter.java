@@ -151,10 +151,6 @@ public class PermissionFilter extends ZuulFilter {
 
         String serverPath = path.replace("/api", "");
 
-        myPermisssions.stream().forEach(v ->{
-            log.info(v);
-        });
-
         if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
             sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
             return null;
