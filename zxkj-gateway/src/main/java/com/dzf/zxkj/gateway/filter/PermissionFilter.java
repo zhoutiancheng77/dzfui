@@ -166,6 +166,7 @@ public class PermissionFilter extends ZuulFilter {
     private String getLoginInfo(RequestContext requestContext, String name) {
         HttpServletRequest request = requestContext.getRequest();
         String info = request.getHeader(name);
+        log.info("网关参数获取 name:"+name+",info:"+info);
         if (StringUtils.isBlank(info)) {
             info = request.getParameter(name);
             if (!StringUtils.isBlank(info)) {
