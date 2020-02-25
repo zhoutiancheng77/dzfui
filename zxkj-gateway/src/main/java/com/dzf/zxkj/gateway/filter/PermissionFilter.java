@@ -105,7 +105,7 @@ public class PermissionFilter extends ZuulFilter {
         String useridFormToken = ijwtInfo.getBody();
 
         if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
-            sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
+            sendError(HttpStatus.PAYMENT_REQUIRED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
             return null;
         }
 
