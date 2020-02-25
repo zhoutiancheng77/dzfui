@@ -105,7 +105,7 @@ public class PermissionFilter extends ZuulFilter {
         String useridFormToken = ijwtInfo.getBody();
 
         if (StringUtils.isAnyBlank(useridFormToken, useridFromHeader) || !useridFormToken.equals(useridFromHeader)) {
-            sendError(HttpStatus.PAYMENT_REQUIRED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
+            sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_ERROR_CODE, requestContext);
             return null;
         }
 
@@ -113,7 +113,7 @@ public class PermissionFilter extends ZuulFilter {
 
         //判断是否处于登录状态
         if (StringUtils.isNotBlank(clientId) && authService.validateMultipleLogin(useridFormToken, clientId)) {
-            sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, requestContext);
+            sendError(HttpStatus.PAYMENT_REQUIRED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, requestContext);
             return null;
         }
 
