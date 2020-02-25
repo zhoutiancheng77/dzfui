@@ -66,7 +66,7 @@ public class FKTjBgController extends BaseController {
             setvo.setVinspector(SystemUtil.getLoginUserId());
             gl_fktjbgserv.save(setvo);
             writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
-                    "风控体检:"+setvo.getQj(), ISysConstants.SYS_2);
+                    setvo.getQj()+"风控体检", ISysConstants.SYS_2);
             json.setMsg("保存成功");
             json.setSuccess(true);
         } catch (Exception e) {
