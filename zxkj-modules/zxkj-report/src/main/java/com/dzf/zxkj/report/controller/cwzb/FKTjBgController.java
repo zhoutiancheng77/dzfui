@@ -43,7 +43,7 @@ public class FKTjBgController extends BaseController {
             grid.setTotal((long) (setvos == null ? 0 : setvos.length));
             grid.setSuccess(true);
             grid.setRows(setvos != null ? Arrays.asList(setvos) : new ArrayList<FkTjSetVo>());
-            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+            writeLogRecord(LogRecordEnum.OPE_KJ_FKTJ,
                     "风控体检查询:"+queryParam.getBegindate().toString().substring(0, 7)
                             +"-"+ queryParam.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class FKTjBgController extends BaseController {
             setvo.setQj(SystemUtil.getLoginDate().substring(0, 4) + "-01~" + SystemUtil.getLoginDate().substring(0, 7));
             setvo.setVinspector(SystemUtil.getLoginUserId());
             gl_fktjbgserv.save(setvo);
-            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+            writeLogRecord(LogRecordEnum.OPE_KJ_FKTJ,
                     setvo.getQj()+"风控体检", ISysConstants.SYS_2);
             json.setMsg("保存成功");
             json.setSuccess(true);
@@ -98,7 +98,7 @@ public class FKTjBgController extends BaseController {
             json.setSuccess(true);
             json.setMsg("查询成功");
             json.setRows(bgvos);
-            writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
+            writeLogRecord(LogRecordEnum.OPE_KJ_FKTJ,
                     "风控体检报告查询:"+enddate, ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json, e, "查询失败");
