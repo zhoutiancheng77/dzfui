@@ -80,7 +80,7 @@ public class KmhzReportController extends ReportBaseController {
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
-                "科目汇总表查询:" + vo.getBegindate1() +"-"+ vo.getEnddate(), ISysConstants.SYS_2);
+                "科目汇总表查询:" + vo.getBegindate1() +" - "+ vo.getEnddate(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -262,7 +262,7 @@ public class KmhzReportController extends ReportBaseController {
 //        QueryParamVO qryvo = getQueryParamVO();
 //
         writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
-                "科目汇总表导出:"+ qryvo.getBegindate1() +"-"+ qryvo.getEnddate(), ISysConstants.SYS_2);
+                "科目汇总表导出:"+ qryvo.getBegindate1() +" - "+ qryvo.getEnddate(), ISysConstants.SYS_2);
     }
 
 }
