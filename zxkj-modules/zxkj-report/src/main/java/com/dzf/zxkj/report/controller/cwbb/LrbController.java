@@ -117,7 +117,7 @@ public class LrbController extends ReportBaseController {
 
         /** 日志记录接口 */
         writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
-                "分部利润表查询"+DateUtils.getPeriod(queryParamvo.getEnddate()), ISysConstants.SYS_2);
+                "分部利润表查询:"+DateUtils.getPeriod(queryParamvo.getEnddate()), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
 
     }
@@ -205,7 +205,7 @@ public class LrbController extends ReportBaseController {
         LrbExcelField lrb = null;
         if (!StringUtil.isEmpty(excelExportVO.getXmmcid())) {
             lrb = new LrbCenterExcelField();
-            title = "分部利润表";
+            title = "分部";
         } else {
             lrb = new LrbExcelField();
         }
@@ -346,7 +346,7 @@ public class LrbController extends ReportBaseController {
             }
             /** 日志记录接口 */
             writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
-                    titlename + "打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
+                    titlename.replaceAll(" ","") + "打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {
