@@ -73,6 +73,20 @@ public class BaseController {
         }
     }
 
+    public void writeLogRecord(String login_corp, LogRecordEnum recordEnum, String msg, Integer ident) {
+        String notRecord = request.getParameter("unjl");
+        if ("Y".equals(notRecord)) {
+            // 不记录日志
+            return;
+        }
+        try {
+            String login_userid = request.getHeader(ISysConstant.LOGIN_USER_ID);
+            operatorLogService.saveLog(login_corp, null, IpUtil.getIpAddr(request), recordEnum.getValue(), msg, ident, login_userid);
+        } catch (Exception e) {
+            log.error("错误", e);
+        }
+    }
+
     /**
      * @param vos 数组数据（需包含pk_corp字段）
      */

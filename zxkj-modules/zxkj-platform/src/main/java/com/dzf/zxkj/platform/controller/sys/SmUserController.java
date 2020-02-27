@@ -1,10 +1,13 @@
 package com.dzf.zxkj.platform.controller.sys;
 
+import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.Page;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
@@ -34,7 +37,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("sm_user")
 @Slf4j
-public class SmUserController {
+public class SmUserController extends BaseController {
 
     @Autowired
     private IUserService userService;
@@ -81,6 +84,9 @@ public class SmUserController {
 
                 }
             }
+        }
+        if(json.isSuccess()){//如果登录成功
+            writeLogRecord(pk_corp,LogRecordEnum.OPE_KJ_SYS,"系统登录成功", ISysConstants.SYS_2);
         }
         return ReturnData.ok().data(json);
     }
