@@ -11,7 +11,7 @@ import java.util.Set;
 
 public interface IZtszService {
 
-	public void updateCorpTaxVo(CorpTaxVo corptaxvo, String selTaxReportIds, String unselTaxReportIds) throws DZFWarpException;
+	public void updateCorpTaxVo(CorpTaxVo corptaxvo, String selTaxReportIds, String unselTaxReportIds, StringBuffer msg) throws DZFWarpException;
 
 	List<CorpTaxVo> query(QueryParamVO queryvo, UserVO uservo, Set<String> clist) throws DZFWarpException;
 }

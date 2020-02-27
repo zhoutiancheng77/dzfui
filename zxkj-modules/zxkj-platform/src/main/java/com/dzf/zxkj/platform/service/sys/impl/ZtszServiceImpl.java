@@ -27,10 +27,7 @@ import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service("sys_ztsz_serv")
 public class ZtszServiceImpl implements IZtszService {
@@ -48,8 +45,12 @@ public class ZtszServiceImpl implements IZtszService {
 	private ICorpService corpService;
 
 	@Override
-	public void updateCorpTaxVo(CorpTaxVo corptaxvo, String selTaxReportIds, String unselTaxReportIds)
+	public void updateCorpTaxVo(CorpTaxVo corptaxvo,
+								String selTaxReportIds,
+								String unselTaxReportIds,
+								StringBuffer msg)
 			throws DZFWarpException {
+
 		//更新 征收方式
 		saveCharge(corptaxvo);
 		
@@ -79,6 +80,58 @@ public class ZtszServiceImpl implements IZtszService {
 		BeanUtils.copyProperties(corptaxvo, cpvo);
 		cpvo.setPk_corp(corptaxvo.getPk_corp());
 		corpTaxact.updateCorp(cpvo, sendData, taxRptids, taxUnRptids);
+
+		buildOutLog(corptaxvo, msg);
+	}
+
+	private void buildOutLog(CorpTaxVo corptaxvo, StringBuffer msg){
+		QueryParamVO queryvo = new QueryParamVO();
+		queryvo.setPk_corp(corptaxvo.getPk_corp());
+		Set<String> clist = new HashSet<>();
+		clist.add(queryvo.getPk_corp());
+		List<CorpTaxVo> oldList = query(queryvo, null, clist);
+		if(oldList == null || oldList.size() == 0)
+			return;
+		CorpTaxVo oldvo = oldList.get(0);
+		String[][] arrs = {
+				{"unitname", "公司名称"},
+				{"vsoccrecode", "纳税人识别号"},
+				{"bbuildic", "存货核算方式"},
+				{"citybuildtax", "城建税税率"},
+				{"localeducaddtax", "地方教育费附加"},
+				{"educaddtax", "教育费附加"}
+		};
+
+		for(String[] arr : arrs){
+			if(!compareWith(oldvo.getAttributeValue(arr[0]),
+					corptaxvo.getAttributeValue(arr[0]))){
+				msg.append(arr[1])
+					.append("、");
+			}
+		}
+
+	}
+
+	private boolean compareWith(Object o1, Object o2){
+		boolean flag = false;
+		if(o1 instanceof Integer){
+			if(o1 == null && o2 == null){
+				flag = true;
+			}else if(o1 != null && o2 != null && o1 == o2){
+				flag = true;
+			}
+		}else if(o1 instanceof DZFDouble
+				&& SafeCompute.add((DZFDouble) o1, (DZFDouble) o2).doubleValue() == 0){
+			flag = true;
+		}else if(o1 instanceof String){
+		    if(o1 == null && o2 == null){
+		    	flag = true;
+			}else if(o1 != null && o2 != null){
+		    	flag = ((String)o1).equals((String)o2);
+			}
+		}
+
+		return flag;
 	}
 
 	private void saveCharge(CorpTaxVo vo){

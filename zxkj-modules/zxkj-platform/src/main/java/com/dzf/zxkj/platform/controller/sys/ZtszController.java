@@ -58,6 +58,7 @@ public class ZtszController extends BaseController {
     @PostMapping("updateTax")
     public ReturnData<Json> updateTax(@MultiRequestBody CorpTaxVo data, @MultiRequestBody String selTaxReportIds, @MultiRequestBody String unselTaxReportIds) {
         Json json = new Json();
+        StringBuffer msg = new StringBuffer();
         if (data != null) {
             try {
 
@@ -77,7 +78,7 @@ public class ZtszController extends BaseController {
                     // 对需要加密字段进行加密操作：
                     CorpTaxVo[] datas = (CorpTaxVo[]) QueryDeCodeUtils.decKeyUtils(new String[] { "legalbodycode", "phone1",
                             "phone2", "unitname", "unitshortname", "vcorporatephone" }, new CorpTaxVo[] { data }, 0);
-                    ztsz_serv.updateCorpTaxVo(datas[0], selTaxReportIds, unselTaxReportIds);
+                    ztsz_serv.updateCorpTaxVo(datas[0], selTaxReportIds, unselTaxReportIds, msg);
                     // 对需要加密字段进行解密操作：
                     datas = (CorpTaxVo[]) QueryDeCodeUtils.decKeyUtils(new String[] { "legalbodycode", "phone1",
                             "phone2", "unitname", "unitshortname", "vcorporatephone" }, new CorpTaxVo[] { data }, 1);
@@ -86,7 +87,10 @@ public class ZtszController extends BaseController {
                     // 附件信息（此处有问题：返回的附件信息仅是新增的数据，但是现在保存后直接返回列表界面，故不作处理）
                     json.setMsg("更新成功");
                     // 日志记录
-                    writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX, "修改客户:客户编码" + corp.getUnitcode(),
+                    String mm = String.format("修改保存[%s]的%s信息成功",
+                            datas[0].getUnitname(),
+                            msg.length() > 0 ? msg.substring(0, msg.length() - 1) : "");
+                    writeLogRecord(LogRecordEnum.OPE_KJ_ZTXX, mm,
                             ISysConstants.SYS_0);
                 } else {
                     json.setMsg("对不起，您无操作权限！");

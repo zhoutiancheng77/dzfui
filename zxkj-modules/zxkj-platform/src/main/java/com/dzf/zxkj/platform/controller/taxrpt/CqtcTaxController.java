@@ -68,7 +68,12 @@ public class CqtcTaxController extends BaseController {
             json.setSuccess(true);
             json.setMsg(message);
 
-            msg += "成功";
+            if(!StringUtil.isEmpty(message) && message.contains("失败")){
+                msg += "失败";
+            }else{
+                msg += "成功";
+            }
+
         } catch (Exception e) {
             json.setMsg("更新期初数据失败！:" + e.getMessage());
             json.setStatus(-200);
