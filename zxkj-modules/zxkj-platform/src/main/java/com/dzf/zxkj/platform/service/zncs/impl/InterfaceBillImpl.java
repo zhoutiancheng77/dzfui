@@ -1875,14 +1875,14 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		buff.append("  left join ynt_interface_invoice yi on yi.ocr_id = yc.pk_image_ocrlibrary and nvl(yi.dr,0)=0  ");
 		buff.append("    where nvl(yc.dr,0)=0 and nvl(yg.dr,0)=0 and yc.pk_custcorp = ?   ");
 		param.addParam(corp);
-		if (state == null || state == 206 || state == 100) {
+	//	if (state == null || state == 206 || state == 100) {
 			buff.append(" and (yi.period = ? or (yi.period is null and  yg.cvoucherdate like ?) ) ");
 			param.addParam(period);
 			param.addParam(period + "%");
-		} else {
-			buff.append("   	 and yi.period = ? ");
-			param.addParam(period);
-		}
+//		} else {
+//			buff.append("   	 and yi.period = ? ");
+//			param.addParam(period);
+//		}
 		if (state != null) {
 			if (state == 206) { // 正在处理中
 				buff.append("    and ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  yg.istate not in (205,100,101) )");//yg.istate <> 205剔除已做账

@@ -280,6 +280,7 @@ public class TaxDeclarationController  extends BaseController {
     public ReturnData<Json> sendTaxReport(@RequestBody Map<String, String> param) {
 
         Json json = new Json();
+        String msg = "增值税申报上报";
         try {
             String pk_taxreport = param.get("pk_taxreport");
             String corpid = param.get("pk_corp");
@@ -291,13 +292,17 @@ public class TaxDeclarationController  extends BaseController {
             json.setSuccess(true);
             json.setMsg("上报成功");
             json.setData(reportvo);
+
+            msg += "成功";
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "上报失败");
+
+            msg += "失败";
         }
 
-        writeLogRecord(LogRecordEnum.OPE_KJ_TAX, "增值税申报上报", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_TAX, msg, ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

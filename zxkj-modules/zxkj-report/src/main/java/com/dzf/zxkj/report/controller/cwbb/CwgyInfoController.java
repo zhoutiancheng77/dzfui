@@ -99,7 +99,7 @@ public class CwgyInfoController extends ReportBaseController {
         }
 
         // 日志记录接口
-        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "财务概要信息查询:" + queryParamvo.getBegindate1().toString(),
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "财务概要信息查询:" + queryParamvo.getQjq(),
                 ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);

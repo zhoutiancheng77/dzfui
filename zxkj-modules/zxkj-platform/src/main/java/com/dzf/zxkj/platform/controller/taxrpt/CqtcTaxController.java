@@ -41,6 +41,7 @@ public class CqtcTaxController extends BaseController {
     @GetMapping("/saveReportInitForCorp")
     public ReturnData<Json> saveReportInitForCorp(String pk_corp) {
         Json json = new Json();
+        String msg = "获取期初";
         try {
             String pk_corps = pk_corp;
             String userid = SystemUtil.getLoginUserId();
@@ -67,13 +68,16 @@ public class CqtcTaxController extends BaseController {
             json.setSuccess(true);
             json.setMsg(message);
 
+            msg += "成功";
         } catch (Exception e) {
             json.setMsg("更新期初数据失败！:" + e.getMessage());
             json.setStatus(-200);
             json.setSuccess(false);
+
+            msg += "失败";
         }
 
-        writeLogRecord(LogRecordEnum.OPE_KJ_TAX, "获取期初", ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_TAX, msg, ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 }

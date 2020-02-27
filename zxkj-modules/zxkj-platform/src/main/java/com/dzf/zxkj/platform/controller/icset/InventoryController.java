@@ -281,6 +281,7 @@ public class InventoryController extends BaseController {
 	public ReturnData save(@RequestBody Map<String, String> param) {
 		Json json = new Json();
 		InventoryVO[] bodyvos;
+		String pre = "新增";
 		try {
 			String spInfo =param.get("body"); // 获得前台传进来的
 			if (!StringUtil.isEmpty(spInfo)) {
@@ -293,6 +294,9 @@ public class InventoryController extends BaseController {
 			}
 			String pk_corp = SystemUtil.getLoginCorpId(); // 获取公司主键
 			setAddDefaultValue(bodyvos); // 设置公司名、创建时间、创建者
+			if(!StringUtil.isEmpty(bodyvos[0].getPk_inventory())){
+				pre = "修改";
+			}
 			String action = param.get("action"); // 获得前台传进来的
 			String ids = param.get("ids");
 			// 存货合并
@@ -311,7 +315,7 @@ public class InventoryController extends BaseController {
 			}
 			json.setSuccess(true);
 			json.setMsg("保存成功");
-			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货保存，存货"+bodyvos[0].getCode()+"_"+bodyvos[0].getName(), ISysConstants.SYS_2);
+			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货保存，"+pre+"存货"+bodyvos[0].getCode()+"_"+bodyvos[0].getName(), ISysConstants.SYS_2);
 		} catch (Exception e) {
 			printErrorLog(json,e,"存货保存失败");
 			writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "存货保存失败", ISysConstants.SYS_2);
