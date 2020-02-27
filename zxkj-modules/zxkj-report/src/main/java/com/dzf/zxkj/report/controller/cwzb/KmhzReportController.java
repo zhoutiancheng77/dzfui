@@ -6,6 +6,7 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
@@ -56,11 +57,15 @@ public class KmhzReportController extends ReportBaseController {
     public ReturnData<Grid> queryAction(@RequestParam Map<String, String> param, @MultiRequestBody CorpVO corpVO) {
         SubjectCollectGrid grid = new SubjectCollectGrid();
         QueryParamVO vo = JsonUtils.convertValue(param, QueryParamVO.class);
+        DZFDate begin = null;
+        DZFDate end = null;
         try {
             // 校验
             checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             /** 验证权限 */
             checkPowerDate(vo, corpVO);
+            begin = vo.getBegindate1();
+            end = vo.getEnddate();
             /** 查询 */
             List<Object> kmmxvos = gl_rep_kmhzbserv.getKMHzVOs(vo);
             /** 获取rows */
@@ -80,7 +85,7 @@ public class KmhzReportController extends ReportBaseController {
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
-                "科目汇总表查询:" + vo.getBegindate1() +" - "+ vo.getEnddate(), ISysConstants.SYS_2);
+                "科目汇总表查询:" + begin +" - "+ end, ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
