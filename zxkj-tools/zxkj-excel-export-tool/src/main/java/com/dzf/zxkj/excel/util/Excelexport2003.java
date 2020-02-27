@@ -252,9 +252,14 @@ public class Excelexport2003<T extends SuperVO> {
 							String textValue = null;
 							if(fieldinfos[i].getIsdecimal()){//数字类型特殊处理
 								DZFDouble bValue = value!= null ? new DZFDouble(Double.parseDouble(value.toString())): DZFDouble.ZERO_DBL;
-								if(bValue == null || (bValue.doubleValue() == 0 && fieldinfos[i].isZeroshownull())){
+								if(bValue == null || bValue.doubleValue() == 0){
+									if (!fieldinfos[i].isZeroshownull()) {
+										cell.setCellValue("0.00");
+										HSSFCellStyle rightstyle = getDecimalFormatStyle(fieldinfos[i],workbook,color);
+										cell.setCellStyle(rightstyle);
+									}
 //									cell.setCellValue("");
-								}else{
+								} else{
 									textValue = bValue.toString();
 									cell.setCellValue(Double.parseDouble(textValue));
 									HSSFCellStyle rightstyle = getDecimalFormatStyle(fieldinfos[i],workbook,color);

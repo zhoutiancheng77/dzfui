@@ -107,6 +107,7 @@ public class QueryParamVO extends SuperVO {
     private String foreignname;
     private String chargedeptname;
     private String currency; //币种名称
+    private DZFBoolean bshowzero;//空是否显示0
 
     private String period;
 
@@ -120,6 +121,14 @@ public class QueryParamVO extends SuperVO {
     private String hasye3;
 
     private String hasye4;
+
+    public DZFBoolean getBshowzero() {
+        return bshowzero;
+    }
+
+    public void setBshowzero(DZFBoolean bshowzero) {
+        this.bshowzero = bshowzero;
+    }
 
     public String getPeriod() {
         return period;

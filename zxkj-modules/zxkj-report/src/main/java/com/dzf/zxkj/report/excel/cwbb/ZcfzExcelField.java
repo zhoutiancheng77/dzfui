@@ -38,16 +38,13 @@ public class ZcfzExcelField  extends MuiltSheetAndTitleExceport<ZcFzBVO> {
 	private String corpname = null;
 	
 	private String corptype;
-	
-	private Fieldelement[] fields = new Fieldelement[] {
-			new Fieldelement("zc", "资产", false, 0, false,30,false),
-			new Fieldelement("hc1", "行次", false, 0, false), 
-			new Fieldelement("qmye1", "期末余额", true, 2, true),
-			new Fieldelement("ncye1", "年初余额", true, 2, true), 
-			new Fieldelement("fzhsyzqy", "负债和所有者权益", false, 0, false,30,false),
-			new Fieldelement("hc2", "行次", false, 0, false),
-			new Fieldelement("qmye2", "期末余额", true, 2, true),
-			new Fieldelement("ncye2", "年初余额", true, 2, true)};
+
+	private boolean zeroshownull = true;
+
+	public ZcfzExcelField(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
+	}
+
 
 	@Override
 	public String getExcelport2007Name() {
@@ -76,7 +73,15 @@ public class ZcfzExcelField  extends MuiltSheetAndTitleExceport<ZcFzBVO> {
 
 	@Override
 	public Fieldelement[] getFieldInfo() {
-		return fields;
+		return new Fieldelement[] {
+				new Fieldelement("zc", "资产", false, 0, false,30,false),
+				new Fieldelement("hc1", "行次", false, 0, false),
+				new Fieldelement("qmye1", "期末余额", true, 2, zeroshownull),
+				new Fieldelement("ncye1", "年初余额", true, 2, zeroshownull),
+				new Fieldelement("fzhsyzqy", "负债和所有者权益", false, 0, false,30,false),
+				new Fieldelement("hc2", "行次", false, 0, false),
+				new Fieldelement("qmye2", "期末余额", true, 2, zeroshownull),
+				new Fieldelement("ncye2", "年初余额", true, 2, zeroshownull)};
 	}
 
 	public void setZcfzvos(ZcFzBVO[] zcfzvos) {
@@ -146,8 +151,14 @@ public class ZcfzExcelField  extends MuiltSheetAndTitleExceport<ZcFzBVO> {
 		this.allsheetname = allsheetname;
 	}
 
-	
-	
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
+	}
+
 	public String[] getPeriods() {
 		return periods;
 	}
