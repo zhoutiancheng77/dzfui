@@ -11,6 +11,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -50,6 +51,11 @@ public class ZtszServiceImpl implements IZtszService {
 								String unselTaxReportIds,
 								StringBuffer msg)
 			throws DZFWarpException {
+		QueryParamVO queryvo = new QueryParamVO();
+		queryvo.setPk_corp(corptaxvo.getPk_corp());
+		Set<String> clist = new HashSet<>();
+		clist.add(queryvo.getPk_corp());
+		List<CorpTaxVo> oldList = query(queryvo, null, clist);
 
 		//更新 征收方式
 		saveCharge(corptaxvo);
@@ -81,18 +87,14 @@ public class ZtszServiceImpl implements IZtszService {
 		cpvo.setPk_corp(corptaxvo.getPk_corp());
 		corpTaxact.updateCorp(cpvo, sendData, taxRptids, taxUnRptids);
 
-		buildOutLog(corptaxvo, msg);
+		buildOutLog(oldList, corptaxvo, msg);
 	}
 
-	private void buildOutLog(CorpTaxVo corptaxvo, StringBuffer msg){
-		QueryParamVO queryvo = new QueryParamVO();
-		queryvo.setPk_corp(corptaxvo.getPk_corp());
-		Set<String> clist = new HashSet<>();
-		clist.add(queryvo.getPk_corp());
-		List<CorpTaxVo> oldList = query(queryvo, null, clist);
+	private void buildOutLog(List<CorpTaxVo> oldList, CorpTaxVo corptaxvo, StringBuffer msg){
 		if(oldList == null || oldList.size() == 0)
 			return;
 		CorpTaxVo oldvo = oldList.get(0);
+		oldvo.setUnitname(CodeUtils1.enCode(oldvo.getUnitname()));
 		String[][] arrs = {
 				{"unitname", "公司名称"},
 				{"vsoccrecode", "纳税人识别号"},
@@ -121,7 +123,7 @@ public class ZtszServiceImpl implements IZtszService {
 				flag = true;
 			}
 		}else if(o1 instanceof DZFDouble
-				&& SafeCompute.add((DZFDouble) o1, (DZFDouble) o2).doubleValue() == 0){
+				&& SafeCompute.sub((DZFDouble) o1, (DZFDouble) o2).doubleValue() == 0){
 			flag = true;
 		}else if(o1 instanceof String){
 		    if(o1 == null && o2 == null){
