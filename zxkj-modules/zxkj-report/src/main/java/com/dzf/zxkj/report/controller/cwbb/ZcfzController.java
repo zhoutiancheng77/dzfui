@@ -348,7 +348,7 @@ public class ZcfzController extends ReportBaseController {
     }
 
     private ZcfzExcelField getExcelField(ReportExcelExportVO excelExportVO, KmReoprtQueryParamVO queryParamvo, UserVO userVO, ZcFzBVO[] listVo, String gs, String qj) {
-        ZcfzExcelField zcfz = new ZcfzExcelField();
+        ZcfzExcelField zcfz = new ZcfzExcelField(!queryParamvo.getBshowzero().booleanValue());
 
         List<ZcFzBVO[]> listbvos = new ArrayList<ZcFzBVO[]>();
 
@@ -578,6 +578,7 @@ public class ZcfzController extends ReportBaseController {
             printReporUtil.setLineheight(-1f);//设置行高
             printReporUtil.setFirstlineheight(20f);
 
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.setBf_Bold(printReporUtil.getBf());
             printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体

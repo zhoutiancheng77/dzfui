@@ -57,6 +57,8 @@ public class PrintReporUtil {
 
     private String ispaging;//是否分页打印
 
+    private DZFBoolean bshowzero;//空是否显示0
+
     public DZFBoolean rotate = DZFBoolean.FALSE;//是否旋转
 
     private BaseFont bf = null;
@@ -616,7 +618,13 @@ public class PrintReporUtil {
                                 table.addCell(cell);
                                 continue;
                             } else {
-                                cell = new PdfPCell(new Phrase("", fonts));
+                                // 如果是空则显示0
+                                if (bshowzero.booleanValue()) {
+                                    cell = new PdfPCell(new Phrase("0.00", fonts));
+                                } else {
+                                    cell = new PdfPCell(new Phrase("", fonts));
+                                }
+
                             }
                         }
 
@@ -2815,6 +2823,13 @@ public class PrintReporUtil {
         }
     }
 
+    public DZFBoolean getBshowzero() {
+        return bshowzero;
+    }
+
+    public void setBshowzero(DZFBoolean bshowzero) {
+        this.bshowzero = bshowzero;
+    }
 }
 
 class HeaderColumnsInfo {

@@ -40,20 +40,7 @@ public class LrbExcelField extends MuiltSheetAndTitleExceport<LrbVO> {
 
 	private String corpname = null;
 
-	private Fieldelement[] fields = new Fieldelement[] {
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行次", false, 0, false),
-			new Fieldelement("byje", "本月金额", true, 2, true),
-			new Fieldelement("bnljje", "本年累计金额", true, 2, true),
-			};
-	
-	
-	private Fieldelement[] fields1 = new Fieldelement[] { 
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行次", false, 0, false),
-			new Fieldelement("bnljje", "本年累计金额", true, 2, true),
-			new Fieldelement("byje", "本月金额", true, 2, true),
-			}; 
+	private boolean zeroshownull = true;
 
 	@Override
 	public String getExcelport2007Name() {
@@ -80,7 +67,6 @@ public class LrbExcelField extends MuiltSheetAndTitleExceport<LrbVO> {
 		return lrbvos;
 	}
 	
-
 	public String[] getPeriods() {
 		return periods;
 	}
@@ -92,10 +78,28 @@ public class LrbExcelField extends MuiltSheetAndTitleExceport<LrbVO> {
 	@Override
 	public Fieldelement[] getFieldInfo() {
 		if("on".equalsIgnoreCase(columnOrder)){//企业会计制度
-			return fields;
+			return new Fieldelement[] {
+					new Fieldelement("xm", "项目", false, 0, false,60,false),
+					new Fieldelement("hs", "行次", false, 0, false),
+					new Fieldelement("byje", "本月金额", true, 2, zeroshownull),
+					new Fieldelement("bnljje", "本年累计金额", true, 2, zeroshownull),
+			};
 		}else{
-			return fields1;
+			return  new Fieldelement[] {
+					new Fieldelement("xm", "项目", false, 0, false,60,false),
+					new Fieldelement("hs", "行次", false, 0, false),
+					new Fieldelement("bnljje", "本年累计金额", true, 2, zeroshownull),
+					new Fieldelement("byje", "本月金额", true, 2, zeroshownull),
+			};
 		}
+	}
+
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
 	}
 
 	public String getColumnOrder() {
