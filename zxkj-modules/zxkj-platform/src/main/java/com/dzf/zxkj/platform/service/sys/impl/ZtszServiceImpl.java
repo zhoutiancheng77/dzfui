@@ -98,6 +98,7 @@ public class ZtszServiceImpl implements IZtszService {
 		String[][] arrs = {
 				{"unitname", "公司名称"},
 				{"vsoccrecode", "纳税人识别号"},
+				{"icostforwardstyle", "成本结转类型"},
 				{"bbuildic", "存货核算方式"},
 				{"citybuildtax", "城建税税率"},
 				{"localeducaddtax", "地方教育费附加"},
