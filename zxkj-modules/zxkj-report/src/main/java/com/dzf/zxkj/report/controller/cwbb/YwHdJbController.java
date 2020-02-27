@@ -112,6 +112,7 @@ public class YwHdJbController extends ReportBaseController {
 
         Excelexport2003<YwHdVO> lxs = new Excelexport2003<YwHdVO>();
         YwHdQuarterlyExcelField yhd = new YwHdQuarterlyExcelField();
+        yhd.setZeroshownull(!queryParamvo.getBshowzero().booleanValue());
         yhd.setYwhdvos(listVo);
         yhd.setQj(qj);
         yhd.setCreator(userVO.getCuserid());
@@ -166,6 +167,7 @@ public class YwHdJbController extends ReportBaseController {
             if (pmap.get("type").equals("2")) {// B5显示12f
                 printReporUtil.setLineheight(12f);// 设置行高
             }
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
             // 初始化表体列编码和列名称
             printReporUtil.printReport(bodyvos, "业 务 活 动 季 报",columncellattrlist, 18, pmap.get("type"), pmap, tmap);

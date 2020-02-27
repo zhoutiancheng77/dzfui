@@ -20,18 +20,8 @@ public class YwHdExcelField implements IExceport<YwHdVO> {
 	private String creator = null;
 	
 	private String corpname = null;
-	
-	private Fieldelement[] fields = new Fieldelement[]{
-			new Fieldelement("xm", "项目",false,0,false),
-			new Fieldelement("hs", "行次",false,0,false),
-			new Fieldelement("monfxdx", "本月非限定性",true,2,true),
-			new Fieldelement("monxdx", "本月限定性",true,2,true),
-			new Fieldelement("monhj", "本月合计",true,2,true),
-			new Fieldelement("yearfxdx", "本年非限定性",true,2,true),
-			new Fieldelement("yearxdx", "本年限定性",true,2,true),
-			new Fieldelement("yearhj", "本年合计",true,2,true)
-	};
-	
+
+	private boolean zeroshownull = true;
 	@Override
 	public String getExcelport2007Name() {
 		return "业务活动表-"+ ReportUtil.formatQj(qj)+".xlsx";
@@ -59,7 +49,16 @@ public class YwHdExcelField implements IExceport<YwHdVO> {
 
 	@Override
 	public Fieldelement[] getFieldInfo() {
-		return fields;
+		return new Fieldelement[]{
+				new Fieldelement("xm", "项目",false,0,false),
+				new Fieldelement("hs", "行次",false,0,false),
+				new Fieldelement("monfxdx", "本月非限定性",true,2,zeroshownull),
+				new Fieldelement("monxdx", "本月限定性",true,2,zeroshownull),
+				new Fieldelement("monhj", "本月合计",true,2,zeroshownull),
+				new Fieldelement("yearfxdx", "本年非限定性",true,2,zeroshownull),
+				new Fieldelement("yearxdx", "本年限定性",true,2,zeroshownull),
+				new Fieldelement("yearhj", "本年合计",true,2,zeroshownull)
+		};
 	}
 	
 	public void setYwhdvos(YwHdVO[] ywhdvos) {
@@ -103,4 +102,11 @@ public class YwHdExcelField implements IExceport<YwHdVO> {
 		return new boolean[]{true,true,false};
 	}
 
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
+	}
 }

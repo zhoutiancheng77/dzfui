@@ -25,14 +25,7 @@ public class YyFpExcelField implements IExceport<YyFpVO> {
 
     private String corpname = null;
 
-    private Fieldelement[] fields = new Fieldelement[]{
-            new Fieldelement("xm1", "项目", false, 0, false),
-            new Fieldelement("hc1", "行次", false, 0, false),
-            new Fieldelement("je1", "金额", true, 2, true),
-            new Fieldelement("xm2", "项目", false, 0, false),
-            new Fieldelement("hc2", "行次", false, 0, false),
-            new Fieldelement("je2", "金额", true, 2, true),
-    };
+    private boolean zeroshownull = true;
 
     @Override
     public String getExcelport2007Name() {
@@ -61,7 +54,14 @@ public class YyFpExcelField implements IExceport<YyFpVO> {
 
     @Override
     public Fieldelement[] getFieldInfo() {
-        return fields;
+        return  new Fieldelement[]{
+                new Fieldelement("xm1", "项目", false, 0, false),
+                new Fieldelement("hc1", "行次", false, 0, false),
+                new Fieldelement("je1", "金额", true, 2, zeroshownull),
+                new Fieldelement("xm2", "项目", false, 0, false),
+                new Fieldelement("hc2", "行次", false, 0, false),
+                new Fieldelement("je2", "金额", true, 2, zeroshownull),
+        };
     }
 
     public void setYwhdvos(YyFpVO[] ywhdvos) {
@@ -105,4 +105,11 @@ public class YyFpExcelField implements IExceport<YyFpVO> {
         return new boolean[]{true, true, false};
     }
 
+    public boolean isZeroshownull() {
+        return zeroshownull;
+    }
+
+    public void setZeroshownull(boolean zeroshownull) {
+        this.zeroshownull = zeroshownull;
+    }
 }

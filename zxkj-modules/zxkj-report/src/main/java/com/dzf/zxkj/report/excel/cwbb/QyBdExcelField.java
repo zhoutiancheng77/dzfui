@@ -24,13 +24,8 @@ public class QyBdExcelField implements IExceport<QyBdVO> {
 	private String creator = null;
 	
 	private String corpname = null;
-	
-	private Fieldelement[] fields = new Fieldelement[]{
-			new Fieldelement("xm", "项目",false,0,false),
-			new Fieldelement("hc", "行次",false,0,false),
-			new Fieldelement("sq_je", "上年数",true,2,true),
-			new Fieldelement("bn_je", "本年数",true,2,true),
-	};
+
+	private boolean zeroshownull = true;
 	
 	@Override
 	public String getExcelport2007Name() {
@@ -59,7 +54,12 @@ public class QyBdExcelField implements IExceport<QyBdVO> {
 
 	@Override
 	public Fieldelement[] getFieldInfo() {
-		return fields;
+		return new Fieldelement[]{
+				new Fieldelement("xm", "项目",false,0,false),
+				new Fieldelement("hc", "行次",false,0,false),
+				new Fieldelement("sq_je", "上年数",true,2,zeroshownull),
+				new Fieldelement("bn_je", "本年数",true,2,zeroshownull),
+		};
 	}
 	
 	public void setYwhdvos(QyBdVO[] ywhdvos) {
@@ -103,4 +103,11 @@ public class QyBdExcelField implements IExceport<QyBdVO> {
 		return new boolean[]{true,true,false};
 	}
 
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
+	}
 }

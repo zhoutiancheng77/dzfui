@@ -5,6 +5,7 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.excel.util.Excelexport2003;
@@ -70,11 +71,12 @@ public class QyBdController extends ReportBaseController {
     }
 
     @PostMapping("export/excel")
-    public void export(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
+    public void export(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody UserVO userVO, HttpServletResponse response) throws IOException {
         QyBdVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), QyBdVO[].class);
 
         Excelexport2003<QyBdVO> lxs = new Excelexport2003<QyBdVO>();
         QyBdExcelField qyBdExcelField = new QyBdExcelField();
+        qyBdExcelField.setZeroshownull(!queryparamvo.getBshowzero().booleanValue());
         qyBdExcelField.setYwhdvos(listVo);
         qyBdExcelField.setQj(excelExportVO.getPeriod());
         qyBdExcelField.setCreator(userVO.getCuserid());
@@ -90,6 +92,7 @@ public class QyBdController extends ReportBaseController {
             // 校验
             checkSecurityData(null, new String[]{corpVO.getPk_corp()},null);
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
+            QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             QyBdVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(), QyBdVO[].class);
@@ -105,6 +108,7 @@ public class QyBdController extends ReportBaseController {
             if ("2".equals(printParamVO.getType())) {//B5显示12f
                 printReporUtil.setLineheight(12f);//设置行高
             }
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             //初始化表体列编码和列名称
             printReporUtil.printReport(bodyvos, QyBdPdfField.name, Arrays.asList(columncellattrvos), 18, printParamVO.getType(), pmap, tmap);

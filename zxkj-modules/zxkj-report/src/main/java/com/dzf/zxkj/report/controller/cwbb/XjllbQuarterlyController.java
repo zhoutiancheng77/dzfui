@@ -106,6 +106,7 @@ public class XjllbQuarterlyController extends ReportBaseController {
         String qj= excelExportVO.getTitleperiod();
         Excelexport2003<XjllquarterlyVo> lxs = new Excelexport2003<XjllquarterlyVo>();
         XjllQuarterlyExcelField lrb = new XjllQuarterlyExcelField();
+        lrb.setZeroshownull(!queryparamvo.getBshowzero().booleanValue());
         lrb.setLrbvos(listVo);
 
         lrb.setQj(qj);
@@ -161,6 +162,7 @@ public class XjllbQuarterlyController extends ReportBaseController {
             if(type.equals("2")){
                 printReporUtil.setLineheight(12f);
             }
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.setBf_Bold(printReporUtil.getBf());
 //			setBasecolor(new BaseColor(127,127,127));//设置单元格线颜色
             printReporUtil.setBasecolor(new BaseColor(0,0,0));//设置单元格线颜色

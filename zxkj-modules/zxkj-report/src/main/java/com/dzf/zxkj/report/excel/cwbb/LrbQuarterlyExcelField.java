@@ -36,44 +36,55 @@ public class LrbQuarterlyExcelField implements IExceport<LrbquarterlyVO> {
 
 	private String corpname = null;
 
-	private Fieldelement[] fields = new Fieldelement[] {
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行次", false, 0, false,10,false),
-			new Fieldelement("bnlj", "本年累计", true, 2, true), 
-			new Fieldelement("quarterFirst", "第一季度", true, 2, true),
-			new Fieldelement("quarterSecond", "第二季度", true, 2, true),
-			new Fieldelement("quarterThird", "第三季度", true, 2, true),
-			new Fieldelement("quarterFourth", "第四季度", true, 2, true),
-			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
+	private boolean zeroshownull = true;
 
-	private Fieldelement[] fields_jd1 = new Fieldelement[] { 
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行次", false, 0, false,10,false),
-			new Fieldelement("bnlj", "本年累计", true, 2, true), 
-			new Fieldelement("quarterFirst", "第一季度", true, 2, true),
-			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
-	
-	private Fieldelement[] fields_jd2 = new Fieldelement[] { 
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行次", false, 0, false,10,false),
-			new Fieldelement("bnlj", "本年累计", true, 2, true), 
-			new Fieldelement("quarterSecond", "第二季度", true, 2, true),
-			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
-	
-	private Fieldelement[] fields_jd3 = new Fieldelement[] { 
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行次", false, 0, false,10,false),
-			new Fieldelement("bnlj", "本年累计", true, 2, true), 
-			new Fieldelement("quarterThird", "第三季度", true, 2, true),
-			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
-	
-	private Fieldelement[] fields_jd4 = new Fieldelement[] { 
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hs", "行次", false, 0, false,10,false),
-			new Fieldelement("bnlj", "本年累计", true, 2, true), 
-			new Fieldelement("quarterFourth", "第四季度", true, 2, true),
-			new Fieldelement("sntqs", "上年同期数", true, 2, true)};
-	
+	private  Fieldelement[]  getFields(){
+		return  new Fieldelement[] {
+				new Fieldelement("xm", "项目", false, 0, false,60,false),
+				new Fieldelement("hs", "行次", false, 0, false,10,false),
+				new Fieldelement("bnlj", "本年累计", true, 2, zeroshownull),
+				new Fieldelement("quarterFirst", "第一季度", true, 2, zeroshownull),
+				new Fieldelement("quarterSecond", "第二季度", true, 2, zeroshownull),
+				new Fieldelement("quarterThird", "第三季度", true, 2, zeroshownull),
+				new Fieldelement("quarterFourth", "第四季度", true, 2, zeroshownull),
+				new Fieldelement("sntqs", "上年同期数", true, 2, zeroshownull)};
+	}
+
+	private Fieldelement[]  getFields_jd1 () {
+		return new Fieldelement[] {
+				new Fieldelement("xm", "项目", false, 0, false,60,false),
+				new Fieldelement("hs", "行次", false, 0, false,10,false),
+				new Fieldelement("bnlj", "本年累计", true, 2, zeroshownull),
+				new Fieldelement("quarterFirst", "第一季度", true, 2, zeroshownull),
+				new Fieldelement("sntqs", "上年同期数", true, 2, zeroshownull)};
+	}
+	private Fieldelement[] getFields_jd2 () {
+		return  new Fieldelement[] {
+				new Fieldelement("xm", "项目", false, 0, false,60,false),
+				new Fieldelement("hs", "行次", false, 0, false,10,false),
+				new Fieldelement("bnlj", "本年累计", true, 2, zeroshownull),
+				new Fieldelement("quarterSecond", "第二季度", true, 2, zeroshownull),
+				new Fieldelement("sntqs", "上年同期数", true, 2, zeroshownull)};
+	}
+
+	private Fieldelement[] getFields_jd3 () {
+		return new Fieldelement[] {
+				new Fieldelement("xm", "项目", false, 0, false,60,false),
+				new Fieldelement("hs", "行次", false, 0, false,10,false),
+				new Fieldelement("bnlj", "本年累计", true, 2, zeroshownull),
+				new Fieldelement("quarterThird", "第三季度", true, 2, zeroshownull),
+				new Fieldelement("sntqs", "上年同期数", true, 2, zeroshownull)};
+	}
+
+	private Fieldelement[] getFields_jd4 () {
+		return new Fieldelement[] {
+				new Fieldelement("xm", "项目", false, 0, false,60,false),
+				new Fieldelement("hs", "行次", false, 0, false,10,false),
+				new Fieldelement("bnlj", "本年累计", true, 2, zeroshownull),
+				new Fieldelement("quarterFourth", "第四季度", true, 2, zeroshownull),
+				new Fieldelement("sntqs", "上年同期数", true, 2, zeroshownull)};
+	}
+
 	@Override
 	public String getExcelport2007Name() {
 		return "利润表季报("+corpname+")-" + qj.replace("-", "") + ".xlsx";
@@ -103,16 +114,24 @@ public class LrbQuarterlyExcelField implements IExceport<LrbquarterlyVO> {
 	public Fieldelement[] getFieldInfo() {
 		if(!StringUtil.isEmpty(curr_jd)){
 			if("03".equals(curr_jd)){
-				return fields_jd1;
+				return getFields_jd1();
 			}else if("06".equals(curr_jd)){
-				return fields_jd2;
+				return getFields_jd2();
 			}else if("09".equals(curr_jd)){
-				return fields_jd3;
+				return getFields_jd3();
 			}else if("12".equals(curr_jd)){
-				return fields_jd4;
+				return getFields_jd4();
 			}
 		}
-		return fields;
+		return getFields();
+	}
+
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
 	}
 
 	public void setLrbvos(LrbquarterlyVO[] lrbvos) {

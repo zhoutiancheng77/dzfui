@@ -20,11 +20,8 @@ public class SrzcExcelField implements IExceport<SrzcBVO> {
 	
 	private String corpname = null;
 
-	private Fieldelement[] fields = new Fieldelement[] {
-			new Fieldelement("xm", "项目", false, 0, true,80, false),
-			new Fieldelement("monnum", "本月数", true, 2, true),
-			new Fieldelement("yearnum", "本年累计数", true, 2, true) };
-	
+	private boolean zeroshownull = true;
+
 	@Override
 	public String getExcelport2007Name() {
 		return "收入支出表-"+ ReportUtil.formatQj(qj)+".xlsx";
@@ -55,7 +52,10 @@ public class SrzcExcelField implements IExceport<SrzcBVO> {
 
 	@Override
 	public Fieldelement[] getFieldInfo() {
-		return fields;
+		return new Fieldelement[] {
+				new Fieldelement("xm", "项目", false, 0, true,80, false),
+				new Fieldelement("monnum", "本月数", true, 2, zeroshownull),
+				new Fieldelement("yearnum", "本年累计数", true, 2, zeroshownull) };
 	}
 
 	@Override
@@ -95,4 +95,11 @@ public class SrzcExcelField implements IExceport<SrzcBVO> {
 		return new boolean[]{true,true,false};
 	}
 
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
+	}
 }

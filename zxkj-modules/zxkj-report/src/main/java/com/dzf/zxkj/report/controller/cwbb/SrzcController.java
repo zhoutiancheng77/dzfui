@@ -102,6 +102,7 @@ public class SrzcController extends ReportBaseController {
 
         Excelexport2003<SrzcBVO> lxs = new Excelexport2003<SrzcBVO>();
         SrzcExcelField field = new SrzcExcelField();
+        field.setZeroshownull(!queryparamvo.getBshowzero().booleanValue());
         field.setExpvos(listVo);
         field.setQj(qj);
         field.setCreator(userVO.getUser_name());
@@ -134,6 +135,7 @@ public class SrzcController extends ReportBaseController {
             Map<String, String> tmap = new LinkedHashMap<String, String>();//声明一个map用来存前台传来的设置参数
             tmap.put("公司", printParamVO.getCorpName());
             tmap.put("期间", printParamVO.getTitleperiod());
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "收 入 支 出 表",
                     new String[]{"xm", "monnum", "yearnum"},
                     new String[]{"项目", "本月数", "本年累计数"},

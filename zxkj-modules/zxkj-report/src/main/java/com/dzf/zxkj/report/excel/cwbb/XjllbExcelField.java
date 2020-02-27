@@ -42,21 +42,21 @@ public class XjllbExcelField extends MuiltSheetAndTitleExceport<XjllbVO> {
 
 	private String corpname = null;
 
-	private Fieldelement[] fields = new Fieldelement[] { new Fieldelement("xm", "项目", false, 0, false, 55, false),
-			new Fieldelement("hc", "行次", false, 0, false, 4, false),
-			new Fieldelement("bqje", "本月金额", true, 2, true),
-			new Fieldelement("sqje", "本年累计金额", true, 2, true) ,
-			};
+	private boolean zeroshownull = true;
 
-	private Fieldelement[] fields1 = new Fieldelement[] { new Fieldelement("xm", "项目", false, 0, false, 55, false),
-			new Fieldelement("hc", "行次", false, 0, false, 4, false),
-			new Fieldelement("sqje", "本年累计金额", true, 2, true) ,
-			new Fieldelement("bqje", "本月金额", true, 2, true),
-			};
-	
+
+
 	@Override
 	public String getExcelport2007Name() {
 		return "现金流量表(" + corpname + ")-" + new ReportUtil().formatqj(periods) + ".xlsx";
+	}
+
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
 	}
 
 	@Override
@@ -90,9 +90,17 @@ public class XjllbExcelField extends MuiltSheetAndTitleExceport<XjllbVO> {
 	@Override
 	public Fieldelement[] getFieldInfo() {
 		if("on".equals(columnOrder) ){
-			return fields;
+			return  new Fieldelement[] { new Fieldelement("xm", "项目", false, 0, false, 55, false),
+					new Fieldelement("hc", "行次", false, 0, false, 4, false),
+					new Fieldelement("bqje", "本月金额", true, 2, zeroshownull),
+					new Fieldelement("sqje", "本年累计金额", true, 2, zeroshownull) ,
+			};
 		}else{
-			return fields1;
+			return new Fieldelement[] { new Fieldelement("xm", "项目", false, 0, false, 55, false),
+					new Fieldelement("hc", "行次", false, 0, false, 4, false),
+					new Fieldelement("sqje", "本年累计金额", true, 2, zeroshownull) ,
+					new Fieldelement("bqje", "本月金额", true, 2, zeroshownull),
+			};
 		}
 	}
 
@@ -190,14 +198,6 @@ public class XjllbExcelField extends MuiltSheetAndTitleExceport<XjllbVO> {
 
 	public void setCorpname(String corpname) {
 		this.corpname = corpname;
-	}
-
-	public Fieldelement[] getFields() {
-		return fields;
-	}
-
-	public void setFields(Fieldelement[] fields) {
-		this.fields = fields;
 	}
 
 	public XjllbVO[] getXjllbvos() {

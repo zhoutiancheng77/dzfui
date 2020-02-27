@@ -26,16 +26,8 @@ public class XjllQuarterlyExcelField implements IExceport<XjllquarterlyVo> {
 
 	private String corpname = null;
 
-	private Fieldelement[] fields = new Fieldelement[] {
-			new Fieldelement("xm", "项目", false, 0, false,60,false),
-			new Fieldelement("hc", "行次", false, 0, false,10,false),
-			new Fieldelement("bnlj", "本年累计", true, 2, true), 
-			new Fieldelement("jd1", "第一季度", true, 2, true),
-			new Fieldelement("jd2", "第二季度", true, 2, true),
-			new Fieldelement("jd3", "第三季度", true, 2, true),
-			new Fieldelement("jd4", "第四季度", true, 2, true),
-			new Fieldelement("bf_bnlj", "上年同期数", true, 2, true),
-	};
+	private boolean zeroshownull = true;
+
 
 	@Override
 	public String getExcelport2007Name() {
@@ -64,7 +56,16 @@ public class XjllQuarterlyExcelField implements IExceport<XjllquarterlyVo> {
 
 	@Override
 	public Fieldelement[] getFieldInfo() {
-		return fields;
+		return  new Fieldelement[] {
+				new Fieldelement("xm", "项目", false, 0, false,60,false),
+				new Fieldelement("hc", "行次", false, 0, false,10,false),
+				new Fieldelement("bnlj", "本年累计", true, 2, zeroshownull),
+				new Fieldelement("jd1", "第一季度", true, 2, zeroshownull),
+				new Fieldelement("jd2", "第二季度", true, 2, zeroshownull),
+				new Fieldelement("jd3", "第三季度", true, 2, zeroshownull),
+				new Fieldelement("jd4", "第四季度", true, 2, zeroshownull),
+				new Fieldelement("bf_bnlj", "上年同期数", true, 2, zeroshownull),
+		};
 	}
 
 	public void setLrbvos(XjllquarterlyVo[] lrbvos) {
@@ -108,4 +109,11 @@ public class XjllQuarterlyExcelField implements IExceport<XjllquarterlyVo> {
 		return new boolean[] { true, true, true };
 	}
 
+	public boolean isZeroshownull() {
+		return zeroshownull;
+	}
+
+	public void setZeroshownull(boolean zeroshownull) {
+		this.zeroshownull = zeroshownull;
+	}
 }

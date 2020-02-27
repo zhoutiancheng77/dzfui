@@ -203,6 +203,7 @@ public class XjllController extends ReportBaseController {
         }
         Excelexport2003<XjllbVO> lxs = new Excelexport2003<XjllbVO>();
         XjllbExcelField xjll = new XjllbExcelField();
+        xjll.setZeroshownull(!queryparamvo.getBshowzero().booleanValue());
         xjll.setColumnOrder(excelExportVO.getColumnOrder());
         CorpVO cpvo = zxkjPlatformService.queryCorpByPk(corpIds);
 
@@ -352,6 +353,7 @@ public class XjllController extends ReportBaseController {
             if(type.equals("2")){//B5纸
                 printReporUtil.setLineheight(12f);
             }
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.setBf_Bold(printReporUtil.getBf());
             printReporUtil.setBasecolor(new BaseColor(0,0,0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));

@@ -159,6 +159,7 @@ public class LrbQuarterlyController extends ReportBaseController {
         formaterColumn(listVo, qj);
         Excelexport2003<LrbquarterlyVO> lxs = new Excelexport2003<LrbquarterlyVO>();
         LrbQuarterlyExcelField lrb = new LrbQuarterlyExcelField(excelExportVO.getCurrjd());
+        lrb.setZeroshownull(!queryparamvo.getBshowzero().booleanValue());
         lrb.setLrbvos(listVo);
         lrb.setQj(qj);
         lrb.setCreator(userVO.getUser_name());
@@ -214,6 +215,7 @@ public class LrbQuarterlyController extends ReportBaseController {
             if(type.equals("2")){
                 printReporUtil.setLineheight(12f);
             }
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.setBasecolor(new BaseColor(0,0,0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = getPrintXm(0,curr_jd);
