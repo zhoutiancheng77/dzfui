@@ -619,7 +619,7 @@ public class PrintReporUtil {
                                 continue;
                             } else {
                                 // 如果是空则显示0
-                                if (bshowzero.booleanValue()) {
+                                if (bshowzero != null && bshowzero.booleanValue()) {
                                     cell = new PdfPCell(new Phrase("0.00", fonts));
                                 } else {
                                     cell = new PdfPCell(new Phrase("", fonts));
