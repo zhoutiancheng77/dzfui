@@ -209,6 +209,7 @@ public class LrbController extends ReportBaseController {
         } else {
             lrb = new LrbExcelField();
         }
+        lrb.setZeroshownull(!queryparamvo.getBshowzero().booleanValue());
         lrb.setCorptype(corpVO.getCorptype());
         lrb.setColumnOrder(excelExportVO.getColumnOrder());
         getLrbExcel(excelExportVO, corpVO, queryparamvo, userVO, listVo, gs, qj, lrb);
@@ -330,6 +331,7 @@ public class LrbController extends ReportBaseController {
             } else {
                 printReporUtil.setLineheight(18f);
             }
+            printReporUtil.setBshowzero(queryparamvo.getBshowzero());
             printReporUtil.setBf_Bold(printReporUtil.getBf());
             printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));
