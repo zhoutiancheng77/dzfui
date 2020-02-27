@@ -12,7 +12,6 @@ import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
-import com.dzf.zxkj.operate.log.annotation.LogRecord;
 import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.report.YyFpVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -48,7 +47,7 @@ public class YyfpController extends ReportBaseController {
     private IZxkjPlatformService zxkjPlatformService;
 
     @GetMapping("query")
-    @LogRecord(type = LogRecordEnum.OPE_KJ_CWREPORT, msg = "查询盈余分配表")
+//    @LogRecord(type = LogRecordEnum.OPE_KJ_CWREPORT, msg = "查询盈余分配表")
     public ReturnData<Grid> query(QueryParamVO queryParamVO, @MultiRequestBody CorpVO corpVO) {
 
         Grid grid = new Grid();
@@ -68,7 +67,7 @@ public class YyfpController extends ReportBaseController {
             printErrorLog(grid, e, "查询失败");
             log.error("查询失败", e);
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表查询"+queryParamVO.getBegindate1(), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表查询"+queryParamVO.getBegindate1().toString().substring(0,7), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 
@@ -82,7 +81,7 @@ public class YyfpController extends ReportBaseController {
         yhd.setQj(excelExportVO.getPeriod());
         yhd.setCreator(userVO.getCuserid());
         yhd.setCorpName(excelExportVO.getCorpName());
-        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表导出:"+excelExportVO.getPeriod(), ISysConstants.SYS_2);
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表导出:"+excelExportVO.getPeriod().substring(0,7), ISysConstants.SYS_2);
         baseExcelExport(response,lxs,yhd);
 
     }
@@ -112,7 +111,7 @@ public class YyfpController extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             //初始化表体列编码和列名称
             printReporUtil.printReport(bodyvos, "盈余分配表", Arrays.asList(columncellattrvos), 18, printParamVO.getType(), pmap, tmap);
-            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表打印:"+printParamVO.getPeriod(), ISysConstants.SYS_2);
+            writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,"盈余分配表打印:"+printParamVO.getPeriod().substring(0,7), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {
