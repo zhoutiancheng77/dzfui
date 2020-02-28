@@ -67,11 +67,13 @@ public class CwgyInfoController extends ReportBaseController {
     public ReturnData<Grid> queryAction(QueryParamVO queryParamVO) {
         Grid grid = new Grid();
         QueryParamVO queryParamvo = getQueryParamVO(queryParamVO);
+        String qjq = "";
         try {
             // 校验
             checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
-            queryParamvo.setQjq(queryParamvo.getBegindate1().toString().substring(0, 7));
-            queryParamvo.setQjz(queryParamvo.getBegindate1().toString().substring(0, 7));
+            qjq = queryParamvo.getBegindate1().toString().substring(0, 7);
+            queryParamvo.setQjq(qjq);
+            queryParamvo.setQjz(qjq);
             queryParamvo.setEnddate(queryParamvo.getBegindate1());
             CwgyInfoVO[] fsejyevos = null;
 //            Set<String> nnmnc = iuserService.querypowercorpSet(getLoginUserid());
@@ -99,7 +101,7 @@ public class CwgyInfoController extends ReportBaseController {
         }
 
         // 日志记录接口
-        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "财务概要信息查询:" + queryParamvo.getQjq(),
+        writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT, "财务概要信息查询:" + qjq,
                 ISysConstants.SYS_2);
 
         return ReturnData.ok().data(grid);
