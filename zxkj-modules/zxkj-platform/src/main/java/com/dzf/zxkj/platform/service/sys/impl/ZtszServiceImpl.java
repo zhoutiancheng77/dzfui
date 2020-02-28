@@ -8,6 +8,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.TaxRptConstPub;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -102,7 +103,10 @@ public class ZtszServiceImpl implements IZtszService {
 				{"bbuildic", "存货核算方式"},
 				{"citybuildtax", "城建税税率"},
 				{"localeducaddtax", "地方教育费附加"},
-				{"educaddtax", "教育费附加"}
+				{"educaddtax", "教育费附加"},
+				{"begprodate", "开始生产经营日期"},
+				{"sxbegperiod", "生效开始期间"},
+				{"sxendperiod", "生效结束期间"}
 		};
 
 		for(String[] arr : arrs){
@@ -120,7 +124,8 @@ public class ZtszServiceImpl implements IZtszService {
 		if(o1 instanceof Integer){
 			if(o1 == null && o2 == null){
 				flag = true;
-			}else if(o1 != null && o2 != null && o1 == o2){
+			}else if(o1 != null && o2 != null
+					&& ((Integer) o1).intValue() == ((Integer) o2).intValue()){
 				flag = true;
 			}
 		}else if(o1 instanceof DZFDouble
@@ -131,6 +136,12 @@ public class ZtszServiceImpl implements IZtszService {
 		    	flag = true;
 			}else if(o1 != null && o2 != null){
 		    	flag = ((String)o1).equals((String)o2);
+			}
+		}else if(o1 instanceof DZFDate){
+			if(o1 != null && o2 != null){
+				if(((DZFDate) o1).compareTo((DZFDate) o2) == 0){
+					flag = true;
+				}
 			}
 		}
 
