@@ -1380,6 +1380,8 @@ public class QmclController extends BaseController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "成本结转失败！");
         }
+        //记录日志
+        doRecord("成本结转:" + qmvo.getPeriod());
         return ReturnData.ok().data(grid);
     }
 
@@ -1755,6 +1757,8 @@ public class QmclController extends BaseController {
             grid.setRows(new ArrayList<QmclVO>());
             grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "工业成本结转保存失败！");
         }
+        //记录日志
+        doRecord("成本结转:" + qmvo.getPeriod());
         return ReturnData.ok().data(grid);
     }
 
