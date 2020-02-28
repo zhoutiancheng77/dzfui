@@ -104,9 +104,9 @@ public class ZtszServiceImpl implements IZtszService {
 				{"citybuildtax", "城建税税率"},
 				{"localeducaddtax", "地方教育费附加"},
 				{"educaddtax", "教育费附加"},
-				{"begprodate", "开始生产经营日期"},
-				{"sxbegperiod", "生效开始期间"},
-				{"sxendperiod", "生效结束期间"}
+//				{"begprodate", "开始生产经营日期"},
+//				{"sxbegperiod", "生效开始期间"},
+//				{"sxendperiod", "生效结束期间"}
 		};
 
 		for(String[] arr : arrs){
