@@ -1251,7 +1251,8 @@ public class QmclController extends BaseController {
         try {
             String userid = userVO.getCuserid();
             if(!StringUtil.isEmpty(jztype)){
-                if("1".equalsIgnoreCase(jztype) || "3".equalsIgnoreCase(jztype))
+                // 校验 材料成本  完工成本 销售成本
+                if("1".equalsIgnoreCase(jztype) || "3".equalsIgnoreCase(jztype) || "2".equalsIgnoreCase(jztype))
                     gl_qmclnoicserv.checkCbjzmb(pk_gs, jztype);
             }
             grid.setSuccess(true);
