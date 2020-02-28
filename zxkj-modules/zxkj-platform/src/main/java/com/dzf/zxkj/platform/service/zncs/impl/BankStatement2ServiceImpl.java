@@ -3399,6 +3399,10 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 					    CellValue cellValue = evaluator.evaluate(cell);
 					    ret = String.valueOf(cellValue.getNumberValue());
 					}
+					catch (StackOverflowError se)
+					{
+						throw new StackOverflowError("表格中第 " + (cell.getRow().getRowNum() + 1) + " 行第" + (cell.getColumnIndex() + 1) + " 列的公式 " + cell.getCellFormula() + "不正常，请检查");
+					}
 					catch (Exception e)
 					{}
 				}
@@ -3409,6 +3413,8 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 			} else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
 				ret = null;
 			}
+		} catch (StackOverflowError sofe)	{
+			throw new BusinessException(sofe.getMessage());
 		} catch (Exception ex) {
 			log.error("错误",ex);
 			ret = null;
@@ -5165,14 +5171,26 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 				List<BankStatementVO2> bankList = changeToBank(tempList, pk_corp);
 				changeList.addAll(bankList);
 			}
+			HashMap<String, CategorysetVO> hashCategorysetVOCache = new HashMap<String, CategorysetVO>();
 			for (BankStatementVO2 vo : changeList)
 			{
 				//查询入账科目，结算科目，结算方式
 				if(!StringUtils.isEmpty(vo.getPk_model_h())){
-					CategorysetVO setVO = queryCategorySetVO(vo.getPk_model_h());
-					vo.setPk_subject(setVO.getPk_accsubj());
-					vo.setPk_settlementaccsubj(setVO.getPk_settlementaccsubj());
-					vo.setSettlement(setVO.getSettlement()==null?2:setVO.getSettlement());
+					CategorysetVO setVO = null;
+					if(hashCategorysetVOCache.containsKey(vo.getPk_model_h()))
+					{
+						setVO = hashCategorysetVOCache.get(vo.getPk_model_h());
+					}
+					else
+					{
+						setVO = queryCategorySetVO(vo.getPk_model_h());
+						hashCategorysetVOCache.put(vo.getPk_model_h(), setVO);
+					}
+					if (setVO != null) {
+						vo.setPk_subject(setVO.getPk_accsubj());
+						vo.setPk_settlementaccsubj(setVO.getPk_settlementaccsubj());
+						vo.setSettlement(setVO.getSettlement() == null ? 2 : setVO.getSettlement());
+					}
 				}
 				singleObjectBO.insertVO(pk_corp, vo);
 			}
@@ -6850,6 +6868,55 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	private List<OcrInvoiceVO> changeToOcr(List<BankStatementVO2> bList,String pk_corp){
 		List<OcrInvoiceVO> list = new ArrayList<OcrInvoiceVO>();
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
+
+		HashMap<String, String> hmBankAccount = new HashMap<String, String>();
+		HashMap<String, String> hmBankBillToStatement = new HashMap<String, String>();
+
+
+		ArrayList<String> alpk_bankaccount = new ArrayList<String>();
+		ArrayList<String> alpk_bankstatement = new ArrayList<String>();
+		for (BankStatementVO2 bvo : bList)
+		{
+			if (StringUtil.isEmptyWithTrim(bvo.getPk_bankaccount()) == false)
+			{
+				if (alpk_bankaccount.contains(bvo.getPk_bankaccount()) == false)
+				{
+					alpk_bankaccount.add(bvo.getPk_bankaccount());
+				}
+			}
+			else if (StringUtil.isEmptyWithTrim(bvo.getPk_bankstatement()) == false)
+			{
+				if (alpk_bankstatement.contains(bvo.getPk_bankstatement()) == false)
+				{
+					alpk_bankstatement.add(bvo.getPk_bankstatement());
+				}
+			}
+		}
+		if (alpk_bankaccount.size() > 0)
+		{
+			BankAccountVO[] vos = (BankAccountVO[])singleObjectBO.queryByCondition(BankAccountVO.class, SqlUtil.buildSqlForIn("pk_bankaccount", alpk_bankaccount.toArray(new String[0])), null);
+			if (vos != null)
+			{
+				for (BankAccountVO vo : vos)
+				{
+					hmBankAccount.put(vo.getPk_bankaccount(), vo.getBankaccount());
+				}
+			}
+		}
+		if (alpk_bankstatement.size() > 0)
+		{
+			SQLParameter sp = new SQLParameter();
+			sp.addParam(pk_corp);
+
+			BankBillToStatementVO[] vos = (BankBillToStatementVO[])singleObjectBO.queryByCondition(BankBillToStatementVO.class, "pk_corp= ?  and nvl(dr, 0) = 0 and " + SqlUtil.buildSqlForIn("pk_bankstatement", alpk_bankstatement.toArray(new String[0])), sp);
+			if (vos != null)
+			{
+				for (BankBillToStatementVO vo : vos)
+				{
+					hmBankBillToStatement.put(vo.getPk_bankstatement(), vo.getMyaccountcode());
+				}
+			}
+		}
 		for (BankStatementVO2 bvo : bList) {
 			OcrInvoiceVO ovo = new OcrInvoiceVO();
 			String randomUUID = UUID.randomUUID().toString();
@@ -6862,7 +6929,8 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 			ovo.setPk_billcategory(bvo.getPk_model_h());
 			ovo.setPk_category_keyword(bvo.getPk_category_keyword());
 			//判断是转出还是转入  判断对方公司是销方还是收方
-			String mycode = queryAccbankNo(bvo.getPk_bankaccount(),bvo.getPk_bankstatement());
+//			String mycode = queryAccbankNo(pk_corp, bvo.getPk_bankaccount(),bvo.getPk_bankstatement());
+			String mycode = (StringUtil.isEmpty(bvo.getPk_bankaccount()) == false ? hmBankAccount.get(bvo.getPk_bankaccount()) : (StringUtil.isEmpty(bvo.getPk_bankstatement()) == false ? hmBankBillToStatement.get(bvo.getPk_bankstatement()) : null));
 			if((bvo.getSyje()==null||bvo.getSyje().doubleValue()==0)&&(bvo.getZcje()!=null||bvo.getZcje().doubleValue()!=0)){//收入为空,支出不空，对方公司为收方
 				ovo.setVpurchname(corpVO.getUnitname());//付方
 				ovo.setVsalename(bvo.getOthaccountname());//收方
@@ -7115,21 +7183,22 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		}
 		return map;
 	}
-	private String queryAccbankNo(String pk_bankaccount,String pk_bankstatement)throws DZFWarpException{
-		
-		if(!StringUtils.isEmpty(pk_bankaccount)){
-			BankAccountVO bankaccvo = gl_yhzhserv.queryById(pk_bankaccount);
-			return bankaccvo.getBankaccount();
-		}else{
-			StringBuffer sb = new StringBuffer();
-			SQLParameter sp = new SQLParameter();
-			sb.append(" select * from  ynt_bankbilltostatement where nvl(dr,0) = 0 and  pk_bankstatement =?");
-			sp.addParam(pk_bankstatement);
-			List<BankBillToStatementVO> list = (List<BankBillToStatementVO>) singleObjectBO.executeQuery(sb.toString(), sp,
-					new BeanListProcessor(BankBillToStatementVO.class));
-			return list!=null&&list.size()>0?list.get(0).getMyaccountcode():null;
-		}
-	}
+//	private String queryAccbankNo(String pk_corp, String pk_bankaccount,String pk_bankstatement)throws DZFWarpException{
+//
+//		if(!StringUtils.isEmpty(pk_bankaccount)){
+//			BankAccountVO bankaccvo = gl_yhzhserv.queryById(pk_bankaccount);
+//			return bankaccvo.getBankaccount();
+//		}else{
+//			StringBuffer sb = new StringBuffer();
+//			SQLParameter sp = new SQLParameter();
+//			sb.append(" select * from  ynt_bankbilltostatement where pk_corp= ? and nvl(dr,0) = 0 and  pk_bankstatement =?");
+//			sp.addParam(pk_corp);
+//			sp.addParam(pk_bankstatement);
+//			List<BankBillToStatementVO> list = (List<BankBillToStatementVO>) singleObjectBO.executeQuery(sb.toString(), sp,
+//					new BeanListProcessor(BankBillToStatementVO.class));
+//			return list!=null&&list.size()>0?list.get(0).getMyaccountcode():null;
+//		}
+//	}
 
 	@Override
 	public CategorysetVO queryCategorySetVO(String pk_model_h) throws DZFWarpException {
