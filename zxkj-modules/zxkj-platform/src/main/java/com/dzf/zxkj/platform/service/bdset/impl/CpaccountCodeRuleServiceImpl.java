@@ -67,10 +67,6 @@ public class CpaccountCodeRuleServiceImpl implements ICpaccountCodeRuleService {
 				YntCpaccountVO repeatAccount = repeatAccounts.get(i);
 				msg.append(repeatAccount.getAccountcode()).append("_").append(repeatAccount.getAccountname());
 			}
-			for (YntCpaccountVO repeatAccount : repeatAccounts) {
-				msg.append(repeatAccount.getAccountcode()).append("_").append(repeatAccount.getAccountname());
-			}
-
 			msg.append(")，请联系客服。");
 			throw new BusinessException(msg.toString());
 		}

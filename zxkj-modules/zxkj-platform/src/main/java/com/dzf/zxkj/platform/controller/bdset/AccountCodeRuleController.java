@@ -68,32 +68,24 @@ public class AccountCodeRuleController extends BaseController {
     public ReturnData<Grid> update(@MultiRequestBody String newcoderule, @MultiRequestBody String memo) {
         Grid grid = new Grid();
         List<YntCpaccountChangeVO> list = new ArrayList<YntCpaccountChangeVO>();
-        try {
-            String pk_corp = SystemUtil.getLoginCorpId();
-            String oldrule = accountservice.queryAccountRule(pk_corp);
+        String pk_corp = SystemUtil.getLoginCorpId();
+        String oldrule = accountservice.queryAccountRule(pk_corp);
 
-            YntCpaccountChangeVO[] vos = codeRuleService.updateCodeRule(pk_corp, oldrule, newcoderule,memo);
-            if(vos==null){
-                vos = new YntCpaccountChangeVO[0];
-            }
-            for(YntCpaccountChangeVO vo: vos){
-                vo.setMemo(memo);
-            }
-            list = Arrays.asList(vos);
-            if (list != null && list.size() > 0) {
-                grid.setTotal((long) list.size());
-                grid.setRows(list);
-                grid.setMsg("更新成功！");
-            }
-            grid.setSuccess(true);
-            log.info("更新成功！");
-            writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据升级", ISysConstants.SYS_2);
-        } catch ( Exception e) {
-            log.info("更新失败！");
-            grid.setRows(list);
-            grid.setSuccess(false);
-            grid.setMsg("更新失败");
+        YntCpaccountChangeVO[] vos = codeRuleService.updateCodeRule(pk_corp, oldrule, newcoderule,memo);
+        if(vos==null){
+            vos = new YntCpaccountChangeVO[0];
         }
+        for(YntCpaccountChangeVO vo: vos){
+            vo.setMemo(memo);
+        }
+        list = Arrays.asList(vos);
+        if (list != null && list.size() > 0) {
+            grid.setTotal((long) list.size());
+            grid.setRows(list);
+            grid.setMsg("更新成功！");
+        }
+        grid.setSuccess(true);
+        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据升级", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
 }
