@@ -53,6 +53,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -71,8 +72,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 @Service("ic_purchinserv")
 public class PurchInServiceImpl implements IPurchInService {
 
@@ -2131,13 +2130,13 @@ public class PurchInServiceImpl implements IPurchInService {
 
 			if (spflVO != null && spflVO.size() > 0) {
 				for (InvclassifyVO spflvo : spflVO) {
-					invclassmap.put(replaceBlank(spflvo.getName().trim()), spflvo);
+					invclassmap.put(StringUtil.replaceBlank(spflvo.getName()), spflvo);
 				}
 			}
 
 			if (jldwVO != null && jldwVO.size() > 0) {
 				for (MeasureVO spflvo : jldwVO) {
-					jldwmap.put(replaceBlank(spflvo.getName().trim()), spflvo);
+					jldwmap.put(StringUtil.replaceBlank(spflvo.getName()), spflvo);
 				}
 			}
 
@@ -2147,14 +2146,14 @@ public class PurchInServiceImpl implements IPurchInService {
 			if (list != null && list.size() > 0) {
 				for (BankAccountVO spflvo : list) {
 					if(!StringUtil.isEmpty(spflvo.getBankname())){
-						bankmap.put(replaceBlank(spflvo.getBankname().trim()), spflvo);
+						bankmap.put(StringUtil.replaceBlank(spflvo.getBankname()), spflvo);
 					}
 				}
 			}
 
 			if (bvos != null && bvos.length > 0) {
 				for (AuxiliaryAccountBVO spflvo : bvos) {
-					accmap.put(replaceBlank(spflvo.getName().trim()), spflvo);
+					accmap.put(StringUtil.replaceBlank(spflvo.getName()), spflvo);
 				}
 			}
 
@@ -2172,15 +2171,20 @@ public class PurchInServiceImpl implements IPurchInService {
 			List<AggIcTradeVO> billlist = null;
 			String tempkey = null;
 			boolean isrownull = true;
+			Row row = null;
 			for (int iBegin = 1; iBegin <= length; iBegin++) {
 				isrownull = true;
 				vo = new AggIcTradeVO();
+				row = sheet1.getRow(iBegin);
+				if (row == null || isRowEmpty(row)) {
+					continue;
+				}
 				for (Map.Entry<Integer, String> entry : fieldColumn.entrySet()) {
 
-					if (sheet1.getRow(iBegin) == null)
+					if (row == null)
 						continue;
 
-					codeCell = sheet1.getRow(iBegin).getCell(entry.getKey());
+					codeCell = row.getCell(entry.getKey());
 					if (codeCell == null)
 						continue;
 					else {
@@ -2207,7 +2211,7 @@ public class PurchInServiceImpl implements IPurchInService {
 						if (codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 							vo.setAttributeValue(key, codeCell.getNumericCellValue());
 						} else if (codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-							vo.setAttributeValue(key, replaceBlank(codeCell.getRichStringCellValue().getString()));
+							vo.setAttributeValue(key, StringUtil.replaceBlank(codeCell.getRichStringCellValue().getString()));
 						}
 					} else {
 						String value = null;
@@ -2230,10 +2234,10 @@ public class PurchInServiceImpl implements IPurchInService {
 						} else {
 							if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 								value = codeCell.getRichStringCellValue().getString();
-								value = replaceBlank(value.trim());
+								value = StringUtil.replaceBlank(value);
 							} else if (codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 								int codeVal = Double.valueOf(codeCell.getNumericCellValue()).intValue();
-								value = String.valueOf(codeVal);
+								value =StringUtil.replaceBlank( String.valueOf(codeVal));
 							}
 						}
 						vo.setAttributeValue(key, value);
@@ -2300,7 +2304,14 @@ public class PurchInServiceImpl implements IPurchInService {
 			}
 		}
 	}
-
+	private boolean isRowEmpty(Row row) {
+		for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+			Cell cell = row.getCell(c);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
+				return false;
+		}
+		return true;
+	}
 	private Map<String, Integer> getPreMap(String pk_corp) {
 		String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);
 		String priceStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
@@ -2507,19 +2518,19 @@ public class PurchInServiceImpl implements IPurchInService {
 		if (StringUtil.isEmpty(invvo.getCode())) {
 			sb.append(" ");
 		} else {
-			sb.append(replaceBlank(invvo.getCode().trim()));
+			sb.append(StringUtil.replaceBlank(invvo.getCode()));
 		}
 
 		if (StringUtil.isEmpty(invvo.getName())) {
 			sb.append(" ");
 		} else {
-			sb.append(replaceBlank(invvo.getName().trim()));
+			sb.append(StringUtil.replaceBlank(invvo.getName()));
 		}
 
 		if (StringUtil.isEmpty(invvo.getInvspec())) {
 			sb.append(" ");
 		} else {
-			sb.append(replaceBlank(invvo.getInvspec().trim()));
+			sb.append(StringUtil.replaceBlank(invvo.getInvspec()));
 		}
 
 		// if (StringUtil.isEmpty(invvo.getInvtype())) {
@@ -2609,16 +2620,6 @@ public class PurchInServiceImpl implements IPurchInService {
 		strb.append(vo.getIszg());
 		return strb.toString();
 
-	}
-
-	private String replaceBlank(String str) {
-		String dest = "";
-		if (!StringUtil.isEmpty(str)) {
-			Pattern p = Pattern.compile("\\s*|\t|\r|\n");
-			Matcher m = p.matcher(str);
-			dest = m.replaceAll("");
-		}
-		return dest;
 	}
 
 	// 查询第一分支的最末级科目

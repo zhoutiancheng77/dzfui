@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -9,7 +10,6 @@ import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.IParameterConstants;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -25,17 +25,18 @@ import com.dzf.zxkj.platform.model.jzcl.KMQMJZVO;
 import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.glic.IInvAccAliasService;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.pjgl.IVATGoodsInvenRelaService;
-import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -164,6 +165,8 @@ public class InventoryServiceImpl implements IInventoryService {
 				throw new BusinessException("存货名称不能为空！");
 			}
 
+			invo.setName(StringUtil.replaceBlank(invo.getName()));
+            invo.setInvspec(StringUtil.replaceBlank(invo.getInvspec()));
 			String codekey = getCodeUnitKey(invo);
 
 			if (!StringUtil.isEmpty(invo.getPk_inventory())) {
@@ -716,28 +719,33 @@ public class InventoryServiceImpl implements IInventoryService {
 			boolean isSame = false;
 			InvclassifyVO invclassvo = null;
 			MeasureVO jldwvo = null;
+            Row row = null;
 			for (int iBegin = 1; iBegin <= length; iBegin++) {
+                row = sheet1.getRow(iBegin);
+                if (row == null || isRowEmpty(row)) {
+                    continue;
+                }
 				kmmcFlag = false;
 				kmmaFlagold = false;// 老模式库存
 				jldwFlag = false;
 				isSame = false;
 				vo = new InventoryVO();
-				kmcodecell = sheet1.getRow(iBegin).getCell(0);
-				codeCell = sheet1.getRow(iBegin).getCell(2);
-				nameCell = sheet1.getRow(iBegin).getCell(3);
-				shortnameCell = sheet1.getRow(iBegin).getCell(4);
-				spflCell = sheet1.getRow(iBegin).getCell(5);
-				ggCell = sheet1.getRow(iBegin).getCell(6);
-//				xhCell = sheet1.getRow(iBegin).getCell(7);
-				jldwCell = sheet1.getRow(iBegin).getCell(7);
-				jsjCell = sheet1.getRow(iBegin).getCell(8);
-				memoCell = sheet1.getRow(iBegin).getCell(9);
+				kmcodecell = row.getCell(0);
+				codeCell = row.getCell(2);
+				nameCell = row.getCell(3);
+				shortnameCell = row.getCell(4);
+				spflCell = row.getCell(5);
+				ggCell = row.getCell(6);
+//				xhCell = row.getCell(7);
+				jldwCell = row.getCell(7);
+				jsjCell = row.getCell(8);
+				memoCell = row.getCell(9);
 
 				// 科目赋值
 				if (kmcodecell != null && kmcodecell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					kmcode = kmcodecell.getRichStringCellValue().getString();
 					if (kmcode != null && kmcode.length() > 0) {
-						kmcode = kmcode.trim();
+						kmcode = StringUtil.replaceBlank(kmcode);
 						// 老库存模式，科目编码必须为1403或者1405开头。
 //						if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle().intValue() == 0) {
 							if (!"1405".equals(kmcode) && !"1403".equals(kmcode)) {
@@ -760,26 +768,26 @@ public class InventoryServiceImpl implements IInventoryService {
 
 				if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					code = codeCell.getRichStringCellValue().getString();
-					code = code.trim();
+					code = StringUtil.replaceBlank(code);
 					vo.setCode(code);
 				} else if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 					int codeVal = Double.valueOf(codeCell.getNumericCellValue()).intValue();
-					code = String.valueOf(codeVal);
+					code = StringUtil.replaceBlank(String.valueOf(codeVal));
 					vo.setCode(code);
 				}
 				if (nameCell != null && nameCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					name = nameCell.getRichStringCellValue().getString();
-					name = name.trim();
+					name = StringUtil.replaceBlank(name);
 					vo.setName(name);
 				}
 				if (shortnameCell != null && shortnameCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					shortname = shortnameCell.getRichStringCellValue().getString();
-					shortname = shortname.trim();
+					shortname = StringUtil.replaceBlank(shortname);
 					vo.setShortname(shortname);
 				}
 				if (spflCell != null && spflCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					spfl = spflCell.getRichStringCellValue().getString();
-					spfl = spfl.trim();
+					spfl = StringUtil.replaceBlank(spfl);
 					invclassvo = invclassmap.get(spfl);
 
 					if (invclassvo == null && !StringUtil.isEmpty(spfl)) {
@@ -796,21 +804,21 @@ public class InventoryServiceImpl implements IInventoryService {
 				}
 				if (ggCell != null && ggCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					gg = ggCell.getRichStringCellValue().getString();
-					gg = gg.trim();
+					gg = StringUtil.replaceBlank(gg);
 					vo.setInvspec(gg);
 				} else if (ggCell != null && ggCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 					Double codeVal = Double.valueOf(ggCell.getNumericCellValue());
-					gg = codeVal.toString();
+					gg = StringUtil.replaceBlank(codeVal.toString());
 					vo.setInvspec(gg);
 				}
 				if (xhCell != null && xhCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					xh = xhCell.getRichStringCellValue().getString();
-					xh = xh.trim();
+					xh = StringUtil.replaceBlank(xh);
 //					vo.setInvtype(xh);
 				}
 				if (jldwCell != null && jldwCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					jldw = jldwCell.getRichStringCellValue().getString();
-					jldw = jldw.trim();
+					jldw = StringUtil.replaceBlank(jldw);
 					jldwvo = jldwmap.get(jldw);
 					if (jldwvo == null && !StringUtil.isEmpty(jldw)) {
 						jldwvo = buildMeasureVO(jldw, pk_corp, userid);
@@ -1005,7 +1013,15 @@ public class InventoryServiceImpl implements IInventoryService {
 			}
 		}
 	}
-	
+
+	private boolean isRowEmpty(Row row) {
+		for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+			Cell cell = row.getCell(c);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
+				return false;
+		}
+		return true;
+	}
 	private String getCode(String code) {
 		Long result = 1L;
 		Long maxNum = 1L;

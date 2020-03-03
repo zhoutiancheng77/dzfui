@@ -14,6 +14,7 @@ import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -47,7 +48,7 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 		if(StringUtil.isEmpty(vo.getCode()) && !StringUtil.isEmpty(vo.getPk_corp())){
 			vo.setCode(yntBoPubUtil.getInvclCode(vo.getPk_corp()));
 		}
-
+		vo.setName(StringUtil.replaceBlank(vo.getName()));
 		checkExist(vo);
 		if(!StringUtil.isEmpty(vo.getPk_invclassify())){
 			update(vo);
@@ -222,30 +223,35 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 				throw new  BusinessException("最多可导入1000行");
 			}
 			InvclassifyVO vo = null;
-			for (int iBegin = 1; iBegin <= length; iBegin++) {
+            Row row = null;
+            for (int iBegin = 1; iBegin <= length; iBegin++) {
+				row = sheet1.getRow(iBegin);
+				if (row == null || isRowEmpty(row)) {
+					continue;
+				}
 				vo = new InvclassifyVO();
 				code = null;
 				name = null;
-				codeCell = sheet1.getRow(iBegin).getCell(0);
+				codeCell = row.getCell(0);
 //				if (codeCell == null)
 //					continue;
-				nameCell = sheet1.getRow(iBegin).getCell(1);
+				nameCell = row.getCell(1);
 //				if (nameCell == null)
 //					continue;
-				memoCell = sheet1.getRow(iBegin).getCell(2);
+				memoCell = row.getCell(2);
 				
 				if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					code = codeCell.getRichStringCellValue().getString();
-					code = code.trim();
+					code = StringUtil.replaceBlank(code);
 					vo.setCode(code);
 				} else if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 					int codeVal = Double.valueOf(codeCell.getNumericCellValue()).intValue();
-					code = String.valueOf(codeVal);
+					code = StringUtil.replaceBlank(String.valueOf(codeVal));
 					vo.setCode(code);
 				}
 				if (nameCell != null && nameCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					name = nameCell.getRichStringCellValue().getString();
-					name = name.trim();
+					name = StringUtil.replaceBlank(name);
 					vo.setName(name);
 				}
 				if(memoCell != null){
@@ -311,5 +317,14 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 				}
 			}
 		}
-	}	
+	}
+
+	private boolean isRowEmpty(Row row) {
+		for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+			Cell cell = row.getCell(c);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
+				return false;
+		}
+		return true;
+	}
 }

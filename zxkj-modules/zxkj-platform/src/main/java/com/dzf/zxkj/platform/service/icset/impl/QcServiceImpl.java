@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.icset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -8,7 +9,6 @@ import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IParameterConstants;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
@@ -27,8 +27,8 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.common.impl.BgPubServiceImpl;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
-import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.icset.IQcService;
+import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
@@ -37,10 +37,7 @@ import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -299,43 +296,48 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 				throw new  BusinessException("最多可导入1000行");
 			}
 			DecimalFormat nf = new DecimalFormat("0");// 格式化数字
+            Row row = null;
 			for (int iBegin = 1; iBegin <= length; iBegin++) {
+                row = sheet1.getRow(iBegin);
+                if (row == null || isRowEmpty(row)) {
+                    continue;
+                }
 				invvo = new InventoryVO();
 				icbvo = new IcbalanceVO();
-				invnameCell = sheet1.getRow(iBegin).getCell(0);
+				invnameCell = row.getCell(0);
 				// if(invnameCell == null)
 				// continue;
-				invspecCell = sheet1.getRow(iBegin).getCell(1);
-//				invypeCell = sheet1.getRow(iBegin).getCell(2);
-				measureCell = sheet1.getRow(iBegin).getCell(2);
+				invspecCell = row.getCell(1);
+//				invypeCell = row.getCell(2);
+				measureCell = row.getCell(2);
 				// if(measureCell == null)
 				// continue;
 
-				kmcodeCell = sheet1.getRow(iBegin).getCell(3);
+				kmcodeCell = row.getCell(3);
 
-				kmnameCell = sheet1.getRow(iBegin).getCell(4);
+				kmnameCell = row.getCell(4);
 				// if(kmCell == null)
 				// continue;
-				invclassnameCell = sheet1.getRow(iBegin).getCell(5);
+				invclassnameCell = row.getCell(5);
 				// if(invclassnameCell == null)
 				// continue;
-				numCell = sheet1.getRow(iBegin).getCell(6);
+				numCell = row.getCell(6);
 				// if(numCell == null)
 				// continue;
-				costCell = sheet1.getRow(iBegin).getCell(7);
+				costCell = row.getCell(7);
 				// if(costCell == null)
 				// continue;
-				memoCell = sheet1.getRow(iBegin).getCell(8);
+				memoCell = row.getCell(8);
 				invname = null;
 				kmcode = null;
 				num = null;
 				cost = null;
 				if (invnameCell != null && invnameCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-					invname = invnameCell.getRichStringCellValue().getString().trim();
+					invname = StringUtil.replaceBlank(invnameCell.getRichStringCellValue().getString());
 					invvo.setName(invname);
 				}
 				if (invspecCell != null && invspecCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-					invspec = invspecCell.getRichStringCellValue().getString().trim();
+					invspec = StringUtil.replaceBlank(invspecCell.getRichStringCellValue().getString());
 					invvo.setInvspec(invspec);
 				}
 //				if (invypeCell != null && invypeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
@@ -343,26 +345,26 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 //					invvo.setInvtype(invype);
 //				}
 				if (measureCell != null && measureCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-					measure = measureCell.getRichStringCellValue().getString().trim();
+					measure = StringUtil.replaceBlank(measureCell.getRichStringCellValue().getString());
 					invvo.setMeasurename(measure);
 				}
 				// -----------------科目编码，如果格式为文本格式
 				if (kmcodeCell != null && kmcodeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-					kmcode = kmcodeCell.getRichStringCellValue().getString().trim();
+					kmcode = StringUtil.replaceBlank(kmcodeCell.getRichStringCellValue().getString());
 					invvo.setKmcode(kmcode);
 				}
 				// -----------------科目编码，如果格式为数字格式
 				if (kmcodeCell != null && kmcodeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
-					kmcode = nf.format(kmcodeCell.getNumericCellValue());
+					kmcode =StringUtil.replaceBlank( nf.format(kmcodeCell.getNumericCellValue()));
 					invvo.setKmcode(kmcode);
 				}
 				//
 				if (kmnameCell != null && kmnameCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-					kmname = kmnameCell.getRichStringCellValue().getString().trim();
+					kmname = StringUtil.replaceBlank(kmnameCell.getRichStringCellValue().getString());
 					invvo.setKmname(kmname);
 				}
 				if (invclassnameCell != null && invclassnameCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
-					invclassname = invclassnameCell.getRichStringCellValue().getString().trim();
+					invclassname = StringUtil.replaceBlank(invclassnameCell.getRichStringCellValue().getString());
 					invvo.setInvclassname(invclassname);
 				}
 				if (numCell != null && numCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
@@ -460,6 +462,15 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 			}
 		}
 	}
+
+    private boolean isRowEmpty(Row row) {
+        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+            Cell cell = row.getCell(c);
+            if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
+                return false;
+        }
+        return true;
+    }
 	
 	private IcbalanceVO[] queryIcBalance(String pk_corp) {
 		SQLParameter params = new SQLParameter();
@@ -486,21 +497,18 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 
 	private String getInventoryKey(InventoryVO vo) {
 		StringBuffer sf = new StringBuffer();
-		sf.append(appendIsNull(vo.getName()));
+		sf.append(appendIsNull(StringUtil.replaceBlank(vo.getName())));
 		sf.append("_");
-		sf.append(appendIsNull(vo.getInvspec()));
+		sf.append(appendIsNull(StringUtil.replaceBlank(vo.getInvspec())));
 		sf.append("_");
 //		sf.append(appendIsNull(vo.getInvtype()));
 //		sf.append("_");
-		sf.append(appendIsNull(vo.getMeasurename()));
+		sf.append(appendIsNull(StringUtil.replaceBlank(vo.getMeasurename())));
 		sf.append("_");
-		sf.append(appendIsNull(vo.getKmcode()));
-		// sf.append("_");
-		// sf.append(vo.getKmname());
-		sf.append("_");
-		sf.append(appendIsNull(vo.getInvclassname())).toString();
+		sf.append(appendIsNull(StringUtil.replaceBlank(vo.getKmcode())));
 		return sf.toString();
 	}
+
 	
 	private String appendIsNull(String info) {
 		StringBuffer strb = new StringBuffer();

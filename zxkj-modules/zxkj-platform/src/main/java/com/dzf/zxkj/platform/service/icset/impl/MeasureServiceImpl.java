@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.NotOLE2FileException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -316,6 +317,8 @@ public class MeasureServiceImpl implements IMeasureService {
 		}
 		StringBuffer message = new StringBuffer();
 		for (MeasureVO vo : list) {
+            vo.setName(StringUtil.replaceBlank(vo.getName()));
+            vo.setCode(StringUtil.replaceBlank(vo.getCode()));
 			if (!StringUtil.isEmpty(vo.getName())) {
 				if (nameSet.contains(vo.getName())) {
 					message.append("名称为：" + vo.getName() + "已存在！" + "<br>");
@@ -387,30 +390,35 @@ public class MeasureServiceImpl implements IMeasureService {
 				throw new BusinessException("最多可导入1000行");
 			}
 			MeasureVO vo = null;
-			for (int iBegin = 1; iBegin <= length; iBegin++) {
+            Row row = null;
+            for (int iBegin = 1; iBegin <= length; iBegin++) {
+				row =  sheet1.getRow(iBegin);
+				if (row == null || isRowEmpty(row)) {
+					continue;
+				}
 				vo = new MeasureVO();
 				code = null;
 				name = null;
-				codeCell = sheet1.getRow(iBegin).getCell(0);
+				codeCell =row.getCell(0);
 				// if (codeCell == null)
 				// continue;
-				nameCell = sheet1.getRow(iBegin).getCell(1);
+				nameCell =row.getCell(1);
 				// if (nameCell == null)
 				// continue;
-				memoCell = sheet1.getRow(iBegin).getCell(2);
+				memoCell =row.getCell(2);
 
 				if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					code = codeCell.getRichStringCellValue().getString();
-					code = code.trim();
+					code = StringUtil.replaceBlank(code);
 					vo.setCode(code);
 				} else if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 					int codeVal = Double.valueOf(codeCell.getNumericCellValue()).intValue();
-					code = String.valueOf(codeVal);
+					code =StringUtil.replaceBlank(String.valueOf(codeVal));
 					vo.setCode(code);
 				}
 				if (nameCell != null && nameCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					name = nameCell.getRichStringCellValue().getString();
-					name = name.trim();
+					name = StringUtil.replaceBlank(name);
 					vo.setName(name);
 				}
 				if (memoCell != null) {
@@ -478,6 +486,14 @@ public class MeasureServiceImpl implements IMeasureService {
 				}
 			}
 		}
+	}
+	private boolean isRowEmpty(Row row) {
+		for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+			Cell cell = row.getCell(c);
+			if (cell != null && cell.getCellType() != Cell.CELL_TYPE_BLANK)
+				return false;
+		}
+		return true;
 	}
 
 	@Override

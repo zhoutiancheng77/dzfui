@@ -730,9 +730,23 @@ public class StringUtil
     }
     return false;
   }
-  
-  
 
+  /**
+   * 去除收尾空格和一些特殊字符
+   * @param str
+   * @return
+   */
+  public static String replaceBlank(String str) {
+    String dest = "";
+    if (!StringUtil.isEmpty(str)) {
+      str = str.trim();
+      Pattern p = Pattern.compile("\\t|\r|\n");
+      Matcher m = p.matcher(str);
+      dest = m.replaceAll("");
+    }
+    return dest;
+  }
+  
   public static boolean isContainChinese(String str)
   {
     if (isEmpty(str))
