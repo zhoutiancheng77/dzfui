@@ -374,7 +374,11 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 					num = numVall.toString();
 					icbvo.setNnum(numVall);
 				}
-				icbvo.setNnum(icbvo.getNnum().setScale(nump, DZFDouble.ROUND_HALF_UP));
+				if(icbvo.getNnum() == null){
+					icbvo.setNnum(DZFDouble.ZERO_DBL);
+				}else{
+					icbvo.setNnum(icbvo.getNnum().setScale(nump, DZFDouble.ROUND_HALF_UP));
+				}
 				if (costCell != null && costCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
 					cost = costCell.getRichStringCellValue().getString().trim();
 					DZFDouble costVal = new DZFDouble(cost);
