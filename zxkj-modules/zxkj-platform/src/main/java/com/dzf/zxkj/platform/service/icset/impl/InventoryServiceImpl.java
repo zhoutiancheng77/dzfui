@@ -259,26 +259,26 @@ public class InventoryServiceImpl implements IInventoryService {
 	private String getNameInfoKey(InventoryVO invo) {
 		StringBuffer strb = new StringBuffer();
 		strb.append(appendIsNull(invo.getPk_subject()));
-		strb.append(appendIsNull(invo.getName()));
-		strb.append(appendIsNull(invo.getInvspec()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getName())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvspec())));
 //		strb.append(appendIsNull(invo.getInvtype()));
-		strb.append(appendIsNull(invo.getInvspec()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvspec())));
 		strb.append(appendIsNull(invo.getPk_measure()));
 		return strb.toString();
 	}
 
 	private String getInvNameInfoKey(InventoryVO invo) {
 		StringBuffer strb = new StringBuffer();
-		strb.append(appendIsNull(invo.getName()));
-		strb.append(appendIsNull(invo.getInvspec()));
-		strb.append(appendIsNull(invo.getMeasurename()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getName())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvspec())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getMeasurename())));
 		return strb.toString();
 	}
 	private String getNameInfoKey(InventoryAliasVO invo) {
 		StringBuffer strb = new StringBuffer();
-		strb.append(appendIsNull(invo.getAliasname()));
-		strb.append(appendIsNull(invo.getSpec()));
-		strb.append(appendIsNull(invo.getUnit()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getAliasname())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
 		return strb.toString();
 	}
 

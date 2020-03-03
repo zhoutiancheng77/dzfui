@@ -53,6 +53,10 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 			throw new BusinessException("保存别名指向的公司为空");
 		}
 		// 校验 别名+ 规格 + 计量单位 + pk_corp 是否数据库唯一。
+		vo1.setAliasname(StringUtil.replaceBlank(vo1.getAliasname()));
+		vo1.setSpec(StringUtil.replaceBlank(vo1.getSpec()));
+		vo1.setUnit(StringUtil.replaceBlank(vo1.getUnit()));
+
 		SQLParameter sp = new SQLParameter();
 		StringBuffer sf = new StringBuffer();
 		sf.setLength(0);
@@ -113,10 +117,10 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 
 	private String getNameInfoKey(AuxiliaryAccountBVO invo) {
 		StringBuffer strb = new StringBuffer();
-		strb.append(appendIsNull(invo.getName()));
-		strb.append(appendIsNull(invo.getSpec()));
-		strb.append(appendIsNull(invo.getInvtype()));
-		strb.append(appendIsNull(invo.getUnit()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getName())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvtype())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
 		return strb.toString();
 	}
 
@@ -198,10 +202,10 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 
 	private String getNameInfoKey(InventoryAliasVO invo) {
 		StringBuffer strb = new StringBuffer();
-		strb.append(appendIsNull(invo.getAliasname()));
-		strb.append(appendIsNull(invo.getSpec()));
-		strb.append(appendIsNull(invo.getInvtype()));
-		strb.append(appendIsNull(invo.getUnit()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getAliasname())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvtype())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
 		return strb.toString();
 	}
 

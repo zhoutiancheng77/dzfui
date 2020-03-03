@@ -2,6 +2,7 @@ package com.dzf.zxkj.base.utils;
 
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.DZFArrayUtil;
+import com.dzf.zxkj.common.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -219,7 +220,7 @@ public class DZFStringUtil {
 			if(!DZFValueCheck.isEmpty(temp)){
 				if(temp instanceof String){
 					stemp = (String)temp;
-					vo.setAttributeValue(col, stemp.trim());
+					vo.setAttributeValue(col, StringUtil.replaceBlank(stemp));
 				}
 			}
 			temp = null;

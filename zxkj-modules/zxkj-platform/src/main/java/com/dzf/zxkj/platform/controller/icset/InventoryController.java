@@ -354,7 +354,7 @@ public class InventoryController extends BaseController {
             InventoryVO update = new InventoryVO();
             update.setPk_invclassify(spflid);
             update.setPk_measure(unit);
-            update.setInvspec(spec);
+            update.setInvspec(StringUtil.replaceBlank(spec));
     //			update.setInvtype(invtype);
             String susflag = iservice.updateBatch(pk_corp, ids, update);
             if (!StringUtil.isEmpty(susflag)) {

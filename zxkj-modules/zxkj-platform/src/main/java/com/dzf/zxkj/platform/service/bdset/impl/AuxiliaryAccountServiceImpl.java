@@ -46,7 +46,6 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.AccountUtil;
 import com.dzf.zxkj.platform.util.Kmschema;
-import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.TaxClassifyGetValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -471,7 +470,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         if (bvo1 == null)
             throw new BusinessException("数据不能为空！");
 
-        DZFStringUtil.removeBlank(bvo1, new String[]{"code", "name", "zjbm", "vphone"});
+        DZFStringUtil.removeBlank(bvo1, new String[]{"code", "name", "zjbm", "vphone","spec","unit"});
         HashSet<String> codeSet = new HashSet<String>();
         HashSet<String> taxpayerSet = new HashSet<String>();
         HashSet<String> nameZjbmSet = new HashSet<String>();
@@ -515,18 +514,18 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 
     private String getNameInfoKey(InventoryAliasVO invo) {
         StringBuffer strb = new StringBuffer();
-        strb.append(appendIsNull(invo.getAliasname()));
-        strb.append(appendIsNull(invo.getSpec()));
-        strb.append(appendIsNull(invo.getInvtype()));
-        strb.append(appendIsNull(invo.getUnit()));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getAliasname())));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvtype())));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
         return strb.toString();
     }
     private String getNameInfoKey(AuxiliaryAccountBVO invo) {
         StringBuffer strb = new StringBuffer();
-        strb.append(appendIsNull(invo.getName()));
-        strb.append(appendIsNull(invo.getSpec()));
-        strb.append(appendIsNull(invo.getInvtype()));
-        strb.append(appendIsNull(invo.getUnit()));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getName())));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
         return strb.toString();
     }
 
@@ -962,10 +961,12 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
                         aCell.setCellType(HSSFCell.CELL_TYPE_STRING);
                         aCell = sheet1.getRow(iBegin).getCell(key.intValue());
                         sTmp = (String) aCell.getStringCellValue();
+                        sTmp = StringUtil.replaceBlank(sTmp);
                     } else if ("isex".equals(column)) {
                         aCell.setCellType(HSSFCell.CELL_TYPE_STRING);
                         aCell = sheet1.getRow(iBegin).getCell(key.intValue());
                         sTmp = (String) aCell.getStringCellValue();
+                        sTmp = StringUtil.replaceBlank(sTmp);
                         if ("女".equals(sTmp)) {
                             sTmp = "2";
                         } else if ("男".equals(sTmp)) {
@@ -1130,6 +1131,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
             if (StringUtil.isEmpty(sdate)) {
                 return null;
             }
+            sdate = StringUtil.replaceBlank(sdate);
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
             Date date = null;
             StringTokenizer st = new StringTokenizer(sdate, "-/.");
@@ -1214,6 +1216,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         } catch (Exception ex) {
             ret = null;
         }
+        ret = StringUtil.replaceBlank(ret);
         return ret;
     }
 

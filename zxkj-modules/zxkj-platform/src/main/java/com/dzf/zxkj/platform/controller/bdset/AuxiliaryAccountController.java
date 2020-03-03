@@ -308,11 +308,11 @@ public class AuxiliaryAccountController extends BaseController {
                 aabvo.setChukukmid(chukukmid);
             }
             if (!StringUtil.isEmpty(unit)) {
-                aabvo.setUnit(unit);
+                aabvo.setUnit(StringUtil.replaceBlank(unit));
             }
 
             if (!StringUtil.isEmpty(spec)) {
-                aabvo.setSpec(spec);
+                aabvo.setSpec(StringUtil.replaceBlank(spec));
             }
             // aabvo.setPrimaryKey(idsArr[i]);
             bvolist.add(aabvo);
