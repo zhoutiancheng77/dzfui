@@ -1082,7 +1082,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		QmGzBgVo vo1 = new QmGzBgVo();
 		vo1.setIssuccess(new DZFBoolean(fzyeData.isEmpty()));
 		vo1.setVmemo("通过");
-//		vo1.setName("往来挂账混乱"+ StringUtils.join(wlList,","));
+		vo1.setName("往来挂账混乱"+ StringUtils.join(wlList,","));
 		try {
 			if(!vo1.getIssuccess().booleanValue()){
 				StringBuilder sb = new StringBuilder();
@@ -1102,20 +1102,18 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 				StringBuilder sf = new StringBuilder();
 
 				vo1.setVmemo("存在挂账混乱的往来"+fzyeData.size()+"家未通过");
+			} else {
+				vo1.setName("辅助余额表");
+				vo1.setUrl("auxiliary-balance-report");
 			}
 			map = getPubParam(cpvo);
-			vo1.setXm("往来挂账混乱");
-			vo1.setName("辅助余额表");
-			vo1.setUrl("auxiliary-balance-report");
 			map.put("begindate", DateUtils.getPeriodStartDate(period));
 			map.put("enddate", DateUtils.getPeriodEndDate(period));
 			map.put("qjq", period);
 			map.put("qjz", period);
 			map.put("corpIds", pk_corp);
-//			begindate: 2017-02-01
-//			qjz: 2017-02
-//			enddate: 2017-02-28
 			vo1.setParamstr(JsonUtils.serialize(map));
+			vo1.setXm("往来挂账混乱");
 		} catch (DAOException e) {
 			handleError(vo1, e);
 		}
