@@ -425,7 +425,7 @@ public class BankStatement2Controller extends BaseController {
             json.setSuccess(true);
 
             writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入银行对账单" + bvo.getPeriod() != null ? ("："+bvo.getPeriod() ): "", ISysConstants.SYS_2);
+                    "导入银行对账单" + (bvo.getPeriod() != null ? "："+bvo.getPeriod() : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             if(e instanceof BusinessException
                     && IBillManageConstants.ERROR_FLAG.equals(((BusinessException) e).getErrorCodeString())){

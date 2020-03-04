@@ -517,7 +517,7 @@ public class VATSaleInvoiceController extends BaseController {
             json.setSuccess(paramvo.getCount()==0 ? false : true);
 
             writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入销项发票" + paramvo.getPeriod() != null ? "："+paramvo.getPeriod() : "", ISysConstants.SYS_2);
+                    "导入销项发票"+(paramvo.getPeriod() != null ? "："+paramvo.getPeriod() : ""), ISysConstants.SYS_2);
         } catch (Exception e) {
             if(e instanceof BusinessException
                     && IBillManageConstants.ERROR_FLAG.equals(((BusinessException) e).getErrorCodeString())){
