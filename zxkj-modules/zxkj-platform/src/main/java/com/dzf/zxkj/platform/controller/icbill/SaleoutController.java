@@ -150,6 +150,7 @@ public class SaleoutController extends BaseController {
 			String head = param.get("head");
 			String body = param.get("body");
 			String repeat = param.get("repeat");
+            String auto = param.get("auto");
 			body = body.replace("}{", "},{");
 //			body = "[" + body + "]";
 			headvo = JsonUtils.deserialize(head, IntradeHVO.class);
@@ -163,12 +164,20 @@ public class SaleoutController extends BaseController {
 			headvo.setPk_corp(SystemUtil.getLoginCorpId());
             checkSecurityData(new IntradeHVO[]{headvo},null,null,StringUtil.isEmpty(headvo.getPk_ictrade_h()));
 			headvo.setChildren(bodyvos);
-			if (DZFBoolean.valueOf(repeat).booleanValue()) {
-				ic_saleoutserv.saveSale(headvo, false, false);
-			} else {
-				ic_saleoutserv.saveSale(headvo, true, false);
-			}
 
+			if(!StringUtil.isEmpty(auto)&&"auto".equals(auto)){
+                if (DZFBoolean.valueOf(repeat).booleanValue()) {
+                    ic_saleoutserv.saveSaleAndGl(headvo, false);
+                } else {
+                    ic_saleoutserv.saveSaleAndGl(headvo, true);
+                }
+            }else{
+                if (DZFBoolean.valueOf(repeat).booleanValue()) {
+                    ic_saleoutserv.saveSale(headvo, false, false);
+                } else {
+                    ic_saleoutserv.saveSale(headvo, true, false);
+                }
+            }
 			json.setSuccess(true);
 			json.setStatus(200);
 			json.setMsg("保存成功");

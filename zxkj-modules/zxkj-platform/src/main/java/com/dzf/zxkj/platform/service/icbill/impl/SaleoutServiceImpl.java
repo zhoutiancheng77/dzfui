@@ -71,8 +71,6 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service("ic_saleoutserv")
 public class SaleoutServiceImpl implements ISaleoutService {
@@ -543,6 +541,12 @@ public class SaleoutServiceImpl implements ISaleoutService {
 
 	}
 
+    public IntradeHVO saveSaleAndGl(IntradeHVO headvo, boolean flag) throws DZFWarpException{
+        IntradeHVO hvo = saveSale(headvo,flag,false);
+        CorpVO corpvo = corpService.queryByPk(headvo.getPk_corp());
+        saveToGL(hvo,corpvo,hvo.getCreator(),"销售商品");
+        return hvo;
+    }
 	private void checkHead(IntradeHVO headvo, String pk_corp) {
 		CorpVO corp = corpService.queryByPk(pk_corp);
 
@@ -2136,7 +2140,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 	 * 检查出库单引用的客户是否存在
 	 * 
 	 * @param corpvo
-	 * @param hvo
+	 * @param vo
 	 */
 	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
 		Set<String> assists = new HashSet<String>();

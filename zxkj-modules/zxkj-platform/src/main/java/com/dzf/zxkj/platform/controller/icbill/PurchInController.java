@@ -181,7 +181,12 @@ public class PurchInController extends BaseController {
         if (strb.length() > 0) {
             throw new BusinessException(strb.toString());
         }
-        ic_purchinserv.save(headvo, false);
+        String auto = param.get("auto");
+		if(!StringUtil.isEmpty(auto)&&"auto".equals(auto)){
+			ic_purchinserv.saveAndGl(headvo);
+		}else{
+			ic_purchinserv.save(headvo, false);
+		}
         json.setSuccess(true);
         json.setMsg("保存成功!");
 		if (isadd) {

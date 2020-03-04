@@ -746,7 +746,15 @@ public class StringUtil
     }
     return dest;
   }
-  
+
+  public static int getHanziCount(String str) {
+    if (StringUtil.isEmpty(str)) {
+      return 0;
+    }
+    String regex = "[\u4e00-\u9fa5]";
+    return str.length() - str.replaceAll(regex, "").length();
+  }
+
   public static boolean isContainChinese(String str)
   {
     if (isEmpty(str))

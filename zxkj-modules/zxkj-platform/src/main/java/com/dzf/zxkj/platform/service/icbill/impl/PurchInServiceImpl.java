@@ -541,6 +541,12 @@ public class PurchInServiceImpl implements IPurchInService {
 		return ret;
 	}
 
+    public IntradeHVO saveAndGl(IntradeHVO headvo) throws DZFWarpException{
+        IntradeHVO hvo = save(headvo,false);
+        CorpVO corpvo = corpService.queryByPk(headvo.getPk_corp());
+        saveIntradeHVOToZz(headvo,corpvo);
+        return hvo;
+    }
 	private void checkHead(IntradeHVO headvo, CorpVO corp) {
 		if (corp == null) {
 			throw new BusinessException("公司不存在!");
