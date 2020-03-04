@@ -601,11 +601,11 @@ public class PurchInController extends BaseController {
 				invmaps.put("isHiddenPzh","N");
 			}
 			//会计
-			if(pmap.get("ishidekj") !="true"){
+			if(!pmap.get("ishidekj").equals("true")){
 				pmap.put("会计","");
 			}
 			//库管员
-			if(pmap.get("ishidekgy")!="true"){
+			if(!pmap.get("ishidekgy") .equals("true")){
 				pmap.put("库管员",pmap.get("ishidekgyname"));
 			}
             Map<String, List<SuperVO>> vomap = getVoMap(printParamVO);
