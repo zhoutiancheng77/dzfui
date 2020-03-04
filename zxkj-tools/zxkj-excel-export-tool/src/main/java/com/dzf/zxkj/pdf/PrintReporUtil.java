@@ -2261,7 +2261,7 @@ public class PrintReporUtil {
         if(pmap.containsKey("会计"))
             value.append("会计：" +username);
         if(pmap.containsKey("库管员"))
-            value.append("库管员：" +  PrintUtil.getSpace(6));
+            value.append("库管员：" + pmap.get("库管员"));
             value.append(PrintUtil.getSpace(15));
         }
         value.append("打印日期：" + pmap.get("printdate"));
