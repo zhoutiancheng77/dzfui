@@ -26,11 +26,7 @@ import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,10 +62,12 @@ public class AuthController {
 
         // 三个参数分别为宽、高、位数
         SpecCaptcha specCaptcha = new SpecCaptcha(110, 49, 4);
+        //设置内置字体
+        specCaptcha.setFont(new Random().nextInt(10));//10以内随机数
         // 设置字体
-        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
+//        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
         // 设置类型，纯数字、纯字母、字母数字混合
-        specCaptcha.setCharType(Captcha.TYPE_ONLY_NUMBER);
+        specCaptcha.setCharType(Captcha.TYPE_DEFAULT);
         String verCode = specCaptcha.text().toLowerCase();
         // 验证码存入缓存
         String key = UUID.randomUUID().toString();
