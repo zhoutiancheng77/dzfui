@@ -2254,29 +2254,54 @@ public class PrintReporUtil {
         String username = getUsername(kmList);
         if(pmap.containsKey("会计") && pmap.containsKey("库管员")){
             if(pmap.containsKey("会计"))
-            value.append("会计：" + getPrintString(username));
+            value.append("会计：" + getPrintString(pmap,username,1));
         if(pmap.containsKey("库管员"))
-            value.append("库管员：" +  getPrintString(pmap.get("库管员")));
+            value.append("库管员：" +  getPrintString(pmap,pmap.get("库管员"),1));
         }else{
-        if(pmap.containsKey("会计"))
-            value.append("会计：" +username);
-        if(pmap.containsKey("库管员"))
-            value.append("库管员：" + pmap.get("库管员"));
-            value.append(PrintUtil.getSpace(15));
+            if(pmap.containsKey("会计"))
+                value.append("会计：" +getPrintString(pmap,username,2));
+            if(pmap.containsKey("库管员"))
+                value.append("库管员：" + getPrintString(pmap,pmap.get("库管员"),2));
         }
         value.append("打印日期：" + pmap.get("printdate"));
         return value.toString();
     }
 
-    private String getPrintString(String str){
-        if(StringUtil.isEmpty(str)){
-            return PrintUtil.getSpace(14);
-        }else{
-            int len =str.length()*2;
-            if(len >14){
-                return  str.substring(0,7)+PrintUtil.getSpace(1);
+    private String getPrintString(Map<String, String> pmap,String str,int beishu){
+        int defaultlen =14;
+        if (pmap.get("type").equals("1")) {//A4纸张
+            if(iscross.booleanValue()){
+                defaultlen =25;
             }else{
-             return  str + PrintUtil.getSpace(14-len);
+                defaultlen =13;
+            }
+        }else if (pmap.get("type").equals("3")) {//A5纸张
+            defaultlen =20;
+        }
+        defaultlen = defaultlen*beishu;
+        if(StringUtil.isEmpty(str)){
+            return PrintUtil.getSpace(defaultlen);
+        }else{
+            str = str.trim();
+            int strlen =str.length();
+            int index = 0;
+            int count = 0;
+            for (int i = 0; i < strlen; i++) {
+                char c = str.charAt(i);
+                if ((c >= 'һ') && (c <= 40869))
+                    index += 2;
+                else {
+                    index++;
+                }
+                if(index>defaultlen){
+                    break;
+                }
+                count =i+1;
+            }
+            if(count<strlen){
+                return  str.substring(0,count)+PrintUtil.getSpace(1);
+            }else{
+                return  str + PrintUtil.getSpace(defaultlen-index+1);
             }
         }
     }
