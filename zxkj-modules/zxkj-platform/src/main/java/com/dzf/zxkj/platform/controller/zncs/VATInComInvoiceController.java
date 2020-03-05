@@ -1181,7 +1181,7 @@ public class VATInComInvoiceController extends BaseController {
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                !StringUtils.isEmpty(strrows)?"导出进项发票":"", ISysConstants.SYS_2);
+                !StringUtils.isEmpty(strrows)?"导出进项发票":"下载进项发票模板", ISysConstants.SYS_2);
     }
 
     private void speTransValue(JSONArray arr){

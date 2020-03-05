@@ -1053,7 +1053,7 @@ public class BankStatementController extends BaseController {
         }
 
         writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                !StringUtil.isEmpty(strrows)?"导出银行对账单":"", ISysConstants.SYS_2);
+                !StringUtil.isEmpty(strrows)?"导出银行对账单":"下载银行对账单模板", ISysConstants.SYS_2);
     }
 
     /**
