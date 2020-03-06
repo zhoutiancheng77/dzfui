@@ -281,7 +281,14 @@ public class DcpzServiceImpl implements IDcpzService {
 		if(pk_corp.equals(headvo.getPk_corp())){
 			SQLParameter sp = new SQLParameter();
 			sp.addParam(PId);
-			ancevos = singleObjectBO.retrieveByClause(DcModelBVO.class, " nvl(dr,0) = 0 and pk_model_h = ?  ", " pk_model_b ", sp);
+
+			StringBuffer sf = new StringBuffer();
+			sf.append(" select b.pk_model_b, b.pk_model_h, b.pk_corp, b.zy, b.pk_accsubj, b.dr, b.direction, b.vfield, y.accountcode kmbm, y.accountname kmmc  from ynt_dcmodel_b b  ");
+			sf.append(" left join ynt_cpaccount y on b.pk_accsubj = y.pk_corp_account ");
+			sf.append(" where b.pk_model_h = ? and nvl(b.dr,0) = 0 ");
+			sf.append(" order by b.pk_model_b ");
+
+			ancevos = (Collection<DcModelBVO>) singleObjectBO.executeQuery(sf.toString(), sp, new BeanListProcessor(DcModelBVO.class));
 		}else if(IDefaultValue.DefaultGroup.equals(headvo.getPk_corp())
 				&& !pk_corp.equals(headvo.getPk_corp())){
 			//查询出来集团的，翻译成公司的科目pk
