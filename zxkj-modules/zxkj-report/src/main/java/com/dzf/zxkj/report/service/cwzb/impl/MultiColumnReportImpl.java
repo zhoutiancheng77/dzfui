@@ -318,7 +318,7 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 		if (value.doubleValue() == 0) {
 			return "";
 		}
-		DecimalFormat df = new DecimalFormat("#,###.00");
+		DecimalFormat df = new DecimalFormat("#,##0.00");
 		// 设置舍入模式
 		df.setRoundingMode(RoundingMode.FLOOR);
 		return df.format(value.doubleValue());
