@@ -11,6 +11,8 @@ public class TaxEffeHistVO extends SuperVO {
     private String pk_taxeff_his;
     @JsonProperty("pk_gs")
     private String pk_corp;
+    @JsonProperty("comptype")
+    private Integer icompanytype;// 公司类型 1：有限公司；2：个人独资企业；3：合伙企业；
     @JsonProperty("sdslx")
     private Integer incomtaxtype;//所得税类型  0：企业所得税 ， 1：个人所得税生产经营所得
     @JsonProperty("zsfs")
@@ -53,6 +55,14 @@ public class TaxEffeHistVO extends SuperVO {
 
     public DZFDouble getIncometaxrate() {
         return incometaxrate;
+    }
+
+    public Integer getIcompanytype() {
+        return icompanytype;
+    }
+
+    public void setIcompanytype(Integer icompanytype) {
+        this.icompanytype = icompanytype;
     }
 
     public void setVerimethod(Integer verimethod) {
