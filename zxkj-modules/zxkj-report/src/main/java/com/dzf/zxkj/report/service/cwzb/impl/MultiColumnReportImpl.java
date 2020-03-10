@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 多栏账查询
@@ -186,6 +183,8 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 			}
 		}
 		objs[0]= reslist.toArray(new ExMultiVO[0]);
+		// 列排序
+		Collections.sort(columnlist);
 		objs[1]= columnlist;
 	}
 	
