@@ -227,11 +227,19 @@ public class WorkbenchController extends BaseController {
     private String getParaLog(String pType,String pValue){
         String returnName="";
         if(pType.equals("srfl")){
-            returnName="按往来单位分类："+(DZFBoolean.TRUE.equals(new DZFBoolean(pValue))?"是":"否");
+            returnName="按往来单位分类：收入："+(Integer.parseInt(pValue)==0?"否":"是");
+        }else if(pType.equals("cgfz")){
+            returnName="按往来单位分类：库存采购："+(DZFBoolean.TRUE.equals(new DZFBoolean(pValue))?"是":"否");
+        }else if(pType.equals("cbfz")){
+            returnName="按往来单位分类：成本："+(DZFBoolean.TRUE.equals(new DZFBoolean(pValue))?"是":"否");
+        }else if(pType.equals("yhhb")){
+            returnName="按往来单位分类：银行票据："+(DZFBoolean.TRUE.equals(new DZFBoolean(pValue))?"是":"否");
         }else if(pType.equals("isyh")){
             returnName="银行票据按账户分类 ："+(DZFBoolean.TRUE.equals(new DZFBoolean(pValue))?"是":"否");
         }else if(pType.equals("isrz")){
             returnName="进项票据标为已认证 ："+(DZFBoolean.TRUE.equals(new DZFBoolean(pValue))?"是":"否");
+        }else if(pType.equals("ncpsl")){
+            returnName="农产品收购发票抵扣税率 ："+(pValue);
         }else if(pType.equals("iszpb")){
             returnName="凭证区分专普票 ："+(DZFBoolean.TRUE.equals(new DZFBoolean(pValue))?"是":"否");
         }else if(pType.equals("pzrq")){
