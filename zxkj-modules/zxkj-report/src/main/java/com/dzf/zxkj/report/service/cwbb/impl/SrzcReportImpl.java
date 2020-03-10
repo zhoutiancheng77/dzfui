@@ -3,6 +3,7 @@ package com.dzf.zxkj.report.service.cwbb.impl;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
@@ -47,6 +48,19 @@ public class SrzcReportImpl implements ISrzcReport {
 		return getSrzcVos(map);
 	}
 
+	private DZFDouble getXMValueByTotal(Map<String, FseJyeVO> map, int i , String ...kms) {
+		DZFDouble total = DZFDouble.ZERO_DBL;
+		if(kms == null || kms.length == 0){
+			return total;
+		}
+
+		for(String km : kms){
+			total = SafeCompute.add(total, getXMValue(map, km, i));
+		}
+
+		return total;
+	}
+
 	/**
 	 * 收入支出获取数据
 	 * @param map
@@ -54,6 +68,10 @@ public class SrzcReportImpl implements ISrzcReport {
 	private SrzcBVO[] getSrzcVos(Map<String, FseJyeVO> map) {
 		
 		SrzcBVO[] srzcbvos = new SrzcBVO[25];
+
+		//财政补助支出 500101、5001001 后续科目多了 再通过科目编码规则 KmbmUpgrade.getNewCode
+		DZFDouble bqjbzc = getXMValueByTotal(map, 0, "500101", "5001001");
+		DZFDouble bnjbzc = getXMValueByTotal(map, 1, "500101", "5001001");
 		
 		srzcbvos[0]= new SrzcBVO();
 		srzcbvos[0].setXm("一、本期财政补助结转结余");
@@ -68,15 +86,15 @@ public class SrzcReportImpl implements ISrzcReport {
 		srzcbvos[1].setXm("财政补助收入");
 		srzcbvos[1].setMonnum(bqsrzc_1);
 		srzcbvos[1].setYearnum(bnsrzc_1);
-		
+
 		srzcbvos[2]= new SrzcBVO();
 		srzcbvos[2].setXm("减：事业支出（财政补助支出）");
-		srzcbvos[2].setMonnum(bqsrzc_2);
-		srzcbvos[2].setYearnum(bnsrzc_2);
-		
+		srzcbvos[2].setMonnum(bqjbzc);
+		srzcbvos[2].setYearnum(bnjbzc);
+
 		srzcbvos[3]= new SrzcBVO();
 		srzcbvos[3].setXm("二、本期事业结转结余");
-		
+
 		
 		srzcbvos[4]= new SrzcBVO();
 		srzcbvos[4].setXm("    （一）事业类收入");
@@ -116,8 +134,8 @@ public class SrzcReportImpl implements ISrzcReport {
 		
 		srzcbvos[11]= new SrzcBVO();
 		srzcbvos[11].setXm("    1.事业支出（非财政补助支出）");
-		srzcbvos[11].setMonnum(getXMValue(map,"5001",0));
-		srzcbvos[11].setYearnum(getXMValue(map,"5001",1));
+		srzcbvos[11].setMonnum(SafeCompute.sub(bqsrzc_2, bqjbzc));//getXMValue(map,"5001",0)
+		srzcbvos[11].setYearnum(SafeCompute.sub(bnsrzc_2, bnjbzc));//getXMValue(map,"5001",1)
 		
 		srzcbvos[12]= new SrzcBVO();
 		srzcbvos[12].setXm("    2.上缴上级支出");
