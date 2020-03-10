@@ -1866,7 +1866,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		// --0处理中--1作废--2未生成凭证--3已生成凭证
 		StringBuffer buff = new StringBuffer();
 		buff.append(
-				" select  yi.webid , yc.pk_custcorp as corpId, yi.pk_invoice as billid, yc.crelationid as imgsourid ,yc.imgname as imgname  ");
+				" select  nvl(yi.webid,'------') as webid , yc.pk_custcorp as corpId, yi.pk_invoice as billid, yc.crelationid as imgsourid ,yc.imgname as imgname  ");
 		buff.append(
 				", case when ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  yg.istate not in (205,100,101) ) then '0' when yg.istate=205 then '1' when (yg.istate not in (205,100,101) and yi.pk_billcategory is not null ) then '2' when yg.istate  in (100,101) then '3'   end as istate ");
 		buff.append("   From ynt_image_ocrlibrary yc ");
