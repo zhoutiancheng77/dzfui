@@ -524,7 +524,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         StringBuffer strb = new StringBuffer();
         strb.append(appendIsNull(StringUtil.replaceBlank(invo.getName())));
         strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
-        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
+        strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvtype())));
         strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
         return strb.toString();
     }
