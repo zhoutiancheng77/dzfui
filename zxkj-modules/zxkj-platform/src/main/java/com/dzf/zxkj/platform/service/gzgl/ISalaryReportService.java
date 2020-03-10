@@ -2,10 +2,11 @@ package com.dzf.zxkj.platform.service.gzgl;
 
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
-import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryAccSetVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
+import com.dzf.zxkj.platform.model.gzgl.SalaryTotalVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 
@@ -16,10 +17,14 @@ import java.util.Map;
 public interface ISalaryReportService {
 
 	SalaryReportVO[] query(String pk_corp, String qj, String billtype) throws DZFWarpException;
-	
+
+    SalaryReportVO[] query(String pk_corp, String beginPeriod,String endPeriod, String billtype) throws DZFWarpException;
+
 	SalaryReportVO[] queryAllType(String pk_corp, String qj) throws DZFWarpException;
 	
 	QueryPageVO queryBodysBypage(String pk_corp, String qj, String billtype, int page, int rows);
+
+	SalaryTotalVO[] queryTotal(String pk_corp, String qj) throws DZFWarpException;
 
 	Object[] saveImpExcel(String loginDate, String cuserid, CorpVO loginCorpInfo, SalaryReportVO[] vos,
                           String opdate, int type, String billtype) throws DZFWarpException;
@@ -53,11 +58,13 @@ public interface ISalaryReportService {
 	Object[] saveImpExcelForTax(String loginDate, String cuserid, CorpVO loginCorpInfo, SalaryReportVO[] vos,
                                 String opdate, int type, String billtype) throws DZFWarpException;
 
-	public Map<String, List<String>> queryAllTypeBeforeCurr(String pk_corp, String qj) throws DZFWarpException;
+	Map<String, List<String>> queryAllTypeBeforeCurr(String pk_corp, String qj) throws DZFWarpException;
 
-	public SalaryReportVO[] calLjData(String pk_corp, String cpersonids, String billtype, String opdate)
+	SalaryReportVO[] calLjData(String pk_corp, String cpersonids, String billtype, String opdate)
 			throws BusinessException;
 	
 	void calGzb(String pk_corp, String[] pids, String qj, String billtype) throws BusinessException;
+
+    TzpzHVO[] queryGlpz(String sourcebilltype,String pk_corp)throws DZFWarpException;
 
 }

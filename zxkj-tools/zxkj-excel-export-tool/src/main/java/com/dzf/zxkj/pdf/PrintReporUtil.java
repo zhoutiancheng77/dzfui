@@ -1145,7 +1145,7 @@ public class PrintReporUtil {
         PdfPTable table = null;
         for (Map.Entry<String, List<SuperVO>> kmEntry : kmmap.entrySet()) {
             if ("资 产 负 债 表".equals(titlename) || "利 润 表".equals(titlename) || "分 部 利 润 表".equals(titlename)
-                    || "现 金 流 量 表".equals(titlename)) {
+                    || "现 金 流 量 表".equals(titlename) || titlename.startsWith("工 资 表")) {
                 tmap.put("期间", kmEntry.getKey());
             }
             kmList = kmEntry.getValue(); // 得到当前科目 所对应的 数据

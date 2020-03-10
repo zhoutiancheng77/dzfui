@@ -9,6 +9,7 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZFNumberUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.base.utils.ValueUtils;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
@@ -24,13 +25,13 @@ import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
-import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.gzgl.SalaryBaseVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportColumn;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
+import com.dzf.zxkj.platform.model.gzgl.SalaryTotalVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -49,6 +50,7 @@ import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.map.LinkedMap;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -105,17 +107,23 @@ public class SalaryReportController  extends BaseController {
         if (StringUtil.isEmpty(pk_corp)) {
             throw new BusinessException("公司为空");
         }
-        if ("Y".equals(isfenye)) {// 分页
-            QueryPageVO pagevo = gl_gzbserv.queryBodysBypage(pk_corp, qj, billtype, page, rows);
-            json.setTotal(Long.valueOf(pagevo.getTotal()));
-            json.setRows(pagevo.getPagevos());
-        } else {
-            SalaryReportVO[] vos = gl_gzbserv.query(pk_corp, qj, billtype);// 查询工资表数据
-            if (vos == null || vos.length == 0) {
-                vos = new SalaryReportVO[0];
-            }
+        if(SalaryTypeEnum.TOTAL.getValue().equals(billtype)){
+            SalaryTotalVO[] vos = gl_gzbserv.queryTotal(pk_corp, qj);// 查询工资表概况数据
             json.setRows(vos);
+        }else{
+            if ("Y".equals(isfenye)) {// 分页
+                QueryPageVO pagevo = gl_gzbserv.queryBodysBypage(pk_corp, qj, billtype, page, rows);
+                json.setTotal(Long.valueOf(pagevo.getTotal()));
+                json.setRows(pagevo.getPagevos());
+            } else {
+                SalaryReportVO[] vos = gl_gzbserv.query(pk_corp, qj, billtype);// 查询工资表数据
+                if (vos == null || vos.length == 0) {
+                    vos = new SalaryReportVO[0];
+                }
+                json.setRows(vos);
+            }
         }
+
         DZFBoolean bool = gl_gzbserv.queryIsGZ(pk_corp, qj);// 查询是否关账
         String msg = "状态代码";
         if (bool.booleanValue()) {
@@ -304,20 +312,7 @@ public class SalaryReportController  extends BaseController {
         }
         checkOwnCorp(pk_corp);
         sourcebilltype = pk_corp + period + "gzjt," + pk_corp + period + "gzff";
-        SQLParameter sp = new SQLParameter();
-        sp.addParam(pk_corp);
-        StringBuffer wheresql = new StringBuffer(" pk_corp = ? and nvl(dr,0) = 0 ");
-        if (!StringUtil.isEmpty(sourcebilltype)) {
-            if (sourcebilltype.contains(",")) {
-                String[] sourcebilltypeArr = sourcebilltype.split(",");
-                wheresql.append(" and ");
-                wheresql.append(SqlUtil.buildSqlForIn("sourcebilltype", sourcebilltypeArr));
-            } else {
-                wheresql.append(" and sourcebilltype = ? ");
-                sp.addParam(sourcebilltype);
-            }
-        }
-        TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql.toString(), sp);
+        TzpzHVO[] hvos = gl_gzbserv.queryGlpz(sourcebilltype,pk_corp);
         if (hvos == null || hvos.length == 0) {
             grid.setData(hvos);
             grid.setTotal((long) 0);
@@ -439,6 +434,8 @@ public class SalaryReportController  extends BaseController {
     @PostMapping("print")
     public void printAction(PrintParamVO printParamVO, @RequestParam Map<String, String> map, HttpServletResponse response) {
         String opdate = null;
+        String beginPeriod = null;
+        String endPeriod = null;
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, SystemUtil.getLoginCorpVo(), SystemUtil.getLoginUserVo(), response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
@@ -454,7 +451,23 @@ public class SalaryReportController  extends BaseController {
                 throw new BusinessException("期间为空");
 //            setIscross(DZFBoolean.TRUE);// 是否横向
             // 查询工资表数据
-            SalaryReportVO[] bodyvos = gl_gzbserv.query(pk_corp, opdate, billtype);
+//            SalaryReportVO[] bodyvos = gl_gzbserv.query(pk_corp, opdate, billtype);
+
+            String periodRange = map.get("periodRange");
+            if(StringUtil.isEmptyWithTrim(periodRange))
+                return;
+            String[] periods = periodRange.split(",");
+
+            if(periods == null || periods.length !=2){
+                throw new BusinessException("传入期间出错");
+            }
+            beginPeriod = periods[0];
+            if (StringUtil.isEmpty(beginPeriod))
+                throw new BusinessException("期间为空");
+            endPeriod = periods[1];
+            if (StringUtil.isEmpty(endPeriod))
+                throw new BusinessException("期间为空");
+            SalaryReportVO[] bodyvos = gl_gzbserv.query(pk_corp, beginPeriod,endPeriod, billtype);
             if (bodyvos == null || bodyvos.length == 0)
                 return;
             for (SalaryReportVO vo : bodyvos) {
@@ -478,12 +491,7 @@ public class SalaryReportController  extends BaseController {
                 // 隐藏手机号
                 hiddenColList.add(1);
             }
-            List<SalaryReportVO> list = new ArrayList<SalaryReportVO>();
-            for (SalaryReportVO vo : bodyvos) {
-                list.add(vo);
-            }
-            SalaryReportVO nvo = calTotal(list.toArray(new SalaryReportVO[list.size()]));
-            list.add(nvo);
+
             printReporUtil.setLineheight(22F);
             String[] columns = SalaryReportColumn.getCodes(hiddenColList);
             String[] columnNames = SalaryReportColumn.getNames(hiddenColList, billtype);
@@ -499,9 +507,10 @@ public class SalaryReportController  extends BaseController {
             if (pmap.get("type").equals("4")) {
 //                printReporUtil.setRotate(DZFBoolean.TRUE);
             }
+            Map<String,List<SuperVO>> smap = getMapSaraly(bodyvos);
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             printReporUtil.setIscross(DZFBoolean.TRUE);
-            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), list.toArray(new SalaryReportVO[list.size()]),
+            printReporUtil.printHz(smap,null,
                     "工 资 表(" + SalaryTypeEnum.getTypeEnumByValue(billtype).getName() + ")", columns, columnNames,
                     widths, 60, pmap, tmap);
 
@@ -523,8 +532,31 @@ public class SalaryReportController  extends BaseController {
         if (!StringUtil.isEmpty(opdate)) {
             DZFDate from = new DZFDate(opdate + "-01");
             writeLogRecord(LogRecordEnum.OPE_KJ_SALARY,
-                    "工资表打印：" + from.getYear() + "年" + from.getMonth() + "月", ISysConstants.SYS_2);
+                    "工资表打印："+beginPeriod+"到" + endPeriod, ISysConstants.SYS_2);
         }
+    }
+
+    private Map<String,List<SuperVO>> getMapSaraly( SalaryReportVO[] bodyvos){
+
+        Map<String,List<SuperVO>> map = new LinkedMap();
+        VOUtil.ascSort(bodyvos, new String[] { "qj" });
+        String key = "";
+        List<SuperVO> list = null;
+        for (SalaryReportVO vo : bodyvos) {
+            key = vo.getQj();
+            if(map.containsKey(key)){
+                list = map.get(key);
+            }else{
+                list = new ArrayList<>();
+            }
+            list.add(vo);
+            map.put(key,list);
+        }
+        map.forEach((ke1, value) -> {
+            SalaryReportVO nvo = calTotal(value.toArray(new SalaryReportVO[value.size()]));
+            value.add(nvo);
+        });
+        return map;
     }
 
     @PostMapping("/impExcel")

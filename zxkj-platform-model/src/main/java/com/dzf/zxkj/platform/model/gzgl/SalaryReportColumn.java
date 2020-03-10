@@ -13,14 +13,14 @@ public class SalaryReportColumn {
 
 	public static String[] CODES = new String[] { "ygbm", "vphone", "zjlx", "zjbm", "ygname", "varea", "lhdate",
 			"lhtype", "vdeptname", "fykmname", "yfgz", "yanglaobx", "yiliaobx", "shiyebx", "zfgjj", "ynssde", "shuilv",
-			"grsds", "sfgz" };
+			"grsds", "sfgz","vdef25" };
 	public static String[] NORMALNAMES = new String[] { "员工编码", "手机号", "证件类型", "证件编码", "员工姓名", "国籍", "来华时间", "适用公式",
-			"部门名称", "费用科目", "应发工资", "养老保险", "医疗保险", "失业保险", "住房公积金", "应纳税所得额", "税率%", "个人所得税", "实发工资" };
+			"部门名称", "费用科目", "应发工资", "养老保险", "医疗保险", "失业保险", "住房公积金", "应纳税所得额", "税率%", "个人所得税", "实发工资","签字确认" };
 	public static String[] FOREIGNNAMES = new String[] { "员工编码", "手机号", "证件类型", "证件编码", "员工姓名", "国籍", "来华时间", "适用公式",
-			"部门名称", "费用科目", "应发工资", "养老保险", "医疗保险", "失业保险", "住房公积金", "应纳税所得额", "税率%", "应扣缴税额", "实发工资" };
+			"部门名称", "费用科目", "应发工资", "养老保险", "医疗保险", "失业保险", "住房公积金", "应纳税所得额", "税率%", "应扣缴税额", "实发工资","签字确认" };
 	public static String[] ANNUALNAMES = new String[] { "员工编码", "手机号", "证件类型", "证件编码", "员工姓名", "国籍", "来华时间", "适用公式",
-			"部门名称", "费用科目", "应发奖金", "养老保险", "医疗保险", "失业保险", "住房公积金", "应纳税所得额", "税率%", "应扣缴税额", "实发奖金" };
-	public static int[] WIDTHS = new int[] { 3, 3, 3, 5, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 };
+			"部门名称", "费用科目", "应发奖金", "养老保险", "医疗保险", "失业保险", "住房公积金", "应纳税所得额", "税率%", "应扣缴税额", "实发奖金","签字确认" };
+	public static int[] WIDTHS = new int[] { 15, 15, 20, 20, 18, 30, 18, 18, 18, 18, 30, 20, 20, 20, 20, 30, 20, 30, 30, 20 };
 
 	//  正常薪金
 	public static int[] ZCHIDEN = new int[] { 5, 6, 7 };
@@ -59,7 +59,7 @@ public class SalaryReportColumn {
 	//  应纳税所得额：应纳税所得额
 	//  税率：税率
 	//  应扣缴税额：应扣缴税额（=应纳税所得额*税率）
-	public static int[] WJGZHIDEN = new int[] { 11, 12, 13, 14, 18 };
+	public static int[] WJGZHIDEN = new int[] { 6, 7, 11, 12, 13, 14, 18 };
 
 	public static Map<String, String> getMapColumn(List<Integer> hiddenColList, String type) {
 
@@ -128,22 +128,5 @@ public class SalaryReportColumn {
 		}
 		return d;
 	}
-
-	public static String[] CODESIMP = new String[] { "ygbm", "zjlx", "zjbm", "ygname", "qj", "yfgz", "yanglaobx",
-			"yiliaobx", "shiyebx", "zfgjj" };
-	public static String[] SDJSIMP = new String[] { "工号", "证照类型", "证照号码", "姓名", "所得期间起", "收入额", "基本养老保险费", "基本医疗保险费",
-			"失业保险费", "住房公积金" };
-
-	public static String[] CQJSIMP = new String[] { "序号", "证照类型", "证照号码", "纳税人姓名", "所得期间起", "收入额", "基本养老保险费", "基本医疗保险费",
-			"失业保险费", "住房公积金" };
-
-	public static String[] CODESJSEXP = new String[] { "ygbm", "zjlx", "zjbm", "ygname", "yfgz", "yanglaobx",
-			"yiliaobx", "shiyebx", "zfgjj" };
-
-	public static String[] TYDZFIMP = new String[] { "员工编码", "手机号", "证件类型", "证件编码", "员工姓名", "部门名称", "费用科目", "应发工资",
-			"养老保险", "医疗保险", "失业保险", "住房公积金" };
-
-	public static String[] CODESTYIMP = new String[] { "ygbm", "vphone", "zjlx", "zjbm", "ygname", "cdeptid", "fykmid",
-			"yfgz", "yanglaobx", "yiliaobx", "shiyebx", "zfgjj" };
 
 }
