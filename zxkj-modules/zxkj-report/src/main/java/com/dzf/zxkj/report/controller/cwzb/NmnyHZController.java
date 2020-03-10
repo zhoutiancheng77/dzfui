@@ -164,6 +164,12 @@ public class NmnyHZController extends ReportBaseController {
             String pageNum = params.get("pageNum");
             String showbnljjf = printParamVO.getShowjf();
             String showbnljdf = printParamVO.getShowdf();
+
+            String showqcprice = printParamVO.getShowqcprice();
+            String showjfprice = printParamVO.getShowjfprice();
+            String showdfprice = printParamVO.getShowdfprice();
+            String showyeprice = printParamVO.getShowyeprice();
+
             Map<String,String> pmap=new HashMap<String,String>();//声明一个map用来存前台传来的设置参数
             pmap.put("type",type);
             pmap.put("pageOrt",pageOrt);
@@ -194,9 +200,10 @@ public class NmnyHZController extends ReportBaseController {
             printReporUtil.setLineheight(22f);
             setDefaultValue(bodyvos, corp);//为后续设置精度赋值
 
-            String[] columnames = new String[]{"科目编码","科目名称","计量单位","方向","期初余额","本期借方","本期贷方","本年累计借方","本年累计贷方","期末余额","数量","单价","金额","数量","金额","数量","金额","数量","金额","数量","金额","数量","单价","金额"};
-            String[] columnkeys = new String[]{"kmbm","kmmc","dw","dir","qcnum","qcprice","qcmny","bqjfnum","bqjfmny","bqdfnum","bqdfmny","bnjfnum","bnjfmny","bndfnum","bndfmny","qmnum","qmprice","qmmny"};
-            int[] columnints = new int[]{3,5,3,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3};
+            String[] columnames = new String[]{"科目编码","科目名称","计量单位","方向","期初余额","本期借方","本期贷方","本年累计借方","本年累计贷方","期末余额","数量","单价","金额","数量","单价","金额","数量","单价","金额","数量","金额","数量","金额","数量","单价","金额"};
+//                                                    0       1          2        3        4         5         6            7             8            9       10     11     12    13     14     15    16     17     18    19     20     21     22    23     24     25
+            String[] columnkeys = new String[]{"kmbm","kmmc","dw","dir","qcnum","qcprice","qcmny","bqjfnum","bqjfprice", "bqjfmny","bqdfnum","bqdfprice", "bqdfmny","bnjfnum","bnjfmny","bndfnum","bndfmny","qmnum","qmprice","qmmny"};
+            int[] columnints = new int[]{3,5,3,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3};
             LinkedList<ColumnCellAttr> columnlist = new LinkedList<>();
             List<String> columnkeylist  = new ArrayList<String>();
             List<String> columnameslist  = new ArrayList<String>();
@@ -208,32 +215,80 @@ public class NmnyHZController extends ReportBaseController {
                 if("N".equals(showbnljdf) && ("bndfnum".equals(columnkeys[i]) || "bndfmny".equals(columnkeys[i]))){
                     continue;
                 }
+
+                if("N".equals(showqcprice) && "qcprice".equals(columnkeys[i])){
+                    continue;
+                }
+                if("N".equals(showjfprice) && "bqjfprice".equals(columnkeys[i])){
+                    continue;
+                }
+                if("N".equals(showdfprice) && "bqdfprice".equals(columnkeys[i])){
+                    continue;
+                }
+                if("N".equals(showyeprice) && "qmprice".equals(columnkeys[i])){
+                    continue;
+                }
+
                 columnkeylist.add(columnkeys[i]);
                 columnintlist.add(columnints[i]);
             }
             for(int i=0;i<columnames.length;i++){
-                if("N".equals(showbnljjf) && (i == 7  || i== 13 || i ==14)){//本年累计借方
+                if("N".equals(showbnljjf) && (i == 7  || i== 19 || i == 20)){//本年累计借方
                     continue;
                 }
-                if("N".equals(showbnljdf) && (i == 8 || i== 15 || i ==16) ){//本年累计贷方
+                if("N".equals(showbnljdf) && (i == 8 || i== 21 || i == 22) ){//本年累计贷方
                     continue;
                 }
+
+                if("N".equals(showqcprice) && i == 11 ){//
+                    continue;
+                }
+                if("N".equals(showjfprice) && i == 14 ){//
+                    continue;
+                }
+                if("N".equals(showdfprice) && i == 17 ){//
+                    continue;
+                }
+                if("N".equals(showyeprice) && i == 24 ){//
+                    continue;
+                }
+
                 columnameslist.add(columnames[i]);
                 ColumnCellAttr attr = new ColumnCellAttr();
                 attr.setColumname(columnames[i]);
                 if(i==0 ||  i==1 || i==2|| i==3){
                     attr.setRowspan(2);
                 }else if(i == 4){
-                    attr.setColspan(3);
+                    if("N".equals(showqcprice)){
+                        attr.setColspan(2);
+                    }else{
+                        attr.setColspan(3);
+                    }
+
                 }else if(i==5){
-                    attr.setColspan(2);
+                    if("N".equals(showjfprice)){
+                        attr.setColspan(2);
+                    }else{
+                        attr.setColspan(3);
+                    }
+
                 }else if(i==6){
-                    attr.setColspan(2);
+                    if("N".equals(showdfprice)){
+                        attr.setColspan(2);
+                    }else{
+                        attr.setColspan(3);
+                    }
+
                 }else if(i==7){
                     attr.setColspan(2);
                 }else if(i==8){
                     attr.setColspan(2);
                 }else if(i==9){
+                    if("N".equals(showyeprice)){
+                        attr.setColspan(2);
+                    }else{
+                        attr.setColspan(3);
+                    }
                     attr.setColspan(3);
                 }
 
@@ -285,6 +340,11 @@ public class NmnyHZController extends ReportBaseController {
         String showbnljjf = printParamVO.getShowjf();
         String showbnljdf = printParamVO.getShowdf();
 
+        String showqcprice = printParamVO.getShowqcprice();
+        String showjfprice = printParamVO.getShowjfprice();
+        String showdfprice = printParamVO.getShowdfprice();
+        String showyeprice = printParamVO.getShowyeprice();
+
         String strlist = printParamVO.getList();
 //        JSONArray array = (JSONArray) JSON.parseArray(strlist);
 //        Map<String,String> bodymapping= FieldMapping.getFieldMapping(new PzmbbVO());
@@ -301,7 +361,8 @@ public class NmnyHZController extends ReportBaseController {
         int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
         int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 
-        NmnyHzExcelField xsz = new NmnyHzExcelField(num, price,showbnljjf,showbnljdf);
+        NmnyHzExcelField xsz = new NmnyHzExcelField(num, price,showbnljjf,showbnljdf,
+                showqcprice,showjfprice,showdfprice,showyeprice);
         setExprotInfo(xsz);
         xsz.setNumMnyGlVOs(vo);
         xsz.setQj(qj);

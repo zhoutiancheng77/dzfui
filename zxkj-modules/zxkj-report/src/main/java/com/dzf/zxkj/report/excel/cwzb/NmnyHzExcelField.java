@@ -34,22 +34,32 @@ public class NmnyHzExcelField implements IExceport<NumMnyGlVO> {
 	private int pricePrecision;//单价精度
 	
 	private String showbnljjf;//本年累计借方，显示
-	
 	private String showbnljdf;//本年累计贷方，显示
+
+	private String showqcprice;//期初单价,展示
+	private String showjfprice;//借方单价,展示
+	private String showdfprice;//贷方单价,展示
+	private String showyeprice;//余额单价,展示
 	
 //	public NmnyHzExcelField(){
 //		numPrecision = 4;
 //		pricePrecision = 4;
 //	}
 	
-	public NmnyHzExcelField(int numPrecision, int pricePrecision,String showbnljjf,String showbnljdf){
+	public NmnyHzExcelField(int numPrecision, int pricePrecision,
+							String showbnljjf,String showbnljdf,
+							String showqcprice, String showjfprice,
+							String showdfprice, String showyeprice){
 		this.numPrecision = numPrecision;
 		this.pricePrecision = pricePrecision;
 		this.showbnljjf = showbnljjf;
 		this.showbnljdf = showbnljdf;
+
+		this.showqcprice = showqcprice;
+		this.showjfprice = showjfprice;
+		this.showdfprice = showdfprice;
+		this.showyeprice = showyeprice;
 	}
-	
-	
 	
 	@Override
 	public String getExcelport2007Name() {
@@ -125,12 +135,27 @@ public class NmnyHzExcelField implements IExceport<NumMnyGlVO> {
 		fieldlist.add(new Fieldelement("dw", "计量单位", false, 0, false));
 		fieldlist.add(new Fieldelement("dir", "方向", false, 0, false));
 		fieldlist.add(new Fieldelement("qcnum", "期初数量", true, numPrecision, true));
-		fieldlist.add(new Fieldelement("qcprice", "期初单价", true, pricePrecision, true));
+
+		if("Y".equals(showqcprice)) {
+			fieldlist.add(new Fieldelement("qcprice", "期初单价", true, pricePrecision, true));
+		}
+
 		fieldlist.add(new Fieldelement("qcmny", "期初金额", true, 2, true));
 		fieldlist.add(new Fieldelement("bqjfnum", "本期借方数量", true, numPrecision, true));
+
+		if("Y".equals(showjfprice)) {
+			fieldlist.add(new Fieldelement("bqjfprice", "本期借方单价", true, pricePrecision, true));
+		}
+
 		fieldlist.add(new Fieldelement("bqjfmny", "本期借方金额", true, 2, true));
 		fieldlist.add(new Fieldelement("bqdfnum", "本期贷方数量", true, numPrecision, true));
+
+		if("Y".equals(showdfprice)) {
+			fieldlist.add(new Fieldelement("bqdfprice", "本期贷方单价", true, pricePrecision, true));
+		}
+
 		fieldlist.add(new Fieldelement("bqdfmny", "本期贷方金额", true, 2, true));
+
 		if("Y".equals(showbnljjf)){
 			fieldlist.add(new Fieldelement("bnjfnum", "本年借方数量", true, numPrecision, true));
 			fieldlist.add(new Fieldelement("bnjfmny", "本年借方金额", true, 2, true));
@@ -140,7 +165,11 @@ public class NmnyHzExcelField implements IExceport<NumMnyGlVO> {
 			fieldlist.add(new Fieldelement("bndfmny", "本年贷方金额", true, 2, true));
 		}
 		fieldlist.add(new Fieldelement("qmnum", "期末数量", true, numPrecision, true));
-		fieldlist.add(new Fieldelement("qmprice", "期末单价", true, pricePrecision, true));
+
+		if("Y".equals(showyeprice)) {
+			fieldlist.add(new Fieldelement("qmprice", "期末单价", true, pricePrecision, true));
+		}
+
 		fieldlist.add(new Fieldelement("qmmny", "期末金额", true, 2, true));
 		return fieldlist.toArray(new Fieldelement[0]);
 	}
@@ -168,7 +197,38 @@ public class NmnyHzExcelField implements IExceport<NumMnyGlVO> {
 				new Fieldelement("qmmny", "期末金额",true,2,true)
 		};
 	}
-	
+
+	public String getShowqcprice() {
+		return showqcprice;
+	}
+
+	public void setShowqcprice(String showqcprice) {
+		this.showqcprice = showqcprice;
+	}
+
+	public String getShowjfprice() {
+		return showjfprice;
+	}
+
+	public void setShowjfprice(String showjfprice) {
+		this.showjfprice = showjfprice;
+	}
+
+	public String getShowdfprice() {
+		return showdfprice;
+	}
+
+	public void setShowdfprice(String showdfprice) {
+		this.showdfprice = showdfprice;
+	}
+
+	public String getShowyeprice() {
+		return showyeprice;
+	}
+
+	public void setShowyeprice(String showyeprice) {
+		this.showyeprice = showyeprice;
+	}
 
 	public String getShowbnljjf() {
 		return showbnljjf;

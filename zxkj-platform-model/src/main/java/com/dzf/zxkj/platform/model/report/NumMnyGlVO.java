@@ -27,7 +27,9 @@ public class NumMnyGlVO extends SuperVO {
 	private DZFDouble qcprice;
 	private DZFDouble qcmny;
 	private DZFDouble bqjfnum;
+	private DZFDouble bqjfprice;
 	private DZFDouble bqjfmny;
+	private DZFDouble bqdfprice;
 	private DZFDouble bqdfnum;
 	private DZFDouble bqdfmny;
 	private DZFDouble bnjfnum;
@@ -211,6 +213,23 @@ public class NumMnyGlVO extends SuperVO {
 	public void setQmprice(DZFDouble qmprice) {
 		this.qmprice = qmprice;
 	}
+
+	public DZFDouble getBqjfprice() {
+		return bqjfprice;
+	}
+
+	public void setBqjfprice(DZFDouble bqjfprice) {
+		this.bqjfprice = bqjfprice;
+	}
+
+	public DZFDouble getBqdfprice() {
+		return bqdfprice;
+	}
+
+	public void setBqdfprice(DZFDouble bqdfprice) {
+		this.bqdfprice = bqdfprice;
+	}
+
 	public DZFDouble getQmmny() {
 		return qmmny;
 	}

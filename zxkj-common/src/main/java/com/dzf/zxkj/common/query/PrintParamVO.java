@@ -43,11 +43,49 @@ public class PrintParamVO extends SuperVO {
 	private String showjf;// 是否展示借方
 	private String showdf;// 是否展示贷方
 	private String showye;// 是否展示余额
+
+	private String showqcprice;// 是否展示期初单价
+	private String showjfprice;// 是否展示借方单价
+	private String showdfprice;// 是否展示贷方单价
+	private String showyeprice;// 是否展示余额单价
+
 	private String numstr;// 数量精度
 	private String pricestr;// 单价精度
 
 	public String getShowjf() {
 		return showjf;
+	}
+
+	public String getShowqcprice() {
+		return showqcprice;
+	}
+
+	public void setShowqcprice(String showqcprice) {
+		this.showqcprice = showqcprice;
+	}
+
+	public String getShowjfprice() {
+		return showjfprice;
+	}
+
+	public void setShowjfprice(String showjfprice) {
+		this.showjfprice = showjfprice;
+	}
+
+	public String getShowdfprice() {
+		return showdfprice;
+	}
+
+	public void setShowdfprice(String showdfprice) {
+		this.showdfprice = showdfprice;
+	}
+
+	public String getShowyeprice() {
+		return showyeprice;
+	}
+
+	public void setShowyeprice(String showyeprice) {
+		this.showyeprice = showyeprice;
 	}
 
 	public void setShowjf(String showjf) {
