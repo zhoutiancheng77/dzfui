@@ -10,9 +10,11 @@ public enum SalaryTypeEnum {
 
 	ANNUALBONUS("ANNUALBONUS", "年终奖", "04"),
 	
-	NONORMAL("NONORMAL", "其他", "05");
-	
-	
+	NONORMAL("NONORMAL", "其他", "05"),
+
+	TOTAL("TOTAL", "工资概况", "10");
+
+
 
 	/** 键 */
 	private final String key;

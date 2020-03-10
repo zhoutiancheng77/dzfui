@@ -10,7 +10,6 @@ import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.VOUtil;
-import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
@@ -18,6 +17,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
@@ -38,6 +38,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.util.AccountUtil;
 import com.dzf.zxkj.platform.util.VoUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.map.LinkedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +75,18 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(qj);
+		sp.addParam(billtype);
+		SalaryReportVO[] srvos = (SalaryReportVO[]) singleObjectBO.queryByCondition(SalaryReportVO.class, wheresql, sp);
+		return querySalaryReportVO(srvos, pk_corp, false);
+	}
+
+	@Override
+	public SalaryReportVO[] query(String pk_corp, String beginPeriod,String endPeriod, String billtype) throws DZFWarpException{
+		String wheresql = " pk_corp = ? and qj >= ? and  qj <= ? and nvl(dr,0) = 0 and nvl(billtype,'01') = ?";
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(pk_corp);
+		sp.addParam(beginPeriod);
+		sp.addParam(endPeriod);
 		sp.addParam(billtype);
 		SalaryReportVO[] srvos = (SalaryReportVO[]) singleObjectBO.queryByCondition(SalaryReportVO.class, wheresql, sp);
 		return querySalaryReportVO(srvos, pk_corp, false);
@@ -254,6 +267,89 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		}
 		return list1;
 	}
+
+	@Override
+	public SalaryTotalVO[] queryTotal(String pk_corp, String qj) throws DZFWarpException {
+        Map<String,SalaryTotalVO> map = getMapSalaryTotalVO(pk_corp,qj);
+        SalaryReportVO[] vos =queryAllType(pk_corp,qj);
+        if(vos == null || vos.length==0)
+            return map.values().toArray(new SalaryTotalVO[map.size()]);
+        SalaryTotalVO total = null;
+        String pzh = getPzh(pk_corp,qj);
+        for(SalaryReportVO vo:vos){
+            if(StringUtil.isEmptyWithTrim(vo.getBilltype())){
+                vo.setBilltype(SalaryTypeEnum.NORMALSALARY.getValue());
+            }
+            if(!map.containsKey(vo.getBilltype())){
+                total =changeToSalaryTotalVO(vo);
+                total.setPzh(pzh);
+            }else{
+                total = map.get(vo.getBilltype());
+                if(vo.getUpdatets() == null){
+                    vo.setUpdatets(vo.getTs());
+                }
+                total.setLasttime(vo.getUpdatets().toString());
+                total.setPzh(pzh);
+                total.setPersoncount(total.getPersoncount()+1);
+            }
+//          人力成本总额：应发工资（本期收入）合计+本期企业承担部分合计
+           String[] columns = new String[] { "qyyanglaobx", "qyyiliaobx", "qyshiyebx", "qyzfgjj", "qygsbx" ,"qyshybx" };
+           DZFDouble ntotalqy = addByColumn(columns, vo);
+           DZFDouble nlaborcost = SafeCompute.add(ntotalqy,vo.getYfgz());
+           total.setNlaborcost(SafeCompute.add(total.getNlaborcost(),nlaborcost).setScale(2,0));
+//            员工收入总额：应发工资（本期收入）合计，右对齐显示
+            total.setNempincome(SafeCompute.add(total.getNempincome(),vo.getYfgz()).setScale(2,0));
+//            实缴税额合计：累计应纳税额合计减去个人所得税（应补退税额）合计，
+            total.setNpaidtax(SafeCompute.add(total.getNpaidtax(),vo.getGrsds()).setScale(2,0));
+            map.put(vo.getBilltype(),total);
+        }
+		return map.values().toArray(new SalaryTotalVO[map.size()]);
+	}
+
+	private  Map<String,SalaryTotalVO> getMapSalaryTotalVO(String pk_corp , String qj){
+        Map<String,SalaryTotalVO> map = new LinkedMap();
+		SalaryTotalVO total = new SalaryTotalVO();
+		total.setBilltype(SalaryTypeEnum.NORMALSALARY.getValue());
+		total.setNlaborcost(DZFDouble.ZERO_DBL);
+		total.setNempincome(DZFDouble.ZERO_DBL);
+		total.setNpaidtax(DZFDouble.ZERO_DBL);
+		total.setQj(qj);
+		total.setPk_corp(pk_corp);
+		total.setPersoncount(0);
+		map.put(total.getBilltype(),total);
+		SalaryTotalVO total1 = (SalaryTotalVO)total.clone();
+		total1.setBilltype(SalaryTypeEnum.REMUNERATION.getValue());
+		map.put(total1.getBilltype(),total1);
+		SalaryTotalVO total2 = (SalaryTotalVO)total.clone();
+		total2.setBilltype(SalaryTypeEnum.FOREIGNSALARY.getValue());
+		map.put(total2.getBilltype(),total2);
+        return map;
+    }
+	private SalaryTotalVO changeToSalaryTotalVO(SalaryReportVO vo){
+        SalaryTotalVO total = new SalaryTotalVO();
+        total.setBilltype(vo.getBilltype());
+        total.setQj(vo.getQj());
+        total.setPersoncount(1);
+        if(vo.getUpdatets() == null){
+            vo.setUpdatets(vo.getTs());
+        }
+        total.setLasttime(vo.getUpdatets().toString());
+        return total;
+    }
+
+    private String getPzh(String pk_corp ,String qj){
+        String sourcebilltype = pk_corp + qj + "gzjt," + pk_corp + qj + "gzff";
+        TzpzHVO[] hvos = queryGlpz(sourcebilltype,pk_corp);
+        String pzh = null;
+        if(hvos != null && hvos.length>0){
+            if(hvos.length ==1){
+                pzh = "记"+hvos[0].getPzh();
+            }else  if(hvos.length ==2){
+                pzh = "记"+hvos[0].getPzh()+","+"记"+hvos[1].getPzh();
+            }
+        }
+        return pzh;
+    }
 
 	@Override
 	public Object[] saveImpExcel(String loginDate, String cuserid, CorpVO loginCorpInfo, SalaryReportVO[] vos,
@@ -1568,12 +1664,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		String pk_corp = corpvp.getPk_corp();
 		TzpzHVO headVO = new TzpzHVO();
 		String sourcebilltype = pk_corp + qj + str;
-		//
-		String wheresql = " pk_corp = ? and sourcebilltype = ? and nvl(dr,0) = 0  ";
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(pk_corp);
-		sp.addParam(sourcebilltype);
-		TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql, sp);
+        TzpzHVO[] hvos = queryGlpz(sourcebilltype,pk_corp);
 		// String msg = "";
 		if (queryIsGZ(pk_corp, qj).booleanValue()) {
 			throw new BusinessException("当月已关账，不能生成凭证！");
@@ -2308,11 +2399,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 	private void checkPzDelete(String pk_corp, String qj, String str) {
 		String sourcebilltype = pk_corp + qj + str;
 		//
-		String wheresql = " pk_corp = ? and sourcebilltype = ? and nvl(dr,0) = 0  ";
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(pk_corp);
-		sp.addParam(sourcebilltype);
-		TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql, sp);
+		TzpzHVO[] hvos = queryGlpz(sourcebilltype,pk_corp);
 
 		String msg = null;
 		if ("gzjt".equalsIgnoreCase(str)) {
@@ -2377,11 +2464,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		String msg = "";
 		String sourcebilltype = pk_corp + qj + "gzjt";
 		String sourcebilltype1 = pk_corp + qj + "gzff";
-		String wheresql = " sourcebilltype in (?,?) and nvl(dr,0) = 0  ";
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(sourcebilltype);
-		sp.addParam(sourcebilltype1);
-		TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql, sp);
+		TzpzHVO[] hvos =  queryGlpz(sourcebilltype+","+sourcebilltype1,pk_corp);
 		if (hvos != null && hvos.length > 0) {
 			//
 			boolean bool = true;
@@ -2420,12 +2503,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		}
 
 		String sourcebilltype = pk_corp + qj + str;
-		//
-		String wheresql = " pk_corp = ? and sourcebilltype = ? and nvl(dr,0) = 0  ";
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(pk_corp);
-		sp.addParam(sourcebilltype);
-		TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql, sp);
+        TzpzHVO[] hvos =  queryGlpz(sourcebilltype,pk_corp);
 
 		String msg = null;
 		if ("gzjt".equalsIgnoreCase(str)) {
@@ -2643,4 +2721,23 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		return pagevo;
 	}
 
+   public TzpzHVO[] queryGlpz(String sourcebilltype,String pk_corp)throws DZFWarpException {
+       SQLParameter sp = new SQLParameter();
+       sp.addParam(pk_corp);
+       StringBuffer wheresql = new StringBuffer(" pk_corp = ? and nvl(dr,0) = 0 ");
+       if (StringUtil.isEmpty(sourcebilltype)) {
+          throw new BusinessException("联查凭证来源类型不能为空");
+       }else{
+           if (sourcebilltype.contains(",")) {
+               String[] sourcebilltypeArr = sourcebilltype.split(",");
+               wheresql.append(" and ");
+               wheresql.append(SqlUtil.buildSqlForIn("sourcebilltype", sourcebilltypeArr));
+           } else {
+               wheresql.append(" and sourcebilltype = ? ");
+               sp.addParam(sourcebilltype);
+           }
+       }
+       TzpzHVO[] hvos = (TzpzHVO[]) singleObjectBO.queryByCondition(TzpzHVO.class, wheresql.toString(), sp);
+       return hvos;
+   }
 }
