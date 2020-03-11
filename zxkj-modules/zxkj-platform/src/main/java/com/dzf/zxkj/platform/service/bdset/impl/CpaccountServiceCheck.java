@@ -412,7 +412,7 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
         if ("00000100AA10000000000BMD".equals(parentVO.getPk_corp_accountschema())
                 || "00000100AA10000000000BMF".equals(parentVO.getPk_corp_accountschema())
                 || "00000100000000Ig4yfE0005".equals(parentVO.getPk_corp_accountschema())) {
-            //不允许增加二级[损益类科目（除税金及附加）、固定资产、累计折旧、无形资产、累计摊销、长期待摊费用、应付职工薪酬、生产成本、利润分配科目下不允许增加二级]
+            //不允许增加二级[损益类科目（除税金及附加）、固定资产、累计折旧、无形资产、长期待摊费用、应付职工薪酬、生产成本、利润分配科目下不允许增加二级]
             checkTwoLevel(parentVO);
             //不允许增加三级[应交税费-应交增值税、管理费用、销售费用下的职工薪酬下不允许增加三级科目]
             checkThreeLevel(parentVO, accoutrule);
@@ -483,10 +483,9 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
             if (parentVO.getAccountlevel() == 1 &&
                     ("固定资产".equals(parentVO.getAccountname().trim())
                             || "累计折旧".equals(parentVO.getAccountname().trim())
-                            || "无形资产".equals(parentVO.getAccountname().trim())
-                            || "累计摊销".equals(parentVO.getAccountname().trim()))) {
+                            || "无形资产".equals(parentVO.getAccountname().trim()))) {
                 if (bopub.getAccountSchema(parentVO.getPk_corp()).intValue() == DzfUtil.CAUSESCHEMA) {//事业单位
-                    throw new BusinessException("【固定资产、累计折旧、无形资产、累计摊销】科目，不允许增加二级科目！");
+                    throw new BusinessException("【固定资产、累计折旧、无形资产】科目，不允许增加二级科目！");
                 } else if (bopub.getAccountSchema(parentVO.getPk_corp()).intValue() == DzfUtil.POPULARSCHEMA) {//民间
                     throw new BusinessException("【固定资产、累计折旧、无形资产】科目，不允许增加二级科目！");
                 }
@@ -503,13 +502,12 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
                     ("固定资产".equals(parentVO.getAccountname().trim())
                             || "累计折旧".equals(parentVO.getAccountname().trim())
                             || "无形资产".equals(parentVO.getAccountname().trim())
-                            || "累计摊销".equals(parentVO.getAccountname().trim())
                             || "长期待摊费用".equals(parentVO.getAccountname().trim())
                             || "应付职工薪酬".equals(parentVO.getAccountname().trim())
                             || "生产成本".equals(parentVO.getAccountname().trim())
                             //|| "利润分配".equals(parentVO.getAccountname().trim())
                     )) {
-                throw new BusinessException("【固定资产、累计折旧、无形资产、累计摊销、长期待摊费用、应付职工薪酬、生产成本】科目，不允许增加二级科目！");
+                throw new BusinessException("【固定资产、累计折旧、无形资产、长期待摊费用、应付职工薪酬、生产成本】科目，不允许增加二级科目！");
             }
         }
     }
