@@ -439,7 +439,7 @@ public class KMMXZReportImpl implements IKMMXZReport {
 
 		Map<String, AuxiliaryAccountBVO> fzmap =  getFzXm(pk_corp);
 		/** 期初余额 */
-		if (jz_max_period == null || corpdate.after(begindate)) {
+		if (jz_max_period == null || corpdate.after(begindate) || "dlz".equals(vo.getRptsource())) { // 多栏账不查询年结数据
 			SQLParameter parameterqc = new SQLParameter();
 			parameterqc.addParam(vo.getPk_corp());
 			List<QcYeVO> listqcye = (List<QcYeVO>) singleObjectBO.retrieveByClause(QcYeVO.class, " nvl(dr,0)=0 and pk_corp=?   ", parameterqc);
@@ -567,6 +567,8 @@ public class KMMXZReportImpl implements IKMMXZReport {
 		if (bb) {// 期初
 			List<KmZzVO> vec0 = null;
 			vec0 = getQCKmFSByPeriod(pk_corp, vo.getIshasjz(), vo.getIshassh(), qcstart, qcend, kmwhere);
+			/** 来源凭证过滤 */
+			vec0 = sourceHandleForQc(vo,vec0,mp,corpvo);
 			sumFsToQC(min_period, mp, map, vec0);
 
 			if(vo.getSfzxm()!=null && vo.getSfzxm().booleanValue()){
@@ -682,6 +684,30 @@ public class KMMXZReportImpl implements IKMMXZReport {
 				b,vo.getIshowfs(),vo.getIsnomonthfs() ,vo.getBtotalyear());
 		return new Object[] { ls, mp ,vecmap,qcfzmap,fsfzmap,corpbegqcmap };
 
+	}
+
+	private List<KmZzVO> sourceHandleForQc(QueryParamVO vo, List<KmZzVO> vec,Map<String, YntCpaccountVO> map,
+									   CorpVO cpvo) {
+		YntCpaccountVO accoutvo = null;
+		if(!StringUtil.isEmpty(vo.getRptsource())){
+			if("dlz".equals(vo.getRptsource())){
+				List<KmZzVO> tt = new ArrayList<KmZzVO>();
+				//过滤借贷方金额与方向不相符的结果集
+				for(KmZzVO mxvo : vec) {
+					if("0".equals(mxvo.getFx())
+							&& SafeCompute.add(mxvo.getDf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+						continue;
+					}else if("1".equals(mxvo.getFx())
+							&& SafeCompute.add(mxvo.getJf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+						continue;
+					}
+
+					tt.add(mxvo);
+				}
+				return tt;
+			}
+		}
+		return vec;
 	}
 
 	private List<KmMxZVO> sourceHandle(QueryParamVO vo, List<KmMxZVO> vec,Map<String, YntCpaccountVO> map,
@@ -915,7 +941,7 @@ public class KMMXZReportImpl implements IKMMXZReport {
 		sb.append(" b.fzhsx1, b.fzhsx2,b.fzhsx3,b.fzhsx4,b.fzhsx5,");
 	    /** 启用库存  存货作为辅助核算 */
 		sb.append(" case when b.fzhsx6 is null then b.pk_inventory else b.fzhsx6 end fzhsx6, ");
-		sb.append(" b.fzhsx7,b.fzhsx8,b.fzhsx9,b.fzhsx10 ");
+		sb.append(" b.fzhsx7,b.fzhsx8,b.fzhsx9,b.fzhsx10,a.direction as fx ");
 		sb.append(" from ynt_tzpz_b b  ");
 		sb.append(" inner join ynt_tzpz_h h on b.pk_tzpz_h=h.pk_tzpz_h ");
 		sb.append(" inner join  ynt_cpaccount a  on b.pk_accsubj=a.pk_corp_account ");

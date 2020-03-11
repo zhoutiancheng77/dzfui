@@ -993,6 +993,17 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 			String key =  null;
 			FzKmmxVO tkmmxvo = null;
 			for(FzKmmxVO fzmxvo:vec){
+				if("dlz".equals(paramavo.getRptsource())){
+					List<KmZzVO> tt = new ArrayList<KmZzVO>();
+					//过滤借贷方金额与方向不相符的结果集
+					if("借".equals(fzmxvo.getFx())
+							&& SafeCompute.add(fzmxvo.getDf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+						continue;
+					}else if("贷".equals(fzmxvo.getFx())
+							&& SafeCompute.add(fzmxvo.getJf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+						continue;
+					}
+				}
 				for(int i=1;i<11;i++){
 				     key = (String) fzmxvo.getAttributeValue("fzhsx"+i);
 					if(StringUtil.isEmpty(key)){
@@ -1285,7 +1296,7 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 			sp.addParam(paramavo.getPk_currency());
 		}
 		/** 无年结 */
-		if ((beindate.after(begindate)) || StringUtil.isEmpty(maxperiod)){
+		if ((beindate.after(begindate)) || StringUtil.isEmpty(maxperiod) || "dlz".equals(paramavo.getRptsource())){
 			qcend = begindate.getDateBefore(1);
 			sp.addParam(paramavo.getPk_corp());
 			
@@ -1339,11 +1350,24 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 			 List<String> parentlist;
 			 if(listkmzzvo!=null && listkmzzvo.size()>0){
 				 for(KmZzVO zzvo:listkmzzvo){
+					 if("dlz".equals(paramavo.getRptsource())){
+						 List<KmZzVO> tt = new ArrayList<KmZzVO>();
+						 //过滤借贷方金额与方向不相符的结果集
+						 if("0".equals(zzvo.getFx())
+								 && SafeCompute.add(zzvo.getDf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+							 continue;
+						 }else if("1".equals(zzvo.getFx())
+								 && SafeCompute.add(zzvo.getJf(), DZFDouble.ZERO_DBL).doubleValue() != 0){
+							 continue;
+						 }
+					 }
 					 for(int i =1;i<11;i++){
 						 key = (String) zzvo.getAttributeValue("fzhsx"+String.valueOf(i));
+
 						if(StringUtil.isEmpty(key)){
 							continue;
 						}
+
 						
 						for(int k=0;k<2;k++){
 							if(k == 0){
@@ -1365,7 +1389,8 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 		}
 		return qcmap;
 	}
-	
+
+
 	
  /**
 	 * 发生的数据添加的期初里面
@@ -1438,11 +1463,11 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 		sb.append(" select b.jfmny as jf ,b.ybjfmny as ybjf , b.dfmny as df,  b.ybdfmny as ybdf,b.pk_accsubj  as km , ");
 		sb.append(" b.fzhsx1 as fzhsx1, b.fzhsx2 as fzhsx2, b.fzhsx3 as fzhsx3, b.fzhsx4 as fzhsx4, b.fzhsx5 as fzhsx5, " );
 		sb.append(" case when b.fzhsx6 is null then b.pk_inventory else b.fzhsx6 end fzhsx6, ");
-		sb.append("  b.fzhsx7 as fzhsx7, b.fzhsx8 as fzhsx8, b.fzhsx9 as fzhsx9, b.fzhsx10 as fzhsx10, " );
+		sb.append("  b.fzhsx7 as fzhsx7, b.fzhsx8 as fzhsx8, b.fzhsx9 as fzhsx9, b.fzhsx10 as fzhsx10,a.direction as fx, " );
 		sb.append(" case when nvl(b.jfmny,0) !=0 then b.nnumber else 0  end as jfnnumber,  ");
 		sb.append(" case when nvl(b.dfmny,0) !=0 then b.nnumber else 0 end as dfnnumber ");
 		sb.append( "  from ynt_tzpz_b b inner join ynt_tzpz_h h on b.pk_tzpz_h=h.pk_tzpz_h");
-		//sb.append( "    inner join  ynt_cpaccount a  on b.pk_accsubj=a.pk_corp_account  " );
+		sb.append( "    inner join  ynt_cpaccount a  on b.pk_accsubj=a.pk_corp_account  " );
 		sb.append("  inner join  "+ kmqrysql + " on b.pk_accsubj =tempsql.pk_corp_account ");
 		sb.append( "    where nvl(b.dr,0)=0 " );
 		Date dd = null;

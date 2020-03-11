@@ -309,6 +309,8 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 			}
 		}
 		objs[0]= reslist.toArray(new ExMultiVO[0]);
+		// 列排序
+		Collections.sort(columnlist);
 		objs[1]= columnlist;
 	}
 
