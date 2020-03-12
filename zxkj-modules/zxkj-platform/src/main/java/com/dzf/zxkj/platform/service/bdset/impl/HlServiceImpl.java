@@ -34,28 +34,35 @@ public class HlServiceImpl implements IHLService {
 
     @Override
     public ExrateVO save(ExrateVO vo) throws DZFWarpException {
-        if (existCheck(vo)) { //判断要新增或要改为的币种是否已存在（在"除了自己的其他汇率行"中是否存在）
+        existCheck(vo);
+        ExrateVO svo = (ExrateVO) singleObjectBO.saveObject(vo.getPk_corp(), vo);
+        return svo;
+    }
+
+    /**
+     * 校验是否已存在该币种的汇率
+     * @param vo
+     */
+    private void existCheck(ExrateVO vo) {
+        if (isExists(vo)) { //判断要新增或要改为的币种是否已存在（在"除了自己的其他汇率行"中是否存在）
+            // 取币种名称
             String sql = "select currencyname from ynt_bd_currency where pk_currency=?";
             SQLParameter sp = new SQLParameter();
             sp.addParam(vo.getPk_currency());
             Object obj = singleObjectBO.executeQuery(sql, sp, new ColumnProcessor());
             throw new BusinessException((obj != null ? (String) obj : "") + "的汇率已存在，不能重复添加");
         }
-        //保存（新增或修改）
-        ExrateVO svo = (ExrateVO) singleObjectBO.saveObject(vo.getPk_corp(), vo);
-        return svo;
     }
 
     /**
-     * 是否已经存在该币种的汇率
-     * 用于后台校验等
-     *
+     * 币种是否已存在
      * @param vo
+     * @return
      * @throws DZFWarpException
      */
-    private boolean existCheck(ExrateVO vo) throws DZFWarpException {
-        String id_rate = vo.getPk_exrate(); //修改时有id，新增时为空
-
+    private boolean isExists(ExrateVO vo) throws DZFWarpException {
+        // 判断要新增或要改为的币种是否已存在
+        String id_rate = vo.getPk_exrate(); //修改时id有值，新增时为空
         SQLParameter sp = new SQLParameter();
         sp.addParam(vo.getPk_corp());
         sp.addParam(vo.getPk_currency());
@@ -102,6 +109,7 @@ public class HlServiceImpl implements IHLService {
 
     @Override
     public void update(ExrateVO vo) throws DZFWarpException {
+        existCheck(vo);
         singleObjectBO.update(vo);
     }
 
