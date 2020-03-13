@@ -40,8 +40,14 @@ public class BillcategoryQueryVO extends SuperVO {
 	private String edate;//开票结束日期
 	
 	private String oldperiod;//老期间
-	
+
 	private String pk_bankcode;//点中银行票下的4级及以后有用，记录点的是哪个银行账号下的分类
+
+	private String vinvoiceno;//发票号码
+
+	public String getVinvoiceno() {return vinvoiceno;}
+
+	public void setVinvoiceno(String vinvoiceno) {this.vinvoiceno = vinvoiceno;}
 	
 	public String getPk_bankcode() {
 		return pk_bankcode;
