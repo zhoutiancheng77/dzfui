@@ -2056,6 +2056,10 @@ public class BillcategoryImpl implements IBillcategory {
 			sb.append(" and a.truthindent=? ");
 			sp.addParam(paramVO.getTruthindent());
 		}
+		if(!StringUtil.isEmpty(paramVO.getVinvoiceno())){//发票号码
+			sb.append(" and a.vinvoiceno=? ");
+			sp.addParam(paramVO.getVinvoiceno());
+		}
 		List<OcrInvoiceVO> list=(List<OcrInvoiceVO>)singleObjectBO.executeQuery(sb.toString(), sp, new BeanListProcessor(OcrInvoiceVO.class));
 		if(list!=null&&list.size()>0){
 			String unitName=corpService.queryByPk(paramVO.getPk_corp()).getUnitname();

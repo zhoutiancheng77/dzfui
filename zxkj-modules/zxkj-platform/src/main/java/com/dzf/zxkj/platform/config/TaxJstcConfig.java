@@ -13,8 +13,8 @@ public class TaxJstcConfig {
     public String clientid;
     @Value("${zxkj.taxrpt.jstc.action}")
     public String action;
-    @Value("${zxkj.taxrpt.jstc.service_switch}")
-    public String service_switch;
+//    @Value("${zxkj.taxrpt.jstc.service_switch}")
+    public String service_switch = "off";
     @Value("${zxkj.taxrpt.jstc.dev_mode}")
     public String dev_mode;
 }

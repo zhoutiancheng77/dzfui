@@ -745,8 +745,11 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			}
 		}
 		if(StringUtil.isEmpty(headvo.getDinvoicedate())){
-			if(StringUtil.isEmpty(error2)|| !error2.contains("开票日期为空")){
-				headvo.setErrordesc2(conErrerInfo(headvo,"开票日期为空"));
+			//过滤掉定额发票和过路过桥的发票
+			if(  !(!StringUtil.isEmpty(headvo.getInvoicetype())&&(headvo.getInvoicetype().equals("c定额发票")||headvo.getInvoicetype().contains("c过路过桥通行")) )   ){
+				if(StringUtil.isEmpty(error2)|| !error2.contains("开票日期为空")){
+					headvo.setErrordesc2(conErrerInfo(headvo,"开票日期为空"));
+				}
 			}
 		}
 		if(StringUtil.isEmpty(headvo.getNtotaltax())){
