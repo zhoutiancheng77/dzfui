@@ -519,7 +519,7 @@ public class VATInComInvoiceController extends BaseController {
             json.setSuccess(paramvo.getCount()==0 ? false : true);
 
             writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入进项发票" + (paramvo.getPeriod() != null ? "："+paramvo.getPeriod() : ""), ISysConstants.SYS_2);
+                    "导入进项发票；" , ISysConstants.SYS_2);
         } catch (Exception e) {
             printErrorLog(json,  e, "导入失败!");
         }
