@@ -582,8 +582,6 @@ public class BankStatementServiceImpl implements IBankStatementService {
 //					firstPeriod = secondPeriod;
 //				}
 //			}
-			//打印日志入账期间
-			periodvo.setPeriod(vos[0].getInperiod());
 		}
 	}
 	

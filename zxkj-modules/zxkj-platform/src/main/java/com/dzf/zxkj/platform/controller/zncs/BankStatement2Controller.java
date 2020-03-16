@@ -425,7 +425,7 @@ public class BankStatement2Controller extends BaseController {
             json.setSuccess(true);
 
             writeLogRecord(LogRecordEnum.OPE_KJ_PJGL,
-                    "导入银行对账单" + (bvo.getPeriod() != null ? "："+bvo.getPeriod() : ""), ISysConstants.SYS_2);
+                    "导入银行对账单；", ISysConstants.SYS_2);
         } catch (Exception e) {
             if(e instanceof BusinessException
                     && IBillManageConstants.ERROR_FLAG.equals(((BusinessException) e).getErrorCodeString())){
@@ -1070,7 +1070,9 @@ public class BankStatement2Controller extends BaseController {
 
     private String buildkey(BankStatementVO2 vo, VatInvoiceSetVO setvo){
         String key = null;
-        if(!StringUtil.isEmpty(vo.getInperiod())){
+        if(setvo.getPzrq()==2 ){//凭证日期选实际日期按交易日期合并
+            key = vo.getTradingdate().toString();
+        }else if(!StringUtil.isEmpty(vo.getInperiod())){
             key = vo.getInperiod();
         }else if(StringUtil.isEmpty(vo.getPeriod())){
             key = DateUtils.getPeriod(vo.getTradingdate());
