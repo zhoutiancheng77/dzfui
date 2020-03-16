@@ -1,7 +1,5 @@
 package com.dzf.zxkj.cache.service;
 
-import redis.clients.jedis.BinaryClient.LIST_POSITION;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -441,7 +439,7 @@ public interface IRedisService {
      * @param value 添加的value
      * @return
      */
-    Long linsert(String key, LIST_POSITION where, String pivot, String value);
+//    Long linsert(String key, LIST_POSITION where, String pivot, String value);
 
     /**
      * <p>

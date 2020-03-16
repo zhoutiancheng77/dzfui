@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import redis.clients.jedis.BinaryClient.LIST_POSITION;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -587,21 +586,21 @@ public class RedisServiceImpl implements IRedisService {
     }
 
 
-    @Override
-    public Long linsert(String key, LIST_POSITION where, String pivot, String value) {
-        Jedis jedis = null;
-        Long res = null;
-        try {
-            jedis = pool.getResource();
-            res = jedis.linsert(key, where, pivot, value);
-        } catch (Exception e) {
-
-            log.error(e.getMessage());
-        } finally {
-            returnResource(pool, jedis);
-        }
-        return res;
-    }
+//    @Override
+//    public Long linsert(String key, LIST_POSITION where, String pivot, String value) {
+//        Jedis jedis = null;
+//        Long res = null;
+//        try {
+//            jedis = pool.getResource();
+//            res = jedis.linsert(key, where, pivot, value);
+//        } catch (Exception e) {
+//
+//            log.error(e.getMessage());
+//        } finally {
+//            returnResource(pool, jedis);
+//        }
+//        return res;
+//    }
 
 
     @Override
