@@ -1755,12 +1755,12 @@ public class SaleoutServiceImpl implements ISaleoutService {
 
 		if (StringUtil.isEmptyWithTrim(vo.getSourcebilltype()) && StringUtil.isEmptyWithTrim(vo.getSourcebillid())
 				&& DZFBoolean.TRUE.equals(vo.getIsback())) {
-			throw new BusinessException("已生成红字冲回的单据，不允许取消转总账");
+			throw new BusinessException("已生成红字冲回的单据，不允许取消生成凭证");
 		}
 
 		// if (!StringUtil.isEmpty(intradevo.getCbusitype())
 		// && IcConst.QTCTYPE.equalsIgnoreCase(intradevo.getCbusitype())) {
-		// throw new BusinessException("其他出库单不能取消转总账");
+		// throw new BusinessException("其他出库单不能取消生成凭证");
 		// }
 		checkCanl(intradevo, pk_corp);
 
@@ -1857,7 +1857,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 
 		if (intradevo.getIsjz() == null || !intradevo.getIsjz().booleanValue()) {
-			throw new BusinessException("没有转总账!");
+			throw new BusinessException("没有生成凭证!");
 		}
 
 		String speriod = DateUtils.getPeriod(intradevo.getDbilldate());
@@ -1880,7 +1880,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		boolean isgz = qmgzService.isGz(vo.getPk_corp(), vo.getPeriod().toString());
 		if (isgz) {// 是否关账
 			throw new BusinessException(
-					"公司" + corpvo.getUnitname() + "在" + vo.getPeriod().toString() + "月份已关账，不能取消转总账");
+					"公司" + corpvo.getUnitname() + "在" + vo.getPeriod().toString() + "月份已关账，不能取消生成凭证");
 		}
 
 		// if (vo.getIscbjz() != null && vo.getIscbjz().booleanValue()) {
@@ -2201,7 +2201,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 
 		if (!iscopy) {
 			if (hvo.getIsjz() != null && hvo.getIsjz().booleanValue()) {
-				throw new BusinessException("已经转总账,不允许操作!");
+				throw new BusinessException("已经生成凭证,不允许操作!");
 			}
 				String sourcetype = hvo.getSourcebilltype();
 				if (IBillTypeCode.HP75.equals(sourcetype)) {
