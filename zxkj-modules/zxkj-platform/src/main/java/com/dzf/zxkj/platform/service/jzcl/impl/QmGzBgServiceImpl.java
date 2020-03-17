@@ -9,7 +9,6 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.common.constant.*;
-import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
@@ -1449,7 +1448,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		billCheck(reslist,pk_corp,period,cpvo);
 		// 待处理图片
 //        imageCheck(reslist,pk_corp,period,cpvo);
-		// 库存单据未转总账
+		// 库存单据未生成凭证
         inventoryCheck(reslist,cpvo,period);
 		// 成本结转
         // 期末调汇
@@ -1930,7 +1929,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 			return;
 		}
 		QmGzBgVo  rkbgvo = new QmGzBgVo();
-		rkbgvo.setXm("入库单未转总账");
+		rkbgvo.setXm("入库单未生成凭证");
 		rkbgvo.setIssuccess(DZFBoolean.TRUE);
 		rkbgvo.setVmemo("通过");
 		Map<String,Object> map = getPubParam(cpvo);
@@ -1942,7 +1941,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		rkbgvo.setName("入库单");
 
 		QmGzBgVo  ckbgvo = new QmGzBgVo();
-		ckbgvo.setXm("出库单未转总账");
+		ckbgvo.setXm("出库单未生成凭证");
 		ckbgvo.setIssuccess(DZFBoolean.TRUE);
 		ckbgvo.setVmemo("通过");
 		ckbgvo.setParamstr(JsonUtils.serialize(map));
@@ -1958,7 +1957,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 			qrysql.append("   where pk_corp = ?  ");
 			qrysql.append("   and dbilldate like ? ");
 			qrysql.append("   and nvl(dr,0)=0 ");
-			qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未转总账的数据
+			qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未生成凭证的数据
 			sp.addParam(cpvo.getPk_corp());
 			sp.addParam(period+"%");
 
@@ -1977,14 +1976,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 				if(in_count>0){
 					rkbgvo.setIssuccess(DZFBoolean.FALSE);
-					rkbgvo.setVmemo("有"+in_count+"张入库单未转总账");
+					rkbgvo.setVmemo("有"+in_count+"张入库单未生成凭证");
 				}else{
 					rkbgvo = null;
 				}
 
 				if(out_count>0){
 					ckbgvo.setIssuccess(DZFBoolean.FALSE);
-					ckbgvo.setVmemo("有"+out_count+"张出库单未转总账");
+					ckbgvo.setVmemo("有"+out_count+"张出库单未生成凭证");
 				}else{
 					ckbgvo = null;
 				}

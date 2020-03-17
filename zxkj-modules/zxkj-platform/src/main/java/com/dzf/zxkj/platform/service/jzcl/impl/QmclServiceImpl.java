@@ -4104,7 +4104,7 @@ public class QmclServiceImpl implements IQmclService {
 		qrysql.append("   and dbilldate like ? ");
 		qrysql.append("   and nvl(dr,0)=0 ");
 		qrysql.append("   and nvl(iszg,'N')= 'N' ");
-		qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未转总账的数据
+		qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未生成凭证的数据
 		sp1.addParam(pk_corp);
 		sp1.addParam(period+"%");
 
@@ -4124,11 +4124,11 @@ public class QmclServiceImpl implements IQmclService {
 			}
 
 			if(in_count>0){
-				error.append(",有"+in_count+"张入库单未转总账");
+				error.append(",有"+in_count+"张入库单未生成凭证");
 			}
 
 			if(out_count>0){
-				error.append(",有"+out_count+"张出库单未转总账");
+				error.append(",有"+out_count+"张出库单未生成凭证");
 			}
 
 			if(!isbat && error.length() > 0){

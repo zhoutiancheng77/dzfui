@@ -521,7 +521,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		} else {
 			IntradeHVO oldvo = (IntradeHVO) singleObjectBO.queryByPrimaryKey(IntradeHVO.class, headvo.getPrimaryKey());
 			if (oldvo.getIsjz() != null && oldvo.getIsjz() == DZFBoolean.TRUE) {
-				throw new BusinessException("已转总账的单据，不允许重复转总账");
+				throw new BusinessException("已生成凭证的单据，不允许重复生成凭证");
 			}
 
 			// 先删除子表
@@ -835,7 +835,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 
 		if (hvo.getIsjz() != null && hvo.getIsjz().booleanValue()) {
-			throw new BusinessException("已经转总账,不允许其他操作!");
+			throw new BusinessException("已经生成凭证,不允许其他操作!");
 		}
 	}
 
@@ -844,7 +844,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		String pk_corp = corpvo.getPk_corp();
 		IntradeHVO intradevo = queryIntradeHVOByID(vo.getPk_ictrade_h(), pk_corp);
 		if (!StringUtil.isEmpty(intradevo.getCbusitype()) && IcConst.QTCTYPE.equals(intradevo.getCbusitype())) {
-			// throw new BusinessException("其他出库单不能转总账");
+			// throw new BusinessException("其他出库单不能生成凭证");
 		}
 
 		checkIntradeH(intradevo, pk_corp);
@@ -1617,7 +1617,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 
 		if (intradevo.getIsjz() == null || !intradevo.getIsjz().booleanValue()) {
-			throw new BusinessException("未转总账的单据,不允许红字冲回操作!");
+			throw new BusinessException("未生成凭证的单据,不允许红字冲回操作!");
 		}
 
 		if (intradevo.getIsback() != null && intradevo.getIsback().booleanValue()) {
@@ -1634,7 +1634,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		saveSale(dashInTravo, false, false);
 
 		String zy = "红字冲回";
-		// 转总账
+		// 生成凭证
 		saveToGL(dashInTravo, corpvo, userid, zy);
 
 		// 更新原单据退回标识
