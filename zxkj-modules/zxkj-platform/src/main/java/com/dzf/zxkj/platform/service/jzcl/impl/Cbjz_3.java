@@ -235,7 +235,7 @@ public class Cbjz_3 {
 		return accvo;
 	}
 	
-	// 校验是否存在没有转总账的数据
+	// 校验是否存在没有生成凭证的数据
 	private void checkIsJz( QmclVO vo) {
 		StringBuffer sf1 = new StringBuffer();
 		sf1.append(" select cbilltype from  ynt_ictrade_h  h ");
@@ -250,11 +250,11 @@ public class Cbjz_3 {
 			return;
 		
 		if(list.contains("HP70")){
-			throw new BusinessException("存在未转总账的入库单,请全部转总账后再结转!");
+			throw new BusinessException("存在未生成凭证的入库单,请全部生成凭证后再结转!");
 		}
 		
 		if(list.contains("HP75")){
-			throw new BusinessException("存在未转总账的出库单,请全部转总账后再结转!");
+			throw new BusinessException("存在未生成凭证的出库单,请全部生成凭证后再结转!");
 		}
 	}
 	

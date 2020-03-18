@@ -288,7 +288,7 @@ public class PurchInController extends BaseController {
 //			body = "[" + body + "]";
             bodyvos = JsonUtils.deserialize(body,IntradeHVO[].class);
 			if (bodyvos == null || bodyvos.length == 0) {
-				throw new BusinessException("数据为空,转总账失败!");
+				throw new BusinessException("数据为空,生成凭证失败!");
 			}
             checkSecurityData(bodyvos,null,null,true);
 			List<String> periodSet = new ArrayList<String>();
@@ -299,7 +299,7 @@ public class PurchInController extends BaseController {
 					ic_purchinserv.saveIntradeHVOToZz(head, SystemUtil.getLoginCorpVo());
 					flag++;
 				} catch (Exception e) {
-					printErrorLog(json, e, "转总账失败");
+					printErrorLog(json, e, "生成凭证失败");
 					strb.append("<p>入库单[" + head.getDbillid() + "]," + json.getMsg() + "</p>");
 				}
 			}
@@ -310,17 +310,17 @@ public class PurchInController extends BaseController {
 				}
 			}
 		} catch (Exception e) {
-			printErrorLog(json, e, "转总账失败");
+			printErrorLog(json, e, "生成凭证失败");
 			strb.append(json.getMsg());
 		}
 		if (strb.length() == 0) {
 			json.setSuccess(true);
-			json.setMsg("转总账成功!");
+			json.setMsg("生成凭证成功!");
 		} else {
 			json.setSuccess(false);
 			json.setMsg(strb.toString());
 		}
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单转总账", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单生成凭证", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 
@@ -335,7 +335,7 @@ public class PurchInController extends BaseController {
 //			body = "[" + body + "]";
             bodyvos = JsonUtils.deserialize(body,IntradeHVO[].class);
 			if (bodyvos == null || bodyvos.length == 0) {
-				throw new BusinessException("数据为空,转总账失败!");
+				throw new BusinessException("数据为空,生成凭证失败!");
 			}
             checkSecurityData(bodyvos,null,null,true);
 			int flag = 0;
@@ -345,11 +345,11 @@ public class PurchInController extends BaseController {
 			List<String> periodSet = new ArrayList<String>();
 			for (IntradeHVO head : bodyvos) {
 				if (!StringUtil.isEmpty(head.getCbusitype()) && IcConst.WGTYPE.equalsIgnoreCase(head.getCbusitype())) {
-					printErrorLog(json, null, "完工入库单不能转总账!");
-					strb.append("<p>完工入库单[" + head.getDbillid() + "],不能转总账!</p>");
-				} else if (head.getIsjz() != null && head.getIsjz().booleanValue()) { // 转总账
-					printErrorLog(json, null, "已经转总账!");
-					strb.append("<p>入库单[" + head.getDbillid() + "],已经转总账,不允许操作!</p>");
+					printErrorLog(json, null, "完工入库单不能生成凭证!");
+					strb.append("<p>完工入库单[" + head.getDbillid() + "],不能生成凭证!</p>");
+				} else if (head.getIsjz() != null && head.getIsjz().booleanValue()) { // 生成凭证
+					printErrorLog(json, null, "已经生成凭证!");
+					strb.append("<p>入库单[" + head.getDbillid() + "],已经生成凭证,不允许操作!</p>");
 				} else if (head.getIsczg() != null && head.getIsczg().booleanValue()) {// 冲暂估
 					printErrorLog(json, null, "冲暂估单据不允许操作!");
 					strb.append("<p>入库单[" + head.getDbillid() + "],为冲暂估单据不允许操作!</p>");
@@ -360,7 +360,7 @@ public class PurchInController extends BaseController {
 						flag++;
 
 					} catch (Exception e) {
-						printErrorLog(json, e, "转总账失败");
+						printErrorLog(json, e, "生成凭证失败");
 						strb.append("<p>入库单[" + head.getDbillid() + "]," + json.getMsg() + "</p>");
 					}
 				} else {
@@ -415,7 +415,7 @@ public class PurchInController extends BaseController {
 					}
 				}
 			} catch (Exception e) {
-				printErrorLog(json, e, "转总账失败");
+				printErrorLog(json, e, "生成凭证失败");
 				if (zlist != null && zlist.size() > 0) {
 					for (IntradeHVO vo : zlist) {
 						strb.append("<p>入库单[" + vo.getDbillid() + "]," + json.getMsg() + "</p>");
@@ -429,17 +429,17 @@ public class PurchInController extends BaseController {
 				}
 			}
 		} catch (Exception e) {
-			printErrorLog(json, e, "转总账失败");
+			printErrorLog(json, e, "生成凭证失败");
 			strb.append(json.getMsg());
 		}
 		if (strb.length() == 0) {
 			json.setSuccess(true);
-			json.setMsg("转总账成功!");
+			json.setMsg("生成凭证成功!");
 		} else {
 			json.setSuccess(false);
 			json.setMsg(strb.toString());
 		}
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单汇总转总账", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单汇总生成凭证", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 
@@ -453,7 +453,7 @@ public class PurchInController extends BaseController {
 //			body = "[" + body + "]";
 			IntradeHVO[] bodyvos = JsonUtils.deserialize(body,IntradeHVO[].class);
 			if (bodyvos == null || bodyvos.length == 0) {
-				throw new BusinessException("数据为空,取消转总账失败!");
+				throw new BusinessException("数据为空,取消生成凭证失败!");
 			}
             checkSecurityData(bodyvos,null,null,true);
 			Map<String, DZFBoolean> map = new HashMap<>();
@@ -469,7 +469,7 @@ public class PurchInController extends BaseController {
 						flag++;
 					}
 				} catch (Exception e) {
-					printErrorLog(json, e, "取消转总账失败");
+					printErrorLog(json, e, "取消生成凭证失败");
 					strb.append("<p>入库单[" + head.getDbillid() + "]," + json.getMsg() + "</p>");
 				}
 			}
@@ -481,17 +481,17 @@ public class PurchInController extends BaseController {
 				}
 			}
 		} catch (Exception e) {
-			printErrorLog(json, e, "取消转总账失败");
+			printErrorLog(json, e, "取消生成凭证失败");
 			strb.append(json.getMsg());
 		}
 		if (strb.length() == 0) {
 			json.setSuccess(true);
-			json.setMsg("取消转总账成功!");
+			json.setMsg("取消生成凭证成功!");
 		} else {
 			json.setSuccess(false);
 			json.setMsg(strb.toString());
 		}
-		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单取消转总账", ISysConstants.SYS_2);
+		writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "入库单取消生成凭证", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
 	}
 

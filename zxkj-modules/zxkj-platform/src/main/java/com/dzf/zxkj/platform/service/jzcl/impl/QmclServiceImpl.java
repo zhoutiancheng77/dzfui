@@ -366,7 +366,6 @@ public class QmclServiceImpl implements IQmclService {
 	 * 校验是否期末调汇
 	 *
 	 * @param qmclvo
-	 * @param selectrow
 	 * @return
 	 * @throws BusinessException
 	 */
@@ -992,7 +991,7 @@ public class QmclServiceImpl implements IQmclService {
 	 * 根据公司制定的损益结转模板生成凭证
 	 *
 	 * @param vo
-	 * @param mbvos
+	 * @param aggvos
 	 * @throws BusinessException
 	 */
 	public void doCorpJz(QmclVO vo, YntCptransmbHVO[] aggvos,String userid) throws DZFWarpException {
@@ -1520,8 +1519,8 @@ public class QmclServiceImpl implements IQmclService {
 	 * 组织凭证主表数据
 	 *
 	 * @param vo
-	 * @param headJfmny
-	 * @param headDfmny
+	 * @param pzBodyVOs
+	 * @param userid
 	 * @throws BusinessException
 	 */
 	public TzpzHVO getTzpzHvo(QmclVO vo, TzpzBVO[] pzBodyVOs,String userid) throws DZFWarpException {
@@ -2724,6 +2723,8 @@ public class QmclServiceImpl implements IQmclService {
 		Map<String, DZFDouble> genTaxMap = new HashMap<String, DZFDouble>();
 		// 计税基数-增值税
 		DZFDouble baseTax = DZFDouble.ZERO_DBL;
+		//  增值税专票
+		DZFDouble spcTax = DZFDouble.ZERO_DBL;
 		for (Map.Entry<String, List<TzpzBVO>> entry : hvoMap.entrySet()) {
 			// 收入科目编码
 			String incomeCode = null;
@@ -2771,57 +2772,68 @@ public class QmclServiceImpl implements IQmclService {
 						}
 						genTaxMap.put(incomeCode, dfmny);
 					}
+					spcTax =SafeCompute.add(spcTax,dfmny);
 				}
 			}
 		}
 
+		int year = Integer.valueOf(endPeriod.substring(0, 4));
 		// 税收优惠
 		DZFDouble reduce = DZFDouble.ZERO_DBL;
-		int year = Integer.valueOf(endPeriod.substring(0, 4));
-		double totalIncome = SafeCompute.add(cargoIncomeMny, serviceIncomeMny).doubleValue();
-		int limit = beginPeriod.equals(endPeriod) ? (year >= 2019 ? 100000 : 30000) : (year >= 2019 ? 300000 : 90000);
-		for (Map.Entry<String, DZFDouble> entry : genTaxMap.entrySet()) {
-			String code = entry.getKey();
-			DZFDouble genTax = entry.getValue();
-			if (genTax != null) {
-				if(year < 2019){
-					// 收入小于limit时，免普票中的销项税额  2019前政策
-					if ((code.matches(cargoPattern) ? cargoIncomeMny : serviceIncomeMny).doubleValue() <= limit) {
-						// 计入税收优惠
-						reduce = reduce.add(genTax);
-					} else {
-						// 计入增值税
-						baseTax = baseTax.add(genTax);
-					}
-				}else{
-					// 收入小于limit时，免普票中的销项税额 2019开始执行
-					if (totalIncome <= limit) {
-						// 计入税收优惠
-						reduce = reduce.add(genTax);
-					} else {
-						// 计入增值税
-						baseTax = baseTax.add(genTax);
+        YntParameterSet paramSet = sys_parameteract.queryParamterbyCode(corpVO.getPk_corp(), "dzf024");
+        boolean isAllFree = false;
+        if (paramSet != null && paramSet.getPardetailvalue() == 0) {
+            isAllFree = true;
+        }
+		if(year >= 2020 && isAllFree){
+			reduce = spcTax;
+			baseTax = DZFDouble.ZERO_DBL;
+		}else{
+			double totalIncome = SafeCompute.add(cargoIncomeMny, serviceIncomeMny).doubleValue();
+			int limit = beginPeriod.equals(endPeriod) ? (year >= 2019 ? 100000 : 30000) : (year >= 2019 ? 300000 : 90000);
+			for (Map.Entry<String, DZFDouble> entry : genTaxMap.entrySet()) {
+				String code = entry.getKey();
+				DZFDouble genTax = entry.getValue();
+				if (genTax != null) {
+					if(year < 2019){
+						// 收入小于limit时，免普票中的销项税额  2019前政策
+						if ((code.matches(cargoPattern) ? cargoIncomeMny : serviceIncomeMny).doubleValue() <= limit) {
+							// 计入税收优惠
+							reduce = reduce.add(genTax);
+						} else {
+							// 计入增值税
+							baseTax = baseTax.add(genTax);
+						}
+					}else{
+						// 收入小于limit时，免普票中的销项税额 2019开始执行
+						if (totalIncome <= limit) {
+							// 计入税收优惠
+							reduce = reduce.add(genTax);
+						} else {
+							// 计入增值税
+							baseTax = baseTax.add(genTax);
+						}
 					}
 				}
 			}
-		}
-		// 减免税款
-		DZFDouble deductTax = null;
-		String deductCode = getUpdateKmcode(corpVO, getDeductCode(corpVO.getCorptype()));
-		QueryParamVO param = ReportUtil.getFseQueryParamVO(corpVO,
-				new DZFDate(beginPeriod + "-01"), new DZFDate(endPeriod + "-01"),
-				new String[]{deductCode}, true);
-		FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(param, 1);
-		if (fsejyevos != null && fsejyevos.length > 0) {
-			for (FseJyeVO fseVO : fsejyevos) {
-				if (deductCode.equals(fseVO.getKmbm())) {
-					deductTax = fseVO.getFsjf();
-					break;
+			// 减免税款
+			DZFDouble deductTax = null;
+			String deductCode = getUpdateKmcode(corpVO, getDeductCode(corpVO.getCorptype()));
+			QueryParamVO param = ReportUtil.getFseQueryParamVO(corpVO,
+					new DZFDate(beginPeriod + "-01"), new DZFDate(endPeriod + "-01"),
+					new String[]{deductCode}, true);
+			FseJyeVO[] fsejyevos = zxkjReportService.getFsJyeVOs(param, 1);
+			if (fsejyevos != null && fsejyevos.length > 0) {
+				for (FseJyeVO fseVO : fsejyevos) {
+					if (deductCode.equals(fseVO.getKmbm())) {
+						deductTax = fseVO.getFsjf();
+						break;
+					}
 				}
 			}
-		}
-		if (deductTax != null) {
-			baseTax = baseTax.sub(deductTax);
+			if (deductTax != null) {
+				baseTax = baseTax.sub(deductTax);
+			}
 		}
 		return new DZFDouble[] { reduce, baseTax };
 	}
@@ -3571,7 +3583,6 @@ public class QmclServiceImpl implements IQmclService {
 	 * @param pk_corp
 	 * @param period
 	 * @param vos
-	 * @param byear 是否只算最后一个月份的(累计税负使用)
 	 * @return
 	 */
 	@Override
@@ -3666,7 +3677,6 @@ public class QmclServiceImpl implements IQmclService {
 	 * @param pk_corp
 	 * @param period
 	 * @param vos
-	 * @param byear 是否只算最后一个月份的(累计税负使用)
 	 * @return
 	 */
 	@Override
@@ -4104,7 +4114,7 @@ public class QmclServiceImpl implements IQmclService {
 		qrysql.append("   and dbilldate like ? ");
 		qrysql.append("   and nvl(dr,0)=0 ");
 		qrysql.append("   and nvl(iszg,'N')= 'N' ");
-		qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未转总账的数据
+		qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未生成凭证的数据
 		sp1.addParam(pk_corp);
 		sp1.addParam(period+"%");
 
@@ -4124,11 +4134,11 @@ public class QmclServiceImpl implements IQmclService {
 			}
 
 			if(in_count>0){
-				error.append(",有"+in_count+"张入库单未转总账");
+				error.append(",有"+in_count+"张入库单未生成凭证");
 			}
 
 			if(out_count>0){
-				error.append(",有"+out_count+"张出库单未转总账");
+				error.append(",有"+out_count+"张出库单未生成凭证");
 			}
 
 			if(!isbat && error.length() > 0){

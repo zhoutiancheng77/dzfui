@@ -696,7 +696,7 @@ public class BDCorpTaxServiceImpl implements IBDCorpTaxService {
 				}else{
 					TaxEffeHistVO vo2 = new TaxEffeHistVO();
 					vo2.setPk_corp(pk_corp);
-					vo2.setIcompanytype(newcomtype);
+					vo2.setIcompanytype(oldTaxType == null || oldTaxType == 1 ? oldcomtype : newcomtype);
 					vo2.setIncomtaxtype(0);
 					vo2.setTaxlevytype(1);
 					vo2.setSxbegperiod(jzper);

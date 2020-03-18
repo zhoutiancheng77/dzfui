@@ -1513,7 +1513,7 @@ public class VATInComInvoiceController extends BaseController {
                     }
                 }
 
-                //汇总转总账
+                //汇总生成凭证
                 if(ihvoList.size() > 0){
                     gl_vatincinvact.saveTotalGL(
                             ihvoList.toArray(new IntradeHVO[0]), pk_corp, userid);

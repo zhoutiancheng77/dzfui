@@ -917,12 +917,12 @@ public class PurchInServiceImpl implements IPurchInService {
 
 		// String sourcetype = intradevo.getSourcebilltype();
 		// if (IBillTypeCode.HP70.equals(sourcetype)) {
-		// throw new BusinessException("冲暂估单据,不能转总账!");
+		// throw new BusinessException("冲暂估单据,不能生成凭证!");
 		// }
 
 		if (!StringUtil.isEmpty(intradevo.getCbusitype())
 				&& IcConst.WGTYPE.equalsIgnoreCase(intradevo.getCbusitype())) {
-			throw new BusinessException("完工入库单不能转总账");
+			throw new BusinessException("完工入库单不能生成凭证");
 		}
 
 		check(intradevo, corpvo.getPk_corp(), false, true);
@@ -1555,7 +1555,7 @@ public class PurchInServiceImpl implements IPurchInService {
 
 		if (!iscopy) {
 			if (hvo.getIsjz() != null && hvo.getIsjz().booleanValue()) {
-				throw new BusinessException("已经转总账,不允许操作!");
+				throw new BusinessException("已经生成凭证,不允许操作!");
 			}
 
 			if (!istogl) {
@@ -1642,7 +1642,7 @@ public class PurchInServiceImpl implements IPurchInService {
 
 		// String sourcetype = intradevo.getSourcebilltype();
 		// if (IBillTypeCode.HP70.equals(sourcetype)) {
-		// throw new BusinessException("冲暂估单据,不能取消转总账!");
+		// throw new BusinessException("冲暂估单据,不能取消生成凭证!");
 		// }
 
 		if (intradevo == null)
@@ -1650,7 +1650,7 @@ public class PurchInServiceImpl implements IPurchInService {
 
 		if (!StringUtil.isEmpty(intradevo.getCbusitype())
 				&& IcConst.WGTYPE.equalsIgnoreCase(intradevo.getCbusitype())) {
-			throw new BusinessException("完工入库单不能取消转总账");
+			throw new BusinessException("完工入库单不能取消生成凭证");
 		}
 		checkCanl(intradevo, corpvo);
 
@@ -1725,7 +1725,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		singleObjectBO.executeUpdate(sql, sp);
 
 		boolean flag = false;
-		// 去掉暂估的取消转总账 2017-08-29
+		// 去掉暂估的取消生成凭证 2017-08-29
 		for (IntradeHVO head : hvos) {
 			if (head.getIszg() != null && head.getIszg().booleanValue()) {
 				IntradeHVO[] nexts = getNextIntradeHVO(head, head.getPk_corp());
@@ -1757,7 +1757,7 @@ public class PurchInServiceImpl implements IPurchInService {
 			}
 		}
 		if (intradevo.getIsjz() == null || !intradevo.getIsjz().booleanValue()) {
-			throw new BusinessException("没有转总账!");
+			throw new BusinessException("没有生成凭证!");
 		}
 
 		String speriod = DateUtils.getPeriod(intradevo.getDbilldate());
@@ -1774,7 +1774,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		boolean isgz = qmgzService.isGz(vo.getPk_corp(), vo.getPeriod().toString());
 		if (isgz) {// 是否关账
 			throw new BusinessException(
-					"公司" + corpvo.getUnitname() + "在" + vo.getPeriod().toString() + "月份已关账，不能取消转总账");
+					"公司" + corpvo.getUnitname() + "在" + vo.getPeriod().toString() + "月份已关账，不能取消生成凭证");
 		}
 
 		// if (vo.getIscbjz() != null && vo.getIscbjz().booleanValue()) {
