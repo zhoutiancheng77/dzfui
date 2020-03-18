@@ -2195,16 +2195,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setIssuccess(DZFBoolean.TRUE);
 		bgvo.setVmemo("通过");
 		bgvo.setUrl("voucher-manage");
-		Map<String, Object> parammap = getPubParam(cpvo);
-		parammap.put("serdate", "serDay");
-		parammap.put("pzbegdate", DateUtils.getPeriodStartDate(period));
-		parammap.put("pzenddate", DateUtils.getPeriodEndDate(period));
-		parammap.put("beginPeriod", period);
-		parammap.put("endPeriod", period);
 //		bgvo.setUrl("gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(cpvo,parammap)+"&serdate=serDay&pzbegdate="+DateUtils.getPeriodStartDate(period)+"&pzenddate="+DateUtils.getPeriodEndDate(period));
-		bgvo.setParamstr(JsonUtils.serialize(parammap));
 		bgvo.setName("凭证管理");
 		bgvo.setBz(" *");
+		String voucherId = null;
 		try{
 			if(pzhlist!=null && pzhlist.size()>0){
 				Integer pzh_int_cur = 0;
@@ -2220,8 +2214,10 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 					if(pzh_int_cur.intValue()!=(count)){
 						if(count == 1){
 							bgvo.setVmemo("凭证号"+pzhlist.get(i).getPzh()+"之前缺失,请检查");
+							voucherId = pzhlist.get(i).getPk_tzpz_h();
 						}else{
 							bgvo.setVmemo("凭证号"+pzhlist.get(i-1).getPzh()+"之后缺失,请检查");
+							voucherId = pzhlist.get(i-1).getPk_tzpz_h();
 						}
 						bgvo.setIssuccess(DZFBoolean.FALSE);
 						break;
@@ -2233,6 +2229,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 			handleError(bgvo, e);
 		}
 
+		Map<String, Object> parammap = getPubParam(cpvo);
+		parammap.put("serdate", "serDay");
+		parammap.put("pzbegdate", DateUtils.getPeriodStartDate(period));
+		parammap.put("pzenddate", DateUtils.getPeriodEndDate(period));
+		parammap.put("beginPeriod", period);
+		parammap.put("endPeriod", period);
+		parammap.put("focusId", voucherId);
+		bgvo.setParamstr(JsonUtils.serialize(parammap));
 		reslist.add(bgvo);
 	}
 
