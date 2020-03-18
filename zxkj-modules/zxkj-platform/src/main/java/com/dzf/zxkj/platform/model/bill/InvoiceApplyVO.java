@@ -26,6 +26,38 @@ public class InvoiceApplyVO extends SuperVO {
 
     private DZFDateTime ts;// ts
     private Integer dr;// dr
+
+    @JsonProperty("uname")
+    private String unitname;
+    @JsonProperty("incode")
+    private String innercode;
+    @JsonProperty("fcorp")
+    public String fathercorp;
+
+    public String getFathercorp() {
+        return fathercorp;
+    }
+
+    public void setFathercorp(String fathercorp) {
+        this.fathercorp = fathercorp;
+    }
+
+    public String getUnitname() {
+        return unitname;
+    }
+
+    public void setUnitname(String unitname) {
+        this.unitname = unitname;
+    }
+
+    public String getInnercode() {
+        return innercode;
+    }
+
+    public void setInnercode(String innercode) {
+        this.innercode = innercode;
+    }
+
     public String getPk_invoice_apply() {
         return pk_invoice_apply;
     }
