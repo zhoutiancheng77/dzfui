@@ -42,6 +42,66 @@ public class BankAccountVO extends SuperVO implements ICodeName {
     private int dr;
     private DZFDateTime ts;
 
+
+    // add 2020.03.17
+    private String istatus;//	签约状态 0-未上送1-未签约2-已签约3-签约失败
+    @JsonProperty("banktype")
+    private String banktype;//	银行类型
+    @JsonProperty("bankTypeCode")
+    private String bankTypeCode; //银行账户编码  同步于手机app   1 工商银行
+    @JsonProperty("applycode")
+    private String vapplycode;//	申请码
+    private String ly; //来源  0 签约生成  1 手工生成
+    private String zhlx; //账户类型 0 银行  1 微信  2支付宝
+
+    public String getIstatus() {
+        return istatus;
+    }
+
+    public void setIstatus(String istatus) {
+        this.istatus = istatus;
+    }
+
+    public String getBanktype() {
+        return banktype;
+    }
+
+    public void setBanktype(String banktype) {
+        this.banktype = banktype;
+    }
+
+    public String getBankTypeCode() {
+        return bankTypeCode;
+    }
+
+    public void setBankTypeCode(String bankTypeCode) {
+        this.bankTypeCode = bankTypeCode;
+    }
+
+    public String getVapplycode() {
+        return vapplycode;
+    }
+
+    public void setVapplycode(String vapplycode) {
+        this.vapplycode = vapplycode;
+    }
+
+    public String getLy() {
+        return ly;
+    }
+
+    public void setLy(String ly) {
+        this.ly = ly;
+    }
+
+    public String getZhlx() {
+        return zhlx;
+    }
+
+    public void setZhlx(String zhlx) {
+        this.zhlx = zhlx;
+    }
+
     public String getPk_bankaccount() {
         return pk_bankaccount;
     }
