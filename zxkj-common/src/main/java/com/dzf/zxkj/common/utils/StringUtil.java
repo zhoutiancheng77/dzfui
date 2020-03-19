@@ -740,7 +740,10 @@ public class StringUtil
     String dest = "";
     if (!StringUtil.isEmpty(str)) {
       str = str.trim();
-      Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+      // 去除所有空格
+//      Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+      // 不去除中间空格
+      Pattern p = Pattern.compile("\\t|\r|\n");
       Matcher m = p.matcher(str);
       dest = m.replaceAll("");
     }
