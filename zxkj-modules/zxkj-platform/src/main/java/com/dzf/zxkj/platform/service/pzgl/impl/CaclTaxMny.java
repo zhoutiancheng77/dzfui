@@ -460,6 +460,7 @@ public class CaclTaxMny {
         Integer fpStyle = hvo.getFp_style();
         if (fpStyle == null) {
             fpStyle = "一般纳税人".equals(corp.getChargedeptname()) ? 2 : 1;
+            hvo.setFp_style(fpStyle);
         }
         String cargoSubj = rules[0];
         String serviceSubj = rules[1];
