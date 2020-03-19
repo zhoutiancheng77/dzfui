@@ -46,6 +46,7 @@ public class ZxkjBankAccountServiceImpl implements IBankAccountService {
         }catch (Exception e){
             returnData.setCode("500");
             returnData.setMessage(e.getMessage());
+            log.info("同步数据失败", e);
         }
         return returnData;
     }
