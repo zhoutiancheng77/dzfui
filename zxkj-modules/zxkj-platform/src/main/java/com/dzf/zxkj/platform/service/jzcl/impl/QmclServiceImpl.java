@@ -2723,7 +2723,7 @@ public class QmclServiceImpl implements IQmclService {
 		Map<String, DZFDouble> genTaxMap = new HashMap<String, DZFDouble>();
 		// 计税基数-增值税
 		DZFDouble baseTax = DZFDouble.ZERO_DBL;
-		//  增值税专票
+		//  增值税合计
 		DZFDouble spcTax = DZFDouble.ZERO_DBL;
 		for (Map.Entry<String, List<TzpzBVO>> entry : hvoMap.entrySet()) {
 			// 收入科目编码
