@@ -12,7 +12,6 @@ import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zncs.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
@@ -137,7 +136,7 @@ public interface IBankStatement2Service{
 	
 	public List<BillCategoryVO> queryBankCategoryRef(String pk_corp, String period)throws DZFWarpException;
 	
-	public List<BankStatementVO2> updateVO(String id, String pk_model_h, String busitypetempname, String pk_corp, String rzkm, String pk_basecategory, String zdyzy)throws DZFWarpException;
+	public List<BankStatementVO2> updateVO(String id, String pk_model_h, String busitypetempname, String pk_corp, String rzkm, String pk_basecategory, String zdyzy,String jskm)throws DZFWarpException;
 	
 	public List<BankStatementVO2> queryByID(String pk_bankstatement)throws DZFWarpException;
 	public List<BankStatementVO2> queryByIDs(String pk_bankstatement)throws DZFWarpException;
@@ -158,4 +157,5 @@ public interface IBankStatement2Service{
 	 * 根据全限定业务类型名称找主键
 	 */
 	public String queryBillCategoryId(String name, String pk_corp, String period)throws DZFWarpException;
+//	public List<BankStatementVO2> ercptApplyAndQrywlhdetail(IcbcErcptApplyAndQrywlhdetailQo vo)throws DZFWarpException;
 	}
