@@ -16,7 +16,6 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -74,6 +73,7 @@ public class BankStatement2Controller extends BaseController {
     private ICorpService corpService;
     @Autowired
     private RedissonDistributedLock redissonDistributedLock;
+
 //	@Autowired
 //	private IParameterSetService parameterserv;
 
@@ -1359,7 +1359,7 @@ public class BankStatement2Controller extends BaseController {
     }
 
     @RequestMapping("/queryCategoryset")
-    public ReturnData<Grid> queryCategoryset( Map<String,String> param){
+    public ReturnData<Grid> queryCategoryset(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         try {
             String id = param.get("id");
@@ -1389,12 +1389,12 @@ public class BankStatement2Controller extends BaseController {
      * 入账设置
      */
     @RequestMapping("/updateCategoryset")
-    public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busitypetempname,String pk_basecategory,String zdyzy,String rzkm ){
+    public ReturnData<Grid> updateCategoryset(String pk_model_h,String id,String busitypetempname,String pk_basecategory,String zdyzy,String rzkm,String jskm ){
         Grid grid = new Grid();
         String pk_corp = SystemUtil.getLoginCorpId();
         checkSecurityData(null,new String[]{pk_corp}, null);
         try {
-            List<BankStatementVO2> list=gl_yhdzdserv2.updateVO(id , pk_model_h,busitypetempname,pk_corp,rzkm,pk_basecategory,zdyzy);
+            List<BankStatementVO2> list=gl_yhdzdserv2.updateVO(id , pk_model_h,busitypetempname,pk_corp,rzkm,pk_basecategory,zdyzy,jskm);
 
             log.info("设置成功！");
             grid.setRows(list);
@@ -1407,6 +1407,56 @@ public class BankStatement2Controller extends BaseController {
                 "银行对账单更新业务类型", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
-
-
+//    // 一键获取 签约结果查询接口
+//    @RequestMapping("/queryRegAgreement")
+//    public ReturnData<Grid> queryRegAgreement(){
+//        Grid grid = new Grid();
+//        String pk_corp = SystemUtil.getLoginCorpId();
+//        checkSecurityData(null,new String[]{pk_corp}, null);
+//        try {
+//            ArrayList<String> pk_categoryList = new ArrayList<String>();
+//            List<BankAccountVO> list = gl_yhzhserv.query(pk_corp, "Y");
+//            if(list!=null&&list.size()>0){
+//                log.info("查询成功！");
+//                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
+//                grid.setSuccess(true);
+//                grid.setMsg("查询成功");
+//            }else{
+//                log.info("查询成功！");
+//                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
+//                grid.setSuccess(true);
+//                grid.setMsg("银行账户为空无法一键获取，请检查！");
+//            }
+//        } catch (Exception e) {
+//            printErrorLog(grid, e, "查询失败");
+//        }
+//
+//        return ReturnData.ok().data(grid);
+//    }
+//    // 一键获取 流水提取和电子回单(一键获取)
+//    @RequestMapping("/ercptApplyAndQrywlhdetail")
+//    public ReturnData<Grid> ercptApplyAndQrywlhdetail(@RequestBody Map<String,String> param){
+//        Grid grid = new Grid();
+//        String pk_corp = SystemUtil.getLoginCorpId();
+//        checkSecurityData(null,new String[]{pk_corp}, null);
+//        try {
+//            IcbcErcptApplyAndQrywlhdetailQo vo = new IcbcErcptApplyAndQrywlhdetailQo();
+//            String date = param.get("date");//期间
+//            vo.setAcctcomno(param.get("acctcomno"));//代记账公司编号
+//            vo.setAccno(param.get("accno"));//银行账户
+//            vo.setUscc(param.get("uscc"));//统一社会信用代码
+//            vo.setStartDate(DateUtils.getPeriodStartDate(date).toString());
+//            vo.setEndDate("2020-04-01");
+//            List<BankStatementVO2> list = gl_yhdzdserv2.ercptApplyAndQrywlhdetail(vo);
+//            grid.setSuccess(true);
+//            grid.setRows(list);
+//            grid.setMsg("一键获取成功！");
+//        } catch (Exception e) {
+//            grid.setSuccess(true);
+//            grid.setMsg("一键获取失败！");
+//            printErrorLog(grid, e, "一键获取失败");
+//        }
+//
+//        return ReturnData.ok().data(grid);
+//    }
 }

@@ -182,13 +182,15 @@ public class PurchInController extends BaseController {
             throw new BusinessException(strb.toString());
         }
         String auto = param.get("auto");
+		String title = "保存";
 		if(!StringUtil.isEmpty(auto)&&"auto".equals(auto)){
 			ic_purchinserv.saveAndGl(headvo);
+			title ="生成凭证";
 		}else{
 			ic_purchinserv.save(headvo, false);
 		}
         json.setSuccess(true);
-        json.setMsg("保存成功!");
+        json.setMsg(title+"成功!");
 		if (isadd) {
 			if (headvo != null && !StringUtil.isEmpty(headvo.getDbillid())) {
 				writeLogRecord(LogRecordEnum.OPE_KJ_IC_BUSI, "新增入库单：" + headvo.getDbillid(),

@@ -146,6 +146,7 @@ public class SaleoutController extends BaseController {
 		Json json = new Json();
 		IntradeHVO headvo = null;
 		boolean isadd = false;
+        String title = "保存";
 		try {
 			String head = param.get("head");
 			String body = param.get("body");
@@ -171,6 +172,7 @@ public class SaleoutController extends BaseController {
                 } else {
                     ic_saleoutserv.saveSaleAndGl(headvo, true);
                 }
+                title ="生成凭证";
             }else{
                 if (DZFBoolean.valueOf(repeat).booleanValue()) {
                     ic_saleoutserv.saveSale(headvo, false, false);
@@ -180,7 +182,7 @@ public class SaleoutController extends BaseController {
             }
 			json.setSuccess(true);
 			json.setStatus(200);
-			json.setMsg("保存成功");
+			json.setMsg(title+"成功");
 		} catch (IcExBusinessException ie) {
 			List<IntradeoutVO> errList = ie.getErrList();
 			json.setStatus(IICConstants.STATUS_RECONFM_CODE);
@@ -191,7 +193,7 @@ public class SaleoutController extends BaseController {
 			if (IICConstants.EXE_CONFIRM_CODE.equals(e.getMessage())) {
 				json.setStatus(IICConstants.STATUS_RECONFM_CODE);
 			}
-			printErrorLog(json, e, "保存失败");
+			printErrorLog(json, e, title+"失败");
 		}
 		if (isadd) {
 			if (headvo != null && !StringUtil.isEmpty(headvo.getDbillid())) {

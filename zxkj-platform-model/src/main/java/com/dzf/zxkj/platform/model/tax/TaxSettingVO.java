@@ -26,6 +26,8 @@ public class TaxSettingVO {
     private DZFDouble cityBuildRate;
     // 地方教育费附加
     private DZFDouble localEduRate;
+    // 是否为2020新冠肺炎减免增值税行业
+    private Boolean deductVatForCOVID_19;
 
     public Integer getAddTaxPeriodType() {
         return addTaxPeriodType;
@@ -97,5 +99,13 @@ public class TaxSettingVO {
 
     public void setLocalEduRate(DZFDouble localEduRate) {
         this.localEduRate = localEduRate;
+    }
+
+    public Boolean getDeductVatForCOVID_19() {
+        return deductVatForCOVID_19;
+    }
+
+    public void setDeductVatForCOVID_19(Boolean deductVatForCOVID_19) {
+        this.deductVatForCOVID_19 = deductVatForCOVID_19;
     }
 }

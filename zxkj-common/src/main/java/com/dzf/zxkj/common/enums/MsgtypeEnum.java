@@ -43,6 +43,7 @@ public enum MsgtypeEnum {
 	MSG_TYPE_SJQYYXTZ(27, "手机签约意向通知"),MSG_TYPE_SJYWHZYXTZ(28, "手机业务合作意向通知"),
 	MSG_TYPE_YGJRSQ(29, "员工加入申请"),MSG_TYPE_APPROVE(36,"票据审批通知"),
 	MSG_TYPE_BILLING(37,"开票申请进度通知"),MSG_TYPE_APPLY_VOUCHER(47,"票据制单"),
+	MSG_TYPE_KPFW(75,"开票服务"),
 	
 	/**
 	 * 会计端操作产生消息类型

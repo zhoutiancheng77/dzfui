@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
+
 import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -47,6 +48,7 @@ import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.Reference;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -106,6 +108,8 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	private ICorpService corpService;
 	@Autowired
 	private RedissonDistributedLock redissonDistributedLock;
+//	@Reference(version = "1.0.1", protocol = "dubbo", timeout = 30000, retries = 0)
+//	private IIcbcWlhService iIcbcWlhService;
 
 	public List<BankStatementVO2> quyerByPkcorp(String pk_corp, BankStatementVO2 vo, String sort, String order) throws DZFWarpException{
 //		try {
@@ -7035,7 +7039,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	}
 
 	@Override
-	public List<BankStatementVO2> updateVO(String id, String pk_model_h,String busitypetempname,String pk_corp,String rzkm,String pk_basecategory,String zdyzy) throws DZFWarpException {
+	public List<BankStatementVO2> updateVO(String id, String pk_model_h,String busitypetempname,String pk_corp,String rzkm,String pk_basecategory,String zdyzy,String jskm) throws DZFWarpException {
 
 		String[] ids = id.split(",");
 		
@@ -7069,13 +7073,14 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		}
 		StringBuffer sb = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
-		sb.append(" update ynt_bankstatement set version=1.0, pk_model_h= ?,busitypetempname=?,pk_subject=? where nvl(dr,0)=0 and "+SqlUtil.buildSqlForIn("pk_bankstatement", ids));
+		sb.append(" update ynt_bankstatement set version=1.0, pk_model_h= ?,busitypetempname=?,pk_subject=?,pk_settlementaccsubj=? where nvl(dr,0)=0 and "+SqlUtil.buildSqlForIn("pk_bankstatement", ids));
 		sp.addParam(pk_model_h);
 		sp.addParam(busitypetempname);
 		sp.addParam(rzkm);
+		sp.addParam(jskm);
 		singleObjectBO.executeUpdate(sb.toString(), sp);
 		
-		gl_vatincinvact2.updateCategoryset(new DZFBoolean(true),pk_model_h,null,pk_basecategory,pk_corp,rzkm,null,null,zdyzy);
+		gl_vatincinvact2.updateCategoryset(new DZFBoolean(true),pk_model_h,null,pk_basecategory,pk_corp,rzkm,jskm,null,zdyzy);
 		
 		list=queryByIDs(id);
 		return list;
@@ -7242,4 +7247,12 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		
 		return billList!=null&&billList.size()>0?billList.get(0).getPk_category():null;
 	}
+
+//	@Override
+//	public List<BankStatementVO2> ercptApplyAndQrywlhdetail(IcbcErcptApplyAndQrywlhdetailQo vo) throws DZFWarpException {
+//		Result<PageInfo<IcbcErcptApplyAndQrywlhdetailVo>> result =  iIcbcWlhService.ercptApplyAndQrywlhdetail(vo);
+//
+//		return null;
+//	}
+
 }
