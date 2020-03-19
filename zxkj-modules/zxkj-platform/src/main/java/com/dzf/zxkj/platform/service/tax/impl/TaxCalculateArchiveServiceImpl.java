@@ -354,6 +354,8 @@ public class TaxCalculateArchiveServiceImpl implements
         }
         // 所得税结转参数设置
         YntParameterSet incomeTaxSet = sys_parameteract.queryParamterbyCode(corpVO.getPk_corp(), "dzf013");
+        // 新冠肺炎减免增值税
+        YntParameterSet deductVatParam = sys_parameteract.queryParamterbyCode(corpVO.getPk_corp(), "dzf024");
 
         setting.setIncomeTaxLevyType(corpTax.getTaxlevytype());
         setting.setIncomeTaxType(corpTax.getIncomtaxtype());
@@ -363,6 +365,7 @@ public class TaxCalculateArchiveServiceImpl implements
         setting.setCityBuildRate(corpTax.getCitybuildtax());
         setting.setLocalEduRate(corpTax.getLocaleducaddtax());
         setting.setIncomeTaxFixedRate(corpTax.getIncometaxrate());
+        setting.setDeductVatForCOVID_19(deductVatParam != null && deductVatParam.getPardetailvalue() == 0);
         return setting;
     }
 
