@@ -145,6 +145,17 @@ public class YHZHController extends BaseController {
             vo.setModifyoperid(SystemUtil.getLoginUserId());
             vo.setModifydatetime(new DZFDateTime());
         }
+        if(StringUtil.isEmptyWithTrim(vo.getLy())){
+            vo.setLy("1");
+        }
+        if(StringUtil.isEmptyWithTrim(vo.getZhlx())){
+            vo.setZhlx("0");
+        }
+        if(!StringUtil.isEmptyWithTrim(vo.getBanktype())){
+            if(!vo.getZhlx().equals("0")){
+                vo.setBanktype("");
+            }
+        }
         vo.setPk_corp(SystemUtil.getLoginCorpId());
         vo.setDr(0);
         //启用标识
