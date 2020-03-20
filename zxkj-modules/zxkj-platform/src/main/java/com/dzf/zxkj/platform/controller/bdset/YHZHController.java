@@ -105,7 +105,7 @@ public class YHZHController extends BaseController {
                     } else {
                         gl_yhzhserv.update(bankAccountVO,
                                 new String[]{"bankcode", "bankname", "bankaccount",
-                                        "relatedsubj", "modifyoperid", "modifydatetime", "banktype"});
+                                        "relatedsubj", "modifyoperid", "modifydatetime"});
                         writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "编辑银行账户");
                     }
                     json.setSuccess(true);
@@ -144,17 +144,6 @@ public class YHZHController extends BaseController {
         } else {
             vo.setModifyoperid(SystemUtil.getLoginUserId());
             vo.setModifydatetime(new DZFDateTime());
-        }
-        if(StringUtil.isEmptyWithTrim(vo.getLy())){
-            vo.setLy("1");
-        }
-        if(StringUtil.isEmptyWithTrim(vo.getZhlx())){
-            vo.setZhlx("0");
-        }
-        if(!StringUtil.isEmptyWithTrim(vo.getBanktype())){
-            if(!vo.getZhlx().equals("0")){
-                vo.setBanktype("");
-            }
         }
         vo.setPk_corp(SystemUtil.getLoginCorpId());
         vo.setDr(0);
