@@ -1423,7 +1423,7 @@ public class VATInComInvoice2Controller extends BaseController {
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock(paramvo.getTableName()+pk_corp);
             if(!lock){//处理
-                json.setSuccess(true);
+                json.setSuccess(false);
                 json.setMsg("正在处理中，请稍候");
                 redissonDistributedLock.releaseDistributedFairLock(paramvo.getTableName()+pk_corp);
                 return ReturnData.ok().data(json);
