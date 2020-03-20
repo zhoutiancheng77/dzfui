@@ -105,7 +105,7 @@ public class YHZHController extends BaseController {
                     } else {
                         gl_yhzhserv.update(bankAccountVO,
                                 new String[]{"bankcode", "bankname", "bankaccount",
-                                        "relatedsubj", "modifyoperid", "modifydatetime"});
+                                        "relatedsubj", "modifyoperid", "modifydatetime", "banktype"});
                         writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, "编辑银行账户");
                     }
                     json.setSuccess(true);
