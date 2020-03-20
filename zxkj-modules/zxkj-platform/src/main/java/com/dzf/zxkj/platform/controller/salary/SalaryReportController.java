@@ -530,7 +530,7 @@ public class SalaryReportController  extends BaseController {
             }
         }
         if (!StringUtil.isEmpty(opdate)) {
-            DZFDate from = new DZFDate(opdate + "-01");
+//            DZFDate from = new DZFDate(opdate + "-01");
             writeLogRecord(LogRecordEnum.OPE_KJ_SALARY,
                     "工资表打印："+beginPeriod+"到" + endPeriod, ISysConstants.SYS_2);
         }

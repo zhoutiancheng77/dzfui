@@ -366,6 +366,12 @@ public class TaxCalculateArchiveServiceImpl implements
         setting.setLocalEduRate(corpTax.getLocaleducaddtax());
         setting.setIncomeTaxFixedRate(corpTax.getIncometaxrate());
         setting.setDeductVatForCOVID_19(deductVatParam != null && deductVatParam.getPardetailvalue() == 0);
+        if (setting.getIncomeTaxType() == null
+                || setting.getIncomeTaxType() != 1) {
+            // 企业所得税
+            setting.setIncomeTaxPreferPolicy(IncomeTaxCalculator
+                    .buildYhzc(setting.getIncomeTaxPreferPolicy(), period, corpVO.getPk_corp()));
+        }
         return setting;
     }
 

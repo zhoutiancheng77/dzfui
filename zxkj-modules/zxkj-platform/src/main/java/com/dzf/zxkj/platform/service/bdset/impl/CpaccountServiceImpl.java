@@ -594,7 +594,7 @@ public class CpaccountServiceImpl implements ICpaccountService {
                 temp = fse.getQmdf();
             }
             if (temp != null && temp.doubleValue() != 0) {
-                throw new BusinessException("当前科目有，请验证！");
+                throw new BusinessException("当前科目有余额，请验证！");
             }
         }
         String newrule = queryAccountRule(vo.getPk_corp());
