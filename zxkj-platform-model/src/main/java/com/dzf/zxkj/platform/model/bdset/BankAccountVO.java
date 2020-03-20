@@ -52,7 +52,6 @@ public class BankAccountVO extends SuperVO implements ICodeName {
     @JsonProperty("applycode")
     private String vapplycode;//	申请码
     private String ly; //来源  0 签约生成  1 手工生成
-    private String zhlx; //账户类型 0 银行  1 微信  2支付宝
 
     public String getIstatus() {
         return istatus;
@@ -92,14 +91,6 @@ public class BankAccountVO extends SuperVO implements ICodeName {
 
     public void setLy(String ly) {
         this.ly = ly;
-    }
-
-    public String getZhlx() {
-        return zhlx;
-    }
-
-    public void setZhlx(String zhlx) {
-        this.zhlx = zhlx;
     }
 
     public String getPk_bankaccount() {
