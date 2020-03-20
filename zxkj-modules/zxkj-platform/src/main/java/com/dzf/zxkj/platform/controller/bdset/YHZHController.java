@@ -172,9 +172,7 @@ public class YHZHController extends BaseController {
                 json.setRows(vo);
                 json.setMsg("删除成功");
             } catch (Exception e) {
-                log.error("删除失败", e);
-                json.setSuccess(false);
-                json.setMsg("删除失败");
+                printErrorLog(json,e,"删除失败");
             }
         } else {
             json.setSuccess(false);
