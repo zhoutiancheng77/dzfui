@@ -766,7 +766,7 @@ public class QueryHZKC1 {
                 vo.setBqjfprice(bqjfprice.setScale(precisionPrice, DZFDouble.ROUND_HALF_UP));
                 DZFDouble bqdfprice = SafeCompute.div(vo.getBqdfmny(),
                         vo.getBqdfnum());
-                vo.setBqdfmny(bqdfprice.setScale(precisionPrice, DZFDouble.ROUND_HALF_UP));
+                vo.setBqdfprice(bqdfprice.setScale(precisionPrice, DZFDouble.ROUND_HALF_UP));
 
                 vo.setBeginqj(paramvo.getQjq());
                 vo.setEndqj(paramvo.getQjz());
