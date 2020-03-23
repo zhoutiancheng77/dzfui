@@ -79,8 +79,8 @@ public class SrzcReportImpl implements ISrzcReport {
 		DZFDouble bqsrzc_2 = getXMValue(map, "5001", 0);
 		DZFDouble bnsrzc_1= getXMValue(map,"4001",1);
 		DZFDouble bnsrzc_2 = getXMValue(map, "5001", 1);
-		srzcbvos[0].setMonnum(bqsrzc_1.sub(bqsrzc_2));
-		srzcbvos[0].setYearnum(bnsrzc_1.sub(bnsrzc_2));
+		srzcbvos[0].setMonnum(bqsrzc_1.sub(bqjbzc));
+		srzcbvos[0].setYearnum(bnsrzc_1.sub(bnjbzc));
 
 		srzcbvos[1]= new SrzcBVO();
 		srzcbvos[1].setXm("财政补助收入");
