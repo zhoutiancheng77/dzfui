@@ -5,6 +5,7 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.MsgtypeEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.platform.model.message.MsgAdminVO;
 import com.dzf.zxkj.platform.model.message.MsgSysVO;
 import com.dzf.zxkj.platform.model.message.MsgTypeVO;
@@ -61,10 +62,17 @@ public class MessageController {
     public ReturnData query(@RequestBody MsgAdminVO data) {
         Grid grid = new Grid();
         data.setCuserid(SystemUtil.getLoginUserId());
-        MsgAdminVO[] msgs = msgServiceImpl.query(data.getCuserid(), data);
-        grid.setTotal((long) msgs.length);
-        msgs = pagingData(msgs, data.getPage(), data.getRows());
-        grid.setRows(Arrays.asList(msgs));
+        if (data.getIsQryByPage() != null && data.getIsQryByPage()) { // 分页查询
+            // msgs = pagingData(msgs, data.getPage(), data.getRows());
+            // 后台分页
+            QueryPageVO pageVO = msgServiceImpl.queryByPage(data.getCuserid(), data);
+            grid.setTotal((long) pageVO.getTotal());
+            grid.setRows(pageVO.getPagevos());
+        } else {
+            List<MsgAdminVO> msgs = msgServiceImpl.query(data.getCuserid(), data);
+            grid.setTotal((long) msgs.size());
+            grid.setRows(msgs);
+        }
         grid.setSuccess(true);
         return ReturnData.ok().data(grid);
     }
@@ -116,6 +124,14 @@ public class MessageController {
         return date;
     }
 
+    /**
+     * 旧的分页方法，已弃用
+     * @param msgs
+     * @param page
+     * @param rows
+     * @return
+     */
+    @Deprecated
     private MsgAdminVO[] pagingData(MsgAdminVO[] msgs, int page, int rows) {
         int beginIndex = rows * (page - 1);
         int endIndex = rows * page;
@@ -154,7 +170,7 @@ public class MessageController {
         param.setEdate(date);
         param.setMsgtype(MsgtypeEnum.MSG_TYPE_DZFPTGG.getValue());
         param.setSys_receive("dzf_kj");
-        MsgAdminVO[] msgs = msgServiceImpl.query(null, param);
+        List<MsgAdminVO> msgs = msgServiceImpl.query(null, param);
         json.setRows(msgs);
         json.setSuccess(true);
         return ReturnData.ok().data(json);

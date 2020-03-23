@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 消息通知VO
- * 
+ *
  * @author dzf
  *
  */
@@ -26,19 +26,19 @@ public class MsgAdminVO extends SuperVO {
 
 	@JsonProperty("corpkid")
 	private String pk_corpk; // 所属分部
-	
+
 	@JsonProperty("ncode")
 	private String nodecode;//节点
-	
+
 	@JsonProperty("sdman")
 	private String sendman;//发送人
 
 	@JsonProperty("vsdate")
 	private String vsenddate; // 发送时间
-	
+
 	@JsonProperty("ssend")
 	private String sys_send;//发送端
-	
+
 	@JsonProperty("sreceive")
 	private String sys_receive;//接收端
 
@@ -47,7 +47,7 @@ public class MsgAdminVO extends SuperVO {
 
 	@JsonProperty("content")
 	private String vcontent; // 消息内容
-	
+
 	@JsonProperty("lctent")
 	private String vlctent; // 办理流程节点
 
@@ -59,54 +59,64 @@ public class MsgAdminVO extends SuperVO {
 
 	@JsonProperty("ts")
 	private DZFDateTime ts; // 时间戳
-	
+
 	private Integer msgtype;//消息类型
-	
+
 	private String msgtypename;//消息类型名称
-	
+
 	private String vtitle;//标题
-	
+
 	private String pk_bill;//消息来源主键
-	
+
 	private String pk_bill_b;//消息来源子表主键
-	
+
 	private String pk_busitype;//业务小类
-	
+
 	private String pk_product;//业务大类
-	
+
 	private String pk_order;//订单ID
-	
+
 	private String pk_order_b;//订单子表ID
-	
+
 	private String vperiod;
-	
+
 	private String pk_workflow;
-	
+
 	//非数据库字段
 	private String bdate;
 	private String edate;
 	private Integer new_msg;
+	private Boolean isQryByPage;
+
+	public Boolean getIsQryByPage() {
+		return isQryByPage;
+	}
+
+	public void setIsQryByPage(Boolean isQryByPage) {
+		this.isQryByPage = isQryByPage;
+	}
+
 	@JsonProperty("tcorp")
 	private String pk_temp_corp ;//临时公司pk
-	
+
 	@JsonProperty("ista")
-	private Integer istatus; // 状态 
-	
+	private Integer istatus; // 状态
+
 	@JsonProperty("businm")
 	private String vbusiname;//服务项目名称
-	    
+
 	@JsonProperty("flownm")
 	private String vflowname;//节点名称
-	    
+
 	@JsonProperty("totmny")
 	private DZFDouble ntotalmny;//合计金额
-	
+
 	@JsonProperty("busitype")
 	private Integer ibusitype;//业务类型
-	
+
 	@JsonProperty("vstime")
 	private String vsendtime; // 发送时间
-	
+
 	public String getVsendtime() {
         return vsendtime;
     }
@@ -378,7 +388,7 @@ public class MsgAdminVO extends SuperVO {
 	public void setEdate(String edate) {
 		this.edate = edate;
 	}
-	
+
 
 	public String getPk_temp_corp() {
 		return pk_temp_corp;

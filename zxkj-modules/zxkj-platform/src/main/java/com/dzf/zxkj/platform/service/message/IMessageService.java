@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.service.message;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.platform.model.message.MsgAdminVO;
 import com.dzf.zxkj.platform.model.message.MsgSysVO;
 import com.dzf.zxkj.platform.model.message.MsgTypeVO;
@@ -103,7 +104,17 @@ public interface IMessageService {
      * @return
      * @throws DZFWarpException
      */
-    MsgAdminVO[] query(String receiveUser, MsgAdminVO param) throws DZFWarpException;
+    List<MsgAdminVO> query(String receiveUser, MsgAdminVO param) throws DZFWarpException;
+
+    /**
+     * 按条件查询并分页
+     *
+     * @param receiveUser
+     * @param param
+     * @return
+     * @throws DZFWarpException
+     */
+    QueryPageVO queryByPage(String receiveUser, MsgAdminVO param) throws DZFWarpException;
 
     /**
      * 查询当天公告
