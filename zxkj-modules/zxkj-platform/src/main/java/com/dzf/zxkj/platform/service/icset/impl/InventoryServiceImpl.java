@@ -647,14 +647,14 @@ public class InventoryServiceImpl implements IInventoryService {
 
 			if (spflVO != null && spflVO.size() > 0) {
 				for (InvclassifyVO spflvo : spflVO) {
-					invclassmap.put(spflvo.getName(), spflvo);
+					invclassmap.put(StringUtil.replaceBlank(spflvo.getName()), spflvo);
 				}
 
 			}
 
 			if (jldwVO != null && jldwVO.size() > 0) {
 				for (MeasureVO spflvo : jldwVO) {
-					jldwmap.put(spflvo.getName(), spflvo);
+					jldwmap.put(StringUtil.replaceBlank(spflvo.getName()), spflvo);
 				}
 			}
 

@@ -309,6 +309,8 @@ public class MeasureServiceImpl implements IMeasureService {
 		HashSet<String> codeSet = new HashSet<String>();
 		if (listAll != null && listAll.size() != 0) {
 			for (MeasureVO vo : listAll) {
+				vo.setName(StringUtil.replaceBlank(vo.getName()));
+				vo.setCode(StringUtil.replaceBlank(vo.getCode()));
 				if (!pkSet.contains(vo.getPk_measure())){
 					nameSet.add(vo.getName());
 					codeSet.add(vo.getCode());
@@ -372,7 +374,7 @@ public class MeasureServiceImpl implements IMeasureService {
 				codeSet.add(vo.getCode());
 			}
 			for (MeasureVO vo : meaVO) {
-				nameSet.add(vo.getName());
+				nameSet.add(StringUtil.replaceBlank(vo.getName()));
 			}
 
 			List<MeasureVO> list = new ArrayList<MeasureVO>();

@@ -200,10 +200,10 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 			
 			List<InvclassifyVO> invVO = query(pk_corp);
 			if(invVO != null && invVO.size() > 0){
-				for (InvclassifyVO vo : invVO) {
-					codeSet.add(vo.getCode());
-				}
 				for(InvclassifyVO vo : invVO){
+					vo.setName(StringUtil.replaceBlank(vo.getName()));
+					vo.setCode(StringUtil.replaceBlank(vo.getCode()));
+					codeSet.add(vo.getCode());
 					nameSet.add(vo.getName());
 				}
 			}
