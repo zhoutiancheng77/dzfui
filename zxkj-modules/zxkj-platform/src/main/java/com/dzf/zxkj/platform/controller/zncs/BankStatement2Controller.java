@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.controller.zncs;
 import cn.jiguang.common.utils.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.dzf.account.api.model.icbc.gyj.IcbcErcptApplyAndQrywlhdetailQo;
 import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -1407,56 +1408,60 @@ public class BankStatement2Controller extends BaseController {
                 "银行对账单更新业务类型", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
-//    // 一键获取 签约结果查询接口
-//    @RequestMapping("/queryRegAgreement")
-//    public ReturnData<Grid> queryRegAgreement(){
-//        Grid grid = new Grid();
-//        String pk_corp = SystemUtil.getLoginCorpId();
-//        checkSecurityData(null,new String[]{pk_corp}, null);
-//        try {
-//            ArrayList<String> pk_categoryList = new ArrayList<String>();
-//            List<BankAccountVO> list = gl_yhzhserv.query(pk_corp, "Y");
-//            if(list!=null&&list.size()>0){
-//                log.info("查询成功！");
-//                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
-//                grid.setSuccess(true);
-//                grid.setMsg("查询成功");
-//            }else{
-//                log.info("查询成功！");
-//                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
-//                grid.setSuccess(true);
-//                grid.setMsg("银行账户为空无法一键获取，请检查！");
-//            }
-//        } catch (Exception e) {
-//            printErrorLog(grid, e, "查询失败");
-//        }
-//
-//        return ReturnData.ok().data(grid);
-//    }
-//    // 一键获取 流水提取和电子回单(一键获取)
-//    @RequestMapping("/ercptApplyAndQrywlhdetail")
-//    public ReturnData<Grid> ercptApplyAndQrywlhdetail(@RequestBody Map<String,String> param){
-//        Grid grid = new Grid();
-//        String pk_corp = SystemUtil.getLoginCorpId();
-//        checkSecurityData(null,new String[]{pk_corp}, null);
-//        try {
-//            IcbcErcptApplyAndQrywlhdetailQo vo = new IcbcErcptApplyAndQrywlhdetailQo();
-//            String date = param.get("date");//期间
-//            vo.setAcctcomno(param.get("acctcomno"));//代记账公司编号
-//            vo.setAccno(param.get("accno"));//银行账户
-//            vo.setUscc(param.get("uscc"));//统一社会信用代码
-//            vo.setStartDate(DateUtils.getPeriodStartDate(date).toString());
-//            vo.setEndDate("2020-04-01");
-//            List<BankStatementVO2> list = gl_yhdzdserv2.ercptApplyAndQrywlhdetail(vo);
-//            grid.setSuccess(true);
-//            grid.setRows(list);
-//            grid.setMsg("一键获取成功！");
-//        } catch (Exception e) {
-//            grid.setSuccess(true);
-//            grid.setMsg("一键获取失败！");
-//            printErrorLog(grid, e, "一键获取失败");
-//        }
-//
-//        return ReturnData.ok().data(grid);
-//    }
+    // 一键获取 签约结果查询接口
+    @RequestMapping("/queryRegAgreement")
+    public ReturnData<Grid> queryRegAgreement(){
+        Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
+        try {
+            ArrayList<String> pk_categoryList = new ArrayList<String>();
+            List<BankAccountVO> list = gl_yhzhserv.query(pk_corp, "Y");
+            if(list!=null&&list.size()>0){
+                log.info("查询成功！");
+                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
+                grid.setSuccess(true);
+                grid.setMsg("查询成功");
+            }else{
+                log.info("查询成功！");
+                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
+                grid.setSuccess(true);
+                grid.setMsg("银行账户为空无法一键获取，请检查！");
+            }
+        } catch (Exception e) {
+            printErrorLog(grid, e, "查询失败");
+        }
+
+        return ReturnData.ok().data(grid);
+    }
+    // 一键获取 流水提取和电子回单(一键获取)
+    @RequestMapping("/ercptApplyAndQrywlhdetail")
+    public ReturnData<Grid> ercptApplyAndQrywlhdetail(@RequestBody Map<String,String> param){
+        Grid grid = new Grid();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        checkSecurityData(null,new String[]{pk_corp}, null);
+        try {
+            IcbcErcptApplyAndQrywlhdetailQo vo = new IcbcErcptApplyAndQrywlhdetailQo();
+            String pk_bankaccount = param.get("pk_bankaccount");//银行账户主键
+            String date = param.get("date");//期间
+            vo.setAcctcomno(param.get("acctcomno"));//代记账公司编号
+            vo.setAccno(param.get("accno"));//银行账户
+            vo.setUscc(param.get("uscc"));//统一社会信用代码
+            vo.setAccountNo(param.get("accountNo"));//业务端客户编号
+            vo.setAppId(param.get("appId"));
+            vo.setStartDate(DateUtils.getPeriodStartDate(date).toString());
+            vo.setEndDate(DateUtils.getPeriodEndDate(date).toString());
+
+            BankStatement2ResponseVO responseVO = gl_yhdzdserv2.ercptApplyAndQrywlhdetail(vo,pk_bankaccount);
+            grid.setSuccess(true);
+            grid.setRows(responseVO.getVos());
+            grid.setMsg("一键获取成功！");
+        } catch (Exception e) {
+            grid.setSuccess(true);
+            grid.setMsg("一键获取失败！");
+            printErrorLog(grid, e, "一键获取失败");
+        }
+
+        return ReturnData.ok().data(grid);
+    }
 }

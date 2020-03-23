@@ -1,6 +1,10 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
 
+import com.dzf.account.api.model.icbc.gyj.IcbcErcptApplyAndQrywlhdetailQo;
+import com.dzf.account.api.model.icbc.gyj.IcbcErcptApplyAndQrywlhdetailVo;
+import com.dzf.account.api.result.Result;
+import com.dzf.account.api.service.IIcbcWlhService;
 import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -44,8 +48,11 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IDcpzService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.BeanUtils;
+import com.dzf.zxkj.platform.util.ImageCopyUtil;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
@@ -59,6 +66,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -108,8 +118,8 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 	private ICorpService corpService;
 	@Autowired
 	private RedissonDistributedLock redissonDistributedLock;
-//	@Reference(version = "1.0.1", protocol = "dubbo", timeout = 30000, retries = 0)
-//	private IIcbcWlhService iIcbcWlhService;
+	@Reference(version = "1.0.1", protocol = "dubbo", timeout = 30000, retries = 0)
+	private IIcbcWlhService iIcbcWlhService;
 
 	public List<BankStatementVO2> quyerByPkcorp(String pk_corp, BankStatementVO2 vo, String sort, String order) throws DZFWarpException{
 //		try {
@@ -7248,11 +7258,109 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		return billList!=null&&billList.size()>0?billList.get(0).getPk_category():null;
 	}
 
-//	@Override
-//	public List<BankStatementVO2> ercptApplyAndQrywlhdetail(IcbcErcptApplyAndQrywlhdetailQo vo) throws DZFWarpException {
-//		Result<PageInfo<IcbcErcptApplyAndQrywlhdetailVo>> result =  iIcbcWlhService.ercptApplyAndQrywlhdetail(vo);
-//
-//		return null;
-//	}
+	@Override
+	public BankStatement2ResponseVO ercptApplyAndQrywlhdetail(IcbcErcptApplyAndQrywlhdetailQo vo,String pk_bankaccount) throws DZFWarpException {
+		BankStatement2ResponseVO responseVO = null;
+		try{
 
+			Result<PageInfo<IcbcErcptApplyAndQrywlhdetailVo>> result =  iIcbcWlhService.ercptApplyAndQrywlhdetail(vo);
+			//200表示一键获取成功
+			if(200==result.getCode()){
+					PageInfo pageInfo = result.getData();
+					if(pageInfo.getTotal()>0){
+						Map<String, BankStatementVO2[]> sendData = new HashMap<String, BankStatementVO2[]>();
+						List<BankStatementVO2> bankvolist = new ArrayList<BankStatementVO2>();
+						List<IcbcErcptApplyAndQrywlhdetailVo> list =pageInfo.getList();
+						for (IcbcErcptApplyAndQrywlhdetailVo resultvo:list) {
+							//查询是否重复
+							List<BankStatementVO2> queryList = queryVoByVdef1(resultvo.getTransserialno());
+							if(queryList ==null || queryList.size()==0){
+								BankStatementVO2 bvo = new BankStatementVO2();
+								bvo.setCoperatorid(SystemUtil.getLoginUserId());//操作人
+								bvo.setDoperatedate(new DZFDate(new Date()));//操作时间
+								bvo.setPk_corp(SystemUtil.getLoginCorpId());//公司主键
+								bvo.setPk_bankaccount(pk_bankaccount);//银行账户主键
+								bvo.setVdef1(resultvo.getTransserialno());//交易流水号
+								bvo.setTradingdate(new DZFDate(resultvo.getTranstime().substring(0,10)));//交易时间
+								bvo.setOthaccountname(resultvo.getRecipaccname());//对方账户名称
+								bvo.setOthaccountcode(resultvo.getRecipaccno());//对方账户
+								bvo.setYe(new DZFDouble(resultvo.getCurrentbalance()));//余额
+								bvo.setSourcetem(BankStatementVO2.SOURCE_59);//数据来源
+								bvo.setSourcetype(BankStatementVO2.SOURCE_101);
+								bvo.setPeriod(resultvo.getTranstime().substring(0,7));//入账期间
+								bvo.setVdef2(resultvo.getWlhstatus());//电子回单获取状态
+								bvo.setInperiod(resultvo.getTranstime().substring(0,7));//入账期间
+								bvo.setVersion(new DZFDouble(1.0));//版本
+								if(resultvo.getDrcrf().equals("1")){//1-借(出);2-贷(入
+									bvo.setZcje(new DZFDouble(resultvo.getAmount()));//支出金额
+								}else{
+									bvo.setSyje(new DZFDouble(resultvo.getAmount()));//收入金额
+								}
+								//复制图片并将pdf转成图片格式
+								if(!StringUtils.isEmpty(resultvo.getWlhaddress())) {
+									String imgPath = copyAndTrans(resultvo.getWlhaddress());
+                                    bvo.setImgpath(imgPath);
+                                }
+
+
+								//bvo.setImgpath();//电子回单地址
+//								bvo.setPk_model_h();//业务类型主键
+//								bvo.setBusitypetempname();//业务类型名称
+//								bvo.setPk_category_keyword();//匹配规则主键
+								bankvolist.add(bvo);
+							}
+						}
+						sendData.put("adddocvos", bankvolist.toArray(new BankStatementVO2[0]));
+						responseVO = updateVOArr(SystemUtil.getLoginCorpId(), sendData, new DZFBoolean("Y"));
+					}else{
+						throw new BusinessException("一键获取数据为空！");
+					}
+				}else{
+					throw new BusinessException(result.getMsg());
+				}
+		}catch(Exception e){
+			throw new BusinessException("一键获取服务调取失败！");
+		}
+		return responseVO;
+	}
+    //根据交易流水号查询票据
+	public List<BankStatementVO2> queryVoByVdef1(String transserialno) throws DZFWarpException{
+		List<BankStatementVO2> list = null;
+		if(!StringUtil.isEmpty(transserialno)){
+			StringBuffer sb = new StringBuffer();
+			SQLParameter sp = new SQLParameter();
+			sb.append("select * from ynt_bankstatement where nvl(dr,0)=0 and vdef1 = ? ");
+			sp.addParam(transserialno);
+			list = (List<BankStatementVO2>) singleObjectBO.executeQuery(sb.toString(), sp,
+					new BeanListProcessor(BankStatementVO2.class));
+		}
+		return list;
+	}
+    // 获取当前年月日
+    private static String getCurDate() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        return format.format(Calendar.getInstance().getTime());
+    }
+	private String copyAndTrans(String http){
+		String imgPath = File.separator + "ImageUpload" + File.separator + SystemUtil.getLoginCorpVo().getUnitcode() + File.separator + getCurDate();
+		String imgFilePath = UUID.randomUUID().toString() + ".jpg";
+		String PdfFileName = UUID.randomUUID().toString() + ".pdf";
+		try {
+
+			File dir = new File(imgPath);
+			if (!dir.exists()) {
+				dir.mkdirs();
+			}
+
+			File imgFile = new File(imgPath + File.separator + imgFilePath);
+			URL url = new URL(http);
+			URLConnection connection = url.openConnection();
+			InputStream is = connection.getInputStream();
+			ImageCopyUtil.transPdfToJpg(is, new File(imgPath + File.separator + PdfFileName), imgFile);
+
+		}catch(Exception e){
+			throw new BusinessException("获取银行回单失败！");
+		}
+		return imgPath+File.separator+imgFilePath;
+	}
 }

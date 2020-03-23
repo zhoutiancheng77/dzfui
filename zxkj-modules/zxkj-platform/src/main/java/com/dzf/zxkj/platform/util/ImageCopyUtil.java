@@ -116,7 +116,56 @@ public class ImageCopyUtil {
             }
         }
     }
-	
+	public static void copy(InputStream is, File dst) {
+		InputStream in = null;
+		OutputStream out = null;
+		FileOutputStream os = null;
+		try {
+			in = new BufferedInputStream(is, BUFFER_SIZE);
+			os = new FileOutputStream(dst);
+			out = new BufferedOutputStream(os,
+					BUFFER_SIZE);
+			byte[] buffer = new byte[BUFFER_SIZE];
+			int len = 0;
+			while ((len = in.read(buffer)) > 0) {
+				out.write(buffer, 0, len);
+			}
+			out.flush();
+		} catch (Exception e) {
+			//e.printStackTrace();
+		} finally {
+			if (null != in) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					//e.printStackTrace();
+				}
+			}
+
+			if (null != is) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					//e.printStackTrace();
+				}
+			}
+			if (null != out) {
+				try {
+					out.close();
+				} catch (IOException e) {
+
+				}
+			}
+
+			if (null != os) {
+				try {
+					os.close();
+				} catch (IOException e) {
+
+				}
+			}
+		}
+	}
 	public static void transPdfToJpg(MultipartFile src,
 									 File dir,
 									 String pdfName,
@@ -146,7 +195,17 @@ public class ImageCopyUtil {
 			throw new BusinessException("重传:转化pdf失败");
 		}
 	}
-	
+	public static void transPdfToJpg(InputStream is,
+									 File pdfDst,
+									 File jpgDst){
+		try {
+			copy(is, pdfDst);
+			loadPdfDoc(pdfDst, jpgDst);
+		} catch (Exception e) {
+			log.error("错误",e);
+			throw new BusinessException("重传:转化pdf失败");
+		}
+	}
 	private static void loadPdfDoc(File pdfDst, 
 			File imgDst) throws Exception{
 		PDDocument document =  PDDocument.load(pdfDst, (String)null);

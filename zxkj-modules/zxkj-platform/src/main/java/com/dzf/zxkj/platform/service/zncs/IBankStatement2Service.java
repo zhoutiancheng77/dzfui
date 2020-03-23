@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.zncs;
 
+import com.dzf.account.api.model.icbc.gyj.IcbcErcptApplyAndQrywlhdetailQo;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.platform.model.bdset.*;
@@ -157,5 +158,5 @@ public interface IBankStatement2Service{
 	 * 根据全限定业务类型名称找主键
 	 */
 	public String queryBillCategoryId(String name, String pk_corp, String period)throws DZFWarpException;
-//	public List<BankStatementVO2> ercptApplyAndQrywlhdetail(IcbcErcptApplyAndQrywlhdetailQo vo)throws DZFWarpException;
+	public BankStatement2ResponseVO ercptApplyAndQrywlhdetail(IcbcErcptApplyAndQrywlhdetailQo vo,String pk_bankaccount)throws DZFWarpException;
 	}
