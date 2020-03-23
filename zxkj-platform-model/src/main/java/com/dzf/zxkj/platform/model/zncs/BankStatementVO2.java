@@ -88,8 +88,8 @@ public class BankStatementVO2 extends SuperVO implements IGlobalPZVO {
 	private String fufangdwmc;	//付方单位名称    数据库中没有，仅用于计算
 	private String shoufangdwmc;//收方单位名称   数据库中没有，仅用于计算
 	//自定义项1~15
-	private String vdef1;
-	private String vdef2;
+	private String vdef1;//存一键获取交易流水号
+	private String vdef2;//存一键取票电子回单获取状态
 	private String vdef3;
 	private String vdef4;
 	private String vdef5;
@@ -202,8 +202,10 @@ public class BankStatementVO2 extends SuperVO implements IGlobalPZVO {
 	public static final int SOURCE_56 = 56;//平安银行长沙分行
 	public static final int SOURCE_57 = 57;//中原银行西峡支行
 	public static final int SOURCE_58 = 58;//长沙农商银行
+	public static final int SOURCE_59 = 59;//中国工商银行-重庆分行-汉江支行
 	
 	public static final int SOURCE_100= 100;//来源于上传图片/扫描客户端
+	public static final int SOURCE_101= 101;//一键获取
 	
 	public static final int SOURCE_999 = 999;//来源于通用银行模板
 	/**************************数据的演变规律********************/
