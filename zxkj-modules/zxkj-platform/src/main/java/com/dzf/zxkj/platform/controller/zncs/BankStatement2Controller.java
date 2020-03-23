@@ -1408,32 +1408,7 @@ public class BankStatement2Controller extends BaseController {
                 "银行对账单更新业务类型", ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
     }
-    // 一键获取 签约结果查询接口
-    @RequestMapping("/queryRegAgreement")
-    public ReturnData<Grid> queryRegAgreement(){
-        Grid grid = new Grid();
-        String pk_corp = SystemUtil.getLoginCorpId();
-        checkSecurityData(null,new String[]{pk_corp}, null);
-        try {
-            ArrayList<String> pk_categoryList = new ArrayList<String>();
-            List<BankAccountVO> list = gl_yhzhserv.query(pk_corp, "Y");
-            if(list!=null&&list.size()>0){
-                log.info("查询成功！");
-                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
-                grid.setSuccess(true);
-                grid.setMsg("查询成功");
-            }else{
-                log.info("查询成功！");
-                grid.setRows(list==null?new ArrayList<BankAccountVO>():list);
-                grid.setSuccess(true);
-                grid.setMsg("银行账户为空无法一键获取，请检查！");
-            }
-        } catch (Exception e) {
-            printErrorLog(grid, e, "查询失败");
-        }
 
-        return ReturnData.ok().data(grid);
-    }
     // 一键获取 流水提取和电子回单(一键获取)
     @RequestMapping("/ercptApplyAndQrywlhdetail")
     public ReturnData<Grid> ercptApplyAndQrywlhdetail(@RequestBody Map<String,String> param){
