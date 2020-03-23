@@ -319,6 +319,7 @@ public class WorkbenchController extends BaseController {
         paramVO.setBntotaltax(param.get("bntotaltax"));//金额开始
         paramVO.setTruthindent(param.get("truthindent"));//真伪
         paramVO.setPk_bankcode(param.get("pk_bankcode"));
+        paramVO.setVinvoiceno(param.get("vinvoiceno"));
         return paramVO;
     }
     /**
