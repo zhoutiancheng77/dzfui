@@ -236,6 +236,12 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 				if(sx!=null){
 					for(KmMxZVO kmmxvo2:kmmxvos){
 						currtempvo = mapres.get(kmmxvo2.getPk_accsubj());
+
+						/********/
+						if(isConByDir(currtempvo, kmmxvo2)){
+							continue;
+						}
+
 						cj =currtempvo.getAccountlevel();
 						if(isxsxj.booleanValue()){/** 只是显示下级(层级比这小一位的) */
 							if(kmmxvo2.getKmbm().startsWith(firstkm) && (cj.intValue()-1 == parentcj)){
@@ -314,7 +320,22 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 		objs[1]= columnlist;
 	}
 
-	
+	//根据科目方向判断分录金额
+	private boolean isConByDir(YntCpaccountVO cpavo, KmMxZVO kmmxvo){
+		boolean flag = false;
+		if(cpavo.getDirection() == 0){
+			if(SafeCompute.add(kmmxvo.getJf(), DZFDouble.ZERO_DBL).doubleValue() == 0){
+				flag = true;
+			}
+		}else{
+			if(SafeCompute.add(kmmxvo.getDf(), DZFDouble.ZERO_DBL).doubleValue() == 0){
+				flag = true;
+			}
+		}
+
+		return flag;
+	}
+
 	private String formaterMny(DZFDouble value) {
 		if (value.doubleValue() == 0) {
 			return "";
