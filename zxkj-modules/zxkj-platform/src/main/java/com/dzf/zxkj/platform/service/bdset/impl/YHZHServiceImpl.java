@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.constant.IBillManageConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -90,7 +91,33 @@ public class YHZHServiceImpl implements IYHZHService {
 		
 		return acclist;
 	}
+	@Override
+	public List<BankAccountVO> querySigning(String pk_corp, String isnhsty,String istatus) throws DZFWarpException {
+		StringBuffer sf = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+		sf.append(" select y.*,cp.accountcode,cp.accountname ");
+		sf.append("   from ynt_bankaccount y ");
+		sf.append("   left join ynt_cpaccount cp ");
+		sf.append("     on y.relatedsubj = cp.pk_corp_account ");
+		sf.append("  Where nvl(y.dr, 0) = 0 ");
 
+		if(!StringUtil.isEmpty(isnhsty)){
+			sf.append(" and state != ? ");
+			sp.addParam(IBillManageConstants.TINGY_STATUS);
+		}
+		if(!StringUtils.isEmpty(istatus)){
+			sf.append(" and y.istatus = ? ");
+			sp.addParam(istatus);
+		}
+		sf.append("    and y.pk_corp = ? ");
+		sf.append("    order by y.ts  ");
+		sp.addParam(pk_corp);
+
+		List<BankAccountVO> acclist = (List<BankAccountVO>) singleObjectBO.executeQuery(sf.toString(),
+				sp, new BeanListProcessor(BankAccountVO.class));
+
+		return acclist;
+	}
 	@Override
 	public BankAccountVO queryById(String id) throws DZFWarpException {
 		BankAccountVO stvo = (BankAccountVO) singleObjectBO.queryVOByID(id, BankAccountVO.class);

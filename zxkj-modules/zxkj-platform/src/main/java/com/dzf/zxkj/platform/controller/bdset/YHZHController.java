@@ -254,4 +254,26 @@ public class YHZHController extends BaseController {
         }
         return ReturnData.ok().data(grid);
     }
+    //一键取票查询已启用，已签约银行账号
+    @GetMapping("/querySigning")
+    public ReturnData<Grid> querySigning() {
+        Grid grid = new Grid();
+        try {
+            String pk_corp = SystemUtil.getLoginCorpId();
+            List<BankAccountVO> list = gl_yhzhserv.querySigning(pk_corp, "Y","2");
+            if (list == null || list.size() == 0) {
+                grid.setTotal(0L);
+            } else {
+                grid.setTotal(Long.valueOf(list.size()));
+            }
+            grid.setRows(list == null ? new ArrayList<BankAccountVO>() : list);
+            grid.setMsg("查询成功");
+            grid.setSuccess(true);
+        } catch (DZFWarpException e) {
+            grid.setMsg("查询失败");
+            grid.setSuccess(false);
+            log.error("查询失败", e);
+        }
+        return ReturnData.ok().data(grid);
+    }
 }

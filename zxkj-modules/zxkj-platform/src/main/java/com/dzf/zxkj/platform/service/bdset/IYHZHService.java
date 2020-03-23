@@ -53,4 +53,6 @@ public interface IYHZHService {
     void delete(BankAccountVO vo) throws DZFWarpException;
 
     BankAccountVO[] queryByCode(String code, String pk_corp) throws DZFWarpException;
+
+    public List<BankAccountVO> querySigning(String pk_corp, String isnhsty,String istatus) throws DZFWarpException;
 }
