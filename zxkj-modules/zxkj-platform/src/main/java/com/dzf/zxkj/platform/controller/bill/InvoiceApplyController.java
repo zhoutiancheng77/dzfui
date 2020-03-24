@@ -5,6 +5,7 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bill.InvoiceApplyVO;
 import com.dzf.zxkj.platform.service.bill.IInvoiceApplyService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -71,13 +72,16 @@ public class InvoiceApplyController extends BaseController {
     }
 
     @PostMapping("/apply")
-    public ReturnData<Grid> apply(@RequestBody InvoiceApplyVO[] vos) {
+    public ReturnData<Grid> apply(@RequestBody Map<String, String> map) {
         Grid grid = new Grid();
 
         try {
-            if(vos == null || vos.length == 0){
+            String body = map.get("body");
+            if(StringUtil.isEmpty(body)){
                 throw new BusinessException("参数为空,请检查");
             }
+            InvoiceApplyVO[] vos = JsonUtils.deserialize(body, InvoiceApplyVO[].class);
+
             String userid = SystemUtil.getLoginUserId();
             String pk_corp = SystemUtil.getLoginCorpId();
 

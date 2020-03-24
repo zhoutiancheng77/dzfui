@@ -18,4 +18,6 @@ public interface IBillingProcessService {
     String accounting(BillApplyVO[] bills, String userid) throws DZFWarpException;
 
     String tax(BillApplyVO[] bills, String userid) throws DZFWarpException;
+
+    String open(BillApplyVO[] bills, String userid) throws DZFWarpException;
 }

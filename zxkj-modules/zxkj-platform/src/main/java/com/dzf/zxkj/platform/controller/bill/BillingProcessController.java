@@ -112,4 +112,14 @@ public class BillingProcessController extends BaseController {
         vos = Arrays.copyOfRange(vos, beginIndex, endIndex);
         return vos;
     }
+
+    // 入账
+    @PostMapping("/open")
+    public ReturnData open(@RequestBody BillApplyVO[] bills) {
+        Json json = new Json();
+        String msg = gl_kpclserv.accounting(bills, SystemUtil.getLoginUserId());
+        json.setSuccess(true);
+        json.setMsg(msg);
+        return ReturnData.ok().data(json);
+    }
 }

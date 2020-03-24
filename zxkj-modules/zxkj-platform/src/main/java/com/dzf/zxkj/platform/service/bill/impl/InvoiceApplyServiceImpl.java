@@ -4,6 +4,7 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
+import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IInvoiceApplyConstant;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.enums.MsgtypeEnum;
@@ -15,13 +16,12 @@ import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bill.InvoiceApplyVO;
 import com.dzf.zxkj.platform.model.message.MsgAdminVO;
+import com.dzf.zxkj.platform.model.sys.CorpDocVO;
 import com.dzf.zxkj.platform.service.bill.IInvoiceApplyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @Service("gl_kpsqserv")
 public class InvoiceApplyServiceImpl implements IInvoiceApplyService {
@@ -34,7 +34,8 @@ public class InvoiceApplyServiceImpl implements IInvoiceApplyService {
         SQLParameter sp = new SQLParameter();
 
         StringBuffer sf = new StringBuffer();
-        sf.append(" select y.*, bd.innercode, bd.unitname ");
+        sf.append(" select y.*, bd.innercode, bd.unitname, bd.vsoccrecode, bd.legalbodycode, ");
+        sf.append("         bd.linkman2, bd.email1, bd.phone1, bd.vprovince  ");
         sf.append("   from ynt_invoice_apply y ");
         sf.append("   left join bd_corp bd ");
         sf.append("     on y.pk_corp = bd.pk_corp ");
@@ -53,10 +54,21 @@ public class InvoiceApplyServiceImpl implements IInvoiceApplyService {
         String unitname = paramvo.getUnitname();
 
         boolean flag;
+        Map<String, String[]> map = getMapByVprovince();
+        String[] vproArr;
         List<InvoiceApplyVO> result = new ArrayList<InvoiceApplyVO>();
         for(InvoiceApplyVO vo : list){
             flag = true;
             vo.setUnitname(CodeUtils1.deCode(vo.getUnitname()));
+            vo.setPhone1(CodeUtils1.deCode(vo.getPhone1()));
+            vo.setLegalbodycode(CodeUtils1.deCode(vo.getLegalbodycode()));
+
+            vproArr = map.get(vo.getVprovince() + "");
+            if(vproArr != null){
+                vo.setVprovname(vproArr[0]);
+                vo.setVprovcode(vproArr[1]);
+            }
+
             if(!StringUtil.isEmpty(innercode)){
                 if(!vo.getInnercode().contains(innercode)){
                     flag = false;
@@ -74,7 +86,80 @@ public class InvoiceApplyServiceImpl implements IInvoiceApplyService {
             }
         }
 
+        //查找营业执照相关
+       buildCorpDoc(list);
+
         return result;
+    }
+
+    private void buildCorpDoc(List<InvoiceApplyVO> list) {
+        if(list == null || list.size() == 0){
+            return;
+        }
+
+        List<String> pks = new ArrayList<>();
+        for(InvoiceApplyVO vo : list){
+            pks.add(vo.getPk_corp());
+        }
+
+        StringBuffer sf = new StringBuffer();
+        sf.append(" select y.pk_doc, y.pk_corp, y.doctemp, y.vfilepath, y.filetype from ynt_corpdoc y where nvl(dr,0)=0 and y.filetype = 2 and ");
+        sf.append(SqlUtil.buildSqlForIn("pk_corp", pks.toArray(new String[0])));
+
+        List<CorpDocVO> doclist = (List<CorpDocVO>) singleObjectBO.executeQuery(sf.toString(),
+                new SQLParameter(), new BeanListProcessor(CorpDocVO.class));
+
+        if(doclist == null || doclist.size() == 0){
+            return;
+        }
+
+        Map<String, CorpDocVO> docMap = DZfcommonTools.hashlizeObjectByPk(doclist,
+                new String[]{"pk_corp"});
+
+        CorpDocVO docvo;
+        for(InvoiceApplyVO vo : list){
+            if(docMap.containsKey(vo.getPk_corp())){
+                vo.setFiletype(docMap.get(vo.getPk_corp()).getFiletype());
+            }
+        }
+
+    }
+
+    private Map<String, String[]> getMapByVprovince(){
+        Map<String, String[]> map = new HashMap<>();
+        map.put("2", new String[]{"北京市", "11"});
+        map.put("3", new String[]{"天津市","12"});
+        map.put("4", new String[]{"河北省","13"});
+        map.put("5", new String[]{"山西省","14"});
+        map.put("6", new String[]{"内蒙古自治区","15"});
+        map.put("7", new String[]{"辽宁省","21"});
+        map.put("8", new String[]{"吉林省","22"});
+        map.put("9", new String[]{"黑龙江省","23"});
+        map.put("10", new String[]{"上海市","31"});
+        map.put("11", new String[]{"江苏省","32"});
+        map.put("12", new String[]{"浙江省","33"});
+        map.put("13", new String[]{"安徽省","34"});
+        map.put("14", new String[]{"福建省","35"});
+        map.put("15", new String[]{"江西省","36"});
+        map.put("16", new String[]{"山东省","37"});
+        map.put("17", new String[]{"河南省","41"});
+        map.put("18", new String[]{"湖北省","42"});
+        map.put("19", new String[]{"湖南省","43"});
+        map.put("20", new String[]{"广东省","44"});
+        map.put("21", new String[]{"广西壮族自治区","45"});
+        map.put("22", new String[]{"海南省","46"});
+        map.put("23", new String[]{"重庆市","50"});
+        map.put("24", new String[]{"四川省","51"});
+        map.put("25", new String[]{"贵州省","52"});
+        map.put("26", new String[]{"云南省","53"});
+        map.put("27", new String[]{"西藏自治区","54"});
+        map.put("28", new String[]{"陕西省","61"});
+        map.put("29", new String[]{"甘肃省","62"});
+        map.put("30", new String[]{"青海省","63"});
+        map.put("31", new String[]{"宁夏回族自治区","64"});
+        map.put("32", new String[]{"新疆维吾尔自治区","65"});
+
+        return map;
     }
 
     @Override

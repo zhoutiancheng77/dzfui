@@ -34,29 +34,29 @@ public class InvoiceApplyVO extends SuperVO {
     @JsonProperty("fcorp")
     public String fathercorp;
 
-    public String getFathercorp() {
-        return fathercorp;
-    }
+    @JsonProperty("ccrecode")
+    public String vsoccrecode;// 纳税人识别号
 
-    public void setFathercorp(String fathercorp) {
-        this.fathercorp = fathercorp;
-    }
+    @JsonProperty("bodycode")
+    public String legalbodycode;// 法人代表
 
-    public String getUnitname() {
-        return unitname;
-    }
+    @JsonProperty("l2")
+    public String linkman2;// 客户联系人
 
-    public void setUnitname(String unitname) {
-        this.unitname = unitname;
-    }
+    @JsonProperty("e1")
+    public String email1;// 电子邮件1
 
-    public String getInnercode() {
-        return innercode;
-    }
+    @JsonProperty("p1")
+    public String phone1;// 联系人电话
 
-    public void setInnercode(String innercode) {
-        this.innercode = innercode;
-    }
+    @JsonProperty("ovince")
+    public Integer vprovince;// 省 所属地区
+
+    public String vprovname;//  省 所属地区名称
+    public String vprovcode;//  对应 地区编码
+
+    @JsonProperty("iftype")
+    private Integer filetype;//
 
     public String getPk_invoice_apply() {
         return pk_invoice_apply;
@@ -72,6 +72,14 @@ public class InvoiceApplyVO extends SuperVO {
 
     public void setPk_corp(String pk_corp) {
         this.pk_corp = pk_corp;
+    }
+
+    public String getVprovname() {
+        return vprovname;
+    }
+
+    public void setVprovname(String vprovname) {
+        this.vprovname = vprovname;
     }
 
     public String getCuserid() {
@@ -136,6 +144,94 @@ public class InvoiceApplyVO extends SuperVO {
 
     public void setDr(Integer dr) {
         this.dr = dr;
+    }
+
+    public String getUnitname() {
+        return unitname;
+    }
+
+    public void setUnitname(String unitname) {
+        this.unitname = unitname;
+    }
+
+    public String getInnercode() {
+        return innercode;
+    }
+
+    public void setInnercode(String innercode) {
+        this.innercode = innercode;
+    }
+
+    public String getFathercorp() {
+        return fathercorp;
+    }
+
+    public void setFathercorp(String fathercorp) {
+        this.fathercorp = fathercorp;
+    }
+
+    public String getVsoccrecode() {
+        return vsoccrecode;
+    }
+
+    public void setVsoccrecode(String vsoccrecode) {
+        this.vsoccrecode = vsoccrecode;
+    }
+
+    public String getLegalbodycode() {
+        return legalbodycode;
+    }
+
+    public void setLegalbodycode(String legalbodycode) {
+        this.legalbodycode = legalbodycode;
+    }
+
+    public String getLinkman2() {
+        return linkman2;
+    }
+
+    public void setLinkman2(String linkman2) {
+        this.linkman2 = linkman2;
+    }
+
+    public String getEmail1() {
+        return email1;
+    }
+
+    public void setEmail1(String email1) {
+        this.email1 = email1;
+    }
+
+    public String getPhone1() {
+        return phone1;
+    }
+
+    public void setPhone1(String phone1) {
+        this.phone1 = phone1;
+    }
+
+    public Integer getVprovince() {
+        return vprovince;
+    }
+
+    public void setVprovince(Integer vprovince) {
+        this.vprovince = vprovince;
+    }
+
+    public String getVprovcode() {
+        return vprovcode;
+    }
+
+    public void setVprovcode(String vprovcode) {
+        this.vprovcode = vprovcode;
+    }
+
+    public Integer getFiletype() {
+        return filetype;
+    }
+
+    public void setFiletype(Integer filetype) {
+        this.filetype = filetype;
     }
 
     @Override

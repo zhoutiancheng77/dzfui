@@ -303,4 +303,12 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
         return vos;
     }
 
+    @Override
+    public String open(BillApplyVO[] bills, String userid)
+            throws DZFWarpException {
+
+
+        return null;
+    }
+
 }
