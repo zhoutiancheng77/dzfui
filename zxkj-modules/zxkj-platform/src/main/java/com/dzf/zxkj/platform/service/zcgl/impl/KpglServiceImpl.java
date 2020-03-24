@@ -93,7 +93,7 @@ public class KpglServiceImpl implements IKpglService {
         //非末级科目不让保存
         Map<String, YntCpaccountVO> map = accountService.queryMapByPk(vo.getPk_corp());
         if (vo.getIsperiodbegin() == null ||
-                vo.getIsperiodbegin().booleanValue()) {//非期初资产校验
+                !vo.getIsperiodbegin().booleanValue()) {//非期初资产校验
             validateKm(map, vo.getPk_zckm(), "资产科目");//固定(无形)资产科目
             validateKm(map, vo.getPk_jskm(), "结算科目");//结算科目
         }
