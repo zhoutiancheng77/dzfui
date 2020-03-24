@@ -11,6 +11,7 @@ import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.PeriodType;
 import com.dzf.zxkj.common.constant.TaxRptConst;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -22,6 +23,7 @@ import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.config.TaxConfig;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
@@ -44,6 +46,7 @@ import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxDeclarationService;
 import com.dzf.zxkj.platform.service.taxrpt.spreadjs.SpreadTool;
+import com.dzf.zxkj.platform.service.zncs.IZncsService;
 import com.dzf.zxkj.platform.util.taxrpt.TaxRptemptools;
 import com.dzf.zxkj.report.service.IZxkjReportService;
 import lombok.extern.slf4j.Slf4j;
@@ -75,6 +78,10 @@ public class TAXBalaceCcrSrvImpl implements ITaxBalaceCcrService {
 	private IQmclService gl_qmclserv;
 	@Autowired
 	private ICorpService corpService;
+	@Autowired
+	private IZncsService zncsserv;
+	@Autowired
+	private TaxConfig taxConfig;
 
 	@Reference(version = "1.0.0")
 	private IZxkjReportService zxkjReportService;
@@ -943,60 +950,59 @@ public class TAXBalaceCcrSrvImpl implements ITaxBalaceCcrService {
 	public DZFDouble getQDInc(String pk_corp, String period, Integer tickFlag, String[] taxRate, String mnytype,
 			String bstype, String ivflag, Integer periodtype, Map<String, List<DZFDouble>> mnyoutmap)
 			throws DZFWarpException {
-//		DZFDouble dzfReturn = DZFDouble.ZERO_DBL;
-//		String key =  "jx," + pk_corp + "," + period
-//				+ "," + tickFlag + "," + bstype + "," + ivflag;
-//		if(taxRate != null && taxRate.length > 0){
-//			for(String tax : taxRate){
-//				key = key + "," + tax;
-//			}
-//		}
-//
-//		List<DZFDouble> mnylist = null;
-//		if(mnyoutmap != null && mnyoutmap.containsKey(key)){
-//			mnylist = mnyoutmap.get(key);
-//		}
-//
-//		if(mnylist == null || mnylist.size() == 0){
-//			List<DZFDouble> temp;
-//			Integer bs = StringUtil.isEmpty(bstype)? null : Integer.parseInt(bstype);//标识
-//			Integer rzbs = "iv".equals(ivflag) ?
-//					Integer.valueOf(0) : "niv".equals(ivflag) ? Integer.valueOf(1) : null;
-//			try {
-//				if(periodtype == PeriodType.jidureport){
-//					mnylist = new ArrayList<DZFDouble>();
-//					mnylist.add(DZFDouble.ZERO_DBL);
-//					mnylist.add(DZFDouble.ZERO_DBL);
-//					temp = zncsserv.queryVATIncomeInvoiceMny(pk_corp, period, tickFlag, taxRate, bs, rzbs);
-//					caculateMny(mnylist, temp);
-//					String prevPeriod = DateUtils.getPreviousPeriod(period);
-//					temp = zncsserv.queryVATIncomeInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate, bs, rzbs);
-//					caculateMny(mnylist, temp);
-//					prevPeriod = DateUtils.getPreviousPeriod(prevPeriod);
-//					temp = zncsserv.queryVATIncomeInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate, bs, rzbs);
-//					caculateMny(mnylist, temp);
-//				}else{
-//					mnylist = zncsserv.queryVATIncomeInvoiceMny(pk_corp, period, tickFlag, taxRate, bs, rzbs);
-//				}
-//			} catch (Exception e) {
-//				log.error("错误",e);
-//			}
-//
-//			mnyoutmap.put(key, mnylist);
-//		}
-//
-//		if(mnylist != null && mnylist.size() == 2
-//				&& !StringUtil.isEmpty(mnytype)){
-//			if("金额".equals(mnytype)){
-//				dzfReturn = SafeCompute.add(mnylist.get(0), dzfReturn);
-//			}
-//			if("税额".equals(mnytype)){
-//				dzfReturn = SafeCompute.add(mnylist.get(1), dzfReturn);
-//			}
-//		}
-//
-//		return dzfReturn;
-		return null;
+		DZFDouble dzfReturn = DZFDouble.ZERO_DBL;
+		String key =  "jx," + pk_corp + "," + period
+				+ "," + tickFlag + "," + bstype + "," + ivflag;
+		if(taxRate != null && taxRate.length > 0){
+			for(String tax : taxRate){
+				key = key + "," + tax;
+			}
+		}
+
+		List<DZFDouble> mnylist = null;
+		if(mnyoutmap != null && mnyoutmap.containsKey(key)){
+			mnylist = mnyoutmap.get(key);
+		}
+
+		if(mnylist == null || mnylist.size() == 0){
+			List<DZFDouble> temp;
+			Integer bs = StringUtil.isEmpty(bstype)? null : Integer.parseInt(bstype);//标识
+			Integer rzbs = "iv".equals(ivflag) ?
+					Integer.valueOf(0) : "niv".equals(ivflag) ? Integer.valueOf(1) : null;
+			try {
+				if(periodtype == PeriodType.jidureport){
+					mnylist = new ArrayList<DZFDouble>();
+					mnylist.add(DZFDouble.ZERO_DBL);
+					mnylist.add(DZFDouble.ZERO_DBL);
+					temp = zncsserv.queryVATIncomeInvoiceMny(pk_corp, period, tickFlag, taxRate, bs, rzbs);
+					caculateMny(mnylist, temp);
+					String prevPeriod = DateUtils.getPreviousPeriod(period);
+					temp = zncsserv.queryVATIncomeInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate, bs, rzbs);
+					caculateMny(mnylist, temp);
+					prevPeriod = DateUtils.getPreviousPeriod(prevPeriod);
+					temp = zncsserv.queryVATIncomeInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate, bs, rzbs);
+					caculateMny(mnylist, temp);
+				}else{
+					mnylist = zncsserv.queryVATIncomeInvoiceMny(pk_corp, period, tickFlag, taxRate, bs, rzbs);
+				}
+			} catch (Exception e) {
+				log.error("错误",e);
+			}
+
+			mnyoutmap.put(key, mnylist);
+		}
+
+		if(mnylist != null && mnylist.size() == 2
+				&& !StringUtil.isEmpty(mnytype)){
+			if("金额".equals(mnytype)){
+				dzfReturn = SafeCompute.add(mnylist.get(0), dzfReturn);
+			}
+			if("税额".equals(mnytype)){
+				dzfReturn = SafeCompute.add(mnylist.get(1), dzfReturn);
+			}
+		}
+
+		return dzfReturn;
 	}
 	
 	/**
@@ -1012,67 +1018,91 @@ public class TAXBalaceCcrSrvImpl implements ITaxBalaceCcrService {
 	@Override
 	public DZFDouble getQDOut(String pk_corp, String period, Integer tickFlag,
 				String[] taxRate, String mnytype, String busitype, Integer periodtype, Map<String, List<DZFDouble>> mnyoutmap) throws DZFWarpException {
-//		DZFDouble dzfReturn = DZFDouble.ZERO_DBL;
-//		String key =  "xx," + pk_corp + "," + period + "," + tickFlag;
-//		if(taxRate != null && taxRate.length > 0){
-//			for(String tax : taxRate){
-//				key = key + "," + tax;
-//			}
-//		}
-//
-//		List<DZFDouble> mnylist = null;
-//		if(mnyoutmap != null && mnyoutmap.containsKey(key)){
-//			mnylist = mnyoutmap.get(key);
-//		}
-//
-//		if(mnylist == null || mnylist.size() == 0){
-//			List<DZFDouble> temp;
-//			try {
-//				if(periodtype == PeriodType.jidureport){
-//					mnylist = new ArrayList<DZFDouble>();
-//					mnylist.add(DZFDouble.ZERO_DBL);
-//					mnylist.add(DZFDouble.ZERO_DBL);
-//					mnylist.add(DZFDouble.ZERO_DBL);
-//					mnylist.add(DZFDouble.ZERO_DBL);
-//					temp = zncsserv.queryVATSaleInvoiceMny(pk_corp, period, tickFlag, taxRate);
-//					caculateMny(mnylist, temp);
-//					String prevPeriod = DateUtils.getPreviousPeriod(period);
-//					temp = zncsserv.queryVATSaleInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate);
-//					caculateMny(mnylist, temp);
-//					prevPeriod = DateUtils.getPreviousPeriod(prevPeriod);
-//					temp = zncsserv.queryVATSaleInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate);
-//					caculateMny(mnylist, temp);
-//				}else{
-//					mnylist = zncsserv.queryVATSaleInvoiceMny(pk_corp, period, tickFlag, taxRate);
-//				}
-//			} catch (Exception e) {
-//				log.error("错误",e);
-//			}
-//
-//			mnyoutmap.put(key, mnylist);
-//		}
-//
-//		if(mnylist != null && mnylist.size() == 4
-//				&& !StringUtil.isEmpty(mnytype) && !StringUtil.isEmpty(busitype)){
-//			if("金额".equals(mnytype) && busitype.contains("服务")){
-//				dzfReturn = SafeCompute.add(mnylist.get(0), dzfReturn);
-//			}
-//
-//			if("金额".equals(mnytype) && busitype.contains("货物")){
-//				dzfReturn = SafeCompute.add(mnylist.get(2), dzfReturn);
-//			}
-//
-//			if("税额".equals(mnytype) && busitype.contains("服务")){
-//				dzfReturn = SafeCompute.add(mnylist.get(1), dzfReturn);
-//			}
-//
-//			if("税额".equals(mnytype) && busitype.contains("货物")){
-//				dzfReturn = SafeCompute.add(mnylist.get(3), dzfReturn);;
-//			}
-//		}
-//
-//		return dzfReturn;
-		return null;
+		DZFDouble dzfReturn = DZFDouble.ZERO_DBL;
+		String key =  "xx," + pk_corp + "," + period + "," + tickFlag;
+		if(taxRate != null && taxRate.length > 0){
+			for(String tax : taxRate){
+				key = key + "," + tax;
+			}
+		}
+
+		List<DZFDouble> mnylist = null;
+		if(mnyoutmap != null && mnyoutmap.containsKey(key)){
+			mnylist = mnyoutmap.get(key);
+		}
+
+		if(mnylist == null || mnylist.size() == 0){
+			List<DZFDouble> temp;
+
+			taxRate = reBuildByConfig(taxRate, pk_corp, period);
+			try {
+				if(periodtype == PeriodType.jidureport){
+					mnylist = new ArrayList<DZFDouble>();
+					mnylist.add(DZFDouble.ZERO_DBL);
+					mnylist.add(DZFDouble.ZERO_DBL);
+					mnylist.add(DZFDouble.ZERO_DBL);
+					mnylist.add(DZFDouble.ZERO_DBL);
+					temp = zncsserv.queryVATSaleInvoiceMny(pk_corp, period, tickFlag, taxRate);
+					caculateMny(mnylist, temp);
+					String prevPeriod = DateUtils.getPreviousPeriod(period);
+					temp = zncsserv.queryVATSaleInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate);
+					caculateMny(mnylist, temp);
+					prevPeriod = DateUtils.getPreviousPeriod(prevPeriod);
+					temp = zncsserv.queryVATSaleInvoiceMny(pk_corp, prevPeriod, tickFlag, taxRate);
+					caculateMny(mnylist, temp);
+				}else{
+					mnylist = zncsserv.queryVATSaleInvoiceMny(pk_corp, period, tickFlag, taxRate);
+				}
+			} catch (Exception e) {
+				log.error("错误",e);
+			}
+
+			mnyoutmap.put(key, mnylist);
+		}
+
+		if(mnylist != null && mnylist.size() == 4
+				&& !StringUtil.isEmpty(mnytype) && !StringUtil.isEmpty(busitype)){
+			if("金额".equals(mnytype) && busitype.contains("服务")){
+				dzfReturn = SafeCompute.add(mnylist.get(0), dzfReturn);
+			}
+
+			if("金额".equals(mnytype) && busitype.contains("货物")){
+				dzfReturn = SafeCompute.add(mnylist.get(2), dzfReturn);
+			}
+
+			if("税额".equals(mnytype) && busitype.contains("服务")){
+				dzfReturn = SafeCompute.add(mnylist.get(1), dzfReturn);
+			}
+
+			if("税额".equals(mnytype) && busitype.contains("货物")){
+				dzfReturn = SafeCompute.add(mnylist.get(3), dzfReturn);;
+			}
+		}
+
+		return dzfReturn;
+	}
+
+	private String[] reBuildByConfig(String[] taxRate, String pk_corp, String period){
+
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
+		if("一般纳税人".equals(corpvo)){
+			return taxRate;
+		}
+
+		if(!"true".equals(taxConfig.enabled)
+				|| period.compareTo(taxConfig.pfrom) < 0
+				|| period.compareTo(taxConfig.pto) > 0){
+			return taxRate;
+		}
+
+		List<String> list = new ArrayList(Arrays.asList(taxRate));
+		String rate = taxConfig.ratext;
+		String[] exps = rate.split(",");
+		for(String exp : exps){
+			list.add(exp);
+		}
+
+		return list.toArray(new String[0]);
 	}
 	
 	private void caculateMny(List<DZFDouble> list, List<DZFDouble> temp){
