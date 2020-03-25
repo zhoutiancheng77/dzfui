@@ -2761,6 +2761,7 @@ public class QmclServiceImpl implements IQmclService {
 //					}
 //					incomeMnyMap.put(bvo.getVcode(), dfmny);
 				} else if (bvo.getVcode().startsWith(zzsKm)) {
+					spcTax =SafeCompute.add(spcTax,dfmny);
 					if (bvo.getFp_style() != null
 							&& bvo.getFp_style() == IFpStyleEnum.SPECINVOICE.getValue()) {
 						// 专票销项税额直接相加
@@ -2772,7 +2773,6 @@ public class QmclServiceImpl implements IQmclService {
 						}
 						genTaxMap.put(incomeCode, dfmny);
 					}
-					spcTax =SafeCompute.add(spcTax,dfmny);
 				}
 			}
 		}

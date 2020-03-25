@@ -2281,7 +2281,8 @@ public class PrintReporUtil {
         }else if (pmap.get("type").equals("3")) {//A5纸张
             defaultlen =20;
         }
-        defaultlen = defaultlen*beishu;
+        int  leftspace= Integer.parseInt(pmap.get("left"))/5;
+        defaultlen = (defaultlen-leftspace) * beishu;
         if(StringUtil.isEmpty(str)){
             return PrintUtil.getSpace(defaultlen);
         }else{

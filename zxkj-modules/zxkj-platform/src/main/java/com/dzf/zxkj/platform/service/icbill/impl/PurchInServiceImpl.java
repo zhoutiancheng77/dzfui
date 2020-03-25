@@ -1027,12 +1027,13 @@ public class PurchInServiceImpl implements IPurchInService {
 
 		// 暂估
 		boolean iszg = ivo.getIszg() != null && ivo.getIszg().booleanValue() ? true : false;
+		boolean isczg = ivo.getIsczg() != null && ivo.getIsczg().booleanValue() ? true : false;
 
 		String colmun = null;
 		// 一般纳税人有应交税费
 		List<TzpzBVO> bodyList = null;
 		if (isChargedept) {
-			if (iszg) {
+			if (iszg || isczg) {
 				colmun = "nymny";
 				bodyList = createCommonTzpzBVO(ivo, null, userid, zy, colmun, 0, ccountMap, 0, corp, iprice);
 				finBodyList.addAll(bodyList);//
@@ -1065,7 +1066,7 @@ public class PurchInServiceImpl implements IPurchInService {
 
 			}
 		} else {
-			if (iszg) {
+			if (iszg || isczg) {
 				colmun = "nymny";
 			} else {
 				colmun = "nymny&ntaxmny";
@@ -1108,7 +1109,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		}
 
 		// 暂估 取暂估入库贷方科目
-		if (iszg) {
+		if (iszg || isczg) {
 			pk_accsunj = setvo.getZgrkdfkm();
 			if (StringUtil.isEmpty(pk_accsunj)) {
 				throw new BusinessException("暂估入库贷方科目未设置!");
