@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.service.bdset.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.util.TypeUtils;
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -10,7 +11,6 @@ import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
 import com.dzf.zxkj.base.utils.JSONConvtoJAVA;
 import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -197,7 +197,7 @@ public class DataBackUpImpl implements IDataBackUp {
                                         bodymapping.put(name, name);
                                     }
                                 }
-                                tempvo = DzfTypeUtils.cast(obt, bodymapping, tempvo.getClass(),
+                                tempvo = TypeUtils.cast(obt, tempvo.getClass(),
                                         JSONConvtoJAVA.getParserConfig());
 //								for(String name:names){
 //									if(tempvo.getAttributeValue(name)!=null

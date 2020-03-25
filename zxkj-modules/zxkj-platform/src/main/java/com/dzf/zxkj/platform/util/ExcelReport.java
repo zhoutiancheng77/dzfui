@@ -1,8 +1,8 @@
 package com.dzf.zxkj.platform.util;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.util.TypeUtils;
 import com.dzf.zxkj.base.exception.WiseRunException;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -100,7 +100,7 @@ public class ExcelReport<T> {
 			String qj = obj == null ? "" : obj.toString();
 			String date[] = qj.split("-");// ((Map<String, Object>)
 											// array.get(0)).get("qj").toString().split("-")
-			int days = DZFDate.getDaysMonth(DzfTypeUtils.castToInt(date[0]), DzfTypeUtils.castToInt(date[1]));
+			int days = DZFDate.getDaysMonth(TypeUtils.castToInt(date[0]), TypeUtils.castToInt(date[1]));
 
 			Map<Integer, String> fieldColumn = new HashMap<Integer, String>() {// 需要前台获取的值对应的field名字
 				{

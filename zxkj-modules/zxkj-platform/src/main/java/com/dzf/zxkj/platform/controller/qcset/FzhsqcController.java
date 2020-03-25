@@ -1,11 +1,8 @@
 package com.dzf.zxkj.platform.controller.qcset;
 
-import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.utils.DzfTypeUtils;
-import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;

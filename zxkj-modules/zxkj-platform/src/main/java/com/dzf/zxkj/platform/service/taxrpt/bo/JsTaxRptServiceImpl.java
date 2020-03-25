@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.service.taxrpt.bo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.util.TypeUtils;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -10,12 +11,13 @@ import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
-import com.dzf.zxkj.base.utils.*;
+import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.JSONConvtoJAVA;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -1097,8 +1099,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						Class<?> type = intParse.getFieldType(voName);
 						Object[] ary = (Object[]) Array.newInstance(type, size);
 						try {
-							ary = (Object[]) DzfTypeUtils.cast(gridLb,
-									FieldMapping.getFieldMapping((SuperVO) type.newInstance()),
+							ary = (Object[]) TypeUtils.cast(gridLb,
 									ary.getClass(), JSONConvtoJAVA.getParserConfig());
 						} catch (Exception e) {
 							log.error("JSONArray转换失败", e);
@@ -2633,8 +2634,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				it.remove();
 				
 			}
-			payments = DzfTypeUtils.cast(dataArray,
-					FieldMapping.getFieldMapping(new TaxPaymentVO()),
+			payments = TypeUtils.cast(dataArray,
 					TaxPaymentVO[].class, JSONConvtoJAVA.getParserConfig());
 		}
 		return payments;

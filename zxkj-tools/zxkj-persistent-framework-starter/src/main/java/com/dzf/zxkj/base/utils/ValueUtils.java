@@ -1,5 +1,6 @@
 package com.dzf.zxkj.base.utils;
 
+import com.alibaba.fastjson.util.TypeUtils;
 import com.dzf.zxkj.common.lang.*;
 import com.dzf.zxkj.common.utils.JavaType;
 
@@ -212,7 +213,7 @@ public class ValueUtils {
 		if (value instanceof DZFDate) {
 			retValue = (DZFDate) value;
 		} else {
-			retValue = new DZFDate(DzfTypeUtils.castToDate(value));
+			retValue = new DZFDate(TypeUtils.castToDate(value));
 		}
 		return retValue;
 	}
