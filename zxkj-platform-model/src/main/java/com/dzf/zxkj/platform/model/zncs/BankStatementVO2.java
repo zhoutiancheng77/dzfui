@@ -88,7 +88,7 @@ public class BankStatementVO2 extends SuperVO implements IGlobalPZVO {
 	private String fufangdwmc;	//付方单位名称    数据库中没有，仅用于计算
 	private String shoufangdwmc;//收方单位名称   数据库中没有，仅用于计算
 	//自定义项1~15
-	private String vdef1;//存一键获取交易流水号
+	private String vdef1;
 	private String vdef2;//存一键取票电子回单获取状态
 	private String vdef3;
 	private String vdef4;
@@ -98,8 +98,8 @@ public class BankStatementVO2 extends SuperVO implements IGlobalPZVO {
 	private String vdef8;
 	private String vdef9;
 	private String vdef10;//分类时临时用
-	private String vdef11;
-	private String vdef12;
+	private String vdef11;//存一键获取交易流水号
+	private String vdef12;//存一键取票电子回单获取状态  0-待申请  1-已申请  2-以获取 3-获取失败
 	private String vdef13;//存pk_invoice
 	private String vdef14;
 	private String vdef15;

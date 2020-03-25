@@ -10,6 +10,7 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
@@ -7273,14 +7274,14 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 						List<IcbcErcptApplyAndQrywlhdetailVo> list =pageInfo.getList();
 						for (IcbcErcptApplyAndQrywlhdetailVo resultvo:list) {
 							//查询是否重复
-							List<BankStatementVO2> queryList = queryVoByVdef1(resultvo.getTransserialno());
+							List<BankStatementVO2> queryList = queryVoByVdef11(resultvo.getTransserialno());
 							if(queryList ==null || queryList.size()==0){
 								BankStatementVO2 bvo = new BankStatementVO2();
 								bvo.setCoperatorid(SystemUtil.getLoginUserId());//操作人
 								bvo.setDoperatedate(new DZFDate(new Date()));//操作时间
 								bvo.setPk_corp(SystemUtil.getLoginCorpId());//公司主键
 								bvo.setPk_bankaccount(pk_bankaccount);//银行账户主键
-								bvo.setVdef1(resultvo.getTransserialno());//交易流水号
+								bvo.setVdef11(resultvo.getTransserialno());//交易流水号
 								bvo.setTradingdate(new DZFDate(resultvo.getTranstime().substring(0,10)));//交易时间
 								bvo.setOthaccountname(resultvo.getRecipaccname());//对方账户名称
 								bvo.setOthaccountcode(resultvo.getRecipaccno());//对方账户
@@ -7288,7 +7289,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 								bvo.setSourcetem(BankStatementVO2.SOURCE_59);//数据来源
 								bvo.setSourcetype(BankStatementVO2.SOURCE_101);
 								bvo.setPeriod(resultvo.getTranstime().substring(0,7));//入账期间
-								bvo.setVdef2(resultvo.getWlhstatus());//电子回单获取状态
+								bvo.setVdef12(resultvo.getWlhstatus().getDesc());//电子回单获取状态
 								bvo.setInperiod(resultvo.getTranstime().substring(0,7));//入账期间
 								bvo.setVersion(new DZFDouble(1.0));//版本
 								if(resultvo.getDrcrf().equals("1")){//1-借(出);2-贷(入
@@ -7298,15 +7299,9 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 								}
 								//复制图片并将pdf转成图片格式
 								if(!StringUtils.isEmpty(resultvo.getWlhaddress())) {
-									String imgPath = copyAndTrans(resultvo.getWlhaddress());
-                                    bvo.setImgpath(imgPath);
-                                }
+									ImageLibraryVO il = copyAndTrans(resultvo.getWlhaddress());
+                                    bvo.setImgpath("/zncs/gl_imgview/search?id="+il.getPk_image_library()+"&name="+il.getImgname()+"&pk_corp="+il.getPk_corp());                                }
 
-
-								//bvo.setImgpath();//电子回单地址
-//								bvo.setPk_model_h();//业务类型主键
-//								bvo.setBusitypetempname();//业务类型名称
-//								bvo.setPk_category_keyword();//匹配规则主键
 								bankvolist.add(bvo);
 							}
 						}
@@ -7324,12 +7319,12 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 		return responseVO;
 	}
     //根据交易流水号查询票据
-	public List<BankStatementVO2> queryVoByVdef1(String transserialno) throws DZFWarpException{
+	public List<BankStatementVO2> queryVoByVdef11(String transserialno) throws DZFWarpException{
 		List<BankStatementVO2> list = null;
 		if(!StringUtil.isEmpty(transserialno)){
 			StringBuffer sb = new StringBuffer();
 			SQLParameter sp = new SQLParameter();
-			sb.append("select * from ynt_bankstatement where nvl(dr,0)=0 and vdef1 = ? ");
+			sb.append("select * from ynt_bankstatement where nvl(dr,0)=0 and vdef11 = ? ");
 			sp.addParam(transserialno);
 			list = (List<BankStatementVO2>) singleObjectBO.executeQuery(sb.toString(), sp,
 					new BeanListProcessor(BankStatementVO2.class));
@@ -7341,26 +7336,39 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
         return format.format(Calendar.getInstance().getTime());
     }
-	private String copyAndTrans(String http){
-		String imgPath = File.separator + "ImageUpload" + File.separator + SystemUtil.getLoginCorpVo().getUnitcode() + File.separator + getCurDate();
+	private ImageLibraryVO copyAndTrans(String http){
+		String imgDir = File.separator + "ImageUpload" + File.separator ;
+		String imgPath = SystemUtil.getLoginCorpVo().getUnitcode() + File.separator + getCurDate();
 		String imgFilePath = UUID.randomUUID().toString() + ".jpg";
 		String PdfFileName = UUID.randomUUID().toString() + ".pdf";
+		ImageLibraryVO il = new ImageLibraryVO();
 		try {
 
-			File dir = new File(imgPath);
+			File dir = new File(imgDir+imgPath);
 			if (!dir.exists()) {
 				dir.mkdirs();
 			}
 
-			File imgFile = new File(imgPath + File.separator + imgFilePath);
+			File imgFile = new File(imgDir+imgPath + File.separator + imgFilePath);
 			URL url = new URL(http);
 			URLConnection connection = url.openConnection();
 			InputStream is = connection.getInputStream();
-			ImageCopyUtil.transPdfToJpg(is, new File(imgPath + File.separator + PdfFileName), imgFile);
+			ImageCopyUtil.transPdfToJpg(is, new File(imgDir+imgPath + File.separator + PdfFileName), imgFile);
 
+			il.setImgpath(imgPath+File.separator+imgFilePath);
+			il.setPdfpath(imgPath+File.separator+PdfFileName);
+			il.setImgname(imgFilePath);
+			il.setPk_corp(SystemUtil.getLoginCorpId());
+			il.setPk_uploadcorp(SystemUtil.getLoginCorpId());
+			il.setCoperatorid(SystemUtil.getLoginUserId());
+			il.setDoperatedate(new DZFDate());
+//			il.setCvoucherdate(DateUtils.getPeriodEndDate(period));
+//			il.setImgmd(imgMD);// 图片MD5码值
+			singleObjectBO.saveObject(il.getPk_corp(), il);
 		}catch(Exception e){
 			throw new BusinessException("获取银行回单失败！");
 		}
-		return imgPath+File.separator+imgFilePath;
+		return il;
 	}
+
 }

@@ -25,11 +25,14 @@ import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
 import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.image.DcModelHVO;
+import com.dzf.zxkj.platform.model.image.ImageCommonPath;
+import com.dzf.zxkj.platform.model.image.ImageLibraryVO;
 import com.dzf.zxkj.platform.model.pjgl.VatInvoiceSetVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zncs.*;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
+import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.*;
@@ -41,9 +44,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @RestController
@@ -60,6 +64,8 @@ public class BankStatement2Controller extends BaseController {
     private IBankStatement2Service gl_yhdzdserv2;
     @Autowired
     private IVatInvoiceService vatinvoiceserv;
+    @Autowired
+    private IImageGroupService gl_pzimageserv;
     @Autowired
     private IYHZHService gl_yhzhserv;
     @Autowired
@@ -1414,18 +1420,28 @@ public class BankStatement2Controller extends BaseController {
     public ReturnData<Grid> ercptApplyAndQrywlhdetail(@RequestBody Map<String,String> param){
         Grid grid = new Grid();
         String pk_corp = SystemUtil.getLoginCorpId();
+        CorpVO corpVo = corpService.queryByPk(pk_corp);
+        CorpVO fatherCorp = corpService.queryByPk(corpVo.getFathercorp());
         checkSecurityData(null,new String[]{pk_corp}, null);
         try {
             IcbcErcptApplyAndQrywlhdetailQo vo = new IcbcErcptApplyAndQrywlhdetailQo();
             String pk_bankaccount = param.get("pk_bankaccount");//银行账户主键
-            String date = param.get("date");//期间
-            vo.setAcctcomno(param.get("acctcomno"));//代记账公司编号
-            vo.setAccno(param.get("accno"));//银行账户
-            vo.setUscc(param.get("uscc"));//统一社会信用代码
-            vo.setAccountNo(param.get("accountNo"));//业务端客户编号
-            vo.setAppId(param.get("appId"));
-            vo.setStartDate(DateUtils.getPeriodStartDate(date).toString());
-            vo.setEndDate(DateUtils.getPeriodEndDate(date).toString());
+//            String date = param.get("date");//期间
+//            vo.setAccno(param.get("accno"));//银行账户
+//            vo.setAcctcomno(fatherCorp.getInnercode());//代记账公司编号
+//            vo.setUscc(corpVo.getVsoccrecode());//统一社会信用代码
+//            vo.setAccountNo(corpVo.getInnercode());//业务端客户编号
+//            vo.setAppId("xwwy");//小薇无忧的签约用户
+//            vo.setStartDate(DateUtils.getPeriodStartDate(date).toString());
+//            vo.setEndDate(DateUtils.getPeriodEndDate(date).toString());
+
+            vo.setAccno("1234567890123456001");//银行账户
+            vo.setAcctcomno("dzf-dztest-001");//代记账公司编号
+            vo.setUscc("123456789012345001");//统一社会信用代码
+            vo.setAccountNo("67867868");//业务端客户编号
+            vo.setAppId("000001");//小薇无忧的签约用户
+            vo.setStartDate("2020-01-01");
+            vo.setEndDate("2020-04-01");
 
             BankStatement2ResponseVO responseVO = gl_yhdzdserv2.ercptApplyAndQrywlhdetail(vo,pk_bankaccount);
             grid.setSuccess(true);
@@ -1438,5 +1454,150 @@ public class BankStatement2Controller extends BaseController {
         }
 
         return ReturnData.ok().data(grid);
+    }
+//下载银行回单
+@RequestMapping("/exportBill")
+public ReturnData<Json>  exportBill(HttpServletResponse response,@RequestBody Map<String,String[]> param){
+    Json json = new Json();
+    try{
+        String[] urls = param.get("urls");
+        List<File> list =new ArrayList<File>();
+        if(urls !=null && urls.length>0){
+            for (String url:urls) {
+               String pk_library = url.substring(26,51);
+                ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(SystemUtil.getLoginCorpId(),pk_library);
+                String imgPathName = null;
+                String type = null;
+                if(imglibvo != null && imglibvo.getImgpath()!=null){
+                        imgPathName = imglibvo.getImgpath();
+                    }
+                if(imgPathName.startsWith("ImageOcr")){
+                        type="ImageOcr";
+                    }else{
+                        type="vchImg";
+                    }
+                File dir =  getImageFolder(type, SystemUtil.getLoginCorpVo(), imgPathName, imgPathName);
+                String lujing = dir.getAbsolutePath();
+                File file  = new File(lujing);
+                list.add(file);
+                }
+
+        }
+
+        if(list.size()>00){
+            exportFileToZip(response, list.toArray(new File[0]), new DZFDate().toString()+"-"+new Random().nextInt(9999));
+            json.setSuccess(true);
+            json.setMsg("下载成功");
+        }else{
+            json.setSuccess(false);
+            json.setMsg("暂无可下载的票据!");
+            json.setStatus(-100);
+        }
+
+    } catch(Exception e) {
+        json.setStatus(-100);
+        printErrorLog(json, e, "下载失败");
+    }
+    writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "下载回单", ISysConstants.SYS_2);
+
+    return ReturnData.ok().data(json);
+
+}
+    public static File getImageFolder(String type,CorpVO corpvo,String imgPathName, String imgName) throws FileNotFoundException {
+        File dir = null;
+        String dateFolder = imgName.substring(0, 8);
+        if("vchImg".equals(type)){
+            if (imgPathName.indexOf("/") < 0 && imgPathName.indexOf("\\") < 0)	//原始文件名，无目录
+            {
+                String imgfolder = ImageCommonPath.getDataCenterPhotoPath()  + "/" +  corpvo.getUnitcode() + "/" + dateFolder;
+                String folder = imgfolder +"/"+ imgPathName; //DZFConstant.DZF_KJ_UPLOAD_BASE + imgfolder;
+                dir = new File(folder);
+            }
+            else	//已经包含路径的文件名
+            {
+                String folder = ImageCommonPath.getDataCenterPhotoPath()  +"/"+ imgPathName;
+                dir = new File(folder);
+            }
+
+        }else if("ImageOcr".equals(type)){
+//			String imgfolder = ImageCommonPath.getDataCenterPhotoPath()  + "/" +  corpvo.getUnitcode() + "/" + dateFolder;
+            String folder = ImageCommonPath.getDataCenterPhotoPath()  +"/"+ imgPathName; //DZFConstant.DZF_KJ_UPLOAD_BASE + imgfolder;
+            dir = new File(folder);
+        }
+
+        return dir;
+    }
+    private boolean exportFileToZip(HttpServletResponse response, File[]files, String
+            zipFileName) {
+        if (files == null&& files.length<=0) {
+            return false;
+        }
+        FileInputStream fis = null;
+        OutputStream out = null;
+        ZipOutputStream zos = null;
+        try {
+            // 清空输出流
+            response.resetBuffer();
+            // 设置reponse返回数据类型，文件名，以及处理文件名乱码
+            response.setContentType("application/vnd.ms-excel");
+            response.setHeader("Connection", "close"); // 表示不能用浏览器直接打开
+            response.setHeader("Accept-Ranges", "bytes");// 告诉客户端允许断点续传多线程连接下载
+            response.setHeader("Content-Disposition",
+                    "attachment;filename=" + new String((zipFileName + ".zip").getBytes("GB2312"), "ISO8859-1"));
+            response.setCharacterEncoding("UTF-8");
+            // 取得输出流
+            out = response.getOutputStream();
+            // 压缩输出流
+            zos = new ZipOutputStream(out);
+            byte[] bufs = new byte[1024 * 10];
+            BufferedInputStream bis =null;
+            for (int i = 0; i < files.length; i++) {
+                try {
+                    // 创建ZIP实体，并添加进压缩包
+                    ZipEntry zipEntry = new ZipEntry(files[i].getName());
+                    zos.putNextEntry(zipEntry);
+                    // 读取待压缩的文件并写进压缩包里
+                    fis = new FileInputStream(files[i]);
+                    bis = new BufferedInputStream(fis, 1024 * 10);
+                    int read = 0;
+                    while ((read = bis.read(bufs, 0, 1024 * 10)) != -1) {
+                        zos.write(bufs, 0, read);
+                    }
+                    zos.flush();
+                } catch (Exception e) {
+                    throw new BusinessException(e.getMessage());
+                } finally {
+                    // 关闭流
+                    try {
+                        if (null != bis)
+                            bis.close();
+                    } catch (IOException e) {
+                        throw new BusinessException(e.getMessage());
+                    }
+                    try {
+                        if (null != fis)
+                            fis.close();
+                    } catch (IOException e) {
+                        throw new BusinessException(e.getMessage());
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {
+                // 关闭顺序必须是zos在前面，否则在用wrar解压时报错：“不可预料的压缩文件末端是什么原因”
+                if (zos != null) {
+                    zos.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+
+            }
+        }
+        return true;
     }
 }
