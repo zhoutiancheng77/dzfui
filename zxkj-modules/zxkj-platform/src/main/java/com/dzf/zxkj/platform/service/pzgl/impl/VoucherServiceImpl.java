@@ -166,7 +166,12 @@ public class VoucherServiceImpl implements IVoucherService {
 		shoufeiCheck(corpvo.getPk_corp());
 		//智能新版相关处理
 		dealAIInfoByAddBefore(hvo);
-		
+
+
+		DZFDate doperatedate = hvo.getDoperatedate();
+		hvo.setPeriod(DateUtils.getPeriod(doperatedate));
+		hvo.setVyear(doperatedate.getYear());
+
 		Boolean isXjll = false;
 		Boolean isChange = false;
 		Integer modifyStatus = 0;// 会计工厂--凭证修改状态 （1--科目变化,2--金额变化）
@@ -234,8 +239,8 @@ public class VoucherServiceImpl implements IVoucherService {
 			Integer defaultFpstyle = "一般纳税人".equals(corpvo.getChargedeptname()) ? 2 : 1;
 			Integer oldFpStyle = qhvo.getFp_style() == null ? defaultFpstyle : qhvo.getFp_style();
 			Integer newFpStyle = hvo.getFp_style() == null ? defaultFpstyle : hvo.getFp_style();
-			if (!oldFpStyle.equals(newFpStyle)) {
-				// 小规模发票类型改变，重新分析税目
+			if (!oldFpStyle.equals(newFpStyle) || !qhvo.getPeriod().equals(hvo.getPeriod())) {
+				// 小规模发票类型改变，期间改变,重新分析税目
 				reAnalyseTaxItem = true;
 			}
 			// 赋值来源(如果来源不存在的)
@@ -335,9 +340,6 @@ public class VoucherServiceImpl implements IVoucherService {
 			singleObjectBO.deleteVOArray(qbvos);// 删除原子表
 		}
 
-		DZFDate doperatedate = hvo.getDoperatedate();
-		hvo.setPeriod(DateUtils.getPeriod(doperatedate));
-		hvo.setVyear(doperatedate.getYear());
 		Integer accSchema = yntBoPubUtil.getAccountSchema(hvo.getPk_corp());
 		if(bvos!=null && bvos.length>0){
 			for (int i = 0; i < bvos.length; i++) {
