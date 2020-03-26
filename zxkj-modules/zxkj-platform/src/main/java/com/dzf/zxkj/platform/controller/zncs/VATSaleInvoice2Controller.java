@@ -1796,8 +1796,12 @@ public class VATSaleInvoice2Controller extends BaseController {
                 CorpVO corpvo = corpService.queryByPk(pk_corp);
                 String bbuildic = corpvo.getBbuildic();
                 Integer icstyle = SystemUtil.getLoginCorpVo().getIbuildicstyle();
-
                 if(!StringUtil.isEmpty(bbuildic)
+                        && IcCostStyle.IC_INVTENTORY.equals(bbuildic)
+                        && (icstyle == null || icstyle == -1)){
+                    msg.append("<p>启用总账核算存货，请先设置存货成本核算方式！<p>");
+                    errorCount = 1;
+                }else if(!StringUtil.isEmpty(bbuildic)
                         && IcCostStyle.IC_ON.equals(bbuildic)
                         && icstyle != null && icstyle == 1){
                     Map<String, VATSaleInvoiceVO2> pzMap = new HashMap<String, VATSaleInvoiceVO2>();

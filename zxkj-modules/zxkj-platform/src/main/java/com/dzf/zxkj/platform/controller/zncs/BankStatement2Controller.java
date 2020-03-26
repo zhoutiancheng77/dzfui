@@ -1464,7 +1464,7 @@ public ReturnData<Json>  exportBill(HttpServletResponse response,@RequestBody Ma
         List<File> list =new ArrayList<File>();
         if(urls !=null && urls.length>0){
             for (String url:urls) {
-               String pk_library = url.substring(26,51);
+               String pk_library = url.substring(27,51);
                 ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(SystemUtil.getLoginCorpId(),pk_library);
                 String imgPathName = null;
                 String type = null;

@@ -1470,8 +1470,12 @@ public class VATInComInvoice2Controller extends BaseController {
                 CorpVO corpvo = corpService.queryByPk(pk_corp);
                 String bbuildic = corpvo.getBbuildic();
                 Integer icstyle = corpvo.getIbuildicstyle();
-
                 if(!StringUtil.isEmpty(bbuildic)
+                        && IcCostStyle.IC_INVTENTORY.equals(bbuildic)
+                        && (icstyle == null || icstyle == -1)){
+                    msg.append("<p>启用总账核算存货，请先设置存货成本核算方式！<p>");
+                    errorCount = 1;
+                }else if(!StringUtil.isEmpty(bbuildic)
                         && IcCostStyle.IC_ON.equals(bbuildic)
                         && icstyle != null && icstyle == 1){//首先判断是不是启用库存，再判断是不是库存新模式
                     errorCount = dealAfterTicketByIC(icMap, msg);
