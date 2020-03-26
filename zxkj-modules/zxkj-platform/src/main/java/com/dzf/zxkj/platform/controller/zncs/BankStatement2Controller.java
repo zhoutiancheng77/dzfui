@@ -1457,14 +1457,14 @@ public class BankStatement2Controller extends BaseController {
     }
 //下载银行回单
 @RequestMapping("/exportBill")
-public ReturnData<Json>  exportBill(HttpServletResponse response,@RequestBody Map<String,String[]> param){
+public ReturnData<Json>  exportBill(HttpServletResponse response,String urls){
     Json json = new Json();
     try{
-        String[] urls = param.get("urls");
+        String[] urlsArray = urls.split(",");
         List<File> list =new ArrayList<File>();
-        if(urls !=null && urls.length>0){
-            for (String url:urls) {
-               String pk_library = url.substring(27,51);
+        if(urlsArray !=null && urlsArray.length>0){
+            for (String url:urlsArray) {
+               String pk_library = url.trim().substring(27,51);
                 ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(SystemUtil.getLoginCorpId(),pk_library);
                 String imgPathName = null;
                 String type = null;
