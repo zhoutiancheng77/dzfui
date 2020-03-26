@@ -64,6 +64,16 @@ public class BillApplyVO extends SuperVO {
     private String vtaxer;//报税人
     @JsonProperty("bssj")
     private DZFDateTime dtaxdate;//报税时间
+    @JsonProperty("serino")
+    private String invoserino;//发票请求流水号
+    @JsonProperty("dm")
+    private String fpdm;//发票代码
+    @JsonProperty("hm")
+    private String fphm;//发票号码
+    @JsonProperty("ydm")
+    private String yfpdm;//原发票代码
+    @JsonProperty("yhm")
+    private String yfphm;//原发票号码
 
     //查询字段
     private String apply_name;//申请人名称
@@ -89,6 +99,45 @@ public class BillApplyVO extends SuperVO {
     @JsonProperty("khzh")
     private String vbankcode;// 开户账号
 
+    public String getInvoserino() {
+        return invoserino;
+    }
+
+    public void setInvoserino(String invoserino) {
+        this.invoserino = invoserino;
+    }
+
+    public String getFpdm() {
+        return fpdm;
+    }
+
+    public void setFpdm(String fpdm) {
+        this.fpdm = fpdm;
+    }
+
+    public String getFphm() {
+        return fphm;
+    }
+
+    public void setFphm(String fphm) {
+        this.fphm = fphm;
+    }
+
+    public String getYfpdm() {
+        return yfpdm;
+    }
+
+    public void setYfpdm(String yfpdm) {
+        this.yfpdm = yfpdm;
+    }
+
+    public String getYfphm() {
+        return yfphm;
+    }
+
+    public void setYfphm(String yfphm) {
+        this.yfphm = yfphm;
+    }
 
     public String getPk_app_billapply() {
         return pk_app_billapply;

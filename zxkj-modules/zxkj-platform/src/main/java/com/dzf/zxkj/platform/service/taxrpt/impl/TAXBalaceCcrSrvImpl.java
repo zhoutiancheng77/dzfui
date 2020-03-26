@@ -23,7 +23,6 @@ import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
-import com.dzf.zxkj.platform.config.TaxConfig;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
@@ -80,8 +79,8 @@ public class TAXBalaceCcrSrvImpl implements ITaxBalaceCcrService {
 	private ICorpService corpService;
 	@Autowired
 	private IZncsService zncsserv;
-	@Autowired
-	private TaxConfig taxConfig;
+//	@Autowired
+//	private TaxConfig taxConfig;
 
 	@Reference(version = "1.0.0")
 	private IZxkjReportService zxkjReportService;
@@ -1034,7 +1033,7 @@ public class TAXBalaceCcrSrvImpl implements ITaxBalaceCcrService {
 		if(mnylist == null || mnylist.size() == 0){
 			List<DZFDouble> temp;
 
-			taxRate = reBuildByConfig(taxRate, pk_corp, period);
+//			taxRate = reBuildByConfig(taxRate, pk_corp, period);
 			try {
 				if(periodtype == PeriodType.jidureport){
 					mnylist = new ArrayList<DZFDouble>();
@@ -1082,28 +1081,28 @@ public class TAXBalaceCcrSrvImpl implements ITaxBalaceCcrService {
 		return dzfReturn;
 	}
 
-	private String[] reBuildByConfig(String[] taxRate, String pk_corp, String period){
-
-		CorpVO corpvo = corpService.queryByPk(pk_corp);
-		if("一般纳税人".equals(corpvo)){
-			return taxRate;
-		}
-
-		if(!"true".equals(taxConfig.enabled)
-				|| period.compareTo(taxConfig.pfrom) < 0
-				|| period.compareTo(taxConfig.pto) > 0){
-			return taxRate;
-		}
-
-		List<String> list = new ArrayList(Arrays.asList(taxRate));
-		String rate = taxConfig.ratext;
-		String[] exps = rate.split(",");
-		for(String exp : exps){
-			list.add(exp);
-		}
-
-		return list.toArray(new String[0]);
-	}
+//	private String[] reBuildByConfig(String[] taxRate, String pk_corp, String period){
+//
+//		CorpVO corpvo = corpService.queryByPk(pk_corp);
+//		if("一般纳税人".equals(corpvo)){
+//			return taxRate;
+//		}
+//
+//		if(!"true".equals(taxConfig.enabled)
+//				|| period.compareTo(taxConfig.pfrom) < 0
+//				|| period.compareTo(taxConfig.pto) > 0){
+//			return taxRate;
+//		}
+//
+//		List<String> list = new ArrayList(Arrays.asList(taxRate));
+//		String rate = taxConfig.ratext;
+//		String[] exps = rate.split(",");
+//		for(String exp : exps){
+//			list.add(exp);
+//		}
+//
+//		return list.toArray(new String[0]);
+//	}
 	
 	private void caculateMny(List<DZFDouble> list, List<DZFDouble> temp){
 		if(temp != null && temp.size() == 4){
