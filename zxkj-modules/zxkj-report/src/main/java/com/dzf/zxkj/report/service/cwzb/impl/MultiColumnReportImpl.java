@@ -237,11 +237,6 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 					for(KmMxZVO kmmxvo2:kmmxvos){
 						currtempvo = mapres.get(kmmxvo2.getPk_accsubj());
 
-						/********/
-						if(isConByDir(currtempvo, kmmxvo2)){
-							continue;
-						}
-
 						cj =currtempvo.getAccountlevel();
 						if(isxsxj.booleanValue()){/** 只是显示下级(层级比这小一位的) */
 							if(kmmxvo2.getKmbm().startsWith(firstkm) && (cj.intValue()-1 == parentcj)){
@@ -255,10 +250,12 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 										){
 									tempvalue = map.get(kmmxvo2.getKmbm()) == null?DZFDouble.ZERO_DBL: new DZFDouble((String)map.get(kmmxvo2.getKmbm()));
 									if(currtempvo.getDirection() ==0){
-										comvalue =  SafeCompute.sub(kmmxvo2.getJf(), kmmxvo2.getDf());
+//										comvalue =  SafeCompute.sub(kmmxvo2.getJf(), kmmxvo2.getDf());
+										comvalue = kmmxvo2.getJf();
 										map.put(kmmxvo2.getKmbm(), formaterMny(SafeCompute.add(tempvalue, DZFDouble.getUFDouble(comvalue))));
 									}else{
-										comvalue =  SafeCompute.sub(kmmxvo2.getDf(), kmmxvo2.getJf());
+//										comvalue =  SafeCompute.sub(kmmxvo2.getDf(), kmmxvo2.getJf());
+										comvalue = kmmxvo2.getDf();
 										map.put(kmmxvo2.getKmbm(),formaterMny(SafeCompute.add(tempvalue,  DZFDouble.getUFDouble(comvalue))));
 									}
 									if(!columnlist.contains(kmmxvo2.getKmbm() +"_"+ currtempvo.getAccountname())){
@@ -288,10 +285,12 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 												&& kmmxvo.getRq().equals(kmmxvo2.getRq()))
 										){
 									if(currtempvo.getDirection() ==0){
-									    comvalue =  SafeCompute.sub(kmmxvo2.getJf(), kmmxvo2.getDf());
+//									    comvalue =  SafeCompute.sub(kmmxvo2.getJf(), kmmxvo2.getDf());
+										comvalue = kmmxvo2.getJf();
 										multi.getHash().put(kmmxvo2.getKmbm(), formaterMny(DZFDouble.getUFDouble(comvalue)));
 									}else{
-										comvalue =  SafeCompute.sub(kmmxvo2.getDf(), kmmxvo2.getJf());
+//										comvalue =  SafeCompute.sub(kmmxvo2.getDf(), kmmxvo2.getJf());
+										comvalue = kmmxvo2.getDf();
 										multi.getHash().put(kmmxvo2.getKmbm(), formaterMny(DZFDouble.getUFDouble(comvalue)));
 									}
 									if(!columnlist.contains(kmmxvo2.getKmbm() +"_"+ currtempvo.getAccountname())){
@@ -318,22 +317,6 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 		// 列排序
 		Collections.sort(columnlist);
 		objs[1]= columnlist;
-	}
-
-	//根据科目方向判断分录金额
-	private boolean isConByDir(YntCpaccountVO cpavo, KmMxZVO kmmxvo){
-		boolean flag = false;
-		if(cpavo.getDirection() == 0){
-			if(SafeCompute.add(kmmxvo.getJf(), DZFDouble.ZERO_DBL).doubleValue() == 0){
-				flag = true;
-			}
-		}else{
-			if(SafeCompute.add(kmmxvo.getDf(), DZFDouble.ZERO_DBL).doubleValue() == 0){
-				flag = true;
-			}
-		}
-
-		return flag;
 	}
 
 	private String formaterMny(DZFDouble value) {
