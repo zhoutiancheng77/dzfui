@@ -834,9 +834,12 @@ public class CaclTaxMny {
                     for (PZTaxItemRadioVO item : filteredVoucherTaxItems) {
                         item.setTaxratio(similarRate);
                     }
+
                     String period = hvo.getPeriod();
+                    TaxitemVO taxItem = rateMap.get(similarRate).get(0);
+                    boolean isSamll = !"一般纳税人".equals(taxItem.getChargedeptname());
                     // 3%->1%特殊处理
-                    if (period.compareTo("2020-03") >=0 && period.compareTo("2020-05") <=0
+                    if (isSamll && period.compareTo("2020-03") >=0 && period.compareTo("2020-05") <=0
                             && similarRate.doubleValue() == 0.03
                             && calRate.setScale(2, DZFDouble.ROUND_HALF_UP).doubleValue() == 0.01) {
                         isFind = true;
