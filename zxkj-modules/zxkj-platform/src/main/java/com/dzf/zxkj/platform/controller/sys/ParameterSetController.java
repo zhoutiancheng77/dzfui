@@ -87,8 +87,15 @@ public class ParameterSetController extends BaseController {
                     ){
                         continue;
                     }
-                    if("dzf007".equals(param.getParameterbm()) && "一般纳税人".equals(cpvo.getChargedeptname())){
-                        continue;
+
+                    if( "一般纳税人".equals(cpvo.getChargedeptname())){
+                        if(("dzf007".equals(param.getParameterbm()) || "dzf024".equals(param.getParameterbm()))){
+                            continue;
+                        }
+                    }else{
+                        if("dzf022".equals(param.getParameterbm())){
+                            continue;
+                        }
                     }
                     //
                     if(paramlevel != null && paramlevel >= teLe){//取大于等于
