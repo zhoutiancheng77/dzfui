@@ -22,7 +22,9 @@ import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.SrzcExcelField;
 import com.dzf.zxkj.report.service.cwbb.ISrzcReport;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -136,6 +138,9 @@ public class SrzcController extends ReportBaseController {
             tmap.put("公司", printParamVO.getCorpName());
             tmap.put("期间", printParamVO.getTitleperiod());
             printReporUtil.setBshowzero(queryparamvo.getBshowzero());
+            printReporUtil.setBf_Bold(printReporUtil.getBf());
+            printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "收 入 支 出 表",
                     new String[]{"xm", "monnum", "yearnum"},
                     new String[]{"项目", "本月数", "本年累计数"},

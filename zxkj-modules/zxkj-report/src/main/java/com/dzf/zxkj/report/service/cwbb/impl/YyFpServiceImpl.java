@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.service.cwbb.impl;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -14,6 +15,7 @@ import com.dzf.zxkj.platform.model.report.YyFpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.report.service.cwbb.IYyFpService;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
+import com.dzf.zxkj.report.utils.BeanUtils;
 import com.dzf.zxkj.report.utils.VoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,25 +72,30 @@ public class YyFpServiceImpl implements IYyFpService {
 		paramvo.setEnddate(paramvo.getBegindate1());
 		paramvo.setXswyewfs(DZFBoolean.FALSE);
 		FseJyeVO[] fsjevos = gl_rep_fsyebserv.getFsJyeVOs(paramvo, 1);
+		QueryParamVO nc_paramvo = new QueryParamVO();
+		BeanUtils.copyNotNullProperties(paramvo, nc_paramvo);
+		nc_paramvo.setQjq(paramvo.getBegindate1().getYear()+"-01");
+		nc_paramvo.setBegindate1(new DZFDate(paramvo.getBegindate1().getYear()+"-01-01"));
+		FseJyeVO[] nc_fsjevos = gl_rep_fsyebserv.getFsJyeVOs(nc_paramvo, 1);
 		String queryAccountRule = zxkjPlatformService.queryAccountRule(paramvo.getPk_corp());
 		// 查询发生额余额表数据
 		List<YyFpVO> list = getDefaultList();
 		if(fsjevos!=null && fsjevos.length>0){
 			for(YyFpVO yyfpvo:list){
 				if(!StringUtil.isEmpty(yyfpvo.getFormula1())){
-					putJe("je1",yyfpvo,fsjevos,yyfpvo.getFormula1(),queryAccountRule,list);
+					putJe("je1",yyfpvo,fsjevos,nc_fsjevos,yyfpvo.getFormula1(),queryAccountRule,list);
 				}
 			}
 			for(YyFpVO yyfpvo:list){
 				if(!StringUtil.isEmpty(yyfpvo.getFormula2())){
-					putJe("je2",yyfpvo,fsjevos,yyfpvo.getFormula2(),queryAccountRule,list);
+					putJe("je2",yyfpvo,fsjevos,nc_fsjevos,yyfpvo.getFormula2(),queryAccountRule,list);
 				}
 			}
 		}
 		return list;
 	}
 
-	private void putJe(String column, YyFpVO yyfpvo, FseJyeVO[] fsjevos, String formula, String queryAccountRule,List<YyFpVO> lists) {
+	private void putJe(String column, YyFpVO yyfpvo, FseJyeVO[] fsjevos,FseJyeVO[] nc_fsjevos,  String formula, String queryAccountRule,List<YyFpVO> lists) {
 		DZFDouble res = DZFDouble.ZERO_DBL;
 		if (!StringUtil.isEmpty(column)) {
 			String replanstr = "";
@@ -114,7 +121,16 @@ public class YyFpServiceImpl implements IYyFpService {
 							res = VoUtils.getDZFDouble(fsvo.getDftotal());
 						} else if ("ljfsjf".equals(replanstr)) {
 							res = VoUtils.getDZFDouble(fsvo.getJftotal());
-						} else if ("ncye".equals(replanstr)) {
+						}
+//						else if ("ncye".equals(replanstr)) {
+//							//只是会一方面有值
+//							res = SafeCompute.add(fsvo.getQcjf(), fsvo.getQcdf());
+//						}
+					}
+				}
+				for (FseJyeVO fsvo : nc_fsjevos) {
+					if (newkmbm.equals(fsvo.getKmbm())) {
+						if ("ncye".equals(replanstr)) {
 							//只是会一方面有值
 							res = SafeCompute.add(fsvo.getQcjf(), fsvo.getQcdf());
 						}

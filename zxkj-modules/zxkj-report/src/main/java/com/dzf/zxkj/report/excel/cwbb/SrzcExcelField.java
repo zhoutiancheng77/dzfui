@@ -53,7 +53,7 @@ public class SrzcExcelField implements IExceport<SrzcBVO> {
 	@Override
 	public Fieldelement[] getFieldInfo() {
 		return new Fieldelement[] {
-				new Fieldelement("xm", "项目", false, 0, true,80, false),
+				new Fieldelement("xm", "项目", false, 0, true,30, false),
 				new Fieldelement("monnum", "本月数", true, 2, zeroshownull),
 				new Fieldelement("yearnum", "本年累计数", true, 2, zeroshownull) };
 	}

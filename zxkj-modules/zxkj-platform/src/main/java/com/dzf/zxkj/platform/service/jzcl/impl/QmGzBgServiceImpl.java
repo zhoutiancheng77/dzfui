@@ -251,7 +251,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 				List<FseJyeVO> listvos = null;
 				for(int i=0;i<12;i++){
 					if(i>0){
-						curr_period = DateUtils.getPreviousPeriod(period);
+						curr_period = DateUtils.getPreviousPeriod(curr_period);
 					}
 					listvos = monthmap.get(curr_period);
 					if(listvos!=null && listvos.size()>0){
