@@ -91,6 +91,7 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 	
 		ExMultiVO multi = null;
 		String zy = null;
+		DZFDouble tempvalue = null;
 		HashMap<String, Object> map=null;
 		/** 不存在辅助项目的情况 */
 		if(StringUtil.isEmpty(vo.getFzxm())){
@@ -112,16 +113,23 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 					currentvo = mapres.get(kmmxvo.getPk_accsubj());
 					for (Map.Entry<String,List<FzKmmxVO>> entry : fzvomap.entrySet()) { 
 						String keyfz = entry.getKey();
+						String split = keyfz.split("_")[0];
 						List<FzKmmxVO> listfz = entry.getValue();
 						if(listfz!=null && listfz.size() > 0){
 							for(FzKmmxVO fzvotemp:listfz){
 								if((!StringUtil.isEmpty(fzvotemp.getPk_tzpz_b()) && !StringUtil.isEmpty(zy) 
-										&& fzvotemp.getPk_tzpz_b().equals(zy) )
+											&& fzvotemp.getPk_tzpz_b().equals(zy) )
+										|| (kmmxvo.getRq().equals(fzvotemp.getRq())
+												&& (("本月合计".equals(fzvotemp.getZy()) && "本月合计".equals(kmmxvo.getZy()))
+												|| ("本年累计".equals(fzvotemp.getZy()) && "本年累计".equals(kmmxvo.getZy()))))
 										){
+									tempvalue = map.get(split) == null ? DZFDouble.ZERO_DBL : new DZFDouble((String)map.get(split));
 									if(currentvo.getDirection() == 0){
-										map.put(keyfz.split("_")[0], formaterMny(SafeCompute.sub(fzvotemp.getJf(), fzvotemp.getDf())));
+//										map.put(keyfz.split("_")[0], formaterMny(SafeCompute.sub(fzvotemp.getJf(), fzvotemp.getDf())));
+										map.put(split, formaterMny(SafeCompute.add(fzvotemp.getJf(), tempvalue)));
 									}else {
-										map.put(keyfz.split("_")[0],formaterMny(SafeCompute.sub(fzvotemp.getDf(), fzvotemp.getJf())));
+//										map.put(keyfz.split("_")[0],formaterMny(SafeCompute.sub(fzvotemp.getDf(), fzvotemp.getJf())));
+										map.put(split, formaterMny(SafeCompute.add(fzvotemp.getDf(), tempvalue)));
 									}
 									if(!columnlist.contains(keyfz)){
 										columnlist.add(keyfz);
@@ -147,6 +155,7 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 		}else{
 			for (Map.Entry<String,List<FzKmmxVO>> entry : fzvomap.entrySet()) { 
 				String keyfz = entry.getKey();
+				String split = keyfz.split("_")[0];
 				List<FzKmmxVO> listfz = entry.getValue();
 				if(listfz!=null && listfz.size() > 0){
 					for(FzKmmxVO fzvotemp:listfz){
@@ -163,10 +172,13 @@ public class MultiColumnReportImpl implements IMultiColumnReport {
 						map.put("pk_tzpz_h", fzvotemp.getPk_tzpz_h());
 						
 						if(!StringUtil.isEmpty(fzvotemp.getPk_tzpz_h())){
+							tempvalue = map.get(split) == null ? DZFDouble.ZERO_DBL : new DZFDouble((String)map.get(split));
 							if(currentvo.getDirection() == 0 ){
-								map.put(keyfz.split("_")[0], formaterMny(SafeCompute.sub(fzvotemp.getJf(), fzvotemp.getDf())));
+//								map.put(keyfz.split("_")[0], formaterMny(SafeCompute.sub(fzvotemp.getJf(), fzvotemp.getDf())));
+								map.put(split, formaterMny(SafeCompute.add(fzvotemp.getJf(), tempvalue)));
 							}else {
-								map.put(keyfz.split("_")[0],formaterMny(SafeCompute.sub(fzvotemp.getDf(), fzvotemp.getJf())));
+//								map.put(keyfz.split("_")[0],formaterMny(SafeCompute.sub(fzvotemp.getDf(), fzvotemp.getJf())));
+								map.put(split,formaterMny(SafeCompute.add(fzvotemp.getDf(), tempvalue)));
 							}
 						}
 						
