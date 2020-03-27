@@ -170,6 +170,9 @@ public class BsWorkbenchVO extends SuperVO {
 	
 	@JsonProperty("yys")
 	private DZFDouble salesTax;// 营业税（暂未使用）
+
+	@JsonProperty("serpaidmny")
+	private DZFDouble nserpaidmny;//实收服务费
 	
 	@JsonProperty("operatorid")
 	private String coperatorid; // 制单人
@@ -669,6 +672,14 @@ public class BsWorkbenchVO extends SuperVO {
 
 	public void setVsuperaccount(String vsuperaccount) {
 		this.vsuperaccount = vsuperaccount;
+	}
+
+	public DZFDouble getNserpaidmny() {
+		return nserpaidmny;
+	}
+
+	public void setNserpaidmny(DZFDouble nserpaidmny) {
+		this.nserpaidmny = nserpaidmny;
 	}
 
 	@Override

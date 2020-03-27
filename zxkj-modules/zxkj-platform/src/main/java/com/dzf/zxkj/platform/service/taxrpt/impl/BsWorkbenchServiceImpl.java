@@ -162,6 +162,7 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
 		sql.append("       nvl(b.stampStatus,0) AS stampStatus, ") ;
 		sql.append("       b.npaymny, ") ;
 		sql.append("       b.npaidmny, ") ;
+		sql.append("       b.nserpaidmny, ");
 		sql.append("       b.memo, ") ;
 		//查询纳税工作台字段 begin
 		if(fcorpvo.getIschannel() == null || !fcorpvo.getIschannel().booleanValue()){
