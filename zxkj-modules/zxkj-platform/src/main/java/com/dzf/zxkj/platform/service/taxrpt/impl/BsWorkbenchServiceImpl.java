@@ -460,6 +460,7 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
 		sql.append("       nvl(b.stampStatus,0) AS stampStatus, ");
 		sql.append("       b.npaymny, ");
 		sql.append("       b.npaidmny, ");
+		sql.append("       b.nserpaidmny, ");
 		sql.append("       b.memo ");
 		sql.append("  FROM nsworkbench b");
 		sql.append(" WHERE nvl(b.dr,0) = 0 ");
