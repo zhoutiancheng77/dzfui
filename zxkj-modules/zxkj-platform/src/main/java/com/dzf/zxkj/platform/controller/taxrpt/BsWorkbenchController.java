@@ -490,7 +490,7 @@ public class BsWorkbenchController extends BaseController {
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "财报",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
-                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "备注"};
+                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 2、导出字段编码
         String[] expfieids = new String[]{"khbm", "khmc", "chname",
                 "spzt", "accheck", "cszt", "taxconsta", "wczt", "qkzt", "pzjjzt", "iszerodec", "income",
@@ -499,7 +499,7 @@ public class BsWorkbenchController extends BaseController {
                 "dfjyf", "dfjyfpaid", "dfjyfstat", "erstat",
                 "sds", "sdspaid", "sdsstat", "xfs", "xfspaid", "xfsstat", "cultax", "cultaxpaid", "cultaxstat",
                 "stamptax", "stamppaidtax", "stampstat", "grsds", "grsdspaid", "grsdsstat", "paymny", "paidmny",
-                "memo"};
+                "serpaidmny", "memo"};
         // 3、合并列字段名称
         String[] hbltitls = new String[]{"增值税", "附加税合计", "城建税", "教育费附加", "地方教育费附加", "企业所得税", "消费税",
                 "文化事业建设费", "印花税", "个人所得税"};
@@ -507,15 +507,15 @@ public class BsWorkbenchController extends BaseController {
         // 5、合并行字段名称
         String[] hbhtitls = new String[]{"客户编码", "客户名称", "纳税人资格",
                 "送票", "关账", "抄税", "税款确认状态", "申报状态", "可清卡", "凭证交接", "零申报", "收入",
-                "财报", "应缴合计", "实缴合计", "备注"};
+                "财报", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 6、合并行字段下标
-        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 30, 43, 44, 45};
+        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 30, 43, 44, 45, 46};
         // 7、字符集合
         String[] strStrs = new String[]{"khbm", "khmc", "chname", "taxconsta", "memo",};
         // 8、金额集合
         String[] mnyStrs = new String[]{"income", "zzs", "zzspaid", "xfs", "xfspaid", "sds", "sdspaid", "cultax",
                 "cultaxpaid", "addittax", "addittaxpaid", "cjs", "cjspaid", "jyffj", "jyffjpaid", "dfjyf", "dfjyfpaid",
-                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny"};
+                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny", "serpaidmny"};
         // 9、状态常量集合
         String[] stateStrs = new String[]{"iszerodec"};
         // 10、票税常量集合
@@ -550,7 +550,7 @@ public class BsWorkbenchController extends BaseController {
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "财报",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
-                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "备注"};
+                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 2、导出字段编码
         String[] expfieids = new String[]{"khbm", "khmc", "chname", "pcount",
                 "spzt", "accheck", "cszt", "taxconsta", "wczt", "qkzt", "pzjjzt", "iszerodec", "income",
@@ -559,7 +559,7 @@ public class BsWorkbenchController extends BaseController {
                 "dfjyf", "dfjyfpaid", "dfjyfstat", "erstat",
                 "sds", "sdspaid", "sdsstat", "xfs", "xfspaid", "xfsstat", "cultax", "cultaxpaid", "cultaxstat",
                 "stamptax", "stamppaidtax", "stampstat", "grsds", "grsdspaid", "grsdsstat", "paymny", "paidmny",
-                "memo"};
+                "serpaidmny", "memo"};
         // 3、合并列字段名称
         String[] hbltitls = new String[]{"增值税", "附加税合计", "城建税", "教育费附加", "地方教育费附加", "企业所得税", "消费税",
                 "文化事业建设费", "印花税", "个人所得税"};
@@ -567,15 +567,15 @@ public class BsWorkbenchController extends BaseController {
         // 5、合并行字段名称
         String[] hbhtitls = new String[]{"客户编码", "客户名称", "纳税人资格", "主办会计",
                 "送票", "关账", "抄税", "税款确认状态", "申报状态", "可清卡", "凭证交接", "零申报", "收入",
-                "财报", "应缴合计", "实缴合计", "备注"};
+                "财报", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 6、合并行字段下标
-        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 31, 44, 45, 46};
+        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 31, 44, 45, 46, 47};
         // 7、字符集合
         String[] strStrs = new String[]{"khbm", "khmc", "chname", "pcount", "taxconsta", "memo",};
         // 8、金额集合
         String[] mnyStrs = new String[]{"income", "zzs", "zzspaid", "xfs", "xfspaid", "sds", "sdspaid", "cultax",
                 "cultaxpaid", "addittax", "addittaxpaid", "cjs", "cjspaid", "jyffj", "jyffjpaid", "dfjyf", "dfjyfpaid",
-                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny"};
+                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny", "serpaidmny"};
         // 9、状态常量集合
         String[] stateStrs = new String[]{"iszerodec"};
         // 10、票税常量集合
@@ -610,7 +610,7 @@ public class BsWorkbenchController extends BaseController {
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "财报",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
-                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "备注"};
+                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 2、导出字段编码
         String[] expfieids = new String[]{"period", "chname",
                 "spzt", "accheck", "cszt", "taxconsta", "wczt", "qkzt", "pzjjzt", "iszerodec", "income",
@@ -619,7 +619,7 @@ public class BsWorkbenchController extends BaseController {
                 "dfjyf", "dfjyfpaid", "dfjyfstat", "erstat",
                 "sds", "sdspaid", "sdsstat", "xfs", "xfspaid", "xfsstat", "cultax", "cultaxpaid", "cultaxstat",
                 "stamptax", "stamppaidtax", "stampstat", "grsds", "grsdspaid", "grsdsstat", "paymny", "paidmny",
-                "memo"};
+                "serpaidmny", "memo"};
         // 3、合并列字段名称
         String[] hbltitls = new String[]{"增值税", "附加税合计", "城建税", "教育费附加", "地方教育费附加", "企业所得税", "消费税",
                 "文化事业建设费", "印花税", "个人所得税"};
@@ -627,15 +627,15 @@ public class BsWorkbenchController extends BaseController {
         // 5、合并行字段名称
         String[] hbhtitls = new String[]{"月份", "纳税人资格",
                 "送票", "关账", "抄税", "税款确认状态", "申报状态", "可清卡", "凭证交接", "零申报", "收入",
-                "财报", "应缴合计", "实缴合计", "备注"};
+                "财报", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 6、合并行字段下标
-        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 29, 42, 43, 44};
+        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 29, 42, 43, 44, 45};
         // 7、字符集合
         String[] strStrs = new String[]{"period", "chname", "pcount", "memo",};
         // 8、金额集合
         String[] mnyStrs = new String[]{"income", "zzs", "zzspaid", "xfs", "xfspaid", "sds", "sdspaid", "cultax",
                 "cultaxpaid", "addittax", "addittaxpaid", "cjs", "cjspaid", "jyffj", "jyffjpaid", "dfjyf", "dfjyfpaid",
-                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny"};
+                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny", "serpaidmny"};
         // 9、状态常量集合
         String[] stateStrs = new String[]{"iszerodec"};
         // 10、票税常量集合
@@ -701,7 +701,7 @@ public class BsWorkbenchController extends BaseController {
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "财报",
                 "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态", "应缴", "实缴", "申报状态",
-                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "备注"};
+                "应缴", "实缴", "申报状态", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 2、导出字段编码
         String[] expfieids = new String[]{"period", "chname", "pcount",
                 "spzt", "accheck", "cszt", "taxconsta", "wczt", "qkzt", "pzjjzt", "iszerodec", "income",
@@ -710,7 +710,7 @@ public class BsWorkbenchController extends BaseController {
                 "dfjyf", "dfjyfpaid", "dfjyfstat", "erstat",
                 "sds", "sdspaid", "sdsstat", "xfs", "xfspaid", "xfsstat", "cultax", "cultaxpaid", "cultaxstat",
                 "stamptax", "stamppaidtax", "stampstat", "grsds", "grsdspaid", "grsdsstat", "paymny", "paidmny",
-                "memo"};
+                "serpaidmny", "memo"};
         // 3、合并列字段名称
         String[] hbltitls = new String[]{"增值税", "附加税合计", "城建税", "教育费附加", "地方教育费附加", "企业所得税", "消费税",
                 "文化事业建设费", "印花税", "个人所得税"};
@@ -718,15 +718,15 @@ public class BsWorkbenchController extends BaseController {
         // 5、合并行字段名称
         String[] hbhtitls = new String[]{"月份", "纳税人资格", "主办会计",
                 "送票", "关账", "抄税", "税款确认状态", "申报状态", "可清卡", "凭证交接", "零申报", "收入",
-                "财报", "应缴合计", "实缴合计", "备注"};
+                "财报", "应缴合计", "实缴合计", "实收服务费", "备注"};
         // 6、合并行字段下标
-        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 30, 43, 44, 45};
+        Integer[] hbhindexs = new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 30, 43, 44, 45, 46};
         // 7、字符集合
         String[] strStrs = new String[]{"period", "chname", "pcount", "memo",};
         // 8、金额集合
         String[] mnyStrs = new String[]{"income", "zzs", "zzspaid", "xfs", "xfspaid", "sds", "sdspaid", "cultax",
                 "cultaxpaid", "addittax", "addittaxpaid", "cjs", "cjspaid", "jyffj", "jyffjpaid", "dfjyf", "dfjyfpaid",
-                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny"};
+                "grsds", "grsdspaid", "stamptax", "stamppaidtax", "paymny", "paidmny", "serpaidmny"};
         // 9、状态常量集合
         String[] stateStrs = new String[]{"iszerodec"};
         // 10、票税常量集合
