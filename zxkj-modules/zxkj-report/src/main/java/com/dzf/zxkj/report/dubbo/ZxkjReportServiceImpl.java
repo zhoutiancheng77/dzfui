@@ -7,13 +7,11 @@ import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.report.service.IZxkjReportService;
 import com.dzf.zxkj.report.service.cwbb.*;
-import com.dzf.zxkj.report.service.cwzb.IAgeBalanceReportService;
-import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
-import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
-import com.dzf.zxkj.report.service.cwzb.INummnyReport;
+import com.dzf.zxkj.report.service.cwzb.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +25,8 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
 
     @Autowired
     private IKMMXZReport gl_rep_kmmxjserv;
+    @Autowired
+    private IXjRjZReport gl_rep_xjyhrjzserv;
     @Autowired
     private IFsYeReport fsYeReport;
     @Autowired
@@ -45,6 +45,8 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     private IRptSetService rptsetser;
     @Autowired
     private IAgeBalanceReportService gl_rep_zlyeb;
+    @Autowired
+    private IKMZZReport gl_rep_kmzjserv;
 
     @Override
     public FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction) {
@@ -52,6 +54,55 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
             return fsYeReport.getFsJyeVOs(vo, direction);
         } catch (DZFWarpException e) {
             log.error(String.format("调用getFsJyeVOs异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    public KmMxZVO[] getXJRJZVOsConMo(String pk_corp, String kmsbegin, String kmsend,
+                               DZFDate begindate, DZFDate enddate, DZFBoolean xswyewfs, DZFBoolean xsyljfs,
+                               DZFBoolean ishasjz, DZFBoolean ishassh, String pk_currency, List<String> kmcodelist, Object[] qryobjs){
+        try {
+            return gl_rep_xjyhrjzserv.getXJRJZVOsConMo(pk_corp, kmsbegin,kmsend,begindate,enddate,xswyewfs,xsyljfs,
+                    ishasjz,ishassh,pk_currency,kmcodelist,qryobjs);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getKMZZVOs异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+   public List<LrbVO[]> getBetweenLrbMap(DZFDate begdate, DZFDate enddate,
+                                   String pk_corp, String xmmcid, Object[] objs, DZFBoolean ishasjz) {
+       try {
+           return lrbReport.getBetweenLrbMap(begdate, enddate,pk_corp,xmmcid,objs,ishasjz);
+       } catch (DZFWarpException e) {
+           log.error(String.format("调用getKMZZVOs异常,异常信息:%s", e.getMessage()), e);
+           return null;
+       }
+   }
+
+    public KmMxZVO[] getKMMXZConFzVOs(QueryParamVO vo, Object[] qryobjs){
+        try {
+            return gl_rep_kmmxjserv.getKMMXZConFzVOs(vo, qryobjs);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getKMZZVOs异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    public List<ZcFzBVO[]> getZcfzVOs(DZFDate begdate, DZFDate enddate, String pk_corp, String ishasjz, String[] hasyes, Object[] qryobjs){
+        try {
+            return zcFzBReport.getZcfzVOs(begdate,enddate,pk_corp,ishasjz,hasyes,qryobjs );
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getKMZZVOs异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    public KmZzVO[] getKMZZVOs(QueryParamVO vo, Object[] kmmx_objs) {
+        try {
+            return gl_rep_kmzjserv.getKMZZVOs(vo, kmmx_objs);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getKMZZVOs异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
     }
