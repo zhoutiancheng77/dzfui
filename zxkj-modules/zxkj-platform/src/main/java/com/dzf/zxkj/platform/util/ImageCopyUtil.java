@@ -213,7 +213,7 @@ public class ImageCopyUtil {
 	     List<BufferedImage> piclist = new ArrayList();
 	     BufferedImage image = null;
 	     for(int i = 0; i < size; i++){
-	    	 image = new PDFRenderer(document).renderImageWithDPI(i,100, ImageType.RGB);
+	    	 image = new PDFRenderer(document).renderImageWithDPI(i,200, ImageType.RGB);
 	    	 piclist.add(image);
 	     }
 	     
