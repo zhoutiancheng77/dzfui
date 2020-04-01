@@ -36,7 +36,6 @@ public class LogRecordVo extends SuperVO {
 	@JsonProperty("cid")
 	private String pk_corp;// 公司
 	private String cuserid;//用户id
-	private Integer iversion;//  版本   空或者0 旧版   1----新版
 
 	private String sys_version = "1.0.0";
 
@@ -154,12 +153,6 @@ public class LogRecordVo extends SuperVO {
 		this.cuserid = cuserid;
 	}
 
-	public Integer getIversion() {
-		return iversion;
-	}
-	public void setIversion(Integer iversion) {
-		this.iversion = iversion;
-	}
 	@Override
 	public String getPKFieldName() {
 		return PKFIELDNAME;
