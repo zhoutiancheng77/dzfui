@@ -95,6 +95,7 @@ public class OperatorLogServiceImpl implements IOperatorLogService {
 		logvo.setTs(new DZFDateTime());
 		logvo.setSys_ident(ident);
 		logvo.setCuserid(userid);
+		logvo.setIversion(1);
 		singleObjectBO.saveObject(pk_corp, logvo);
 	}
 
