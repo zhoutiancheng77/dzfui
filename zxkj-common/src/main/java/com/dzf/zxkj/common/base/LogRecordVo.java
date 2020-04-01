@@ -36,7 +36,17 @@ public class LogRecordVo extends SuperVO {
 	@JsonProperty("cid")
 	private String pk_corp;// 公司
 	private String cuserid;//用户id
-	
+
+	private String sys_version = "1.0.0";
+
+	public String getSys_version() {
+		return sys_version;
+	}
+
+	public void setSys_version(String sys_version) {
+		this.sys_version = sys_version;
+	}
+
 	private Integer sys_ident;//系统类型0:集团,1:管理端,2会计端,3、加盟商系统(后续的继续添加)
 	
 	public String getOpetypestr() {
