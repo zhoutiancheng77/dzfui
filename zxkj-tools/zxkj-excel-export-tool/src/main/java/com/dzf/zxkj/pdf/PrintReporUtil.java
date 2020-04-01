@@ -417,6 +417,9 @@ public class PrintReporUtil {
             printGroup(null, zzvos, title, columnslist.toArray(new String[0]), columnnameslist.toArray(new String[0]), listattr, widths, pagecount, null, pmap, tmap); // A4纸张打印
         else if (pmap.get("type").equals("2"))
             printB5(null, zzvos, title, columnslist.toArray(new String[0]), columnnameslist.toArray(new String[0]), listattr, widths, pagecount, null, pmap, tmap);
+        else if (pmap.get("type").equals("4")) //A5纸张
+            printA5(null, zzvos, title, columnslist.toArray(new String[0]), columnnameslist.toArray(new String[0]), listattr, widths, pagecount, null, pmap, tmap);
+
     }
 
     /**

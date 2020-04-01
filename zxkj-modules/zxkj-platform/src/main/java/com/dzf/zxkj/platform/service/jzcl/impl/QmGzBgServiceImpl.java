@@ -1129,7 +1129,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 		List<Map.Entry<String,DZFDouble[]>> list = new ArrayList<Map.Entry<String,DZFDouble[]>>(data.entrySet());
 
-		Collections.sort(list, new MyComparator());
+		Collections.sort(list, new MyComparator(auxiliaryAccountMapping));
 
 		StringBuilder sb = new StringBuilder();
 
@@ -2295,6 +2295,11 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	class MyComparator implements Comparator<Map.Entry<String,DZFDouble[]>>{
 
+		Map<String, AuxiliaryAccountBVO> auxiliaryAccountMapping = null;
+		MyComparator ( Map<String, AuxiliaryAccountBVO> auxiliaryAccountMapping){
+			this.auxiliaryAccountMapping = auxiliaryAccountMapping;
+		}
+
 		private  int convert(DZFDouble[] d){
 			int n = 111;
 			if(!isAllNotZero(d[0],d[1])){
@@ -2332,7 +2337,24 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 			if(r > 0){
 				return -1;
 			}else if(r == 0){
-				return key1.length() - key2.length();
+				// 辅助编码排序
+				String code1 = "";
+				String code2 = "";
+				String[] pk_arr1 = key1.split(",");
+				String[] pk_arr2 = key2.split(",");
+				for(int i = 0; i < pk_arr1.length; i++){
+					if("0".equals(pk_arr1[i])){
+						continue;
+					}
+					code1 = auxiliaryAccountMapping.get(pk_arr1[i]).getCode();
+				}
+				for(int i = 0; i < pk_arr2.length; i++){
+					if("0".equals(pk_arr2[i])){
+						continue;
+					}
+					code2 = auxiliaryAccountMapping.get(pk_arr2[i]).getCode();
+				}
+				return code1.compareTo(code2);
 			}
 			return 1;
 		}
