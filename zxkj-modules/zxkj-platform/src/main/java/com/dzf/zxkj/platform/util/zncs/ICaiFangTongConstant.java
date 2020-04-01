@@ -44,6 +44,8 @@ public class ICaiFangTongConstant {
 	public static final int LYLX_JX = 2;//票通  进项
 	public static final int LYLX_XX_KP = 3;//票通开票 销项
 	public static final int LYLX_SM = 5;//发票扫码
+	public static final int _LYLX_HXP = 6;//票通回写
+
 	
 	
 	//销进项界面数据 来源

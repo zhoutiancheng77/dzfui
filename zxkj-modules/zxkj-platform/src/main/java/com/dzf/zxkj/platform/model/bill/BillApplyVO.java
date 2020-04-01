@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.model.bill;
 
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -50,8 +51,7 @@ public class BillApplyVO extends SuperVO {
     private Long sqsjl;//申请时间
     @JsonProperty("kpr")
     private String vbilltor;//开票人
-    @JsonProperty("kprq")
-    private DZFDateTime ddate;//开票日期
+    private DZFDateTime ddate;//开票时间
     @JsonProperty("jcsj")
     private DZFDateTime dsenddate;//寄出时间
     @JsonProperty("jcr")
@@ -74,8 +74,14 @@ public class BillApplyVO extends SuperVO {
     private String yfpdm;//原发票代码
     @JsonProperty("yhm")
     private String yfphm;//原发票号码
+    @JsonProperty("kprj")
+    private DZFDate kpdate;//开票日期
+    @JsonProperty("bz")
+    private String memo;//备注
 
     //查询字段
+    private DZFDate begindate;//开票日期
+    private DZFDate enddate;
     private String apply_name;//申请人名称
     private String billing_name;//开票人
     private String sendout_name;//寄出人
@@ -105,6 +111,14 @@ public class BillApplyVO extends SuperVO {
 
     public void setInvoserino(String invoserino) {
         this.invoserino = invoserino;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 
     public String getFpdm() {
@@ -449,6 +463,30 @@ public class BillApplyVO extends SuperVO {
 
     public void setVbankcode(String vbankcode) {
         this.vbankcode = vbankcode;
+    }
+
+    public DZFDate getBegindate() {
+        return begindate;
+    }
+
+    public void setBegindate(DZFDate begindate) {
+        this.begindate = begindate;
+    }
+
+    public DZFDate getEnddate() {
+        return enddate;
+    }
+
+    public void setEnddate(DZFDate enddate) {
+        this.enddate = enddate;
+    }
+
+    public DZFDate getKpdate() {
+        return kpdate;
+    }
+
+    public void setKpdate(DZFDate kpdate) {
+        this.kpdate = kpdate;
     }
 
     @Override
