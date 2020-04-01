@@ -5,16 +5,20 @@ import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.auth.api.result.Result;
 import com.dzf.auth.api.service.IPasswordService;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.tool.IpUtil;
 import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginGrid;
+import com.dzf.zxkj.platform.auth.entity.LoginLogVo;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.entity.UpdateUserVo;
+import com.dzf.zxkj.platform.auth.mapper.LoginLogMapper;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.util.RSAUtils;
 import com.dzf.zxkj.platform.auth.util.SystemUtil;
@@ -26,6 +30,8 @@ import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +56,12 @@ public class AuthController {
     private ILoginService loginService;
     @Autowired
     private RsaKeyConfig rsaKeyConfig;
+
+    @Autowired(required = false)
+    private HttpServletRequest request;
+
+    @Autowired
+    private LoginLogMapper loginLogMapper;
 
     @Autowired
     private AuthCache authCache;
@@ -80,11 +92,26 @@ public class AuthController {
         return ReturnData.ok().data(result);
     }
 
+    private LoginLogVo getLoginVo(String project){
+        LoginLogVo loginLogVo =  new LoginLogVo();
+        try{
+            loginLogVo.setLogindate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
+            loginLogVo.setLoginsession(SystemUtil.getClientId());
+            loginLogVo.setLoginstatus(0);
+            loginLogVo.setProject_name(project);
+            loginLogVo.setLoginip(IpUtil.getIpAddr(request));
+        }catch(Exception e){
+            log.error("错误",e);
+        }
+        return loginLogVo;
+    }
 
     @PostMapping("/login")
     public ReturnData<Grid> login(@RequestBody LoginUser loginUser) {
 
         String force = loginUser.getF();
+
+        LoginLogVo loginLogVo = getLoginVo(ISysConstants.SYS_KJ);
 
         Grid<LoginUser> grid = new Grid<>();
         String verify = checkCodeCache.get(loginUser.getKey());
@@ -129,7 +156,13 @@ public class AuthController {
         authCache.putLoginUnique(loginUser.getUserid(), clientid);
         authCache.putLoginUser(loginUser.getUserid(), loginUser);
         loginUser.setPassword("");
-
+        loginLogVo.setMemo("登陸成功");
+        loginLogVo.setPk_user(loginUser.getUserid());
+        try {
+            loginLogMapper.insert(loginLogVo);
+        }catch (Exception e){
+            log.error("记录登录日志异常", e);
+        }
         grid.setSuccess(true);
         grid.setRows(loginUser);
         return ReturnData.ok().data(grid);
