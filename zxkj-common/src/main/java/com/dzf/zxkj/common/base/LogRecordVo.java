@@ -152,7 +152,7 @@ public class LogRecordVo extends SuperVO {
 	public void setCuserid(String cuserid) {
 		this.cuserid = cuserid;
 	}
-	
+
 	@Override
 	public String getPKFieldName() {
 		return PKFIELDNAME;

@@ -79,4 +79,6 @@ public class ZncsUrlConfig {
     public String inv_ip;
     @Value("${zncs.ocr.webrow}")
     public String webrow;
+//    @Value("${zncs.ptb.url}")//后续模块迁移 代码要调整
+    public String ptb_url;
 }
