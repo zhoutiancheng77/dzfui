@@ -1396,11 +1396,13 @@ public class VATSaleInvoiceController extends BaseController {
         map.put(2, "fphm");
         map.put(3, "skprj");
         map.put(4, "sspmc");
-        map.put(5, "bnum");
-        map.put(6, "shjje");
-        map.put(7, "se");
-        map.put(8, "busitempname");
-        map.put(9, "skhmc");
+        map.put(5,"invspec");
+        map.put(6, "measurename");
+        map.put(7, "bnum");
+        map.put(8, "shjje");
+        map.put(9, "se");
+        map.put(10, "busitempname");
+        map.put(11, "skhmc");
         //map.put(8, "kmbm");
         //map.put(9, "kmmc");
 
