@@ -371,7 +371,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 					// delfiles.add(imageVO.getImgpath());
 
 					if (!pk_corp.equals(imageVO.getPk_corp())) {
-						throw new BusinessException("无权删除该图片");
+						throw new BusinessException("无权作废该图片");
 					}
 
 					String pk_image_group = imageVO.getPk_image_group();
@@ -465,7 +465,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 				// 删除回单中间表数据
 				delBankBill(imageVOs, pk_corp);
 			} else {
-				throw new BusinessException("获取图片组信息失败，请确认图片是否已被删除");
+				throw new BusinessException("获取图片组信息失败，请确认图片是否已被作废");
 			}
 
 		} catch (Exception e) {
