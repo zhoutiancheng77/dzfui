@@ -101,6 +101,16 @@ public class MessageController {
         return ReturnData.ok().data(json);
     }
 
+    @GetMapping("/remiderContExpi")
+    public ReturnData remiderContExpi() {
+        Json json = new Json();
+        MsgAdminVO adminVO = msgServiceImpl.queryRemiderContExpi(SystemUtil.getLoginUserId(),
+                SystemUtil.getLoginCorpId());
+        json.setRows(adminVO);
+        json.setSuccess(true);
+        return ReturnData.ok().data(json);
+    }
+
     @PostMapping("/delete")
     public ReturnData delete(@RequestBody MsgAdminVO[] vos) {
         Json json = new Json();

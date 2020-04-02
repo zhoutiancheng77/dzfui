@@ -3,7 +3,6 @@ package com.dzf.zxkj.platform.service.message.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DAOException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -12,21 +11,16 @@ import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.common.enums.MsgtypeEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.message.MsgAdminVO;
 import com.dzf.zxkj.platform.model.message.MsgSysVO;
 import com.dzf.zxkj.platform.model.message.MsgTypeVO;
-import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.service.message.IMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -134,6 +128,49 @@ public class MessageServiceImpl implements IMessageService {
                 .append(" and nvl(dr, 0) = 0 ");
         BigDecimal dec = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
         return dec.intValue();
+    }
+
+    public MsgAdminVO queryRemiderContExpi(String receiveUser, String pk_corp)
+            throws DZFWarpException {
+        StringBuffer sf = new StringBuffer();
+        sf.append(" select * ");
+        sf.append("   from (select * ");
+        sf.append("           from ynt_msg_admin y ");
+        sf.append("          where y.msgtype = ? ");
+        sf.append("            and y.pk_corpk = ? ");
+        sf.append("            and y.cuserid = ? ");
+        sf.append("          order by y.vsenddate desc) ");
+        sf.append("  where rownum <= 1 ");
+
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(MsgtypeEnum.MSG_TYPE_HTDQTX.getValue());
+        sp.addParam(pk_corp);
+        sp.addParam(receiveUser);
+
+        List<MsgAdminVO> list = (List<MsgAdminVO>) singleObjectBO.executeQuery(sf.toString(), sp,
+                new BeanListProcessor(MsgAdminVO.class));
+
+        if(list == null || list.size() == 0){
+            return null;
+        }
+
+        MsgAdminVO adminVO = list.get(0);
+        sf.setLength(0);
+        sf.append(" select y.denddate from ynt_contract y where y.pk_contract = ? ");
+
+        sp.clearParams();
+        sp.addParam(adminVO.getPk_bill());
+
+        String str = (String) singleObjectBO.executeQuery(sf.toString(),
+                sp, new ColumnProcessor());
+
+        if(StringUtil.isEmpty(str))
+            return null;
+        DZFDate date = new DZFDate(str);
+        if(date == null || date.before(new DZFDate()))
+            return null;
+
+        return adminVO;
     }
 
     private Map<Integer, Integer> countUnreadMsgBytype(String receiveUser) {

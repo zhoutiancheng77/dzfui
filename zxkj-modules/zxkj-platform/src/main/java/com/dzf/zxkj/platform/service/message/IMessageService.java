@@ -97,6 +97,14 @@ public interface IMessageService {
     int queryUnreadMsgNum(String receiveUser) throws DZFWarpException;
 
     /**
+     * 查询逾期信息
+     *
+     * @return
+     * @throws DZFWarpException
+     */
+    MsgAdminVO queryRemiderContExpi(String receiveUser, String pk_corp) throws DZFWarpException;
+
+    /**
      * 根据用户、类别、时间、内容等查询
      *
      * @param receiveUser
