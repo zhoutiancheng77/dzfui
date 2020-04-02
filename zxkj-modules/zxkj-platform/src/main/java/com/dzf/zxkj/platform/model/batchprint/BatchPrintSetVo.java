@@ -58,6 +58,8 @@ public class BatchPrintSetVo extends SuperVO {
 	private DZFDouble dtopmargin;// 上边距
 	
 	private String cname;//公司名称
+    private String unitname;//加密的公司名称，前台用cname
+    private String isgz;// 是否关账
 	
 	public String getVothername() {
 		return vothername;
@@ -227,7 +229,23 @@ public class BatchPrintSetVo extends SuperVO {
 		this.dr = dr;
 	}
 
-	@Override
+    public String getUnitname() {
+        return unitname;
+    }
+
+    public void setUnitname(String unitname) {
+        this.unitname = unitname;
+    }
+
+    public String getIsgz() {
+        return isgz;
+    }
+
+    public void setIsgz(String isgz) {
+        this.isgz = isgz;
+    }
+
+    @Override
 	public String getPKFieldName() {
 		return PK_FIELD;
 	}

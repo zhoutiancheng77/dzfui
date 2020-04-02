@@ -17,13 +17,6 @@ import java.util.List;
 public interface IBatchPrintSetTaskSer {
 
 
-	/**
-	 * 根据公司+期间查询成功的公司设置
-	 * @param pk_corp
-	 * @return
-	 * @throws DZFWarpException
-	 */
-	public List<BatchPrintSetQryVo> queryPrintVOs2(String pk_corp , String period)  throws DZFWarpException;
 
 	/**
 	 * 查询公司归档任务

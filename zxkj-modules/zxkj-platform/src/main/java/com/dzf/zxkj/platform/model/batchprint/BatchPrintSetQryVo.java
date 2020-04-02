@@ -124,6 +124,14 @@ public class BatchPrintSetQryVo extends SuperVO {
         this.pzfp_bs = pzfp_bs;
     }
 
+    public String getGz_bs() {
+        return gz_bs;
+    }
+
+    public void setGz_bs(String gz_bs) {
+        this.gz_bs = gz_bs;
+    }
+
     public String getMxzfp_bs() {
         return mxzfp_bs;
     }
