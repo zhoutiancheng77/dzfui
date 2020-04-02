@@ -317,6 +317,7 @@ public class WorkbenchController extends BaseController {
         paramVO.setBdate(param.get("bdate"));//开票日期开始
         paramVO.setEdate(param.get("edate"));//开票日期结束
         paramVO.setBntotaltax(param.get("bntotaltax"));//金额开始
+        paramVO.setEntotaltax(param.get("entotaltax"));//金额结束
         paramVO.setTruthindent(param.get("truthindent"));//真伪
         paramVO.setPk_bankcode(param.get("pk_bankcode"));
         paramVO.setVinvoiceno(param.get("vinvoiceno"));
