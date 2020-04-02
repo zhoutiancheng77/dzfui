@@ -8,7 +8,7 @@ import com.dzf.zxkj.common.model.SuperVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * 批量报表打印
+ * 批量报表打印任务(历史遗留 虽然是ynt_batch_print_set 但是表达的是设置的任务)
  * 
  * @author zhangj
  *

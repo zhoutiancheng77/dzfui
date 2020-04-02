@@ -35,15 +35,15 @@ import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.batchprint.BandingVO;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetQryVo;
 import com.dzf.zxkj.platform.model.batchprint.PrintStatusEnum;
 import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
-import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.batchprint.BatchPrintUtil;
-import com.dzf.zxkj.platform.service.batchprint.IBatchPrintSetSer;
+import com.dzf.zxkj.platform.service.batchprint.IBatchPrintSetTaskSer;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.BeanUtils;
@@ -64,7 +64,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("batchprintser")
 @Slf4j
-public class BatchPrintSetSerImpl implements IBatchPrintSetSer {
+public class BatchPrintSetSerImpl implements IBatchPrintSetTaskSer {
 
 	@Autowired
 	private SingleObjectBO singleObjectBO = null;
@@ -80,6 +80,18 @@ public class BatchPrintSetSerImpl implements IBatchPrintSetSer {
 
 	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
+
+
+	/**
+	 * 根据公司+期间查询成功的公司设置
+	 * @param pk_corp
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public List<BatchPrintSetQryVo> queryPrintVOs2(String pk_corp , String period)  throws DZFWarpException{
+
+		return null;
+	}
 	
 	@Override
 	public List<BatchPrintSetVo> queryPrintVOs(String parentcorpid, String corpname,
@@ -89,7 +101,7 @@ public class BatchPrintSetSerImpl implements IBatchPrintSetSer {
 	}
 
 	@Override
-	public BatchPrintSetVo saveSetVo(BatchPrintSetVo setvo, String operatorid, DZFDateTime opedate) throws DZFWarpException {
+	public BatchPrintSetVo saveSetTaskVo(BatchPrintSetVo setvo, String operatorid, DZFDateTime opedate) throws DZFWarpException {
 
 		if (setvo == null) {
 			throw new BusinessException("数据不能为空!");
@@ -140,7 +152,7 @@ public class BatchPrintSetSerImpl implements IBatchPrintSetSer {
 		
 		if(setvos!=null && setvos.length>0){
 			for(BatchPrintSetVo vo:setvos){
-				deleteSetVo(vo.getPk_batch_print_set());
+				deleteSetTaskVo(vo.getPk_batch_print_set());
 			}
 		}
 		
@@ -148,7 +160,7 @@ public class BatchPrintSetSerImpl implements IBatchPrintSetSer {
 	}
 
 	@Override
-	public void updateSetVO(BatchPrintSetVo setvo) throws DZFWarpException {
+	public void updateSetTaskVO(BatchPrintSetVo setvo) throws DZFWarpException {
 		if (setvo == null) {
 			throw new BusinessException("数据不能为空!");
 		}
@@ -156,7 +168,7 @@ public class BatchPrintSetSerImpl implements IBatchPrintSetSer {
 	}
 
 	@Override
-	public void deleteSetVo(String priid) throws DZFWarpException {
+	public void deleteSetTaskVo(String priid) throws DZFWarpException {
 
 		if (StringUtil.isEmpty(priid)) {
 			throw new BusinessException("主键信息不能为空!");
