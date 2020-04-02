@@ -1426,22 +1426,22 @@ public class BankStatement2Controller extends BaseController {
         try {
             IcbcErcptApplyAndQrywlhdetailQo vo = new IcbcErcptApplyAndQrywlhdetailQo();
             String pk_bankaccount = param.get("pk_bankaccount");//银行账户主键
-//            String date = param.get("date");//期间
-//            vo.setAccno(param.get("accno"));//银行账户
-//            vo.setAcctcomno(fatherCorp.getInnercode());//代记账公司编号
-//            vo.setUscc(corpVo.getVsoccrecode());//统一社会信用代码
-//            vo.setAccountNo(corpVo.getInnercode());//业务端客户编号
-//            vo.setAppId("xwwy");//小薇无忧的签约用户
-//            vo.setStartDate(DateUtils.getPeriodStartDate(date).toString());
-//            vo.setEndDate(DateUtils.getPeriodEndDate(date).toString());
+            String date = param.get("date");//期间
+            vo.setAccno(param.get("accno"));//银行账户
+            vo.setAcctcomno(fatherCorp.getInnercode());//代记账公司编号
+            vo.setUscc(corpVo.getVsoccrecode());//统一社会信用代码
+            vo.setAccountNo(corpVo.getInnercode());//业务端客户编号
+            vo.setAppId("xwwy");//小薇无忧的签约用户
+            vo.setStartDate(DateUtils.getPeriodStartDate(date).toString());
+            vo.setEndDate(DateUtils.getPeriodEndDate(date).toString());
 
-            vo.setAccno("1234567890123456001");//银行账户
-            vo.setAcctcomno("dzf-dztest-001");//代记账公司编号
-            vo.setUscc("123456789012345001");//统一社会信用代码
-            vo.setAccountNo("67867868");//业务端客户编号
-            vo.setAppId("000001");//小薇无忧的签约用户
-            vo.setStartDate("2020-01-01");
-            vo.setEndDate("2020-04-01");
+//            vo.setAccno("1234567890123456001");//银行账户
+//            vo.setAcctcomno("dzf-dztest-001");//代记账公司编号
+//            vo.setUscc("123456789012345001");//统一社会信用代码
+//            vo.setAccountNo("67867868");//业务端客户编号
+//            vo.setAppId("000001");//小薇无忧的签约用户
+//            vo.setStartDate("2020-01-01");
+//            vo.setEndDate("2020-04-01");
 
             BankStatement2ResponseVO responseVO = gl_yhdzdserv2.ercptApplyAndQrywlhdetail(vo,pk_bankaccount);
             grid.setSuccess(true);

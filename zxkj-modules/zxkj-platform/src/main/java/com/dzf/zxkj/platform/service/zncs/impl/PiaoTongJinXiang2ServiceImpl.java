@@ -39,6 +39,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Slf4j
 @Service("piaotongjinxiangservice2")
@@ -89,48 +93,107 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 	}
 	
 	private Map<String, VATInComInvoiceVO2> updateDatas(CaiFangTongHVO[] cfthvos, CorpVO corpvo,DZFDate kprj){
-		String pk_corp = corpvo.getPk_corp();
-		String nsrsbh = corpvo.getVsoccrecode();//公司的纳税人识别号
-		Map<String, VATInComInvoiceVO2> map = new LinkedHashMap<String, VATInComInvoiceVO2>();
-		
-		if(cfthvos == null || cfthvos.length == 0){
-			return map;
-		}
-		
-		//List<DcModelHVO> dcList = dcpzjmbserv.query(pk_corp);
-		//Map<String, DcModelHVO> dcMap = new HashMap<String, DcModelHVO>();
+
+        String pk_corp = corpvo.getPk_corp();
+        String nsrsbh = corpvo.getVsoccrecode();//公司的纳税人识别号
+        Map<String, VATInComInvoiceVO2> map = new LinkedHashMap<String, VATInComInvoiceVO2>();
+
+        if(cfthvos == null || cfthvos.length == 0){
+            return map;
+        }
+
+        //List<DcModelHVO> dcList = dcpzjmbserv.query(pk_corp);
+        //Map<String, DcModelHVO> dcMap = new HashMap<String, DcModelHVO>();
 //		Map<String, DcModelHVO> dcMap1 = new HashMap<String, DcModelHVO>();
-		//hashlizeDcModel(dcList, dcMap);
-		
-		String hm = null;
-		String kplx = null;
-		String demo = null;
-		
-		VATInComInvoiceVO2 oldvo = null;
-		VATInComInvoiceVO2 incomvo = null;
-		
-		Map<String, String> hmap = getVATHMapping();
-		Map<String, String> bmap = getVATBMapping();
-		List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
-		List<CaiFangTongHVO> cftl = new ArrayList<CaiFangTongHVO>();
-		
-//		String gmfsbh = null;
-//		int count = 0;
-		for(CaiFangTongHVO hvo : cfthvos){
-//			if(count++ > 10)//先这么控制下 上线时在拿掉
-//				continue;
-			
-			hm = hvo.getFphm();
-			
-			kplx = hvo.getKplx();
-			
+        //hashlizeDcModel(dcList, dcMap);
+
+
+        List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
+        List<Future<List<VATInComInvoiceVO2>>> vc = new Vector<Future<List<VATInComInvoiceVO2>>>();
+
+        try {
+            for(CaiFangTongHVO hvo : cfthvos){
+
+                Future<List<VATInComInvoiceVO2>> future = fixedThreadPool.submit(new QueryBvo(hvo,pk_corp,kprj));
+
+                vc.add(future);
+            }
+            for (Future<List<VATInComInvoiceVO2>> fu : vc) {
+                List<VATInComInvoiceVO2> list = fu.get();
+                ll.addAll(list);
+            }
+            fixedThreadPool.shutdown();
+        } catch (Exception e) {
+            log.error("错误",e);
+        }finally {
+            try {
+                if (fixedThreadPool != null) {
+                    fixedThreadPool.shutdown();
+                }
+            } catch (Exception e) {
+            }
+        }
+
+        List<VATInComInvoiceVO2> inComList = gl_vatincinvact.changeToInCom(ll, ll.get(0).getPk_corp());
+        int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
+//		int pricePrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf010"));
+        for (VATInComInvoiceVO2 vatInComInvoiceVO2 : inComList) {
+            if(vatInComInvoiceVO2.getDr()==0){
+                map.put(vatInComInvoiceVO2.getFp_hm(), vatInComInvoiceVO2);
+            }
+            //设置数量 ,单价精度
+            VATInComInvoiceBVO2[] bvos = (VATInComInvoiceBVO2[])vatInComInvoiceVO2.getChildren();
+            if(bvos!=null&&bvos.length>0){
+                for (VATInComInvoiceBVO2 bvo : bvos) {
+                    if(bvo.getBnum()!=null){
+                        bvo.setBnum(bvo.getBnum().setScale(numPrecision, DZFDouble.ROUND_HALF_UP));
+                    }
+//						if(bvo.getBprice()!=null){
+//							bvo.setBprice(bvo.getBprice().setScale(pricePrecision, DZFDouble.ROUND_HALF_UP));
+//						}
+                }
+            }
+            singleObjectBO.saveObject(pk_corp, vatInComInvoiceVO2);
+        }
+
+        return map;
+
+    }
+	private class QueryBvo implements Callable<List<VATInComInvoiceVO2>> {
+		private CaiFangTongHVO hvo;
+		private String pk_corp;
+		private DZFDate kprj;
+		public QueryBvo (CaiFangTongHVO hvo,String pk_corp,DZFDate kprj){
+			this.hvo = hvo;
+			this.pk_corp = pk_corp;
+			this.kprj = kprj;
+		}
+
+		@Override
+		public List<VATInComInvoiceVO2> call() throws Exception {
+
+			String demo = null;
+
+			VATInComInvoiceVO2 incomvo = null;
+
+			Map<String, String> hmap = getVATHMapping();
+
+			Map<String, String> bmap = getVATBMapping();
+
+			List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
+
+			String hm = hvo.getFphm();
+
+			String kplx = hvo.getKplx();
+
 //			gmfsbh = hvo.getGmf_nsrsbh();//购买方识别号
-			
-			oldvo = gl_vatincinvact.queryByCGTId(hm, hvo.getFpdm(), pk_corp);//查询库里是否存在此票
-			
-			if(!StringUtil.isEmpty(kplx) 
+
+			VATInComInvoiceVO2 oldvo = gl_vatincinvact.queryByCGTId(hm, hvo.getFpdm(), pk_corp);//查询库里是否存在此票
+
+			if(!StringUtil.isEmpty(kplx)
 					&& (ICaiFangTongConstant.FPLX_PT_0.equals(kplx)
-							|| ICaiFangTongConstant.FPLX_PT_3.equals(kplx))){
+					|| ICaiFangTongConstant.FPLX_PT_3.equals(kplx))){
 				int dr = 0;
 				if(oldvo != null){
 					dr = 1;
@@ -140,27 +203,25 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 //					dr = 1;
 //					setCFTDelVO(hvo, dr, "新增前校验到该号码代码的购买方识别号不匹配");
 //				}
-				
+
 				if(dr == 0 && (hvo.getChildren() == null
-								|| hvo.getChildren().length == 0)){
+						|| hvo.getChildren().length == 0)){
 					hvo = buildInComVO(hvo);
 				}
-				
-				
-				
-				cftl.add(hvo);
+
+
+
+				singleObjectBO.saveObject(pk_corp, hvo);
 				incomvo = tranVATInComData(hvo, dr, hmap, bmap, null, null,kprj);
 				incomvo.setVersion(new DZFDouble(1.0));
 				ll.add(incomvo);
-				
-				
-				if(dr == 0){
-					map.put(hm, incomvo);
-				}
-				
+
+
+
+
 			}else if(ICaiFangTongConstant.FPLX_PT_2.equals(kplx)){
 				int dr = 0;
-				
+
 //				if(!nsrsbh.equals(gmfsbh)){
 //					dr = 1;
 //					demo = "新增前校验到该号码代码的购买方识别号不匹配";
@@ -171,51 +232,29 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 					updateInComVOStatus(oldvo, hvo, kplx, pk_corp);
 					dr = 1;
 					demo = "新增前校验到该号码代码(废票)数据库中有数据";
-					
+
 				}
-				
+
 				setCFTDelVO(hvo, dr, demo);
-				
+
 				if(dr == 0 && (hvo.getChildren() == null
 						|| hvo.getChildren().length == 0)){
 					hvo = buildInComVO(hvo);
 				}
-			
-				
-				cftl.add(hvo);
+
+
+				singleObjectBO.saveObject(pk_corp, hvo);
 				incomvo = tranVATInComData(hvo, dr, hmap, bmap, null, null,kprj);
 				incomvo.setVersion(new DZFDouble(1.0));
 				ll.add(incomvo);
-				
-				
-				if(dr == 0){
-					map.put(hm, incomvo);
-				}
+
+
+
 			}
-			
+			return ll;
 		}
-		saveCftVO(pk_corp, cftl);
-		List<VATInComInvoiceVO2> inComList = gl_vatincinvact.changeToInCom(ll, ll.get(0).getPk_corp());
-		int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
-//		int pricePrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf010"));
-		for (VATInComInvoiceVO2 vatInComInvoiceVO2 : inComList) {
-			//设置数量 ,单价精度
-			VATInComInvoiceBVO2[] bvos = (VATInComInvoiceBVO2[])vatInComInvoiceVO2.getChildren();
-				if(bvos!=null&&bvos.length>0){
-					for (VATInComInvoiceBVO2 bvo : bvos) {
-						if(bvo.getBnum()!=null){
-							bvo.setBnum(bvo.getBnum().setScale(numPrecision, DZFDouble.ROUND_HALF_UP));
-						}
-//						if(bvo.getBprice()!=null){
-//							bvo.setBprice(bvo.getBprice().setScale(pricePrecision, DZFDouble.ROUND_HALF_UP));
-//						}
-					}
-			singleObjectBO.saveObject(pk_corp, vatInComInvoiceVO2);
-				}
-		}
-		return map;
+
 	}
-	
 	private CaiFangTongHVO buildInComVO(CaiFangTongHVO hvo){
 		List<CaiFangTongHVO> ll = new ArrayList<CaiFangTongHVO>();
 		String dateL = hvo.getKprq();//转换前 开票日期
