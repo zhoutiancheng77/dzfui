@@ -64,7 +64,7 @@ import org.springframework.stereotype.Service;
  */
 @Service("batchprintser")
 @Slf4j
-public class BatchPrintSetSerImpl implements IBatchPrintSetTaskSer {
+public class BatchPrintSetTaskSerImpl implements IBatchPrintSetTaskSer {
 
 	@Autowired
 	private SingleObjectBO singleObjectBO = null;
