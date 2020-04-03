@@ -9,12 +9,14 @@ import com.dzf.zxkj.platform.model.bdset.AdjustExrateVO;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.jzcl.QmLossesVO;
+import com.dzf.zxkj.platform.model.jzcl.QmWgcpVO;
 import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.jzcl.TransFerVOInfo;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.report.LrbquarterlyVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.TaxCalculateVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -202,4 +204,6 @@ public interface IQmclService {
 
 	TzpzHVO createVoucherByTaxCalculator(CorpVO corpVO, TaxCalculateVO taxCal,
                                          Integer taxType, QmclVO qmvo, String userid) throws DZFWarpException;
+
+	public QmWgcpVO[] impExcel(MultipartFile file, String pk_corp, String fileType, String cuserid) throws DZFWarpException;
 }

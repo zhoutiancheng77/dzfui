@@ -43,6 +43,9 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 				singleObjectBO.queryByCondition(InventorySetVO.class, " nvl(dr,0) = 0 and pk_corp = ? ", sp);
 		if(bodyvos != null && bodyvos.length>0){
 			body = bodyvos[0];
+		}else{
+			body = new InventorySetVO();
+			body.setChcbjzfs(InventoryConstant.IC_FZMXHS);
 		}
 		return body;
 	}

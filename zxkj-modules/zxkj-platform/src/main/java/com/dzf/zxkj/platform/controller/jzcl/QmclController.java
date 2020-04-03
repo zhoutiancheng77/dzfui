@@ -16,6 +16,7 @@ import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.config.QmjzByDzfConfig;
 import com.dzf.zxkj.platform.exception.ExBusinessException;
 import com.dzf.zxkj.platform.model.bdset.AdjustExrateVO;
@@ -34,13 +35,22 @@ import com.dzf.zxkj.platform.service.jzcl.IQmclNoicService;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
 import com.dzf.zxkj.platform.service.jzcl.IndustryForward;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.util.ExcelReport;
+import com.dzf.zxkj.platform.util.ReportUtil;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -73,6 +83,8 @@ public class QmclController extends BaseController {
     private ICbComconstant gl_cbconstant;
     @Autowired
     private IInventoryService ic_inventoryserv;
+    @Autowired
+    private IUserService iUserService;
 
     @PostMapping("/query")
     public ReturnData<Grid> query(@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
@@ -2248,6 +2260,10 @@ public class QmclController extends BaseController {
     // 期初、发生按比例计算 按照行完工比例计算
     private void calcgyjzbyPercent1ByRowBLIc(QmWgcpVO[] bodyvos, DZFDouble bili, QmgyjzVOs gyvo) {
         DZFDouble oneH = new DZFDouble(100);
+        if(gyvo == null){
+            throw new BusinessException("期初材料分配计算出错");
+        }
+
         if (!gyvo.getZ_f_cailiao_qc().equals(DZFDouble.ZERO_DBL)) {
             if (!gyvo.getF_cailiao_qc().equals(oneH)) {
                 throw new BusinessException("期初材料分配比例之和必须为100%");
@@ -2939,5 +2955,173 @@ public class QmclController extends BaseController {
             }
         }
         return list;
+    }
+
+    @PostMapping("/impExcel")
+    public ReturnData<Grid> impExcel(HttpServletRequest request, @RequestParam Map<String, String> param) {
+        Grid grid = new Grid();
+        String qj = null;
+        try {
+            String head = param.get("qmvo");
+            String body = param.get("qmwgcpvo");
+            String fsbl = param.get("fsbl");
+            String bili1 = param.get("bili");
+            body = body.replace("}{", "},{");
+            QmclVO qmvo = JsonUtils.deserialize(head, QmclVO.class);
+            QmWgcpVO[] qmwgcpvos =JsonUtils.deserialize(body,QmWgcpVO[].class); // 表体
+            MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+            MultipartFile infile = multipartRequest.getFile("impfile");
+            if (infile == null) {
+                throw new BusinessException("请选择导入文件!");
+            }
+            qj = qmvo.getPeriod();
+            String filename = infile.getOriginalFilename();
+            int index = filename.lastIndexOf(".");
+            String fileType = filename.substring(index + 1);
+            String pk_corp = SystemUtil.getLoginCorpId();
+            QmWgcpVO[] vos = gl_qmclserv.impExcel(infile, pk_corp, fileType,SystemUtil.getLoginUserId());
+            List<QmWgcpVO> list = calImpResult(fsbl,bili1,qmwgcpvos,vos, qmvo);
+            grid.setRows(list);
+            grid.setMsg("产成品结转计算结果导入成功");
+            grid.setSuccess(true);
+        } catch (Exception e) {
+            printErrorLog(grid, e, "文件导入失败!");
+        } finally {
+        }
+        doRecord("产成品结转计算结果导入:" + qj);
+        return ReturnData.ok().data(grid);
+    }
+
+    private List<QmWgcpVO> calImpResult( String fsbl,String bili1, QmWgcpVO[] bodys,QmWgcpVO[] vos, QmclVO qmvo) {
+        DZFBoolean ispercent = DZFBoolean.FALSE;
+        if (fsbl != null && "1".equals(fsbl)) {// 单价
+            ispercent = DZFBoolean.TRUE;
+        } else if (fsbl != null && "2".equals(fsbl)) {// 比例
+            ispercent = DZFBoolean.TRUE;
+        } else if (fsbl != null && "3".equals(fsbl)) {// 金额
+
+        }
+        List<QmWgcpVO> list = new ArrayList<QmWgcpVO>();
+        int index = 0;
+        for (QmWgcpVO vo : bodys) {
+            if (index == 0 || index == 1) {
+                vo.setIspercent(DZFBoolean.FALSE);
+                list.add(vo);
+            }
+            index++;
+        }
+
+        for (QmWgcpVO vo : vos) {
+            list.add(vo);
+        }
+
+        DZFDouble bili = new DZFDouble(bili1); //
+        jisuanIc(fsbl, bili, list.toArray(new QmWgcpVO[list.size()]), qmvo);
+        return list;
+    }
+    @PostMapping("/expExcel")
+    public void exportExlcel(HttpServletResponse response, @RequestParam Map<String, String> param) {
+        OutputStream toClient = null;
+        String qj = null;
+        try {
+
+            String head = param.get("qmvo");
+            String body = param.get("qmwgcpvo");
+            String fsbl = param.get("fsbl");
+            String bili1 = param.get("bili");
+            body = body.replace("}{", "},{");
+            QmclVO qmvo = JsonUtils.deserialize(head, QmclVO.class);
+            QmWgcpVO[] qmwgcpvos =JsonUtils.deserialize(body,QmWgcpVO[].class); // 表体
+            String gs = qmvo.getCorpname();
+            qj = qmvo.getPeriod();
+            ExcelReport<QmWgcpVO> ex = new ExcelReport<QmWgcpVO>();
+            Map<String, String> map = getExpFieldMap();
+            String[] enFields = new String[map.size()];
+            String[] cnFields = new String[map.size()];
+            /** 填充普通字段数组 */
+            int count = 0;
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                enFields[count] = entry.getKey();
+                cnFields[count] = entry.getValue();
+                count++;
+            }
+            DZFBoolean ispercent = DZFBoolean.FALSE;
+            if (fsbl != null && "1".equals(fsbl)) {// 单价
+                ispercent = DZFBoolean.TRUE;
+            } else if (fsbl != null && "2".equals(fsbl)) {// 比例
+                ispercent = DZFBoolean.TRUE;
+            } else if (fsbl != null && "3".equals(fsbl)) {// 金额
+
+            }
+            List<QmWgcpVO> list = new ArrayList<QmWgcpVO>();
+            int index = 0;
+            for (QmWgcpVO vo : qmwgcpvos) {
+                if (index == 0 || index == 1) {
+                    vo.setIspercent(DZFBoolean.FALSE);
+                } else {
+                    vo.setIspercent(ispercent);
+                    if (vo.getWgbl() == null) {
+                        vo.setWgbl(DZFDouble.ZERO_DBL);
+                    }
+                }
+                index++;
+                list.add(vo);
+            }
+            response.reset();
+            String fileName = "产成品结转计算结果-" + ReportUtil.formatQj(qj) + ".xls";
+            String formattedName = URLEncoder.encode(fileName, "UTF-8");
+            response.addHeader("Content-Disposition",
+                    "attachment;filename=" + fileName + ";filename*=UTF-8''" + formattedName);
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/vnd.ms-excel;charset=gb2312");
+            byte[] length = ex.exportExcel("产成品结转计算结果", cnFields, enFields, list, gs, qj, toClient, iUserService);
+//            String srt2 = new String(length, "UTF-8");
+//            response.addHeader("Content-Length", srt2);
+            toClient.flush();
+            response.getOutputStream().flush();
+        } catch (IOException e) {
+            log.error("excel导出错误", e);
+        } finally {
+            try {
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误", e);
+            }
+            try {
+                if (response != null && response.getOutputStream() != null) {
+                    response.getOutputStream().close();
+                }
+            } catch (IOException e) {
+                log.error("excel导出错误", e);
+            }
+        }
+        doRecord("产成品结转计算结果导出:" + qj);
+    }
+
+    private Map<String, String> getExpFieldMap() {
+        Map<String, String> map = new LinkedHashMap<String, String>();
+
+        map.put("vcode", "存货编码");
+        map.put("vname", "存货名称");
+        map.put("wgbl", "完工比例");
+        map.put("ncailiao_qc", "期初_材料");
+        map.put("nrengong_qc", "期初_人工");
+        map.put("nzhizao_qc", "期初_制造费用");
+
+        map.put("ncailiao_fs", "本月发生_材料");
+        map.put("nrengong_fs", "本月发生_人工");
+        map.put("nzhizao_fs", "本月发生_制造费用");
+
+        map.put("ncailiao_wg", "本月完工_材料");
+        map.put("nrengong_wg", "本月完工_人工");
+        map.put("nzhizao_wg", "本月完工_制造费用");
+        map.put("nnum_wg", "本月完工_数量");
+
+        map.put("ncailiao_nwg", "本月未完工_材料");
+        map.put("nrengong_nwg", "本月未完工_人工");
+        map.put("nzhizao_nwg", "本月未完工_制造费用");
+        return map;
     }
 }

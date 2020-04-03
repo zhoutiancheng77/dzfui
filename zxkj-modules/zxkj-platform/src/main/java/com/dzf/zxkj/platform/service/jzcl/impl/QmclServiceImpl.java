@@ -9,7 +9,10 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
-import com.dzf.zxkj.common.constant.*;
+import com.dzf.zxkj.common.constant.DZFConstant;
+import com.dzf.zxkj.common.constant.IBillTypeCode;
+import com.dzf.zxkj.common.constant.IQmclConstant;
+import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
 import com.dzf.zxkj.common.enums.SurTaxEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -22,6 +25,7 @@ import com.dzf.zxkj.platform.config.QmjzByDzfConfig;
 import com.dzf.zxkj.platform.exception.ExBusinessException;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
+import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.jzcl.*;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
@@ -31,7 +35,10 @@ import com.dzf.zxkj.platform.model.report.LrbquarterlyVO;
 import com.dzf.zxkj.platform.model.sys.*;
 import com.dzf.zxkj.platform.model.tax.TaxCalculateVO;
 import com.dzf.zxkj.platform.model.tax.TaxEffeHistVO;
-import com.dzf.zxkj.platform.service.bdset.*;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
+import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
+import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
+import com.dzf.zxkj.platform.service.bdset.ISurtaxTemplateService;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
@@ -52,12 +59,22 @@ import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.report.service.IZxkjReportService;
 import org.apache.dubbo.config.annotation.Reference;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 期末结转业务逻辑类
@@ -4197,4 +4214,190 @@ public class QmclServiceImpl implements IQmclService {
 		}
 		return voucher;
 	}
+
+	@Override
+	public QmWgcpVO[] impExcel(MultipartFile infile, String pk_corp, String fileType, String cuserid) throws DZFWarpException {
+        InputStream is = null;
+		try {
+            is = infile.getInputStream();
+			Workbook impBook = null;
+			if ("xls".equals(fileType)) {
+				impBook = new HSSFWorkbook(is);
+			} else if ("xlsx".equals(fileType)) {
+				impBook = new XSSFWorkbook(is);
+			} else {
+				throw new BusinessException("不支持的文件格式");
+			}
+			Sheet sheet1 = impBook.getSheetAt(0);
+
+			Map<Integer, String> fieldColumn = QmWgcpVO.getExcelFieldColumn();
+			Cell codeCell = null;
+			String key = null;
+			int length = sheet1.getLastRowNum();
+			if (length > 1000) {
+				throw new BusinessException("最多可导入1000行");
+			}
+			Map<String, InventoryVO> invmap = new HashMap<>();
+			List<InventoryVO> invVO = queryInventoryVO(pk_corp);
+
+			if (invVO != null && invVO.size() > 0) {
+				for (InventoryVO invvo : invVO) {
+					String key1 = getCheckKey(invvo);
+					invmap.put(key1, invvo);
+				}
+			}
+			List<QmWgcpVO> billlist = new ArrayList<>();
+			QmWgcpVO vo = null;
+			InventoryVO tempvo = null;
+			boolean isrownull = true;
+			for (int iBegin = 8; iBegin <= length; iBegin++) {
+				isrownull = true;
+				vo = new QmWgcpVO();
+				for (Map.Entry<Integer, String> entry : fieldColumn.entrySet()) {
+
+					if (sheet1.getRow(iBegin) == null)
+						continue;
+
+					codeCell = sheet1.getRow(iBegin).getCell(entry.getKey());
+					if (codeCell == null)
+						continue;
+					else {
+						if (codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
+							if (codeCell.getNumericCellValue() == 0) {
+								continue;
+							} else {
+								isrownull = false;
+							}
+						} else if (codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
+							if (codeCell.getRichStringCellValue() == null) {
+								continue;
+							} else {
+								isrownull = false;
+							}
+						} else if (codeCell.getCellType() == XSSFCell.CELL_TYPE_FORMULA) {
+						} else {
+							continue;
+						}
+					}
+
+					key = entry.getValue();
+					if (key.endsWith("_qc") || key.endsWith("_fs") || key.endsWith("_wg") || key.endsWith("_nwg")) {
+						if (codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
+							vo.setAttributeValue(key, codeCell.getNumericCellValue());
+						} else if (codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
+							vo.setAttributeValue(key, replaceBlank(codeCell.getRichStringCellValue().getString()));
+						} else if (codeCell.getCellType() == XSSFCell.CELL_TYPE_FORMULA) {
+							String value1 = null;
+							try {
+								java.text.DecimalFormat formatter = new java.text.DecimalFormat("#############.##");
+								value1 = formatter.format(codeCell.getNumericCellValue());
+								vo.setAttributeValue(key, replaceBlank(value1));
+							} catch (Exception e) {
+							}
+							if (StringUtil.isEmpty(value1) || "0.00".equals(value1)) {
+								try {
+									FormulaEvaluator evaluator = codeCell.getSheet().getWorkbook().getCreationHelper()
+											.createFormulaEvaluator();
+									CellValue cellValue = evaluator.evaluate(codeCell);
+									vo.setAttributeValue(key, cellValue.getNumberValue());
+								} catch (Exception e) {
+								}
+							}
+						}
+					} else {
+						String value = null;
+						if (codeCell != null && codeCell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
+							value = codeCell.getRichStringCellValue().getString();
+							value = replaceBlank(value.trim());
+						} else if (codeCell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
+							int codeVal = Double.valueOf(codeCell.getNumericCellValue()).intValue();
+							value = String.valueOf(codeVal);
+						}
+						if(value.indexOf("%") >0){
+							value= value.replace("%","");
+						}
+						vo.setAttributeValue(key, value);
+					}
+				}
+				if(!isrownull){
+					tempvo= invmap.get(getCheckKey(vo));
+					if(tempvo == null)
+						throw new BusinessException("存货编码"+vo.getVcode()+"未匹配到系统存货！");
+					vo.setPk_inventory(tempvo.getPk_inventory());
+					billlist.add(vo);
+				}
+			}
+			return billlist.toArray(new QmWgcpVO[billlist.size()]);
+		} catch (BusinessException e) {
+			throw e;
+		} catch (FileNotFoundException e) {
+			throw new BusinessException("导入文件未找到");
+		} catch (IOException e) {
+			throw new BusinessException("导入文件格式错误");
+		} catch (Exception e) {
+			throw new BusinessException("导入文件格式错误");
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+	}
+
+    private List<InventoryVO> queryInventoryVO(String pk_corp) {
+        StringBuffer sb = new StringBuffer();
+        SQLParameter sp = new SQLParameter();
+        sb.append("pk_corp=? and nvl(dr,0)=0");
+        sp.addParam(pk_corp);
+        List<InventoryVO> listVo = (List<InventoryVO>) singleObjectBO.retrieveByClause(InventoryVO.class, sb.toString(),
+                sp);
+        return listVo;
+    }
+
+    private String getCheckKey(InventoryVO invvo) {
+        StringBuffer sb = new StringBuffer();
+
+        if (StringUtil.isEmpty(invvo.getCode())) {
+            sb.append(" ");
+        } else {
+            sb.append(replaceBlank(invvo.getCode().trim()));
+        }
+
+        if (StringUtil.isEmpty(invvo.getName())) {
+            sb.append(" ");
+        } else {
+            sb.append(replaceBlank(invvo.getName().trim()));
+        }
+        return sb.toString();
+    }
+
+    private String getCheckKey(QmWgcpVO invvo) {
+        StringBuffer sb = new StringBuffer();
+
+        if (StringUtil.isEmpty(invvo.getVcode())) {
+            sb.append(" ");
+        } else {
+            sb.append(replaceBlank(invvo.getVcode().trim()));
+        }
+
+        if (StringUtil.isEmpty(invvo.getVname())) {
+            sb.append(" ");
+        } else {
+            sb.append(replaceBlank(invvo.getVname().trim()));
+        }
+        return sb.toString();
+    }
+
+    private String replaceBlank(String str) {
+        String dest = "";
+        if (!StringUtil.isEmpty(str)) {
+            dest= StringUtil.replaceBlank(str);
+        }
+        if(dest.indexOf("%") >0){
+            dest= dest.replace("%","");
+        }
+        return dest;
+    }
 }
