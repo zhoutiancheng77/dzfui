@@ -3,6 +3,7 @@ package com.dzf.zxkj.platform.service.bdset.impl;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
+import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.DZFConstant;
@@ -20,6 +21,7 @@ import com.dzf.zxkj.platform.service.jzcl.IVoucherTemplate;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -111,7 +113,32 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
         }
         //3、校验是否有新增权限
         checkAddAuth(corpvo.getPk_corp(), parentvo, accoutrule);
+        // 检查下级科目编码是否满了
+        checkCapacity(parentvo, accoutrule);
+    }
 
+    // 检查下级科目编码是否满了
+    private void checkCapacity(YntCpaccountVO parentSubject, String codeRule) {
+        // 下级编码长度
+        String lenStr = codeRule.split("/")[parentSubject.getAccountlevel()];
+        int len = Integer.valueOf(lenStr);
+        // 下级科目容量
+        int capacity = (int) Math.pow(10, len) - 1;
+
+        String sql = "select count(1) from ynt_cpaccount where pk_corp = ? and accountcode like ? " +
+                "and accountlevel = ? and nvl(dr,0) = 0 ";
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(parentSubject.getPk_corp());
+        sp.addParam(parentSubject.getAccountcode() + "%");
+        sp.addParam(parentSubject.getAccountlevel() + 1);
+        BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sql, sp, new ColumnProcessor());
+        if (count.intValue() == capacity) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("当前科目编码已达最大值'")
+                    .append(len == 2 ? "'99" : "999")
+                    .append("', 请先到“数据升级”节点修改编码规则后再新增科目");
+            throw new BusinessException(msg.toString());
+        }
     }
 
     private String[] getMaxValues(String scode) {
