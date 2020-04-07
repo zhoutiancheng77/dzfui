@@ -4757,7 +4757,7 @@ public class BankStatementServiceImpl implements IBankStatementService {
 							temptzpz.setNnumber(number);
 						}
 					}
-					
+					temptzpz.setZy(buildhbzy(temptzpz.getZy(), tzpzbvo.getZy()));
 					temptzpz.setJfmny(SafeCompute.add(temptzpz.getJfmny(), tzpzbvo.getJfmny()));
 					temptzpz.setYbjfmny(SafeCompute.add(temptzpz.getYbjfmny(), tzpzbvo.getYbjfmny()));
 					temptzpz.setDfmny(SafeCompute.add(temptzpz.getDfmny(), tzpzbvo.getDfmny()));
@@ -4795,7 +4795,22 @@ public class BankStatementServiceImpl implements IBankStatementService {
 		
 		return finalList;
 	}
-	
+
+	protected String buildhbzy(String tempzy,String zy){
+		StringBuffer sf = new StringBuffer();
+		if(StringUtil.isEmpty(tempzy)) return zy;
+		if(tempzy.contains(zy)){
+			return tempzy;
+		}else{
+			sf.append(tempzy).append(",").append(zy);
+		}
+
+
+		String str = sf.toString();
+		str = str.length() > 200 ? str.substring(0, 200) : str;
+		return str;
+	}
+
 	private void sortEntryByDirection(List<TzpzBVO> list, String pk_corp){
 		if(list == null || list.size() == 0)
 			return;

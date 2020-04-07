@@ -4587,8 +4587,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 							
 						}
 					}
-					
-					tempbvo.setZy(bvo.getZy());
+					tempbvo.setZy(buildhbzy(tempbvo.getZy(), bvo.getZy()));
+					//tempbvo.setZy(bvo.getZy());
 					tempbvo.setJfmny(SafeCompute.add(tempbvo.getJfmny(), bvo.getJfmny()));
 					tempbvo.setYbjfmny(SafeCompute.add(tempbvo.getYbjfmny(), bvo.getYbjfmny()));
 					tempbvo.setDfmny(SafeCompute.add(tempbvo.getDfmny(), bvo.getDfmny()));
@@ -4625,7 +4625,20 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 		
 	}
+	protected String buildhbzy(String tempzy,String zy){
+		StringBuffer sf = new StringBuffer();
+		if(StringUtil.isEmpty(tempzy)) return zy;
+		if(tempzy.contains(zy)){
+			return tempzy;
+		}else{
+			sf.append(tempzy).append(",").append(zy);
+		}
 
+
+		String str = sf.toString();
+		str = str.length() > 200 ? str.substring(0, 200) : str;
+		return str;
+	}
 	protected String constructTzpzKey(TzpzBVO bvo) {
 		StringBuffer sf = new StringBuffer();
 		sf.append("&").append(bvo.getVdirect()).append("&").append(bvo.getPk_accsubj()).append("&")
