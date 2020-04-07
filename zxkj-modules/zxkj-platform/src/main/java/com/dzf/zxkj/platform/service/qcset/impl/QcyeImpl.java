@@ -1867,7 +1867,14 @@ public class QcyeImpl implements IQcye {
 			Map<String, AuxiliaryAccountBVO> fzMap = new HashMap<String, AuxiliaryAccountBVO>();
 			if (fzvos != null) {
 				for (AuxiliaryAccountBVO auxiliaryAccountBVO : fzvos) {
-					fzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
+					if (fzlb.getCode().equals("6")) { // 存货辅助根据名称 + 规格型号+计量单位
+						fzMap.put(auxiliaryAccountBVO.getName()+ "-"
+										+ getValue(auxiliaryAccountBVO.getSpec()) + "-"
+										+ getValue(auxiliaryAccountBVO.getUnit())
+								, auxiliaryAccountBVO);
+					}else {
+						fzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
+					}
 				}
 			}
 			Map<String, AuxiliaryAccountBVO> allFzMap = null;
@@ -1878,7 +1885,14 @@ public class QcyeImpl implements IQcye {
 				allFzMap = new HashMap<String, AuxiliaryAccountBVO>();
 				if (allVos != null) {
 					for (AuxiliaryAccountBVO auxiliaryAccountBVO : allVos) {
-						allFzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
+						if (fzlb.getCode().equals("6")) {// 存货辅助根据名称 + 规格型号+计量单位
+							allFzMap.put(auxiliaryAccountBVO.getName()+ "-"
+											+ getValue(auxiliaryAccountBVO.getSpec()) + "-"
+											+ getValue(auxiliaryAccountBVO.getUnit())
+									, auxiliaryAccountBVO);
+						} else  {
+							allFzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
+						}
 					}
 				}
 			}
@@ -1916,6 +1930,10 @@ public class QcyeImpl implements IQcye {
 						row.getCell(getHeadIndex(headIndex, "编码")), false);
 				String fzName = ReportUtil.getExcelCellValue(
 						row.getCell(getHeadIndex(headIndex, "名称")), false);
+				String ggxh = headIndex.containsKey("规格(型号)") ? ReportUtil.getExcelCellValue(
+						row.getCell(getHeadIndex(headIndex, "规格(型号)")), false) : "";
+				String jldw = headIndex.containsKey("计量单位") ? ReportUtil.getExcelCellValue(
+						row.getCell(getHeadIndex(headIndex, "计量单位")), false) : "";
 				if (StringUtil.isEmpty(fzCode)) {
 					if (StringUtil.isEmpty(fzName)) {
 						continue;
@@ -2022,15 +2040,19 @@ public class QcyeImpl implements IQcye {
 					}
 				}
 				fzQcVos.add(qcvo);
-				if (fzMap.containsKey(fzCode)) {
+				if (!fzlb.getCode().equals("6") && fzMap.containsKey(fzCode)) { // 非存货
 					qcvo.setAttributeValue("fzhsx" + (fzlbIndex + 1),
 							fzMap.get(fzCode).getPk_auacount_b());
 				} else {
+					if (fzlb.getCode().equals("6") && fzMap.containsKey(fzName + "-" + getValue(ggxh)+ "-"+jldw)) {
+						qcvo.setAttributeValue("fzhsx" + (fzlbIndex + 1),
+								fzMap.get(fzName + "-" + getValue(ggxh)+ "-"+jldw).getPk_auacount_b());
+					}
 					if (isInvMode) {
 						throw new BusinessException("存货（" + fzCode + " "
 								+ fzName + "）不存在，请在存货节点增加后重试");
 					} else if (isInvCategory && allFzMap != null
-							&& allFzMap.containsKey(fzCode)) {
+							&& allFzMap.containsKey(fzName + "-" + getValue(ggxh)+ "-"+jldw)) {
 						StringBuilder tips = new StringBuilder();
 						tips.append("存货（").append(fzCode).append(" ")
 							.append(fzName).append("）")
@@ -2154,6 +2176,14 @@ public class QcyeImpl implements IQcye {
 			}
 		}
 	}
+	private String getValue(String str){
+		if (StringUtil.isEmpty(str)) {
+			return "";
+		}else {
+			return str;
+		}
+	}
+
 	
 	/**
 	 * 

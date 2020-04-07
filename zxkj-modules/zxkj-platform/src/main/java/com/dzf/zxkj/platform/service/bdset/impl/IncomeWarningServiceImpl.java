@@ -634,4 +634,20 @@ public class IncomeWarningServiceImpl implements IIncomeWarningService {
 		
 		return result;
 	}
+
+	@Override
+	public IncomeWarningVO queryByXm(String pk_corp, String name) throws DZFWarpException {
+		if (StringUtil.isEmpty(name)) {
+			throw new BusinessException("项目名称为空");
+		}
+		IncomeWarningVO[] vos = query(pk_corp);
+		if (vos!=null && vos.length > 0) {
+			for (IncomeWarningVO vo: vos) {
+				if (name.equals(vo.getXmmc())) {
+					return vo;
+				}
+			}
+		}
+		return null;
+	}
 }

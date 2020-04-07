@@ -8,6 +8,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -18,6 +19,7 @@ import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
+import com.dzf.zxkj.platform.model.bdset.IncomeWarningVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
 import com.dzf.zxkj.platform.model.jzcl.QmGzBgSetVO;
@@ -35,6 +37,7 @@ import com.dzf.zxkj.platform.model.zcgl.ZcdzVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
+import com.dzf.zxkj.platform.service.bdset.IIncomeWarningService;
 import com.dzf.zxkj.platform.service.jzcl.IQmGzBgService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
@@ -130,7 +133,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		// 经营数据分析
 		handJySjFx(qmgzbgmap, pk_corp, period,curr_fsvos,cpvo,monthmap,lrbjbs,mapc,setmap,corpschema);
 		// 小规模指标检查
-		handXgmZb(qmgzbgmap, cpvo, period,lrbjbs,monthmap,setmap);
+		handXgmZb(qmgzbgmap, cpvo, period,lrbjbs,monthmap,setmap,mp);
 
 		return qmgzbgmap;
 	}
@@ -216,14 +219,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	 */
 	private void handXgmZb(Map<String,List<QmGzBgVo>> qmgzbgmap,CorpVO cpvo, String period,
 			Map<String, LrbquarterlyVO[]>  lrbjbs,Map<String, List<FseJyeVO>> monthmap
-			,Map<String,QmGzBgSetVO> setmap) {
+			,Map<String,QmGzBgSetVO> setmap,Map<String, YntCpaccountVO> mp) {
 	     String charname = cpvo.getChargedeptname();
 		if("小规模纳税人".equals(charname)){
 			List<QmGzBgVo> reslist = new ArrayList<QmGzBgVo>();
 			//收入预警
-			sryjCheck(reslist,cpvo,period,monthmap,setmap);
+			sryjCheck(reslist,cpvo,period,monthmap,setmap,mp);
 			//免税收入预警
-			mssryjCheck(reslist,period,cpvo,lrbjbs,setmap);
+			mssryjCheck(reslist,period,cpvo,lrbjbs,setmap,mp,monthmap);
 			if(reslist!=null && reslist.size()>0){
 				qmgzbgmap.put("xgmzb", reslist);//小规模指标检查
 			}
@@ -231,17 +234,29 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void sryjCheck(List<QmGzBgVo> reslist, CorpVO cpvo,
-			String period, Map<String, List<FseJyeVO>> monthmap,Map<String,QmGzBgSetVO> setmap) {
-		QmGzBgSetVO setvo = setmap.get("收入预警") == null ? new QmGzBgSetVO():setmap.get("收入预警");
+			String period, Map<String, List<FseJyeVO>> monthmap,Map<String,QmGzBgSetVO> setmap,Map<String, YntCpaccountVO> mp) {
+		IIncomeWarningService gl_incomewarningerv = (IIncomeWarningService) SpringUtils.getBean("gl_incomewarningerv");
+		IncomeWarningVO warningvo = gl_incomewarningerv.queryByXm(cpvo.getPk_corp(), "小规模转一般人收入预警");
+		if (warningvo == null) {
+			return;
+		}
+//		QmGzBgSetVO setvo = setmap.get("收入预警") == null ? new QmGzBgSetVO():setmap.get("收入预警");
 		QmGzBgVo vo = new QmGzBgVo();
-		vo.setXm("收入预警");
+		vo.setXm("小规模转一般人收入预警");
 		vo.setIssuccess(DZFBoolean.TRUE);
 		vo.setVmemo("通过");
-		vo.setYjz(setvo.getNmax() == null ? new DZFDouble(750000.00) : setvo.getNmax());
+		vo.setYjz(warningvo.getYjz());
 
 		try {
 			if(monthmap!=null && monthmap.size()>0){
-				String[] codes = getZyywsr(cpvo);//获取主营业务收入
+				String[] ids = warningvo.getPk_accsubj().split(",");
+				if (ids == null || ids.length == 0) {
+					return;
+				}
+				String[] codes = new String[ids.length];
+				for (int i =0;i<ids.length;i++) {
+					codes[i] = mp.get(ids[i]).getAccountcode();
+				}
 				if(codes == null || codes.length == 0){
 					return;
 				}
@@ -276,46 +291,63 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void mssryjCheck(List<QmGzBgVo> reslist, String period,CorpVO cpvo, 
-			Map<String, LrbquarterlyVO[]> lrbjbs,Map<String,QmGzBgSetVO> setmap) {
-		if(lrbjbs == null || lrbjbs.size() ==0){//利润表不支持的则不显示
-			return ;
+			Map<String, LrbquarterlyVO[]> lrbjbs,Map<String,QmGzBgSetVO> setmap,Map<String, YntCpaccountVO> mp,
+							 Map<String, List<FseJyeVO>> monthmap) {
+		IIncomeWarningService gl_incomewarningerv = (IIncomeWarningService) SpringUtils.getBean("gl_incomewarningerv");
+		IncomeWarningVO warningvo = gl_incomewarningerv.queryByXm(cpvo.getPk_corp(), "小规模免增值税收入预警");
+		if (warningvo == null) {
+			return;
 		}
-		QmGzBgSetVO setvo = setmap.get("免税收入预警") == null ? new QmGzBgSetVO(): setmap.get("免税收入预警");
 		QmGzBgVo vo = new QmGzBgVo();
-		vo.setXm("免税收入预警");
+		vo.setXm("小规模免增值税收入预警");
 		vo.setIssuccess(DZFBoolean.TRUE);
 		vo.setVmemo("通过");
-		vo.setYjz(setvo.getNmax() == null ? new DZFDouble(90000.00) : setvo.getNmax());
+		vo.setYjz(warningvo.getYjz());
 
 		try {
 			String jd = isJdMonth(period);
 
-			LrbquarterlyVO[] vos =  lrbjbs.get(jd);
+			if (StringUtil.isEmpty(jd)) {
+				return ;
+			}
 
-			if(vos!=null && vos.length>0){
+			if(monthmap!=null && monthmap.size()>0){
+				String[] ids = warningvo.getPk_accsubj().split(",");
+				if (ids == null || ids.length == 0) {
+					return;
+				}
+				String[] codes = new String[ids.length];
+				for (int i =0;i<ids.length;i++) {
+					codes[i] = mp.get(ids[i]).getAccountcode();
+				}
+				if(codes == null || codes.length == 0){
+					return;
+				}
 				DZFDouble sum = DZFDouble.ZERO_DBL;
-				for(LrbquarterlyVO votemp: vos){
-					DZFDouble tempvalue = DZFDouble.ZERO_DBL;
-					if(jd.indexOf("第一季度")>=0){
-						tempvalue = votemp.getQuarterFirst();
-					}else if(jd.indexOf("第二季度")>=0){
-						tempvalue = votemp.getQuarterSecond();
-					}else if(jd.indexOf("第三季度")>=0){
-						tempvalue = votemp.getQuarterThird();
-					}else if(jd.indexOf("第四季度")>=0){
-						tempvalue = votemp.getQuarterFourth();
+				//从当前期间往前推12个月
+				String curr_period = period;
+				List<FseJyeVO> listvos = null;
+				for(int i=0;i<3;i++){
+					if(i>0){
+						curr_period = DateUtils.getPreviousPeriod(curr_period);
 					}
-
-					if(votemp.getXm().indexOf("营业收入")>=0){
-						sum = SafeCompute.add(sum, tempvalue);
+					listvos = monthmap.get(curr_period);
+					if(listvos!=null && listvos.size()>0){
+						for(String code:codes){
+							for(FseJyeVO votemp:listvos){
+								if(votemp.getKmbm().equals(code)){
+									sum = SafeCompute.add(sum, votemp.getFsdf());
+								}
+							}
+						}
 					}
 				}
-
 				if(sum.doubleValue()>vo.getYjz().doubleValue()){
 					vo.setIssuccess(DZFBoolean.FALSE);
-					vo.setVmemo("季度销售额高于9万免税收入值,请检查");
+					vo.setVmemo("季度销售额高于小规模免增值税收入预警,请检查");
 				}
 			}
+
 		} catch (Exception e) {
 			handleError(vo, e);
 		}

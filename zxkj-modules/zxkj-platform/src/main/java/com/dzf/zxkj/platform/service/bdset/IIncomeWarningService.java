@@ -12,6 +12,15 @@ public interface IIncomeWarningService {
 
     IncomeWarningVO[] query(String pk_corp) throws DZFWarpException;
 
+    /**
+     * 根据名称+项目名称获取预警条目
+     * @param pk_corp
+     * @param name
+     * @return
+     * @throws DZFWarpException
+     */
+    public IncomeWarningVO queryByXm(String pk_corp,String name) throws DZFWarpException;
+
     IncomeWarningVO[] queryByPrimaryKey(String primaryKey) throws DZFWarpException;
 
     void delete(IncomeWarningVO vo) throws DZFWarpException;
