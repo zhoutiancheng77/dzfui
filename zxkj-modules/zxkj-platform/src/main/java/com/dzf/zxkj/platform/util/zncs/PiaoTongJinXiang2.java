@@ -15,6 +15,10 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 
 public class PiaoTongJinXiang2 {
@@ -57,49 +61,92 @@ public class PiaoTongJinXiang2 {
 		this.serType = serType;
 		this.rzPeriod = rzPeriod;
 	}
-	
-    public List<PiaoTongJinXiangHVO> getVOs(String token){
-    	List<PiaoTongJinXiangInvoiceVO> gyList = new ArrayList<PiaoTongJinXiangInvoiceVO>();
-    	//2、获取概要信息
-//    	i = 2;s
-    	if(serType.equals("yjqpDay1")){
-    		//根据认证所属期获取发票
-        	gyList = getInvoiceListByRz(token);
-    	}else{
-    		//根据开票期间获取发票
-        	gyList = getInvoiceListByKp(token);
-    	}
-    	
-    	if(gyList == null || gyList.size() == 0){
-    		return null;
-    	}
-    	
-    	//3、获取详细信息
-//    	i = 3;
-    	List<PiaoTongJinXiangHVO> hList = new ArrayList<PiaoTongJinXiangHVO>();
-    	PiaoTongJinXiangHVO detailvo = null;
-    	for(PiaoTongJinXiangInvoiceVO vo : gyList){
-    		//03机动车票
-    		if(!("01".equals(vo.getInvoiceTicketType())
-    				|| "04".equals(vo.getInvoiceTicketType())
-    				|| "11".equals(vo.getInvoiceTicketType())
-    				||"03".equals(vo.getInvoiceTicketType())))//暂时先如此处理
-    			continue;
-    		
-    		detailvo = getInvoiceDetail(vo, token);
-    		
-    		hList.add(detailvo);
-    	}
-    	
-    	return hList;
-    }
+	public List<PiaoTongJinXiangHVO> getJinXiangDetail(List<PiaoTongJinXiangInvoiceVO> cftList,String token) {
+		//3、获取详细信息
+		List<PiaoTongJinXiangHVO> hList = new ArrayList<PiaoTongJinXiangHVO>();
+
+		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(30);
+		List<Future<List<PiaoTongJinXiangHVO>>> vc = new Vector<Future<List<PiaoTongJinXiangHVO>>>();
+		try{
+			for(PiaoTongJinXiangInvoiceVO vo : cftList){
+				//03机动车票
+				if(!("01".equals(vo.getInvoiceTicketType())
+						|| "04".equals(vo.getInvoiceTicketType())
+						|| "11".equals(vo.getInvoiceTicketType())
+						||"03".equals(vo.getInvoiceTicketType())))//暂时先如此处理
+					continue;
+
+				Future<List<PiaoTongJinXiangHVO>> future = fixedThreadPool.submit(new getInvoiceDetail(vo,token));
+
+				vc.add(future);
+			}
+			for (Future<List<PiaoTongJinXiangHVO>> fu : vc) {
+				List<PiaoTongJinXiangHVO> list = fu.get();
+				hList.addAll(list);
+			}
+			fixedThreadPool.shutdown();
+
+		} catch (Exception e) {
+			logger.error("错误",e);
+		}finally {
+			try {
+				if (fixedThreadPool != null) {
+					fixedThreadPool.shutdown();
+				}
+			} catch (Exception e) {
+			}
+		}
+		return hList;
+	}
+    public List<PiaoTongJinXiangInvoiceVO> getVOs(String token){
+
+		List<PiaoTongJinXiangInvoiceVO> gyList = new ArrayList<PiaoTongJinXiangInvoiceVO>();
+		//2、获取概要信息
+//    	i = 2;
+		if(serType.equals("yjqpDay1")){
+			//根据认证所属期获取发票
+			gyList = getInvoiceListByRz(token);
+
+		}else{
+			//根据开票期间获取发票
+			gyList = getInvoiceListByKp(token);
+
+		}
+
+		if(gyList == null || gyList.size() == 0){
+			return null;
+		}
+
+		return gyList;
+
+	}
+
+	private class getInvoiceDetail implements Callable<List<PiaoTongJinXiangHVO>> {
+		private PiaoTongJinXiangInvoiceVO vo;
+		private String token;
+		public getInvoiceDetail (PiaoTongJinXiangInvoiceVO vo,String token){
+			this.vo = vo;
+			this.token = token;
+		}
+		@Override
+		public List<PiaoTongJinXiangHVO> call() throws Exception {
+
+			List<PiaoTongJinXiangHVO> list = new ArrayList<PiaoTongJinXiangHVO>();
+			PiaoTongJinXiangHVO detailvo = getInvoiceDetailVO(vo, token);
+
+			list.add(detailvo);
+			return list;
+		}
+
+	}
+
     private String getPtjxurl(){
 		if(StringUtils.isEmpty(ptjxurl)){
 			ptjxurl = PropertyGetter.ptjx_url;
 		}
 		return ptjxurl;
 	}
-    private PiaoTongJinXiangHVO getInvoiceDetail(PiaoTongJinXiangInvoiceVO invo, String token){
+    private PiaoTongJinXiangHVO getInvoiceDetailVO(PiaoTongJinXiangInvoiceVO invo, String token){
     	String url = getPtjxurl() + "/invoice/getInvoiceDetails";
     	
     	Map<String, String> paramMap = new HashMap<String, String>();

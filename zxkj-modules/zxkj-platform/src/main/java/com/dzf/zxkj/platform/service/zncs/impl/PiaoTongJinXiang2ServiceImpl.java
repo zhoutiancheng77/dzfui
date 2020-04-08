@@ -13,10 +13,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.image.DcModelHVO;
-import com.dzf.zxkj.platform.model.piaotong.CaiFangTongBVO;
-import com.dzf.zxkj.platform.model.piaotong.CaiFangTongHVO;
-import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangBVO;
-import com.dzf.zxkj.platform.model.piaotong.PiaoTongJinXiangHVO;
+import com.dzf.zxkj.platform.model.piaotong.*;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
@@ -648,34 +645,39 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 	}
 	
 	private CaiFangTongHVO[] getBillInfo(PiaoTongJinXiang2 piaotong, String token, CorpVO corpvo, String userid){
-		List<PiaoTongJinXiangHVO> cftList = new ArrayList<PiaoTongJinXiangHVO>();
-		
-		List<PiaoTongJinXiangHVO> ptvos = piaotong.getVOs(token);
-		
-		Integer totalCount = piaotong.getTotalCount();
-		Integer totalPageNum = piaotong.getTotalPageNum();
-		Integer currentPageNum = piaotong.getCurrentPageNum();
-		
-		if(totalCount == null 
-				|| totalPageNum == null
-				|| ptvos == null){
-			return null;
-		}
-		
-		cftList.addAll(ptvos);
-		
-		while(totalPageNum > currentPageNum){
-			currentPageNum++;
-			piaotong.setCurrentPageNum(currentPageNum);
-			ptvos = piaotong.getVOs(token);
-			
-			cftList.addAll(ptvos);
-		}
-		
-		CaiFangTongHVO[] hvos = transCFTData(cftList, corpvo, userid);
-		
-		return hvos;
-	}
+
+        List<PiaoTongJinXiangInvoiceVO> cftList = new ArrayList<PiaoTongJinXiangInvoiceVO>();
+
+        List<PiaoTongJinXiangHVO> jxList = new ArrayList<PiaoTongJinXiangHVO>();
+
+        List<PiaoTongJinXiangInvoiceVO> ptvos = piaotong.getVOs(token);
+
+        Integer totalCount = piaotong.getTotalCount();
+        Integer totalPageNum = piaotong.getTotalPageNum();
+        Integer currentPageNum = piaotong.getCurrentPageNum();
+
+        if(totalCount == null
+                || totalPageNum == null
+                || ptvos == null){
+            return null;
+        }
+
+        cftList.addAll(ptvos);
+
+        while(totalPageNum > currentPageNum){
+            currentPageNum++;
+            piaotong.setCurrentPageNum(currentPageNum);
+            ptvos = piaotong.getVOs(token);
+            cftList.addAll(ptvos);
+        }
+
+        jxList = piaotong.getJinXiangDetail(cftList,token);
+
+        CaiFangTongHVO[] hvos = transCFTData(jxList, corpvo, userid);
+
+        return hvos;
+
+    }
 	
 	private Map<String, String> getVATHMapping(){
 		Map<String, String> map = new HashMap<String, String>();
