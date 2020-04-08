@@ -116,7 +116,7 @@ public class AuthController {
         Grid<LoginUser> grid = new Grid<>();
         String verify = checkCodeCache.get(loginUser.getKey());
 
-        if (verify == null || !verify.equals(loginUser.getVerify())) {
+        if (verify == null || !verify.equalsIgnoreCase(loginUser.getVerify())) {
             grid.setSuccess(false);
             grid.setMsg("验证码错误！");
             return ReturnData.ok().data(grid);
