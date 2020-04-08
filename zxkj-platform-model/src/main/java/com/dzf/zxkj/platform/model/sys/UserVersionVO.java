@@ -84,6 +84,6 @@ public class UserVersionVO extends SuperVO {
 	}
 	@Override
 	public String getTableName() {
-		return "ynt_upversion_read";
+		return "ynt_upversion_read_new";
 	}
 }

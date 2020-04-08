@@ -21,8 +21,8 @@ public class UpdateLogServiceImpl implements IUpdateLogService {
     @Override
     public UpdateVersionVO query(String pk_user, String module) throws DZFWarpException {
         StringBuffer sf = new StringBuffer();
-        sf.append("  select t1.*,t2.pk_userversion from ynt_upversion t1 ");
-        sf.append(" left join ynt_upversion_read t2 on t1.versionid = t2.versionid ");
+        sf.append("  select t1.*,t2.pk_userversion from ynt_upversion_new t1 ");
+        sf.append(" left join ynt_upversion_read_new t2 on t1.versionid = t2.versionid ");
         sf.append("  and t2.pk_user = ?  ");
         sf.append(" where module = ? and islast = ?  ");
         sf.append(" and nvl(t1.dr,0) = 0 and nvl(t2.dr,0) = 0 order by t1.versionno desc ");
