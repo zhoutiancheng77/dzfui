@@ -134,9 +134,9 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
         BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sql, sp, new ColumnProcessor());
         if (count.intValue() == capacity) {
             StringBuilder msg = new StringBuilder();
-            msg.append("当前科目编码已达最大值'")
-                    .append(len == 2 ? "'99" : "999")
-                    .append("', 请先到“数据升级”节点修改编码规则后再新增科目");
+            msg.append("当前科目编码已达最大值“")
+                    .append(len == 2 ? "99" : "999")
+                    .append("”，请先到“数据升级”节点修改编码规则后再新增科目");
             throw new BusinessException(msg.toString());
         }
     }
