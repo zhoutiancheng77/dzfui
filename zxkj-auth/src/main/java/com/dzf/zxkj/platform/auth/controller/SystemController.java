@@ -11,7 +11,6 @@ import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.entity.YntParameterSet;
-import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
 import com.dzf.zxkj.platform.auth.mapper.YntParameterSetMapper;
 import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
 import com.dzf.zxkj.platform.auth.model.sys.UserModel;
@@ -46,8 +45,7 @@ public class SystemController {
     private ILoginService loginService;
     @Autowired
     private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
-    @Autowired
-    private FunNodeMapper funNodeMapper;
+
     @Autowired
     private ISysService sysService;
     @Autowired
@@ -89,7 +87,7 @@ public class SystemController {
     @ResponseBody
     @GetMapping("queryFunNode")
     public ReturnData<Grid> queryFunNode() {
-        List<FunNode> funNodeList = funNodeMapper.getFunNodeByUseridAndPkCorp(SystemUtil.getLoginUserId(), SystemUtil.getLoginCorpId());
+        List<FunNode> funNodeList = versionMngService.getFunNodeByUseridAndPkCorp(SystemUtil.getLoginUserId(), SystemUtil.getLoginCorpId());
         UserModel userModel = sysService.queryByUserId(SystemUtil.getLoginUserId());
 
         String[] funcodes = versionMngService.queryCorpVersion(userModel.getPk_corp());
