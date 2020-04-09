@@ -8,7 +8,6 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -19,7 +18,6 @@ import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
-import com.dzf.zxkj.platform.model.bdset.IncomeWarningVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
 import com.dzf.zxkj.platform.model.jzcl.QmGzBgSetVO;
@@ -37,7 +35,6 @@ import com.dzf.zxkj.platform.model.zcgl.ZcdzVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
-import com.dzf.zxkj.platform.service.bdset.IIncomeWarningService;
 import com.dzf.zxkj.platform.service.jzcl.IQmGzBgService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
@@ -64,23 +61,23 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	@Autowired
 	private SingleObjectBO singleObjectBO;
-	
+
 	@Autowired
 	private IAuxiliaryAccountService gl_fzhsserv;
 
 	@Autowired
 	private IQcye gl_qcyeserv;//期初试算平衡
-	
+
 
 	@Autowired
 	private YntBoPubUtil yntBoPubUtil = null;
-	
+
 	@Autowired
 	private ICpaccountService gl_cpacckmserv ;
-	
+
 	@Autowired
 	private ICpaccountCodeRuleService gl_accountcoderule ;
-	
+
 	@Autowired
 	private IBillcategory billcategory;
 
@@ -89,37 +86,37 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	@Autowired
 	private IZczzdzReportService zczzdzReportService;
-	
+
 	@Override
 	public Map<String, List<QmGzBgVo>> queryQmgzZb(String pk_corp, String period) throws DZFWarpException {
-		
+
 		//获取从建账开始到现在的数据
 		CorpVO cpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);
-		
+
 		if(StringUtil.isEmpty(cpvo.getChargedeptname())){
 			cpvo.setChargedeptname("小规模纳税人");
 		}
-		
+
 		Integer corpschema = yntBoPubUtil.getAccountSchema(pk_corp);
-		
+
 		//获取设置数据
 		Map<String, QmGzBgSetVO> setmap =getSetMap(pk_corp);
-		
+
 		//获取科目明细表的数据
 		Object[] kmmxobjs = getBaseData(period, cpvo);
 		Object[] fsobjs = zxkjReportService.getEveryPeriodFsJyeVOs(cpvo.getBegindate(), DateUtils.getPeriodEndDate(period), pk_corp, kmmxobjs,"",null);
 		Map<String, List<FseJyeVO>> monthmap = (Map<String, List<FseJyeVO>>) fsobjs[0];
 		Map<String, YntCpaccountVO> mp = (Map<String, YntCpaccountVO>) fsobjs[1];
-		
+
 		// 发生额余额表数据
 		List<FseJyeVO> curr_fsvos = getFsvos(period,monthmap);//当期数据值
-		
+
 		//利润表季报数据
 		Map<String, LrbquarterlyVO[]>  lrbjbs = getLrbQuarterly(cpvo, period, kmmxobjs);
-		
+
 		//获取科目数据
 		Map<String,YntCpaccountVO> mapc = convert(mp);
-		
+
 		Map<String,List<QmGzBgVo>> qmgzbgmap  = new LinkedHashMap<String,List<QmGzBgVo>>();
 		// 资产负债表数据
 		// 财务处理完整性
@@ -133,24 +130,24 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		// 经营数据分析
 		handJySjFx(qmgzbgmap, pk_corp, period,curr_fsvos,cpvo,monthmap,lrbjbs,mapc,setmap,corpschema);
 		// 小规模指标检查
-		handXgmZb(qmgzbgmap, cpvo, period,lrbjbs,monthmap,setmap,mp);
+		handXgmZb(qmgzbgmap, cpvo, period,lrbjbs,monthmap,setmap);
 
 		return qmgzbgmap;
 	}
-	
+
 	private Map<String, QmGzBgSetVO> getSetMap(String pk_corp) {
 		Map<String, QmGzBgSetVO> map =  new HashMap<String,QmGzBgSetVO>();
-		
+
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		QmGzBgSetVO[] setvos =  (QmGzBgSetVO[]) singleObjectBO.queryByCondition(QmGzBgSetVO.class, "nvl(dr,0)=0 and pk_corp = ?", sp);
-		
+
 		if (setvos != null && setvos.length > 0) {
 			for (QmGzBgSetVO vo : setvos) {
 				map.put(vo.getVxm(), vo);
 			}
 		}
-		
+
 		return map;
 	}
 
@@ -179,7 +176,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		paramvo.setCjz(6);
 		return paramvo;
 	}
-	
+
 	private Map<String, YntCpaccountVO> convert(Map<String, YntCpaccountVO> mp) {
 		Map<String, YntCpaccountVO> mp1 = new HashMap<String, YntCpaccountVO>();
 		for (YntCpaccountVO b : mp.values()) {
@@ -187,7 +184,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		}
 		return mp1;
 	}
-	
+
 	public Map<String,YntCpaccountVO> setCpAccountGroup(YntCpaccountVO[] cvos1){
 		if(cvos1 == null || cvos1.length == 0){
 			return null;
@@ -199,34 +196,34 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		}
 		return map;
 	}
-	
+
 
 	private List<FseJyeVO> getFsvos(String period, Map<String, List<FseJyeVO>> monthmap) {
-		
+
 		List<FseJyeVO> fsvos =monthmap.get(period);
-		
+
 		if(fsvos==null){
 			return new ArrayList<FseJyeVO>();
 		}
-		
+
 		return fsvos;
 	}
 
 	/**
 	 * 小规模指标检查
-	 * 
+	 *
 	 * @param period
 	 */
 	private void handXgmZb(Map<String,List<QmGzBgVo>> qmgzbgmap,CorpVO cpvo, String period,
-			Map<String, LrbquarterlyVO[]>  lrbjbs,Map<String, List<FseJyeVO>> monthmap
-			,Map<String,QmGzBgSetVO> setmap,Map<String, YntCpaccountVO> mp) {
-	     String charname = cpvo.getChargedeptname();
+						   Map<String, LrbquarterlyVO[]>  lrbjbs,Map<String, List<FseJyeVO>> monthmap
+			,Map<String,QmGzBgSetVO> setmap) {
+		String charname = cpvo.getChargedeptname();
 		if("小规模纳税人".equals(charname)){
 			List<QmGzBgVo> reslist = new ArrayList<QmGzBgVo>();
 			//收入预警
-			sryjCheck(reslist,cpvo,period,monthmap,setmap,mp);
+			sryjCheck(reslist,cpvo,period,monthmap,setmap);
 			//免税收入预警
-			mssryjCheck(reslist,period,cpvo,lrbjbs,setmap,mp,monthmap);
+			mssryjCheck(reslist,period,cpvo,lrbjbs,setmap);
 			if(reslist!=null && reslist.size()>0){
 				qmgzbgmap.put("xgmzb", reslist);//小规模指标检查
 			}
@@ -234,29 +231,17 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void sryjCheck(List<QmGzBgVo> reslist, CorpVO cpvo,
-			String period, Map<String, List<FseJyeVO>> monthmap,Map<String,QmGzBgSetVO> setmap,Map<String, YntCpaccountVO> mp) {
-		IIncomeWarningService gl_incomewarningerv = (IIncomeWarningService) SpringUtils.getBean("gl_incomewarningerv");
-		IncomeWarningVO warningvo = gl_incomewarningerv.queryByXm(cpvo.getPk_corp(), "小规模转一般人收入预警");
-		if (warningvo == null) {
-			return;
-		}
-//		QmGzBgSetVO setvo = setmap.get("收入预警") == null ? new QmGzBgSetVO():setmap.get("收入预警");
+						   String period, Map<String, List<FseJyeVO>> monthmap,Map<String,QmGzBgSetVO> setmap) {
+		QmGzBgSetVO setvo = setmap.get("收入预警") == null ? new QmGzBgSetVO():setmap.get("收入预警");
 		QmGzBgVo vo = new QmGzBgVo();
-		vo.setXm("小规模转一般人收入预警");
+		vo.setXm("收入预警");
 		vo.setIssuccess(DZFBoolean.TRUE);
 		vo.setVmemo("通过");
-		vo.setYjz(warningvo.getYjz());
+		vo.setYjz(setvo.getNmax() == null ? new DZFDouble(750000.00) : setvo.getNmax());
 
 		try {
 			if(monthmap!=null && monthmap.size()>0){
-				String[] ids = warningvo.getPk_accsubj().split(",");
-				if (ids == null || ids.length == 0) {
-					return;
-				}
-				String[] codes = new String[ids.length];
-				for (int i =0;i<ids.length;i++) {
-					codes[i] = mp.get(ids[i]).getAccountcode();
-				}
+				String[] codes = getZyywsr(cpvo);//获取主营业务收入
 				if(codes == null || codes.length == 0){
 					return;
 				}
@@ -290,64 +275,47 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		reslist.add(vo);
 	}
 
-	private void mssryjCheck(List<QmGzBgVo> reslist, String period,CorpVO cpvo, 
-			Map<String, LrbquarterlyVO[]> lrbjbs,Map<String,QmGzBgSetVO> setmap,Map<String, YntCpaccountVO> mp,
-							 Map<String, List<FseJyeVO>> monthmap) {
-		IIncomeWarningService gl_incomewarningerv = (IIncomeWarningService) SpringUtils.getBean("gl_incomewarningerv");
-		IncomeWarningVO warningvo = gl_incomewarningerv.queryByXm(cpvo.getPk_corp(), "小规模免增值税收入预警");
-		if (warningvo == null) {
-			return;
+	private void mssryjCheck(List<QmGzBgVo> reslist, String period,CorpVO cpvo,
+							 Map<String, LrbquarterlyVO[]> lrbjbs,Map<String,QmGzBgSetVO> setmap) {
+		if(lrbjbs == null || lrbjbs.size() ==0){//利润表不支持的则不显示
+			return ;
 		}
+		QmGzBgSetVO setvo = setmap.get("免税收入预警") == null ? new QmGzBgSetVO(): setmap.get("免税收入预警");
 		QmGzBgVo vo = new QmGzBgVo();
-		vo.setXm("小规模免增值税收入预警");
+		vo.setXm("免税收入预警");
 		vo.setIssuccess(DZFBoolean.TRUE);
 		vo.setVmemo("通过");
-		vo.setYjz(warningvo.getYjz());
+		vo.setYjz(setvo.getNmax() == null ? new DZFDouble(90000.00) : setvo.getNmax());
 
 		try {
 			String jd = isJdMonth(period);
 
-			if (StringUtil.isEmpty(jd)) {
-				return ;
-			}
+			LrbquarterlyVO[] vos =  lrbjbs.get(jd);
 
-			if(monthmap!=null && monthmap.size()>0){
-				String[] ids = warningvo.getPk_accsubj().split(",");
-				if (ids == null || ids.length == 0) {
-					return;
-				}
-				String[] codes = new String[ids.length];
-				for (int i =0;i<ids.length;i++) {
-					codes[i] = mp.get(ids[i]).getAccountcode();
-				}
-				if(codes == null || codes.length == 0){
-					return;
-				}
+			if(vos!=null && vos.length>0){
 				DZFDouble sum = DZFDouble.ZERO_DBL;
-				//从当前期间往前推12个月
-				String curr_period = period;
-				List<FseJyeVO> listvos = null;
-				for(int i=0;i<3;i++){
-					if(i>0){
-						curr_period = DateUtils.getPreviousPeriod(curr_period);
+				for(LrbquarterlyVO votemp: vos){
+					DZFDouble tempvalue = DZFDouble.ZERO_DBL;
+					if(jd.indexOf("第一季度")>=0){
+						tempvalue = votemp.getQuarterFirst();
+					}else if(jd.indexOf("第二季度")>=0){
+						tempvalue = votemp.getQuarterSecond();
+					}else if(jd.indexOf("第三季度")>=0){
+						tempvalue = votemp.getQuarterThird();
+					}else if(jd.indexOf("第四季度")>=0){
+						tempvalue = votemp.getQuarterFourth();
 					}
-					listvos = monthmap.get(curr_period);
-					if(listvos!=null && listvos.size()>0){
-						for(String code:codes){
-							for(FseJyeVO votemp:listvos){
-								if(votemp.getKmbm().equals(code)){
-									sum = SafeCompute.add(sum, votemp.getFsdf());
-								}
-							}
-						}
+
+					if(votemp.getXm().indexOf("营业收入")>=0){
+						sum = SafeCompute.add(sum, tempvalue);
 					}
 				}
+
 				if(sum.doubleValue()>vo.getYjz().doubleValue()){
 					vo.setIssuccess(DZFBoolean.FALSE);
-					vo.setVmemo("季度销售额高于小规模免增值税收入预警,请检查");
+					vo.setVmemo("季度销售额高于9万免税收入值,请检查");
 				}
 			}
-
 		} catch (Exception e) {
 			handleError(vo, e);
 		}
@@ -357,13 +325,13 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	/**
 	 * 经营数据分析
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param period
 	 */
 	private void handJySjFx(Map<String,List<QmGzBgVo>> qmgzbgmap,
-			String pk_corp, String period,List<FseJyeVO> curr_fsvos ,CorpVO cpvo,
-			Map<String, List<FseJyeVO>> monthmap,Map<String, LrbquarterlyVO[]>  lrbjbs
+							String pk_corp, String period,List<FseJyeVO> curr_fsvos ,CorpVO cpvo,
+							Map<String, List<FseJyeVO>> monthmap,Map<String, LrbquarterlyVO[]>  lrbjbs
 			,	Map<String,YntCpaccountVO> mapc,Map<String,QmGzBgSetVO> setmap,Integer corpschema) {
 		List<QmGzBgVo> reslist = new ArrayList<QmGzBgVo>();
 		//增值税税负率
@@ -388,7 +356,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 				&& corpschema != DzfUtil.THIRTEENSCHEMA.intValue()  ){
 			return ;
 		}
-		
+
 		QmGzBgSetVO setvo = setmap.get("增值税税负率") == null ? new QmGzBgSetVO():  setmap.get("增值税税负率");
 		QmGzBgVo bgvo = new QmGzBgVo();
 		bgvo.setXm("增值税税负率");
@@ -465,7 +433,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 		reslist.add(bgvo);
 	}
-	
+
 	private String[] getZyywsr(CorpVO  cpvo){
 		String zyywsrcode= "";
 		Integer corpschema = yntBoPubUtil.getAccountSchema(cpvo.getPk_corp());
@@ -485,8 +453,8 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void zcfzlCheck(List<QmGzBgVo> reslist, String period,
-			String pk_corp,Map<String,YntCpaccountVO> mapc,
-			List<FseJyeVO> curr_fsvos,Map<String, QmGzBgSetVO> map) {
+							String pk_corp,Map<String,YntCpaccountVO> mapc,
+							List<FseJyeVO> curr_fsvos,Map<String, QmGzBgSetVO> map) {
 		QmGzBgSetVO setvo = map.get("资产负债率") == null ? new QmGzBgSetVO(): map.get("资产负债率");
 		QmGzBgVo bgvo = new QmGzBgVo();
 		bgvo.setXm("资产负债率");
@@ -494,12 +462,12 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setVmemo("通过");
 		bgvo.setMin(setvo.getNmin() == null ? DZFDouble.ZERO_DBL:setvo.getNmin());
 		bgvo.setMax(setvo.getNmax() == null ? new DZFDouble(100.00):setvo.getNmax());
-		
-		
+
+
 		try {
 			String[]  hasyes=new String[]{"N","N","N","N","N"};
 			ZcFzBVO[] zcfzbvos =  zxkjReportService.getZcfzVOs(pk_corp, hasyes, mapc, curr_fsvos.toArray(new FseJyeVO[0]));
-			
+
 			if(zcfzbvos!=null && zcfzbvos.length>0){
 				DZFDouble zz_sum = DZFDouble.ZERO_DBL;//资产总额
 				DZFDouble fz_sum = DZFDouble.ZERO_DBL;//负债总额
@@ -532,7 +500,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void mllCheck(List<QmGzBgVo> reslist, String period,
-			List<FseJyeVO> curr_fsvos,CorpVO cpvo,Map<String, QmGzBgSetVO> map) {
+						  List<FseJyeVO> curr_fsvos,CorpVO cpvo,Map<String, QmGzBgSetVO> map) {
 		QmGzBgSetVO setvo = map.get("毛利率")==null ? new QmGzBgSetVO():map.get("毛利率");
 		QmGzBgVo bzbgvo = new QmGzBgVo();
 		bzbgvo.setIssuccess(DZFBoolean.TRUE);
@@ -587,9 +555,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void ssdCheck(List<QmGzBgVo> reslist,String period,
-			Map<String, LrbquarterlyVO[]>  lrbjbs,Map<String, QmGzBgSetVO> map,Integer corpschema) {
+						  Map<String, LrbquarterlyVO[]>  lrbjbs,Map<String, QmGzBgSetVO> map,Integer corpschema) {
 		if(corpschema != DzfUtil.SEVENSCHEMA.intValue()
-				&& corpschema != DzfUtil.THIRTEENSCHEMA.intValue() 
+				&& corpschema != DzfUtil.THIRTEENSCHEMA.intValue()
 				&& corpschema != DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){
 			return ;
 		}
@@ -600,9 +568,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bzbgvo.setVmemo("通过");
 		bzbgvo.setMin(setvo.getNmin() == null ? DZFDouble.ZERO_DBL:setvo.getNmin());
 		bzbgvo.setMax(setvo.getNmax() == null ? new DZFDouble(100.00):setvo.getNmax());
-		
+
 		String jd = isJdMonth(period);
-		
+
 		if(!StringUtil.isEmpty(jd)){//季度月份才处理数据
 			try {
 				LrbquarterlyVO[] vos =  lrbjbs.get(jd);
@@ -647,7 +615,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 			}
 			reslist.add(bzbgvo);
 		}
-		
+
 	}
 
 	private Map<String, LrbquarterlyVO[]>  getLrbQuarterly(CorpVO cpvo,String period, Object[] kmmxobjs) {
@@ -666,14 +634,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	/**
 	 * 关键指标
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param period
 	 */
-	private void handGjZb(Map<String,List<QmGzBgVo>> qmgzbgmap , String pk_corp, 
-			String period,List<FseJyeVO> fsvos,	Map<String,YntCpaccountVO> mapc,CorpVO cpvo,Object[] kmmxobjs,Integer corpschema ) {
+	private void handGjZb(Map<String,List<QmGzBgVo>> qmgzbgmap , String pk_corp,
+						  String period,List<FseJyeVO> fsvos,	Map<String,YntCpaccountVO> mapc,CorpVO cpvo,Object[] kmmxobjs,Integer corpschema ) {
 		List<QmGzBgVo> reslist = new ArrayList<QmGzBgVo>();
-		// 年初余额是否平整 
+		// 年初余额是否平整
 		ncCheck(pk_corp,reslist,cpvo);
 		// 期末余额是否平整
 		qmCheck(reslist,fsvos,period,cpvo);
@@ -682,12 +650,12 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		// 资产负债表与利润表勾稽关系是否平衡
 		zcfzAndLrbCheck(reslist,cpvo,mapc,period,kmmxobjs, corpschema);
 		// 固定资产与总账对账
-        gdzcdzCheck(reslist,pk_corp,period,cpvo);
-        qmgzbgmap.put("gjzb", reslist);//关键指标
+		gdzcdzCheck(reslist,pk_corp,period,cpvo);
+		qmgzbgmap.put("gjzb", reslist);//关键指标
 	}
 
 	private void zcfzAndLrbCheck(List<QmGzBgVo> reslist, CorpVO cpvo, Map<String, YntCpaccountVO> mapc, String period,
-			Object[] kmmxobjs,Integer corpschema) {
+								 Object[] kmmxobjs,Integer corpschema) {
 		QmGzBgVo bgvo = new QmGzBgVo();
 		bgvo.setXm("资产负债表与利润表勾稽关系是否平衡");
 		bgvo.setVmemo("通过");
@@ -720,7 +688,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 		reslist.add(bgvo);
 	}
-	
+
 	private DZFDouble getSytz(CorpVO cpvo,Integer corpschema,Object[] kmmxobjs,String period) {
 		DZFDouble res = DZFDouble.ZERO_DBL;
 		if(corpschema == DzfUtil.SEVENSCHEMA.intValue()){
@@ -743,8 +711,8 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 					if(pzlist.size()>0){
 						for(KmMxZVO mxzvo:kvoList){
 							if(!StringUtil.isEmpty(mxzvo.getPk_tzpz_h())
-								&& pzlist.contains(mxzvo.getPk_tzpz_h()) && !StringUtil.isEmpty(mxzvo.getRq())
-								&& "6901".equals(mxzvo.getKmbm())){
+									&& pzlist.contains(mxzvo.getPk_tzpz_h()) && !StringUtil.isEmpty(mxzvo.getRq())
+									&& "6901".equals(mxzvo.getKmbm())){
 								//是否期间内
 								if(begperiod.compareTo(mxzvo.getRq().substring(0, 7))<=0
 										&& period.compareTo(mxzvo.getRq().substring(0, 7))>=0){
@@ -755,7 +723,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 					}
 				}
 			}
-			
+
 		}
 		return res;
 	}
@@ -784,7 +752,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		}
 		return res;
 	}
-	
+
 	private DZFDouble getWfpFromZcfz(CorpVO cpvo,Map<String, YntCpaccountVO> mapc,Object[] kmmxobjs,String period) {
 		QueryParamVO paramvo = getBasetParamVO(period, cpvo);
 		paramvo.setBegindate1(DateUtils.getPeriodStartDate(period.substring(0, 4)+"-01"));
@@ -816,22 +784,22 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setUrl("zzdz");
 //		bgvo.setUrl("gl/am_zcreport/asst_gl_compr.jsp?"+getPubParam(cpvo));
 		bgvo.setName("总账对账");
-		
+
 		ZcdzVO[] zcdzvos;
 		try {
 			zcdzvos = zczzdzReportService.queryAssetCheckVOs(pk_corp, period);
 
 			if(zcdzvos!=null && zcdzvos.length>0){
-				
+
 				DZFDouble zc_sum = DZFDouble.ZERO_DBL;//资产金额
-				
+
 				DZFDouble zz_sum = DZFDouble.ZERO_DBL;//总账金额
-				
+
 				for(ZcdzVO zcdzvo:zcdzvos){
 					zc_sum = SafeCompute.add(zc_sum, zcdzvo.getZcje());
 					zz_sum = SafeCompute.add(zz_sum, zcdzvo.getZzje());
 				}
-				
+
 				if(zc_sum.sub(zz_sum).doubleValue()!=0){
 					bgvo.setVmemo("资产与总账不平");
 					bgvo.setIssuccess(DZFBoolean.FALSE);
@@ -850,7 +818,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void zcfzCheck(List<QmGzBgVo> reslist,CorpVO cpvo,Map<String,YntCpaccountVO> mapc ,String period,
-			Object[] kmmxobjs) {
+						   Object[] kmmxobjs) {
 		QmGzBgVo bgvo = new QmGzBgVo();
 		bgvo.setXm("资产负债表是否平衡");
 		bgvo.setVmemo("通过");
@@ -861,8 +829,8 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setUrl("zcfz-report");
 //		bgvo.setUrl("gl/gl_cwreport/gl_rep_zcfz.jsp?"+getPubParam(cpvo)+"&qj="+DateUtils.getPeriodEndDate(period));
 		bgvo.setName("资产负债表");
-		
-	    String[]  hasyes=new String[]{"N","N","N","N","N"};
+
+		String[]  hasyes=new String[]{"N","N","N","N","N"};
 
 		try {
 			//重新查询资产负债表数据
@@ -888,7 +856,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 		reslist.add(bgvo);
 	}
-	
+
 
 	public String isZcfzBlance(ZcFzBVO[] dataVOS,String period) {
 		DZFDouble ncye1 = ((ZcFzBVO) dataVOS[dataVOS.length - 1]).getNcye1() == null ? DZFDouble.ZERO_DBL
@@ -1013,23 +981,23 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	/**
 	 * 往来异常
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param period
 	 */
 	private void handWl(Map<String,List<QmGzBgVo>> qmgzbgmap, String pk_corp,
-			String period,CorpVO cpvo,Map<String,YntCpaccountVO> mapc) {
+						String period,CorpVO cpvo,Map<String,YntCpaccountVO> mapc) {
 		//往来挂账超过一年,如果1122 和2202 科目及下级科目有超过一年的挂账提示 XX客户或供应商挂账已超过一年
 		List<QmGzBgVo>  reslist = new ArrayList<QmGzBgVo>();
-		
+
 		wlCheck(reslist,period,pk_corp,cpvo,mapc);
-		
+
 		qmgzbgmap.put("wlyc",reslist);
 
 	}
 
 	private void wlCheck(List<QmGzBgVo> reslist, String period,
-			String pk_corp,CorpVO cpvo,Map<String,YntCpaccountVO> mapc) {
+						 String pk_corp,CorpVO cpvo,Map<String,YntCpaccountVO> mapc) {
 		QmGzBgVo vo = new QmGzBgVo();
 		vo.setIssuccess(DZFBoolean.TRUE);
 		vo.setVmemo("通过");
@@ -1293,9 +1261,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 								continue;
 							}
 							cpaccoutnvo = cpamap.get(rsList.get(i).getAccount_code());
-							if(!StringUtil.isEmpty(rsList.get(i).getAccount_code())  
+							if(!StringUtil.isEmpty(rsList.get(i).getAccount_code())
 									&& !fznames_km.contains(rsList.get(i).getAccount_name())){
-								if(cpaccoutnvo!=null && cpaccoutnvo.getIsleaf()!=null 
+								if(cpaccoutnvo!=null && cpaccoutnvo.getIsleaf()!=null
 										&& cpaccoutnvo.getIsleaf().booleanValue()){
 									fznames_km.add(rsList.get(i).getAccount_name());
 								}
@@ -1332,26 +1300,26 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		if(tips.length()>0){
 			return tips.toString();
 		}
-		
+
 		return "";
 	}
 
 	/**
 	 * 余额异常
-	 * 
+	 *
 	 * @param period
 	 */
 	private void handYe(Map<String,List<QmGzBgVo>> qmgzbgmap, List<FseJyeVO> fsvos,CorpVO cpvo,String period) {
 		List<QmGzBgVo> reslist = new ArrayList<QmGzBgVo>();
 		// 库存现金(借方)(1001),期末余额是否有赤字
-	    kcxjCheck(fsvos,reslist,period,cpvo);
+		kcxjCheck(fsvos,reslist,period,cpvo);
 		// 银行存款(借方)(1002) 金额是否有赤字
-        yhckCheck(fsvos,reslist,period,cpvo);
+		yhckCheck(fsvos,reslist,period,cpvo);
 		// 原材料(借方)(1403) 金额是否有赤字
-        yclCheck(fsvos,reslist,period,cpvo);
+		yclCheck(fsvos,reslist,period,cpvo);
 		// 库存商品(借方)(1405)金额是否有赤字
-        kcspCheck(fsvos,reslist,period,cpvo);
-        qmgzbgmap.put("yeyc", reslist);//余额异常
+		kcspCheck(fsvos,reslist,period,cpvo);
+		qmgzbgmap.put("yeyc", reslist);//余额异常
 	}
 
 	private void kcspCheck(List<FseJyeVO> fsvos, List<QmGzBgVo> reslist,String period,CorpVO cpvo) {
@@ -1369,9 +1337,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setParamstr(JsonUtils.serialize(map));
 		bgvo.setUrl("fsyeb-report");
 		bgvo.setName("发生额及余额表");
-		
+
 		kmCheck(fsvos, bgvo,"1405");
-		
+
 		reslist.add(bgvo);
 	}
 
@@ -1390,9 +1358,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setParamstr(JsonUtils.serialize(map));
 		bgvo.setUrl("fsyeb-report");
 		bgvo.setName("发生额及余额表");
-		
+
 		kmCheck(fsvos, bgvo,"1403");
-		
+
 		reslist.add(bgvo);
 	}
 
@@ -1411,9 +1379,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setParamstr(JsonUtils.serialize(map));
 		bgvo.setUrl("fsyeb-report");
 		bgvo.setName("发生额及余额表");
-		
+
 		kmCheck(fsvos, bgvo,"1002");
-		
+
 		reslist.add(bgvo);
 	}
 
@@ -1432,9 +1400,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setUrl("fsyeb-report");
 //		bgvo.setUrl("gl/gl_kmreport/gl_rep_fsyeb.jsp?"+getPubParam(cpvo)+"&kms_first=1001&kms_last=1001&kms_first_name=库存现金&kms_last_name=库存现金&qj="+period);
 		bgvo.setName("发生额及余额表");
-		
+
 		kmCheck(fsvos, bgvo,"1001");
-		
+
 		reslist.add(bgvo);
 	}
 
@@ -1456,48 +1424,48 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	/**
 	 * 财务处理完整性
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param period
 	 */
 	public void handCwcl(Map<String,List<QmGzBgVo>> qmgzbgmap, String pk_corp, String period,CorpVO cpvo) {
 		List<QmGzBgVo> reslist = new ArrayList<QmGzBgVo>();
-		
+
 		List<TzpzHVO> tzpzlist = qryPeriodPz(pk_corp, period);
 		// 凭证断号及号码
 		pzhCheck(reslist, tzpzlist,period,cpvo);
 		//凭证记账
 		pzjzCheck(reslist, tzpzlist,period,cpvo);
 		// 待处理暂存凭证
-        tempPzCheck(reslist,tzpzlist,period,pk_corp,cpvo);
+		tempPzCheck(reslist,tzpzlist,period,pk_corp,cpvo);
 		// 销项发票生成凭证
-        xsfpCheck(reslist,pk_corp,period,cpvo);
+		xsfpCheck(reslist,pk_corp,period,cpvo);
 		// 进项发票生成凭证
-        jxfpCheck(reslist,pk_corp,period,cpvo);
-        //银行对账单生成凭证
-        bankCheck(reslist,pk_corp,period,cpvo);
-        //票据生成凭证
+		jxfpCheck(reslist,pk_corp,period,cpvo);
+		//银行对账单生成凭证
+		bankCheck(reslist,pk_corp,period,cpvo);
+		//票据生成凭证
 		billCheck(reslist,pk_corp,period,cpvo);
 		// 待处理图片
 //        imageCheck(reslist,pk_corp,period,cpvo);
 		// 库存单据未生成凭证
-        inventoryCheck(reslist,cpvo,period);
+		inventoryCheck(reslist,cpvo,period);
 		// 成本结转
-        // 期末调汇
-        // 计提折旧
-        // 增值税结转
-        // 计提税金及附加
-        // 计提所得税
-        // 损益结转
-        qmclCheck(reslist,pk_corp,period,cpvo);
-        // 工资薪金计提
-        gzCheck(reslist,pk_corp,period,cpvo);
-        //关单
+		// 期末调汇
+		// 计提折旧
+		// 增值税结转
+		// 计提税金及附加
+		// 计提所得税
+		// 损益结转
+		qmclCheck(reslist,pk_corp,period,cpvo);
+		// 工资薪金计提
+		gzCheck(reslist,pk_corp,period,cpvo);
+		//关单
 //        gdCheck(reslist,pk_corp,period,cpvo);
-        //资产转总账
-        zcToVoucherCheck(reslist,pk_corp,period,cpvo);
-       
-        qmgzbgmap.put("cwcl", reslist);//财务处理完整性
+		//资产转总账
+		zcToVoucherCheck(reslist,pk_corp,period,cpvo);
+
+		qmgzbgmap.put("cwcl", reslist);//财务处理完整性
 	}
 
 	private void billCheck(List<QmGzBgVo> reslist, String pk_corp, String period, CorpVO cpvo) {
@@ -1580,28 +1548,28 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setVmemo("通过");
 		bgvo.setUrl("gl/gl_pjgl/customsForm.jsp?"+getPubParam(cpvo));
 		bgvo.setName("关单");
-		
+
 		StringBuffer qrysql = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
-		
+
 		qrysql.append(" select count(1) ");
 		qrysql.append("	  from ynt_customsform t1 ");
 		qrysql.append(" where t1.export_date like ? ");
 		qrysql.append("   and t1.pk_corp = ? ");
 		qrysql.append("   and nvl(t1.dr, 0) = 0 ");
 		qrysql.append("   and pk_voucher is null ");
-		
+
 
 		sp.addParam(period+"%");
 		sp.addParam(pk_corp);
-		
+
 		BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(qrysql.toString(), sp, new ColumnProcessor());
-		
+
 		if(count!=null && count.intValue()>0){
 			bgvo.setIssuccess(DZFBoolean.FALSE);
 			bgvo.setVmemo("关单未生成凭证");
 		}
-		
+
 		reslist.add(bgvo);
 	}
 
@@ -1662,7 +1630,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		if(count == null || count.intValue() ==0){
 			return;
 		}
-		
+
 		QmGzBgVo  bgvo = new QmGzBgVo();
 		bgvo.setXm("工资薪金计提");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
@@ -1710,7 +1678,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	 * @param period
 	 */
 	private void qmclCheck(List<QmGzBgVo> reslist, String pk_corp, String period,CorpVO cpvo) {
-		
+
 		StringBuffer qrysql = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
 		qrysql.append(" select * ");
@@ -1721,24 +1689,24 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		sp.addParam(pk_corp);
 		sp.addParam(period);
 		List<QmclVO> qmclvos  = (List<QmclVO>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(QmclVO.class));
-		
+
 		QmclVO qmclvo = null;
 		if(qmclvos!=null && qmclvos.size()>0){
-			 qmclvo = qmclvos.get(0);//默认取第一条
+			qmclvo = qmclvos.get(0);//默认取第一条
 		}
-		
+
 		cbjzCheck(qmclvo,pk_corp,period,reslist,cpvo);//成本结转
-		
+
 		hdtzCheck(qmclvo,pk_corp,period,reslist,cpvo);//期末调汇
-		
+
 		jtzjCheck(qmclvo,pk_corp,period,reslist,cpvo);//计提折旧
-		
+
 		zzsjz(qmclvo,pk_corp,period,reslist,cpvo);//增值税结转
-		
+
 		jtsjfj(qmclvo,reslist,period,cpvo);//计提税金附加
-		
+
 		jtsds(qmclvo,reslist,period,cpvo);//计提所得税
-		
+
 		qjsyjz(qmclvo,reslist,pk_corp,period,cpvo);//损益结转
 	}
 
@@ -1781,9 +1749,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setName("期末结转");
 		// 赋值url地址
 		putQmclBgvo(bgvo, period, cpvo);
-		
+
 		String month = period.substring(5, 7);
-		
+
 		if (!"03".equals(month) && !"06".equals(month) && !"09".equals(month) && !"12".equals(month)) {
 			return;//
 		}
@@ -1814,7 +1782,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		}
 		return null;
 	}
-	
+
 	private void jtsjfj(QmclVO qmclvo, List<QmGzBgVo> reslist, String period,CorpVO cpvo) {
 		QmGzBgVo bgvo = new QmGzBgVo();
 		bgvo.setXm("计提税金及附加");
@@ -1824,9 +1792,9 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setName("期末结转");
 		// 赋值url地址
 		putQmclBgvo(bgvo, period, cpvo);
-		
+
 		String month = period.substring(5, 7);
-		
+
 		if("小规模纳税人".equals(cpvo.getChargedeptname())){
 			if(!"03".equals(month)
 					&& !"06".equals(month) && !"09".equals(month) && !"12".equals(month)){
@@ -1876,8 +1844,8 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		if (cpvo.getBusibegindate() == null || period.compareTo(DateUtils.getPeriod(cpvo.getBusibegindate())) < 0){//没启用固定资产的不做处理
 			return;//不检查
 		}
-		
-		
+
+
 		QmGzBgVo bgvo = new QmGzBgVo();
 		bgvo.setXm("计提折旧");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
@@ -1901,7 +1869,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	private void hdtzCheck(QmclVO qmclvo,String pk_corp,String period, List<QmGzBgVo> reslist,CorpVO cpvo) {
 		//如果该公司没启用汇率档案，则不进行处理
-		
+
 		String hlsq = "select count(1) from ynt_exrate where pk_corp =?  and nvl(dr,0)=0 ";
 		SQLParameter sp  = new SQLParameter();
 		sp.addParam(cpvo.getPk_corp());
@@ -1956,7 +1924,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	private void inventoryCheck(List<QmGzBgVo> reslist, CorpVO cpvo, String period) {
 //		DZFBoolean buildic = cpvo.getBbuildic();
-		
+
 		if(!IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){//没启用库存不显示
 			return;
 		}
@@ -2078,7 +2046,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setVmemo("通过");
 		bgvo.setUrl("gl/gl_pzgl/gl_tpll.jsp?"+getPubParam(cpvo)+"&pic_status=1&rqq="+DateUtils.getPeriodStartDate(period)+"&rqz="+DateUtils.getPeriodEndDate(period));
 		bgvo.setName("图片浏览");
-		
+
 		StringBuffer qrysql = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
 		qrysql.append(" select count(1) from ynt_image_group t2 ");
@@ -2088,14 +2056,14 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		sp.addParam(pk_corp);
 		sp.addParam(period+"%");
 		sp.addParam(PhotoState.state0);//未处理图片
-		
+
 		BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(qrysql.toString(), sp, new ColumnProcessor());
-		
+
 		if(count!=null && count.intValue()>0){
 			bgvo.setIssuccess(DZFBoolean.FALSE);
 			bgvo.setVmemo("有"+count+"张待处理图片");
 		}
-		
+
 		reslist.add(bgvo);
 	}
 
@@ -2147,7 +2115,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		bgvo.setUrl("outputBill");
 //		bgvo.setUrl("gl/gl_pjgl/gl_xxfp2.jsp?"+getPubParam(cpvo)+"&period="+period);
 		bgvo.setName("销项发票");
-		
+
 		StringBuffer qrysql = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
 		qrysql.append(" select count(1)   ");
@@ -2174,7 +2142,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 	}
 
 	private void tempPzCheck(List<QmGzBgVo> reslist, List<TzpzHVO> tzpzlist,
-			String period,String pk_corp,CorpVO cpvo) {
+							 String period,String pk_corp,CorpVO cpvo) {
 		QmGzBgVo  bgvo = new QmGzBgVo();
 		bgvo.setXm("待处理暂存态凭证");
 		bgvo.setIssuccess(DZFBoolean.TRUE);
@@ -2217,7 +2185,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	/**
 	 * 凭证断号检查
-	 * 
+	 *
 	 * @param reslist
 	 * @param period
 	 */
@@ -2302,17 +2270,17 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 
 	@Override
 	public void saveQmgzBg(QmGzBgSetVO setvo,String userid) throws DZFWarpException {
-		
+
 		String xm = setvo.getVxm();
 		String pk_corp = setvo.getPk_corp();
-		
+
 		String qrysql = "select * from "+QmGzBgSetVO.TABLE_NAME+" where nvl(dr,0)=0 and pk_corp =? and vxm = ?";
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(xm);
-		
+
 		List<QmGzBgSetVO> setvos = (List<QmGzBgSetVO>) singleObjectBO.executeQuery(qrysql, sp, new BeanListProcessor(QmGzBgSetVO.class));
-		
+
 		if(setvos!=null && setvos.size()>0){
 			QmGzBgSetVO upvo = setvos.get(0);
 			upvo.setNmax(setvo.getNmax());
