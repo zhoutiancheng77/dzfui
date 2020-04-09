@@ -122,10 +122,10 @@ public class QcyeImpl implements IQcye {
 				sf.toString(), sp, new BeanListProcessor(QcYeVO.class));
 		return list;
 	}
-	
+
 	//此方法增加了重载 少一个参数，修改业务注意同步
 	public List<QcYeVO> queryAllQcInfo(String pk_corp, String pk_currence,
-			String rmb, String isShowFC) throws DZFWarpException {
+									   String rmb, String isShowFC) throws DZFWarpException {
 		String FCParam = "";
 		if(StringUtil.nequals(isShowFC, "true")){
 			FCParam = " and bisseal!='Y'";
@@ -157,7 +157,7 @@ public class QcyeImpl implements IQcye {
 		list = removeRepeat(list);
 		return list;
 	}
-	
+
 	//增加此方法，是因为期初表估计有大量重复的数据。加载时会报错，而失败，此种数据出现，修改保存后，即消失。
 	private List<QcYeVO> removeRepeat(List<QcYeVO> list){
 		if(list == null || list.size() == 0){
@@ -175,7 +175,7 @@ public class QcyeImpl implements IQcye {
 		set.clear();
 		return zlist;
 	}
-	
+
 	private List<FzhsqcVO> queryAll(String pk_corp, String pk_currence,
 									String rmb) throws DZFWarpException {
 		SQLParameter sp = new SQLParameter();
@@ -210,10 +210,10 @@ public class QcyeImpl implements IQcye {
 			throws DZFWarpException {
 		String rmb = IGlobalConstants.RMB_currency_id;// 人民币
 		List<QcYeVO> list = queryAllQcInfo(pk_corp, pk_currence, rmb, isShowFC);
-		
+
 		//  如果是老流程    启用数量核算默认存货辅助
 //		setDefaultInvFz(list, pk_corp);
-		
+
 		createID(pk_corp, list);
 		// 处理综合本位币
 		list = doZHBWB(list, pk_currence);
@@ -238,7 +238,7 @@ public class QcyeImpl implements IQcye {
 
 	// 处理币种
 	private List<QcYeVO> queryQcYe(List<QcYeVO> list, String pk_currence,
-			String rmb, String pk_corp, String coderule) {
+								   String rmb, String pk_corp, String coderule) {
 		if (list == null || list.size() == 0)
 			return null;
 		if (pk_currence != null && rmb != null && pk_currence.equals(rmb))// 人民币直接返回
@@ -273,7 +273,7 @@ public class QcyeImpl implements IQcye {
 	}
 
 	public List<QcYeVO> queryYe(QcYeVO[] vos, String pk_currence,
-			Map<String, QcYeVO> map, Map<String, QcYeVO> map1) {
+								Map<String, QcYeVO> map, Map<String, QcYeVO> map1) {
 		if (map1 == null) {
 			map1 = new TreeMap<String, QcYeVO>();
 		}
@@ -286,7 +286,7 @@ public class QcyeImpl implements IQcye {
 							&& vos[i].getIsleaf().booleanValue()) {// 末级
 						if (vos[i].getExc_pk_currency() != null
 								&& vos[i].getExc_pk_currency().contains(
-										pk_currence)) {
+								pk_currence)) {
 							getParentInfo(vos[i].getVcode(), map, map1,
 									vos[i].getPk_corp());
 							map1.put(vos[i].getVcode(), vos[i]);
@@ -301,7 +301,7 @@ public class QcyeImpl implements IQcye {
 	}
 
 	public void getParentInfo(String childcode, Map<String, QcYeVO> map,
-			Map<String, QcYeVO> map1, String pk_corp) {
+							  Map<String, QcYeVO> map1, String pk_corp) {
 		// if(coderule==null || coderule.length()==0){
 		String coderule = getCodeRule(pk_corp);
 		// }
@@ -502,7 +502,7 @@ public class QcyeImpl implements IQcye {
 			if (parent != null
 					&& parent.getDirect() != null
 					&& parent.getDirect().intValue() != rv.getDirect()
-							.intValue()) {
+					.intValue()) {
 				parent.setQc(SafeCompute.sub(parent.getQc(), rv.getQc()));
 			} else {
 				parent.setQc(SafeCompute.add(parent.getQc(), rv.getQc()));
@@ -510,7 +510,7 @@ public class QcyeImpl implements IQcye {
 			if (parent != null
 					&& parent.getDirect() != null
 					&& parent.getDirect().intValue() != rv.getDirect()
-							.intValue()) {
+					.intValue()) {
 				parent.setBnqcnum(SafeCompute.sub(parent.getBnqcnum(),
 						rv.getBnqcnum()));
 			} else {
@@ -526,7 +526,7 @@ public class QcyeImpl implements IQcye {
 			if (parent != null
 					&& parent.getDirect() != null
 					&& parent.getDirect().intValue() != rv.getDirect()
-							.intValue()) {
+					.intValue()) {
 				parent.setQm(SafeCompute.sub(parent.getQm(), rv.getQm()));
 			} else {
 				parent.setQm(SafeCompute.add(parent.getQm(), rv.getQm()));
@@ -534,7 +534,7 @@ public class QcyeImpl implements IQcye {
 			if (parent != null
 					&& parent.getDirect() != null
 					&& parent.getDirect().intValue() != rv.getDirect()
-							.intValue()) {
+					.intValue()) {
 				parent.setYbqc(SafeCompute.sub(parent.getYbqc(), rv.getYbqc()));
 			} else {
 				parent.setYbqc(SafeCompute.add(parent.getYbqc(), rv.getYbqc()));
@@ -544,7 +544,7 @@ public class QcyeImpl implements IQcye {
 			if (parent != null
 					&& parent.getDirect() != null
 					&& parent.getDirect().intValue() != rv.getDirect()
-							.intValue()) {
+					.intValue()) {
 				parent.setYbqm(SafeCompute.sub(parent.getYbqm(), rv.getYbqm()));
 			} else {
 				parent.setYbqm(SafeCompute.add(parent.getYbqm(), rv.getYbqm()));
@@ -552,7 +552,7 @@ public class QcyeImpl implements IQcye {
 			if (parent != null
 					&& parent.getDirect() != null
 					&& parent.getDirect().intValue() != rv.getDirect()
-							.intValue()) {
+					.intValue()) {
 				parent.setMonthqmnum(SafeCompute.sub(parent.getMonthqmnum(),
 						rv.getMonthqmnum()));
 			} else {
@@ -575,7 +575,7 @@ public class QcyeImpl implements IQcye {
 		if (!StringUtil.isEmpty(maxvalue)) {
 			throw new BusinessException("当前最近结账日期为:" + maxvalue + "不能保存!");
 		}
-		
+
 		//zpm 新增加辅助核算计算 保存，计算期末
 		saveFZhs(pk_corp,qcvos);
 
@@ -601,9 +601,9 @@ public class QcyeImpl implements IQcye {
 						sp);
 		// 后插入
 		singleObjectBO.insertVOArr(pk_corp, list.toArray(new QcYeVO[0]));
-		
+
 	}
-	
+
 	private void calcQcyeMap(Map<String,QcYeVO> map,QcYeVO[] qcvos){
 		if (qcvos == null || qcvos.length == 0)
 			return;
@@ -617,7 +617,7 @@ public class QcyeImpl implements IQcye {
 			}
 		}
 	}
-	
+
 	public void saveFZhs(String pk_corp,QcYeVO[] qcvos){
 		if (qcvos == null || qcvos.length == 0)
 			return;
@@ -640,7 +640,7 @@ public class QcyeImpl implements IQcye {
 			calcMergeValue(qcyevo,zlist);
 		}
 	}
-	
+
 	private void calcMergeValue(QcYeVO cu,List<FzhsqcVO> zlist){
 		if(cu == null || zlist == null || zlist.size() == 0)
 			return;
@@ -675,7 +675,7 @@ public class QcyeImpl implements IQcye {
 			cu.setMonthqmnum(SafeCompute.add(cu.getMonthqmnum(), vo.getMonthqmnum()));
 		}
 	}
-	
+
 	private void calFzQc (FzhsqcVO fzqc) {
 		if (fzqc == null)
 			return;
@@ -735,7 +735,7 @@ public class QcyeImpl implements IQcye {
 //			if(c.getVlevel() != null && c.getVlevel()==1){
 //			if (c.getIsleaf() != null && c.getIsleaf().booleanValue()) {
 			if(c.getVcode()!=null && c.getVcode().length() ==4){//代表一级
-			//统计末级的时候，存在进项税的问题。(应收税费一级为贷方，进项税为3级为借方)
+				//统计末级的时候，存在进项税的问题。(应收税费一级为贷方，进项税为3级为借方)
 				if (c.getDirect() == 0) {// 借方
 					z1 = SafeCompute.add(c.getYearqc(), z1);
 					z2 = SafeCompute.add(c.getThismonthqc(), z2);
@@ -772,7 +772,7 @@ public class QcyeImpl implements IQcye {
 	}
 
 	public SsphRes setResult(DZFDouble z1, DZFDouble z2, DZFDouble z3,
-			DZFDouble z4,DZFDouble z5,DZFDouble z6) {
+							 DZFDouble z4,DZFDouble z5,DZFDouble z6) {
 		SsphRes ss = new SsphRes();
 		DZFDouble ce = SafeCompute.sub(z1.setScale(2, DZFDouble.ROUND_HALF_UP), z3.setScale(2, DZFDouble.ROUND_HALF_UP));
 		DZFDouble ce1 = SafeCompute.sub(z2.setScale(2, DZFDouble.ROUND_HALF_UP), z4.setScale(2, DZFDouble.ROUND_HALF_UP));
@@ -794,7 +794,7 @@ public class QcyeImpl implements IQcye {
 	}
 
 	public void operateAction(String userid, DZFDate jzdate,
-			String pk_currency, List<QcYeVO> list) {
+							  String pk_currency, List<QcYeVO> list) {
 		for (QcYeVO c : list) {
 			c.setDoperatedate(jzdate);
 			c.setPk_currency(pk_currency);// 币种
@@ -840,7 +840,7 @@ public class QcyeImpl implements IQcye {
 			throws DZFWarpException {
 		//固定资产启用日期和建账日期不一样
 		CorpVO cpvo  = corpService.queryByPk(pk_corp);
-		if(cpvo.getBusibegindate()!=null && 
+		if(cpvo.getBusibegindate()!=null &&
 				!cpvo.getBusibegindate().equals(cpvo.getBegindate())){
 			throw new BusinessException("固定资产启用日期("+cpvo.getBusibegindate()+")与建账日期("+cpvo.getBegindate()+")不一致，不能同步期初资产");
 		}
@@ -852,7 +852,7 @@ public class QcyeImpl implements IQcye {
 					singleObjectBO);
 		}
 	}
-	
+
 	// 清除所有数据
 	@Override
 	public void deleteAll(String pk_corp)
@@ -863,7 +863,7 @@ public class QcyeImpl implements IQcye {
 		singleObjectBO.executeUpdate(sql, sp);
 		sql = new String(" delete from ynt_fzhsqc where pk_corp = ? ");
 		singleObjectBO.executeUpdate(sql, sp);
-		
+
 		sql = " delete from ynt_verify_begin where pk_corp = ? ";
 		singleObjectBO.executeUpdate(sql, sp);
 	}
@@ -883,8 +883,8 @@ public class QcyeImpl implements IQcye {
 				vo.setYbthismonthqc(vo.getYbyearqc());
 			}
 			singleObjectBO.updateAry(qcvos.toArray(new QcYeVO[0]),new String[]{
-					"yeardffse","yearjffse","ybyearjffse","ybyeardffse","bndffsnum","bnfsnum","monthqmnum","thismonthqc","ybthismonthqc"	
-				});	
+					"yeardffse","yearjffse","ybyearjffse","ybyeardffse","bndffsnum","bnfsnum","monthqmnum","thismonthqc","ybthismonthqc"
+			});
 		}
 		//清除辅助核算发生
 		FzhsqcVO[] fzhsvos = queryFzhsQcVOs(pk_corp);
@@ -901,12 +901,12 @@ public class QcyeImpl implements IQcye {
 				vo.setYbthismonthqc(vo.getYbyearqc());
 			}
 			singleObjectBO.updateAry(fzhsvos,new String[]{
-					"yeardffse","yearjffse","ybyearjffse","ybyeardffse","bndffsnum","bnfsnum","monthqmnum","thismonthqc","ybthismonthqc"	
-				});	
+					"yeardffse","yearjffse","ybyearjffse","ybyeardffse","bndffsnum","bnfsnum","monthqmnum","thismonthqc","ybthismonthqc"
+			});
 		}
 	}
-	
-	
+
+
 	public FzhsqcVO[] queryFzhsQcVOs(String pk_corp)throws DZFWarpException {
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
@@ -934,9 +934,9 @@ public class QcyeImpl implements IQcye {
 		zlist.add(getRMB());
 		String[] pks = map.values().toArray(new String[0]);
 		if (pks != null && pks.length > 0) {
-            BdCurrencyVO[] currencyVOS = sys_currentserv.queryCurrency();
-            Map<String, BdCurrencyVO> currencyVOMap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(currencyVOS),
-                    new String[]{"pk_currency"});
+			BdCurrencyVO[] currencyVOS = sys_currentserv.queryCurrency();
+			Map<String, BdCurrencyVO> currencyVOMap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(currencyVOS),
+					new String[]{"pk_currency"});
 			Map<String, QcYeCurrency> maps = queryQcYeCurrency(sp, pks);
 			for (String pk : pks) {
 				QcYeCurrency v = maps.get(pk);
@@ -944,8 +944,8 @@ public class QcyeImpl implements IQcye {
 					QcYeCurrency vo = new QcYeCurrency();
 					vo.setPk_currency(pk);
 					if (currencyVOMap.containsKey(pk)) {
-                        vo.setCurrencyname(currencyVOMap.get(pk).getCurrencyname());
-                    }
+						vo.setCurrencyname(currencyVOMap.get(pk).getCurrencyname());
+					}
 					vo.setConvmode(0);
 					vo.setExrate(new DZFDouble(1));
 					zlist.add(vo);
@@ -976,7 +976,7 @@ public class QcyeImpl implements IQcye {
 	}
 
 	public Map<String, QcYeCurrency> queryQcYeCurrency(SQLParameter sp,
-			String[] args) {
+													   String[] args) {
 		String where = getQcyecommon().getInWhereClauseVO(args);
 		Map<String, QcYeCurrency> map = null;
 		if (where != null && where.length() > 0) {
@@ -1013,7 +1013,7 @@ public class QcyeImpl implements IQcye {
 
 	@Override
 	public void saveOne(String userid, DZFDate jzdate, String pk_currency,
-			String pk_corp, QcYeVO[] qcvos) throws DZFWarpException {
+						String pk_corp, QcYeVO[] qcvos) throws DZFWarpException {
 		// 已经结账，不让保存
 		String njsql = "select max(period) from ynt_qmjz where pk_corp =? and nvl(dr,0)=0 and nvl(jzfinish,'N') = 'Y'";
 		SQLParameter sp = new SQLParameter();
@@ -1088,10 +1088,10 @@ public class QcyeImpl implements IQcye {
 			throws DZFWarpException {
 		StringBuffer sf = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
-		
+
 		sf.append(" select distinct b.accountcode ")
-		.append(" from ynt_verify_begin a left join ynt_cpaccount b on a.pk_accsubj = b.pk_corp_account ")
-		.append(" where a.pk_corp = ? and nvl(a.dr,0) = 0 ");
+				.append(" from ynt_verify_begin a left join ynt_cpaccount b on a.pk_accsubj = b.pk_corp_account ")
+				.append(" where a.pk_corp = ? and nvl(a.dr,0) = 0 ");
 		sp.addParam(pk_corp);
 		List<String> rs = (List<String>) singleObjectBO
 				.executeQuery(sf.toString(), sp, new ColumnListProcessor());
@@ -1101,19 +1101,19 @@ public class QcyeImpl implements IQcye {
 	@Override
 	public List<VerifyBeginVo> queryVerifyBegin(String pk_corp, String pk_accsubj)
 			throws DZFWarpException {
-		
+
 		StringBuffer sf = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
-		
+
 		sf.append(" select a.*, b.accountcode as vcode, b.accountname as vname, b.isfzhs as isfzhs ")
-		.append(" from ynt_verify_begin a left join ynt_cpaccount b on a.pk_accsubj = b.pk_corp_account ")
-		.append(" where a.pk_corp = ? and a.pk_accsubj = ? and nvl(a.dr,0) = 0 ");
+				.append(" from ynt_verify_begin a left join ynt_cpaccount b on a.pk_accsubj = b.pk_corp_account ")
+				.append(" where a.pk_corp = ? and a.pk_accsubj = ? and nvl(a.dr,0) = 0 ");
 		sp.addParam(pk_corp);
 		sp.addParam(pk_accsubj);
 		List<VerifyBeginVo> rs = (List<VerifyBeginVo>) singleObjectBO
 				.executeQuery(sf.toString(), sp, new BeanListProcessor(
 						VerifyBeginVo.class));
-		
+
 		if (rs.size() > 0) {
 			String isfzhs = rs.get(0).getIsfzhs();
 			if (!AuxiliaryConstant.ACCOUNT_FZHS_DEFAULT.equals(isfzhs)) {
@@ -1126,18 +1126,18 @@ public class QcyeImpl implements IQcye {
 				}
 			}
 		}
-		
+
 		return rs;
 	}
-	
+
 	@Override
 	public byte[] exportExcel(String pk_corp, boolean showQuantity) throws DZFWarpException {
 
 		HSSFWorkbook workbook = new HSSFWorkbook();
 		HSSFSheet sheet = workbook.createSheet("期初导入");
-		
+
 		sheet.setDefaultColumnWidth(15);
-		
+
 		HSSFFont font = workbook.createFont();
 		font.setFontHeightInPoints((short) 10);
 		font.setBold(true); // 加粗
@@ -1145,13 +1145,13 @@ public class QcyeImpl implements IQcye {
 		headStyle.setFont(font);
 		headStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
 		headStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
-		
+
 		Map<Integer, String> usedFz = getUsedfz(pk_corp);
-		
+
 		List<Integer> fzCode = new ArrayList<Integer>(usedFz.keySet());
-		
+
 		createSheetHead(sheet, headStyle, new ArrayList<String>(usedFz.values()), showQuantity);
-		
+
 		HSSFDataFormat df = workbook.createDataFormat(); // 此处设置数据格式
 		HSSFCellStyle numberCell2 = workbook.createCellStyle();
 		font = workbook.createFont();
@@ -1160,30 +1160,30 @@ public class QcyeImpl implements IQcye {
 		numberCell2.setAlignment(HorizontalAlignment.CENTER);
 		numberCell2.setVerticalAlignment(VerticalAlignment.CENTER);
 		numberCell2.setDataFormat(df.getFormat("#,##0.00")); // 保留小数点后2位
-		
+
 		int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
 		HSSFCellStyle numberCell4 = workbook.createCellStyle();
 		numberCell4.cloneStyleFrom(numberCell2);
 		numberCell4.setDataFormat(df.getFormat("#,##0.00000000".substring(0, 6 + numPrecision)));
-		
+
 		//获取期初数据
 		String rmb = IGlobalConstants.RMB_currency_id;
 		List<FzhsqcVO> qclist = queryAll(pk_corp, rmb, rmb);
 		FzhsqcVO[] fzqc = gl_fzhsqcserv.queryAll(pk_corp, rmb);
 		qclist.addAll(Arrays.asList(fzqc));
-		
+
 		Collections.sort(qclist, new Comparator<FzhsqcVO>() {
 			@Override
 			public int compare(FzhsqcVO o1, FzhsqcVO o2) {
 				return o1.getVcode().compareTo(o2.getVcode());
 			}
 		});
-		
+
 		//期初金额列
 		int qcBegin = 4 + usedFz.size();
 		//公式
 		String[] formulas = getExcelFormula(qcBegin);
-		
+
 		int rowIndex = 2;
 		for (FzhsqcVO fzhsqcVO : qclist) {
 			HSSFRow row = sheet.createRow(rowIndex);
@@ -1191,21 +1191,21 @@ public class QcyeImpl implements IQcye {
 			cell.setCellValue(fzhsqcVO.getVcode());
 			cell = row.createCell(1);
 			cell.setCellValue(fzhsqcVO.getVname());
-			
+
 			cell = row.createCell(2);
 			cell.setCellValue(fzhsqcVO.getDirect() == 0 ? "借" : "贷");
-			
+
 			cell = row.createCell(3);
 			cell.setCellValue(
 					AuxiliaryConstant.ACCOUNT_FZHS_DEFAULT
-					.equals(fzhsqcVO.getIsfzhs()) ? "否" : "是");
-			
+							.equals(fzhsqcVO.getIsfzhs()) ? "否" : "是");
+
 			cell = row.createCell(qcBegin);
 			cell.setCellStyle(numberCell4);
 			if (fzhsqcVO.getBnqcnum() != null && fzhsqcVO.getBnqcnum().doubleValue() != 0) {
 				cell.setCellValue(fzhsqcVO.getBnqcnum().doubleValue());
 			}
-			
+
 			String[] codes = fzhsqcVO.getVcode().split("_");
 			if(codes.length > 1) {
 				for (int i = 1, j = 1; i <= 10; i++) {
@@ -1217,37 +1217,37 @@ public class QcyeImpl implements IQcye {
 					}
 				}
 			}
-			
+
 			cell = row.createCell(qcBegin + 1);
 			cell.setCellStyle(numberCell2);
 			if (fzhsqcVO.getYearqc() != null && fzhsqcVO.getYearqc().doubleValue() != 0) {
 				cell.setCellValue(fzhsqcVO.getYearqc().doubleValue());
 			}
-			
+
 			cell = row.createCell(qcBegin + 2);
 			cell.setCellStyle(numberCell4);
 			if (fzhsqcVO.getBnfsnum() != null && fzhsqcVO.getBnfsnum().doubleValue() != 0) {
 				cell.setCellValue(fzhsqcVO.getBnfsnum().doubleValue());
 			}
-			
+
 			cell = row.createCell(qcBegin + 3);
 			cell.setCellStyle(numberCell2);
 			if (fzhsqcVO.getYearjffse() != null && fzhsqcVO.getYearjffse().doubleValue() != 0) {
 				cell.setCellValue(fzhsqcVO.getYearjffse().doubleValue());
 			}
-			
+
 			cell = row.createCell(qcBegin + 4);
 			cell.setCellStyle(numberCell4);
 			if (fzhsqcVO.getBndffsnum() != null && fzhsqcVO.getBndffsnum().doubleValue() != 0) {
 				cell.setCellValue(fzhsqcVO.getBndffsnum().doubleValue());
 			}
-			
+
 			cell = row.createCell(qcBegin + 5);
 			cell.setCellStyle(numberCell2);
 			if (fzhsqcVO.getYeardffse() != null && fzhsqcVO.getYeardffse().doubleValue() != 0) {
 				cell.setCellValue(fzhsqcVO.getYeardffse().doubleValue());
 			}
-			
+
 			cell = row.createCell(qcBegin + 6);
 			cell.setCellStyle(numberCell4);
 			cell.setCellFormula(formulas[0]);
@@ -1260,7 +1260,7 @@ public class QcyeImpl implements IQcye {
 			if (fzhsqcVO.getThismonthqc() != null && fzhsqcVO.getThismonthqc().doubleValue() != 0) {
 				cell.setCellValue(fzhsqcVO.getThismonthqc().doubleValue());
 			}
-			
+
 			rowIndex++;
 		}
 		ByteArrayOutputStream bao = null;
@@ -1271,41 +1271,41 @@ public class QcyeImpl implements IQcye {
 			data = bao.toByteArray();
 			bao.close();
 		} catch (IOException e) {
-			
+
 		} finally {
 			if (bao != null) {
 				try {
 					bao.close();
 				} catch (IOException e) {
-					
+
 				}
 			}
 		}
 		return data;
 	}
-	
+
 	private void createSheetHead(HSSFSheet sheet, HSSFCellStyle headStyle,
-                                 List<String> usedFz, boolean showQuantity) {
-		
-		
+								 List<String> usedFz, boolean showQuantity) {
+
+
 		HSSFRow row = sheet.createRow(0);
 		row.setHeightInPoints(20);
 		HSSFCell cell = row.createCell(0);
 		cell.setCellValue("科目编码");
 		cell.setCellStyle(headStyle);
-		
+
 		cell = row.createCell(1);
 		cell.setCellValue("科目名称");
 		cell.setCellStyle(headStyle);
-		
+
 		cell = row.createCell(2);
 		cell.setCellValue("方向");
 		cell.setCellStyle(headStyle);
-		
+
 		cell = row.createCell(3);
 		cell.setCellValue("是否辅助核算");
 		cell.setCellStyle(headStyle);
-		
+
 		int qcBegin = 4;
 		for (String fzName : usedFz) {
 			cell = row.createCell(qcBegin);
@@ -1313,27 +1313,27 @@ public class QcyeImpl implements IQcye {
 			cell.setCellStyle(headStyle);
 			qcBegin++;
 		}
-		
-		
+
+
 		cell = row.createCell(qcBegin);
 		cell.setCellValue("本年期初");
 		cell.setCellStyle(headStyle);
-		
+
 		cell = row.createCell(qcBegin + 2);
 		cell.setCellValue("本年借方发生");
 		cell.setCellStyle(headStyle);
-		
+
 		cell = row.createCell(qcBegin + 4);
 		cell.setCellValue("本年贷方发生");
 		cell.setCellStyle(headStyle);
-		
+
 		cell = row.createCell(qcBegin + 6);
 		cell.setCellValue("本月期初");
 		cell.setCellStyle(headStyle);
-		
+
 		row = sheet.createRow(1);
 		row.setHeightInPoints(20);
-		
+
 		cell = row.createCell(qcBegin);
 		cell.setCellValue("数量");
 		cell.setCellStyle(headStyle);
@@ -1358,24 +1358,24 @@ public class QcyeImpl implements IQcye {
 		cell = row.createCell(qcBegin + 7);
 		cell.setCellValue("金额");
 		cell.setCellStyle(headStyle);
-		
+
 		if (!showQuantity) {
 			sheet.setColumnHidden(qcBegin, true);
 			sheet.setColumnHidden(qcBegin + 2, true);
 			sheet.setColumnHidden(qcBegin + 4, true);
 			sheet.setColumnHidden(qcBegin + 6, true);
 		}
-		
+
 		for (int i = 0; i < qcBegin; i++) {
 			sheet.addMergedRegion(new CellRangeAddress(0, 1, i, i));
 		}
-		
+
 		for (int i = 0; i < 4; i++) {
 			sheet.addMergedRegion(new CellRangeAddress(0, 0, qcBegin, qcBegin + 1));
 			qcBegin += 2;
 		}
 	}
-	
+
 	private String[] getExcelFormula(int begin) {
 		String qcnum = CellReference.convertNumToColString(begin++);
 		String qcmny = CellReference.convertNumToColString(begin++);
@@ -1383,7 +1383,7 @@ public class QcyeImpl implements IQcye {
 		String jfmny = CellReference.convertNumToColString(begin++);
 		String dfnum = CellReference.convertNumToColString(begin++);
 		String dfmny = CellReference.convertNumToColString(begin);
-		
+
 		String quantityFormula = "IF(ISERROR(IF($C:$C=\"借\","
 				+ "IF(ISNUMBER($qcnum:$qcnum),$G:$G,0)"
 				+ "+IF(ISNUMBER($jfnum:$jfnum),$jfnum:$jfnum,0)"
@@ -1395,7 +1395,7 @@ public class QcyeImpl implements IQcye {
 				+ "+IF(ISNUMBER($jfnum:$jfnum),$jfnum:$jfnum,0)-IF(ISNUMBER($dfnum:$dfnum),$dfnum:$dfnum,0),"
 				+ "IF(ISNUMBER($qcnum:$qcnum),$qcnum:$qcnum,0)-IF(ISNUMBER($jfnum:$jfnum),$jfnum:$jfnum,0)"
 				+ "+IF(ISNUMBER($dfnum:$dfnum),$dfnum:$dfnum,0)))";
-		
+
 		quantityFormula = quantityFormula.replaceAll("qcnum", qcnum)
 				.replaceAll("jfnum", jfnum).replaceAll("dfnum", dfnum);
 		String amountFormula = "IF(ISERROR(IF($C:$C=\"借\",IF(ISNUMBER($qcmny:$qcmny),"
@@ -1419,7 +1419,7 @@ public class QcyeImpl implements IQcye {
 //			is = new FileInputStream();
 			HSSFWorkbook workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);
-			
+
 			String rmb = IGlobalConstants.RMB_currency_id;
 			List<QcYeVO> qclist = queryAllQcInfo(pk_corp, rmb, rmb);
 			FzhsqcVO[] fzqc = gl_fzhsqcserv.queryAll(pk_corp, rmb);
@@ -1459,7 +1459,7 @@ public class QcyeImpl implements IQcye {
 				}
 				fzqcMap.put(fzhsqcVO.getVcode(), fzhsqcVO);
 			}
-			
+
 			HSSFRow row = sheet.getRow(0);
 			Map<String, Integer> headIndex = new HashMap<String, Integer>();
 			for (int i = 0; i <= row.getLastCellNum(); i++) {
@@ -1476,7 +1476,7 @@ public class QcyeImpl implements IQcye {
 			int jePrecision = 2;
 
 			int rowNum = sheet.getLastRowNum();
-			
+
 			int colIndex = 0;
 			if (headIndex.containsKey("本年期初")) {
 				colIndex = headIndex.get("本年期初");
@@ -1506,7 +1506,7 @@ public class QcyeImpl implements IQcye {
 				}
 				DZFBoolean accIsNum = (DZFBoolean) qcvo.getAttributeValue("isnum");
 				boolean isnum = accIsNum != null && accIsNum.booleanValue() ? true : false;
-				
+
 				if (isnum) {
 					double bnqcnum = row.getCell(colIndex).getNumericCellValue();
 					if (bnqcnum != 0) {
@@ -1529,42 +1529,42 @@ public class QcyeImpl implements IQcye {
 				if (yearqc != 0) {
 					qcvo.setAttributeValue("yearqc", new DZFDouble(yearqc, jePrecision));
 				}
-				
+
 				double yearjffse = row.getCell(colIndex + 3).getNumericCellValue();
 				if (yearjffse != 0) {
 					qcvo.setAttributeValue("yearjffse", new DZFDouble(yearjffse, jePrecision));
 				}
-				
+
 				double yeardffse = row.getCell(colIndex + 5).getNumericCellValue();
 				if (yeardffse != 0) {
 					qcvo.setAttributeValue("yeardffse", new DZFDouble(yeardffse, jePrecision));
 				}
-				
+
 				if (jzdate.getMonth() == 1 && (yearjffse != 0 || yeardffse != 0) ) {
 					throw new BusinessException("期初建账，不允许录入发生额，请检查");
 				}
-				
+
 				double thismonthqc = row.getCell(colIndex + 7).getNumericCellValue();
 				if (thismonthqc != 0) {
 					qcvo.setAttributeValue("thismonthqc", new DZFDouble(thismonthqc, jePrecision));
 				}
-				
+
 			}
-			
+
 			is.close();
-			
+
 			reCalculate(pk_corp, qcMap, fzqcMap);
-			
+
 			SQLParameter sp = new SQLParameter();
 			sp.addParam(pk_corp);
 			String sql = "delete from ynt_fzhsqc where pk_corp = ? and nvl(dr,0) = 0 ";
 			singleObjectBO.executeUpdate(sql, sp);
 			singleObjectBO.insertVOArr(pk_corp, fzqcMap.values().toArray(new FzhsqcVO[0]));
-			
+
 			//删除辅助期初
 			sql = " delete from ynt_verify_begin where pk_corp = ? ";
 			singleObjectBO.executeUpdate(sql, sp);
-			
+
 			sp.addParam(IGlobalConstants.RMB_currency_id);
 			// 先删除
 			singleObjectBO
@@ -1573,8 +1573,8 @@ public class QcyeImpl implements IQcye {
 							sp);
 			// 后插入
 			singleObjectBO.insertVOArr(pk_corp, qcMap.values().toArray(new QcYeVO[0]));
-			
-			
+
+
 		} catch (FileNotFoundException e) {
 			throw new BusinessException("未找到导入文件");
 		} catch (IOException e) {
@@ -1588,10 +1588,10 @@ public class QcyeImpl implements IQcye {
 			}
 		}
 	}
-	
+
 	private void reCalculate(String pk_corp, Map<String, QcYeVO> qcMap, Map<String, FzhsqcVO> fzqcMap) {
 		for (String code : fzqcMap.keySet()) {
-			
+
 			FzhsqcVO fzqcvo = fzqcMap.get(code);
 			DZFDouble qm = null;
 			DZFDouble qcnum = null ;
@@ -1608,10 +1608,10 @@ public class QcyeImpl implements IQcye {
 			fzqcvo.setThismonthqc(qm);
 			fzqcvo.setYbthismonthqc(ybqm);
 			fzqcvo.setMonthqmnum(qcnum);
-			
+
 			String vcode = code.split("_")[0];
 			QcYeVO qcvo = qcMap.get(vcode);
-			
+
 			if (fzqcvo.getYearqc() != null) {
 				qcvo.setYearqc(SafeCompute.add(qcvo.getYearqc(), fzqcvo.getYearqc()));
 			}
@@ -1630,26 +1630,26 @@ public class QcyeImpl implements IQcye {
 			if (fzqcvo.getBnfsnum() != null) {
 				qcvo.setBnfsnum(SafeCompute.add(qcvo.getBnfsnum(), fzqcvo.getBnfsnum()));
 			}
-			
+
 		}
-		
+
 		QcYeVO[] qcvos = doIteratorVO(new ArrayList<QcYeVO>(qcMap.values()), pk_corp, null);
 		calc(qcvos, null);
 	}
-	
+
 	private Map<Integer, String> getUsedfz(String pk_corp) {
 		Map<Integer, String> fzMap = new TreeMap<Integer, String>();
 		StringBuffer sb = new StringBuffer();
 		sb.append("select count(fzhsx1) fzhsx1, count(fzhsx2) fzhsx2,")
-		.append(" count(fzhsx3) fzhsx3, count(fzhsx4) fzhsx4,")
-		.append(" count(fzhsx5) fzhsx5, count(fzhsx6) fzhsx6,")
-		.append(" count(fzhsx7) fzhsx7, count(fzhsx8) fzhsx8, ")
-		.append("  count(fzhsx9) fzhsx9, count(fzhsx10) fzhsx10 ")
-		.append("from ynt_fzhsqc where pk_corp = ? and nvl(dr, 0) = 0");
-		
+				.append(" count(fzhsx3) fzhsx3, count(fzhsx4) fzhsx4,")
+				.append(" count(fzhsx5) fzhsx5, count(fzhsx6) fzhsx6,")
+				.append(" count(fzhsx7) fzhsx7, count(fzhsx8) fzhsx8, ")
+				.append("  count(fzhsx9) fzhsx9, count(fzhsx10) fzhsx10 ")
+				.append("from ynt_fzhsqc where pk_corp = ? and nvl(dr, 0) = 0");
+
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
-		
+
 		String fzhs = (String) singleObjectBO.executeQuery(sb.toString(), sp, new ResultSetProcessor() {
 
 			@Override
@@ -1664,10 +1664,10 @@ public class QcyeImpl implements IQcye {
 				}
 				return fzhs;
 			}
-			
+
 		} );
-		
-		Map<Integer, String> fzhsNameMap = queryFzNames(pk_corp); 
+
+		Map<Integer, String> fzhsNameMap = queryFzNames(pk_corp);
 		for (int i = 0; i < fzhs.length(); i++) {
 			if ('1' == fzhs.charAt(i)) {
 				fzMap.put(i + 1, fzhsNameMap.get(i + 1));
@@ -1675,12 +1675,12 @@ public class QcyeImpl implements IQcye {
 		}
 		return fzMap;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private Map<Integer, String> queryFzNames(String pk_corp) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("select name, code from ynt_fzhs_h")
-		.append(" where pk_corp = ? or pk_corp = ? and nvl(dr, 0) = 0 order by code");
+				.append(" where pk_corp = ? or pk_corp = ? and nvl(dr, 0) = 0 order by code");
 
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
@@ -1695,7 +1695,7 @@ public class QcyeImpl implements IQcye {
 				}
 				return fzhs;
 			}
-			
+
 		} );
 		return fzhsNameMap;
 	}
@@ -1707,68 +1707,68 @@ public class QcyeImpl implements IQcye {
 		List<QcYeVO> list = queryAllQcInfo(pk_corp, rmb, rmb);
 		if (list != null && list.size() > 0) {
 			iservice.saveIcSync(userid, pk_corp);
-		}		
+		}
 	}
 
 	@Override
 	public void saveGL2KcSync(String userid, String pk_corp, StringBuffer msg) throws DZFWarpException {
 		String rmb = IGlobalConstants.RMB_currency_id;//人民币
-		
+
 		FzhsqcVO[] qcvos = gl_fzhsqcserv.queryAll(pk_corp, rmb);
-		
+
 		judgeIsInvenFzhs(pk_corp, msg);
-		
+
 		List<FzhsqcVO> fzhsqcList = filterFzhsqcData(qcvos);
-		
+
 		if(fzhsqcList != null && fzhsqcList.size() > 0){
 			iservice.saveGL2KcSync(userid, pk_corp, fzhsqcList, msg);
 		}
 	}
-	
+
 	private void judgeIsInvenFzhs(String pk_corp, StringBuffer msg){
-		
+
 		Map<String, YntCpaccountVO> cpamap = accountService.queryMapByPk(pk_corp);
-		
+
 		//判断1403、1405下级是否挂存货
 		boolean ycl  = true;
 		boolean kcsp = true;
-		
+
 		String code;
 		YntCpaccountVO cpavo;
 		for(Map.Entry<String, YntCpaccountVO> entry : cpamap.entrySet()){
 			cpavo = entry.getValue();
 			code = cpavo.getAccountcode();
-			
+
 			if(!StringUtil.isEmpty(code)){
 				if(isInvenFzhs("1403", cpavo)){
 					ycl = false;
 				}
-				
+
 				if(isInvenFzhs("1405", cpavo)){
 					kcsp = false;
 				}
 			}
 		}
-		
+
 		String part = "";
 		if(ycl){
 			part = "原材料";
 		}
-		
+
 		if(ycl && kcsp){
 			part += "/";
 		}
-		
+
 		if(kcsp){
 			part += "库存商品";
 		}
-		
+
 		if(!StringUtil.isEmpty(part)){
-			msg.append(String.format("<p>%s同步失败,未启用辅助核算暂不支持“库存期初同步”</p>", 
+			msg.append(String.format("<p>%s同步失败,未启用辅助核算暂不支持“库存期初同步”</p>",
 					new String[]{ part }));
 		}
 	}
-	
+
 	private boolean isInvenFzhs(String chcode, YntCpaccountVO cpavo){
 		boolean result = false;
 		String code = cpavo.getAccountcode();
@@ -1778,37 +1778,37 @@ public class QcyeImpl implements IQcye {
 				result = true;
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	private List<FzhsqcVO> filterFzhsqcData(FzhsqcVO[] qcvos){
 		List<FzhsqcVO> aftervos = new ArrayList<FzhsqcVO>();
-		
+
 		if(qcvos != null && qcvos.length > 0){
 			String vcode = null;
-			
+
 			for(FzhsqcVO vo : qcvos){
 				vcode = vo.getVcode();
 				if(!StringUtil.isEmpty(vo.getFzhsx6())
 						&& !StringUtil.isEmpty(vcode)){
-					
+
 					if(vcode.startsWith("1403") || vcode.startsWith("1405")){
 						aftervos.add(vo);
 					}
-					
+
 				}
 			}
-			
+
 		}
-		
+
 		return aftervos;
-		
+
 	}
 
 	@Override
 	public void processFzImportExcel(CorpVO corpVo, String userId,
-			String pk_accsubj, DZFDate jzdate, InputStream is)
+									 String pk_accsubj, DZFDate jzdate, InputStream is)
 			throws DZFWarpException {
 		if (pk_accsubj == null) {
 			throw new BusinessException("未选择科目");
@@ -1827,14 +1827,14 @@ public class QcyeImpl implements IQcye {
 					|| fzlbIndex != isfzhs.lastIndexOf("1")) {
 				throw new BusinessException("该科目暂不支持导入辅助期初");
 			}
-			
+
 //			is = new FileInputStream(file_in);
 			HSSFWorkbook workbook = new HSSFWorkbook(is);
 			HSSFSheet sheet = workbook.getSheetAt(0);
 
 			AuxiliaryAccountHVO fzlb = queryFzlbByCode(pk_corp, fzlbIndex + 1);
 			String pk_auacount_h = fzlb.getPk_auacount_h();
-			
+
 			// 大类核算
 			boolean isInvCategory = false;
 			// 库存模块存货
@@ -1861,20 +1861,13 @@ public class QcyeImpl implements IQcye {
 //					}
 				}
 			}
-			
+
 			AuxiliaryAccountBVO[] fzvos = gl_fzhsserv.queryB(pk_auacount_h,
 					pk_corp, accountVo.getPk_corp_account());
 			Map<String, AuxiliaryAccountBVO> fzMap = new HashMap<String, AuxiliaryAccountBVO>();
 			if (fzvos != null) {
 				for (AuxiliaryAccountBVO auxiliaryAccountBVO : fzvos) {
-					if (fzlb.getCode().equals("6")) { // 存货辅助根据名称 + 规格型号+计量单位
-						fzMap.put(auxiliaryAccountBVO.getName()+ "-"
-										+ getValue(auxiliaryAccountBVO.getSpec()) + "-"
-										+ getValue(auxiliaryAccountBVO.getUnit())
-								, auxiliaryAccountBVO);
-					}else {
-						fzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
-					}
+					fzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
 				}
 			}
 			Map<String, AuxiliaryAccountBVO> allFzMap = null;
@@ -1885,18 +1878,11 @@ public class QcyeImpl implements IQcye {
 				allFzMap = new HashMap<String, AuxiliaryAccountBVO>();
 				if (allVos != null) {
 					for (AuxiliaryAccountBVO auxiliaryAccountBVO : allVos) {
-						if (fzlb.getCode().equals("6")) {// 存货辅助根据名称 + 规格型号+计量单位
-							allFzMap.put(auxiliaryAccountBVO.getName()+ "-"
-											+ getValue(auxiliaryAccountBVO.getSpec()) + "-"
-											+ getValue(auxiliaryAccountBVO.getUnit())
-									, auxiliaryAccountBVO);
-						} else  {
-							allFzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
-						}
+						allFzMap.put(auxiliaryAccountBVO.getCode(), auxiliaryAccountBVO);
 					}
 				}
 			}
-			
+
 			String rmb = IGlobalConstants.RMB_currency_id;
 
 			Map<String, Integer> headIndex = new HashMap<String, Integer>();
@@ -1930,10 +1916,6 @@ public class QcyeImpl implements IQcye {
 						row.getCell(getHeadIndex(headIndex, "编码")), false);
 				String fzName = ReportUtil.getExcelCellValue(
 						row.getCell(getHeadIndex(headIndex, "名称")), false);
-				String ggxh = headIndex.containsKey("规格(型号)") ? ReportUtil.getExcelCellValue(
-						row.getCell(getHeadIndex(headIndex, "规格(型号)")), false) : "";
-				String jldw = headIndex.containsKey("计量单位") ? ReportUtil.getExcelCellValue(
-						row.getCell(getHeadIndex(headIndex, "计量单位")), false) : "";
 				if (StringUtil.isEmpty(fzCode)) {
 					if (StringUtil.isEmpty(fzName)) {
 						continue;
@@ -1952,7 +1934,7 @@ public class QcyeImpl implements IQcye {
 //				// 辅助核算编码
 //				String fzCode = fullCode
 //						.substring(lastSplitIndex + 1);
-//				
+//
 //				splitIndex = fullName.indexOf("_");
 //				lastSplitIndex = fullName.lastIndexOf("_");
 //				if (splitIndex == -1 || splitIndex != lastSplitIndex
@@ -1961,7 +1943,7 @@ public class QcyeImpl implements IQcye {
 //				// 辅助核算名称
 //				String fzName = fullName
 //						.substring(lastSplitIndex + 1);
-				
+
 				FzhsqcVO qcvo = new FzhsqcVO();
 
 				DZFBoolean accIsNum = accountVo.getIsnum();
@@ -1998,7 +1980,7 @@ public class QcyeImpl implements IQcye {
 						}
 					}
 				}
-				
+
 				if (headIndex.containsKey("本年期初金额")) {
 					String yearqc = ReportUtil.getExcelCellValue(
 							row.getCell(headIndex.get("本年期初金额")), true);
@@ -2024,11 +2006,11 @@ public class QcyeImpl implements IQcye {
 
 				if (jzdate.getMonth() == 1
 						&& (qcvo.getYearjffse() != null
-								&& !qcvo.getYearjffse().equals(
-										DZFDouble.ZERO_DBL) || qcvo
-								.getYeardffse() != null
-								&& !qcvo.getYeardffse().equals(
-										DZFDouble.ZERO_DBL))) {
+						&& !qcvo.getYearjffse().equals(
+						DZFDouble.ZERO_DBL) || qcvo
+						.getYeardffse() != null
+						&& !qcvo.getYeardffse().equals(
+						DZFDouble.ZERO_DBL))) {
 					throw new BusinessException("期初建账，不允许录入发生额，请检查");
 				}
 
@@ -2040,25 +2022,21 @@ public class QcyeImpl implements IQcye {
 					}
 				}
 				fzQcVos.add(qcvo);
-				if (!fzlb.getCode().equals("6") && fzMap.containsKey(fzCode)) { // 非存货
+				if (fzMap.containsKey(fzCode)) {
 					qcvo.setAttributeValue("fzhsx" + (fzlbIndex + 1),
 							fzMap.get(fzCode).getPk_auacount_b());
 				} else {
-					if (fzlb.getCode().equals("6") && fzMap.containsKey(fzName + "-" + getValue(ggxh)+ "-"+jldw)) {
-						qcvo.setAttributeValue("fzhsx" + (fzlbIndex + 1),
-								fzMap.get(fzName + "-" + getValue(ggxh)+ "-"+jldw).getPk_auacount_b());
-					}
 					if (isInvMode) {
 						throw new BusinessException("存货（" + fzCode + " "
 								+ fzName + "）不存在，请在存货节点增加后重试");
 					} else if (isInvCategory && allFzMap != null
-							&& allFzMap.containsKey(fzName + "-" + getValue(ggxh)+ "-"+jldw)) {
+							&& allFzMap.containsKey(fzCode)) {
 						StringBuilder tips = new StringBuilder();
 						tips.append("存货（").append(fzCode).append(" ")
-							.append(fzName).append("）")
-							.append("不属于存货大类（").append(accountVo.getAccountcode())
-							.append(" ").append(accountVo.getAccountname())
-							.append("），请检查");
+								.append(fzName).append("）")
+								.append("不属于存货大类（").append(accountVo.getAccountcode())
+								.append(" ").append(accountVo.getAccountname())
+								.append("），请检查");
 						throw new BusinessException(tips.toString());
 					}
 					// 辅助核算不存在，需要新增
@@ -2107,7 +2085,7 @@ public class QcyeImpl implements IQcye {
 			if (fzQcVos.size() == 0) {
 				throw new BusinessException("没有可导入数据");
 			}
-			
+
 			QcYeVO ancestor = getAncestorByAccount(pk_corp,
 					accountVo.getAccountcode(), fzQcVos);
 
@@ -2176,17 +2154,9 @@ public class QcyeImpl implements IQcye {
 			}
 		}
 	}
-	private String getValue(String str){
-		if (StringUtil.isEmpty(str)) {
-			return "";
-		}else {
-			return str;
-		}
-	}
 
-	
 	/**
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param accountCode
 	 * @return
@@ -2257,7 +2227,7 @@ public class QcyeImpl implements IQcye {
 
 	@Override
 	public byte[] exportFzExcel(String pk_corp, String pk_accsubj,
-			String tempPath, boolean showQuantity) throws DZFWarpException {
+								String tempPath, boolean showQuantity) throws DZFWarpException {
 		byte[] byteArray = null;
 		// FileInputStream is = null;
 
@@ -2391,7 +2361,7 @@ public class QcyeImpl implements IQcye {
 	}
 
 	private Map<String, Integer> createFzSheetHead(Workbook workbook,
-                                                   Sheet sheet, String pk_corp, YntCpaccountVO account) {
+												   Sheet sheet, String pk_corp, YntCpaccountVO account) {
 		Map<String, Integer> headMap = new HashMap<String, Integer>();
 
 		Font font = workbook.createFont();
