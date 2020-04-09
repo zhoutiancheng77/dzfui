@@ -4914,11 +4914,11 @@ public class BankStatementServiceImpl implements IBankStatementService {
 				int endindex = zy.lastIndexOf("$");
 				String ss = zy.substring(beginindex + 12, endindex);
 				sf.append(ss);
-				flag = true;
+				//flag = true;
 			}
 		}
 		
-		map.put("flag", flag);
+		map.put("flag", true);
 		String str = sf.toString();
 		str = str.length() > 200 ? str.substring(0, 200) : str;
 		return str;
