@@ -153,7 +153,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	@Autowired
 	ICpaccountService gl_cpacckmserv;
 	@Autowired
-    private ICorpService corpService;
+	private ICorpService corpService;
 	@Autowired
 	private IAccountService accountService;
 	@Autowired
@@ -180,7 +180,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	// public static Map<String, String> HT_STYLE = null;
 	// private static List<Map<String,String>> STYLE_LIST = null;
 
-//	private static String STR_DANJU = "单据号";
+	//	private static String STR_DANJU = "单据号";
 	// excel对照关系
 	private static final Integer TONGYONG_EXCEL = 0;// 通用excel
 	private static final Integer BAIWANG_EXCEL = 1;// 百旺excel
@@ -233,7 +233,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			sb.append(" and y.iszhuan = ? ");
 			sp.addParam(paramvo.getIszh());
 		}
-		
+
 		if(!StringUtil.isEmpty(paramvo.getIspz())){
 			if("Y".equals(paramvo.getIspz())){
 				sb.append(" and y.pk_tzpz_h is not null ");
@@ -251,7 +251,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 //			sb.append(" and y.kprj <= ? ");
 //			sp.addParam(paramvo.getEnddate());
 //		}
-		
+
 		if ("serDay".equals(paramvo.getSerdate())) {
 			if (paramvo.getBegindate() != null) {
 				sb.append(" and y.kprj >= ? ");
@@ -295,8 +295,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 		List<VATSaleInvoiceVO2> listVo = (List<VATSaleInvoiceVO2>) singleObjectBO.executeQuery(sb.toString(), sp,
 				new BeanListProcessor(VATSaleInvoiceVO2.class));// retrieveByClause(VATSaleInvoiceVO2.class,
-																// sb.toString(),
-																// sp);
+		// sb.toString(),
+		// sp);
 
 		// filterData(listVo);
 		return listVo;
@@ -393,7 +393,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					CorpVO corpVO = corpService.queryByPk(pk_corp);
 					VATSaleInvoiceVO2.setXhfmc(corpVO.getUnitname());
 				}
-				
+
 				VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])VATSaleInvoiceVO2.getChildren();
 				if(bvos!=null&&bvos.length>0){
 					for (int i = 0; i < bvos.length; i++) {
@@ -420,17 +420,17 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				}
 				if(StringUtils.isEmpty(VATSaleInvoiceVO2.getPk_model_h())){//导入的时候为空
 					ll.add(VATSaleInvoiceVO2);
-					
+
 				}else{
 					list.add(VATSaleInvoiceVO2);
 				}
-				
+
 			}
 		}
 		if(updvos!=null && updvos.length>0){
 			for (VATSaleInvoiceVO2 VATSaleInvoiceVO2 : updvos) {
 				VATSaleInvoiceVO2.setVersion(new DZFDouble(1.0));
-				
+
 				//查询业务类型所属期间是否是入账期间
 				if (StringUtil.isEmpty(VATSaleInvoiceVO2.getPk_model_h()) == false)
 				{
@@ -453,7 +453,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					VATSaleInvoiceVO2.setPk_subject(setVO.getPk_accsubj());
 					VATSaleInvoiceVO2.setPk_settlementaccsubj(setVO.getPk_settlementaccsubj());
 					VATSaleInvoiceVO2.setPk_taxaccsubj(setVO.getPk_taxaccsubj());
-					
+
 				}
 
 				if (VATSaleInvoiceVO2.getChildren() != null)
@@ -473,7 +473,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 				if(StringUtils.isEmpty(VATSaleInvoiceVO2.getPk_model_h())){
 					VATSaleInvoiceVO2.setPk_category_keyword(null);
-					VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])VATSaleInvoiceVO2.getChildren(); 
+					VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])VATSaleInvoiceVO2.getChildren();
 					if (bvos != null)
 					{
 						for (VATSaleInvoiceBVO2 bvo : bvos)
@@ -484,7 +484,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					}
 					ll.add(VATSaleInvoiceVO2);
 				}else{
-					VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])VATSaleInvoiceVO2.getChildren(); 
+					VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])VATSaleInvoiceVO2.getChildren();
 					if (bvos != null)
 					{
 						for (VATSaleInvoiceBVO2 bvo : bvos)
@@ -498,10 +498,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					}
 					list.add(VATSaleInvoiceVO2);
 				}
-				
+
 			}
 		}
-		
+
 		List<VATSaleInvoiceVO2> list2= new ArrayList<>();
 		//设置业务类型
 		if(ll!=null&&ll.size()>0){
@@ -511,20 +511,20 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		resetSpsl(list.toArray(new VATSaleInvoiceVO2[0]));//设置税率
 		for (VATSaleInvoiceVO2 salevo : list) {
 			salevo.setVersion(new DZFDouble(1.0));
-			
-			
+
+
 			checkOcrIsHasRepeation(pk_corp, salevo);
 			List<VATSaleInvoiceVO2> changeList = new ArrayList<VATSaleInvoiceVO2>();
 			VATSaleInvoiceVO2 oldvo=null;
 			if(!StringUtils.isEmpty(salevo.getPk_vatsaleinvoice())){
 				oldvo = queryByID(salevo.getPk_vatsaleinvoice());
-				salevo.setSourcetype(oldvo.getSourcetype());	
+				salevo.setSourcetype(oldvo.getSourcetype());
 			}
 			//修改才能自学习
 			if (!StringUtil.isEmpty(salevo.getPrimaryKey())&&!StringUtils.isEmpty(salevo.getPk_category_keyword()) && !StringUtils.isEmpty(salevo.getPk_model_h())) {// 有没有修改分类
 				//查询修改前的分类主键
-				
-				if(StringUtils.isEmpty(oldvo.getPk_model_h()) == false && !salevo.getPk_model_h().equals(oldvo.getPk_model_h()) 
+
+				if(StringUtils.isEmpty(oldvo.getPk_model_h()) == false && !salevo.getPk_model_h().equals(oldvo.getPk_model_h())
 						&& !StringUtils.isEmpty(oldvo.getPk_category_keyword())){
 					changeList.add(oldvo);
 					List<OcrInvoiceVO> OcrInvoiceVOList = changeToOcr(changeList, pk_corp);
@@ -543,10 +543,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			list2.add(vo);
 
 		}
-		
+
 		return list2.toArray(new VATSaleInvoiceVO2[0]);
 	}
-		
+
 	public VATSaleInvoiceVO2[] updateVOArr2(String pk_corp, Map<String, VATSaleInvoiceVO2[]> sendData)
 			throws DZFWarpException {
 
@@ -640,7 +640,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						iBillcategory.saveNewCategroy(OcrInvoiceVOList.toArray(new OcrInvoiceVO[0]),
 								vo.getPk_model_h(), pk_corp, OcrInvoiceVOList.get(0).getPeriod());
 					}
-					
+
 				}
 				singleObjectBO.update(vo,
 						new String[] { "iszhuan", "fp_hm", "fp_dm", "khmc", "spmc", "spsl", "spse", "hjje", "jshj",
@@ -683,7 +683,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	/**
 	 * 校验数据是否重复
-	 * 
+	 *
 	 * @param pk_corp
 	 * @throws DZFWarpException
 	 */
@@ -726,7 +726,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 	/**
 	 * 校验数据是否重复
-	 * 
+	 *
 	 * @param pk_corp
 	 * @throws DZFWarpException
 	 */
@@ -753,7 +753,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 //			if(list.size()==1&&list.get(0).getSourcetype() == IBillManageConstants.OCR){
 //				return list.get(0);
 //			}
-			
+
 			sf = new StringBuffer();
 			sf.append("<p>发票号码:");
 			for (VATSaleInvoiceVO2 vo : list) {
@@ -1238,7 +1238,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	/**
 	 * 生成暂存态凭证
-	 * 
+	 *
 	 * @param headVO
 	 * @param vos
 	 * @param pk_corp
@@ -1277,7 +1277,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 
 		singleObjectBO.updateAry(vos, new String[] { "pk_tzpz_h", "pzh" });
-		
+
 		//暂存态回写业务类型模板
 		singleObjectBO.updateAry(vos,new String[] { "pk_model_h" });//, "busitypetempname"
 	}
@@ -1628,7 +1628,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	/**
 	 * 生成凭证
-	 * 
+	 *
 	 * @param headVO
 	 * @param pk_corp
 	 * @param userid
@@ -1636,7 +1636,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	 * @return
 	 */
 	private TzpzHVO createTzpzHVO(TzpzHVO headVO, List<VATSaleInvoiceVO2> list, String pk_corp, String userid, String pk_curr,
-			Map<String, Boolean> isTempMap, DZFDouble mny, boolean accway,IntradeHVO ichvo,VatInvoiceSetVO setvo) {
+								  Map<String, Boolean> isTempMap, DZFDouble mny, boolean accway,IntradeHVO ichvo,VatInvoiceSetVO setvo) {
 
 		DZFDate voucherDate = null;
 		if(setvo!=null&&(setvo.getPzrq()==null||setvo.getPzrq()==1)){
@@ -1654,7 +1654,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			//凭证日期是票据实际日期
 			DZFDate kprq=null;
 			if(list!=null&&list.size()>1){
-				
+
 				for (VATSaleInvoiceVO2 vo : list) {
 					if(kprq==null){
 						kprq = vo.getKprj();
@@ -1663,28 +1663,28 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 							kprq=vo.getKprj();
 						}
 					}
-					 
+
 				}
-			}else{	
+			}else{
 				kprq=list.get(0).getKprj();
 			}
-			
+
 			if(DateUtils.getPeriod(kprq).compareTo(list.get(0).getInperiod())==0){
-			
+
 				voucherDate = kprq ;
 			}else if(DateUtils.getPeriod(kprq).compareTo(list.get(0).getInperiod())<0){
-				
+
 				voucherDate = DateUtils.getPeriodStartDate(list.get(0).getInperiod());
 			}else if(DateUtils.getPeriod(kprq).compareTo(list.get(0).getInperiod())>0){
-				
+
 				voucherDate = DateUtils.getPeriodEndDate(list.get(0).getInperiod());
 			}else{
-				
+
 				voucherDate = DateUtils.getPeriodEndDate(list.get(0).getInperiod());
 			}
-	
+
 		}
-		
+
 
 		headVO.setPk_corp(pk_corp);
 		headVO.setPzlb(0);// 凭证类别：记账
@@ -1708,21 +1708,21 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			headVO.setSourcebillid(ichvo.getPk_ictrade_h());
 			headVO.setSourcebilltype(IBillTypeCode.HP75);
 		}
-		
+
 		headVO.setFp_style(getFpStyle(list.get(0)));// 1/2/3 普票/专票/未开票 空：不处理改字段
 		String period = list.get(0).getInperiod();
 		headVO.setPeriod(period);
 		headVO.setVyear(Integer.valueOf(period.substring(0, 4)));
 		headVO.setIsfpxjxm(DZFBoolean.FALSE);
-		
+
 		int count = list.get(0).getCount();
 		if(count == 0){
 			count = 1;
 		}
 		headVO.setNbills(count);// 
-		
+
 		headVO.setMemo(null);
-		
+
 		headVO.setIsqxsy(DZFBoolean.TRUE);//不在校验期间损益是否结转
 
 		return headVO;
@@ -1787,7 +1787,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		for (VATSaleInvoiceVO2 vo : stoList) {
 			if (vo == null)
 				continue;
-			
+
 			boolean iszkh = false;
 			VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[]) vo.getChildren();
 
@@ -1814,7 +1814,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				}else{
 					nlist.add(tvo);
 				}
-				
+
 			}
 			int size = nlist.size() - 1;
 			for (int i = size; i >= 0; i--) {
@@ -1860,7 +1860,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	/**
 	 * 构造模板
-	 * 
+	 *
 	 * @param corpvo
 	 * @return
 	 */
@@ -2064,7 +2064,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						bvo.setBprice(bvo.getBprice().setScale(pricePrecision, DZFDouble.ROUND_HALF_UP));
 					}
 				}
-				
+
 			}
 			//根据业务类型名称找业务类型主键
 			if(!StringUtils.isEmpty(vo.getBusitypetempname())){
@@ -2075,18 +2075,18 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						CorpVO corpVO = corpService.queryByPk(pk_corp);
 						schedulCategoryService.newSaveCorpCategory(null, pk_corp, vo.getInperiod(), corpVO);
 					}
-					
+
 					pk_category = gl_yhdzdserv2.queryBillCategoryId(vo.getBusitypetempname(), pk_corp, vo.getInperiod());
 					map.put(vo.getBusitypetempname()+vo.getInperiod(), pk_category);
 				}
 				vo.setPk_model_h(pk_category);
-				
-					
+
+
 			}
 		}
-		
+
 		Map<String, VATSaleInvoiceVO2[]> sendData = new HashMap<String, VATSaleInvoiceVO2[]>();
-		
+
 		//matchBusiName(list, dcList, pk_corp);
 
 		sendData.put("adddocvos", list.toArray(new VATSaleInvoiceVO2[0]));
@@ -2140,7 +2140,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			if (!map.containsKey(key)) {
 				//sqlf.append(" ( fp_hm = ? and fp_dm = ? ) or");
 				sqlf.append(" ( fp_hm = ? and fp_dm = ? ) or");//and sourcetype !="+IBillManageConstants.OCR+"
-				
+
 				sp.addParam(vo.getFp_hm());
 				sp.addParam(vo.getFp_dm());
 
@@ -2329,7 +2329,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private List<VATSaleInvoiceVO2> importExcel(MultipartFile file, String fileType, String pk_corp, String userid,
-		    StringBuffer msg) throws DZFWarpException {
+												StringBuffer msg) throws DZFWarpException {
 		InputStream is = null;
 		try {
 			is = file.getInputStream();
@@ -2441,7 +2441,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private List<VATSaleInvoiceVO2> getDataByExcel(Sheet sheet, String pk_corp, String userid, String fileType,
-			int sourceType, StringBuffer msg) throws DZFWarpException {
+												   int sourceType, StringBuffer msg) throws DZFWarpException {
 		List<VATSaleInvoiceVO2> blist = new ArrayList<VATSaleInvoiceVO2>();
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		DZFBoolean ISZHUAN = null;
@@ -2524,9 +2524,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 				aCell = sheet.getRow(iBegin).getCell((new Integer(STYLE_1[j][0].toString())).intValue());
 				sTmp = getExcelCellValue(aCell);
-				
+
 				sTmp = specialTreatCellValue(sourceType, j, sTmp,aCell);
-				
+
 				if (sTmp != null && !StringUtil.isEmpty(sTmp.trim())) {
 					if(sTmp.startsWith("发票类别") ){
 						ISZHUAN = transPjlb(sTmp, ISZHUAN);
@@ -2538,7 +2538,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					else {
 						excelvo.setAttributeValue(STYLE_1[j][2].toString(), sTmp.trim());// sTmp.replace("
 					}																		// ",
-																						// "")
+					// "")
 				} else {
 					count++;
 				}
@@ -2556,7 +2556,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 							&& (fpdm.startsWith("份数") || fpdm.startsWith("发票类别") || fpdm.startsWith("发票代码"))) {// 针对专普票在一个excel中所做的特殊处理
 						continue;
 					} else if (!StringUtil.isEmpty(excelvo.getBspmc())// 多行明细中
-																		// 小计行不存
+							// 小计行不存
 							&& "小计".equals(excelvo.getBspmc()) && excelvo.getBspsl() == null) {
 						continue;
 					} else if (firstvo == null && (BAIWANG_EXCEL == sourceType || BAIWANG_NEW_EXCEL == sourceType) && StringUtil.isEmpty(fpdm)
@@ -2600,7 +2600,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						excelvo.setBspsl(excelvo.getSpsl().multiply(new DZFDouble(100)));
 					}
 				}
-				
+
 				innermsg.setLength(0);
 				checkDataValid(excelvo, innermsg, iBegin, pk_corp, fileType,sourceType);
 
@@ -2630,7 +2630,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		//暂时处理导入模板金额保留两位
 		if (sTmp == null || StringUtil.isEmpty(sTmp.trim()))
 			return sTmp;
-		
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");// 格式化日期字符串
 		java.text.DecimalFormat formatter = new java.text.DecimalFormat("#########.##");
 		if(sourceType==BAIWANG_EXCEL||sourceType==BAIWANG_another_EXCEL || sourceType==BAIWANG_NEW_EXCEL || sourceType==BAIWANG_NEW_another_EXCEL){
@@ -2638,7 +2638,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				if(isNumber(sTmp)){
 					sTmp = formatter.format(new DZFDouble(sTmp));
 				}
-				
+
 			}
 		}else if(sourceType==BAIWANG_JDC_EXCEL){
 			if(j==6||j==8||j==12||j==13||j==15){
@@ -2676,7 +2676,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				sTmp = sTmp.substring(0, 4) + "-" + sTmp.substring(4, 6) + "-" + sTmp.substring(6, 8);
 			}
 		}
-		
+
 		return sTmp;
 	}
 	private boolean isNumber(String sTmp){
@@ -2686,7 +2686,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		} catch (Exception e) {
 			return false;
 		}
-		
+
 	}
 	private String isNull(String string){
 		return StringUtils.isEmpty(string)?"":string;
@@ -2705,7 +2705,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				kplx = ICaiFangTongConstant.FPLX_3;
 			} else if (excelvo.INVMODEL_3.equals(status) || excelvo.INVMODEL_13.equals(status)) {
 				kplx = ICaiFangTongConstant.FPLX_4;
-			} 
+			}
 //			else if (excelvo.INVMODEL_3.equals(status)
 //					&& SafeCompute.add(je, DZFDouble.ZERO_DBL).doubleValue() >= 0) {
 //				kplx = ICaiFangTongConstant.FPLX_4;
@@ -2838,7 +2838,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		DZFDouble je = vo.getBhjje();
 
 		if (firstvo != null && StringUtil.isEmpty(fpdm) && StringUtil.isEmpty(fphm) && je != null) {// 只针对航信、百旺excel导入的模板
-																									// 单独
+			// 单独
 			vo.setFp_dm(firstvo.getFp_dm());
 			vo.setFp_hm(firstvo.getFp_hm());
 			vo.setKhmc(firstvo.getKhmc());
@@ -2958,9 +2958,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				if (StringUtil.isEmpty(value1) || "0.00".equals(ret))
 				{
 					try {
-						FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();  
-					    CellValue cellValue = evaluator.evaluate(cell);
-					    ret = String.valueOf(cellValue.getNumberValue());
+						FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
+						CellValue cellValue = evaluator.evaluate(cell);
+						ret = String.valueOf(cellValue.getNumberValue());
 					}
 					catch (Exception e)
 					{}
@@ -2994,10 +2994,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		Object[][] obj1 = new Object[][] { // 百旺导入
 				{ 0, "发票代码", "fp_dm" }, { 1, "发票号码", "fp_hm" }, { 2, "购方企业名称", "khmc" }, { 3, "购方税号", "custidentno" },
 				{ 4, "银行帐号", "ghfyhzh" }, { 5, "地址电话", "ghfdzdh" }, { 6, "开票日期", "tempvalue" }, // 20170901
-																								// 17:37:04
-																								// 格式需要二次转换，故临时存放，后续会放到
-																								// kprj
-																								// 字段
+				// 17:37:04
+				// 格式需要二次转换，故临时存放，后续会放到
+				// kprj
+				// 字段
 				{ 8, "备注", "demo" }, // 暂时将单据号放在备注栏中
 				{ 9, "商品名称", "spmc" }, { 14, "金额", "hjje" }, // 合计金额
 				{ 16, "税额", "spse" }, // 合计税额
@@ -3015,7 +3015,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				{ 13, "单价", "bprice" }, { 14, "金额", "bhjje" }, { 15, "税率", "bspsl" }, { 16, "税额", "bspse" } };
 		Object[][] obj12 = new Object[][] { // 百旺 机动车导入
 				{ 0, "发票代码", "fp_dm" }, { 1, "发票号码", "fp_hm" }, { 2, "购货单位", "khmc" }, { 3, "购方税号", "custidentno" },
-				{ 5, "车辆类型", "spmc" }, { 13, "开票日期", "kprj" }, { 14, "金额", "hjje" }, 
+				{ 5, "车辆类型", "spmc" }, { 13, "开票日期", "kprj" }, { 14, "金额", "hjje" },
 				{ 15, "税率", "spsl" }, { 16, "税额", "spse" }, { 17, "发票状态", "invstatus" },
 				{ 5, "车辆类型", "bspmc" }, { 6, "厂牌型号", "invspec" }, { 14, "金额", "bprice" }, { 14, "金额", "bhjje" },
 				{ 15, "税率", "bspsl" }, { 16, "税额", "bspse" } };
@@ -3067,10 +3067,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				{ 13, "单价", "bprice" }, { 14, "金额", "bhjje" }, { 15, "税率", "bspsl" }, { 16, "税额", "bspse" } };
 		Object[][] obj22 = new Object[][] { // 航信机动车导入
 				{ 0, "发票代码", "fp_dm" }, { 1, "发票号码", "fp_hm" }, { 2, "开票日期", "kprj" }, { 3, "购方单位名称", "khmc" },
-				{ 5, "购方单位识别号", "custidentno" }, { 6, "车辆类型", "spmc" },  
+				{ 5, "购方单位识别号", "custidentno" }, { 6, "车辆类型", "spmc" },
 				{ 14, "价税合计", "jshj" }, { 15, "电话", "xfdh" },{ 16, "账号", "xfzh" }, { 17, "地址", "xfdz" },{ 18, "开户银行", "xfyh" },
 				{ 19, "增值税税率", "spsl" }, { 20, "增值税税额", "spse" },{ 21, "不含税价", "hjje" },
-						
+
 				{ 6, "车辆类型", "bspmc" }, { 7, "厂牌型号", "invspec" },
 				{ 21, "不含税价", "bprice" }, {21, "不含税价", "bhjje" }, { 19, "增值税税率", "bspsl" }, { 20, "增值税税额", "bspse" } };
 		Object[][] obj0 = new Object[][] { // 通用导入
@@ -3208,7 +3208,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private Integer calcName(MultipartFile file) {
-		
+
 		try {
 			SAXReader reader = new SAXReader();
 			Document document = reader.read((File) file);
@@ -3219,7 +3219,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				return BAI_WANG_B;
 			else{
 				return NO_IMP;
-			}	
+			}
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			if (e instanceof BusinessException)
@@ -3230,7 +3230,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private void getDataByXml(BufferedReader file, String pk_corp, String userid, Integer flag,
-			List<VATSaleInvoiceVO2> list, StringBuffer msg) throws DZFWarpException {
+							  List<VATSaleInvoiceVO2> list, StringBuffer msg) throws DZFWarpException {
 
 		// List<VATSaleInvoiceVO2> list = new ArrayList<VATSaleInvoiceVO2>();
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
@@ -3351,7 +3351,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private void getSXDataByXml(BufferedReader file, String pk_corp, String userid, Integer flag,
-			List<VATSaleInvoiceVO2> list, StringBuffer msg) throws DZFWarpException {
+								List<VATSaleInvoiceVO2> list, StringBuffer msg) throws DZFWarpException {
 
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		DZFBoolean ISZHUAN = (StringUtil.isEmpty(corpvo.getChargedeptname())
@@ -3436,9 +3436,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		if (StringUtil.isEmpty(vo.getFp_dm())) {
 			msg.append(" 发票代码不允许为空,请检查！ ");
 		}
-		 if(sourceType==TONGYONG_EXCEL&&StringUtil.isEmpty(vo.getSpmc())){
-		 msg.append(" 开票项目不允许为空,请检查！ ");
-		 }
+		if(sourceType==TONGYONG_EXCEL&&StringUtil.isEmpty(vo.getSpmc())){
+			msg.append(" 开票项目不允许为空,请检查！ ");
+		}
 		if (vo.getKprj() == null) {
 			msg.append(" 开票日期不允许为空,请检查！ ");
 		}
@@ -3463,13 +3463,13 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	/**
 	 * 设置默认值
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param userid
 	 * @param vo
 	 */
 	private void setDefaultValue(String pk_corp, String userid, VATSaleInvoiceVO2 vo, DZFBoolean iszhuan,
-			String unitName,Integer sourceType) {
+								 String unitName,Integer sourceType) {
 		vo.setPk_corp(pk_corp);
 		vo.setCoperatorid(userid);
 		vo.setDoperatedate(new DZFDate());
@@ -3525,16 +3525,16 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				char lb = vo.getFp_dm().charAt(7);
 				iszhuan = lb == '1' ? DZFBoolean.TRUE : DZFBoolean.FALSE;
 				vo.setIszhuan(iszhuan);
-				} else {
+			} else {
 				vo.setIszhuan(iszhuan);
-				}
+			}
 		}
-		
+
 	}
 
 	/**
 	 * 字段对照关系
-	 * 
+	 *
 	 * @return
 	 */
 	public static List<Map<String, String>> getInstance() {
@@ -3689,7 +3689,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		List<String> pks = new ArrayList<String>();
 		for (VATSaleInvoiceVO2 vo : vos) {
 			if ((!StringUtil.isEmpty(vo.getPrimaryKey()) && StringUtil.isEmpty(vo.getPk_tzpz_h()))
-			// && (vo.getIsic() == null || vo.getIsic().booleanValue())
+				// && (vo.getIsic() == null || vo.getIsic().booleanValue())
 			) {
 				sencodevos.add(vo);
 				pks.add(vo.getPrimaryKey());
@@ -3732,7 +3732,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		List<TzpzBVO> inlist = null;
 		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpVO.getPk_corp());
 		YntCpaccountVO[] accVOs=accountService.queryByPk(corpVO.getPk_corp());
-		
+
 		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpVO, afterList.get(0).getInperiod(),false);
 		List<List<Object[]>> levelList=(List<List<Object[]>>) paramMap.get("levelList");
 		Map<String, Object[]> categoryMap =(Map<String, Object[]>) paramMap.get("categoryMap");
@@ -3777,7 +3777,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			setPzZy(inlist, setvo, vo);
 			tblist.addAll(inlist);
 		}
-		
+
 		//aitovoucherserv_vatinvoice.setSpeaclTzpzBVO1(headVO, lib, tblist);
 		// 合并同类项
 		tblist = constructItems(tblist, setvo, pk_corp);
@@ -4146,8 +4146,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		sf.setLength(0);
 		sf.append(
 				" select b.*,y.categoryname as billcategoryname from ynt_vatsaleinvoice_b b "
-				+ " left join ynt_billcategory y on b.pk_billcategory = y.pk_category "
-				+ " where nvl(b.dr,0) = 0 and nvl(y.dr,0)=0 and b.pk_vatsaleinvoice = ? order by b.rowno asc, b.rowid asc ");
+						+ " left join ynt_billcategory y on b.pk_billcategory = y.pk_category "
+						+ " where nvl(b.dr,0) = 0 and nvl(y.dr,0)=0 and b.pk_vatsaleinvoice = ? order by b.rowno asc, b.rowid asc ");
 		List<VATSaleInvoiceBVO2> blsit = (List<VATSaleInvoiceBVO2>) singleObjectBO.executeQuery(sf.toString(), sp,
 				new BeanListProcessor(VATSaleInvoiceBVO2.class));
 
@@ -4168,7 +4168,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public void saveCombinePZ(List<VATSaleInvoiceVO2> list, String pk_corp, String userid, String period,
-			DZFBoolean lwflag, VatInvoiceSetVO setvo, boolean accway, boolean isT,List<List<Object[]>> levelList,Map<String, Object[]> categoryMap,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Set<String> zyFzhsList
+							  DZFBoolean lwflag, VatInvoiceSetVO setvo, boolean accway, boolean isT,List<List<Object[]>> levelList,Map<String, Object[]> categoryMap,Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap,Set<String> zyFzhsList
 			,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,InventorySetVO inventorySetVO,CorpVO corp,Map<String, InventoryAliasVO> fzhsBMMap
 			,List<Object> paramList,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, String> bankAccountMap,Map<String,YntCpaccountVO> accountMap
 			,Map<String, AuxiliaryAccountBVO> assistMap,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, String> jituanSubMap,YntCpaccountVO[] accVOs
@@ -4188,7 +4188,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		headVO.setIfptype(ifptype);
 		String maxPeriod = null;
 		List<String> imageGroupList = new ArrayList<>();
-		
+
 		for (VATSaleInvoiceVO2 vo : list) {
 
 			if (StringUtil.isEmpty(vo.getPk_model_h())) {
@@ -4218,7 +4218,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			setPzZy(inlist, setvo, vo);
 			tblist.addAll(inlist);
 		}
-		
+
 		//aitovoucherserv_vatinvoice.setSpeaclTzpzBVO1(headVO, lib, tblist);
 
 		// 合并同类项
@@ -4291,7 +4291,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	/**
 	 * 合并凭证图片组
-	 * 
+	 *
 	 * @param pk_corp
 	 * @param imageGroupList
 	 * @return
@@ -4375,10 +4375,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 
 	}
-	
+
 	private String buildZy(VatInvoiceSetVO setvo,
-			VATSaleInvoiceVO2 vo,
-			Map<String, Boolean> map){
+						   VATSaleInvoiceVO2 vo,
+						   Map<String, Boolean> map){
 		Boolean flag = false;
 		String zy = null;
 		if(StringUtil.isEmpty(setvo.getPrimaryKey())){
@@ -4387,43 +4387,43 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			zy = setvo.getZy();
 		}
 		StringBuffer sf = new StringBuffer();
-		
-		if(!StringUtil.isEmpty(zy) 
+
+		if(!StringUtil.isEmpty(zy)
 				&& zy.contains("$")){
-				String[] arr = zy.split("\\$");
-				for(String ss : arr){
-					if("selectQjZy".equals(ss) && !StringUtil.isEmpty(vo.getInperiod())){
-						sf.append("期间:").append(vo.getInperiod());
-						flag = true;
-					}else if("selectWlZy".equals(ss) && !StringUtil.isEmpty(vo.getKhmc())){
-						sf.append("向").append(vo.getKhmc());
-						flag = true;
-					}else if("selectLxZy".equals(ss)){
-						sf.append("销售");
-						flag = true;
-					}else if("selectXmZy".equals(ss) && !StringUtil.isEmpty(vo.getSpmc())){
-						sf.append(vo.getSpmc()).append("等");
-						flag = true;
-					}else if("selectHmZy".equals(ss)){
-						sf.append("发票号码:").append(vo.getFp_hm());
-						flag = true;
-					}else if(!StringUtil.isEmpty(ss) && ss.contains("selectZdyZy:")){
-						int beginindex = zy.lastIndexOf("selectZdyZy:");
-						int endindex = zy.lastIndexOf("$");
-						String sss = zy.substring(beginindex + 12, endindex);
-						sf.append(sss);
-						flag = true;
-					}
+			String[] arr = zy.split("\\$");
+			for(String ss : arr){
+				if("selectQjZy".equals(ss) && !StringUtil.isEmpty(vo.getInperiod())){
+					sf.append("期间:").append(vo.getInperiod());
+					flag = true;
+				}else if("selectWlZy".equals(ss) && !StringUtil.isEmpty(vo.getKhmc())){
+					sf.append("向").append(vo.getKhmc());
+					flag = true;
+				}else if("selectLxZy".equals(ss)){
+					sf.append("销售");
+					flag = true;
+				}else if("selectXmZy".equals(ss) && !StringUtil.isEmpty(vo.getSpmc())){
+					sf.append(vo.getSpmc()).append("等");
+					flag = true;
+				}else if("selectHmZy".equals(ss)){
+					sf.append("发票号码:").append(vo.getFp_hm());
+					flag = true;
+				}else if(!StringUtil.isEmpty(ss) && ss.contains("selectZdyZy:")){
+					int beginindex = zy.lastIndexOf("selectZdyZy:");
+					int endindex = zy.lastIndexOf("$");
+					String sss = zy.substring(beginindex + 12, endindex);
+					sf.append(sss);
+					flag = true;
 				}
-			
+			}
+
 		}
-		
+
 		map.put("flag", flag);
 		String str = sf.toString();
 		str = str.length() > 200 ? str.substring(0, 200) : str;
 		return str;
 	}
-	
+
 	private void sortEntryByDirection(List<TzpzBVO> list, String pk_corp){
 		if(list == null || list.size() == 0)
 			return;
@@ -4435,14 +4435,14 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				currencyMap.put(bdCurrencyVO.getPk_currency(), bdCurrencyVO);
 			}
 		}
-		
+
 		for(TzpzBVO bvo : list){
 			setEntryFullcode(bvo, assistMap, currencyMap);
 		}
-		
+
 		sortVoucherEntry(list, pk_corp);
 	}
-	
+
 	private void sortVoucherEntry(List<TzpzBVO> bvos, String pk_corp) {
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		String taxCode = null;
@@ -4458,38 +4458,38 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			taxCode = "^2206(0?10|0+10+(1|2))";
 		}
 		final String taxMatch = taxCode;
-	    Collections.sort(bvos, new Comparator<TzpzBVO>() {
-	        @Override
-	        public int compare(TzpzBVO o1, TzpzBVO o2) {
-	            int jf1 = o1.getJfmny() == null
-	                    || o1.getJfmny().doubleValue() == 0 ? 0 : 1;
-	            int jf2 = o2.getJfmny() == null
-	                    || o2.getJfmny().doubleValue() == 0 ? 0 : 1;
-	            int cp = jf2 - jf1;
-	            if (cp == 0) {
-	            	String code1 = o1.getFullcode() == null ? o1.getVcode() : o1.getFullcode();
-	            	String code2 = o2.getFullcode() == null ? o2.getVcode() : o2.getFullcode();
-	            	boolean isTax1 = o1.getIstaxsubj() != null && o1.getIstaxsubj().booleanValue()
-                            || taxMatch != null && code1.matches(taxMatch);
-	            	boolean isTax2 = o2.getIstaxsubj() != null && o2.getIstaxsubj().booleanValue()
-                            || taxMatch != null && code2.matches(taxMatch);
-	            	if (isTax1 || isTax2) {
-	            		if (isTax1 && !isTax2) {
-		            		code1 = "999";
+		Collections.sort(bvos, new Comparator<TzpzBVO>() {
+			@Override
+			public int compare(TzpzBVO o1, TzpzBVO o2) {
+				int jf1 = o1.getJfmny() == null
+						|| o1.getJfmny().doubleValue() == 0 ? 0 : 1;
+				int jf2 = o2.getJfmny() == null
+						|| o2.getJfmny().doubleValue() == 0 ? 0 : 1;
+				int cp = jf2 - jf1;
+				if (cp == 0) {
+					String code1 = o1.getFullcode() == null ? o1.getVcode() : o1.getFullcode();
+					String code2 = o2.getFullcode() == null ? o2.getVcode() : o2.getFullcode();
+					boolean isTax1 = o1.getIstaxsubj() != null && o1.getIstaxsubj().booleanValue()
+							|| taxMatch != null && code1.matches(taxMatch);
+					boolean isTax2 = o2.getIstaxsubj() != null && o2.getIstaxsubj().booleanValue()
+							|| taxMatch != null && code2.matches(taxMatch);
+					if (isTax1 || isTax2) {
+						if (isTax1 && !isTax2) {
+							code1 = "999";
 						} else if (isTax2 && !isTax1) {
 							code2 = "999";
 						}
 					}
-	                cp = code1.compareTo(code2);
-	            }
-	            return cp;
-	        }
-	    });
+					cp = code1.compareTo(code2);
+				}
+				return cp;
+			}
+		});
 	}
-	
+
 	private void setEntryFullcode(TzpzBVO vo,
-			Map<String, AuxiliaryAccountBVO> assistMap,
-			Map<String, BdCurrencyVO> currencyMap) {
+								  Map<String, AuxiliaryAccountBVO> assistMap,
+								  Map<String, BdCurrencyVO> currencyMap) {
 		StringBuilder fullcode = new StringBuilder();
 		if (vo.getVcode() != null) {
 			fullcode.append(vo.getVcode());
@@ -4508,7 +4508,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 		if (vo.getPk_currency() != null
 				&& !IGlobalConstants.RMB_currency_id
-						.equals(vo.getPk_currency())) {
+				.equals(vo.getPk_currency())) {
 			if (currencyMap.containsKey(vo.getPk_currency())) {
 				fullcode.append("_").append(
 						currencyMap.get(vo.getPk_currency()).getCurrencycode());
@@ -4523,10 +4523,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	 * @param pk_corp
 	 * @return
 	 */
-	private List<TzpzBVO> constructItems(List<TzpzBVO> tzpzlist, 
-			VatInvoiceSetVO setvo,
+	private List<TzpzBVO> constructItems(List<TzpzBVO> tzpzlist,
+										 VatInvoiceSetVO setvo,
 //			VATSaleInvoiceVO vo,
-			String pk_corp) {
+										 String pk_corp) {
 		String key = null;
 		TzpzBVO tempbvo = null;
 
@@ -4535,7 +4535,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		isbk = isbk == null ? DZFBoolean.FALSE : DZFBoolean.TRUE;
 		Integer type = setvo.getEntry_type();//凭证分录合并规则
 		type = type == null ? IBillManageConstants.HEBING_FL_02 : type;//默认 同方向分录合并
-		
+
 		Integer vvvalue = setvo.getValue();//凭证合并的规则
 		vvvalue = vvvalue == null ? IBillManageConstants.HEBING_GZ_01 : vvvalue;//默认不合并
 
@@ -4549,7 +4549,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		List<TzpzBVO> afterList = new ArrayList<TzpzBVO>();
 		int rowno = 1;
 		for (TzpzBVO bvo : tzpzlist) {
-			
+
 			if (type == IBillManageConstants.HEBING_FL_02 && isbk.booleanValue()
 					&& !StringUtil.isEmpty(bvo.getVcode()) && bvo.getVcode().startsWith("1002")) {
 				bvo.setRowno(rowno++);
@@ -4565,7 +4565,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						if(tempbvo.getTax_items()!=null&&tempbvo.getTax_items().size()>0){
 							ArrayList<PZTaxItemRadioVO> list = new ArrayList<PZTaxItemRadioVO>();
 							list.addAll(tempbvo.getTax_items());
-							
+
 							for (PZTaxItemRadioVO pvo2 : bvo.getTax_items()) {
 								boolean flag=false;
 								for (PZTaxItemRadioVO pvo1 : list) {
@@ -4583,12 +4583,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 							}
 						}else{
 							tempbvo.setTax_items(bvo.getTax_items());
-							
-							
+
+
 						}
 					}
-					tempbvo.setZy(buildhbzy(tempbvo.getZy(), bvo.getZy()));
-					//tempbvo.setZy(bvo.getZy());
+
+					tempbvo.setZy(bvo.getZy());
 					tempbvo.setJfmny(SafeCompute.add(tempbvo.getJfmny(), bvo.getJfmny()));
 					tempbvo.setYbjfmny(SafeCompute.add(tempbvo.getYbjfmny(), bvo.getYbjfmny()));
 					tempbvo.setDfmny(SafeCompute.add(tempbvo.getDfmny(), bvo.getDfmny()));
@@ -4623,22 +4623,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}else{
 			return finalList;
 		}
-		
-	}
-	protected String buildhbzy(String tempzy,String zy){
-		StringBuffer sf = new StringBuffer();
-		if(StringUtil.isEmpty(tempzy)) return zy;
-		if(tempzy.contains(zy)){
-			return tempzy;
-		}else{
-			sf.append(tempzy).append(",").append(zy);
-		}
 
-
-		String str = sf.toString();
-		str = str.length() > 200 ? str.substring(0, 200) : str;
-		return str;
 	}
+
 	protected String constructTzpzKey(TzpzBVO bvo) {
 		StringBuffer sf = new StringBuffer();
 		sf.append("&").append(bvo.getVdirect()).append("&").append(bvo.getPk_accsubj()).append("&")
@@ -4652,9 +4639,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	@Override
-	
+
 	public Map<String, VATSaleInvoiceVO2> saveCft(String pk_corp, String userid, String ccrecode, String fptqm,
-			VATSaleInvoiceVO2 paramvo, StringBuffer msg) throws DZFWarpException {
+												  VATSaleInvoiceVO2 paramvo, StringBuffer msg) throws DZFWarpException {
 		CorpVO corpvo = getCorpVO(pk_corp);
 		// 为后续更新税号、发票提取码做准备
 		corpvo.setVsoccrecode(ccrecode);// 纳税识别号
@@ -4811,7 +4798,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public List<VATSaleInvoiceVO2> queryByPks(String[] pks, String pk_corp) throws DZFWarpException {
-		List<String> pk_categoryList = new ArrayList<String>(); 
+		List<String> pk_categoryList = new ArrayList<String>();
 		String wherePart = SqlUtil.buildSqlForIn("pk_vatsaleinvoice", pks);
 
 		SQLParameter sp = new SQLParameter();
@@ -4846,7 +4833,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public Map<String, VATSaleInvoiceVO2> saveKp(String pk_corp, String userid, VATSaleInvoiceVO2 paramvo,
-			TicketNssbhVO nssbvo) throws DZFWarpException {
+												 TicketNssbhVO nssbvo) throws DZFWarpException {
 
 		CorpVO corpvo = getCorpVO(pk_corp);
 
@@ -4937,7 +4924,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			throw new BusinessException("请重新选择业务类型");
 		}
 		Map<String, CategorysetVO> categorysetMap=queryCategorysetVO(vo,corpvo.getPk_corp());
-		
+
 		IntradeHVO ichvo = buildIctrade(vo, userid, categorysetMap, trueMap, falseMap,fzhsBodyMap);
 
 		ic_saleoutserv.saveSale(ichvo, false, false);// 保存
@@ -4989,7 +4976,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		// 如果来源于销项
 		gl_vatsalinvserv.updatePZH(headvo);
 	}
-	
+
 	private int getSettlement(VATSaleInvoiceVO2 vo,CategorysetVO setVO){
 		if(vo.getSettlement()!=null){
 			if(vo.getSettlement()==0){
@@ -5015,9 +5002,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			fzhsBodyMap.get("000001000000000000000001").add(custvo);
 		}
 		icHeadVO.setDinvdate(vo.getKprj());//发票日期-开票日期
-		
+
 		icHeadVO.setDbillid(null);// 单据编号-设置为空，调用入库接口会重新生成
-		
+
 		icHeadVO.setPk_corp(vo.getPk_corp());
 		icHeadVO.setIarristatus(1);//到货状态
 
@@ -5026,11 +5013,11 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		icHeadVO.setCreator(userid);//制单人
 
 		icHeadVO.setSourcebillid(vo.getPrimaryKey());//单据来源ID
-		
+
 		icHeadVO.setPk_image_group(vo.getPk_image_group());//图片组
 		icHeadVO.setPk_image_library(vo.getPk_image_library());//图片
 		icHeadVO.setFp_style(getFpStyle(vo));// 1普票 2专票3未开票
-		
+
 //		icHeadVO.setIsjz(DZFBoolean.TRUE);//转总账
 //		icHeadVO.setDjzdate(new DZFDate());
 		icHeadVO.setIsinterface(DZFBoolean.FALSE);
@@ -5070,7 +5057,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		List<SuperVO> icList = new ArrayList<SuperVO>();
 		SuperVO icbvo = null;
 		for (int j = 0; j < details.length; j++) {
-			
+
 			String spmc = OcrUtil.execInvname(details[j].getBspmc());//商品名称
 
 			if (StringUtil.isEmpty(spmc)) {
@@ -5085,13 +5072,13 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				throw new BusinessException("存货未匹配！");
 			}
 			icbvo = new IntradeoutVO();
-			
+
 			icbvo.setAttributeValue("pk_inventory", inventoryvo.getPk_inventory());
 			icbvo.setAttributeValue("pk_subject", inventoryvo.getPk_subject());
 
 			int calcmode=inventoryvo.getCalcmode();
 			DZFDouble hsl=inventoryvo.getHsl();
-			
+
 			if(details[j].getBnum()==null){
 				if(hsl!=null){
 					if(calcmode==1){
@@ -5114,9 +5101,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				}
 			}
 			icbvo.setAttributeValue("nymny", details[j].getBhjje());
-			
+
 			icbvo.setAttributeValue("nprice", ((DZFDouble)icbvo.getAttributeValue("nymny")).div((DZFDouble)icbvo.getAttributeValue("nnum")));
-			
+
 			icbvo.setAttributeValue("ntax",details[j].getBspsl());
 			icbvo.setAttributeValue("ntaxmny", details[j].getBspse());
 			icbvo.setAttributeValue("ntotaltaxmny", details[j].getBhjje().add(details[j].getBspse()));
@@ -5127,7 +5114,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		icHeadVO.setChildren(icList.toArray(new IntradeoutVO[0]));
 		return icHeadVO;
 	}
-	
+
 	private InventoryVO getInventoryVOByName(String name,String ggxh,String unit, String pk_corp) {
 		//再去别名表找
 		StringBuffer sb=new StringBuffer();
@@ -5178,7 +5165,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 		return null;
 	}
-	
+
 	private String queryBankPrimaryKey(String pk_corp,String bankCode)throws DZFWarpException{
 		SQLParameter sp=new SQLParameter();
 		sp.addParam(pk_corp);
@@ -5255,7 +5242,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		vo.setChildren(bodyList.toArray(new VATSaleInvoiceBVO2[0]));
 		return vo;
 	}
-	
+
 	private void turnBillCategoryMap(Map<String, BillCategoryVO> falseMap,Map<String, BillCategoryVO> trueMap)throws DZFWarpException{
 		Iterator<String> itor=falseMap.keySet().iterator();
 		List<BillCategoryVO> addfalseVOList=new ArrayList<BillCategoryVO>();
@@ -5404,7 +5391,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private AuxiliaryAccountBVO matchCustomer(VATSaleInvoiceVO2 vo, String gfmc, String pk_corp, String userid,
-			String pk_auacount_h) {
+											  String pk_auacount_h) {
 		AuxiliaryAccountBVO suppliervo = null;
 
 		String payer = vo.getCustidentno();// 购方识别号
@@ -5484,7 +5471,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private InventoryVO matchInvtoryIC(VATSaleInvoiceVO2 salevo, VATSaleInvoiceBVO2 salechild, CorpVO corpvo,
-			YntCpaccountVO[] accounts) {
+									   YntCpaccountVO[] accounts) {
 
 		if (corpvo == null || salechild == null)
 			return null;
@@ -5633,8 +5620,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 		StringBuffer sf = new StringBuffer();
 		sf.append("  update ynt_vatsaleinvoice y set y.pk_tzpz_h = ?,y.pzh = ? Where ");// y.pk_vatincominvoice
-																						// =
-																						// ?
+		// =
+		// ?
 		sf.append(SqlUtil.buildSqlForIn("pk_vatsaleinvoice", pks.toArray(new String[0])));
 		sp = new SQLParameter();
 		sp.addParam(headvo.getPrimaryKey());
@@ -5657,7 +5644,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public void saveGL(IntradeHVO hvo, String pk_corp, String userid) throws DZFWarpException {
-		 CorpVO cvo = corpService.queryByPk(pk_corp);
+		CorpVO cvo = corpService.queryByPk(pk_corp);
 		ic_saleoutserv.saveToGL(hvo, cvo, userid, "销售商品");// 转总账
 	}
 
@@ -5670,7 +5657,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	@Override
 	public List<VatGoosInventoryRelationVO> getGoodsInvenRela(List<VATSaleInvoiceVO2> saleList, String pk_corp) throws DZFWarpException {
 		CorpVO corp = corpService.queryByPk(pk_corp);
-		
+
 		AuxiliaryAccountBVO[] invenvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
 		List<InventoryVO> intorylist = inventoryservice.querySpecialKM(pk_corp);
 		Map<String, AuxiliaryAccountBVO> invenMap = new HashMap<>();
@@ -5710,7 +5697,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				if(invenMap.containsKey(key)){
 					relvo.setPk_inventory_old(invenMap.get(key).getPrimaryKey());
 				}
-				
+
 				if (invenvo != null) {
 					relvo.setPk_inventory(invenvo.getPrimaryKey());
 //					relvo.setPk_inventory_old(invenvo.getPrimaryKey());
@@ -5724,7 +5711,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					relvo.setPk_subj(intorylist.get(1).getPk_subject());//pk_subject
 					relvo.setSubjname(intorylist.get(1).getKmname());//kmname
 				}
-				
+
 				if(relvo.getHsl()==null){
 					relvo.setHsl(DZFDouble.ONE_DBL);
 					relvo.setCalcmode(0);
@@ -5737,7 +5724,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				list.add(relvo);
 			}
 		}
-		
+
 		if(list!=null && list.size()>0){
 			List<String> slist = new ArrayList<>();
 			for (VATSaleInvoiceVO2 svo : saleList) {
@@ -5758,7 +5745,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					rvo.setSaleNumber(infovo.getSaleNumber());
 					rvo.setSalePrice(infovo.getSalePrice());
 				}
-				
+
 			}
 		}
 		return list;
@@ -5778,7 +5765,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private Map<String, AuxiliaryAccountBVO> buildInvenMap(Map<String, AuxiliaryAccountBVO> tempinMap,
-			Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp) {
+														   Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp) {
 
 		Map<String, AuxiliaryAccountBVO> invenMap1 = new HashMap<String, AuxiliaryAccountBVO>();
 
@@ -5790,7 +5777,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			for (InventoryAliasVO vo : list) {
 				//key = vo.getSpmc() + "," + vo.getInvspec();
 				key = vo.getAliasname() + "," + vo.getSpec()+ ","+vo.getUnit();//名称规格计量单位
-				
+
 				if (invenMap1.containsKey(key)) {
 					continue;
 				}
@@ -5867,7 +5854,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private void dealFzGoodsRela(String pk_corp, String userid, String[] pks,
-			Map<String, List<VatGoosInventoryRelationVO>> newRelMap) {
+								 Map<String, List<VatGoosInventoryRelationVO>> newRelMap) {
 		AuxiliaryAccountBVO[] vos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
 
 		if (vos != null && vos.length > 0) {
@@ -5943,41 +5930,41 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private void dealInvenGoodsRela(String pk_corp, String userid, String[] pks,
-			Map<String, List<VatGoosInventoryRelationVO>> newRelMap) {
+									Map<String, List<VatGoosInventoryRelationVO>> newRelMap) {
 
 		//Map<String, InventoryVO> invenmap = invservice.queryInventoryVOs(pk_corp, pks);
 		List<InventoryAliasVO> list = queryInventoryAliasVO(pk_corp);
 		Map<String,InventoryAliasVO>invenMap = DZfcommonTools.hashlizeObjectByPk(list, new String[] { "aliasname", "spec","unit" });
 		//if (invenmap != null && invenmap.size() > 0) {
-			String key;
-			List<VatGoosInventoryRelationVO> relList;
-			List<VatGoosInventoryRelationVO> newRelList = new ArrayList<VatGoosInventoryRelationVO>();
-			List<InventoryVO> invenList = new ArrayList<InventoryVO>();
+		String key;
+		List<VatGoosInventoryRelationVO> relList;
+		List<VatGoosInventoryRelationVO> newRelList = new ArrayList<VatGoosInventoryRelationVO>();
+		List<InventoryVO> invenList = new ArrayList<InventoryVO>();
 
-			for (Map.Entry<String, List<VatGoosInventoryRelationVO>> entry : newRelMap.entrySet()) {
-				key = entry.getKey();
-				relList = entry.getValue();
-				for (VatGoosInventoryRelationVO vo : relList) {
-					InventoryAliasVO alvo = new InventoryAliasVO();
-					alvo.setAliasname(vo.getSpmc());
-					alvo.setSpec(vo.getInvspec());
-					alvo.setPk_corp(pk_corp);
-					alvo.setPk_inventory(vo.getPk_inventory());
-					alvo.setUnit(vo.getUnit());
-					alvo.setCalcmode(vo.getCalcmode());
-					alvo.setHsl(vo.getHsl());
-					key = alvo.getAliasname()+","+alvo.getSpec()+","+alvo.getUnit();
-					if(invenMap.containsKey(key)){
-						InventoryAliasVO ivo = invenMap.get(key);
-						ivo.setPk_inventory(vo.getPk_inventory());
-						ivo.setCalcmode(vo.getCalcmode());
-						ivo.setHsl(vo.getHsl());
-						singleObjectBO.update(ivo);
-					}else{
-						singleObjectBO.insertVO(pk_corp, alvo);
-					}
-					
+		for (Map.Entry<String, List<VatGoosInventoryRelationVO>> entry : newRelMap.entrySet()) {
+			key = entry.getKey();
+			relList = entry.getValue();
+			for (VatGoosInventoryRelationVO vo : relList) {
+				InventoryAliasVO alvo = new InventoryAliasVO();
+				alvo.setAliasname(vo.getSpmc());
+				alvo.setSpec(vo.getInvspec());
+				alvo.setPk_corp(pk_corp);
+				alvo.setPk_inventory(vo.getPk_inventory());
+				alvo.setUnit(vo.getUnit());
+				alvo.setCalcmode(vo.getCalcmode());
+				alvo.setHsl(vo.getHsl());
+				key = alvo.getAliasname()+","+alvo.getSpec()+","+alvo.getUnit();
+				if(invenMap.containsKey(key)){
+					InventoryAliasVO ivo = invenMap.get(key);
+					ivo.setPk_inventory(vo.getPk_inventory());
+					ivo.setCalcmode(vo.getCalcmode());
+					ivo.setHsl(vo.getHsl());
+					singleObjectBO.update(ivo);
+				}else{
+					singleObjectBO.insertVO(pk_corp, alvo);
 				}
+
+			}
 
 //				if (invenvo == null) {
 //					continue;
@@ -6035,9 +6022,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 //				}
 //
 //				singleObjectBO.insertVOArr(pk_corp, newRelList.toArray(new VatGoosInventoryRelationVO[0]));
-			}
+		}
 
-	//	}
+		//	}
 
 	}
 
@@ -6127,21 +6114,21 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 							}
 						}
 						if(StringUtil.isEmpty(relvo.getKmclassify())){
-							
+
 							accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
 									newrule);
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("1405",accmap);
 							}
-						
+
 							if (accvo != null) {
 								relvo.setKmmc_invcl(accvo.getAccountname());
 								relvo.setKmclasscode(accvo.getAccountcode());
 								relvo.setKmclassify(accvo.getPk_corp_account());
 							}
-							
+
 						}
-						
+
 						String name = invenvo.getName();
 
 						if (!StringUtil.isEmpty(invenvo.getSpec())) {
@@ -6161,11 +6148,11 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						String pk_accsubj = null;
 						relvo.setChukukmid(invsetvo.getKcspckkm());
 						relvo.setKmclassify(invsetvo.getKcsprkkm());
-						
+
 						accvo = getAccountVO(accmap, bvo.getPk_accsubj());
 						if(accvo == null){
 							accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
-								pk_corp, accmap, newrule);
+									pk_corp, accmap, newrule);
 						}
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("600101",accmap);
@@ -6173,19 +6160,19 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("500101",accmap);
 						}
-					
+
 						if (accvo != null) {
 							relvo.setKmmc_sale(accvo.getAccountname());
 							relvo.setChukukmcode(accvo.getAccountcode());
 							relvo.setChukukmid(accvo.getPk_corp_account());
 						}
-						
+
 						accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
 								newrule);
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("1405",accmap);
 						}
-					
+
 						if (accvo != null) {
 							relvo.setKmmc_invcl(accvo.getAccountname());
 							relvo.setKmclasscode(accvo.getAccountcode());
@@ -6200,8 +6187,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				list.add(relvo);
 			}
 		}
-		
-		
+
+
 		if(list!=null && list.size()>0){
 			List<String> slist = new ArrayList<>();
 			for (VATSaleInvoiceVO2 svo : vos) {
@@ -6221,7 +6208,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					rvo.setSaleNumber(infovo.getSaleNumber());
 					rvo.setSalePrice(infovo.getSalePrice());
 				}
-				
+
 			}
 		}
 		return list;
@@ -6237,7 +6224,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private Map<String, InventoryAliasVO> buildInvenMapModel7(Map<String, AuxiliaryAccountBVO> tempinMap,
-			Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp,int pprule) {
+															  Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp,int pprule) {
 
 		Map<String, InventoryAliasVO> invenMap1 = new LinkedHashMap<String, InventoryAliasVO>();
 
@@ -6291,7 +6278,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		return list;
 
 	}
-	
+
 	private String buildByRule(String name, String gg, String unit, int rule){
 		String key = null;
 		if(rule == InventoryConstant.IC_RULE_1){//存货名称+计量单位
@@ -6299,12 +6286,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}else{
 			key = name + "," + gg + "," + unit;
 		}
-		
+
 		return key;
 	}
 
 	private Map<String, VATSaleInvoiceBVO2> buildGoodsInvenRelaMapModel7(List<VATSaleInvoiceVO2> saleList,
-			InventorySetVO invsetvo) {
+																		 InventorySetVO invsetvo) {
 
 		int pprule = invsetvo.getChppjscgz();//匹配规则
 		Map<String, VATSaleInvoiceBVO2> map = new LinkedHashMap<>();
@@ -6323,7 +6310,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				mvo.setBspmc(OcrUtil.execInvname(vo.getSpmc()));
 				bvos = new VATSaleInvoiceBVO2[]{mvo};
 			}
-			
+
 			if (bvos != null && bvos.length > 0) {
 				for (VATSaleInvoiceBVO2 bvo : bvos) {
 					if(!ocrinterface.checkIsMatchCategroy(bvo.getPk_billcategory(), catemap)){
@@ -6332,7 +6319,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					bvo.setPk_accsubj(vo.getPk_subject());
 					bvo.setBspmc(OcrUtil.execInvname(bvo.getBspmc()));
 //					key = bvo.getBspmc() + "," + bvo.getInvspec() + "," + bvo.getMeasurename();
-					key = buildByRule(bvo.getBspmc(), 
+					key = buildByRule(bvo.getBspmc(),
 							bvo.getInvspec(), bvo.getMeasurename(), pprule);
 
 					if (!map.containsKey(key)) {
@@ -6384,7 +6371,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			List<AuxiliaryAccountBVO> invenList = Arrays.asList(invenvos);
 			invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, new String[] { "pk_auacount_b" });
 		}
-		
+
 		//InventorySetVO invsetvo = gl_ic_invtorysetserv.query(pk_corp);
 		int pprule = invsetvo.getChppjscgz();
 		// Map<String, InventoryAliasVO> alimap = new LinkedHashMap<>();
@@ -6395,7 +6382,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 //				vo.setSpec(null);
 //				vo.setInvtype(null);
 //			}
-			
+
 			// 存货存在 是否新增别名
 			if (!StringUtil.isEmpty(vo.getPk_inventory())) {
 				AuxiliaryAccountBVO invvo = invenMap.get(vo.getPk_inventory());
@@ -6514,14 +6501,14 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 		return vos;
 	}
-	
+
 	private AuxiliaryAccountBVO buildAuxiliaryByMatch(InventoryAliasVO vo,
-			String pk_corp, int pprule){
+													  String pk_corp, int pprule){
 		AuxiliaryAccountBVO bvo = new AuxiliaryAccountBVO();
 		// bvo.setCode(yntBoPubUtil.getFZHsCode(pk_corp,
 		// AuxiliaryConstant.ITEM_INVENTORY));
 		bvo.setUnit(vo.getUnit());
-		
+
 		bvo.setSpec(vo.getSpec());
 		bvo.setName(vo.getName());
 		bvo.setChukukmid(vo.getChukukmid());
@@ -6529,7 +6516,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		bvo.setPk_corp(pk_corp);
 		bvo.setDr(0);
 		bvo.setPk_auacount_h(AuxiliaryConstant.ITEM_INVENTORY);
-		
+
 		return bvo;
 	}
 
@@ -6576,7 +6563,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	private String getNameAliasInfoKey(InventoryAliasVO invo,int pprule) {
 		StringBuffer strb = new StringBuffer();
 		strb.append(appendIsNull(invo.getAliasname()));
-		
+
 		if(pprule == InventoryConstant.IC_RULE_1){//存货名称+计量单位
 			strb.append(appendIsNull(null));
 			strb.append(appendIsNull(null));
@@ -6601,7 +6588,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public void createPZ(VATSaleInvoiceVO2 vo, String pk_corp, String userid, boolean accway, boolean isT,
-			VatInvoiceSetVO setvo, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
+						 VatInvoiceSetVO setvo, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		if(StringUtils.isEmpty(vo.getPk_model_h())){
 			throw new BusinessException("销项发票:业务类型为空,请重新选择业务类型");
@@ -6618,7 +6605,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
 		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
-		
+
 		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo,vo.getInperiod(),false);
 		List<List<Object[]>> levelList=(List<List<Object[]>>) paramMap.get("levelList");
 		Map<String, Object[]> categoryMap =(Map<String, Object[]>) paramMap.get("categoryMap");
@@ -6638,7 +6625,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		String tradeCode=(String) paramMap.get("tradeCode");
 		String newrule = (String) paramMap.get("newrule");
 		List<AuxiliaryAccountBVO> chFzhsBodyVOs=(List<AuxiliaryAccountBVO>) paramMap.get("chFzhsBodyVOs");
-		
+
 		//Map<String, YntCpaccountVO> ccountMap = AccountCache.getInstance().getMap(userid, pk_corp);
 		//生成凭证
 		//tblist = createTzpzBVOXx(vo, userid, invsetvo, ccountMap, jsfs, fp_style);
@@ -6680,7 +6667,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public void saveCombinePZ(List<VATSaleInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo,
-			boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
+							  boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		int fp_style;
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();
@@ -6693,10 +6680,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		List<String> imageGroupList = new ArrayList<>();
 		//Map<String, YntCpaccountVO> ccountMap = AccountCache.getInstance().getMap(userid, pk_corp);
 		Integer pzstatus = null;
-		
+
 		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
 		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
-		
+
 		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo,list.get(0).getInperiod(),false);
 		List<List<Object[]>> levelList=(List<List<Object[]>>) paramMap.get("levelList");
 		Map<String, Object[]> categoryMap =(Map<String, Object[]>) paramMap.get("categoryMap");
@@ -6716,7 +6703,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		String tradeCode=(String) paramMap.get("tradeCode");
 		String newrule = (String) paramMap.get("newrule");
 		List<AuxiliaryAccountBVO> chFzhsBodyVOs=(List<AuxiliaryAccountBVO>) paramMap.get("chFzhsBodyVOs");
-		
+
 		// DZFBoolean iszhFlag = null;
 		for (VATSaleInvoiceVO2 vo : list) {
 			// iszhFlag = getCheckZhuanFlag(vo, iszhFlag);
@@ -6733,7 +6720,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			List<OcrInvoiceVO> invoiceList = changeToOcr(voList, pk_corp);
 			List<TzpzHVO> tzpzhvoList = zncsVoucher.processGeneralTzpzVOsByInvoice(invoiceList, vo.getInperiod(), pk_corp, userid, checkMsgMap, levelList, categoryMap, fzhsHeadMap, zyFzhsList, fzhsBodyMap, inventorySetVO, corpvo, fzhsBMMap, paramList, currMap, rateMap, bankAccountMap, accountMap, assistMap, accsetMap, accsetKeywordBVO2Map, jituanSubMap, accVOs, tradeCode, newrule, chFzhsBodyVOs);
 			TzpzBVO[] pzbvoArr = (TzpzBVO[])tzpzhvoList.get(0).getChildren();
-			inlist.addAll(Arrays.asList(pzbvoArr));			
+			inlist.addAll(Arrays.asList(pzbvoArr));
 			if (pzstatus == null) {
 				if (vo.getPzstatus() != null) {
 					pzstatus = vo.getPzstatus();
@@ -6794,7 +6781,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private List<TzpzBVO> createTzpzBVOXx(VATSaleInvoiceVO2 vo, String userid, InventorySetVO invsetvo,
-			Map<String, YntCpaccountVO> ccountMap, String jsfs, int fp_style) {
+										  Map<String, YntCpaccountVO> ccountMap, String jsfs, int fp_style) {
 		List<TzpzBVO> finBodyList = new ArrayList<TzpzBVO>();
 		List<TzpzBVO> bodyList = null;
 
@@ -6862,8 +6849,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private List<TzpzBVO> createCommonTzpzBVO(VATSaleInvoiceVO2 vo, String pk_accsubj, String userid, String zy,
-			String column1, int vdirect, Map<String, YntCpaccountVO> ccountMap, int chcbjzfs, int newRowno,
-			boolean checkinv) {
+											  String column1, int vdirect, Map<String, YntCpaccountVO> ccountMap, int chcbjzfs, int newRowno,
+											  boolean checkinv) {
 		List<TzpzBVO> bodyList = new ArrayList<TzpzBVO>();
 		String priceStr = parameterserv.queryParamterValueByCode(vo.getPk_corp(), IParameterConstants.DZF010);
 		int iprice = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
@@ -7000,8 +6987,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	}
 
 	private TzpzBVO createSingleTzpzBVO(YntCpaccountVO cvo, String zy, VATSaleInvoiceVO2 vo, int vdirect,
-			DZFDouble totalDebit, VATSaleInvoiceBVO2 ibody, int chcbjzfs, int newRowno, String userid,
-			boolean checkinv) {
+										DZFDouble totalDebit, VATSaleInvoiceBVO2 ibody, int chcbjzfs, int newRowno, String userid,
+										boolean checkinv) {
 		String priceStr = parameterserv.queryParamterValueByCode(vo.getPk_corp(), IParameterConstants.DZF010);
 		int iprice = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 		TzpzBVO depvo = new TzpzBVO();
@@ -7095,14 +7082,14 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			return;
 
 		//uglyDeal(list, jsfs, pk_corp, 21);
-		
+
 		for (VATSaleInvoiceVO2 vo : list) {
 			vo.setIoperatetype(21);
 		}
 		singleObjectBO.updateAry(list.toArray(new VATSaleInvoiceVO2[list.size()]),
 				new String[] { "ioperatetype"});
 	}
-	
+
 	private void uglyDeal(List<VATSaleInvoiceVO2> list, String jsfs, String pk_corp, int opeType){
 		List<DcModelHVO> dcList = dcpzjmbserv.query(pk_corp);
 		if(dcList == null || dcList.size() == 0){
@@ -7110,24 +7097,24 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 //		dcList = new DcPzmb().filterDataCommon(dcList, 
 //				pk_corp, null, null, "Y", null);
-		
-		Map<String, DcModelHVO> dcmap = DZfcommonTools.hashlizeObjectByPk(dcList, 
+
+		Map<String, DcModelHVO> dcmap = DZfcommonTools.hashlizeObjectByPk(dcList,
 				new String[]{"busitypetempname", "vspstylecode", "szstylecode"});
-		
+
 		String key;
 		String spname = "销售收入";
 		String vscode;//类型
 		DcModelHVO dcvo;
 		//01 往来科目  02 银行科目 03现金结算
-		String szcode = "01".equals(jsfs) ? 
-					FieldConstant.SZSTYLE_05 : "02".equals(jsfs) 
-						? FieldConstant.SZSTYLE_03 : FieldConstant.SZSTYLE_01;//结算方式
+		String szcode = "01".equals(jsfs) ?
+				FieldConstant.SZSTYLE_05 : "02".equals(jsfs)
+				? FieldConstant.SZSTYLE_03 : FieldConstant.SZSTYLE_01;//结算方式
 		for(VATSaleInvoiceVO2 vo : list){
-			
+
 			vscode = vo.getIszhuan() != null && vo.getIszhuan().booleanValue()
 					? FieldConstant.FPSTYLE_01 : FieldConstant.FPSTYLE_02;
 			key = spname + "," + vscode + "," + szcode;
-			
+
 			dcvo = dcmap.get(key);
 			if(dcvo == null){
 				vo.setPk_model_h(null);
@@ -7136,7 +7123,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				vo.setPk_model_h(dcvo.getPk_model_h());
 				vo.setBusitypetempname(dcvo.getBusitypetempname());
 			}
-			
+
 			vo.setIoperatetype(opeType);
 		}
 	}
@@ -7185,7 +7172,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					bList.add(vo);
 					bList = changeToSale(bList, pk_corp);
 					vo = bList.get(0);
-					
+
 				}
 				else
 				{
@@ -7206,8 +7193,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				vo.setInperiod(period);
 				vo.setPeriod(period);
 			}
-			
-			
+
+
 			upCount++;
 			list.add(vo);
 		}
@@ -7230,7 +7217,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				if(superVOs!=null&&superVOs.length>0){
 					singleObjectBO.updateAry(superVOs,new String[]{"pk_billcategory","pk_category_keyword"});
 				}
-				
+
 			}
 		}
 
@@ -7380,7 +7367,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			ovo.setChildren((changeToOcrDetail((VATSaleInvoiceBVO2[])svo.getChildren(),svo.getPk_model_h(),ovo,svo)));;
 			list.add(ovo);
 		}
-		
+
 		return list;
 	}
 	/*
@@ -7429,7 +7416,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		List<OcrInvoiceVO> olist = changeToOcr(sList, pk_corp);
-		if (olist != null&& olist.size() > 0) {	
+		if (olist != null&& olist.size() > 0) {
 			Map<String, List<OcrInvoiceVO>> map = DZfcommonTools.hashlizeObject(olist,
 					new String[] {"pk_corp", "period"});//期间分组
 			for (String key : map.keySet()) {
@@ -7483,10 +7470,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					}
 				}
 			}
-				
-			
+
+
 		}
-		
+
 		return sList;
 	}
 	@Override
@@ -7500,7 +7487,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				+ " and bi.categorytype != 4 and bi.pk_corp = ? and bi.period = ? order by bi.categorycode ");
 		sp.addParam(pk_corp);
 		sp.addParam(period);
-		List<BillCategoryVO> listVo = (List<BillCategoryVO>) singleObjectBO.executeQuery(sb.toString(), 
+		List<BillCategoryVO> listVo = (List<BillCategoryVO>) singleObjectBO.executeQuery(sb.toString(),
 				sp, new BeanListProcessor(BillCategoryVO.class));
 		return listVo;
 	}
@@ -7514,9 +7501,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		SQLParameter params = new SQLParameter();
 		String pkIns = SqlUtil.buildSqlForIn("pk_vatsaleinvoice", ids);
 		VATSaleInvoiceVO2[] oldVOs = (VATSaleInvoiceVO2[])singleObjectBO.queryByCondition(VATSaleInvoiceVO2.class, pkIns + " and nvl(dr,0) = 0",  params);
-		
+
 		List<VATSaleInvoiceVO2> bList = new ArrayList<VATSaleInvoiceVO2>();
-		
+
 		String inPeriod = oldVOs[0].getInperiod();
 		for (VATSaleInvoiceVO2 oldVO : oldVOs)
 		{
@@ -7535,7 +7522,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			if(!StringUtils.isEmpty(oldVO.getImgpath())){
 				throw new BusinessException("智能识别票据，请至票据工作台进行相关处理！");
 			}
-			
+
 		}
 //		List<VATSaleInvoiceBVO2> bvoList = queryBvoByPk(ids[i]);
 //		ArrayList<String> bvopkList = new ArrayList<String>();
@@ -7543,13 +7530,13 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 //		for (VATSaleInvoiceBVO2 bvo : bvoList) {
 //			bvopkList.add(bvo.getPk_vatsaleinvoice_b());
 //		}
-		
+
 		params = new SQLParameter();
 
 		params.addParam(pk_model_h);
 		params.addParam(pk_corp);
 		params.addParam(oldVOs[0].getInperiod());
-		
+
 		StringBuffer updateDetailSql = new StringBuffer();
 		updateDetailSql.append("update ynt_vatsaleinvoice_b b");
 		updateDetailSql.append("  set pk_billcategory = ?");
@@ -7559,12 +7546,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		updateDetailSql.append(SqlUtil.buildSqlForIn("a.pk_vatsaleinvoice", ids));
 		updateDetailSql.append("         and (b.pk_billcategory = a.pk_model_h or b.pk_billcategory is null))");
 		int icnt = singleObjectBO.executeUpdate(updateDetailSql.toString(), params);
-		
+
 		pk_categoryList.add(pk_model_h);
 		//查询全名称
 		Map<String, String> map = zncsVoucher.queryCategoryFullName(pk_categoryList,oldVOs[0].getInperiod(), pk_corp);
 		String categoryfullname = map.get(pk_model_h);
-		
+
 
 		StringBuffer sb = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
@@ -7587,9 +7574,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 //		}
 		//自学习
 		//查询修改前的分类主键
-		
+
 //		bList.add(oldVO);
-		
+
 		if (bList.size() > 0)
 		{
 			List<OcrInvoiceVO> OcrInvoiceVOList = changeToOcr(bList, pk_corp);
@@ -7598,26 +7585,26 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			}
 			iBillcategory.saveNewCategroy(OcrInvoiceVOList.toArray(new OcrInvoiceVO[0]),
 					pk_model_h, pk_corp, OcrInvoiceVOList.get(0).getPeriod());
-	
+
 		}
-		
+
 	}
 	private List<VATSaleInvoiceBVO2> queryBvoByPk(String pk_vatsaleinvoice) throws DZFWarpException{
 		StringBuffer sb = new StringBuffer();
 		SQLParameter sp = new SQLParameter();
 		sb.append(" select * from ynt_vatsaleinvoice_b where nvl(dr,0)=0 and pk_vatsaleinvoice=?");
 		sp.addParam(pk_vatsaleinvoice);
-		List<VATSaleInvoiceBVO2> list = (List<VATSaleInvoiceBVO2>) singleObjectBO.executeQuery(sb.toString(), 
+		List<VATSaleInvoiceBVO2> list = (List<VATSaleInvoiceBVO2>) singleObjectBO.executeQuery(sb.toString(),
 				sp, new BeanListProcessor(VATSaleInvoiceBVO2.class));
 		return list;
 	}
 	/*
 	 * 检查进项中是否包含存货
-	 * 
+	 *
 	 */
 	@Override
 	public String checkNoStock(List<VATSaleInvoiceVO2> list,String pk_corp) throws DZFWarpException {
-		
+
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		DZFBoolean icinv = new DZFBoolean(IcCostStyle.IC_INVTENTORY.equals(corpvo.getBbuildic()));
 		String mesg="请走存货匹配流程";
@@ -7638,27 +7625,27 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}else if(IcCostStyle.IC_ON.equals(corpvo.getBbuildic())){
 			mesg = "包含需匹配存货票据,请点击[生成出库]进行存货匹配及入账处理";
 		}else return "";
-		
+
 		Set<String> bpkSet = new HashSet<String>();
-		
-		
+
+
 		StringBuffer msg = new StringBuffer();
 		boolean flag=false;
 
-		
+
 		for (VATSaleInvoiceVO2 vo : list) {
-			
+
 			VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])vo.getChildren();
 			if(bvos!=null&&bvos.length>0){
 				for (int i = 0; i < bvos.length; i++) {
 					if(!StringUtils.isEmpty(bvos[i].getPk_billcategory())){
 						bpkSet.add(bvos[i].getPk_billcategory());
 					}
-					
+
 				}
 			}
 		}
-		
+
 		if (bpkSet != null && bpkSet.size() > 0) {
 			SQLParameter sp = new SQLParameter();
 			StringBuffer sb = new StringBuffer();
@@ -7678,7 +7665,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			}
 		}
 
-		
+
 		return msg.toString();
 	}
 	@Override
@@ -7688,42 +7675,42 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		SQLParameter sp = new SQLParameter();
 		Set<String> bpkSet = new HashSet<String>();
 		//for (VATSaleInvoiceVO2 vo : list) {
-			boolean flag=false;
-			VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])vo.getChildren();
-			if(bvos!=null&&bvos.length>0){
-				for (int i = 0; i < bvos.length; i++) {
-					bpkSet.add(bvos[i].getPk_billcategory());
-				}
+		boolean flag=false;
+		VATSaleInvoiceBVO2[] bvos = (VATSaleInvoiceBVO2[])vo.getChildren();
+		if(bvos!=null&&bvos.length>0){
+			for (int i = 0; i < bvos.length; i++) {
+				bpkSet.add(bvos[i].getPk_billcategory());
 			}
-			sb.append(" select * from ynt_billcategory where nvl(dr,0)=0 and "+SqlUtil.buildSqlForIn("pk_category", bpkSet.toArray(new String[0])));
-			List<BillCategoryVO> billList = (List<BillCategoryVO>) singleObjectBO.executeQuery(sb.toString(), sp,
-					new BeanListProcessor(BillCategoryVO.class));
-			if(billList!=null&&billList.size()>0){
-				for (BillCategoryVO billCategoryVO : billList) {
-					if (billCategoryVO.getCategorycode().startsWith("11") //库存采购
-							|| billCategoryVO.getCategorycode().startsWith("101110")//销售材料收入
-							|| billCategoryVO.getCategorycode().startsWith("101015")){//商品销售收入
-						return true;
-					}
-					
+		}
+		sb.append(" select * from ynt_billcategory where nvl(dr,0)=0 and "+SqlUtil.buildSqlForIn("pk_category", bpkSet.toArray(new String[0])));
+		List<BillCategoryVO> billList = (List<BillCategoryVO>) singleObjectBO.executeQuery(sb.toString(), sp,
+				new BeanListProcessor(BillCategoryVO.class));
+		if(billList!=null&&billList.size()>0){
+			for (BillCategoryVO billCategoryVO : billList) {
+				if (billCategoryVO.getCategorycode().startsWith("11") //库存采购
+						|| billCategoryVO.getCategorycode().startsWith("101110")//销售材料收入
+						|| billCategoryVO.getCategorycode().startsWith("101015")){//商品销售收入
+					return true;
 				}
-				
+
 			}
-			
+
+		}
+
 		//}
-		
-		 return false;
+
+		return false;
 	}
-	
+
 	@Override
 	public void checkvoPzMsg(String pk_id) throws DZFWarpException {
 		VATSaleInvoiceVO2 vo = queryByID(pk_id);
 		if(vo==null||!StringUtils.isEmpty(vo.getImgpath())){
 			throw new BusinessException("智能识别票据，请至票据工作台进行相关处理！");
 		}
-		
+
 	}
-	
+
 	@Override
 	public IntradeHVO createIH(VATSaleInvoiceVO2 oldVO, CorpVO corpvo, String userid,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap)
 			throws DZFWarpException {
@@ -7746,13 +7733,13 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		trueMap= iZncsNewTransService.newInsertCategoryVOs(falseMap, trueMap,corpvo.getPk_corp()+vo.getInperiod());
 		turnBillCategoryMap(falseMap, trueMap);
 		//过滤掉不需要生成出入库单的行
-		
+
 		vo=filterBodyVOs(vo, falseMap);
 		if(vo.getChildren().length==0){
 			return null;
 		}
 		Map<String, CategorysetVO> categorysetMap=queryCategorysetVO(vo,corpvo.getPk_corp());
-		
+
 		IntradeHVO ichvo = buildIctrade(vo, userid, categorysetMap, trueMap, falseMap,fzhsBodyMap);
 
 		ic_saleoutserv.saveSale(ichvo, false, false);// 保存
@@ -7760,6 +7747,6 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		updateICStatus(vo.getPk_vatsaleinvoice(), corpvo.getPk_corp(), ichvo.getPk_ictrade_h());
 
 		return ichvo;
-	
+
 	}
 }
