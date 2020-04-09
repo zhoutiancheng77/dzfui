@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -9,6 +10,8 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.auth.entity.FunNode;
+import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
 import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
 import com.dzf.zxkj.platform.auth.service.IChargeEnableService;
 import com.dzf.zxkj.platform.auth.service.ISysService;
@@ -31,6 +34,9 @@ public class VersionMngServiceImpl implements IVersionMngService {
     private SingleObjectBO singleObjectBO = null;
     @Autowired
     private IChargeEnableService enableServ;
+
+    @Autowired
+    private FunNodeMapper funNodeMapper;
 
     @Autowired
     private ISysService sysService;
@@ -63,7 +69,13 @@ public class VersionMngServiceImpl implements IVersionMngService {
         }
         return nodes;
     }
-    
+
+    @Override
+    @CacheInvalidate(name = "corp_user_perssion", key = "#userid+'-'+#pk_corp")
+    public List<FunNode> getFunNodeByUseridAndPkCorp(String userid, String pk_corp) {
+        return funNodeMapper.getFunNodeByUseridAndPkCorp(userid, pk_corp);
+    }
+
     private String[] createNodes(List<DatatruansVO> funnodes){
         if(funnodes == null || funnodes.size() == 0)
             return null;
