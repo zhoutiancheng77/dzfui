@@ -1,5 +1,7 @@
 package com.dzf.zxkj.platform;
 
+import com.alicp.jetcache.anno.config.EnableCreateCacheAnnotation;
+import com.alicp.jetcache.anno.config.EnableMethodCache;
 import com.dzf.cloud.redis.EnableDzfRedis;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +16,8 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableDiscoveryClient
 @ComponentScan(basePackages= {"com.dzf.zxkj.platform","com.dzf.zxkj.operate.log","com.dzf.file"})
+@EnableMethodCache(basePackages = "com.dzf.zxkj.platform")
+@EnableCreateCacheAnnotation
 @EnableDzfRedis
 public class ZxkjPlatformApplication {
     public static void main(String[] args) {
