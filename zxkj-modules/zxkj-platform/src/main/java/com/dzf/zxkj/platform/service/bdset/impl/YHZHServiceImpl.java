@@ -1,9 +1,6 @@
 package com.dzf.zxkj.platform.service.bdset.impl;
 
-import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheInvalidate;
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -18,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -105,9 +101,6 @@ public class YHZHServiceImpl implements IYHZHService {
         BankAccountVO stvo = (BankAccountVO) singleObjectBO.queryVOByID(id, BankAccountVO.class);
         return stvo;
     }
-
-    @CreateCache(name = "zxkj:platform:user", cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
-    private Cache<String, String> platformUserCache;
 
     @Override
     public void delete(BankAccountVO vo) throws DZFWarpException {
