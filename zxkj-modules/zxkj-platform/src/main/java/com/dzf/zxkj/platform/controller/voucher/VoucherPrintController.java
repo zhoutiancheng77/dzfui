@@ -257,22 +257,21 @@ public class VoucherPrintController extends BaseController {
                             new Phrase("主管：", infoFont),
                             template.getOperatorLeft() + marginLeft,
                             template.getOperatorTop() - marginTop, 0);
-                    if (isshow_vjz) {
-                        offset += template.getOperatorOffset();
-                        ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,
-                                new Phrase("记账：" + jzr, infoFont), offset
-                                        + template.getOperatorLeft()
-                                        + marginLeft, template.getOperatorTop()
-                                        - marginTop, 0);
-                    }
-                    if (isshow_vappr) {
-                        offset += template.getOperatorOffset();
-                        ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,
-                                new Phrase("审核：" + shr, infoFont), offset
-                                        + template.getOperatorLeft()
-                                        + marginLeft, template.getOperatorTop()
-                                        - marginTop, 0);
-                    }
+
+                    offset += template.getOperatorOffset();
+                    ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,
+                            new Phrase("记账：" + (isshow_vjz ? jzr : ""), infoFont), offset
+                                    + template.getOperatorLeft()
+                                    + marginLeft, template.getOperatorTop()
+                                    - marginTop, 0);
+
+                    offset += template.getOperatorOffset();
+                    ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,
+                            new Phrase("审核：" + (isshow_vappr ? shr : ""), infoFont), offset
+                                    + template.getOperatorLeft()
+                                    + marginLeft, template.getOperatorTop()
+                                    - marginTop, 0);
+
                     if (isshowcn != null && isshowcn.booleanValue()) {
                         offset += template.getOperatorOffset();
                         ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,
