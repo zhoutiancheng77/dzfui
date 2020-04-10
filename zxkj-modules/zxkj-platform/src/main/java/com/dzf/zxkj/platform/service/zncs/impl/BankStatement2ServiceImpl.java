@@ -67,6 +67,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -3389,10 +3390,11 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 				ret = "" + Double.valueOf(cell.getNumericCellValue()).doubleValue();
 //				 小数不可用这样格式，只为了凭证编码格式
 				java.text.DecimalFormat formatter = new java.text.DecimalFormat("#############.##");
+				formatter.setRoundingMode(RoundingMode.HALF_UP);
 				if ("General".equals(cell.getCellStyle().getDataFormatString())) {
 					ret = formatter.format(cell.getNumericCellValue());
 				} else if(cell.getCellStyle().getDataFormatString().indexOf(".")>=0){
-					ret = formatter.format(cell.getNumericCellValue());
+					ret = formatter.format(BigDecimal.valueOf(cell.getNumericCellValue()));
 				}else{
 					ret = sdf.format(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()));
 				}
