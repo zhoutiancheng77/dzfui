@@ -1,6 +1,9 @@
 package com.dzf.zxkj.platform.service.sys.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -8,11 +11,11 @@ import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IParameterConstants;
-import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.utils.ObjectUtils;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.dao.ParameterSetDao;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
@@ -25,27 +28,25 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("sys_parameteract")
 public class ParameterSetServiceImpl implements IParameterSetService {
-	
-	private SingleObjectBO singleObjectBO = null;
 
-	public SingleObjectBO getSingleObjectBO() {
-		return singleObjectBO;
-	}
+	@Autowired
+	private SingleObjectBO singleObjectBO;
 
 	@Autowired
 	private ICorpService corpService;
 
 	@Autowired
-	private IAccountService accountService;
+	private ParameterSetDao parameterSetDao;
+
 	@Autowired
-	public void setSingleObjectBO(SingleObjectBO singleObjectBO) {
-		this.singleObjectBO = singleObjectBO;
-	}
+	private IAccountService accountService;
 
 	@Override
+	@CacheInvalidate(name = "zxkj:parameter-set", key = "#pk_corp")
 	public void saveParamter(String pk_corp, YntParameterSet vo)throws DZFWarpException {
 		check(pk_corp,vo);
 		boolean isexists = isExists(pk_corp,vo.getParameterbm());
@@ -260,20 +261,13 @@ public class ParameterSetServiceImpl implements IParameterSetService {
 	}
 	
 	private List<YntParameterSet> queryParamters(String pk_corp, String parameterbm)throws DZFWarpException {
-		String where = " select pk_corp from bd_corp  start with pk_corp = ? connect by  pk_corp = prior fathercorp and nvl(dr,0) = 0 ";
-		StringBuffer sf = new StringBuffer();
-		sf.append("select * from ynt_parameter where nvl(dr,0) = 0 and pk_corp in(");
-		sf.append(where);
-		sf.append(")  ");
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(pk_corp);
+
+		List<YntParameterSet> parameterSetList = parameterSetDao.queryParamters(pk_corp);
+
 		if(!StringUtil.isEmpty(parameterbm)){
-			sf.append(" and parameterbm = ? ");
-			sp.addParam(parameterbm);
+			return ObjectUtils.notEmpty(parameterSetList) ? parameterSetList.stream().filter(v -> parameterbm.equalsIgnoreCase(v.getParameterbm())).collect(Collectors.toList()) : new ArrayList<YntParameterSet>();
 		}
-		List<YntParameterSet> ancevos = (List<YntParameterSet>)
-				singleObjectBO.executeQuery(sf.toString(), sp, new BeanListProcessor(YntParameterSet.class));
-		return ancevos;
+		return parameterSetList;
 	}
 
 	@Override
