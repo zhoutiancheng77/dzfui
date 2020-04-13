@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.common.constant.IBillManageConstants;
+import com.dzf.zxkj.common.constant.RedisCacheConstant;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.dao.YhzhDao;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
@@ -27,7 +28,7 @@ public class YHZHServiceImpl implements IYHZHService {
     private YhzhDao yhzhDao;
 
     @Override
-    @CacheInvalidate(name="zxkj:yhzh", key="#vo.pk_corp")
+    @CacheInvalidate(name = RedisCacheConstant.YHZH_NAME, key = "#vo.pk_corp")
     public BankAccountVO save(BankAccountVO vo) throws DZFWarpException {
         checkExist(vo);
 
@@ -36,7 +37,7 @@ public class YHZHServiceImpl implements IYHZHService {
     }
 
     @Override
-    @CacheInvalidate(name="zxkj:yhzh", key="#vo.pk_corp")
+    @CacheInvalidate(name = RedisCacheConstant.YHZH_NAME, key = "#vo.pk_corp")
     public void update(BankAccountVO vo, String[] fields) throws DZFWarpException {
         checkExist(vo);
         singleObjectBO.update(vo, fields);
