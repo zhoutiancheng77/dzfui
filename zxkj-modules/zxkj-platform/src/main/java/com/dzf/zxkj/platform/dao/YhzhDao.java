@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.cache;
+package com.dzf.zxkj.platform.dao;
 
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
@@ -7,13 +7,13 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@Component
-public class YhzhCache {
+@Repository
+public class YhzhDao {
 
     @Autowired
     private SingleObjectBO singleObjectBO;

@@ -10,7 +10,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.common.constant.IBillManageConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.platform.cache.YhzhCache;
+import com.dzf.zxkj.platform.dao.YhzhDao;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +28,7 @@ public class YHZHServiceImpl implements IYHZHService {
     private SingleObjectBO singleObjectBO;
 
     @Autowired
-    private YhzhCache yhzhCache;
+    private YhzhDao yhzhDao;
 
     @Override
     @CacheInvalidate(name="zxkj:yhzh", key="#vo.pk_corp")
@@ -80,7 +80,7 @@ public class YHZHServiceImpl implements IYHZHService {
 
     @Override
     public List<BankAccountVO> query(String pk_corp, String isnhsty) throws DZFWarpException {
-        List<BankAccountVO> bankAccountVOS = yhzhCache.queryByPkCorp(pk_corp);
+        List<BankAccountVO> bankAccountVOS = yhzhDao.queryByPkCorp(pk_corp);
 
         if (!StringUtil.isEmpty(isnhsty)) {
             return bankAccountVOS.stream().filter(v -> IBillManageConstants.TINGY_STATUS != v.getState()).collect(Collectors.toList());
@@ -139,7 +139,7 @@ public class YHZHServiceImpl implements IYHZHService {
      * @return
      */
     private boolean checkIsRef(BankAccountVO vo) {
-        List<BankAccountVO> bankAccountVOS = yhzhCache.queryByPkCorp(vo.getPk_corp());
+        List<BankAccountVO> bankAccountVOS = yhzhDao.queryByPkCorp(vo.getPk_corp());
 
         return bankAccountVOS.stream().anyMatch(v -> v.getPrimaryKey().equalsIgnoreCase(vo.getPrimaryKey()));
     }
