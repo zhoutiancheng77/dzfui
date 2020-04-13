@@ -19,7 +19,7 @@ public class YhzhDao {
     @Autowired
     private SingleObjectBO singleObjectBO;
 
-    @Cached(name = RedisCacheConstant.YHZH_NAME, expire = RedisCacheConstant.YHZH_EXPIRE, key = "#pk_corp", cacheType = CacheType.REMOTE, timeUnit = TimeUnit.DAYS)
+    @Cached(name = RedisCacheConstant.YHZH_NAME, expire = 7, key = "#pk_corp", cacheType = CacheType.REMOTE, timeUnit = TimeUnit.DAYS)
     public List<BankAccountVO> queryByPkCorp(String pk_corp) {
         StringBuffer sf = new StringBuffer();
         SQLParameter sp = new SQLParameter();
