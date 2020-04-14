@@ -634,7 +634,7 @@ public class PzglServiceImpl implements IPzglService {
 		} else if ("10".equals(status)) {
 			// 未制证
 			stateSql.append(" and nvl(a.istate, 10) not in (").append(PhotoState.state80).append(",").append(PhotoState.state205).append(",")
-					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(") and ((yi.pk_invoice is not null and yi.pk_billcategory is not null) or c.def4 <> ").append(PhotoState.TREAT_TYPE_7).append(")");
+					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(") and ((yi.pk_invoice is not null and yi.pk_billcategory is not null) or yc.pk_image_ocrlibrary is null or c.def4 <> ").append(PhotoState.TREAT_TYPE_7).append(")");
 		} else if ("11".equals(status)) {
 			// 暂存凭证
 			stateSql.append(" and h.vbillstatus = -1 and h.iautorecognize <> 1 ");
