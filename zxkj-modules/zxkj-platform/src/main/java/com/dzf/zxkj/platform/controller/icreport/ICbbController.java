@@ -238,7 +238,7 @@ public class ICbbController  extends BaseController {
 			printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
 
 			setDefaultValue(listVo, SystemUtil.getLoginCorpId());// 为后续设置精度赋值
-
+			printReporUtil.setLineheight(22f);
 			printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), listVo, "库存成本表",
 					new String[] { "inventorycode", "inventoryname", "invspec", "measurename", "inventorytype",
 							"pk_subjectname", "nnum", "nprice", "ncost" },

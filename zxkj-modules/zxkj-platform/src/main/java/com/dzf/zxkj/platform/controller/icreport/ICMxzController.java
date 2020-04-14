@@ -451,7 +451,7 @@ public class ICMxzController extends BaseController {
 			if (!StringUtil.isEmpty(isfenye) && (isfenye.equals("Y") || isfenye.equals("true"))) {
 				bisfenye = true;
 			}
-
+			printReporUtil.setLineheight(22f);
 			if (!bisfenye) {
 				// 老模式 启用库存
 				if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {

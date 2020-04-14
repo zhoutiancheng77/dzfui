@@ -234,7 +234,7 @@ public class ICHzbController  extends BaseController {
 			Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
 			tmap.put("公司", gs);
 			tmap.put("期间", period);
-
+			printReporUtil.setLineheight(22f);
 			CorpVO corpvo = SystemUtil.getLoginCorpVo();
 			// 老模式 启用库存
 			if (corpvo.getIbuildicstyle() == null || corpvo.getIbuildicstyle() != 1) {
