@@ -571,6 +571,10 @@ public class PurchInServiceImpl implements IPurchInService {
 			throw new BusinessException("发票号过长!");
 		}
 
+        if(headvo.getIpayway() == null){
+            throw new BusinessException("付款方式不能为空!");
+        }
+
 	}
 
 	private void checkBodys(IntradeHVO headvo, IctradeinVO[] bodyvos, StringBuffer strb) {
@@ -1075,6 +1079,9 @@ public class PurchInServiceImpl implements IPurchInService {
 			finBodyList.addAll(bodyList);//
 		}
 
+		if(ivo.getIpayway() == null){
+			throw new BusinessException("付款方式不能为空!");
+		}
 		if (ivo.getIpayway() == 0) {// 现金
 			if (StringUtil.isEmpty(setvo.getCg_xjfkkm())) {
 				throw new BusinessException("现金付款科目未设置!");

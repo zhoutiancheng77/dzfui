@@ -572,6 +572,9 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		if (!StringUtil.isEmpty(headvo.getDinvid()) && headvo.getDinvid().length() > 25) {
 			throw new BusinessException("发票号过长!");
 		}
+        if(headvo.getIpayway() == null){
+            throw new BusinessException("付款方式不能为空!");
+        }
 
 	}
 
@@ -1011,6 +1014,9 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		List<TzpzBVO> finBodyList = new ArrayList<TzpzBVO>();
 		String pk_accsunj = null;
 
+		if(ivo.getIpayway() == null){
+			throw new BusinessException("付款方式不能为空!");
+		}
 		if (ivo.getIpayway() == 0) {// 现金
 			if (StringUtil.isEmpty(setvo.getXs_xjskkm())) {
 				throw new BusinessException("现金收款科目未设置!");
