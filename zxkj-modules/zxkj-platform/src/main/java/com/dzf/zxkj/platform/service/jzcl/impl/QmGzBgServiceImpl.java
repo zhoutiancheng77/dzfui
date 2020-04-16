@@ -2338,23 +2338,35 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 				return -1;
 			}else if(r == 0){
 				// 辅助编码排序
-				String code1 = "";
-				String code2 = "";
+				StringBuffer lbcode1 = new StringBuffer();
+				StringBuffer lbcode2 = new StringBuffer();
+				StringBuffer code1 = new StringBuffer();
+				StringBuffer code2 = new StringBuffer();
 				String[] pk_arr1 = key1.split(",");
 				String[] pk_arr2 = key2.split(",");
 				for(int i = 0; i < pk_arr1.length; i++){
-					if("0".equals(pk_arr1[i])){
-						continue;
+					if(!"0".equals(pk_arr1[i])){
+						lbcode1.append(1 + "");
+						code1.append(auxiliaryAccountMapping.get(pk_arr1[i]).getCode());
+					} else {
+						lbcode1.append(0 + "");
 					}
-					code1 = auxiliaryAccountMapping.get(pk_arr1[i]).getCode();
+
 				}
 				for(int i = 0; i < pk_arr2.length; i++){
-					if("0".equals(pk_arr2[i])){
-						continue;
+					if(!"0".equals(pk_arr2[i])){
+						lbcode2.append(1 + "");
+						code2.append(auxiliaryAccountMapping.get(pk_arr2[i]).getCode());
+					}else {
+						lbcode2.append(0 + "");
 					}
-					code2 = auxiliaryAccountMapping.get(pk_arr2[i]).getCode();
 				}
-				return code1.compareTo(code2);
+				// 先排序类别，再排序 如果类别相同，则排序编码
+				if (lbcode1.toString().compareTo(lbcode2.toString()) == 0) {
+					return code1.toString().compareTo(code2.toString());
+				} else {
+					return lbcode1.toString().compareTo(lbcode2.toString());
+				}
 			}
 			return 1;
 		}
