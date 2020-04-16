@@ -634,7 +634,7 @@ public class PzglServiceImpl implements IPzglService {
 		} else if ("10".equals(status)) {
 			// 未制证
 			stateSql.append(" and nvl(a.istate, 10) not in (").append(PhotoState.state80).append(",").append(PhotoState.state205).append(",")
-					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(") and ((yi.pk_invoice is not null and yi.pk_billcategory is not null) or c.def4 <> ").append(PhotoState.TREAT_TYPE_7).append(")");
+					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(") and ((yi.pk_invoice is not null and yi.pk_billcategory is not null) or yc.pk_image_ocrlibrary is null or c.def4 <> ").append(PhotoState.TREAT_TYPE_7).append(")");
 		} else if ("11".equals(status)) {
 			// 暂存凭证
 			stateSql.append(" and h.vbillstatus = -1 and h.iautorecognize <> 1 ");
@@ -662,7 +662,7 @@ public class PzglServiceImpl implements IPzglService {
 					.append(PhotoState.state100).append(",").append(PhotoState.state101).append(")");
 		}else if ("18".equals(status)) {
 			// 识别中
-			stateSql.append(" and ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  a.istate not in (205,100,101) )").append(" and c.def4 = ").append(PhotoState.TREAT_TYPE_7);
+			stateSql.append(" and ( (yi.pk_invoice is null or yi.pk_billcategory is null)  and yc.pk_image_ocrlibrary is not null and  a.istate not in (205,100,101) )").append(" and c.def4 = ").append(PhotoState.TREAT_TYPE_7);
 
 		}
 
@@ -736,7 +736,7 @@ public class PzglServiceImpl implements IPzglService {
 		SQLParameter sp = new SQLParameter();
 		StringBuffer qrySql = new StringBuffer();
 		qrySql.append("select a.*,b.*, yc.keycode as ocr_batch,c.unitname, c.unitcode,su.user_name,h.vbillstatus pzdt,h.iautorecognize, ");
-		qrySql.append("  case when ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  a.istate not in (205,100,101) ) and c.def4 =7 then 18 else a.istate end as istate ");
+		qrySql.append("  case when ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  yc.pk_image_ocrlibrary is not null and  a.istate not in (205,100,101) ) and c.def4 =7 then 18 else a.istate end as istate ");
 		qrySql.append("from ynt_image_group a ");
 		qrySql.append("left join ynt_image_library  b  on a.pk_image_group = b.pk_image_group ");
 		qrySql.append("left join bd_corp c on a.pk_corp = c.pk_corp ");

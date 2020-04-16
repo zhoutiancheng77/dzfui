@@ -993,7 +993,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 		//case when syje is null then zcje else syje end as mony
 		StringBuilder sql = new StringBuilder();//gp.istate
 		sql.append("select count(1) total, bu.ioperatetype btype, pz.vbillstatus, pz.iautorecognize,")
-				.append("  case when ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  gp.istate not in (205,100,101) ) then 18 else gp.istate end as istate,")
+				.append("  case when ( (yi.pk_invoice is null or yi.pk_billcategory is null) and  yc.pk_image_ocrlibrary is not null and  gp.istate not in (205,100,101) ) then 18 else gp.istate end as istate,")
 				.append(" bk.pk_bankstatement bank, sl.pk_vatsaleinvoice sale,bu.pk_vatincominvoice buy")
 				.append("  from ynt_image_library lb")
 				.append("  left join ynt_image_group gp")
@@ -1014,7 +1014,7 @@ public class ImageGroupServiceImpl implements IImageGroupService {
 				.append("   and nvl(gp.istate,10) <> ? ")
 				.append("   and nvl(gp.istate,10) <> ? ")
 				.append(" group by gp.istate, bu.ioperatetype, pz.vbillstatus, pz.iautorecognize,")
-				.append(" bk.pk_bankstatement, sl.pk_vatsaleinvoice,bu.pk_vatincominvoice,yi.pk_invoice,yi.pk_billcategory");
+				.append(" bk.pk_bankstatement, sl.pk_vatsaleinvoice,bu.pk_vatincominvoice,yi.pk_invoice,yi.pk_billcategory,yc.pk_image_ocrlibrary");
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(pk_corp);
