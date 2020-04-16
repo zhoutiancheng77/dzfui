@@ -9,9 +9,14 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.IPrebillService;
 import com.dzf.zxkj.platform.service.zncs.ISchedulCategoryService;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
+import com.xxl.job.core.biz.model.ReturnT;
+import com.xxl.job.core.handler.IJobHandler;
+import com.xxl.job.core.handler.annotation.JobHandler;
+import com.xxl.job.core.handler.annotation.XxlJob;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,8 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-@RestController
-@RequestMapping("/zncs/timerTask")
+@Component
 public class TimerTaskController{
     private static final long serialVersionUID = 1L;
 
@@ -38,12 +42,10 @@ public class TimerTaskController{
     @Autowired
     private RedissonDistributedLock redissonDistributedLock;
 
-    private ExecutorService cachedThreadPool = Executors.newFixedThreadPool (3);
 
-
-    @RequestMapping("/autoCategory")
-    public void autoCategory() {
-
+    @XxlJob(value = "autoCategoryJob")
+    public ReturnT<String> execute(String s) throws Exception {
+        ExecutorService cachedThreadPool = Executors.newFixedThreadPool (3);
         cachedThreadPool.execute(new Runnable() {
             @Override
             public void run(){
@@ -103,7 +105,6 @@ public class TimerTaskController{
 
             }
         });
-
-
+        return ReturnT.SUCCESS;
     }
 }
