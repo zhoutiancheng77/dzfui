@@ -1,19 +1,18 @@
 package com.dzf.zxkj.report.controller;
 
+import com.dzf.zxkj.base.controller.PrintAndExcelExportController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.base.controller.PrintAndExcelExportController;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.report.service.power.IButtonPowerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,18 +53,15 @@ public class ReportBaseController extends PrintAndExcelExportController {
     public boolean checkExcelExport(String pk_corp,HttpServletResponse response) {
         String tips = btn_power_ser.qryButtonPower(pk_corp);
         if (!StringUtil.isEmpty(tips)) {
-            PrintWriter pw = null;
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("text/html;charset=utf-8");
+            response.addHeader("message-type", "export");
             try {
-                pw = response.getWriter();
-                pw.write("<h4 style = 'margin:15% auto;color:red;font-size: 20px;text-align:center;padding:0px '>"+tips+"</h4>");
-                pw.flush();
-            } catch (IOException e) {
-
-            } finally {
-                if (pw != null) {
-                    pw.close();
-                }
+                response.addHeader("message-info",  java.net.URLEncoder.encode(tips,  "UTF-8"));
+            } catch (UnsupportedEncodingException e) {
+                log.error("checkExcelExport------------->", e);
             }
+
             return false;
         }
         return true;
