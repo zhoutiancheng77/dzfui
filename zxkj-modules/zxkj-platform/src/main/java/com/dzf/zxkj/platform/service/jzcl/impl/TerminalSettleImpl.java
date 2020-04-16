@@ -1062,7 +1062,7 @@ public class TerminalSettleImpl implements ITerminalSettle {
 		String sql = "select 1 from ynt_tzpz_h where pk_corp = ? and period = ? " +
 				" and sourcebilltype = ? and nvl(dr,0) = 0";
 		sp.addParam(pk_corp);
-		sp.addParam(period);
+		sp.addParam(period.toString().substring(0,7));
 		sp.addParam(IBillTypeCode.HP28);
 		return singleObjectBO.isExists(pk_corp, sql, sp);
 	}
