@@ -405,7 +405,7 @@ public class KmMxZReportForWbImpl implements IKmMxZReportForWb {
     	Map<String, AuxiliaryAccountBVO> resmap = new HashMap<String, AuxiliaryAccountBVO>();
     	SQLParameter sp = new SQLParameter();
     	sp.addParam(pk_corp);
-    	AuxiliaryAccountBVO[] bvos = zxkjPlatformService.queryBByFzlb(pk_corp, null);
+    	AuxiliaryAccountBVO[] bvos = zxkjPlatformService.queryAllB(pk_corp);
     	if(bvos!=null && bvos.length>0){
         	for(AuxiliaryAccountBVO bvo:bvos){
         		resmap.put(bvo.getPrimaryKey(), bvo);
