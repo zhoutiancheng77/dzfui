@@ -2746,6 +2746,10 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			sl = SafeCompute.multiply(SafeCompute.div(bvo.getBspse(), bvo.getBhjje()), new DZFDouble(100));
 			bvo.setBspsl(sl.setScale(0, DZFDouble.ROUND_HALF_UP));
 //			}
+			//特殊处理 标准模板 单价
+			if (IBillManageConstants.AUTO == sourceType&&bvo.getBhjje()!=null&&bvo.getBnum()!=null&&bvo.getBprice()==null) {
+				bvo.setBprice(SafeCompute.div(bvo.getBhjje(), bvo.getBnum()));
+			}
 
 			// dealBodyTaxItem(taxvos, bvo);
 
