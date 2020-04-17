@@ -469,6 +469,17 @@ public class AccountQryServiceImpl implements IAccountQryService {
 	 */
 	private QrySqlSpmVO getCorpInfo(QueryParamVO pamvo, UserVO uvo, boolean isqrynum, boolean ischannel) throws DZFWarpException {
 		QrySqlSpmVO qryvo = new QrySqlSpmVO();
+
+		StringBuffer sf  = new StringBuffer();
+		sf.append(" select distinct tax.tax_area, cp.* from bd_corp cp ");
+		sf.append(" join sm_user_role re on re.pk_corp = cp.pk_corp ");
+		sf.append(" join sm_role role on re.pk_role = role.pk_role ");
+		sf.append(" left join bd_corp_tax tax on tax.pk_corp = cp.pk_corp and nvl(tax.dr,0) = 0 ");
+		sf.append(" where re.cuserid = '"+uvo.getCuserid()+"' and nvl(re.dr,0) = 0 and nvl(cp.isaccountcorp,'N') = 'N' ");
+		sf.append(" and nvl(cp.isseal,'N') = 'N' and nvl(cp.ishasaccount,'N') = 'Y' ");
+		sf.append(" and role.roletype in(4,6,8)");
+		sf.append(" order by cp.innercode  ");
+
 		StringBuffer sql = new StringBuffer();
 		SQLParameter spm = new SQLParameter();
 		if(isqrynum){
@@ -476,7 +487,7 @@ public class AccountQryServiceImpl implements IAccountQryService {
 		}else{
 			sql.append("SELECT p.pk_corp as pk_corp  ") ; 
 		}
-		sql.append("  FROM bd_corp p  ");
+		sql.append("  FROM ("+sf.toString()+") p  ");
 		sql.append(" WHERE nvl(p.dr,0) = 0   ");
 		sql.append("   AND nvl(p.isaccountcorp, 'N') = 'N'   ");
 		sql.append("   AND nvl(p.isseal,'N') = 'N' ");
