@@ -92,14 +92,15 @@ public class PzmbhServiceImpl implements IPzmbhService {
 		List<PzmbhVO> listVo = new ArrayList<PzmbhVO>();
 		SQLParameter sp=new SQLParameter();
 		sp.addParam(pk_corp);
-		listVo = (List<PzmbhVO>)singleObjectBO.retrieveByClause(PzmbhVO.class, " pk_corp=? and nvl(dr,0)=0", sp);
+		listVo = (List<PzmbhVO>)singleObjectBO.retrieveByClause(PzmbhVO.class,
+				" pk_corp=? and nvl(dr,0)=0 order by vtemplatecode", sp);
 		return listVo;
 	}
 
 	@Override
 	public List<PzmbhVO> queryWithBody(String pk_corp) throws DZFWarpException {
 		SQLParameter sp = new SQLParameter();
-		String headSql = "select * from ynt_cppztemmb where pk_corp = ? and nvl(dr,0) = 0 ";
+		String headSql = "select * from ynt_cppztemmb where pk_corp = ? and nvl(dr,0) = 0 order by vtemplatecode ";
 		sp.addParam(pk_corp);
 		List<PzmbhVO> headVos = (List<PzmbhVO>)singleObjectBO
 				.executeQuery(headSql,sp, new BeanListProcessor(PzmbhVO.class));
