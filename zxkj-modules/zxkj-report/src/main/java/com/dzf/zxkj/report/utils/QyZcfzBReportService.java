@@ -231,7 +231,10 @@ public class QyZcfzBReportService {
 			vo11=getZCFZBVO1(map, vo11,true, mapc,true, getYSJFKmList(queryAccountRule).toArray(new String[0]));
 		}
 		vo11.setZc("　其他流动资产");
-		// vo11=getZCFZBVO(map,vo11,true,"1901");
+		ZcFzBVO vo11temp = new ZcFzBVO();
+		vo11temp=getZCFZBVO(map,vo11temp,true,"190101");
+		vo11.setQmye1(SafeCompute.add(vo11temp.getQmye1(), vo11.getQmye1()));
+		vo11.setNcye1(SafeCompute.add(vo11temp.getNcye1(),vo11.getNcye1()));
 		vo11.setFzhsyzqy("　一年内到期的非流动负债");
 		vo11.setHc1("13");
 		vo11.setHc2("46");
@@ -510,7 +513,11 @@ public class QyZcfzBReportService {
 		vo28.setHc2_id("ZCFZ-062");
 
 		ZcFzBVO vo29 = new ZcFzBVO();
+		ZcFzBVO vo29temp = new ZcFzBVO();
+		vo29temp = getZCFZBVO(map, vo29temp, true, "190101");
 		vo29 = getZCFZBVO(map, vo29, true, "1623", "1901");
+		vo29.setQmye1(SafeCompute.sub(vo29.getQmye1(),vo29temp.getQmye1()));
+		vo29.setNcye1(SafeCompute.sub(vo29.getNcye1(),vo29temp.getNcye1()));
 		vo29.setZc("　其他非流动资产");
 		// vo29=getZCFZBVO(map,vo29,false,"4103","4104");
 		// vo29.setFzhsyzqy(" 未分配利润") ;

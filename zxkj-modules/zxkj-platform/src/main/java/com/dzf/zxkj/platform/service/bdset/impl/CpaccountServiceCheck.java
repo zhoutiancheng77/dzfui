@@ -552,9 +552,10 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
                             || "长期待摊费用".equals(parentVO.getAccountname().trim())
                             || "应付职工薪酬".equals(parentVO.getAccountname().trim())
                             || "生产成本".equals(parentVO.getAccountname().trim())
+                            || "待处理财产损溢".equals(parentVO.getAccountname().trim())
                             //|| "利润分配".equals(parentVO.getAccountname().trim())
                     )) {
-                throw new BusinessException("【固定资产、累计折旧、无形资产、长期待摊费用、应付职工薪酬、生产成本】科目，不允许增加二级科目！");
+                throw new BusinessException("【固定资产、累计折旧、无形资产、长期待摊费用、应付职工薪酬、生产成本、待处理财产损溢】科目，不允许增加二级科目！");
             }
         }
     }
