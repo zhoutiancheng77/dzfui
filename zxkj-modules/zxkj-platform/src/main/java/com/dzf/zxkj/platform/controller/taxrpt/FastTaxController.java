@@ -49,6 +49,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -1093,7 +1094,12 @@ public class FastTaxController  extends BaseController {
 //
 //	}
 
-    // 工资表导出纳税申报表
+    /**
+     * 工资表导出纳税申报表
+     * @param param
+     * @param response
+     */
+    @Deprecated
     @PostMapping("/exportTaxDeclaration")
     public void exportTaxDeclaration(@RequestBody Map<String, String> param, HttpServletResponse response) {
 
@@ -1154,7 +1160,13 @@ public class FastTaxController  extends BaseController {
         }
     }
 
-    // 工资表导出人员信息
+    /**
+     * 工资表导出人员信息
+     * 已弃用
+     * @param param
+     * @param response
+     */
+    @Deprecated
     @PostMapping("/exportPersonnelInfo")
     public void exportPersonnelInfo(@RequestBody Map<String, String> param, HttpServletResponse response) {
 //        HttpServletResponse response = getResponse();
@@ -1226,7 +1238,13 @@ public class FastTaxController  extends BaseController {
         }
     }
 
-    // impExcel
+    /**
+     * impExcel
+     * @param file
+     * @param request
+     * @return
+     */
+    @Deprecated
     @PostMapping("impExcel")
     public ReturnData impExcel(@RequestParam("impfile") MultipartFile file, HttpServletRequest request) {
         Json json = new Json();
@@ -1268,6 +1286,7 @@ public class FastTaxController  extends BaseController {
         return ReturnData.ok().data(json);
     }
 
+    @Deprecated
     private Object[] onBoImp(MultipartFile infile, String opdate, String filename, String customerId, String billtype)
             throws Exception {
         InputStream is = null;
@@ -1303,6 +1322,7 @@ public class FastTaxController  extends BaseController {
         }
     }
 
+    @Deprecated
     private Object[] doImport(File excelfile, Sheet sheets, String opdate, String customerId, String billtype)
             throws Exception {
 
@@ -1318,44 +1338,53 @@ public class FastTaxController  extends BaseController {
 
         return objs;
     }
+
+    /**
+     * 票据扫描客户端上传图片
+     * @return
+     */
     @RequestMapping("/uploadSingleFile")
-    public ReturnData<Json> uploadSingleFile(MultipartFile infiles,
-                                             String period,String pk_corp,String invoicedata,
-                                             String pjlx, String isbizperiod, String g_id) {
+    public ReturnData<Json> uploadSingleFile(HttpServletRequest request) {
         Json json = new Json();
         json.setSuccess(false);
-//        String period = null;
+        String period = "";
         try {
 //            period = ((MultiPartRequestWrapper) getRequest()).getParameter("period");// 上传期间
 //            String invoicedata = ((MultiPartRequestWrapper) getRequest()).getParameter("invoicedata");// 上传发票信息json
 //            String pk_corp = ((MultiPartRequestWrapper) getRequest()).getParameter("pk_corp");// 上传公司
 
-            log.info("扫描信息：" + invoicedata);
+            MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+            period = multipartRequest.getParameter("period"); // 上传期间
+            String invoicedata = multipartRequest.getParameter("invoicedata"); // 上传发票信息json
+            String pk_corp = multipartRequest.getParameter("pk_corp"); // 上传公司
+            String g_id = multipartRequest.getParameter("g_id"); // 图片组id
+            String isbizperiod = multipartRequest.getParameter("isbizperiod"); // 否按实际业务日期入账，Y按业务日期入账，N按指定期间入账
+            String pjlx = multipartRequest.getParameter("pjlx"); // 票据分类
+
             if (StringUtil.isEmpty(period)) {
                 throw new BusinessException("上传期间缺失,请检查!");
             }
             if (StringUtil.isEmpty(pk_corp)) {
                 throw new BusinessException("上传公司缺失,请检查!");
             }
-
-//            File[] infiles = ((MultiPartRequestWrapper) getRequest()).getFiles("file");
-//            String[] filenames = ((MultiPartRequestWrapper) getRequest()).getFileNames("file");
-            String[] filenames =  new String[]{ infiles.getOriginalFilename() };
-            if (infiles == null) {
-                throw new BusinessException("文件为空,请检查!");
-            }
-
-//            String pjlxType= ((MultiPartRequestWrapper) getRequest()).getParameter("pjlx");
             if (StringUtil.isEmpty(pjlx)) {
                 throw new BusinessException("上传分类缺失,请检查!");
             }
-            //
+
+//            File[] infiles = ((MultiPartRequestWrapper) getRequest()).getFiles("file");
+//            String[] filenames = ((MultiPartRequestWrapper) getRequest()).getFileNames("file");
+
+            MultipartFile infile = multipartRequest.getFile("file");
+            if (infile == null) {
+                throw new BusinessException("上传图片为空,请检查!");
+            }
+            String filename = infile.getOriginalFilename();
+            // String[] filenames = new String[] { infile.getOriginalFilename() };
+
             UserVO userVo = SystemUtil.getLoginUserVo();
             if (userVo == null) {
                 throw new BusinessException("登录信息丢失,请重新登录!");
             }
-            // Y按业务日期入账，N按指定期间入账
-//            String isbizperiod = ((MultiPartRequestWrapper) getRequest()).getParameter("isbizperiod");// 否按实际业务日期入账
 
             CorpVO corpvo = corpService.queryByPk(pk_corp);
             if (StringUtil.isEmpty(pk_corp)) {
@@ -1365,10 +1394,11 @@ public class FastTaxController  extends BaseController {
                 if (powerCorpSet == null || powerCorpSet.size() == 0 || !powerCorpSet.contains(pk_corp)) {
                     throw new BusinessException("无权操作");
                 }
-
             }
-//            String g_id = getRequest().getParameter("g_id");
-            ImageLibraryVO il = gl_pzimageserv.uploadSingFileByFastTax(corpvo, userVo, infiles, filenames, g_id, period,
+
+            log.info("扫描信息：" + invoicedata);
+
+            ImageLibraryVO il = gl_pzimageserv.uploadSingFileByFastTax(corpvo, userVo, infile, new String[] { filename }, g_id, period,
                     invoicedata,pjlx);
             json.setRows(il);
             json.setSuccess(true);
@@ -1379,6 +1409,12 @@ public class FastTaxController  extends BaseController {
         writeLogRecord(LogRecordEnum.OPE_KJ_OTHERVOUCHER, "上传图片：期间" + period, ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
+
+    /**
+     * 查询期间列表及期间状态（是否关账、是否损益结转等）
+     * @param param
+     * @return
+     */
     @PostMapping("/checkQjSyJz")
     public ReturnData<Json> checkQjSyJz(@RequestBody Map<String, String> param) {
         Json json = new Json();
@@ -1499,6 +1535,11 @@ public class FastTaxController  extends BaseController {
         return ReturnData.ok().data(json);
     }
 
+    /**
+     * 查询扫描上传票据识别状态
+     * @param param
+     * @return
+     */
     @PostMapping("/queryOcrStateInfo")
     public ReturnData<Json> queryOcrStateInfo(@RequestBody Map<String, String> param) {
         Json json = new Json();

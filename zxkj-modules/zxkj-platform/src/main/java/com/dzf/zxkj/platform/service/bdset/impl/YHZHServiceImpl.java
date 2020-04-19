@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.bdset.impl;
 
+import com.alicp.jetcache.anno.CacheInvalidate;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -9,6 +10,7 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.dao.YhzhDao;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
+import com.dzf.zxkj.redis.ZxkjRedisCachePrefix;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class YHZHServiceImpl implements IYHZHService {
     private YhzhDao yhzhDao;
 
     @Override
-//    @CacheInvalidate(name = RedisCacheConstant.YHZH_NAME, key = "#vo.pk_corp")
+    @CacheInvalidate(name = ZxkjRedisCachePrefix.BANK_ACCOUNT, key = "#vo.pk_corp")
     public BankAccountVO save(BankAccountVO vo) throws DZFWarpException {
         checkExist(vo);
 
@@ -35,7 +37,7 @@ public class YHZHServiceImpl implements IYHZHService {
     }
 
     @Override
-//    @CacheInvalidate(name = RedisCacheConstant.YHZH_NAME, key = "#vo.pk_corp")
+    @CacheInvalidate(name = ZxkjRedisCachePrefix.BANK_ACCOUNT, key = "#vo.pk_corp")
     public void update(BankAccountVO vo, String[] fields) throws DZFWarpException {
         checkExist(vo);
         singleObjectBO.update(vo, fields);
