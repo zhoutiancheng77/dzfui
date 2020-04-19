@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.taxrpt.impl;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -82,6 +83,8 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 	private ICorpService corpService;
 	@Autowired
 	private IZxkjPlatformService zxkjPlatformService;
+	@Autowired
+	private RedissonDistributedLock redissonDistributedLock;
 
 	public ISysMessageJPush getSysmsgsrv() {
 		return sysmsgsrv;
@@ -2745,7 +2748,8 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 			throw new BusinessException("批量填写公司为空，请重试");
 		}
 		String requestid = null;
-		String uuid = UUID.randomUUID().toString();
+//		String uuid = UUID.randomUUID().toString();
+		boolean lock = false;
 		StringBuffer sf = new StringBuffer();
 		try{
 			requestid = ConnPhantomjsPoolUtil.getInstance().checkout();
@@ -2754,6 +2758,11 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 			}
 			//当前公司加锁
 //			LockUtil.getInstance().tryLockKey(corp_id, "batwrite", uuid, 30);
+			lock = redissonDistributedLock.tryGetDistributedFairLock("batwrite" + corp_id);
+			if(!lock){//处理
+				throw new BusinessException("其他用户正在操作此数据，请稍后再试.....");
+			}
+
 			//获取当前公司
 			CorpVO vo = corpService.queryByPk(corp_id);
 			CorpTaxVo corptaxvo = sys_corp_tax_serv.queryCorpTaxVO(corp_id);
@@ -2791,6 +2800,9 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 				ConnPhantomjsPoolUtil.getInstance().checkin(requestid);
 			}
 //			LockUtil.getInstance().unLock_Key(corp_id, "batwrite", uuid);
+			if(lock){
+				redissonDistributedLock.releaseDistributedFairLock("batwrite" + corp_id);
+			}
 		}
 		return sf.toString();
 	}
