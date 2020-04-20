@@ -2781,7 +2781,7 @@ public class VATInComInvoiceServiceImpl implements IVATInComInvoiceService {
 			} else if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 				ret = "" + Double.valueOf(cell.getNumericCellValue()).doubleValue();
 				// 小数不可用这样格式，只为了凭证编码格式
-				java.text.DecimalFormat formatter = new java.text.DecimalFormat("#########.##");
+				java.text.DecimalFormat formatter = new java.text.DecimalFormat("#########.########");
 				if ("General".equals(cell.getCellStyle().getDataFormatString())) {
 					ret = formatter.format(cell.getNumericCellValue());
 				} else if (cell.getCellStyle().getDataFormatString().indexOf(".") >= 0) {
