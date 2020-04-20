@@ -739,14 +739,17 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 //			vo.setFirstlevelkms(rptsetser.queryLrbKmsFromDaima(cpvo.getPk_corp()));
 			LrbVO[] lrbvos = zxkjReportService.getLRBVOs(vo);
 			String name = "净利润";
-			for (LrbVO lrbvo : lrbvos) {
-				if (!StringUtil.isEmpty(lrbvo.getXm()) && lrbvo.getXm().indexOf(name) >= 0) {
-					res = VoUtils.getDZFDouble(lrbvo.getBnljje());
-					if(corpschema == DzfUtil.SEVENSCHEMA.intValue()){//07 企业会计准则有多个净利润，取第一个
-						break;
+			if (lrbvos!= null && lrbvos.length > 0) {
+				for (LrbVO lrbvo : lrbvos) {
+					if (!StringUtil.isEmpty(lrbvo.getXm()) && lrbvo.getXm().indexOf(name) >= 0) {
+						res = VoUtils.getDZFDouble(lrbvo.getBnljje());
+						if(corpschema == DzfUtil.SEVENSCHEMA.intValue()){//07 企业会计准则有多个净利润，取第一个
+							break;
+						}
 					}
 				}
 			}
+
 		} catch (DZFWarpException e) {
 			log.error(e.getMessage());
 		}
