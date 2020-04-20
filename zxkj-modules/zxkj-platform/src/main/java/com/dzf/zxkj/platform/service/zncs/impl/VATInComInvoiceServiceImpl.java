@@ -129,6 +129,8 @@ public class VATInComInvoiceServiceImpl implements IVATInComInvoiceService {
 	@Autowired
 	private IQmgzService qmgzService;
 	@Autowired
+	private IParameterSetService sys_parameteract;
+	@Autowired
 	private CheckInventorySet inventory_setcheck;
 	@Autowired
 	private IBDCorpTaxService sys_corp_tax_serv;
@@ -1519,7 +1521,23 @@ public class VATInComInvoiceServiceImpl implements IVATInComInvoiceService {
 		if(flag != null && flag.booleanValue()){
 			list = buildInComVO(list);
 		}
-
+//设置数量 ,单价精度
+		int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
+		int pricePrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf010"));
+		Map<String,String> map = new HashMap<String,String>();
+		for (VATInComInvoiceVO vo : list) {
+			VATInComInvoiceBVO[] bvos = (VATInComInvoiceBVO[])vo.getChildren();
+			if(bvos!=null&&bvos.length>0){
+				for (VATInComInvoiceBVO bvo : bvos) {
+					if(bvo.getBnum()!=null){
+						bvo.setBnum(bvo.getBnum().setScale(numPrecision, DZFDouble.ROUND_HALF_UP));
+					}
+					if(bvo.getBprice()!=null){
+						bvo.setBprice(bvo.getBprice().setScale(pricePrecision, DZFDouble.ROUND_HALF_UP));
+					}
+				}
+			}
+		}
 		Map<String, VATInComInvoiceVO[]> sendData = new HashMap<String, VATInComInvoiceVO[]>();
 		sendData.put("adddocvos", list.toArray(new VATInComInvoiceVO[0]));
 		VATInComInvoiceVO[] vos = updateVOArr(pk_corp, sendData);
