@@ -36,7 +36,7 @@ public class InvtorySetController extends BaseController {
             json.setSuccess(true);
             json.setMsg("查询成功");
         }else{
-//            json.setRows(null);
+            json.setRows(new InventorySetVO());
             json.setSuccess(true);
 //            json.setMsg("查询数据为空");
         }
