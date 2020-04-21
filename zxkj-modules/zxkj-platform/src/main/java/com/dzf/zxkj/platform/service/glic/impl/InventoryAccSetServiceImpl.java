@@ -44,8 +44,8 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 		if(bodyvos != null && bodyvos.length>0){
 			body = bodyvos[0];
 		}else{
-			body = new InventorySetVO();
-			body.setChcbjzfs(InventoryConstant.IC_FZMXHS);
+//			body = new InventorySetVO();
+//			body.setChcbjzfs(InventoryConstant.IC_FZMXHS);
 		}
 		return body;
 	}
