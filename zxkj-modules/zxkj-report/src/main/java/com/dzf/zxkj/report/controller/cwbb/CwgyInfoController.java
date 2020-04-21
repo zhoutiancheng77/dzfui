@@ -448,7 +448,9 @@ public class CwgyInfoController extends ReportBaseController {
                                                 HSSFRichTextString richString = new HSSFRichTextString("销项发票");
                                                 cell.setCellValue(richString);
                                                 HSSFCellStyle rightstyle = getDecimalFormatStyle(2, workbook, color);
-                                                cell.setCellStyle(rightstyle);
+                                                rightstyle.setAlignment(HorizontalAlignment.CENTER);
+//                                                cell.setCellStyle(rightstyle);
+                                                cell.getCellStyle().cloneStyleFrom(rightstyle);
                                             }
                                         }
                                     } else if (fieldName.equals("byje")) {
@@ -457,7 +459,9 @@ public class CwgyInfoController extends ReportBaseController {
                                                 HSSFRichTextString richString = new HSSFRichTextString("进项发票");
                                                 cell.setCellValue(richString);
                                                 HSSFCellStyle rightstyle = getDecimalFormatStyle(2, workbook, color);
-                                                cell.setCellStyle(rightstyle);
+                                                rightstyle.setAlignment(HorizontalAlignment.CENTER);
+//                                                cell.setCellStyle(rightstyle);
+                                                cell.getCellStyle().cloneStyleFrom(rightstyle);
                                             }
                                         }
                                     } else {
