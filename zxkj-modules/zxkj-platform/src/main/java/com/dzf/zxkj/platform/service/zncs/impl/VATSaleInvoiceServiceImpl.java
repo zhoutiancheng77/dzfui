@@ -132,6 +132,8 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 	@Autowired
 	private IDcpzService dcpzjmbserv;
 	@Autowired
+	private IParameterSetService sys_parameteract;
+	@Autowired
 	private ICaiFangTongService caifangtongserv;
 	@Autowired
 	private IPiaoTongKpService piaotongkpserv;
@@ -1744,7 +1746,24 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 		Map<String, VATSaleInvoiceVO[]> sendData = new HashMap<String, VATSaleInvoiceVO[]>();
 		list = specialVatBVO(list, pk_corp);
 		matchBusiName(list, dcList, pk_corp);
+		//设置数量 ,单价精度
+		int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
+		int pricePrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf010"));
+		Map<String,String> map = new HashMap<String,String>();
+		for (VATSaleInvoiceVO vo : list) {
+			VATSaleInvoiceBVO[] bvos = (VATSaleInvoiceBVO[]) vo.getChildren();
+			if (bvos != null && bvos.length > 0) {
+				for (VATSaleInvoiceBVO bvo : bvos) {
+					if (bvo.getBnum() != null) {
+						bvo.setBnum(bvo.getBnum().setScale(numPrecision, DZFDouble.ROUND_HALF_UP));
+					}
+					if (bvo.getBprice() != null) {
+						bvo.setBprice(bvo.getBprice().setScale(pricePrecision, DZFDouble.ROUND_HALF_UP));
+					}
+				}
+			}
 
+		}
 		sendData.put("adddocvos", list.toArray(new VATSaleInvoiceVO[0]));
 		VATSaleInvoiceVO[] vos = updateVOArr(pk_corp, sendData);
 
@@ -2477,7 +2496,7 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 			} else if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
 				ret = "" + Double.valueOf(cell.getNumericCellValue()).doubleValue();
 				// 小数不可用这样格式，只为了凭证编码格式
-				java.text.DecimalFormat formatter = new java.text.DecimalFormat("#########.##");
+				java.text.DecimalFormat formatter = new java.text.DecimalFormat("#########.########");
 				if ("General".equals(cell.getCellStyle().getDataFormatString())) {
 					ret = formatter.format(cell.getNumericCellValue());
 				} else if (cell.getCellStyle().getDataFormatString().indexOf(".") >= 0) {

@@ -70,30 +70,30 @@ public class FsYeBExcelField  extends MuiltSheetAndTitleExceport<FseJyeVO> imple
         list.add(new Fieldelement("kmmc", "科目名称", false, 0, true,80,false));
         Fieldelement qcelement = new Fieldelement("", "期初余额", true, 2, true, 1, 4);
         qcelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybqcjf", "借方(原币)", true, 2, true),
+                new Fieldelement("ybqcjf", "借方(原币)", true, 4, true),
                 new Fieldelement("qcjf", "借方(本位币)", true, 2, true),
-                new Fieldelement("ybqcdf", "贷方(原币)", true, 2, true),
+                new Fieldelement("ybqcdf", "贷方(原币)", true, 4, true),
                 new Fieldelement("qcdf", "贷方(本位币)", true, 2, true) });
         list.add(qcelement);
         Fieldelement bqelement = new Fieldelement("", "本期发生额", true, 2, true, 1, 4);
         bqelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybfsjf", "借方(原币)", true, 2, true),
+                new Fieldelement("ybfsjf", "借方(原币)", true, 4, true),
                 new Fieldelement("fsjf", "借方(本位币)", true, 2, true),
-                new Fieldelement("ybfsdf", "贷方(原币)", true, 2, true),
+                new Fieldelement("ybfsdf", "贷方(原币)", true, 4, true),
                 new Fieldelement("fsdf", "贷方(本位币)", true, 2, true) });
         list.add(bqelement);
         Fieldelement bnelement = new Fieldelement("", "本年发生额", true, 2, true, 1, 4);
         bnelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybjftotal", "借方(原币)", true, 2, true),
+                new Fieldelement("ybjftotal", "借方(原币)", true, 4, true),
                 new Fieldelement("jftotal", "借方(本位币)", true, 2, true),
-                new Fieldelement("ybdftotal", "贷方(原币)", true, 2, true),
+                new Fieldelement("ybdftotal", "贷方(原币)", true, 4, true),
                 new Fieldelement("dftotal", "贷方(本位币)", true, 2, true) });
         list.add(bnelement);
         Fieldelement yeelement = new Fieldelement("", "期末余额", true, 2, true, 1, 4);
         yeelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybqmjf", "借方(原币)", true, 2, true),
+                new Fieldelement("ybqmjf", "借方(原币)", true, 4, true),
                 new Fieldelement("qmjf", "借方(本位币)", true, 2, true),
-                new Fieldelement("ybqmdf", "贷方(原币)", true, 2, true),
+                new Fieldelement("ybqmdf", "贷方(原币)", true, 4, true),
                 new Fieldelement("qmdf", "贷方(本位币)", true, 2, true) });
         list.add(yeelement);
         return list.toArray(new Fieldelement[0]);

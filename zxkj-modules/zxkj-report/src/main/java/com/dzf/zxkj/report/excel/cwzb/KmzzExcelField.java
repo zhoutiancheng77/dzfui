@@ -70,18 +70,18 @@ public class KmzzExcelField extends MuiltSheetAndTitleExceport<KmZzVO> implement
         list.add(new Fieldelement("zy", "摘要", false, 0, true));
         Fieldelement qcelement = new Fieldelement("", "借方金额", true, 2, true, 1, 2);
         qcelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybjf", "原币", true, 2, true),
+                new Fieldelement("ybjf", "原币", true, 4, true),
                 new Fieldelement("jf", "本位币", true, 2, true)});
         list.add(qcelement);
         Fieldelement bqelement = new Fieldelement("", "贷方金额", true, 2, true, 1, 2);
         bqelement.setChilds(new Fieldelement[] {
-                new Fieldelement("ybdf", "原币", true, 2, true),
+                new Fieldelement("ybdf", "原币", true, 4, true),
                 new Fieldelement("df", "本位币", true, 2, true)});
         list.add(bqelement);
         Fieldelement bnelement = new Fieldelement("", "余额", true, 2, true, 1, 3);
         bnelement.setChilds(new Fieldelement[] {
                 new Fieldelement("fx", "方向", false, 0, true),
-                new Fieldelement("ybye", "原币", true, 2, true),
+                new Fieldelement("ybye", "原币", true, 4, true),
                 new Fieldelement("ye", "本位币", true, 2, true) });
         list.add(bnelement);
         return list.toArray(new Fieldelement[0]);
