@@ -1266,7 +1266,7 @@ public class KmMxZReportForWbImpl implements IKmMxZReportForWb {
         sb.append(" b.dfmny  as df ,  ");
         sb.append(" b.ybjfmny as ybjf , ");
         sb.append(" b.ybdfmny as ybdf ");
-        sb.append(" ,a.direction as fx , b.pk_tzpz_h, ");
+        sb.append(" ,a.direction as fx , b.pk_tzpz_h,b.pk_tzpz_b , ");
         sb.append("    b.fzhsx1,  b.fzhsx2,  b.fzhsx3, b.fzhsx4, b.fzhsx5,");
         /**   启用库存  存货作为辅助核算 */
         sb.append(" case when b.fzhsx6 is null then b.pk_inventory else b.fzhsx6  end fzhsx6, ");
@@ -1303,7 +1303,7 @@ public class KmMxZReportForWbImpl implements IKmMxZReportForWb {
         qcyesql.append("  ''as pzh,a.accountcode,a.pk_corp_account as km,'' as zy,c.currencycode as  bz, '0.00' as hl, ");
         qcyesql.append("  b.yearjffse as jf, b.yeardffse as df, ");
         qcyesql.append("  b.ybyearjffse as ybjf, b.ybyeardffse as ybdf ");
-        qcyesql.append("  , 1 as fx ,'' pk_tzpz_h,");
+        qcyesql.append("  , 1 as fx ,'' pk_tzpz_h, ''  pk_tzpz_b, ");
         qcyesql.append("   '' as fzhsx1, '' as fzhsx2,  '' as fzhsx3, '' as fzhsx4, '' as fzhsx5,");
         /** 启用库存  存货作为辅助核算 */
         qcyesql.append(" '' as fzhsx6,  '' as fzhsx7,  '' as fzhsx8, '' as fzhsx9, '' as fzhsx10 ");
