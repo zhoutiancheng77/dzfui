@@ -7,6 +7,7 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -186,11 +187,7 @@ public class MllbReportController  extends GlicReportController{
             }
             strlist = strlist.replace("}{", "},{");
             MllDetailVO[] bodyvos =JsonUtils.deserialize(strlist, MllDetailVO[].class);
-            if(bodyvos!=null && bodyvos.length>0){
-                for(MllDetailVO vo:bodyvos){
-                    vo.setPk_corp(SystemUtil.getLoginCorpId());
-                }
-            }
+            setDefaultValue(bodyvos);
             period = bodyvos[0].getTitlePeriod();
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("公司", bodyvos[0].getGs());
@@ -248,6 +245,7 @@ public class MllbReportController  extends GlicReportController{
             MllDetailVO[] vo =JsonUtils.deserialize(strlist, MllDetailVO[].class);
             String gs = vo[0].getGs();
             qj = vo[0].getTitlePeriod();
+            setDefaultValue(vo);
             Excelexport2003<MllDetailVO> lxs = new Excelexport2003<>();
 
             String pk_corp = SystemUtil.getLoginCorpId();
@@ -294,6 +292,16 @@ public class MllbReportController  extends GlicReportController{
             //日志记录接口
         writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,
                 "毛利率统计表:导出期间“" + qj + "”存货数据", ISysConstants.SYS_2);
+        }
+    }
+
+    private void setDefaultValue(MllDetailVO[] bodyvos ){
+        if(bodyvos!=null && bodyvos.length>0){
+            for(MllDetailVO vo:bodyvos){
+                vo.setPk_corp(SystemUtil.getLoginCorpId());
+                if(vo.getMll() == null)
+                    vo.setMll(DZFDouble.ZERO_DBL);
+            }
         }
     }
 }

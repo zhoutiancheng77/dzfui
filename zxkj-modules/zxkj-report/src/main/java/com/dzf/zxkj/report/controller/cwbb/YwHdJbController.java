@@ -143,7 +143,7 @@ public class YwHdJbController extends ReportBaseController {
 
             columncellattrlist.add(new ColumnCellAttr("项目",null,null,2,"xm",6));
             columncellattrlist.add(new ColumnCellAttr("行次",null,null,2,"hs",1));
-            columncellattrlist.add(new ColumnCellAttr("第三季度",null,3,null,null,0));
+            columncellattrlist.add(new ColumnCellAttr(pmap1.get("jd"),null,3,null,null,0));
             columncellattrlist.add(new ColumnCellAttr("本年累计数",null,3,null,null,0));
             columncellattrlist.add(new ColumnCellAttr(" 非限定性",null,null,null,"monfxdx",1));
             columncellattrlist.add(new ColumnCellAttr(" 限定性",null,null,null,"monxdx",1));

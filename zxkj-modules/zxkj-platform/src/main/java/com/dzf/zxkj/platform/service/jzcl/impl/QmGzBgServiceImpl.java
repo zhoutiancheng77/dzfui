@@ -1931,76 +1931,100 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		if(!IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){//没启用库存不显示
 			return;
 		}
-		QmGzBgVo  rkbgvo = new QmGzBgVo();
-		rkbgvo.setXm("入库单未生成凭证");
-		rkbgvo.setIssuccess(DZFBoolean.TRUE);
-		rkbgvo.setVmemo("通过");
-		Map<String,Object> map = getPubParam(cpvo);
-		map.put("rqq",DateUtils.getPeriodStartDate(period));
-		map.put("rqz",DateUtils.getPeriodEndDate(period));
-		rkbgvo.setParamstr(JsonUtils.serialize(map));
-		rkbgvo.setUrl("icbill-tradein");
+		// 老模式 启用库存
+		if (cpvo.getIbuildicstyle() == null || cpvo.getIbuildicstyle() != 1) {
+			QmGzBgVo  rkbgvo = new QmGzBgVo();
+			rkbgvo.setXm("入库单未生成凭证");
+			rkbgvo.setIssuccess(DZFBoolean.TRUE);
+			rkbgvo.setVmemo("通过");
+			Map<String,Object> map = getPubParam(cpvo);
+			map.put("rqq",DateUtils.getPeriodStartDate(period));
+			map.put("rqz",DateUtils.getPeriodEndDate(period));
+			rkbgvo.setParamstr(JsonUtils.serialize(map));
+			rkbgvo.setUrl("icbill-tradein");//
+			rkbgvo.setName("入库单");
+			reslist.add(rkbgvo);
+
+			QmGzBgVo  ckbgvo = new QmGzBgVo();
+			ckbgvo.setXm("出库单未生成凭证");
+			ckbgvo.setIssuccess(DZFBoolean.TRUE);
+			ckbgvo.setVmemo("通过");
+			ckbgvo.setParamstr(JsonUtils.serialize(map));
+			ckbgvo.setUrl("icbill-tradeout");//
+			ckbgvo.setName("出库单");
+			reslist.add(ckbgvo);
+		} else {
+			QmGzBgVo  rkbgvo = new QmGzBgVo();
+			rkbgvo.setXm("入库单未生成凭证");
+			rkbgvo.setIssuccess(DZFBoolean.TRUE);
+			rkbgvo.setVmemo("通过");
+			Map<String,Object> map = getPubParam(cpvo);
+			map.put("rqq",DateUtils.getPeriodStartDate(period));
+			map.put("rqz",DateUtils.getPeriodEndDate(period));
+			rkbgvo.setParamstr(JsonUtils.serialize(map));
+			rkbgvo.setUrl("icbill-purchin");
 //		rkbgvo.setUrl("ic/ic_trade/ic_purchin.jsp?"+getPubParam(cpvo)+"&rqq="+DateUtils.getPeriodStartDate(period)+"&rqz="+DateUtils.getPeriodEndDate(period));
-		rkbgvo.setName("入库单");
+			rkbgvo.setName("入库单");
 
-		QmGzBgVo  ckbgvo = new QmGzBgVo();
-		ckbgvo.setXm("出库单未生成凭证");
-		ckbgvo.setIssuccess(DZFBoolean.TRUE);
-		ckbgvo.setVmemo("通过");
-		ckbgvo.setParamstr(JsonUtils.serialize(map));
-		ckbgvo.setUrl("icbill-tradeout");
+			QmGzBgVo  ckbgvo = new QmGzBgVo();
+			ckbgvo.setXm("出库单未生成凭证");
+			ckbgvo.setIssuccess(DZFBoolean.TRUE);
+			ckbgvo.setVmemo("通过");
+			ckbgvo.setParamstr(JsonUtils.serialize(map));
+			ckbgvo.setUrl("icbill-saleout");
 //		ckbgvo.setUrl("ic/ic_trade/ic_saleout.jsp?"+getPubParam(cpvo)+"&rqq="+DateUtils.getPeriodStartDate(period)+"&rqz="+DateUtils.getPeriodEndDate(period));
-		ckbgvo.setName("出库单");
+			ckbgvo.setName("出库单");
 
-		try {
-			StringBuffer qrysql = new StringBuffer();
-			SQLParameter sp = new SQLParameter();
-			qrysql.append("  select *  ");
-			qrysql.append("  from ynt_ictrade_h   ");
-			qrysql.append("   where pk_corp = ?  ");
-			qrysql.append("   and dbilldate like ? ");
-			qrysql.append("   and nvl(dr,0)=0 ");
-			qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未生成凭证的数据
-			sp.addParam(cpvo.getPk_corp());
-			sp.addParam(period+"%");
+			try {
+				StringBuffer qrysql = new StringBuffer();
+				SQLParameter sp = new SQLParameter();
+				qrysql.append("  select *  ");
+				qrysql.append("  from ynt_ictrade_h   ");
+				qrysql.append("   where pk_corp = ?  ");
+				qrysql.append("   and dbilldate like ? ");
+				qrysql.append("   and nvl(dr,0)=0 ");
+				qrysql.append("   and nvl(isjz,'N')= 'N' ");//尚未生成凭证的数据
+				sp.addParam(cpvo.getPk_corp());
+				sp.addParam(period+"%");
 
-			List<IntradeHVO> inhvos =  (List<IntradeHVO>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(IntradeHVO.class));
+				List<IntradeHVO> inhvos =  (List<IntradeHVO>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(IntradeHVO.class));
 
-			if (inhvos != null && inhvos.size() > 0) {
-				int in_count = 0;
-				int out_count = 0;
-				for(IntradeHVO hvo:inhvos){
-					if(IBillTypeCode.HP70.equals(hvo.getCbilltype())){//入库单
-						in_count++;
-					}else if(IBillTypeCode.HP75.equals(hvo.getCbilltype())){//出库单
-						out_count++;
+				if (inhvos != null && inhvos.size() > 0) {
+					int in_count = 0;
+					int out_count = 0;
+					for(IntradeHVO hvo:inhvos){
+						if(IBillTypeCode.HP70.equals(hvo.getCbilltype())){//入库单
+							in_count++;
+						}else if(IBillTypeCode.HP75.equals(hvo.getCbilltype())){//出库单
+							out_count++;
+						}
+					}
+
+					if(in_count>0){
+						rkbgvo.setIssuccess(DZFBoolean.FALSE);
+						rkbgvo.setVmemo("有"+in_count+"张入库单未生成凭证");
+					}else{
+						rkbgvo = null;
+					}
+
+					if(out_count>0){
+						ckbgvo.setIssuccess(DZFBoolean.FALSE);
+						ckbgvo.setVmemo("有"+out_count+"张出库单未生成凭证");
+					}else{
+						ckbgvo = null;
 					}
 				}
-
-				if(in_count>0){
-					rkbgvo.setIssuccess(DZFBoolean.FALSE);
-					rkbgvo.setVmemo("有"+in_count+"张入库单未生成凭证");
-				}else{
-					rkbgvo = null;
-				}
-
-				if(out_count>0){
-					ckbgvo.setIssuccess(DZFBoolean.FALSE);
-					ckbgvo.setVmemo("有"+out_count+"张出库单未生成凭证");
-				}else{
-					ckbgvo = null;
-				}
+			} catch (DAOException e) {
+				handleError(rkbgvo, e);
+				handleError(ckbgvo, e);
 			}
-		} catch (DAOException e) {
-			handleError(rkbgvo, e);
-			handleError(ckbgvo, e);
-		}
 
-		if(rkbgvo!=null){
-			reslist.add(rkbgvo);
-		}
-		if(ckbgvo!=null){
-			reslist.add(ckbgvo);
+			if(rkbgvo!=null){
+				reslist.add(rkbgvo);
+			}
+			if(ckbgvo!=null){
+				reslist.add(ckbgvo);
+			}
 		}
 	}
 
