@@ -620,7 +620,7 @@ public class PrintReporUtil {
                                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                                 cell.setHorizontalAlignment(Element.ALIGN_CENTER); //水平居中
                                 if (totalMnyHight >= 0) {
-                                    cell.setFixedHeight(totalMnyHight);
+                                    cell.setMinimumHeight(totalMnyHight);
                                 }
                                 table.addCell(cell);
                                 continue;
@@ -761,9 +761,9 @@ public class PrintReporUtil {
                     } else {
                         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     }
-//					cell.setFixedHeight(totalMnyHight);
+//					cell.setMinimumHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setFixedHeight(totalMnyHight);
+                        cell.setMinimumHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 } else if (bvo.getClass().getDeclaredField(key).getType() == DZFDate.class) {
@@ -779,9 +779,9 @@ public class PrintReporUtil {
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//					cell.setFixedHeight(totalMnyHight);
+//					cell.setMinimumHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setFixedHeight(totalMnyHight);
+                        cell.setMinimumHeight(totalMnyHight);
                     }
                     table.addCell(cell);// getDeclaredField可获取所有定义变量，而getField只能获取public的属性变量
                 } else if (bvo.getClass().getDeclaredField(key).getType() == Integer.class) {
@@ -801,9 +801,9 @@ public class PrintReporUtil {
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//					cell.setFixedHeight(totalMnyHight);
+//					cell.setMinimumHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setFixedHeight(totalMnyHight);
+                        cell.setMinimumHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 } else if (bvo.getClass().getDeclaredField(key).getType() == DZFBoolean.class) {
@@ -821,9 +821,9 @@ public class PrintReporUtil {
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//					cell.setFixedHeight(totalMnyHight);
+//					cell.setMinimumHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setFixedHeight(totalMnyHight);
+                        cell.setMinimumHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 } else {
@@ -865,7 +865,7 @@ public class PrintReporUtil {
                         cell.setBorderColor(getBasecolor());
                     }
                     if (totalMnyHight >= 0) {
-                        cell.setFixedHeight(totalMnyHight);
+                        cell.setMinimumHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 }
@@ -912,14 +912,14 @@ public class PrintReporUtil {
             }
             if (listattr.get(count).getRowspan() != null && listattr.get(count).getRowspan().intValue() > 0) {// 空行
                 cell.setPadding(0);
-                cell.setFixedHeight(totalMnyHight * listattr.get(count).getRowspan());
+                cell.setMinimumHeight(totalMnyHight * listattr.get(count).getRowspan());
                 cell.setRowspan(listattr.get(count).getRowspan());
             }
             if (getBasecolor() != null) {
 
                 cell.setBorderColor(getBasecolor());
             }
-            cell.setFixedHeight(totalMnyHight);
+            cell.setMinimumHeight(totalMnyHight);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell);
@@ -1100,7 +1100,7 @@ public class PrintReporUtil {
             cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
             cell1.setBorderWidthLeft(0.0f);
             cell1.setPadding(0f);
-            cell1.setFixedHeight(20);
+            cell1.setMinimumHeight(20);
             tablet.addCell(cell1);
         }
         try {
@@ -1127,7 +1127,7 @@ public class PrintReporUtil {
                 }
                 cell1.setPadding(0f);
                 cell1.setPaddingTop(2f);
-                cell1.setFixedHeight(20);
+                cell1.setMinimumHeight(20);
                 cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
                 tablet.addCell(cell1);
             }
@@ -1769,6 +1769,8 @@ public class PrintReporUtil {
         pmap.put("pageNum", printvo.getPageNum());
         pmap.put("isPaging",printvo.getIsPaging());
         pmap.put("lineHeight",printvo.getLineHeight());
+
+
         pmap.put("projectname",printvo.getProjectname());
         pmap.put("print_all",printvo.getPrint_all());
         pmap.put("showlb",printvo.getShowlb());
@@ -2655,7 +2657,7 @@ public class PrintReporUtil {
                         cell.setBorderColor(getBasecolor());
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                    cell.setFixedHeight(totalMnyHight);
+                    cell.setMinimumHeight(totalMnyHight);
                     table.addCell(cell);
                 }
             }
@@ -2825,7 +2827,7 @@ public class PrintReporUtil {
                     }else{
                         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     }
-                    cell.setFixedHeight(totalMnyHight);
+                    cell.setMinimumHeight(totalMnyHight);
                     table.addCell(cell);
                 }
             }
@@ -2843,15 +2845,15 @@ public class PrintReporUtil {
         for (ColumnCellAttr columnsname : listattr) {
             cell = new PdfPCell(new Paragraph(columnsname.getColumname(), fonts10_bold));
             if(listattr.get(count).getColspan()!=null && listattr.get(count).getColspan().intValue()>0){//合并
-                cell.setFixedHeight(totalMnyHight);
+                cell.setMinimumHeight(totalMnyHight);
                 cell.setColspan(listattr.get(count).getColspan());
             }
             if(listattr.get(count).getRowspan()!=null && listattr.get(count).getRowspan().intValue()>0){//空行
                 cell.setPadding(0);
-                cell.setFixedHeight(totalMnyHight*listattr.get(count).getRowspan());
+                cell.setMinimumHeight(totalMnyHight*listattr.get(count).getRowspan());
                 cell.setRowspan(listattr.get(count).getRowspan());
             }
-            cell.setFixedHeight(totalMnyHight);
+            cell.setMinimumHeight(totalMnyHight);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell);
