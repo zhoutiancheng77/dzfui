@@ -26,6 +26,7 @@ import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.ZcfzExcelField;
 import com.dzf.zxkj.report.excel.rptexp.ExcelExportHander;
+import com.dzf.zxkj.report.excel.rptexp.enums.ExportRecordEnum;
 import com.dzf.zxkj.report.excel.rptexp.enums.ExportTemplateEnum;
 import com.dzf.zxkj.report.excel.rptexp.handler.ExcelExportPubHandler;
 import com.dzf.zxkj.report.excel.rptexp.handler.TaxEnHander;
@@ -86,7 +87,7 @@ public class ZcfzController extends ReportBaseController {
         QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
         try {
             // 校验
-            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
+            checkSecurityData(null, new String[]{queryParamvo.getPk_corp()}, null);
             String begindate = DateUtils.getPeriod(queryParamvo.getBegindate1());
             String ishajz = "N";
             if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
@@ -124,7 +125,7 @@ public class ZcfzController extends ReportBaseController {
             if (blancemsg == null) {
                 grid.setBlancemsg(true);
             } else {
-                List<String[]> noblance = (List<String[]> ) objs[1];
+                List<String[]> noblance = (List<String[]>) objs[1];
                 grid.setBlancemsg(false);
                 grid.setZcfz_jyx((ZcfzMsgVo) objs[2]);
 //                grid.setMsg(noblance);
@@ -218,7 +219,7 @@ public class ZcfzController extends ReportBaseController {
     @PostMapping("export/excel")
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         // 校验
-        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()}, null);
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
 
@@ -254,7 +255,7 @@ public class ZcfzController extends ReportBaseController {
     @PostMapping("exportSj/excel")
     public void excelReportSj(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         // 校验
-        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
+        checkSecurityData(null, new String[]{queryparamvo.getPk_corp()}, null);
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
 
@@ -306,10 +307,10 @@ public class ZcfzController extends ReportBaseController {
             exportExcelToZip(response, workBookMap, "资产负债表、利润表、现金流量表(" + qj + ")");
         }
 
-        qj = qj.substring(0, 4);
+//        qj = qj.substring(0, 4);
         //日志记录
         writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
-                "财务报表税局模式导出:" + qj, ISysConstants.SYS_2);
+                "财务报表税局模式导出:" + ExportRecordEnum.getRecordMessage(excelExportVO.getAreaType(), excelExportVO.getPeriod(), excelExportVO.getQjlx()), ISysConstants.SYS_2);
     }
 
 
@@ -428,7 +429,7 @@ public class ZcfzController extends ReportBaseController {
     @PostMapping("export/excelEn")
     public void excelReportEn(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         // 校验
-        checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
+        checkSecurityData(null, new String[]{queryParamvo.getPk_corp()}, null);
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
         String gs = excelExportVO.getCorpName();
@@ -544,7 +545,7 @@ public class ZcfzController extends ReportBaseController {
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
             // 校验
-            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
+            checkSecurityData(null, new String[]{queryparamvo.getPk_corp()}, null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String strlist = printParamVO.getList();
