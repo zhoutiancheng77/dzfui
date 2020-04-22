@@ -620,7 +620,7 @@ public class PrintReporUtil {
                                     cell.setBorderColor(getBasecolor());
                                 }
                                 if (totalMnyHight >= 0) {
-                                    cell.setMinimumHeight(totalMnyHight);
+                                    cell.setFixedHeight(totalMnyHight);
                                 }
                                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                                 cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
@@ -636,7 +636,7 @@ public class PrintReporUtil {
                                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                                 cell.setHorizontalAlignment(Element.ALIGN_CENTER); //水平居中
                                 if (totalMnyHight >= 0) {
-                                    cell.setMinimumHeight(totalMnyHight);
+                                    cell.setFixedHeight(totalMnyHight);
                                 }
                                 table.addCell(cell);
                                 continue;
@@ -775,9 +775,9 @@ public class PrintReporUtil {
                     } else {
                         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     }
-//					cell.setMinimumHeight(totalMnyHight);
+//					cell.setFixedHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setMinimumHeight(totalMnyHight);
+                        cell.setFixedHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 } else if (bvo.getClass().getDeclaredField(key).getType() == DZFDate.class) {
@@ -793,9 +793,9 @@ public class PrintReporUtil {
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//					cell.setMinimumHeight(totalMnyHight);
+//					cell.setFixedHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setMinimumHeight(totalMnyHight);
+                        cell.setFixedHeight(totalMnyHight);
                     }
                     table.addCell(cell);// getDeclaredField可获取所有定义变量，而getField只能获取public的属性变量
                 } else if (bvo.getClass().getDeclaredField(key).getType() == Integer.class) {
@@ -815,9 +815,9 @@ public class PrintReporUtil {
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//					cell.setMinimumHeight(totalMnyHight);
+//					cell.setFixedHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setMinimumHeight(totalMnyHight);
+                        cell.setFixedHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 } else if (bvo.getClass().getDeclaredField(key).getType() == DZFBoolean.class) {
@@ -835,9 +835,9 @@ public class PrintReporUtil {
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                     cell.setHorizontalAlignment(Element.ALIGN_LEFT);
-//					cell.setMinimumHeight(totalMnyHight);
+//					cell.setFixedHeight(totalMnyHight);
                     if (totalMnyHight >= 0) {
-                        cell.setMinimumHeight(totalMnyHight);
+                        cell.setFixedHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 } else {
@@ -879,7 +879,7 @@ public class PrintReporUtil {
                         cell.setBorderColor(getBasecolor());
                     }
                     if (totalMnyHight >= 0) {
-                        cell.setMinimumHeight(totalMnyHight);
+                        cell.setFixedHeight(totalMnyHight);
                     }
                     table.addCell(cell);
                 }
@@ -926,14 +926,14 @@ public class PrintReporUtil {
             }
             if (listattr.get(count).getRowspan() != null && listattr.get(count).getRowspan().intValue() > 0) {// 空行
                 cell.setPadding(0);
-                cell.setMinimumHeight(totalMnyHight * listattr.get(count).getRowspan());
+                cell.setFixedHeight(totalMnyHight * listattr.get(count).getRowspan());
                 cell.setRowspan(listattr.get(count).getRowspan());
             }
             if (getBasecolor() != null) {
 
                 cell.setBorderColor(getBasecolor());
             }
-            cell.setMinimumHeight(totalMnyHight);
+            cell.setFixedHeight(totalMnyHight);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell);
@@ -1114,7 +1114,7 @@ public class PrintReporUtil {
             cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
             cell1.setBorderWidthLeft(0.0f);
             cell1.setPadding(0f);
-            cell1.setMinimumHeight(20);
+            cell1.setFixedHeight(20);
             tablet.addCell(cell1);
         }
         try {
@@ -1141,7 +1141,7 @@ public class PrintReporUtil {
                 }
                 cell1.setPadding(0f);
                 cell1.setPaddingTop(2f);
-                cell1.setMinimumHeight(20);
+                cell1.setFixedHeight(20);
                 cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
                 tablet.addCell(cell1);
             }
@@ -2671,7 +2671,7 @@ public class PrintReporUtil {
                         cell.setBorderColor(getBasecolor());
                     }
                     cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-                    cell.setMinimumHeight(totalMnyHight);
+                    cell.setFixedHeight(totalMnyHight);
                     table.addCell(cell);
                 }
             }
@@ -2841,7 +2841,7 @@ public class PrintReporUtil {
                     }else{
                         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
                     }
-                    cell.setMinimumHeight(totalMnyHight);
+                    cell.setFixedHeight(totalMnyHight);
                     table.addCell(cell);
                 }
             }
@@ -2859,15 +2859,15 @@ public class PrintReporUtil {
         for (ColumnCellAttr columnsname : listattr) {
             cell = new PdfPCell(new Paragraph(columnsname.getColumname(), fonts10_bold));
             if(listattr.get(count).getColspan()!=null && listattr.get(count).getColspan().intValue()>0){//合并
-                cell.setMinimumHeight(totalMnyHight);
+                cell.setFixedHeight(totalMnyHight);
                 cell.setColspan(listattr.get(count).getColspan());
             }
             if(listattr.get(count).getRowspan()!=null && listattr.get(count).getRowspan().intValue()>0){//空行
                 cell.setPadding(0);
-                cell.setMinimumHeight(totalMnyHight*listattr.get(count).getRowspan());
+                cell.setFixedHeight(totalMnyHight*listattr.get(count).getRowspan());
                 cell.setRowspan(listattr.get(count).getRowspan());
             }
-            cell.setMinimumHeight(totalMnyHight);
+            cell.setFixedHeight(totalMnyHight);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             table.addCell(cell);
