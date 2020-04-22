@@ -254,7 +254,7 @@ public class Excelexport2003<T extends SuperVO> {
 								DZFDouble bValue = value!= null ? new DZFDouble(Double.parseDouble(value.toString())): DZFDouble.ZERO_DBL;
 								if(bValue == null || bValue.doubleValue() == 0){
 									if (!fieldinfos[i].isZeroshownull()) {
-										cell.setCellValue("0.00");
+										cell.setCellValue(Double.parseDouble("0.00"));
 										HSSFCellStyle rightstyle = getDecimalFormatStyle(fieldinfos[i],workbook,color);
 										cell.setCellStyle(rightstyle);
 									}

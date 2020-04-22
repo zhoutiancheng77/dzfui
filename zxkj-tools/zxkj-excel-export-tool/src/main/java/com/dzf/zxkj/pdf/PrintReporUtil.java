@@ -610,6 +610,22 @@ public class PrintReporUtil {
                                     }
                                 }
                             }
+                        }else if(tilename.equals("毛利率统计表") && "mll".equals(key)){
+                                DecimalFormat df = new DecimalFormat("0.00%");
+                                tvalue = df.format(((DZFDouble) bvo.getAttributeValue(key)).doubleValue());
+//                                cell = new PdfPCell(new Phrase(tvalue,
+//                                    PrintUtil.getAutoFont(fonts, tvalue, totalwidthmap.get(key), totalMnyHight, DZFBoolean.TRUE)));
+                                cell = new PdfPCell(new Phrase(tvalue, fonts));
+                                if (getBasecolor() != null) {
+                                    cell.setBorderColor(getBasecolor());
+                                }
+                                if (totalMnyHight >= 0) {
+                                    cell.setMinimumHeight(totalMnyHight);
+                                }
+                                cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                                cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                                table.addCell(cell);
+                                continue;
                         } else {
                             if (tilename.equals("利 润 表") &&
                                     "项　　　　目".equals(bvo.getAttributeValue("xm")) && "byje".equals(key)) {
@@ -664,8 +680,6 @@ public class PrintReporUtil {
                             } else {
                                 value = "2";
                             }
-
-
                             if (tilename.equals("毛利率统计表") && "mll".equals(key)) {
                                 DecimalFormat df = new DecimalFormat("0.00%");
                                 tvalue = df.format(((DZFDouble) bvo.getAttributeValue(key)).doubleValue());
