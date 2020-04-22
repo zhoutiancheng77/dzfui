@@ -319,10 +319,10 @@ public class PrintReporUtil {
             document.close();
         }
         //输出文件
-        outPutPdf(titlename, buffer);
+        outPutPdf(titlename, pmap.get("printdate"), buffer);
     }
 
-    private void outPutPdf(String titlename, ByteArrayOutputStream buffer) throws IOException {
+    private void outPutPdf(String titlename, String printDate, ByteArrayOutputStream buffer) throws IOException {
         ServletOutputStream out = null;
         try {
             String filename = titlename.replace(" ", "");//titlename.replace(" ", "");
@@ -338,7 +338,11 @@ public class PrintReporUtil {
             if (filename.indexOf("/") >= 0) {
                 filename = filename.replace("/", "、");
             }
-            filename = filename + "_" + new DZFDate().toString();
+            if(StringUtil.isEmptyWithTrim(printDate)){
+                filename = filename + "_" + new DZFDate().toString();
+            }else{
+                filename = filename + "_" + printDate;
+            }
             if (gvo != null && gvo.getPrintType() != null && gvo.getPrintType() == 1) {
                 getResponse().setContentType("application/octet-stream");
                 String contentDisposition = "attachment;filename=" + URLEncoder.encode(filename + ".pdf", "UTF-8")
@@ -1011,7 +1015,7 @@ public class PrintReporUtil {
         } finally {
             document.close();
         }
-        outPutPdf(titlename, buffer);
+        outPutPdf(titlename, pmap.get("printdate"), buffer);
     }
 
     /**
@@ -1408,7 +1412,7 @@ public class PrintReporUtil {
         }
 
         //打印文件
-        outPutPdf(titlename, buffer);
+        outPutPdf(titlename, pmap.get("printdate"), buffer);
     }
 
     public void printA5(Map<String, List<SuperVO>> kmmap, SuperVO[] zzvos, String titlename, String[] columns,
@@ -1470,7 +1474,7 @@ public class PrintReporUtil {
             document.close();
         }
 
-        outPutPdf(titlename, buffer);
+        outPutPdf(titlename, pmap.get("printdate"), buffer);
     }
 
 
@@ -2470,7 +2474,7 @@ public class PrintReporUtil {
             document.close();
         }
 
-        outPutPdf(titlename, buffer);
+        outPutPdf(titlename, pmap.get("printdate"), buffer);
     }
 
     private Object[] putA4TitleMsgInvoice(Document document, String titlename, Map<String, String> invmaps, Map<String, String> tmap,
