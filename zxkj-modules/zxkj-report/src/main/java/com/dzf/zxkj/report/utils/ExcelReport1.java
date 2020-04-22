@@ -673,7 +673,9 @@ public class ExcelReport1<T> {
 									bValue = bValue.setScale(4, DZFDouble.ROUND_HALF_UP);
 								}
 							} else if (title.toString().equals("产成品结转计算结果") && (fieldName.equals("nnum_wg"))) {
-							} else {
+							} else if (title.toString().equals("辅助余额表") && fieldName.startsWith("yb")){
+								bValue = bValue.setScale(4, DZFDouble.ROUND_HALF_UP);
+							}else {
 								bValue = bValue.setScale(2, DZFDouble.ROUND_HALF_UP);
 							}
 							textValue = bValue.toString();
