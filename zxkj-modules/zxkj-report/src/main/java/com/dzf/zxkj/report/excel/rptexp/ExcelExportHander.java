@@ -107,8 +107,10 @@ public abstract class ExcelExportHander {
     private void setPeriod() {
         if (StringUtil.isEmpty(qj) || StringUtil.isEmpty(qjlx))
             return;
-        if (qj.length() != 10)
-            return;
+        if (qj.length() != 10){
+            qj = qj +"-01";
+        }
+
 
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date date = null;
