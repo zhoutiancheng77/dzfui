@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.controller.zncs.schedul;
+package com.dzf.zxkj.platform.dubbo;
 
 import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
@@ -9,27 +9,21 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.IPrebillService;
 import com.dzf.zxkj.platform.service.zncs.ISchedulCategoryService;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
-import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.handler.IJobHandler;
-import com.xxl.job.core.handler.annotation.JobHandler;
-import com.xxl.job.core.handler.annotation.XxlJob;
+import com.dzf.zxkj.xxljob.service.IAutoCategoryService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-@Component
-public class TimerTaskController{
-    private static final long serialVersionUID = 1L;
+@Service
+@org.apache.dubbo.config.annotation.Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
+public class ZxkjAutoCategoryServiceImpl implements IAutoCategoryService {
 
     Logger log = Logger.getLogger(this.getClass());
 
@@ -41,11 +35,9 @@ public class TimerTaskController{
     private ICorpService corpService;
     @Autowired
     private RedissonDistributedLock redissonDistributedLock;
-
-
-    @XxlJob(value = "autoCategoryJob")
-    public ReturnT<String> execute(String s) throws Exception {
-        ExecutorService cachedThreadPool = Executors.newFixedThreadPool (3);
+    ExecutorService cachedThreadPool = Executors.newFixedThreadPool (3);
+    @Override
+    public void autoCategory() {
         cachedThreadPool.execute(new Runnable() {
             @Override
             public void run(){
@@ -105,6 +97,5 @@ public class TimerTaskController{
 
             }
         });
-        return ReturnT.SUCCESS;
     }
 }
