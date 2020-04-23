@@ -1034,7 +1034,13 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		} else if (TaxRptConst.SB_ZLBH39801.equals(reportvo.getSb_zlbh())) {
 			baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_ND_CSH");
 			baseReq.getBody().setSign("sb39801InitService");
-		} else if (TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
+		} else if (TaxRptConst.SB_ZLBHC1.equals(reportvo.getSb_zlbh())) { // 小企业会计准则
+            baseReq.setServiceid("FW_DZSWJ_CWBB_XQY_YJ_CSH");
+            baseReq.getBody().setSign("sb29806InitService");
+        } else if (TaxRptConst.SB_ZLBHC2.equals(reportvo.getSb_zlbh())) {// 企业会计准则
+            baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_YJ_CSH");
+            baseReq.getBody().setSign("sb29801InitService");
+        } else if (TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
 				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) { //附加税
 			baseReq.setServiceid("FW_DZSWJ_FJS_CSH");
 			baseReq.getBody().setSign("sb10516InitService");
@@ -1051,6 +1057,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			baseReq.setServiceid("FW_DZSWJ_LJCLF_CSH");
 			baseReq.getBody().setSign("sb10514InitService");
 		}
+
 		String lsh = reportvo.getRegion_extend1();
 		baseReq.getBody().setYwbw(getInitParams(corpVO, reportvo));
 
