@@ -106,7 +106,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 
 
         List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
-        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(10);
+        ExecutorService fixedThreadPool = Executors.newFixedThreadPool(30);
         List<Future<List<VATInComInvoiceVO2>>> vc = new Vector<Future<List<VATInComInvoiceVO2>>>();
 
         try {
