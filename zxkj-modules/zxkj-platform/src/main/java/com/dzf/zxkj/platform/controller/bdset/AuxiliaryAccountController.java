@@ -8,6 +8,7 @@ import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
@@ -402,10 +403,11 @@ public class AuxiliaryAccountController extends BaseController {
                     "辅助核算_" + typeVo.getName() + "导入： 成功" + result.get("successCount") + "条，失败" + result.get("failCount") + "条");
         } catch (Exception e) {
             writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, typeVo.getName() + "导入失败: 文件格式错误;");
-            json.setMsg("导入失败");
+            printErrorLog(json,e,"导入失败");
         }
         return ReturnData.ok().data(json);
     }
+
 
     @PostMapping("/impUpdateB")
     public ReturnData<Json> impArchiveForUpdate(@RequestParam("impfile") MultipartFile file) {
@@ -418,6 +420,7 @@ public class AuxiliaryAccountController extends BaseController {
         String fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
 
         String pk_corp = SystemUtil.getLoginCorpId();
+        String sourceName = "存货";
         try {
             Map<String, String> result = gl_fzhsserv.updateBImp(file.getInputStream(),
                     pk_corp, fileType, getExpFieldMap());
@@ -427,7 +430,8 @@ public class AuxiliaryAccountController extends BaseController {
                     "存货更新导入： 成功"
                             + result.get("successCount") + "条，失败" + result.get("failCount") + "条");
         } catch (IOException e) {
-            json.setMsg("导入失败");
+            writeLogRecord(LogRecordEnum.OPE_KJ_BDSET, sourceName + "更新导入失败: 文件格式错误;", ISysConstants.SYS_2);
+            printErrorLog(json,e,"导入失败");
         }
         return ReturnData.ok().data(json);
     }
