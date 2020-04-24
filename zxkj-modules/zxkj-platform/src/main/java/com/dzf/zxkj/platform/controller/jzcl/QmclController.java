@@ -2827,16 +2827,11 @@ public class QmclController extends BaseController {
             }
             List<CostForwardVO> list2 = secondOperate(list.toArray(new CostForwardVO[0]),isgy,pk_corp);
             List<CostForwardVO> list3 = thirdOperate(pk_corp,list,list2);
-            if(list3 != null && list3.size() > 0){
-                List<CostForwardInfo> list4 = forthoperate(qmvo,list3.toArray(new CostForwardVO[0]),false,jztype);
-                grid.setRows(list4);
-                grid.setMsg("操作成功!");
-                grid.setTotal((long) list4.size());
-            }else{
-                grid.setRows(new ArrayList<CostForwardInfo>());
-                grid.setMsg("操作成功!");
-                grid.setTotal(Long.valueOf(1));
-            }
+
+            List<CostForwardInfo> list4 = forthoperate(qmvo,list3.toArray(new CostForwardVO[0]),false,jztype);
+            grid.setRows(list4);
+            grid.setMsg("操作成功!");
+            grid.setTotal((long) list4.size());
             grid.setSuccess(true);
         }catch (Exception e) {
             log.error("错误",e);
