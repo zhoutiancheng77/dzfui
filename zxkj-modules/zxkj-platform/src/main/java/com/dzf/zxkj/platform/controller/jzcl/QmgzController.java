@@ -28,7 +28,9 @@ import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -399,9 +401,13 @@ public class QmgzController  extends PrintAndExcelExportController {
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
+            String font = printParamVO.getFont();
             QmclVO[] bodyvos =JsonUtils.deserialize(printParamVO.getList(),QmclVO[].class) ;
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("期间", printParamVO.getTitleperiod());
+            printReporUtil.setBf_Bold(printReporUtil.getBf());
+            printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
+            printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "关 账 检 查",
                     new String[] { "period", "corpname", "isgz" }, new String[] { "期间", "公司", "关账完成" },
                     new int[] { 2, 3, 2 }, 20, pmap,tmap);
