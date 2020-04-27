@@ -318,6 +318,13 @@ public class CwgyInfoController extends ReportBaseController {
             st1.setBorderTop(BorderStyle.THIN);
             st1.setAlignment(HorizontalAlignment.LEFT);
 
+            HSSFCellStyle st2 = workbook.createCellStyle();
+            st1.setBorderBottom(BorderStyle.THIN);
+            st1.setBorderLeft(BorderStyle.THIN);
+            st1.setBorderRight(BorderStyle.THIN);
+            st1.setBorderTop(BorderStyle.THIN);
+            st1.setAlignment(HorizontalAlignment.CENTER);
+
             // 设置这些样式
             HSSFCellStyle style = workbook.createCellStyle();
             style.setFillForegroundColor(HSSFColor.WHITE.index);
@@ -447,10 +454,10 @@ public class CwgyInfoController extends ReportBaseController {
                                             if (t.getAttributeValue("bnljje").equals(new DZFDouble(100))) {
                                                 HSSFRichTextString richString = new HSSFRichTextString("销项发票");
                                                 cell.setCellValue(richString);
-                                                HSSFCellStyle rightstyle = getDecimalFormatStyle(2, workbook, color);
-                                                rightstyle.setAlignment(HorizontalAlignment.CENTER);
-//                                                cell.setCellStyle(rightstyle);
-                                                cell.getCellStyle().cloneStyleFrom(rightstyle);
+//                                                HSSFCellStyle rightstyle = getDecimalFormatStyle(2, workbook, color);
+//                                                rightstyle.setAlignment(HorizontalAlignment.CENTER);
+                                                cell.setCellStyle(st1);
+//                                                cell.getCellStyle().cloneStyleFrom(rightstyle);
                                             }
                                         }
                                     } else if (fieldName.equals("byje")) {
@@ -458,10 +465,10 @@ public class CwgyInfoController extends ReportBaseController {
                                             if (t.getAttributeValue("byje").equals(new DZFDouble(101))) {
                                                 HSSFRichTextString richString = new HSSFRichTextString("进项发票");
                                                 cell.setCellValue(richString);
-                                                HSSFCellStyle rightstyle = getDecimalFormatStyle(2, workbook, color);
-                                                rightstyle.setAlignment(HorizontalAlignment.CENTER);
-//                                                cell.setCellStyle(rightstyle);
-                                                cell.getCellStyle().cloneStyleFrom(rightstyle);
+//                                                HSSFCellStyle rightstyle = getDecimalFormatStyle(2, workbook, color);
+//                                                rightstyle.setAlignment(HorizontalAlignment.CENTER);
+                                                cell.setCellStyle(st1);
+//                                                cell.getCellStyle().cloneStyleFrom(rightstyle);
                                             }
                                         }
                                     } else {
