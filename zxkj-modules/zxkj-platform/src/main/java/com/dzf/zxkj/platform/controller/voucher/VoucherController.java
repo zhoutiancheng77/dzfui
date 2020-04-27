@@ -143,6 +143,7 @@ public class VoucherController extends BaseController {
                 .hashlizeObject(Arrays.asList((TzpzHVO[]) pagedVO.getPagevos()), new String[] {"pk_corp"});
 
         List<PzglPageVo> pzglList = new ArrayList<>();
+        Arrays.sort(corps, Comparator.naturalOrder());
         for (String pk_corp : corps) {
             CorpVO corpVo = corpService.queryByPk(pk_corp);
             List<TzpzHVO> vos = corpVoucherMap.get(pk_corp);

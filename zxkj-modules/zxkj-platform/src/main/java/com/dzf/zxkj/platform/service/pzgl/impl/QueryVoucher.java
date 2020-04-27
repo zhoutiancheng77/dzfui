@@ -199,7 +199,7 @@ public class QueryVoucher {
             wheresql.append(" and nvl(tb.dr,0) = 0 ");
         }
         String where = wheresql.toString();
-        String orderField = "ynt_tzpz_h.period, ynt_tzpz_h.pzh";
+        String orderField = "ynt_tzpz_h.pk_corp, ynt_tzpz_h.period, ynt_tzpz_h.pzh";
         SQLParameter sqlParam = new SQLParameter();
         // 把凭证主表rowid放入临时表
         String querySql;
