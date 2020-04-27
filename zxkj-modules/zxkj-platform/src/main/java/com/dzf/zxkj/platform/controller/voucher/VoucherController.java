@@ -125,28 +125,34 @@ public class VoucherController extends BaseController {
             corps = corps_id.split(",");
             checkOwnCorp(corps);
         } else {
-            corps = new String[]{SystemUtil.getLoginCorpId()};
+            String loginCorp = SystemUtil.getLoginCorpId();
+            corps = new String[]{ loginCorp };
+            paramvo.setPk_corp(loginCorp);
         }
         if ("2".equals(paramvo.getDateType())) {
             paramvo.setBegindate(DateUtils.getPeriodStartDate(paramvo.getBeginPeriod()));
             paramvo.setEnddate(DateUtils.getPeriodEndDate(paramvo.getEndPeriod()));
         }
+        // user解密缓存
+        Map<String, String> decodeUserCache = new HashMap<>();
+
+        QueryPageVO pagedVO = gl_tzpzserv.query(paramvo);
+        long total = pagedVO.getTotal();
+        // 按公司分组
+        Map<String, List<TzpzHVO>> corpVoucherMap = DZfcommonTools
+                .hashlizeObject(Arrays.asList((TzpzHVO[]) pagedVO.getPagevos()), new String[] {"pk_corp"});
+
         List<PzglPageVo> pzglList = new ArrayList<>();
-        long total = 0;
         for (String pk_corp : corps) {
             CorpVO corpVo = corpService.queryByPk(pk_corp);
-
-            paramvo.setPk_corp(pk_corp);
-            QueryPageVO pagedVO = gl_tzpzserv.query(paramvo);
-            TzpzHVO[] vos = (TzpzHVO[]) pagedVO.getPagevos();
-            if (vos != null && vos.length > 0) {
-                total += pagedVO.getTotal();
+            List<TzpzHVO> vos = corpVoucherMap.get(pk_corp);
+            if (vos != null && vos.size() > 0) {
                 for (TzpzHVO hvo : vos) {
                     try {
-                        hvo.setZd_user(CodeUtils1.deCode(hvo.getZd_user()));
-                        hvo.setSh_user(CodeUtils1.deCode(hvo.getSh_user()));
-                        hvo.setJz_user(CodeUtils1.deCode(hvo.getJz_user()));
-                        hvo.setCn_user(CodeUtils1.deCode(hvo.getCn_user()));
+                        hvo.setZd_user(decodeUser(hvo.getZd_user(), decodeUserCache));
+                        hvo.setSh_user(decodeUser(hvo.getSh_user(), decodeUserCache));
+                        hvo.setJz_user(decodeUser(hvo.getJz_user(), decodeUserCache));
+                        hvo.setCn_user(decodeUser(hvo.getCn_user(), decodeUserCache));
                         if ("HP80".equals(hvo.getSourcebilltype())
                                 && StringUtils.isEmpty(hvo.getZd_user())) {
                             hvo.setZd_user("大账房系统");
@@ -258,6 +264,21 @@ public class VoucherController extends BaseController {
         grid.setSuccess(true);
         grid.setRows(pzglList);
         return ReturnData.ok().data(grid);
+    }
+
+    private String decodeUser (String user, Map<String, String> cache) {
+        String decodeUser = null;
+        if (cache.containsKey(user)) {
+            decodeUser = cache.get(user);
+        } else {
+            try {
+                decodeUser = CodeUtils1.deCode(user);
+                cache.put(user, decodeUser);
+            } catch (Exception e) {
+                log.error("解密失败！", e);
+            }
+        }
+        return decodeUser;
     }
 
     private String[] getFzhsStr(List<AuxiliaryAccountBVO> fzhsvos) {
