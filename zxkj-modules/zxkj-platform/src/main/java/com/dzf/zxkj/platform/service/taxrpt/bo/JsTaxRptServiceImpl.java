@@ -62,6 +62,8 @@ import com.dzf.zxkj.platform.util.taxrpt.TaxRptemptools;
 import com.dzf.zxkj.platform.util.taxrpt.jiangsu.EncryptDecrypt;
 import com.dzf.zxkj.platform.util.taxrpt.jiangsu.HttpUtil;
 import com.dzf.zxkj.platform.util.taxrpt.jiangsu.ZipUtil;
+import com.dzf.zxkj.platform.vo.tax.jiangsutaxrpt.taxrequest.financialtax.ordinary.BalanceSheet02;
+import com.dzf.zxkj.platform.vo.tax.jiangsutaxrpt.taxrequest.financialtax.ordinary.FinancialOrdinaryRequestNew;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -748,25 +750,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			fillFields(datas, objMapReport, spreadtool);
 			filterEmptyReport(reportvo, datas);
 			if (datas instanceof SurtaxRequest) {
-				SurtaxRequest surtaxRequest = (SurtaxRequest) datas;
-				TaxpayerInfo taxpayerInfo = surtaxRequest.getSb10516001vo_01();
-				taxpayerInfo.setNsrsbh(corpVO.getVsoccrecode());
-				taxpayerInfo.setSkssqq(reportvo.getPeriodfrom());
-				taxpayerInfo.setSkssqz(reportvo.getPeriodto());
-//                taxpayerInfo.setNsrmc(corpVO.getUnitname());
-//                taxpayerInfo.setHydm("7212");
-//                taxpayerInfo.setDjzclxdm("411");
-//                taxpayerInfo.setSfzjlxdm("201");
-//                taxpayerInfo.setTbrq(new DZFDate().toString());
-//                taxpayerInfo.setSfdwgt("0");
-//                taxpayerInfo.setSfzjhm("00000");
-				for (SurtaxDetail surtaxDetail : surtaxRequest.getSb10516001vo_02()) {
-					surtaxDetail.setLsh(lsh);
-				}
-				surtaxRequest.getSb10516001vo_03().setLsh(lsh);
-				surtaxRequest.getSb10516001vo_04().setLsh(lsh);
-				surtaxRequest.getSb10516001vo_05().setLsh(lsh);
-			}
+                dealSurtaxRequest(datas,corpVO,reportvo,lsh);
+			}else if(datas instanceof FinancialOrdinaryRequestNew){
+                dealFinancialOrdinaryRequestNew(datas,corpVO,reportvo,lsh);
+            }
 		} catch (Exception e) {
 			log.error("上报失败", e);
 			throw new BusinessException("上报失败");
@@ -783,6 +770,37 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		return OFastJSON.toJSONString(baseRequest);
 		return JsonUtils.serialize(baseRequest);
 	}
+
+    private void dealSurtaxRequest(Object datas ,CorpVO corpVO,TaxReportVO reportvo,String lsh){
+        SurtaxRequest surtaxRequest = (SurtaxRequest) datas;
+        TaxpayerInfo taxpayerInfo = surtaxRequest.getSb10516001vo_01();
+        taxpayerInfo.setNsrsbh(corpVO.getVsoccrecode());
+        taxpayerInfo.setSkssqq(reportvo.getPeriodfrom());
+        taxpayerInfo.setSkssqz(reportvo.getPeriodto());
+//                taxpayerInfo.setNsrmc(corpVO.getUnitname());
+//                taxpayerInfo.setHydm("7212");
+//                taxpayerInfo.setDjzclxdm("411");
+//                taxpayerInfo.setSfzjlxdm("201");
+//                taxpayerInfo.setTbrq(new DZFDate().toString());
+//                taxpayerInfo.setSfdwgt("0");
+//                taxpayerInfo.setSfzjhm("00000");
+        for (SurtaxDetail surtaxDetail : surtaxRequest.getSb10516001vo_02()) {
+            surtaxDetail.setLsh(lsh);
+        }
+        surtaxRequest.getSb10516001vo_03().setLsh(lsh);
+        surtaxRequest.getSb10516001vo_04().setLsh(lsh);
+        surtaxRequest.getSb10516001vo_05().setLsh(lsh);
+    }
+
+    private void dealFinancialOrdinaryRequestNew(Object datas ,CorpVO corpVO,TaxReportVO reportvo,String lsh){
+        FinancialOrdinaryRequestNew surtaxRequest = (FinancialOrdinaryRequestNew) datas;
+        BalanceSheet02 bsheet02 = surtaxRequest.getSb29801001vo_02();
+        bsheet02.setDlrmc(null);
+        bsheet02.setDlrsfzjhm(null);
+        bsheet02.setSmr(null);
+        bsheet02.setSqr(null);
+    }
+
 
 	private BaseRequestVO getBaseRequset(CorpVO corpVO,CorpTaxVo taxvo) {
 		BaseRequestVO base = new BaseRequestVO();
@@ -813,6 +831,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			cls = FinancialSmallRequest.class;
 		} else if (TaxRptConst.SB_ZLBHC2.equals(type)) {
 			cls = FinancialOrdinaryRequest.class;
+			cls = FinancialOrdinaryRequestNew.class;
 		} else if (TaxRptConst.SB_ZLBH29805.equals(type)) {
 			cls = FinancialEnterpriseRequest.class;
 		} else if (TaxRptConst.SB_ZLBH10412.equals(type)) {
@@ -2736,7 +2755,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				|| TaxRptConst.SB_ZLBH10102.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH1010201.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBHC1.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBH29805.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
