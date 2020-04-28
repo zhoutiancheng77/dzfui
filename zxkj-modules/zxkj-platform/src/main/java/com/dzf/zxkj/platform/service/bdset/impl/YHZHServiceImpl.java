@@ -133,9 +133,21 @@ public class YHZHServiceImpl implements IYHZHService {
      * @return
      */
     private boolean checkIsRef(BankAccountVO vo) {
-        List<BankAccountVO> bankAccountVOS = yhzhDao.queryByPkCorp(vo.getPk_corp());
+        StringBuffer sf = new StringBuffer();
+        sf.append(" Select 1 ");
+        sf.append("   From ynt_bankstatement t ");
+        sf.append("  Where nvl(t.dr, 0) = 0 ");
+        sf.append("    and t.pk_corp = ? ");
+        sf.append("    and t.pk_bankaccount = ? ");
 
-        return bankAccountVOS.stream().anyMatch(v -> v.getPrimaryKey().equalsIgnoreCase(vo.getPrimaryKey()));
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(vo.getPk_corp());
+        sp.addParam(vo.getPrimaryKey());
+
+        boolean b = singleObjectBO.isExists(vo.getPk_corp(),
+                sf.toString(), sp);
+
+        return b;
     }
 
     @Override
