@@ -1,15 +1,22 @@
 package com.dzf.zxkj.platform.dubbo;
 
-import com.dzf.zxkj.bankaccount.model.BankAccountVO;
+import com.dzf.zxkj.bankaccount.model.BankAccountModel;
 import com.dzf.zxkj.bankaccount.model.ReturnData;
-import com.dzf.zxkj.bankaccount.model.SignOnlineVO;
+import com.dzf.zxkj.bankaccount.model.SignOnlineModel;
 import com.dzf.zxkj.bankaccount.service.IBankAccountService;
 import com.dzf.zxkj.bankaccount.system.BankAccountConstant;
+import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
 import com.dzf.zxkj.platform.service.bdset.IYHZHService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,9 +30,20 @@ public class ZxkjBankAccountServiceImpl implements IBankAccountService {
     @Autowired
     private IYntBoPubUtil yntBoPubUtil;
 
-    @Override
-    public ReturnData saveBankAccount(BankAccountVO bankAccountVO) {
-        com.dzf.zxkj.platform.model.bdset.BankAccountVO bankAccount = new com.dzf.zxkj.platform.model.bdset.BankAccountVO();
+    private ReturnData saveBankAccount(BankAccountModel bankAccountVO) {
+
+        BankAccountVO[] bankAccountVOList = gl_yhzhserv.queryByCode(bankAccountVO.getBankcode(), bankAccountVO.getInnercode());
+
+        boolean isExists = Arrays.stream(bankAccountVOList).anyMatch(v -> StringUtils.isNotBlank(v.getBanktype()) && v.getBanktype().contains("中国工商银行"));
+
+        if(isExists){
+            ReturnData returnData = new ReturnData();
+            returnData.setCode("500");
+            returnData.setMessage("已存在相同银行账户");
+            return returnData;
+        }
+
+        BankAccountVO bankAccount = new com.dzf.zxkj.platform.model.bdset.BankAccountVO();
         bankAccount.setBanktype("中国工商银行");
         bankAccount.setBankaccount(bankAccountVO.getBankcode());
         bankAccount.setLy("0"); //签约生成
@@ -50,8 +68,39 @@ public class ZxkjBankAccountServiceImpl implements IBankAccountService {
         return returnData;
     }
 
+    public ReturnData saveSignOnline(SignOnlineModel signOnlineVO) {
+        BankAccountVO[] bankAccountVOList = gl_yhzhserv.queryByCode(signOnlineVO.getBankcode(), signOnlineVO.getInnercode());
+        Optional<BankAccountVO> optional = Arrays.stream(bankAccountVOList).filter(v -> StringUtils.isNotBlank(v.getBanktype()) && v.getBanktype().contains("中国工商银行")).findFirst();
+        ReturnData returnData = new ReturnData();
+        returnData.setCode("500");
+        returnData.setMessage("银行账户不存在");
+
+        optional.ifPresent(v -> {
+            v.setVapplycode(signOnlineVO.getVapplycode());
+            v.setIstatus(signOnlineVO.getIstatus().toString());
+            try{
+                gl_yhzhserv.update(v,new String[]{"vapplycode","istatus"});
+                returnData.setCode("200");
+                returnData.setMessage("签约信息更新成功");
+            }catch (Exception e){
+                returnData.setCode("500");
+                returnData.setMessage(e.getMessage());
+            }
+        });
+        return returnData;
+    }
+
     @Override
-    public ReturnData saveSignOnline(SignOnlineVO signOnlineVO) {
-        return null;
+    public List<ReturnData> batchSaveBankAccount(List<BankAccountModel> bankAccountVOList) {
+        return bankAccountVOList.stream().map(v ->{
+            return saveBankAccount(v);
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ReturnData> batchSaveSignOnline(List<SignOnlineModel> signOnlineVOList) {
+        return signOnlineVOList.stream().map(v ->{
+            return saveSignOnline(v);
+        }).collect(Collectors.toList());
     }
 }
