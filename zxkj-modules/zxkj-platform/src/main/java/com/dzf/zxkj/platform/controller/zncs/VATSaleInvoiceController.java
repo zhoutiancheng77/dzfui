@@ -1172,8 +1172,14 @@ public class VATSaleInvoiceController extends BaseController {
             List<VATSaleInvoiceVO> newList = gl_vatsalinvserv.queryByPks(pks, pk_corp);
 
             json.setRows(newList);
-            json.setMsg(msg);
-            json.setSuccess(true);
+            if(StringUtils.isEmpty(msg)){
+                json.setMsg("业务类型设置更新成功！");
+                json.setSuccess(true);
+            }else{
+                json.setMsg(msg);
+                json.setSuccess(false);
+            }
+
         } catch (Exception e) {
             printErrorLog(json, e, "更新业务类型失败");
         }

@@ -3127,8 +3127,10 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 //		return new StringBuffer().append("入账设置更新成功 ").append(upCount).append(" 条")
 //				.append(npCount > 0 ? ",未更新 " + npCount + " 条" : "").toString();
 		StringBuffer msg = new StringBuffer();
-		msg.append("业务类型设置更新成功 ").append(upCount).append(" 条");
-		msg.append(npCount > 0 ? ",未更新 " + npCount + " 条,详细原因如下:" + innermsg.toString() : "");
+		if(npCount>0){
+			msg.append("业务类型设置更新成功 ").append(upCount).append(" 条");
+			msg.append(npCount > 0 ? ",未更新 " + npCount + " 条,详细原因如下:" + innermsg.toString() : "");
+		}
 		return msg.toString();
 	}
 
