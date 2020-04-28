@@ -1810,14 +1810,11 @@ public class VoucherServiceImpl implements IVoucherService {
 		}
 		if (assists.size() > 0) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and pk_auacount_b in ")
-			.append(SQLHelper.getInSQL(new ArrayList<String>(assists)))
+			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and ")
+            .append(SqlUtil.buildSqlForIn("pk_auacount_b", assists.toArray(new String[0])))
 			.append(" and nvl(dr,0)=0 ");
 			SQLParameter sp = new SQLParameter();
 			sp.addParam(corpvo.getPk_corp());
-			for (String pk : assists) {
-				sp.addParam(pk);
-			}
 			
 			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
 			if (count == null || count.intValue() != assists.size()) {
@@ -1827,14 +1824,11 @@ public class VoucherServiceImpl implements IVoucherService {
 		
 		if (inventorys.size() > 0) {
 			StringBuilder sb = new StringBuilder();
-			sb.append("select count(1) from ynt_inventory where pk_corp = ? and pk_inventory in ")
-			.append(SQLHelper.getInSQL(new ArrayList<String>(inventorys)))
+			sb.append("select count(1) from ynt_inventory where pk_corp = ? and ")
+            .append(SqlUtil.buildSqlForIn("pk_inventory", inventorys.toArray(new String[0])))
 			.append(" and nvl(dr,0)=0 ");
 			SQLParameter sp = new SQLParameter();
 			sp.addParam(corpvo.getPk_corp());
-			for (String pk : inventorys) {
-				sp.addParam(pk);
-			}
 			
 			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
 			if (count == null || count.intValue() != inventorys.size()) {

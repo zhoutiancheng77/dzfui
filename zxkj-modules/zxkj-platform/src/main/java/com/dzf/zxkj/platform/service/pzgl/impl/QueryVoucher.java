@@ -26,6 +26,7 @@ import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,14 +66,16 @@ public class QueryVoucher {
         if (StringUtil.isEmpty(id) && (StringUtil.isEmpty(pk_corp) || bdate == null || edate == null)) {
             throw new BusinessException("传入查询条件为空！");
         }
+        String[] corps = pk_corp.split(",");
         StringBuilder wheresql = new StringBuilder();
         SQLParameter sp = new SQLParameter();
-        sp.addParam(pk_corp);
+//        sp.addParam(pk_corp);
         if (!StringUtil.isEmptyWithTrim(vname) || !StringUtil.isEmptyWithTrim(zy) || !StringUtil.isEmptyWithTrim(fzhslb)
                 || mny1 != null && mny1.toDouble() != 0 || mny2 != null && mny2.toDouble() != 0) {
             join = "  join ynt_tzpz_b tb on ynt_tzpz_h.pk_tzpz_h = tb.pk_tzpz_h  ";
         }
-        wheresql.append(" where ynt_tzpz_h.pk_corp = ? ");
+//        wheresql.append(" where ynt_tzpz_h.pk_corp = ? ");
+        wheresql.append(" where ").append(SqlUtil.buildSqlForIn("ynt_tzpz_h.pk_corp", corps));
         if (!StringUtil.isEmpty(id)) {
             wheresql.append(" and ynt_tzpz_h.pk_tzpz_h = ? ");
             sp.addParam(id);
@@ -196,7 +199,7 @@ public class QueryVoucher {
             wheresql.append(" and nvl(tb.dr,0) = 0 ");
         }
         String where = wheresql.toString();
-        String orderField = "ynt_tzpz_h.period, ynt_tzpz_h.pzh";
+        String orderField = "ynt_tzpz_h.pk_corp, ynt_tzpz_h.period, ynt_tzpz_h.pzh";
         SQLParameter sqlParam = new SQLParameter();
         // 把凭证主表rowid放入临时表
         String querySql;
@@ -244,9 +247,11 @@ public class QueryVoucher {
             sql.append("   where nvl(tb1.dr,0) = 0  order by tb1.pk_tzpz_h,tb1.rowno ");
             List<TzpzBVO> bvos = (List<TzpzBVO>) singleObjectBO.executeQuery(sql.toString(), sqlParam, new BeanListProcessor(TzpzBVO.class));
             Map<String, List<TzpzBVO>> map = DZfcommonTools.hashlizeObject(bvos, new String[]{"pk_tzpz_h"});//返回MAP信息
-            Map<String, AuxiliaryAccountBVO> fzhsMap = gl_fzhsserv.queryMap(pk_corp);
+
+            Map<String, Map<String, AuxiliaryAccountBVO>> corpFzhsMap = new HashMap<>();
 
             for (TzpzHVO th : hvo) {
+                Map<String, AuxiliaryAccountBVO> fzhsMap = getAuxiliaryMap(th.getPk_corp(), corpFzhsMap);
                 List<TzpzBVO> liz = map.get(th.getPrimaryKey());
                 DZFBoolean ishashb = DZFBoolean.FALSE;
                 if (liz != null && !liz.isEmpty()) {
@@ -271,6 +276,18 @@ public class QueryVoucher {
         pagedVO.setTotal(total);
         pagedVO.setPagevos(reshvo.toArray(new TzpzHVO[0]));
         return pagedVO;
+    }
+
+    private Map<String, AuxiliaryAccountBVO> getAuxiliaryMap (String corpId,
+                                                              Map<String, Map<String, AuxiliaryAccountBVO>> cacheMap) {
+        Map<String, AuxiliaryAccountBVO> map;
+        if (cacheMap.containsKey(corpId)) {
+            map = cacheMap.get(corpId);
+        } else {
+            map = gl_fzhsserv.queryMap(corpId);
+            cacheMap.put(corpId, map);
+        }
+        return map;
     }
 
     private String prepareVoucherToTempTable(String join, String where, String orderFields,
