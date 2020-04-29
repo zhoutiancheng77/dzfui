@@ -86,8 +86,8 @@ public class DefaultTaxRptServiceImpl implements ITaxRptService {
 				//这个方法可以用。不过还是让他们先维护数据信息算了
 //				corpTaxService.saveInitCorpRptVOs(corpvo);
 //				list = queryCorpTaxRptVO(pk_corp);
-				throw new BusinessException("当前公司没有维护纳税信息，请到纳税信息节点进行维护");
-//				throw new BusinessException("当前公司没有维护纳税信息，请到账套设置节点进行维护");
+//				throw new BusinessException("当前公司没有维护纳税信息，请到纳税信息节点进行维护");
+				throw new BusinessException("当前公司没有维护纳税信息，请到“账套管理-账套设置”节点进行维护");
 			}
 			if(list == null || list.size() == 0)
 				return null;
