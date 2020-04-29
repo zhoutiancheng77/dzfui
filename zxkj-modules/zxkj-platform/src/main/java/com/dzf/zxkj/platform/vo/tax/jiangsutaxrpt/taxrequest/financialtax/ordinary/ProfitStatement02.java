@@ -9,151 +9,595 @@ import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelPos;
 )
 public class ProfitStatement02 {
     //一、营业收入
-    private String xmmc1;
+  @TaxExcelPos(
+            row = 4,
+            col = 0
+    )
+   private String xmmc1;
+    @TaxExcelPos(
+            row = 4,
+            col = 3
+    )
     private DZFDouble bqje1;
+    @TaxExcelPos(
+            row = 4,
+            col = 4
+    )
     private DZFDouble sqje1;
     //减:营业成本
-    private String xmmc2;
+   @TaxExcelPos(
+            row = 5,
+            col = 0
+    )
+   private String xmmc2;
+    @TaxExcelPos(
+            row = 5,
+            col = 3
+    )
     private DZFDouble bqje2;
+    @TaxExcelPos(
+            row = 5,
+            col = 4
+    )
     private DZFDouble sqje2;
     //税金及附加
-    private String xmmc3;
+   @TaxExcelPos(
+            row = 6,
+            col = 0
+    )
+   private String xmmc3;
+    @TaxExcelPos(
+            row = 6,
+            col = 3
+    )
     private DZFDouble bqje3;
+    @TaxExcelPos(
+            row = 6,
+            col = 4
+    )
     private DZFDouble sqje3;
     //销售费用
-    private String xmmc4;
+   @TaxExcelPos(
+            row = 7,
+            col = 0
+    )
+   private String xmmc4;
+    @TaxExcelPos(
+            row = 7,
+            col = 3
+    )
     private DZFDouble bqje4;
+    @TaxExcelPos(
+            row = 7,
+            col = 4
+    )
     private DZFDouble sqje4;
     //管理费用
-    private String xmmc5;
+   @TaxExcelPos(
+            row = 8,
+            col = 0
+    )
+   private String xmmc5;
+    @TaxExcelPos(
+            row = 8,
+            col = 3
+    )
     private DZFDouble bqje5;
+    @TaxExcelPos(
+            row = 8,
+            col = 4
+    )
     private DZFDouble sqje5;
     //研发费用
-    private String xmmc6;
+   @TaxExcelPos(
+            row = 9,
+            col = 0
+    )
+   private String xmmc6;
+    @TaxExcelPos(
+            row = 9,
+            col = 3
+    )
     private DZFDouble bqje6;
+    @TaxExcelPos(
+            row = 9,
+            col = 4
+    )
     private DZFDouble sqje6;
     //财务费用
-    private String xmmc7;
+   @TaxExcelPos(
+            row = 10,
+            col = 0
+    )
+   private String xmmc7;
+    @TaxExcelPos(
+            row = 10,
+            col = 3
+    )
     private DZFDouble bqje7;
+    @TaxExcelPos(
+            row = 10,
+            col = 4
+    )
     private DZFDouble sqje7;
     //其中：利息费用
-    private String xmmc8;
+   @TaxExcelPos(
+            row = 11,
+            col = 0
+    )
+   private String xmmc8;
+    @TaxExcelPos(
+            row = 11,
+            col = 3
+    )
     private DZFDouble bqje8;
+    @TaxExcelPos(
+            row = 11,
+            col = 4
+    )
     private DZFDouble sqje8;
     //利息收入
-    private String xmmc9;
+   @TaxExcelPos(
+            row = 12,
+            col = 0
+    )
+   private String xmmc9;
+    @TaxExcelPos(
+            row = 12,
+            col = 3
+    )
     private DZFDouble bqje9;
+    @TaxExcelPos(
+            row = 12,
+            col = 4
+    )
     private DZFDouble sqje9;
     //加：其他收益
-    private String xmmc10;
+   @TaxExcelPos(
+            row = 13,
+            col = 0
+    )
+   private String xmmc10;
+    @TaxExcelPos(
+            row = 13,
+            col = 3
+    )
     private DZFDouble bqje10;
+    @TaxExcelPos(
+            row = 13,
+            col = 4
+    )
     private DZFDouble sqje10;
     //投资收益（损失以“-”号填列）
-    private String xmmc11;
+   @TaxExcelPos(
+            row = 14,
+            col = 0
+    )
+   private String xmmc11;
+    @TaxExcelPos(
+            row = 14,
+            col = 3
+    )
     private DZFDouble bqje11;
+    @TaxExcelPos(
+            row = 14,
+            col = 4
+    )
     private DZFDouble sqje11;
     //其中：对联营企业和合营企业的投资收益
-    private String xmmc12;
+   @TaxExcelPos(
+            row = 15,
+            col = 0
+    )
+   private String xmmc12;
+    @TaxExcelPos(
+            row = 15,
+            col = 3
+    )
     private DZFDouble bqje12;
+    @TaxExcelPos(
+            row = 15,
+            col = 4
+    )
     private DZFDouble sqje12;
     //公允价值变动收益（损失以“-”号填列）
-    private String xmmc13;
+   @TaxExcelPos(
+            row = 16,
+            col = 0
+    )
+   private String xmmc13;
+    @TaxExcelPos(
+            row = 16,
+            col = 3
+    )
     private DZFDouble bqje13;
+    @TaxExcelPos(
+            row = 16,
+            col = 4
+    )
     private DZFDouble sqje13;
     //资产减值损失（损失以“-”号填列）
-    private String xmmc14;
+   @TaxExcelPos(
+            row = 17,
+            col = 0
+    )
+   private String xmmc14;
+    @TaxExcelPos(
+            row = 17,
+            col = 3
+    )
     private DZFDouble bqje14;
+    @TaxExcelPos(
+            row = 17,
+            col = 4
+    )
     private DZFDouble sqje14;
     //资产处置收益（损失以“-”号填列）
-    private String xmmc15;
+   @TaxExcelPos(
+            row = 18,
+            col = 0
+    )
+   private String xmmc15;
+    @TaxExcelPos(
+            row = 18,
+            col = 3
+    )
     private DZFDouble bqje15;
+    @TaxExcelPos(
+            row = 18,
+            col = 4
+    )
     private DZFDouble sqje15;
     //二、营业利润(亏损以“-”号填列)
-    private String xmmc16;
+   @TaxExcelPos(
+            row = 19,
+            col = 0
+    )
+   private String xmmc16;
+    @TaxExcelPos(
+            row = 19,
+            col = 3
+    )
     private DZFDouble bqje16;
+    @TaxExcelPos(
+            row = 19,
+            col = 4
+    )
     private DZFDouble sqje16;
     //加:营业外收入
-    private String xmmc17;
+   @TaxExcelPos(
+            row = 20,
+            col = 0
+    )
+   private String xmmc17;
+    @TaxExcelPos(
+            row = 20,
+            col = 3
+    )
     private DZFDouble bqje17;
+    @TaxExcelPos(
+            row = 20,
+            col = 4
+    )
     private DZFDouble sqje17;
     //减:营业外支出
-    private String xmmc18;
+   @TaxExcelPos(
+            row = 21,
+            col = 0
+    )
+   private String xmmc18;
+    @TaxExcelPos(
+            row = 21,
+            col = 3
+    )
     private DZFDouble bqje18;
+    @TaxExcelPos(
+            row = 21,
+            col = 4
+    )
     private DZFDouble sqje18;
     //三、利润总额(亏损总额以“-”号填列)
-    private String xmmc19;
+   @TaxExcelPos(
+            row = 22,
+            col = 0
+    )
+   private String xmmc19;
+    @TaxExcelPos(
+            row = 22,
+            col = 3
+    )
     private DZFDouble bqje19;
+    @TaxExcelPos(
+            row = 22,
+            col = 4
+    )
     private DZFDouble sqje19;
     //减:所得税费用
-    private String xmmc20;
+   @TaxExcelPos(
+            row = 23,
+            col = 0
+    )
+   private String xmmc20;
+    @TaxExcelPos(
+            row = 23,
+            col = 3
+    )
     private DZFDouble bqje20;
+    @TaxExcelPos(
+            row = 23,
+            col = 4
+    )
     private DZFDouble sqje20;
     //四、净利润(净亏损以“-”号填列)
-    private String xmmc21;
+   @TaxExcelPos(
+            row = 24,
+            col = 0
+    )
+   private String xmmc21;
+    @TaxExcelPos(
+            row = 24,
+            col = 3
+    )
     private DZFDouble bqje21;
+    @TaxExcelPos(
+            row = 24,
+            col = 4
+    )
     private DZFDouble sqje21;
     //（一）持续经营净利润（净亏损以“-”号填列）
-    private String xmmc22;
+   @TaxExcelPos(
+            row = 25,
+            col = 0
+    )
+   private String xmmc22;
+    @TaxExcelPos(
+            row = 25,
+            col = 3
+    )
     private DZFDouble bqje22;
+    @TaxExcelPos(
+            row = 25,
+            col = 4
+    )
     private DZFDouble sqje22;
     //（二）终止经营净利润（净亏损以“-”号填列）
-    private String xmmc23;
+   @TaxExcelPos(
+            row = 26,
+            col = 0
+    )
+   private String xmmc23;
+    @TaxExcelPos(
+            row = 26,
+            col = 3
+    )
     private DZFDouble bqje23;
+    @TaxExcelPos(
+            row = 26,
+            col = 4
+    )
     private DZFDouble sqje23;
     //五、其他综合收益的税后净额
-    private String xmmc24;
+   @TaxExcelPos(
+            row = 27,
+            col = 0
+    )
+   private String xmmc24;
+    @TaxExcelPos(
+            row = 27,
+            col = 3
+    )
     private DZFDouble bqje24;
+    @TaxExcelPos(
+            row = 27,
+            col = 4
+    )
     private DZFDouble sqje24;
     //（一）不能重分类进损益的其他综合收益
-    private String xmmc25;
+   @TaxExcelPos(
+            row = 28,
+            col = 0
+    )
+   private String xmmc25;
+    @TaxExcelPos(
+            row = 28,
+            col = 3
+    )
     private DZFDouble bqje25;
+    @TaxExcelPos(
+            row = 28,
+            col = 4
+    )
     private DZFDouble sqje25;
     //1.重新计量设定受益计划变动额
-    private String xmmc26;
+   @TaxExcelPos(
+            row = 29,
+            col = 0
+    )
+   private String xmmc26;
+    @TaxExcelPos(
+            row = 29,
+            col = 3
+    )
     private DZFDouble bqje26;
+    @TaxExcelPos(
+            row = 29,
+            col = 4
+    )
     private DZFDouble sqje26;
     //2.权益法下不能转损益的其他综合收益
-    private String xmmc27;
+   @TaxExcelPos(
+            row = 30,
+            col = 0
+    )
+   private String xmmc27;
+    @TaxExcelPos(
+            row = 30,
+            col = 3
+    )
     private DZFDouble bqje27;
+    @TaxExcelPos(
+            row = 30,
+            col = 4
+    )
     private DZFDouble sqje27;
     //（二）将重分类进损益的其他综合收益
-    private String xmmc28;
+   @TaxExcelPos(
+            row = 31,
+            col = 0
+    )
+   private String xmmc28;
+    @TaxExcelPos(
+            row = 31,
+            col = 3
+    )
     private DZFDouble bqje28;
+    @TaxExcelPos(
+            row = 31,
+            col = 4
+    )
     private DZFDouble sqje28;
     //1. 权益法下可转损益的其他综合收益
-    private String xmmc29;
+   @TaxExcelPos(
+            row = 32,
+            col = 0
+    )
+   private String xmmc29;
+    @TaxExcelPos(
+            row = 32,
+            col = 3
+    )
     private DZFDouble bqje29;
+    @TaxExcelPos(
+            row = 32,
+            col = 4
+    )
     private DZFDouble sqje29;
     //2.可供出售金融资产公允价值变动损益
-    private String xmmc30;
+   @TaxExcelPos(
+            row = 33,
+            col = 0
+    )
+   private String xmmc30;
+    @TaxExcelPos(
+            row = 33,
+            col = 3
+    )
     private DZFDouble bqje30;
+    @TaxExcelPos(
+            row = 33,
+            col = 4
+    )
     private DZFDouble sqje30;
     //3.持有至到期投资重分类为可供出售金融资产损益
-    private String xmmc31;
+   @TaxExcelPos(
+            row = 34,
+            col = 0
+    )
+   private String xmmc31;
+    @TaxExcelPos(
+            row = 34,
+            col = 3
+    )
     private DZFDouble bqje31;
+    @TaxExcelPos(
+            row = 34,
+            col = 4
+    )
     private DZFDouble sqje31;
     //4.现金流量套期损益的有效部分
-    private String xmmc32;
+   @TaxExcelPos(
+            row = 35,
+            col = 0
+    )
+   private String xmmc32;
+    @TaxExcelPos(
+            row = 35,
+            col = 3
+    )
     private DZFDouble bqje32;
+    @TaxExcelPos(
+            row = 35,
+            col = 4
+    )
     private DZFDouble sqje32;
     //5.外币财务报表折算差额
-    private String xmmc33;
+   @TaxExcelPos(
+            row = 36,
+            col = 0
+    )
+   private String xmmc33;
+    @TaxExcelPos(
+            row = 36,
+            col = 3
+    )
     private DZFDouble bqje33;
+    @TaxExcelPos(
+            row = 36,
+            col = 4
+    )
     private DZFDouble sqje33;
     //六、综合收益总额
-    private String xmmc34;
+   @TaxExcelPos(
+            row = 37,
+            col = 0
+    )
+   private String xmmc34;
+    @TaxExcelPos(
+            row = 37,
+            col = 3
+    )
     private DZFDouble bqje34;
+    @TaxExcelPos(
+            row = 37,
+            col = 4
+    )
     private DZFDouble sqje34;
-    private String xmmc35;
+   @TaxExcelPos(
+            row = 38,
+            col = 0
+    )
+   private String xmmc35;
+    @TaxExcelPos(
+            row = 38,
+            col = 3
+    )
     private DZFDouble bqje35;
+    @TaxExcelPos(
+            row = 38,
+            col = 4
+    )
     private DZFDouble sqje35;
     //(一)基本每股收益
-    private String xmmc36;
+   @TaxExcelPos(
+            row = 39,
+            col = 0
+    )
+   private String xmmc36;
+    @TaxExcelPos(
+            row = 39,
+            col = 3
+    )
     private DZFDouble bqje36;
+    @TaxExcelPos(
+            row = 39,
+            col = 4
+    )
     private DZFDouble sqje36;
     //(二)稀释每股收益
-    private String xmmc37;
+   @TaxExcelPos(
+            row = 40,
+            col = 0
+    )
+   private String xmmc37;
+    @TaxExcelPos(
+            row = 40,
+            col = 3
+    )
     private DZFDouble bqje37;
+    @TaxExcelPos(
+            row = 40,
+            col = 4
+    )
     private DZFDouble sqje37;
 
     public String getXmmc1() {

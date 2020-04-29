@@ -5,19 +5,22 @@ import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelPos;
 
 @TaxExcelPos(
         reportID = "C2001",
-        reportname = "资产负债表"
+        reportname = "资产负债表",
+        rowBegin = 4,
+        rowEnd = 43,
+        col = 4
 )
 public class BalanceSheet01 {
     @TaxExcelPos(
-            col = 3
+            col = 0
     )
     private String xmmc1;//项目名称（资产）
     @TaxExcelPos(
-            col = 3
+            col = 1
     )
     private String hc1;//资产栏次（资产）
     @TaxExcelPos(
-            col = 3
+            col = 2
     )
     private DZFDouble qmyezc;//期末余额（资产）
     @TaxExcelPos(
@@ -25,22 +28,24 @@ public class BalanceSheet01 {
     )
     private DZFDouble snncyezc;//上年年末余额（资产）
     @TaxExcelPos(
-            col = 3
+            col = 4
     )
     private String xmmc2;//项目名称（负债及所有者权益（或股东权益））
     @TaxExcelPos(
-            col = 3
+            col = 5
     )
     private String hc2;//行次（负债及所有者权益（或股东权益））
     @TaxExcelPos(
-            col = 3
+            col = 6
     )
     private DZFDouble qmyeqy;//期末余额（负债及所有者权益（或股东权益））
     @TaxExcelPos(
-            col = 3
+            col = 7
     )
     private DZFDouble snncyeqy;//上年年末余额（负债及所有者权益（或股东权益））
-
+    @TaxExcelPos(
+            expression = "this.getXH()"
+    )
     private String mxxh;
 
     public String getMxxh() {

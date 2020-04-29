@@ -1,5 +1,13 @@
 package com.dzf.zxkj.platform.vo.tax.jiangsutaxrpt.taxrequest.financialtax.ordinary;
 
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelPos;
+
+@TaxExcelPos(
+        reportID = "C2001",
+        reportname = "资产负债表",
+        rowBegin = 0,
+        rowEnd = 0
+)
 public class BalanceSheet02 {
 
     private  String sqr;

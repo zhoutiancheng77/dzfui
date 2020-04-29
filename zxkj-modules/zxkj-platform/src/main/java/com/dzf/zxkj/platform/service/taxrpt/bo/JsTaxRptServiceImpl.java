@@ -928,6 +928,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     LinkedHashMap hmsheet = (LinkedHashMap) hmsheets.get(reportname);
                     // 把取数的sheet页加入上下文
                     formulatool.setDataSheet(hmsheet);
+                    // 一个表中多个sheet 重置明细序号
+                    formulatool.mxxh = 0;
                 }
                 if (isArray) {
                     List<Object> list = new ArrayList<Object>();
@@ -1004,7 +1006,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
             Object val = null;
             if (fieldAnno != null) {
-                if (fieldAnno.expression() != null) { // 有expression注解的，走表达式计算
+                if (fieldAnno.expression() != null && !StringUtil.isEmpty(fieldAnno.expression())) { // 有expression注解的，走表达式计算
                     val = formulatool.evaluate(fieldAnno.expression());
                 } else { // 原逻辑
                     val = spreadtool.getCellValue(objMapReport, reportname,
@@ -2922,7 +2924,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 || TaxRptConst.SB_ZLBH10102.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBH1010201.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBHC1.equals(taxTypeCode)
-//				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBH29805.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
