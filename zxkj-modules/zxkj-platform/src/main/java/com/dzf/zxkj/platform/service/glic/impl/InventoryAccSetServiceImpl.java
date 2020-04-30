@@ -213,8 +213,10 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 		}
 		InventorySetVO vo1 = query(cpvo.getPk_corp());
 		if(vo1!=null){
-			vo.setChcbjzfs(vo1.getChcbjzfs());
-			vo.setZgrkdfkm(vo1.getZgrkdfkm());
+		    if(vo1.getChcbjzfs() != -1)
+			    vo.setChcbjzfs(vo1.getChcbjzfs());
+			if(!StringUtil.isEmpty(vo1.getZgrkdfkm()))
+				vo.setZgrkdfkm(vo1.getZgrkdfkm());
 			if(bodyvos != null && bodyvos.length >0){
 				boolean flag = true;
 				for(AuxiliaryAccountBVO bvo : bodyvos){
