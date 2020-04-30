@@ -1059,7 +1059,7 @@ public class SalaryReportController  extends BaseController {
 
     private void checkPersonInfo(SalaryReportVO vo) {
         if (StringUtil.isEmpty(vo.getZjlx())) {
-            throw new BusinessException("职员信息证件类型不能为空");
+            throw new BusinessException("职员信息证照类型不能为空");
         } else {
             if (!SalaryReportEnum.IDCARD.getValue().equals(vo.getZjlx())) {
                 if (StringUtil.isEmpty(vo.getYgname())) {

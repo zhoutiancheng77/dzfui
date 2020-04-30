@@ -603,7 +603,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         }
 
         if (StringUtil.isEmpty(bvo.getZjlx())) {
-            dealMessage(message, row, "证件类型不能为空！");
+            dealMessage(message, row, "证照类型不能为空！");
         }
         if (StringUtil.isEmpty(bvo.getZjbm())) {
             dealMessage(message, row, "证件编码不能为空！");
@@ -2027,7 +2027,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         if (!StringUtil.isEmpty(bvo.getZjlx())) {
             if (row > 0) {
                 if (SalaryReportEnum.getTypeEnumByName(bvo.getZjlx()) == null) {
-                    dealMessage(message, row, "证件类型" + bvo.getZjlx() + ",不匹配！");
+                    dealMessage(message, row, "证照类型" + bvo.getZjlx() + ",不匹配！");
                     return;
                 } else {
                     bvo.setZjlx(SalaryReportEnum.getTypeEnumByName(bvo.getZjlx()).getValue());
@@ -2035,7 +2035,14 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
             }
 
             if (!list.contains(bvo.getZjlx())) {
-                dealMessage(message, row, "证件类型：" + bvo.getZjlx() + "不合规范，请检查！");
+                String zjlx = null;
+                if (SalaryReportEnum.getTypeEnumByValue(bvo.getZjlx()) != null) {
+                    zjlx = SalaryReportEnum.getTypeEnumByValue(bvo.getZjlx()).getName();
+                }
+                if(StringUtil.isEmpty(zjlx)){
+                    zjlx = bvo.getZjlx();
+                }
+                dealMessage(message, row, "证照类型：" + zjlx+ "不合规范，请检查！");
             }
         }
 
