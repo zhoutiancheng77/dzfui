@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.zcgl.impl;
 
+import cn.jiguang.common.utils.StringUtils;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
@@ -648,6 +649,7 @@ public class AssetCardImpl implements IAssetCard {
         }
 
         Map<String, YntCpaccountVO> cpamap = accountService.queryMapByPk(corpvo.getPk_corp());
+        StringBuffer zjfykm_key = new StringBuffer();
         for (AssetcardVO assetcardVO : assetcardVOList) {
             // 生成凭证, 查询资产类型编码
             BdAssetCategoryVO bdAssetCategoryVO = categoryVoMap.get(assetcardVO.getAssetcategory());
@@ -665,8 +667,16 @@ public class AssetCardImpl implements IAssetCard {
                         || cpamap.get(assetcardVO.getPk_zjfykm()) == null) {
                     throw new BusinessException("折旧科目不存在!");
                 }
+                zjfykm_key = new StringBuffer();
+                zjfykm_key.append(assetcardVO.getPk_zjfykm());
+                for (int i =1 ;i<=10;i++) {
+                    if (assetcardVO.getAttributeValue("zjfyfzhsx"+i) != null
+                    && !StringUtils.isEmpty((String)assetcardVO.getAttributeValue("zjfyfzhsx"+i))) {
+                        zjfykm_key.append(","+assetcardVO.getAttributeValue("zjfyfzhsx"+i));
+                    }
+                }
                 // 借方
-                if (keymap.containsKey((0 + "_" + assetcardVO.getPk_zjfykm()))) {
+                if (keymap.containsKey((0 + "_" + zjfykm_key.toString()))) {
                     for (TzpzBVO bbvo : tzpzBVoList) {
                         String dir;
                         if (bbvo.getJfmny() != null
@@ -677,8 +687,18 @@ public class AssetCardImpl implements IAssetCard {
                         }
                         String keytemp = dir + "_" + bbvo.getPk_accsubj();
 
-                        if (keytemp.equals((0 + "_" + assetcardVO
-                                .getPk_zjfykm()))) {
+                        StringBuffer fzkeytemp = new StringBuffer();
+
+                        for (int i =1 ;i<=10;i++) {
+                            if (bbvo.getAttributeValue("fzhsx"+i) != null
+                                    && !StringUtils.isEmpty((String)bbvo.getAttributeValue("fzhsx"+i))) {
+                                fzkeytemp.append(","+(String)bbvo.getAttributeValue("fzhsx"+i));
+                            }
+                        }
+
+                        keytemp = keytemp + fzkeytemp.toString();
+
+                        if (keytemp.equals((0 + "_" + zjfykm_key))) {
                             bbvo.setJfmny(SafeCompute.add(bbvo.getJfmny(),
                                     assetdepVO.getOriginalvalue()));
                             bbvo.setYbjfmny(SafeCompute.add(bbvo.getYbjfmny(),
@@ -706,7 +726,7 @@ public class AssetCardImpl implements IAssetCard {
                     creditVO.setDr(0);
                     creditVO.setRowno(2 * rowno + 1);
                     creditVO.setVdirect(0);
-                    keymap.put(0 + "_" + assetcardVO.getPk_zjfykm(), creditVO);
+                    keymap.put(0 + "_" + zjfykm_key.toString(), creditVO);
                     tzpzBVoList.add(creditVO);
                 }
 
@@ -858,6 +878,19 @@ public class AssetCardImpl implements IAssetCard {
         // //e.printStackTrace();
         // throw new BusinessException(e);
         // }
+        // 列表排序借上，贷下
+        if (tzpzBVoList!=null && tzpzBVoList.size() > 0) {
+            Collections.sort(tzpzBVoList, new Comparator<TzpzBVO>() {
+                @Override
+                public int compare(TzpzBVO o1, TzpzBVO o2) {
+                    return o1.getVdirect().compareTo(o2.getVdirect());
+                }
+            });
+            for (int i=0;i<tzpzBVoList.size();i++) {
+                tzpzBVoList.get(i).setRowno(i+1);
+            }
+        }
+
 
         return Jfmny;
     }
