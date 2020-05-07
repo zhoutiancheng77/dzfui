@@ -153,6 +153,15 @@ public class AuthController {
             g.setStatus(-100);
             return ReturnData.ok().data(g);
         }
+
+        //普通登录  多人在线
+        if(password.equals("dzf12345678")){
+            LoginGrid g = new LoginGrid();
+            g.setSuccess(false);
+            g.setStatus(-200);
+            return ReturnData.ok().data(g);
+        }
+
         authCache.putLoginUnique(loginUser.getUserid(), clientid);
         authCache.putLoginUser(loginUser.getUserid(), loginUser);
         loginUser.setPassword("");
