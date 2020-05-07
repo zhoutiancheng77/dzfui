@@ -5,6 +5,7 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IParameterConstants;
@@ -20,6 +21,7 @@ import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.model.jzcl.TempInvtoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
@@ -346,7 +348,14 @@ public class ZgVoucher {
 				if(StringUtil.isEmpty(bodys[0].getZgkhfz())){
 					str = new String[]{bodys[0].getZgrkdfkm(),""};
 				}else{
-					str = new String[]{bodys[0].getZgrkdfkm(),bodys[0].getZgkhfz()};
+					//
+                    IAuxiliaryAccountService gl_fzhsserv  = (IAuxiliaryAccountService) SpringUtils.getBean("gl_fzhsserv");
+                    boolean b = gl_fzhsserv.isExistFz(vo.getPk_corp(), bodys[0].getZgkhfz(), null);
+                    if (b) {
+                        str = new String[]{bodys[0].getZgrkdfkm(), bodys[0].getZgkhfz()};
+                    } else {
+                        str = new String[]{bodys[0].getZgrkdfkm(), ""};
+                    }
 				}
 			}
 		}

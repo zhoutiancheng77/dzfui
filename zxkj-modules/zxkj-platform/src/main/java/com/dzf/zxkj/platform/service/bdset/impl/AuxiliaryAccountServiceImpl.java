@@ -1537,6 +1537,23 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
     }
 
     @Override
+    public boolean isExistFz(String pk_corp, String pk_auacount_b,String pk_auacount_h) throws DZFWarpException {
+        if(StringUtil.isEmpty(pk_corp) || StringUtil.isEmpty(pk_auacount_b)){
+            return false;
+        }
+        String sql = "select 1 from ynt_fzhs_b where  pk_corp=? and pk_auacount_b=?  and nvl(dr,0)=0";
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(pk_corp);
+        sp.addParam(pk_auacount_b);
+        if(!StringUtil.isEmpty(pk_auacount_h)){
+            sql =sql + " and pk_auacount_h=? ";
+            sp.addParam(pk_auacount_h);
+        }
+        boolean b= singleObjectBO.isExists(pk_auacount_b, sql, sp);//(InvclassifyVO.class, where, sp);
+       return b;
+    }
+
+    @Override
     public AuxiliaryAccountBVO[] queryInvtaxInfo(String invname, String pk_corp) throws DZFWarpException {
         if (StringUtil.isEmpty(invname)) {
             return null;
