@@ -2331,6 +2331,9 @@ public class WorkbenchController extends BaseController {
                 throw new BusinessException("期间不能为空!");
             }
             if(pkcorps==null || pkcorps.length==0){
+                 if(corpNames==null || corpNames.length==0 ){
+                    throw new BusinessException("查寻公司不能为空!");
+                 }
                 pkcorps = iInterfaceBill.queryCorpByName(corpNames);
             }
 
