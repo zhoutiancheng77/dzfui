@@ -150,6 +150,16 @@ public interface IAuxiliaryAccountService {
      */
     boolean isInventoryCategory(String corpId, String subjectId) throws DZFWarpException;
 
+
+    /**
+     * 辅助是否存在
+     * @param pk_corp
+     * @param pk_auacount_b
+     * @param pk_auacount_h
+     * @return
+     * @throws DZFWarpException
+     */
+    boolean isExistFz(String pk_corp, String pk_auacount_b,String pk_auacount_h) throws DZFWarpException;
     /**
      * 根据名称查询相关税务信息
      *

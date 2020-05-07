@@ -153,6 +153,12 @@ public class PurchInServiceImpl implements IPurchInService {
 				for (IntradeHVO hvo : listVO) {
 					DZFDouble nnum = DZFDouble.ZERO_DBL; // 金额
 					list = map.get(hvo.getPrimaryKey());
+                    if(!StringUtil.isEmpty(hvo.getPk_cust())){
+                        boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),null);
+                        if(!b){
+                            hvo.setPk_cust(null);
+                        }
+                    }
 					if (list != null && list.size() > 0) {
 						for (SuperVO child : list) {
 							IctradeinVO invo = (IctradeinVO) child;
@@ -574,7 +580,12 @@ public class PurchInServiceImpl implements IPurchInService {
         if(headvo.getIpayway() == null){
             throw new BusinessException("付款方式不能为空!");
         }
-
+        if(!StringUtil.isEmpty(headvo.getPk_cust())){
+            boolean b = gl_fzhsserv.isExistFz(headvo.getPk_corp(),headvo.getPk_cust(),null);
+            if(!b){
+                throw new BusinessException("供应商已删除或者不存在，请确认!");
+            }
+        }
 	}
 
 	private void checkBodys(IntradeHVO headvo, IctradeinVO[] bodyvos, StringBuffer strb) {
@@ -1343,6 +1354,8 @@ public class PurchInServiceImpl implements IPurchInService {
 			if (StringUtil.isEmpty(ivo.getPk_cust())) {
 				throw new BusinessException("科目【" + cvo.getAccountname() + "】启用供应商辅助核算,供应商必须录入!");
 			}
+
+
 			depvo.setFzhsx2(ivo.getPk_cust());
 		}
 
@@ -1577,6 +1590,15 @@ public class PurchInServiceImpl implements IPurchInService {
 				throw new BusinessException("完工入库单不能复制!");
 			}
 		}
+
+		if(istogl) {
+            if (!StringUtil.isEmpty(hvo.getPk_cust())) {
+                boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(), hvo.getPk_cust(), null);
+                if (!b) {
+                    throw new BusinessException("供应商已删除或者不存在，请确认!");
+                }
+            }
+        }
 	}
 
 	private IntradeHVO createDashTntradeH(IntradeHVO vo) throws DZFWarpException {

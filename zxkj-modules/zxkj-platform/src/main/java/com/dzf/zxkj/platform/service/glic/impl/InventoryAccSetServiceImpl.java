@@ -47,6 +47,13 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 			body = new InventorySetVO();
 //			body.setChcbjzfs(InventoryConstant.IC_FZMXHS);
 		}
+		if(!StringUtil.isEmpty(body.getZgkhfz())){
+            boolean b = gl_fzhsserv.isExistFz(body.getPk_corp(), body.getZgkhfz(), null);
+            if (!b) {
+                body.setZgkhfz(null);
+            }
+        }
+
 		return body;
 	}
 
@@ -173,7 +180,7 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 	}
 
 	@Override
-	public InventorySetVO saveDefaultValue(String userid, CorpVO cpvo,boolean isQy) throws DZFWarpException {
+	public InventorySetVO saveDefaultValue(String userid, CorpVO cpvo, boolean isQy) throws DZFWarpException {
 		String pk_corp = cpvo.getPk_corp();
 		String corptype = cpvo.getCorptype();
 		YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);

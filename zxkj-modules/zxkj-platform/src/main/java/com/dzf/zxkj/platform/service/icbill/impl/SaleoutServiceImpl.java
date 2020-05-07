@@ -151,6 +151,12 @@ public class SaleoutServiceImpl implements ISaleoutService {
 				Map<String, List<IntradeoutVO>> map = DZfcommonTools.hashlizeObject(Arrays.asList(bvos),
 						new String[] { "pk_ictrade_h" });
 				for (IntradeHVO hvo : listVO) {
+					if(!StringUtil.isEmpty(hvo.getPk_cust())){
+						boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),null);
+						if(!b){
+							hvo.setPk_cust(null);
+						}
+					}
 					DZFDouble nnum = DZFDouble.ZERO_DBL; // 数量
 					DZFDouble ncost = DZFDouble.ZERO_DBL; // 成本金额
 					sp.clearParams();
@@ -575,7 +581,12 @@ public class SaleoutServiceImpl implements ISaleoutService {
         if(headvo.getIpayway() == null){
             throw new BusinessException("付款方式不能为空!");
         }
-
+        if(!StringUtil.isEmpty(headvo.getPk_cust())){
+            boolean b = gl_fzhsserv.isExistFz(headvo.getPk_corp(),headvo.getPk_cust(),null);
+            if(!b){
+                throw new BusinessException("客户已删除或者不存在，请确认!");
+            }
+        }
 	}
 
 	private void checkBodys(IntradeoutVO[] bodyvos, IntradeHVO headvo, StringBuffer strb) {
@@ -804,7 +815,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 
 		IntradeHVO oldvo = (IntradeHVO) singleObjectBO.queryByPrimaryKey(IntradeHVO.class, vo.getPrimaryKey());
-		checkIntradeH(oldvo, pk_corp);
+		checkIntradeH(oldvo, pk_corp,true);
 
 		// 更新生成销售退回来源单据的单据
 		if (!StringUtil.isEmptyWithTrim(oldvo.getSourcebillid())
@@ -827,7 +838,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 	}
 
-	private void checkIntradeH(IntradeHVO hvo, String pk_corp) {
+	private void checkIntradeH(IntradeHVO hvo, String pk_corp,boolean isdel) {
 		if (hvo == null) {
 			throw new BusinessException("该条数据不存在,请刷新后再试!");
 		}
@@ -840,6 +851,15 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		if (hvo.getIsjz() != null && hvo.getIsjz().booleanValue()) {
 			throw new BusinessException("已经生成凭证,不允许其他操作!");
 		}
+
+		if(!isdel){
+            if(!StringUtil.isEmpty(hvo.getPk_cust())){
+                boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),null);
+                if(!b){
+                    throw new BusinessException("客户已删除或者不存在，请确认!");
+                }
+            }
+        }
 	}
 
 	@Override
@@ -850,7 +870,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 			// throw new BusinessException("其他出库单不能生成凭证");
 		}
 
-		checkIntradeH(intradevo, pk_corp);
+		checkIntradeH(intradevo, pk_corp,false);
 		Map<String, YntCpaccountVO> ccountMap = accountService.queryMapByPk(pk_corp);
 		TzpzHVO headvo = createGLVO(intradevo, userid, zy, ccountMap, corpvo);
 		headvo.setIsqxsy(DZFBoolean.TRUE);
@@ -2001,7 +2021,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 				nbills++;
 			}
 			IntradeHVO intradevo = queryIntradeHVOByID(ivo.getPk_ictrade_h(), pk_corp);
-			checkIntradeH(intradevo, pk_corp);
+			checkIntradeH(intradevo, pk_corp,false);
 
 			List<TzpzBVO> list = createTzpzBVO(intradevo, userid, zy, setvo, ccountMap, corpvo, iprice);
 			if (list == null || list.size() == 0) {
