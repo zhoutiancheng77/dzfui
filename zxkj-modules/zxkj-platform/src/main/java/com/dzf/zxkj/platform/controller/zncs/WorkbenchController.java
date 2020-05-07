@@ -20,6 +20,7 @@ import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountHVO;
@@ -64,6 +65,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -2318,5 +2320,44 @@ public class WorkbenchController extends BaseController {
         }
     }
 
+    @PostMapping("/queryDutyInfo")
+    public ReturnData<Json> queryDutyInfo(@MultiRequestBody String period,@MultiRequestBody String corpNames[],@MultiRequestBody String []pkcorps,@MultiRequestBody int page,@MultiRequestBody int rows){
+        Json json = new Json();
+        try{
+//            if(corpNames==null ){
+//                throw new BusinessException("查寻公司不能为空!");
+//            }
+            if(StringUtil.isEmpty(period)){
+                throw new BusinessException("期间不能为空!");
+            }
+            if(pkcorps==null || pkcorps.length==0){
+                pkcorps = iInterfaceBill.queryCorpByName(corpNames);
+            }
 
+            DutyPayVO[] datas = iInterfaceBill.queryDutyTolalInfo(pkcorps,period);
+            DutyPayVO[] data2 = getPageDutydata(datas,page,rows);
+            json.setHead(pkcorps);
+            json.setSuccess(true);
+            json.setMsg("查询成功");
+            json.setRows(rows);
+            json.setTotal((long) (datas == null ? 0 : datas.length));
+            json.setData(data2);
+        } catch(Exception e) {
+            json.setStatus(-100);
+            printErrorLog(json, e, "查询失败");
+        }
+        return ReturnData.ok().data(json);
+    }
+
+    private DutyPayVO []getPageDutydata(DutyPayVO[]datas,int page,int rows){
+        if(datas==null||datas.length==0)return  datas;
+
+
+        List<DutyPayVO> list = new ArrayList<DutyPayVO>();
+        int start = (page - 1) * rows;
+        for (int i = start; i < page * rows && i < datas.length; i++) {
+            list.add(datas[i]);
+        }
+        return list.toArray(new DutyPayVO[0]);
+    }
 }

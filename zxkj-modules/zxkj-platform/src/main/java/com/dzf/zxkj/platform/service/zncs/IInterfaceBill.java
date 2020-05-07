@@ -10,6 +10,7 @@ import com.dzf.zxkj.platform.model.image.OcrImageLibraryVO;
 import com.dzf.zxkj.platform.model.image.OcrInvoiceDetailVO;
 import com.dzf.zxkj.platform.model.image.OcrInvoiceVO;
 import com.dzf.zxkj.platform.model.pjgl.VatGoosInventoryRelationVO;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.zncs.*;
 
 import java.util.List;
@@ -204,4 +205,19 @@ public interface IInterfaceBill {
 	 * @throws DZFWarpException
 	 */
 	public Map<String,List<VATSaleInvoiceBVO2>> querySaleInvoiceInfo(String pk_corp, List<String> plist, int ic_rule)throws DZFWarpException;
+
+	/**
+	 * 统计完税统计信息
+	 * @throws DZFWarpException
+	 */
+	public DutyPayVO []queryDutyTolalInfo(String pkcorps[],String period)throws DZFWarpException;
+
+	/**
+	 * 根据公司名称查出公司
+	 * @param unitnames
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public String[] queryCorpByName(String unitnames[]) throws DZFWarpException;
+
 }

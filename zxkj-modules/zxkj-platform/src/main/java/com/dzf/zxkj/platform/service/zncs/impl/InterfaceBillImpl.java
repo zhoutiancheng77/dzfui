@@ -43,10 +43,10 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -2567,7 +2567,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		}
 		return salemap;
 	}
-	
+
+
 	@Override
 	public  InventorySaleInfoVO querySaleBillInfo(List<String> plist, int ic_rule, InventorySaleInfoVO saleinfo,Map<String,List<VATSaleInvoiceBVO2>> salemap,int numPrecision,int pricePrecision)
 			throws DZFWarpException {
@@ -2650,6 +2651,116 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		return infovo;
 	}
 
+	@Override
+	public DutyPayVO []queryDutyTolalInfo(String[] pkcorps, String period) throws DZFWarpException {
 
+
+
+		String sql = getDutyQuerySql(pkcorps,period);
+
+		 List<DutyPayVO> dutilist =  (List<DutyPayVO>)singleObjectBO.executeQuery(sql,new SQLParameter(),new BeanListProcessor(DutyPayVO.class));
+		 if(dutilist==null||dutilist.isEmpty()){
+		 	return null;
+		 }
+
+
+		Map<String,List<DutyPayVO>> dutymap = new HashMap<String,List<DutyPayVO>>();
+		List<DutyPayVO> dlist;
+		DutyPayVO dpvo ;
+		for (DutyPayVO dvo:dutilist) {
+			dpvo  =(DutyPayVO)dvo.clone();
+			String key = dvo.getInvname()+"_"+dvo.getPk_corp()+"_"+dvo.getPeriod();
+			if(dutymap.get(key)==null){
+				dlist = new ArrayList<DutyPayVO>();
+
+				dlist.add(dpvo);
+				dutymap.put(key,dlist);
+			}else{
+				dlist = dutymap.get(key);
+				dlist.add(dpvo);
+			}
+
+		}
+		//统计数
+		Set<String> set = new HashSet<String>();
+		List<DutyPayVO> dtlist = new ArrayList<DutyPayVO>();
+		for  (DutyPayVO dvo:dutilist) {
+			String key = dvo.getInvname()+"_"+dvo.getPk_corp()+"_"+dvo.getPeriod();
+			if(set.contains(key)) continue;
+			set.add(key);
+			dpvo = new DutyPayVO();
+			dpvo.setItemmny(new DZFDouble(0));
+			dpvo.setCorpname(SecretCodeUtils.deCode(dvo.getCorpname()));
+			dpvo.setInvname(dvo.getInvname());
+			dpvo.setPeriod(dvo.getPeriod());
+			for (DutyPayVO dvo_2:dutilist) {
+				if(dvo.getPeriod().equals(dvo_2.getPeriod())  && dvo.getPk_corp().equals(dvo_2.getPk_corp())  && dvo.getInvname().equals(dvo_2.getInvname()) ){
+					dpvo.setItemmny( dpvo.getItemmny().add(dvo_2.getItemmny()));
+				}
+			}
+			dpvo.setImageInfo(dutymap.get(key));
+			dtlist.add(dpvo);
+		}
+
+		return dtlist.toArray(new DutyPayVO[0]);
+	}
+	private String getDutyQuerySql(String []pkcorps,String period){
+		StringBuffer buff = new StringBuffer();
+		String corpsql = "   and  " + SqlUtil.buildSqlForIn("c.pk_corp", pkcorps);
+		//buff.append(" insert into DZF_TMP_DUTY(invname,corpname,itemmny,period,pk_corp,sourceid,imgname)  ");
+		buff.append(" select d.invname as invname ,e.unitname as corpname,d.itemmny as itemmny,c.period as period ,d.pk_corp as pk_corp,f.crelationid as sourceid,f.imgname ");
+		buff.append(" From ynt_interface_invoice_detail d ");
+		buff.append(" left join ynt_interface_invoice c on c.pk_invoice =d.pk_invoice  ");
+		buff.append(" left join ynt_image_ocrlibrary f on f.pk_image_ocrlibrary = c.ocr_id ");
+		buff.append(" left join bd_corp e on d.pk_corp = e.pk_corp ");
+		buff.append(" left join ynt_billcategory b1 on b1.pk_category = c.pk_billcategory ");
+		buff.append(" left join ynt_image_group g1 on g1.pk_image_group = c.pk_image_group ");
+		buff.append(" where c.invoicetype = 'b税收完税证明' and invname is not null  and b1.categorycode!='18' and c.pk_billcategory is not null ");
+		buff.append(" and g1.istate!='205' and nvl(d.dr,0)=0 and  nvl(c.dr,0)=0   and nvl(g1.dr,0)=0  ");
+		buff.append(" and c.period ='"+period+"' ");
+		buff.append(corpsql);
+		buff.append(" order by d.pk_corp,d.invname ");
+		return buff.toString();
+	}
+
+
+	public String[] queryCorpByName(String unitnames[]) throws DZFWarpException {
+		SQLParameter sp = new SQLParameter();
+		StringBuffer conditionbuff = new StringBuffer();
+		try {
+			//conditionbuff.append(" and nvl(dr,0) = 0   and (");
+			for (String unitname:unitnames) {
+				if(conditionbuff.toString().isEmpty()){
+					conditionbuff.append(" ( unitname = ? ");
+				}else{
+					conditionbuff.append(" or unitname = ? ");
+				}
+				sp.addParam(SecretCodeUtils.enCode(unitname));
+			}
+			conditionbuff.append(" ) and nvl(dr,0) = 0");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		CorpVO[] vos = (CorpVO[])singleObjectBO.queryByCondition(CorpVO.class, conditionbuff.toString(), sp);
+		List<String> list = new ArrayList<String>();
+		if(vos!=null && vos.length>0){
+			for (CorpVO vo:vos) {
+				list.add(vo.getPk_corp());
+			}
+		}
+		return list.toArray(new String[0]);
+	}
+
+//	private String marchCorp(CorpVO corpvo[], String corpName){
+//		for (CorpVO corpVO:corpvo) {
+//			String cname = CodeUtils1.deCode(corpVO.getUnitname());
+//			if(!StringUtil.isEmpty(corpName) && corpName.length()>2&&OcrUtil.isSameCompany(cname,corpName)){
+//
+//				return corpVO.getPk_corp();
+//			}
+//		}
+//		return null;
+//	}
 	
 }
