@@ -173,7 +173,7 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 	}
 
 	@Override
-	public InventorySetVO getDefaultValue(String userid, CorpVO cpvo) throws DZFWarpException {
+	public InventorySetVO saveDefaultValue(String userid, CorpVO cpvo,boolean isQy) throws DZFWarpException {
 		String pk_corp = cpvo.getPk_corp();
 		String corptype = cpvo.getCorptype();
 		YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);
@@ -211,35 +211,44 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 				}
 			}
 		}
-		InventorySetVO vo1 = query(cpvo.getPk_corp());
-		if(vo1!=null){
-		    if(vo1.getChcbjzfs() != -1)
-			    vo.setChcbjzfs(vo1.getChcbjzfs());
-			if(!StringUtil.isEmpty(vo1.getZgrkdfkm()))
-				vo.setZgrkdfkm(vo1.getZgrkdfkm());
-			if(bodyvos != null && bodyvos.length >0){
-				boolean flag = true;
-				for(AuxiliaryAccountBVO bvo : bodyvos){
-					if(!StringUtil.isEmpty(bvo.getPk_auacount_b())
-							&& bvo.getPk_auacount_b().trim().equals(vo1.getZgkhfz())){
-						vo.setZgkhfz(vo1.getZgkhfz());
-						flag =false;
-						break;
-					}
-				}
-				if(flag){
-					vo.setZgkhfz(null);
-				}
-			}else{
-				vo.setZgkhfz(null);
-			}
-		}
+
+		//启用总账存货不需要设置原来的设置
+		if(!isQy){
+            setOldKhfz(vo,cpvo,bodyvos);
+        }
+
 		if(StringUtil.isEmpty(vo.getZgkhfz())){
             vo.setZgkhfz(zgfz);//默认供应商辅助
         }
+		vo =save(userid,pk_corp,vo,true);
 		return vo;
 	}
 
+	private void setOldKhfz(InventorySetVO vo ,CorpVO cpvo,AuxiliaryAccountBVO[] bodyvos ){
+        InventorySetVO vo1 = query(cpvo.getPk_corp());
+        if(vo1!=null){
+            if(vo1.getChcbjzfs() != -1)
+                vo.setChcbjzfs(vo1.getChcbjzfs());
+            if(!StringUtil.isEmpty(vo1.getZgrkdfkm()))
+                vo.setZgrkdfkm(vo1.getZgrkdfkm());
+            if(bodyvos != null && bodyvos.length >0){
+                boolean flag = true;
+                for(AuxiliaryAccountBVO bvo : bodyvos){
+                    if(!StringUtil.isEmpty(bvo.getPk_auacount_b())
+                            && bvo.getPk_auacount_b().trim().equals(vo1.getZgkhfz())){
+                        vo.setZgkhfz(vo1.getZgkhfz());
+                        flag =false;
+                        break;
+                    }
+                }
+                if(flag){
+                    vo.setZgkhfz(null);
+                }
+            }else{
+                vo.setZgkhfz(null);
+            }
+        }
+    }
 	@Override
 	public String checkInventorySet(String userid,String pk_corp,InventorySetVO vo) throws DZFWarpException {
 		return inventory_setcheck.checkInventorySet(userid, pk_corp, vo);

@@ -74,7 +74,7 @@ public class InvtorySetController extends BaseController {
     @GetMapping("/setdefaultvalue")
     public ReturnData setdefaultvalue(){
         Json json = new Json();
-        InventorySetVO vo = gl_ic_invtorysetserv.getDefaultValue(SystemUtil.getLoginUserId(),SystemUtil.getLoginCorpVo());
+        InventorySetVO vo = gl_ic_invtorysetserv.saveDefaultValue(SystemUtil.getLoginUserId(),SystemUtil.getLoginCorpVo(),false);
         json.setRows(vo);
         json.setMsg("设置默认数据成功");
         json.setSuccess(true);
