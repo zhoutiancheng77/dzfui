@@ -2669,6 +2669,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		DutyPayVO dpvo ;
 		for (DutyPayVO dvo:dutilist) {
 			dpvo  =(DutyPayVO)dvo.clone();
+			dpvo.setCorpname(SecretCodeUtils.deCode(dvo.getCorpname()));
 			String key = dvo.getInvname()+"_"+dvo.getPk_corp()+"_"+dvo.getPeriod();
 			if(dutymap.get(key)==null){
 				dlist = new ArrayList<DutyPayVO>();
