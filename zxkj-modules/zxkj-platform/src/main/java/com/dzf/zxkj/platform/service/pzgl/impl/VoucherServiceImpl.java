@@ -2769,7 +2769,7 @@ public class VoucherServiceImpl implements IVoucherService {
         sp.addParam(pk_corp);
         singleObjectBO.executeUpdate(updateCashFlow, sp);
 
-        String updateVoucher = "update ynt_tzpz_h set isfpxjxm = 'N', error_cash_analyse = '0' " +
+        String updateVoucher = "update ynt_tzpz_h set isfpxjxm = 'N', error_cash_analyse = '1' " +
                 " where pk_tzpz_h = ? and pk_corp = ? and nvl(dr,0) = 0 ";
         singleObjectBO.executeUpdate(updateVoucher, sp);
     }
