@@ -171,13 +171,13 @@ public class XjllController extends ReportBaseController {
             pzparamvo.setEnddate(DateUtils.getPeriodEndDate(vo.getQjq()));
             pzparamvo.setIs_error_cash(Boolean.TRUE);
             QueryPageVO pagevo = zxkjPlatformService.processQueryVoucherPaged(pzparamvo);
-            TzpzHVO[] vos = (TzpzHVO[]) pagevo.getPagevos();
+            SuperVO[] vos = (SuperVO[]) pagevo.getPagevos();
             String url = "";
             if(vos!=null && vos.length ==1){
                 //填制凭证界面
-                url = vos[0].getPk_tzpz_h();
+                url = (String)vos[0].getAttributeValue("pk_tzpz_h");
             }else{
-                url = "gl/gl_pzgl/gl_pzgl.jsp?"+getPubParam(corpVO)+"&is_error_cash=true&source=xjll&pzbegdate="+DateUtils.getPeriodStartDate(vo.getQjq())+"&pzenddate="+DateUtils.getPeriodEndDate(vo.getQjq());
+                url = "gl/gl_pzgl/gl_pzgl.jsp?";
             }
             json.setSuccess(true);
             json.setMsg("成功");
