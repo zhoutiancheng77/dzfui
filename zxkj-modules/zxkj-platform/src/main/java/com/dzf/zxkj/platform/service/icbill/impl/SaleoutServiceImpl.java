@@ -152,7 +152,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 						new String[] { "pk_ictrade_h" });
 				for (IntradeHVO hvo : listVO) {
 					if(!StringUtil.isEmpty(hvo.getPk_cust())){
-						boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),null);
+						boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),AuxiliaryConstant.ITEM_CUSTOMER);
 						if(!b){
 							hvo.setPk_cust(null);
 						}
@@ -501,11 +501,11 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 		checkBodyInventory(headvo.getChildren(), pk_corp);
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
-		checkAssistExist(corpvo, headvo);
+//		checkAssistExist(corpvo, headvo);
 		// 是否校验库存
-		if (ischeckfull) {
+//		if (ischeckfull) {
 			// checkBeyond(headvo, numMap, map, isImpl);
-		}
+//		}
 		// zpm2017.8.23注释，成本、单价，由总账期末成本结转时回写。这里的回写的成本、单价、为时点成本、单价，对于小企业不具有参考价值
 		/*
 		 * if (StringUtil.isEmpty(headvo.getCbusitype()) ||
@@ -582,7 +582,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
             throw new BusinessException("付款方式不能为空!");
         }
         if(!StringUtil.isEmpty(headvo.getPk_cust())){
-            boolean b = gl_fzhsserv.isExistFz(headvo.getPk_corp(),headvo.getPk_cust(),null);
+            boolean b = gl_fzhsserv.isExistFz(headvo.getPk_corp(),headvo.getPk_cust(),AuxiliaryConstant.ITEM_CUSTOMER);
             if(!b){
                 throw new BusinessException("客户已删除或者不存在，请确认!");
             }
@@ -854,7 +854,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 
 		if(!isdel){
             if(!StringUtil.isEmpty(hvo.getPk_cust())){
-                boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),null);
+                boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),AuxiliaryConstant.ITEM_CUSTOMER);
                 if(!b){
                     throw new BusinessException("客户已删除或者不存在，请确认!");
                 }
@@ -2162,32 +2162,32 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		return prefix;
 	}
 
-	/**
-	 * 检查出库单引用的客户是否存在
-	 * 
-	 * @param corpvo
-	 * @param vo
-	 */
-	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
-		Set<String> assists = new HashSet<String>();
-		if (!StringUtil.isEmpty(vo.getPk_cust())) {
-			assists.add(vo.getPk_cust());
-			StringBuilder sb = new StringBuilder();
-			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and pk_auacount_h = ? and pk_auacount_b in ")
-					.append(SQLHelper.getInSQL(new ArrayList<String>(assists))).append(" and nvl(dr,0)=0 ");
-			SQLParameter sp = new SQLParameter();
-			sp.addParam(corpvo.getPk_corp());
-			sp.addParam(AuxiliaryConstant.ITEM_CUSTOMER);
-			for (String pk : assists) {
-				sp.addParam(pk);
-			}
-
-			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
-			if (count == null || count.intValue() != assists.size()) {
-				throw new BusinessException("客户[" + vo.getCustname() + "]不存在，或已被删除，请检查");
-			}
-		}
-	}
+//	/**
+//	 * 检查出库单引用的客户是否存在
+//	 *
+//	 * @param corpvo
+//	 * @param vo
+//	 */
+//	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
+//		Set<String> assists = new HashSet<String>();
+//		if (!StringUtil.isEmpty(vo.getPk_cust())) {
+//			assists.add(vo.getPk_cust());
+//			StringBuilder sb = new StringBuilder();
+//			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and pk_auacount_h = ? and pk_auacount_b in ")
+//					.append(SQLHelper.getInSQL(new ArrayList<String>(assists))).append(" and nvl(dr,0)=0 ");
+//			SQLParameter sp = new SQLParameter();
+//			sp.addParam(corpvo.getPk_corp());
+//			sp.addParam(AuxiliaryConstant.ITEM_CUSTOMER);
+//			for (String pk : assists) {
+//				sp.addParam(pk);
+//			}
+//
+//			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
+//			if (count == null || count.intValue() != assists.size()) {
+//				throw new BusinessException("客户[" + vo.getCustname() + "]不存在，或已被删除，请检查");
+//			}
+//		}
+//	}
 
 	// 检验存货是否存在
 	private void checkBodyInventory(SuperVO[] childs, String pk_corp) {

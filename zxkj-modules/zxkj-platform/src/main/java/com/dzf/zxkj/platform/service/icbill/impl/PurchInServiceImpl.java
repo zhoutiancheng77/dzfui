@@ -154,7 +154,7 @@ public class PurchInServiceImpl implements IPurchInService {
 					DZFDouble nnum = DZFDouble.ZERO_DBL; // 金额
 					list = map.get(hvo.getPrimaryKey());
                     if(!StringUtil.isEmpty(hvo.getPk_cust())){
-                        boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),null);
+                        boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),AuxiliaryConstant.ITEM_SUPPLIER);
                         if(!b){
                             hvo.setPk_cust(null);
                         }
@@ -502,7 +502,7 @@ public class PurchInServiceImpl implements IPurchInService {
 			// }
 		}
 		checkBodyInventory(vo.getChildren(), pk_corp);
-		checkAssistExist(corpvo, vo);
+//		checkAssistExist(corpvo, vo);
 		vo.setNmny(nmny);
 		vo.setNtaxmny(ntaxmny);
 		vo.setNtotaltaxmny(ntotaltaxmny);
@@ -581,7 +581,7 @@ public class PurchInServiceImpl implements IPurchInService {
             throw new BusinessException("付款方式不能为空!");
         }
         if(!StringUtil.isEmpty(headvo.getPk_cust())){
-            boolean b = gl_fzhsserv.isExistFz(headvo.getPk_corp(),headvo.getPk_cust(),null);
+            boolean b = gl_fzhsserv.isExistFz(headvo.getPk_corp(),headvo.getPk_cust(),AuxiliaryConstant.ITEM_SUPPLIER);
             if(!b){
                 throw new BusinessException("供应商已删除或者不存在，请确认!");
             }
@@ -613,32 +613,32 @@ public class PurchInServiceImpl implements IPurchInService {
 		}
 	}
 
-	/**
-	 * 检查入库单引用的供应商是否存在
-	 * 
-	 * @param corpvo
-	 * @param vo
-	 */
-	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
-		Set<String> assists = new HashSet<String>();
-		if (!StringUtil.isEmpty(vo.getPk_cust())) {
-			assists.add(vo.getPk_cust());
-			StringBuilder sb = new StringBuilder();
-			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and pk_auacount_h = ? and pk_auacount_b in ")
-					.append(SQLHelper.getInSQL(new ArrayList<String>(assists))).append(" and nvl(dr,0)=0 ");
-			SQLParameter sp = new SQLParameter();
-			sp.addParam(corpvo.getPk_corp());
-			sp.addParam(AuxiliaryConstant.ITEM_SUPPLIER);
-			for (String pk : assists) {
-				sp.addParam(pk);
-			}
-
-			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
-			if (count == null || count.intValue() != assists.size()) {
-				throw new BusinessException("供应商[" + vo.getCustname() + "]不存在，或已被删除，请检查");
-			}
-		}
-	}
+//	/**
+//	 * 检查入库单引用的供应商是否存在
+//	 *
+//	 * @param corpvo
+//	 * @param vo
+//	 */
+//	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
+//		Set<String> assists = new HashSet<String>();
+//		if (!StringUtil.isEmpty(vo.getPk_cust())) {
+//			assists.add(vo.getPk_cust());
+//			StringBuilder sb = new StringBuilder();
+//			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and pk_auacount_h = ? and pk_auacount_b in ")
+//					.append(SQLHelper.getInSQL(new ArrayList<String>(assists))).append(" and nvl(dr,0)=0 ");
+//			SQLParameter sp = new SQLParameter();
+//			sp.addParam(corpvo.getPk_corp());
+//			sp.addParam(AuxiliaryConstant.ITEM_SUPPLIER);
+//			for (String pk : assists) {
+//				sp.addParam(pk);
+//			}
+//
+//			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
+//			if (count == null || count.intValue() != assists.size()) {
+//				throw new BusinessException("供应商[" + vo.getCustname() + "]不存在，或已被删除，请检查");
+//			}
+//		}
+//	}
 
 	private void checkBeyond(IntradeHVO headvo, Map<String, DZFDouble> numMap) {
 		if (headvo.getDbilldate() == null || StringUtil.isEmptyWithTrim(headvo.getDbilldate().toString())) {
@@ -1593,7 +1593,7 @@ public class PurchInServiceImpl implements IPurchInService {
 
 		if(istogl) {
             if (!StringUtil.isEmpty(hvo.getPk_cust())) {
-                boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(), hvo.getPk_cust(), null);
+                boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(), hvo.getPk_cust(), AuxiliaryConstant.ITEM_SUPPLIER);
                 if (!b) {
                     throw new BusinessException("供应商已删除或者不存在，请确认!");
                 }

@@ -48,7 +48,7 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 //			body.setChcbjzfs(InventoryConstant.IC_FZMXHS);
 		}
 		if(!StringUtil.isEmpty(body.getZgkhfz())){
-            boolean b = gl_fzhsserv.isExistFz(body.getPk_corp(), body.getZgkhfz(), null);
+            boolean b = gl_fzhsserv.isExistFz(body.getPk_corp(), body.getZgkhfz(), AuxiliaryConstant.ITEM_SUPPLIER);
             if (!b) {
                 body.setZgkhfz(null);
             }

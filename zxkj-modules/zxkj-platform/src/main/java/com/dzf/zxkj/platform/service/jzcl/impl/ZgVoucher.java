@@ -7,6 +7,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.VOUtil;
+import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -350,7 +351,7 @@ public class ZgVoucher {
 				}else{
 					//
                     IAuxiliaryAccountService gl_fzhsserv  = (IAuxiliaryAccountService) SpringUtils.getBean("gl_fzhsserv");
-                    boolean b = gl_fzhsserv.isExistFz(vo.getPk_corp(), bodys[0].getZgkhfz(), null);
+                    boolean b = gl_fzhsserv.isExistFz(vo.getPk_corp(), bodys[0].getZgkhfz(), AuxiliaryConstant.ITEM_SUPPLIER);
                     if (b) {
                         str = new String[]{bodys[0].getZgrkdfkm(), bodys[0].getZgkhfz()};
                     } else {
