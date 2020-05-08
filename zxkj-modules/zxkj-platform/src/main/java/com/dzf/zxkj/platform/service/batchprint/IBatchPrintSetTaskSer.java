@@ -10,10 +10,11 @@ import java.util.List;
 
 
 /**
- * 批量打印设置
+ * 批量打印设置 (该方法已废弃)
  * @author zhangj
  *
  */
+@Deprecated
 public interface IBatchPrintSetTaskSer {
 
 
