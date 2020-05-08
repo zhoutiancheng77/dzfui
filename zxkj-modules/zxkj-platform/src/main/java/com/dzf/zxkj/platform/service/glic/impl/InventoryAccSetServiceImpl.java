@@ -59,6 +59,10 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 
 	@Override
 	public InventorySetVO save(String userid,String pk_corp,InventorySetVO vo1,boolean ischeck) throws DZFWarpException {
+		return saveCommon( userid, pk_corp, vo1,ischeck,true);
+	}
+
+	private InventorySetVO saveCommon(String userid,String pk_corp,InventorySetVO vo1,boolean ischeck,boolean isthrow){
 		if(vo1 == null){
 			throw new BusinessException("保存数据为空，保存失败！");
 		}
@@ -76,24 +80,25 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 		if(ischeck && vo1.getChcbjzfs() != orignvo.getChcbjzfs()){
 			String errorinfo = inventory_setcheck.checkInventorySet(userid, pk_corp, vo1);
 			if(!StringUtil.isEmpty(errorinfo)){
-				 vo1.setErrorinfo(errorinfo);
-				 return vo1;
+				vo1.setErrorinfo(errorinfo);
+				return vo1;
 			}
 		}
-		//
-		YntCpaccountVO kmvo = (YntCpaccountVO)singleObjectBO.queryByPrimaryKey(YntCpaccountVO.class, vo1.getZgrkdfkm());
-		if(kmvo==null ){
-			throw new BusinessException("暂估入库贷方科目不存在！");
-		}
-		if(!StringUtil.isEmpty(vo1.getZgkhfz())){
-			if(StringUtil.isEmpty(kmvo.getIsfzhs())
-				|| !"1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
-				vo1.setZgkhfz(null);
+		if(isthrow){
+			YntCpaccountVO kmvo = (YntCpaccountVO)singleObjectBO.queryByPrimaryKey(YntCpaccountVO.class, vo1.getZgrkdfkm());
+			if(kmvo==null ){
+				throw new BusinessException("暂估入库贷方科目不存在！");
 			}
-		}else{
-			if(!StringUtil.isEmpty(kmvo.getIsfzhs())
-					&& "1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
-				throw new BusinessException("暂估入库贷方科目已经启用供应商辅助，请设置供应商辅助！如果界面没有设置供应商辅助选项，请重新打开该节点进行操作");
+			if(!StringUtil.isEmpty(vo1.getZgkhfz())){
+				if(StringUtil.isEmpty(kmvo.getIsfzhs())
+						|| !"1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
+					vo1.setZgkhfz(null);
+				}
+			}else{
+				if(!StringUtil.isEmpty(kmvo.getIsfzhs())
+						&& "1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
+					throw new BusinessException("暂估入库贷方科目已经启用供应商辅助，请设置供应商辅助！如果界面没有设置供应商辅助选项，请重新打开该节点进行操作");
+				}
 			}
 		}
 		//自动清空存货大类信息
@@ -108,12 +113,13 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 		singleObjectBO.executeUpdate(" delete from ynt_glicset where pk_corp = ?  ", sp);
 		vo1.setPk_glicset(null);
 		singleObjectBO.saveObject(vo1.getPk_corp(), vo1);
-		
+
 		buildLogInfo(orignvo, vo1);
-		
 		return vo1;
 	}
-	
+
+
+
 	private void buildLogInfo(InventorySetVO oldvo, InventorySetVO newvo){
 		StringBuffer msg = new StringBuffer();
 		//第一步
@@ -227,7 +233,7 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 		if(StringUtil.isEmpty(vo.getZgkhfz())){
             vo.setZgkhfz(zgfz);//默认供应商辅助
         }
-		vo =save(userid,pk_corp,vo,true);
+		vo =saveCommon(userid,pk_corp,vo,false,false);
 		return vo;
 	}
 
