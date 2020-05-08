@@ -2,7 +2,9 @@ package com.dzf.zxkj.common.query;
 
 import com.dzf.zxkj.common.model.SuperVO;
 
-public class QueryPageVO {
+import java.io.Serializable;
+
+public class QueryPageVO implements Serializable {
 
     private SuperVO[] pagevos = null;
 
