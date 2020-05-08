@@ -11,10 +11,8 @@ import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintFileSetVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetQryVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
-import com.dzf.zxkj.platform.model.jzcl.QmclVO;
 import com.dzf.zxkj.platform.service.batchprint.IBatchPrintFileSet;
 import com.dzf.zxkj.platform.service.batchprint.INewBatchPrintSetTaskSer;
-import com.dzf.zxkj.platform.service.batchprint.INewBatchPrintSetTaskSer2;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,10 +28,7 @@ import java.util.List;
 public class BatchPrintController extends BaseController {
 
     @Autowired
-    private INewBatchPrintSetTaskSer newbatchprintser;// 任务1 （生成任务，下载任务数据，删除任务数据）
-
-    @Autowired
-    private INewBatchPrintSetTaskSer2 newbatchprintser2; // 任务2 （生成任务对应的pdf文件）
+    private INewBatchPrintSetTaskSer newbatchprintser;// 任务1  （生成任务对应的pdf文件）
 
     @Autowired
     private IBatchPrintFileSet gl_batchfilesetser;// 设置
@@ -100,7 +95,7 @@ public class BatchPrintController extends BaseController {
         Grid grid = new Grid();
         try {
             // 查询归档任务
-            List<BatchPrintSetVo> list2 =  newbatchprintser2.queryTask(getLoginUserId());
+            List<BatchPrintSetVo> list2 =  newbatchprintser.queryTask(getLoginUserId());
             if (list2 == null) {
                 throw new BusinessException("查询数据为空");
             }
