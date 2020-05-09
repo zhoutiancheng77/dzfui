@@ -37,7 +37,7 @@ public class YHZHServiceImpl implements IYHZHService {
     }
 
     @Override
-    @CacheInvalidate(name = RedisCacheConstant.YHZH_NAME, key = "#vo.pk_corp")
+//    @CacheInvalidate(name = RedisCacheConstant.YHZH_NAME, key = "#vo.pk_corp")
     public void update(BankAccountVO vo, String[] fields) throws DZFWarpException {
         checkExist(vo);
         singleObjectBO.update(vo, fields);
