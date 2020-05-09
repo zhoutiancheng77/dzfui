@@ -670,8 +670,13 @@ public class NumberForward {
 				dfbodyVO.setNnumber(cvo.getNnumber());
 				dfbodyVO.setNprice(price);
 			}
+			if(df != null){
+				df=df.setScale(2, DZFDouble.ROUND_HALF_UP);
+				cvo.setNdef4(df);
+			}else{
+				cvo.setNdef4(DZFDouble.ZERO_DBL);
+			}
 
-			cvo.setNdef4(df);
 			cvo.setNdef5(price);
 
 			// 币种，默认人民币
@@ -711,6 +716,11 @@ public class NumberForward {
 		List<TzpzBVO> list1 = new ArrayList<TzpzBVO>();
 		for (TzpzBVO vo1 : pzmap.values()) {
 			df = vo1.getDfmny();
+			if(df != null){
+				df=df.setScale(2, DZFDouble.ROUND_HALF_UP);
+			}
+			vo1.setDfmny(df);
+			vo1.setYbjfmny(df);
 			num = vo1.getNnumber();
 //			if (df != null && !df.equals(DZFDouble.ZERO_DBL) && num != null && !num.equals(DZFDouble.ZERO_DBL)) {
 			list1.add(vo1);
