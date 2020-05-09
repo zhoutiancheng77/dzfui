@@ -3,7 +3,6 @@ package com.dzf.zxkj.platform.auth.controller;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
-import com.dzf.auth.api.result.Result;
 import com.dzf.auth.api.service.IPasswordService;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
@@ -92,16 +91,16 @@ public class AuthController {
         return ReturnData.ok().data(result);
     }
 
-    private LoginLogVo getLoginVo(String project){
-        LoginLogVo loginLogVo =  new LoginLogVo();
-        try{
+    private LoginLogVo getLoginVo(String project) {
+        LoginLogVo loginLogVo = new LoginLogVo();
+        try {
             loginLogVo.setLogindate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
             loginLogVo.setLoginsession(SystemUtil.getClientId());
             loginLogVo.setLoginstatus(0);
             loginLogVo.setProject_name(project);
             loginLogVo.setLoginip(IpUtil.getIpAddr(request));
-        }catch(Exception e){
-            log.error("错误",e);
+        } catch (Exception e) {
+            log.error("错误", e);
         }
         return loginLogVo;
     }
@@ -120,7 +119,7 @@ public class AuthController {
             grid.setSuccess(false);
             grid.setMsg("由于长时间未登录，请刷新后重新操作！");
             return ReturnData.ok().data(grid);
-        } else if ( !verify.equalsIgnoreCase(loginUser.getVerify())) {
+        } else if (!verify.equalsIgnoreCase(loginUser.getVerify())) {
             grid.setSuccess(false);
             grid.setMsg("验证码错误！");
             return ReturnData.ok().data(grid);
@@ -151,7 +150,7 @@ public class AuthController {
 
         String clientid = SystemUtil.getClientId();
         //普通登录  多人在线
-        if(StringUtils.isNoneBlank(force) && force.equals("0") && authCache.checkIsMulti(loginUser.getUserid(), clientid)){
+        if (StringUtils.isNoneBlank(force) && force.equals("0") && authCache.checkIsMulti(loginUser.getUserid(), clientid)) {
             LoginGrid g = new LoginGrid();
             g.setSuccess(false);
             g.setStatus(-100);
@@ -159,7 +158,7 @@ public class AuthController {
         }
 
         //初始密码修改
-        if(password.equals("dzf12345678")){
+        if (password.equals("dzf12345678")) {
             LoginGrid g = new LoginGrid();
             g.setSuccess(false);
             g.setStatus(-200);
@@ -173,7 +172,7 @@ public class AuthController {
         loginLogVo.setPk_user(loginUser.getUserid());
         try {
             loginLogMapper.insert(loginLogVo);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("记录登录日志异常", e);
         }
         grid.setSuccess(true);
@@ -184,12 +183,12 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ReturnData logout() {
-        try{
+        try {
             LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
             authCache.logout(SystemUtil.getLoginUserId(), SystemUtil.getClientId());
             userService.logout(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getDzfAuthToken());
-        }catch (Exception e){
-            log.error("登出异常：",e);
+        } catch (Exception e) {
+            log.error("登出异常：", e);
         }
         return ReturnData.ok();
     }
@@ -213,18 +212,19 @@ public class AuthController {
         }
         return ReturnData.ok().data(grid);
     }
+
     @GetMapping("selectSys")
-    public ReturnData<LoginUser> selectSys(){
+    public ReturnData<LoginUser> selectSys() {
         LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
         return ReturnData.ok().data(loginUser);
     }
 
     @PostMapping("updatePassword")
-    public ReturnData updatePassword(@RequestBody UpdateUserVo updateUserVo){
+    public ReturnData updatePassword(@RequestBody UpdateUserVo updateUserVo) {
         Json json = new Json();
         String userid = SystemUtil.getLoginUserId();
         LoginUser loginUser = loginService.queryUserById(userid);
-        if(loginUser == null){
+        if (loginUser == null) {
             json.setMsg("未找到用户信息！");
             json.setStatus(-200);
             json.setSuccess(false);
@@ -233,71 +233,66 @@ public class AuthController {
         json.setStatus(-200);
         json.setSuccess(false);
         String password = RSAUtils.decryptStringByJs(updateUserVo.getUser_password());
-        String psw2 =RSAUtils.decryptStringByJs(updateUserVo.getPsw2());
+        String psw2 = RSAUtils.decryptStringByJs(updateUserVo.getPsw2());
         String psw3 = RSAUtils.decryptStringByJs(updateUserVo.getPsw3());
         String p = new Encode().encode(password);
-        try{
-            if(updateUserVo.getUser_password() == null || updateUserVo.getUser_password().trim().length()== 0 || !(new Encode().encode(password)).equals(loginUser.getPassword())){
+        try {
+            if (updateUserVo.getUser_password() == null || updateUserVo.getUser_password().trim().length() == 0 || !(new Encode().encode(password)).equals(loginUser.getPassword())) {
                 json.setMsg("输入初始密码错误！");
-            }else if(psw2 != null && psw3 != null && psw2.trim().length() > 0 && psw3.trim().length() > 0 ){
-                if(psw2.equals(password)){
+            } else if (psw2 != null && psw3 != null && psw2.trim().length() > 0 && psw3.trim().length() > 0) {
+                if (psw2.equals(password)) {
                     json.setMsg("旧密码和新密码不能一致！");
-                }else if(psw2.equals(psw3)){
+                } else if (psw2.equals(psw3)) {
                     loginUser.setPassword(new Encode().encode(psw2));
                     //修改后密码校验
                     StringBuffer sf = new StringBuffer();
-                    boolean flag = checkUserPWD(psw2,sf);
-                    if(!flag){
+                    boolean flag = checkUserPWD(psw2, sf);
+                    if (!flag) {
                         json.setMsg(sf.toString());
                         json.setSuccess(false);
-                    }else{
-                        loginService.updatePassword(loginUser);
-                        Result<Boolean> booleanResult = passwordService.updatePassword(zxkjPlatformAuthConfig.getPlatformAdminName(), loginUser.getUsername(), psw2);
-                        if(booleanResult.isSucc()){
-                            json.setMsg("修改成功!");
-                            json.setSuccess(true);
-                            json.setStatus(200);
-                        }else{
-                            throw new Exception("修改失败");
-                        }
+                    } else {
+                        loginService.updatePassword(loginUser, psw2);
+                        json.setMsg("修改成功!");
+                        json.setSuccess(true);
+                        json.setStatus(200);
                     }
-                }else{
+                } else {
                     json.setMsg("两次输入密码不一致，请检查！");
                 }
-            }else{
+            } else {
                 json.setMsg("请输入密码信息！");
             }
-        }catch(Exception e){
-                json.setMsg("操作失败");
-                log.error("操作失败",e);
+        } catch (Exception e) {
+            json.setMsg("操作失败");
+            log.error("操作失败", e);
             json.setSuccess(false);
         }
 
         return ReturnData.ok().data(json);
     }
 
-    String[] INIT_PASSWORD = {"123abc!@#","1234abcd!@#$","dzf12345678"};
+    String[] INIT_PASSWORD = {"123abc!@#", "1234abcd!@#$", "dzf12345678"};
 
-    private boolean checkUserPWD(String pwd,StringBuffer eInfo){
-        if (pwd.length() < 8){
+    private boolean checkUserPWD(String pwd, StringBuffer eInfo) {
+        if (pwd.length() < 8) {
             eInfo.append("密码长度不能小于8\n");
-            return  false;
+            return false;
         }
-        if (!pwd.matches(".*([0-9]+.*[A-Za-z]+|[A-Za-z]+.*[0-9]+).*")){
+        if (!pwd.matches(".*([0-9]+.*[A-Za-z]+|[A-Za-z]+.*[0-9]+).*")) {
             eInfo.append("密码必须含有数字、字母\n");
-            return  false;
+            return false;
         }
         //判断是否为初始化密码
-        if(Arrays.asList(INIT_PASSWORD).contains(pwd)){
+        if (Arrays.asList(INIT_PASSWORD).contains(pwd)) {
             eInfo.append("密码为初始化密码!\n");
-            return  false;
+            return false;
         }
         String regEx = "[~!@#$%^&*()<>?+=]";
         Pattern p = Pattern.compile(regEx);
         Matcher m = p.matcher(pwd);
-        if (!m.find()){
+        if (!m.find()) {
             eInfo.append("密码必须含有特殊字符\n");
-            return  false;
+            return false;
         }
         return true;
     }

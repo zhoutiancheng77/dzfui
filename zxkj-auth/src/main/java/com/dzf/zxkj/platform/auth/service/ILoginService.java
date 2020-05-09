@@ -11,5 +11,5 @@ public interface ILoginService {
 
     LoginUser queryUserById(String userid);
 
-    void updatePassword(LoginUser loginUser);
+    void updatePassword(LoginUser loginUser, String psw) throws Exception;
 }

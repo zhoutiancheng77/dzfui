@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.result.Result;
+import com.dzf.auth.api.service.IPasswordService;
 import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
@@ -39,6 +40,9 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private ZxkjPlatformAuthConfig zxkjPlatformAuthConfig;
 
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
+    private IPasswordService passwordService;
+
     @Autowired
     private UserMapper userMapper;
 
@@ -54,7 +58,7 @@ public class LoginServiceImpl implements ILoginService {
         try {
             UserVO userVO = getRemoteLoginUser(username, password);
             if (userVO != null) {
-                if(StringUtils.isBlank(userVO.getPlatformUserId())){
+                if (StringUtils.isBlank(userVO.getPlatformUserId())) {
                     UserModel userModel = queryUser(String.valueOf(userVO.getId()));
                     userVO.setPlatformUserId(userModel.getCuserid());
                 }
@@ -78,15 +82,15 @@ public class LoginServiceImpl implements ILoginService {
 
     @Override
     public LoginUser exchange(String resource) throws Exception {
-        Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(),resource);
+        Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(), resource);
         if (rs.getCode() == 200) {
             UserVO userVO = rs.getData();
-            if(zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(userVO.getPlatformTag())){
+            if (zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(userVO.getPlatformTag())) {
                 return transferToZxkjUser(userVO);
-            }else{
-                if(userVO.getBindUsers() != null){
-                    Optional<UserVO> u = userVO.getBindUsers().stream().filter(v -> zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(v.getPlatformTag()) ||zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(v.getPlatformTag())).findFirst();
-                    if(u.isPresent()){
+            } else {
+                if (userVO.getBindUsers() != null) {
+                    Optional<UserVO> u = userVO.getBindUsers().stream().filter(v -> zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(v.getPlatformTag()) || zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(v.getPlatformTag())).findFirst();
+                    if (u.isPresent()) {
                         UserVO uvo = u.get();
                         uvo.setUserToken(userVO.getUserToken());
                         uvo.setCanJumpPlatforms(userVO.getCanJumpPlatforms());
@@ -130,7 +134,7 @@ public class LoginServiceImpl implements ILoginService {
 
     private LoginUser transferToZxkjUser(UserVO uservo) {
 
-        if(StringUtils.isBlank(uservo.getPlatformUserId())){
+        if (StringUtils.isBlank(uservo.getPlatformUserId())) {
             UserModel userModel = queryUser(String.valueOf(uservo.getId()));
             uservo.setPlatformUserId(userModel.getCuserid());
         }
@@ -143,7 +147,7 @@ public class LoginServiceImpl implements ILoginService {
             loginUser.setUserid(uservo.getPlatformUserId());
             Set<PlatformVO> platformVOS = uservo.getCanJumpPlatforms() != null ? uservo.getCanJumpPlatforms().stream().filter(vo -> vo.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(vo.getPlatformTag())).collect(Collectors.toSet()) : new HashSet<>();
             boolean isExistsXwwy = platformVOS.stream().anyMatch(vo -> zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(vo.getPlatformTag()));
-            if(!isExistsXwwy){
+            if (!isExistsXwwy) {
                 PlatformVO platformVO = new PlatformVO();
                 platformVO.setPlatformName("小微无忧");
                 platformVO.setPlatformDomain("http://ntadmin.dazhangfang.vip");
@@ -166,7 +170,7 @@ public class LoginServiceImpl implements ILoginService {
                 loginUser.setUserid(v.getPlatformUserId());
                 Set<PlatformVO> platformVOS = uservo.getCanJumpPlatforms() != null ? uservo.getCanJumpPlatforms().stream().filter(vo -> vo.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(vo.getPlatformTag())).collect(Collectors.toSet()) : new HashSet<>();
                 boolean isExistsXwwy = platformVOS.stream().anyMatch(vo -> zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(vo.getPlatformTag()));
-                if(!isExistsXwwy){
+                if (!isExistsXwwy) {
                     PlatformVO platformVO = new PlatformVO();
                     platformVO.setPlatformName("小微无忧");
                     platformVO.setPlatformDomain("http://ntadmin.dazhangfang.vip");
@@ -194,7 +198,7 @@ public class LoginServiceImpl implements ILoginService {
         loginUser.setUserid(uservo.getPlatformUserId());
         Set<PlatformVO> platformVOS = uservo.getCanJumpPlatforms() != null ? uservo.getCanJumpPlatforms().stream().filter(vo -> vo.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(vo.getPlatformTag())).collect(Collectors.toSet()) : new HashSet<>();
         boolean isExistsXwwy = platformVOS.stream().anyMatch(vo -> zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(vo.getPlatformTag()));
-        if(!isExistsXwwy){
+        if (!isExistsXwwy) {
             PlatformVO platformVO = new PlatformVO();
             platformVO.setPlatformName("小微无忧");
             platformVO.setPlatformDomain("http://ntadmin.dazhangfang.vip");
@@ -232,8 +236,12 @@ public class LoginServiceImpl implements ILoginService {
     }
 
     @Override
-    public void updatePassword(LoginUser loginUser) {
+    public void updatePassword(LoginUser loginUser, String psw2) throws Exception {
         loginUserMapper.updatePassWord(loginUser.getUserid(), loginUser.getPassword());
+        Result<Boolean> booleanResult = passwordService.updatePassword(zxkjPlatformAuthConfig.getPlatformAdminName(), loginUser.getUsername(), psw2);
+        if (!booleanResult.isSucc()) {
+            throw new Exception("修改失败");
+        }
     }
 
 
