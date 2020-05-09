@@ -5,10 +5,12 @@ import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.result.Result;
 import com.dzf.auth.api.service.IPasswordService;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.LoginUser;
+import com.dzf.zxkj.platform.auth.mapper.CorpMapper;
 import com.dzf.zxkj.platform.auth.mapper.LoginUserMapper;
 import com.dzf.zxkj.platform.auth.mapper.UserMapper;
 import com.dzf.zxkj.platform.auth.model.jwt.JWTInfo;
@@ -46,12 +48,16 @@ public class LoginServiceImpl implements ILoginService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private CorpMapper corpMapper;
+
     @Reference(version = "1.0.1", protocol = "dubbo", timeout = 9000)
     private com.dzf.auth.api.service.ILoginService userService;
 
     private String platformName = "zxkj";
 
     public LoginUser login(String username, String password) {
+
         if (StringUtils.isAnyBlank(username, password)) {
             return null;
         }
@@ -62,7 +68,11 @@ public class LoginServiceImpl implements ILoginService {
                     UserModel userModel = queryUser(String.valueOf(userVO.getId()));
                     userVO.setPlatformUserId(userModel.getCuserid());
                 }
-                return transfer(userVO);
+                //查询是否是加盟商
+                DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
+                LoginUser loginUser = transfer(userVO);
+                loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
+                return loginUser;
             }
         } catch (Exception e) {
             log.error("用户中心异常", e);
@@ -116,6 +126,10 @@ public class LoginServiceImpl implements ILoginService {
             } catch (Exception e) {
                 log.info("用户名密码错误！");
             }
+
+            //查询是否是加盟商
+            DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
+            loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
             return loginUser;
         }
         return null;

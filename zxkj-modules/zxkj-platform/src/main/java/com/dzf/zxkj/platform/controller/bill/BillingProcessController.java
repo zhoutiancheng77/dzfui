@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -91,11 +92,13 @@ public class BillingProcessController extends BaseController {
     }
 
     @PostMapping("/impExcel")
-    public ReturnData<Json> impExcel(@RequestParam("impfile") MultipartFile file, HttpServletRequest request){
+    public ReturnData<Json> impExcel(HttpServletRequest request){
         String userid = SystemUtil.getLoginUserId();
         Json json = new Json();
         json.setSuccess(false);
         try {
+            MultipartHttpServletRequest multipartRequest = (MultipartHttpServletRequest) request;
+            MultipartFile file = multipartRequest.getFile("impfile");
             if(file == null){
                 throw new BusinessException("请选择导入文件!");
             }
@@ -104,7 +107,7 @@ public class BillingProcessController extends BaseController {
             if (!StringUtil.isEmpty(fileName)) {
                 fileType = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
             }
-            String pk_corp = request.getParameter("corpid");
+            String pk_corp = multipartRequest.getParameter("corpid");
             if(StringUtil.isEmpty(pk_corp)){
                 throw new BusinessException("公司为空,请检查");
             }
@@ -221,20 +224,21 @@ public class BillingProcessController extends BaseController {
     }
 
     @PostMapping("/saveR")
-    public ReturnData saveR(@RequestBody BillApplyVO[] bills, @MultiRequestBody UserVO userVO, HttpServletRequest request){
+    public ReturnData saveR(@MultiRequestBody String bills, @MultiRequestBody String chreson, @MultiRequestBody UserVO userVO, HttpServletRequest request){
         Json json = new Json();
         try {
-//            BillApplyVO[] bills = getBillsFromRequest();
-            String reason = request.getParameter("chreson");
+            BillApplyVO[] billList = JsonUtils.deserialize(bills, BillApplyVO[].class);
+//            String reason = request.getParameter("chreson");
+            String reason = chreson;
             if(StringUtil.isEmpty(reason)){
                 throw new BusinessException("请录入冲红原因");
             }
 
-            CorpVO corpvo = getCorpVO(bills[0].getPk_corp());
+            CorpVO corpvo = getCorpVO(billList[0].getPk_corp());
             StringBuffer msg = new StringBuffer();
 //            UserVO userVO = getLoginUserInfo();
             int errorCount = 0;
-            for(BillApplyVO vo : bills){
+            for(BillApplyVO vo : billList){
                 try {
                     vo.setRedreason(reason);
                     vo = gl_kpclserv.saveHcBill(vo, userVO);
@@ -264,13 +268,13 @@ public class BillingProcessController extends BaseController {
     }
 
     @PostMapping("/saveRAndK")
-    public ReturnData saveRAndK(@RequestBody BillApplyVO[] bills,
-                          @MultiRequestBody UserVO userVO, HttpServletRequest request){
+    public ReturnData saveRAndK(@MultiRequestBody String bills, @MultiRequestBody String chreson,
+                                @MultiRequestBody UserVO userVO, HttpServletRequest request){
         Json json = new Json();
         try {
-//            BillApplyVO[] bills = getBillsFromRequest();
-
-            String reason = request.getParameter("chreson");
+            BillApplyVO[] billList = JsonUtils.deserialize(bills, BillApplyVO[].class);
+            String reason = chreson;
+//            String reason = request.getParameter("chreson");
             if(StringUtil.isEmpty(reason)){
                 throw new BusinessException("请录入冲红原因");
             }
@@ -280,12 +284,12 @@ public class BillingProcessController extends BaseController {
             boolean flag = true;
             int errorCount = 0;
 
-            InvoiceApplyVO invoicevo = invoiceserv.queryByGs(bills[0].getPk_corp());
+            InvoiceApplyVO invoicevo = invoiceserv.queryByGs(billList[0].getPk_corp());
             if(invoicevo == null || invoicevo.getIstatus() != IInvoiceApplyConstant.APPLY_STATUS_5){
                 throw new BusinessException("当前公司未开通开票功能，请开通后再提交开票");
             }
-            CorpVO corpvo = getCorpVO(bills[0].getPk_corp());
-            for(BillApplyVO vo : bills){
+            CorpVO corpvo = getCorpVO(billList[0].getPk_corp());
+            for(BillApplyVO vo : billList){
                 try {
                     vo.setRedreason(reason);
                     vo = gl_kpclserv.saveHcBill(vo, userVO);

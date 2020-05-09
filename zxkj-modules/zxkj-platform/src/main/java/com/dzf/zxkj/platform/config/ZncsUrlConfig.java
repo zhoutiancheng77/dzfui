@@ -79,6 +79,23 @@ public class ZncsUrlConfig {
     public String inv_ip;
     @Value("${zncs.ocr.webrow}")
     public String webrow;
-//    @Value("${zncs.ptb.url}")//后续模块迁移 代码要调整
-    public String ptb_url;
+
+    @Value("${zncs.ptkp.url}")// 开具 后续模块迁移 代码要调整
+    public String ptkp_url;
+    @Value("${zncs.ptkp.xxptbm}")
+    public String ptkp_xxptbm;
+    @Value("${zncs.ptkp.platformCode}")
+    public String ptkp_platformCode;
+    @Value("${zncs.ptkp.signType}")
+    public String ptkp_signType;
+    @Value("${zncs.ptkp.format}")
+    public String ptkp_format;
+    @Value("${zncs.ptkp.xxversion}")
+    public String ptkp_xxversion;
+    @Value("${zncs.ptkp.xxpwd}")
+    public String ptkp_xxpwd;
+    @Value("${zncs.ptkp.privateKey}")
+    public String ptkp_privateKey;
+    @Value("${zncs.ptkp.publicKey}")
+    public String ptkp_publicKey;
 }

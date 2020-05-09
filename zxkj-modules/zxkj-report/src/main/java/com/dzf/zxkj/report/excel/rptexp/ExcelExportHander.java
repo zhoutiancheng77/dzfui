@@ -303,6 +303,7 @@ public abstract class ExcelExportHander {
     protected Map<String, Workbook> handleKJQJ2013(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) {
         Map<String, Workbook> workBookMap = new HashMap<>();
         try {
+            //湖北导出的报表文件名，需按税局模板的文件名来，才能成功导入进税局。如：CWBB_XQYKJZZ_V2.0.xls（小企业）、CWBB_QYKJZZ_YBQY_V1.0.xls（一般企业）
             if (this instanceof MoreWorkBookKj2013Excel) {
                 MoreWorkBookKj2013Excel moreWorkBookKj2013Excel = (MoreWorkBookKj2013Excel) this;
                 workBookMap.put("小企业会计准则利润表", moreWorkBookKj2013Excel.createWorkBookLrbKj2013(lrbVOMap, lrbTaxVoMap));
@@ -311,8 +312,8 @@ public abstract class ExcelExportHander {
             } else if (this instanceof OneWorkBookKj2013Excel) {
                 OneWorkBookKj2013Excel oneWorkBookKj2013Excel = (OneWorkBookKj2013Excel) this;
                 Workbook workbook = oneWorkBookKj2013Excel.createWorkBookKj2013(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap, lrbVOMap, xjllbVOMap, zcFzBVOMap);
-                workBookMap.put("小企业会计准则财务报表报送与信息采集", workbook);
-
+                String xlsname = areaType.equals("7") ? "CWBB_XQYKJZZ_V2.0" : "小企业会计准则财务报表报送与信息采集";
+                workBookMap.put(xlsname, workbook);
             }
         } catch (Exception e) {
             log.error("小企业会计准则税局报表导出异常！", e);
@@ -324,6 +325,7 @@ public abstract class ExcelExportHander {
     protected Map<String, Workbook> handleKJQJ2007(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) {
         Map<String, Workbook> workBookMap = new HashMap<>();
         try {
+            //湖北导出的报表文件名，需按税局模板的文件名来，才能成功导入进税局。如：CWBB_XQYKJZZ_V2.0.xls（小企业）、CWBB_QYKJZZ_YBQY_V1.0.xls（一般企业）
             if (this instanceof MoreWorkBookKj2007Excel) {
                 MoreWorkBookKj2007Excel moreWorkBookKj2007Excel = (MoreWorkBookKj2007Excel) this;
                 workBookMap.put("企业会计准则利润表", moreWorkBookKj2007Excel.createWorkBookLrbKj2007(lrbVOMap, lrbTaxVoMap));
@@ -334,7 +336,8 @@ public abstract class ExcelExportHander {
             if (this instanceof OneWorkBookKj2007Excel) {
                 OneWorkBookKj2007Excel oneWorkBookKj2007Excel = (OneWorkBookKj2007Excel) this;
                 Workbook workbook = oneWorkBookKj2007Excel.createWorkBookKj2007(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap, lrbVOMap, xjllbVOMap, zcFzBVOMap);
-                workBookMap.put("企业会计准则财务报表报送与信息采集", workbook);
+                String xlsname = areaType.equals("7") ? "CWBB_QYKJZZ_YBQY_V1.0" : "企业会计准则财务报表报送与信息采集";
+                workBookMap.put(xlsname, workbook);
             }
         } catch (Exception e) {
             log.error("企业会计准则税局报表导出异常！", e);

@@ -56,7 +56,7 @@ public class BillApplyDetailVo extends SuperVO {
 
     private String ggxh;
     private String jldw;
-    private DZFDouble sl;
+//    private DZFDouble sl;
 
     public String getPk_inventory() {
         return pk_inventory;
@@ -106,13 +106,13 @@ public class BillApplyDetailVo extends SuperVO {
         this.jldw = jldw;
     }
 
-    public DZFDouble getSl() {
-        return sl;
-    }
-
-    public void setSl(DZFDouble sl) {
-        this.sl = sl;
-    }
+//    public DZFDouble getSl() {
+//        return sl;
+//    }
+//
+//    public void setSl(DZFDouble sl) {
+//        this.sl = sl;
+//    }
 
     public String getPk_app_commodity() {
         return pk_app_commodity;
