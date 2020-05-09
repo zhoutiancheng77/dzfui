@@ -14,7 +14,6 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -112,7 +111,7 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
                 sp.addParam(begindate);
             }
             if(enddate != null){
-                enddate = DateUtils.getPeriodEndDate(DateUtils.getPeriod(enddate)).getDateAfter(1);
+//                enddate = DateUtils.getPeriodEndDate(DateUtils.getPeriod(enddate)).getDateAfter(1);
                 sql.append(" and bill.dapplydate <= ? ");
                 sp.addParam(enddate);
             }

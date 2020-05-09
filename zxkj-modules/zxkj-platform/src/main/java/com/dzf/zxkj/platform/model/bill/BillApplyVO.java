@@ -68,7 +68,7 @@ public class BillApplyVO extends SuperVO {
     private DZFDateTime  dtaxdate;//报税时间 
 
     /*********新增字段begin********/
-    @JsonProperty("serino")
+    @JsonProperty("ivserino")
     private String invoserino;//发票请求流水号
     @JsonProperty("dm")
     private String fpdm;//发票代码
@@ -161,7 +161,7 @@ public class BillApplyVO extends SuperVO {
     private Integer zerotaxflag;//zeroTaxFlag 税率为 0 时该值必填。 空： 非 零税率， 0： 出口零税， 1： 免 税， 2： 不征税， 3 普通零税率
     private String vatspeman;// vatSpecialManage 增 值 税 特 殊 管 理preferentialPolicyFlag 优惠政策标识位 1 时必填， 填免税、不征税或出口零税
 
-    private int serino;//临时 导入的行号
+    private Integer serino;//临时 导入的行号
     private String pk_app_commodity;//商品id
     private String pk_inventory;//启用存货的id 
 
@@ -244,11 +244,11 @@ public class BillApplyVO extends SuperVO {
         this.pk_inventory = pk_inventory;
     }
 
-    public int getSerino() {
+    public Integer getSerino() {
         return serino;
     }
 
-    public void setSerino(int serino) {
+    public void setSerino(Integer serino) {
         this.serino = serino;
     }
 

@@ -38,15 +38,15 @@ public class PiaoTongUtil {
 
     static{
         ZncsUrlConfig zncsUrlConfig = (ZncsUrlConfig) SpringUtils.getBean(ZncsUrlConfig.class);
-        pturl = zncsUrlConfig.ptb_url;
-        xxptbm = zncsUrlConfig.ptb_xxptbm;
-        platformCode = zncsUrlConfig.ptb_platformCode;
-        signType = zncsUrlConfig.ptb_signType;
-        format = zncsUrlConfig.ptb_format;
-        xxversion = zncsUrlConfig.ptb_xxversion;
-        xxpwd = zncsUrlConfig.ptb_xxpwd;
-        privateKey = zncsUrlConfig.ptb_privateKey;
-        publicKey = zncsUrlConfig.ptb_publicKey;
+        pturl = zncsUrlConfig.ptkp_url;
+        xxptbm = zncsUrlConfig.ptkp_xxptbm;
+        platformCode = zncsUrlConfig.ptkp_platformCode;
+        signType = zncsUrlConfig.ptkp_signType;
+        format = zncsUrlConfig.ptkp_format;
+        xxversion = zncsUrlConfig.ptkp_xxversion;
+        xxpwd = zncsUrlConfig.ptkp_xxpwd;
+        privateKey = zncsUrlConfig.ptkp_privateKey;
+        publicKey = zncsUrlConfig.ptkp_publicKey;
     }
 
     public static PiaoTongResVO request(String content, String suffix){
