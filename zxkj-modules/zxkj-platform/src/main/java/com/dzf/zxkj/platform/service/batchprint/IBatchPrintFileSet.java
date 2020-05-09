@@ -13,16 +13,7 @@ import java.util.List;
 public interface IBatchPrintFileSet {
 
     /**
-     * 根据公司+期间查询成功的公司设置
-     * @param pk_corp
-     * @return
-     * @throws DZFWarpException
-     */
-    public List<BatchPrintSetQryVo> queryPrintVOs(String pk_corp ,String cuserid, String period)  throws DZFWarpException;
-
-
-    /**
-     * 当前用户关联的所有公司设置
+     * 保存用户关联的所有公司设置
      * @param setvo
      * @throws DZFWarpException
      */

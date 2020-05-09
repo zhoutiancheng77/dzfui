@@ -6,10 +6,14 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
 import com.dzf.zxkj.platform.model.report.*;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.report.service.IZxkjReportService;
+import com.dzf.zxkj.report.service.batchprint.IBatchPrintSer;
 import com.dzf.zxkj.report.service.cwbb.*;
 import com.dzf.zxkj.report.service.cwzb.*;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +51,21 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     private IAgeBalanceReportService gl_rep_zlyeb;
     @Autowired
     private IKMZZReport gl_rep_kmzjserv;
+
+    @Autowired
+    private IBatchPrintSer gl_rep_batchprinterv;
+
+    @Override
+    public String batchPrint(BatchPrintSetVo[] setvos, UserVO userVO) {
+        // 根据不同设置，先循环走打印操作
+        try {
+            gl_rep_batchprinterv.print(setvos,userVO);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getFsJyeVOs异常,异常信息:%s", e.getMessage()), e);
+            return "执行出错";
+        }
+        return "执行完毕";
+    }
 
     @Override
     public FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction) {

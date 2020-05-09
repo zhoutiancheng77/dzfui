@@ -9,14 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletOutputStream;
-
 import java.util.TreeMap;
 
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
-import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -29,18 +26,12 @@ import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.pdf.PrintUtil;
 import com.dzf.zxkj.pdf.ReportCoverPrintUtil;
-import com.dzf.zxkj.platform.controller.voucher.VoucherPrintController;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
-import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
-import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
-import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherPrintParam;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.voucher.VoucherPrintTemplate;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import com.dzf.zxkj.platform.service.pzgl.IPzglService;
-import com.dzf.zxkj.platform.service.sys.IBDCurrencyService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.itextpdf.text.BaseColor;
@@ -65,7 +56,6 @@ import com.itextpdf.text.pdf.PdfPage;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 

@@ -11,16 +11,22 @@ import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintFileSetVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetQryVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.batchprint.IBatchPrintFileSet;
 import com.dzf.zxkj.platform.service.batchprint.INewBatchPrintSetTaskSer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/gl/gl_gdszact")
@@ -28,7 +34,7 @@ import java.util.List;
 public class BatchPrintController extends BaseController {
 
     @Autowired
-    private INewBatchPrintSetTaskSer newbatchprintser;// 任务1  （生成任务对应的pdf文件）
+    private INewBatchPrintSetTaskSer newbatchprintser;// 任务
 
     @Autowired
     private IBatchPrintFileSet gl_batchfilesetser;// 设置
@@ -67,13 +73,28 @@ public class BatchPrintController extends BaseController {
         return ReturnData.ok().data(grid);
     }
 
+    @PostMapping("/saveFileTask")
+    public ReturnData<Grid> saveFileTask(@RequestBody Map<String, String> pmap1) {
+        Grid grid = new Grid();
+        try {
+            // 查询设置
+            newbatchprintser.saveTask(pmap1.get("corpids"),getLoginUserId(),pmap1.get("type"),pmap1.get("period"));
+            grid.setSuccess(true);
+            grid.setMsg("保存成功！");
+        } catch (Exception e) {
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "保存失败");
+            log.error("保存失败!", e);
+        }
+        return ReturnData.ok().data(grid);
+    }
 
     @PostMapping("/queryTaskByPeriod")
     public ReturnData<Grid> queryTaskByPeriod(@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
         Grid grid = new Grid();
         try {
             // 查询设置
-            List<BatchPrintSetQryVo> list =  gl_batchfilesetser.queryPrintVOs(queryParamvo.getPk_corp(),getLoginUserId(),queryParamvo.getQjq());
+            List<BatchPrintSetQryVo> list =  newbatchprintser.queryPrintVOs(queryParamvo.getPk_corp(),getLoginUserId(),queryParamvo.getQjq());
             if (list == null) {
                 throw new BusinessException("查询数据为空");
             }
@@ -88,6 +109,82 @@ public class BatchPrintController extends BaseController {
         }
         return ReturnData.ok().data(grid);
     }
+
+
+    @PostMapping("/deleteTask")
+    public ReturnData<Grid> deleteTask(@MultiRequestBody("setvo") BatchPrintSetVo setvo) {
+        Grid grid = new Grid();
+        try {
+            // 执行任务
+            newbatchprintser.deleteTask(setvo.getPrimaryKey());
+            grid.setSuccess(true);
+            grid.setMsg("删除成功！");
+        } catch (Exception e) {
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "删除任务失败");
+            log.error("删除任务失败!", e);
+        }
+        return ReturnData.ok().data(grid);
+    }
+
+
+    @PostMapping("down")
+    public void down( @RequestParam Map<String, String> pmap1,@MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO,
+                     HttpServletResponse response) {
+        ServletOutputStream out = null;
+        Grid json = new Grid();
+        try {
+            Object[] objs = newbatchprintser.downLoadFile(pmap1.get("cid"),pmap1.get("id"));
+
+            if(objs == null ||  objs.length ==0){
+                throw new BusinessException("暂无数据!");
+            }
+
+            byte[] bytes = (byte[]) objs[0];
+
+            if(bytes == null ||  bytes.length ==0 ){
+                throw new BusinessException("暂无数据!");
+            }
+
+            response.addCookie(new Cookie("downsuccess", "1"));
+            response.setContentType("application/octet-stream");
+            String contentDisposition = "attachment;filename=" + URLEncoder.encode((String)objs[1], "UTF-8")
+                    + ";filename*=UTF-8''" + URLEncoder.encode((String)objs[1], "UTF-8");
+            response.addHeader("Content-Disposition", contentDisposition);
+            out = response.getOutputStream();
+            out.write((byte[])objs[0]);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            json.setMsg(e.getMessage());
+            json.setSuccess(false);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(),e);
+                }
+            }
+        }
+    }
+
+    @PostMapping("/execTask")
+    public ReturnData<Grid> execTask() {
+        Grid grid = new Grid();
+        try {
+            // 执行任务
+             newbatchprintser.execTask(getLoginUserId());
+            grid.setSuccess(true);
+            grid.setMsg("任务执行成功！");
+        } catch (Exception e) {
+            grid.setSuccess(false);
+            grid.setMsg(e instanceof BusinessException ? e.getMessage()+"<br>" : "任务执行失败");
+            log.error("任务执行失败!", e);
+        }
+        return ReturnData.ok().data(grid);
+    }
+
 
 
     @PostMapping("/queryTask")
@@ -110,6 +207,8 @@ public class BatchPrintController extends BaseController {
         }
         return ReturnData.ok().data(grid);
     }
+
+
 
     /**
      * 将查询后的结果分页
