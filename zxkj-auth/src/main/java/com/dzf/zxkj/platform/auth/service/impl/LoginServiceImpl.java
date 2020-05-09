@@ -71,7 +71,7 @@ public class LoginServiceImpl implements ILoginService {
                 //查询是否是加盟商
                 DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
                 LoginUser loginUser = transfer(userVO);
-                loginUser.setIsChannel(isChannel.booleanValue());
+                loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
                 return loginUser;
             }
         } catch (Exception e) {
@@ -129,7 +129,7 @@ public class LoginServiceImpl implements ILoginService {
 
             //查询是否是加盟商
             DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
-            loginUser.setIsChannel(isChannel.booleanValue());
+            loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
             return loginUser;
         }
         return null;
