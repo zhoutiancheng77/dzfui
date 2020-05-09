@@ -2164,7 +2164,20 @@ public class PzglServiceImpl implements IPzglService {
 			Sheet kmRefSheet = impBook.getSheetAt(1);
 			Row headRow = impBook.getSheetAt(0).getRow(0);
 			CellStyle style = headRow.getCell(0).getCellStyle();
-			int headIndex = 13;
+			// 辅助核算开始列
+			int headIndex = 15;
+			for (int i = 0; i < 50; i++) {
+				Cell cell = headRow.getCell(i);
+				if (cell == null) {
+					break;
+				}
+				String val = cell.getRichStringCellValue().getString();
+				if ("客户编码".equals(val)) {
+					headIndex = i;
+					break;
+				}
+			}
+
 			AuxiliaryAccountHVO[] auxhvos = gl_fzhsserv.queryH(pk_corp);
 			Map<Integer, String> auxCodeMap = new HashMap<Integer, String>();
 			Map<String, String> auxPkMap = new HashMap<String, String>();
