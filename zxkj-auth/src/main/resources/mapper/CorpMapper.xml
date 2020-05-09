@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dzf.zxkj.platform.auth.mapper.CorpMapper">
+
+    <select id="queryIsChannelByUserName" resultType="com.dzf.zxkj.common.lang.DZFBoolean">
+        SELECT
+            c.ISCHANNEL
+        FROM
+            BD_CORP c,
+            sm_user u
+        WHERE
+            c.PK_CORP = u.PK_CORP
+            AND u.USER_CODE = #{username}
+    </select>
+</mapper>

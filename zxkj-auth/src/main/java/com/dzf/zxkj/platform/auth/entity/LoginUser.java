@@ -41,4 +41,7 @@ public class LoginUser implements Serializable {
     private String f;
     @JsonProperty("phonenum")
     private String phone;// 手机号
+
+    @TableField(exist = false)
+    private Boolean isChannel;
 }
