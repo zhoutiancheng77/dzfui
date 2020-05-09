@@ -7,8 +7,6 @@ import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.HttpStatusEnum;
 import com.dzf.zxkj.gateway.config.GatewayConfig;
 import com.dzf.zxkj.platform.auth.model.jwt.IJWTInfo;
-import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
-import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.IAuthService;
 import com.dzf.zxkj.platform.auth.service.ISysService;
 import com.dzf.zxkj.platform.auth.utils.JWTUtil;
@@ -25,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
@@ -127,21 +124,22 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
 
+        // 加缓存之前去掉  gzhx
         //用户与公司关联校验
-        List<String> corps = authService.getPkCorpByUserId(useridFormToken);
-        if (corps == null || corps.contains(currentCorp)) {
-            log.info("用户没有操作公司权限！");
-            sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
-            return null;
-        }
+//        List<String> corps = authService.getPkCorpByUserId(useridFormToken);
+//        if (corps == null || corps.contains(currentCorp)) {
+//            log.info("用户没有操作公司权限！");
+//            sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
+//            return null;
+//        }
 
         //查询公司和用户vo
-        final CorpModel corpModel = sysService.queryCorpByPk(currentCorp);
-        final UserModel userModel = sysService.queryByUserId(useridFormToken);
-        if (corpModel == null || userModel == null) {
-            sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_INVALID_CODE, requestContext);
-            return null;
-        }
+//        final CorpModel corpModel = sysService.queryCorpByPk(currentCorp);
+//        final UserModel userModel = sysService.queryByUserId(useridFormToken);
+//        if (corpModel == null || userModel == null) {
+//            sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_USER_INVALID_CODE, requestContext);
+//            return null;
+//        }
 
         //权限校验
         Set<String> allPermissions = authService.getAllPermission();
