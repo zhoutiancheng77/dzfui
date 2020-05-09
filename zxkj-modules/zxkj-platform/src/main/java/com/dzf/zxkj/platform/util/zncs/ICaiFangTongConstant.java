@@ -54,6 +54,7 @@ public class ICaiFangTongConstant {
 	public static final String LYDJLX_PT = "CFT03";//来源于票通进项
 	public static final String LYDJLX_PTKP = "CFT04";//来源于票通开票
 	public static final String LYDJLX_OCR = "CFT05";//来源于OCR
+	public static final String LYDJLX_KP = "CFT06";//来源开票处理
 	
 	//系统参数
 	public static final String SUCCESS = "0000";

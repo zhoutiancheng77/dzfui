@@ -13,7 +13,6 @@ import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetQryVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.service.batchprint.IBatchPrintFileSet;
 import com.dzf.zxkj.platform.service.sys.IUserService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,9 +47,10 @@ public class BatchPrintFileSetSerImpl implements IBatchPrintFileSet {
         StringBuffer tasksql = new StringBuffer();
         tasksql.append(" select a.unitname,b.*,c.isgz");
         tasksql.append(" from bd_corp  a ");
-        tasksql.append(" left join " +  BatchPrintSetVo.TABLE_NAME + " b  on a.pk_corp = b.pk_corp ");
-        tasksql.append(" left join ynt_qmcl c on a.pk_corp = c.pk_corp ");
-        tasksql.append(" where nvl(b.dr,0)=0 and b.vprintperiod = ?  and c.period = ?");
+        tasksql.append(" left join " +  BatchPrintSetVo.TABLE_NAME + " b  on a.pk_corp = b.pk_corp and b.vprintperiod = ?  ");
+        tasksql.append(" left join ynt_qmcl c on a.pk_corp = c.pk_corp  and c.period = ? ");
+        tasksql.append(" where nvl(b.dr,0)=0 ");
+        tasksql.append(" and  "+ wherepart);
         sp.addParam(period + "~"+ period);
         sp.addParam(period);
 
@@ -82,56 +82,34 @@ public class BatchPrintFileSetSerImpl implements IBatchPrintFileSet {
         return null;
     }
 
+
     @Override
-    public void saveFileSet(BatchPrintFileSetVo setvo, String pk_corp, String cuserid,String period) throws DZFWarpException {
-
-        // 校验
-        validateSaveFileSet(pk_corp, cuserid, period);
-
-        // 查询当前所属的公司
-        Set<String> cpids = userServiceImpl.querypowercorpSet(cuserid);
-
-        if (cpids == null || cpids.size() == 0 ) {
-            throw new BusinessException("该用户无关联公司");
-        }
-
-        String wherepart = SqlUtil.buildSqlForIn("pk_corp", cpids.toArray(new String[0]));
-
-        SQLParameter sp = new SQLParameter();
-
-        sp.addParam(period);
-
-        BatchPrintFileSetVo[] setvos = (BatchPrintFileSetVo[]) singleObjectBO.queryByCondition(BatchPrintFileSetVo.class,"nvl(dr,0)=0 and "+ wherepart, new SQLParameter());
-
-        List<BatchPrintFileSetVo> addlist = new ArrayList<BatchPrintFileSetVo>();// 新增的
-
-        List<BatchPrintFileSetVo> uplist = new ArrayList<BatchPrintFileSetVo>();// 更新的
-
-        BatchPrintFileSetVo tempvo = null;
-
-        for (String cpid: cpids) {
-            tempvo = new  BatchPrintFileSetVo();
-            BeanUtils.copyProperties(setvo, tempvo);
-            tempvo.setPk_corp(cpid);
-            if(setvos != null && setvos.length > 0){
-                for (BatchPrintFileSetVo qrysetvo : setvos) {
-                    if (cpid.equals(qrysetvo.getPk_corp())) {
-                        tempvo.setPrimaryKey(qrysetvo.getPrimaryKey());
-
-                        uplist.add(tempvo);
-                        break;
-                    }
+    public void saveFileSet(BatchPrintFileSetVo[] setvos, String cuserid) throws DZFWarpException {
+        if (setvos !=null && setvos.length > 0) {
+            for (BatchPrintFileSetVo setvo : setvos) {
+                if (!StringUtil.isEmpty(setvo.getPrimaryKey())) {
+                    singleObjectBO.update(setvo);
+                } else {
+                    setvo.setPk_user(cuserid);
+                    singleObjectBO.saveObject(setvo.getPk_corp(), setvo);
                 }
             }
-            if (!StringUtil.isEmpty( tempvo.getPrimaryKey())) { // 新增的
-                singleObjectBO.saveObject(cpid, tempvo); // 新增的在这里保存
-            }
         }
+    }
 
-        if (uplist.size() > 0) {
-            singleObjectBO.updateAry(uplist.toArray(new BatchPrintFileSetVo[0]));
+    @Override
+    public BatchPrintFileSetVo[] queryFileSet(String cuserid) throws DZFWarpException {
+        SQLParameter sp = new SQLParameter();
+
+        sp.addParam(cuserid);
+
+        BatchPrintFileSetVo[] setvos = (BatchPrintFileSetVo[]) singleObjectBO.queryByCondition(BatchPrintFileSetVo.class,"nvl(dr,0)=0 and pk_user=?", sp);
+
+        if (setvos != null && setvos.length > 0) {
+            return setvos;
+        } else {
+            return null;
         }
-
     }
 
     private void validateSaveFileSet(String pk_corp, String cuserid,String period) {

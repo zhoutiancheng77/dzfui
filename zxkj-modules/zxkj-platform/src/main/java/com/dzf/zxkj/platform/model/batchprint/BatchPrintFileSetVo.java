@@ -15,22 +15,24 @@ public class BatchPrintFileSetVo extends SuperVO {
 
     public static final String PK_FIELD = "pk_batch_print_file_set";
 
+    private String setselect;// 设置类型
     @JsonProperty("id")
     private String pk_batch_print_file_set;// 主键
     @JsonProperty("cid")
     private String pk_corp;// 公司
+    private String pk_user;// 用户信息
     private String cname;//公司名称
     private DZFDateTime ts;//
     private Integer dr;//
     @JsonProperty("memo")
     private String vmemo;//备注
-    @JsonProperty("dynr")
+    @JsonProperty("dynrstr")
     private String vprintname;// 打印名称
     @JsonProperty("mbxz")
     private String vmobelsel;// 模板选择 A4,B5,A5
     @JsonProperty("ylfx")
     private String reviewdir;// 预览方向 横向，纵向
-    @JsonProperty("kmfy")
+    @JsonProperty("kmfystr")
     private String kmpage;// 科目分页
     @JsonProperty("ztdx")
     private DZFDouble vfontsize;// 字体大小
@@ -41,6 +43,21 @@ public class BatchPrintFileSetVo extends SuperVO {
     @JsonProperty("top")
     private DZFDouble dtopmargin;// 上边距
 
+    public String getSetselect() {
+        return setselect;
+    }
+
+    public void setSetselect(String setselect) {
+        this.setselect = setselect;
+    }
+
+    public String getPk_user() {
+        return pk_user;
+    }
+
+    public void setPk_user(String pk_user) {
+        this.pk_user = pk_user;
+    }
 
     public String getVmobelsel() {
         return vmobelsel;

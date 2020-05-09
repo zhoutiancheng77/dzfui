@@ -9,20 +9,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Properties;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.zip.GZIPInputStream;
 
 @Slf4j
@@ -69,6 +66,10 @@ public class CommonXml {
 	public static String rtnsucccode = "0000";
 	//返回代码失败标识
 	public static String rtnfailcode = "9999";
+
+	//返回编码 与与第一次注册的平台信息不匹配， 没有权限修改
+	public static String rtnfail_9004 = "9004";
+
 	//请求列表
 	public static String REQUEST_FPCY_QYSH = "REQUEST_FPCY_QYSH";
 	//请求PDF 

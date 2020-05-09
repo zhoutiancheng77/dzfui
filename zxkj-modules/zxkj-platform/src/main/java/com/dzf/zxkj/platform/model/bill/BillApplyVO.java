@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.model.bill;
 
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -51,19 +52,22 @@ public class BillApplyVO extends SuperVO {
     private Long sqsjl;//申请时间
     @JsonProperty("kpr")
     private String vbilltor;//开票人
-    private DZFDateTime ddate;//开票时间
+    @JsonProperty("kprq")
+    private DZFDateTime ddate;//开票日期
     @JsonProperty("jcsj")
-    private DZFDateTime dsenddate;//寄出时间
+    private DZFDateTime dsenddate;//寄出时间  
     @JsonProperty("jcr")
-    private String vsendtor;//寄出人
+    private String vsendtor;//寄出人  
     @JsonProperty("jzr")
-    private String vaccountor;//记账人
+    private String  vaccountor;//记账人 
     @JsonProperty("jzsj")
-    private DZFDateTime daccountdate;//记账时间
+    private DZFDateTime  daccountdate;//记账时间 
     @JsonProperty("bsr")
-    private String vtaxer;//报税人
+    private String  vtaxer;//报税人
     @JsonProperty("bssj")
-    private DZFDateTime dtaxdate;//报税时间
+    private DZFDateTime  dtaxdate;//报税时间 
+
+    /*********新增字段begin********/
     @JsonProperty("serino")
     private String invoserino;//发票请求流水号
     @JsonProperty("dm")
@@ -74,22 +78,57 @@ public class BillApplyVO extends SuperVO {
     private String yfpdm;//原发票代码
     @JsonProperty("yhm")
     private String yfphm;//原发票号码
-    @JsonProperty("kprj")
-    private DZFDate kpdate;//开票日期
+//	@JsonProperty("kprj")
+//    private DZFDate kpdate;//开票日期
+    /**
+     * 发票状态   指的是蓝票、红票、作废的状态
+     * 注意与ibillstatus 票据状态的不同，票通状态值得是 票的开票状态，2,3,4未老数据遗留
+     */
+    @JsonProperty("fpzt")
+    private Integer fptype;
+    @JsonProperty("kcje")
+    private DZFDouble deducmny;//差额开票抵扣金额
+    @JsonProperty("chbz")
+    private Integer redflag;//红冲标志
+    @JsonProperty("chyy")
+    private String redreason;//红冲原因
+    @JsonProperty("oriflg")
+    private DZFBoolean originred;//原始单据是否红冲
+
+    @JsonProperty("ly")
+    private Integer sourcetype;//来源
+    private String  sourceid;//来源id
+    @JsonProperty("xiazai")
+    private String downurl;//
+
+    private String tradeno;//订单号
+    private String extensionnum;//分机号
+    private String machinecode;//机器编号
+    private String cashername;//收款人名称
+    private String reviewername;//复核人名称
+    private String takername;//收票人名称
+    private String takertel;//收票人手机号
+    private String takeremail;//收票人邮箱
+
     @JsonProperty("bz")
     private String memo;//备注
+    /*********新增字段end********/
 
     //查询字段
-    private DZFDate begindate;//开票日期
-    private DZFDate enddate;
     private String apply_name;//申请人名称
     private String billing_name;//开票人
-    private String sendout_name;//寄出人
+    private String sendout_name;//寄出人 
     private String accounting_name;//记账人
     private String taxer_name;//报税人
+
+    /********新增查询字段begin********/
+    private DZFDate begindate;//开票日期
+    private DZFDate enddate;
+    /********新增查询字段end********/
+
     //-----------客户详情--------
     @JsonProperty("mail")
-    private String vmail;//邮箱
+    private String vmail ;//邮箱
     @JsonProperty("qymc")
     private String vcompanyname;// 企业名称
     @JsonProperty("qylx")
@@ -105,56 +144,112 @@ public class BillApplyVO extends SuperVO {
     @JsonProperty("khzh")
     private String vbankcode;// 开户账号
 
-    public String getInvoserino() {
-        return invoserino;
-    }
+    /***********适配导入新增字段 begin**************/
+    private String bspmc;//商品名称
+    private String taxclassname;//对应税收分类名称
+    private String taxclassid;//对应税收分类编码
+    private String ggxh;//规格型号
+    private String jldw;//计量单位
+    private DZFDouble bnnum;// 数量
+    private DZFDouble bnprice;//含税单价
+    private DZFDouble bnmny;// 含税金额
+    private DZFDouble bnzkmny;// 折扣额
+    private DZFDouble bsl;//税率
 
-    public void setInvoserino(String invoserino) {
-        this.invoserino = invoserino;
-    }
+    //零税率相关
+    private Integer lslyhzcbs;// preferentialPolicyFlag 空： 不使用， 1:使用 零税率标识为 0、 1、 2 时该值必填 1
+    private Integer zerotaxflag;//zeroTaxFlag 税率为 0 时该值必填。 空： 非 零税率， 0： 出口零税， 1： 免 税， 2： 不征税， 3 普通零税率
+    private String vatspeman;// vatSpecialManage 增 值 税 特 殊 管 理preferentialPolicyFlag 优惠政策标识位 1 时必填， 填免税、不征税或出口零税
 
-    public String getMemo() {
-        return memo;
-    }
+    private int serino;//临时 导入的行号
+    private String pk_app_commodity;//商品id
+    private String pk_inventory;//启用存货的id 
 
-    public void setMemo(String memo) {
-        this.memo = memo;
-    }
+    /***********适配导入新增字段 end**************/
 
-    public String getFpdm() {
-        return fpdm;
-    }
-
-    public void setFpdm(String fpdm) {
-        this.fpdm = fpdm;
-    }
-
-    public String getFphm() {
-        return fphm;
-    }
-
-    public void setFphm(String fphm) {
-        this.fphm = fphm;
-    }
-
-    public String getYfpdm() {
-        return yfpdm;
-    }
-
-    public void setYfpdm(String yfpdm) {
-        this.yfpdm = yfpdm;
-    }
-
-    public String getYfphm() {
-        return yfphm;
-    }
-
-    public void setYfphm(String yfphm) {
-        this.yfphm = yfphm;
-    }
 
     public String getPk_app_billapply() {
         return pk_app_billapply;
+    }
+
+    public String getPk_app_commodity() {
+        return pk_app_commodity;
+    }
+
+    public String getDownurl() {
+        return downurl;
+    }
+
+    public void setDownurl(String downurl) {
+        this.downurl = downurl;
+    }
+
+    public Integer getLslyhzcbs() {
+        return lslyhzcbs;
+    }
+
+    public void setLslyhzcbs(Integer lslyhzcbs) {
+        this.lslyhzcbs = lslyhzcbs;
+    }
+
+    public Integer getZerotaxflag() {
+        return zerotaxflag;
+    }
+
+    public void setZerotaxflag(Integer zerotaxflag) {
+        this.zerotaxflag = zerotaxflag;
+    }
+
+    public String getVatspeman() {
+        return vatspeman;
+    }
+
+    public void setVatspeman(String vatspeman) {
+        this.vatspeman = vatspeman;
+    }
+
+    public DZFBoolean getOriginred() {
+        return originred;
+    }
+
+    public void setOriginred(DZFBoolean originred) {
+        this.originred = originred;
+    }
+
+    public String getSourceid() {
+        return sourceid;
+    }
+
+    public void setSourceid(String sourceid) {
+        this.sourceid = sourceid;
+    }
+
+    public Integer getRedflag() {
+        return redflag;
+    }
+
+    public void setRedflag(Integer redflag) {
+        this.redflag = redflag;
+    }
+
+    public void setPk_app_commodity(String pk_app_commodity) {
+        this.pk_app_commodity = pk_app_commodity;
+    }
+
+    public String getPk_inventory() {
+        return pk_inventory;
+    }
+
+    public void setPk_inventory(String pk_inventory) {
+        this.pk_inventory = pk_inventory;
+    }
+
+    public int getSerino() {
+        return serino;
+    }
+
+    public void setSerino(int serino) {
+        this.serino = serino;
     }
 
     public void setPk_app_billapply(String pk_app_billapply) {
@@ -465,6 +560,78 @@ public class BillApplyVO extends SuperVO {
         this.vbankcode = vbankcode;
     }
 
+    public String getInvoserino() {
+        return invoserino;
+    }
+
+    public void setInvoserino(String invoserino) {
+        this.invoserino = invoserino;
+    }
+
+    public String getFpdm() {
+        return fpdm;
+    }
+
+    public void setFpdm(String fpdm) {
+        this.fpdm = fpdm;
+    }
+
+    public String getFphm() {
+        return fphm;
+    }
+
+    public void setFphm(String fphm) {
+        this.fphm = fphm;
+    }
+
+    public String getYfpdm() {
+        return yfpdm;
+    }
+
+    public void setYfpdm(String yfpdm) {
+        this.yfpdm = yfpdm;
+    }
+
+    public String getYfphm() {
+        return yfphm;
+    }
+
+    public void setYfphm(String yfphm) {
+        this.yfphm = yfphm;
+    }
+
+//	public DZFDate getKpdate() {
+//		return kpdate;
+//	}
+//
+//	public void setKpdate(DZFDate kpdate) {
+//		this.kpdate = kpdate;
+//	}
+
+    public String getRedreason() {
+        return redreason;
+    }
+
+    public void setRedreason(String redreason) {
+        this.redreason = redreason;
+    }
+
+    public Integer getSourcetype() {
+        return sourcetype;
+    }
+
+    public void setSourcetype(Integer sourcetype) {
+        this.sourcetype = sourcetype;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
+    }
+
     public DZFDate getBegindate() {
         return begindate;
     }
@@ -481,12 +648,164 @@ public class BillApplyVO extends SuperVO {
         this.enddate = enddate;
     }
 
-    public DZFDate getKpdate() {
-        return kpdate;
+    public Integer getFptype() {
+        return fptype;
     }
 
-    public void setKpdate(DZFDate kpdate) {
-        this.kpdate = kpdate;
+    public void setFptype(Integer fptype) {
+        this.fptype = fptype;
+    }
+
+    public DZFDouble getDeducmny() {
+        return deducmny;
+    }
+
+    public void setDeducmny(DZFDouble deducmny) {
+        this.deducmny = deducmny;
+    }
+
+    public String getTaxclassid() {
+        return taxclassid;
+    }
+
+    public void setTaxclassid(String taxclassid) {
+        this.taxclassid = taxclassid;
+    }
+
+    public String getTradeno() {
+        return tradeno;
+    }
+
+    public void setTradeno(String tradeno) {
+        this.tradeno = tradeno;
+    }
+
+    public String getExtensionnum() {
+        return extensionnum;
+    }
+
+    public void setExtensionnum(String extensionnum) {
+        this.extensionnum = extensionnum;
+    }
+
+    public String getMachinecode() {
+        return machinecode;
+    }
+
+    public void setMachinecode(String machinecode) {
+        this.machinecode = machinecode;
+    }
+
+    public String getCashername() {
+        return cashername;
+    }
+
+    public void setCashername(String cashername) {
+        this.cashername = cashername;
+    }
+
+    public String getReviewername() {
+        return reviewername;
+    }
+
+    public void setReviewername(String reviewername) {
+        this.reviewername = reviewername;
+    }
+
+    public String getTakername() {
+        return takername;
+    }
+
+    public void setTakername(String takername) {
+        this.takername = takername;
+    }
+
+    public String getTakertel() {
+        return takertel;
+    }
+
+    public void setTakertel(String takertel) {
+        this.takertel = takertel;
+    }
+
+    public String getTakeremail() {
+        return takeremail;
+    }
+
+    public void setTakeremail(String takeremail) {
+        this.takeremail = takeremail;
+    }
+
+    public String getBspmc() {
+        return bspmc;
+    }
+
+    public void setBspmc(String bspmc) {
+        this.bspmc = bspmc;
+    }
+
+    public String getTaxclassname() {
+        return taxclassname;
+    }
+
+    public void setTaxclassname(String taxclassname) {
+        this.taxclassname = taxclassname;
+    }
+
+    public String getGgxh() {
+        return ggxh;
+    }
+
+    public void setGgxh(String ggxh) {
+        this.ggxh = ggxh;
+    }
+
+    public String getJldw() {
+        return jldw;
+    }
+
+    public void setJldw(String jldw) {
+        this.jldw = jldw;
+    }
+
+    public DZFDouble getBnnum() {
+        return bnnum;
+    }
+
+    public void setBnnum(DZFDouble bnnum) {
+        this.bnnum = bnnum;
+    }
+
+    public DZFDouble getBnprice() {
+        return bnprice;
+    }
+
+    public void setBnprice(DZFDouble bnprice) {
+        this.bnprice = bnprice;
+    }
+
+    public DZFDouble getBnmny() {
+        return bnmny;
+    }
+
+    public void setBnmny(DZFDouble bnmny) {
+        this.bnmny = bnmny;
+    }
+
+    public DZFDouble getBnzkmny() {
+        return bnzkmny;
+    }
+
+    public void setBnzkmny(DZFDouble bnzkmny) {
+        this.bnzkmny = bnzkmny;
+    }
+
+    public DZFDouble getBsl() {
+        return bsl;
+    }
+
+    public void setBsl(DZFDouble bsl) {
+        this.bsl = bsl;
     }
 
     @Override

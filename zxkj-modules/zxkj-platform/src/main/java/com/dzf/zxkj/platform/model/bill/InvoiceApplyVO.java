@@ -6,18 +6,17 @@ import com.dzf.zxkj.common.model.SuperVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class InvoiceApplyVO extends SuperVO {
-
     @JsonProperty("id")
     private String pk_invoice_apply;//主键
     @JsonProperty("pk_gs")
     private String pk_corp;//
-    @JsonProperty("userid")
+    @JsonProperty("cid")
     private String cuserid;//操作人
     @JsonProperty("cdate")
     private DZFDate createdate;//创建时间
     @JsonProperty("mdate")
     private DZFDateTime modifydatetime;//修改时间
-    @JsonProperty("status")
+    @JsonProperty("iss")
     private Integer istatus;//状态
     @JsonProperty("mode")
     private Integer imode;//开通模式 0 自开服务
@@ -26,6 +25,10 @@ public class InvoiceApplyVO extends SuperVO {
 
     private DZFDateTime ts;// ts
     private Integer dr;// dr
+
+    private String ptbm;//平台编码
+    private String zcm;//注册码
+    private String sqm;//授权码
 
     @JsonProperty("uname")
     private String unitname;
@@ -54,9 +57,21 @@ public class InvoiceApplyVO extends SuperVO {
 
     public String vprovname;//  省 所属地区名称
     public String vprovcode;//  对应 地区编码
+    @JsonProperty("postadd")
+    private String postaddr;//详细地址
 
     @JsonProperty("iftype")
     private Integer filetype;//
+
+    //接口字段 只为接收值
+    private String taxpayerNum;
+    private String enterpriseName;
+    private String code;
+    private String msg;//
+    private String platformCode;//平台编码
+    private String registrationCode;//注册码
+    private String authorizationCode;//授权码
+
 
     public String getPk_invoice_apply() {
         return pk_invoice_apply;
@@ -232,6 +247,94 @@ public class InvoiceApplyVO extends SuperVO {
 
     public void setFiletype(Integer filetype) {
         this.filetype = filetype;
+    }
+
+    public String getTaxpayerNum() {
+        return taxpayerNum;
+    }
+
+    public void setTaxpayerNum(String taxpayerNum) {
+        this.taxpayerNum = taxpayerNum;
+    }
+
+    public String getEnterpriseName() {
+        return enterpriseName;
+    }
+
+    public void setEnterpriseName(String enterpriseName) {
+        this.enterpriseName = enterpriseName;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public String getPlatformCode() {
+        return platformCode;
+    }
+
+    public void setPlatformCode(String platformCode) {
+        this.platformCode = platformCode;
+    }
+
+    public String getRegistrationCode() {
+        return registrationCode;
+    }
+
+    public void setRegistrationCode(String registrationCode) {
+        this.registrationCode = registrationCode;
+    }
+
+    public String getAuthorizationCode() {
+        return authorizationCode;
+    }
+
+    public void setAuthorizationCode(String authorizationCode) {
+        this.authorizationCode = authorizationCode;
+    }
+
+    public String getPtbm() {
+        return ptbm;
+    }
+
+    public void setPtbm(String ptbm) {
+        this.ptbm = ptbm;
+    }
+
+    public String getZcm() {
+        return zcm;
+    }
+
+    public void setZcm(String zcm) {
+        this.zcm = zcm;
+    }
+
+    public String getSqm() {
+        return sqm;
+    }
+
+    public void setSqm(String sqm) {
+        this.sqm = sqm;
+    }
+
+    public String getPostaddr() {
+        return postaddr;
+    }
+
+    public void setPostaddr(String postaddr) {
+        this.postaddr = postaddr;
     }
 
     @Override

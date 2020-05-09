@@ -45,10 +45,18 @@ public class BillApplyDetailVo extends SuperVO {
     private DZFDateTime ts;//
     private Integer dr;//
 
+    /*******新增字段begin*********/
+    private String taxclassid;//对应税收分类编码
+    private String taxclassname;//对应税收分类名称
+    private Integer lslyhzcbs;// preferentialPolicyFlag 空： 不使用， 1:使用 零税率标识为 0、 1、 2 时该值必填 1
+    private Integer zerotaxflag;//zeroTaxFlag 税率为 0 时该值必填。 空： 非 零税率， 0： 出口零税， 1： 免 税， 2： 不征税， 3 普通零税率
+    private String vatspeman;// vatSpecialManage 增 值 税 特 殊 管 理preferentialPolicyFlag 优惠政策标识位 1 时必填， 填免税、不征税或出口零税
+
+    /*******新增字段end*********/
 
     private String ggxh;
     private String jldw;
-//    private DZFDouble sl;
+    private DZFDouble sl;
 
     public String getPk_inventory() {
         return pk_inventory;
@@ -56,6 +64,30 @@ public class BillApplyDetailVo extends SuperVO {
 
     public void setPk_inventory(String pk_inventory) {
         this.pk_inventory = pk_inventory;
+    }
+
+    public Integer getLslyhzcbs() {
+        return lslyhzcbs;
+    }
+
+    public void setLslyhzcbs(Integer lslyhzcbs) {
+        this.lslyhzcbs = lslyhzcbs;
+    }
+
+    public Integer getZerotaxflag() {
+        return zerotaxflag;
+    }
+
+    public void setZerotaxflag(Integer zerotaxflag) {
+        this.zerotaxflag = zerotaxflag;
+    }
+
+    public String getVatspeman() {
+        return vatspeman;
+    }
+
+    public void setVatspeman(String vatspeman) {
+        this.vatspeman = vatspeman;
     }
 
     public String getGgxh() {
@@ -74,13 +106,13 @@ public class BillApplyDetailVo extends SuperVO {
         this.jldw = jldw;
     }
 
-//    public DZFDouble getSl() {
-//        return sl;
-//    }
-//
-//    public void setSl(DZFDouble sl) {
-//        this.sl = sl;
-//    }
+    public DZFDouble getSl() {
+        return sl;
+    }
+
+    public void setSl(DZFDouble sl) {
+        this.sl = sl;
+    }
 
     public String getPk_app_commodity() {
         return pk_app_commodity;
@@ -201,7 +233,7 @@ public class BillApplyDetailVo extends SuperVO {
 
     @Override
     public String getParentPKFieldName() {
-        return null;
+        return "pk_app_billapply";
     }
 
     @Override
@@ -217,5 +249,19 @@ public class BillApplyDetailVo extends SuperVO {
         this.nprice = nprice;
     }
 
+    public String getTaxclassid() {
+        return taxclassid;
+    }
 
+    public void setTaxclassid(String taxclassid) {
+        this.taxclassid = taxclassid;
+    }
+
+    public String getTaxclassname() {
+        return taxclassname;
+    }
+
+    public void setTaxclassname(String taxclassname) {
+        this.taxclassname = taxclassname;
+    }
 }

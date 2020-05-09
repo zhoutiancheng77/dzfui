@@ -26,6 +26,7 @@ public interface IBillManageConstants {
     int FAPIAOSAOMA = 10;//发票扫码调用，这个是服务器与服务器，注意与财税助手EXCEL导入的区别
     int OLDEDITION = 11;//老版本导入模板（过滤用）
     int OCR = 15;//OCR识别
+    int PIAOTONGKP_CALLBACK = 20;//票通开票回调
 
     //进项认证结果
     int RSNOPASS = 0;

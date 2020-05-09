@@ -6,8 +6,6 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.*;
-import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.DZFConstant;
@@ -17,6 +15,8 @@ import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.entity.ICodeName;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.BdTradeAccountVO;
@@ -29,11 +29,12 @@ import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import com.dzf.zxkj.platform.model.sys.*;
 import com.dzf.zxkj.platform.model.tax.CorpTaxInfoVO;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
+import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.util.CryptCodeUtil;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
-import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,6 +78,9 @@ public class BDCorpServiceImpl implements IBDCorpService {
 
 	@Autowired
 	private ICorpService corpService;
+
+    @Autowired
+    IInventoryAccSetService  accSetService;
 	
 	@SuppressWarnings("unchecked")
 	public CorpVO[] queryCorp(QueryParamVO queryvo, UserVO uservo) throws DZFWarpException {
@@ -3466,6 +3470,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
         }
 		corpvo.setBbuildic(IcCostStyle.IC_INVTENTORY);
 		singleObjectBO.update(corpvo, new String[] { "bbuildic"});
+        accSetService.saveDefaultValue(null,corpvo,true);
 	}
 
 	@Override

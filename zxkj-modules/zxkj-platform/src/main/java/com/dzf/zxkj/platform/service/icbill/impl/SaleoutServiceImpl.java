@@ -151,6 +151,12 @@ public class SaleoutServiceImpl implements ISaleoutService {
 				Map<String, List<IntradeoutVO>> map = DZfcommonTools.hashlizeObject(Arrays.asList(bvos),
 						new String[] { "pk_ictrade_h" });
 				for (IntradeHVO hvo : listVO) {
+					if(!StringUtil.isEmpty(hvo.getPk_cust())){
+						boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),AuxiliaryConstant.ITEM_CUSTOMER);
+						if(!b){
+							hvo.setPk_cust(null);
+						}
+					}
 					DZFDouble nnum = DZFDouble.ZERO_DBL; // 数量
 					DZFDouble ncost = DZFDouble.ZERO_DBL; // 成本金额
 					sp.clearParams();
@@ -495,11 +501,11 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 		checkBodyInventory(headvo.getChildren(), pk_corp);
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
-		checkAssistExist(corpvo, headvo);
+//		checkAssistExist(corpvo, headvo);
 		// 是否校验库存
-		if (ischeckfull) {
+//		if (ischeckfull) {
 			// checkBeyond(headvo, numMap, map, isImpl);
-		}
+//		}
 		// zpm2017.8.23注释，成本、单价，由总账期末成本结转时回写。这里的回写的成本、单价、为时点成本、单价，对于小企业不具有参考价值
 		/*
 		 * if (StringUtil.isEmpty(headvo.getCbusitype()) ||
@@ -575,7 +581,12 @@ public class SaleoutServiceImpl implements ISaleoutService {
         if(headvo.getIpayway() == null){
             throw new BusinessException("付款方式不能为空!");
         }
-
+        if(!StringUtil.isEmpty(headvo.getPk_cust())){
+            boolean b = gl_fzhsserv.isExistFz(headvo.getPk_corp(),headvo.getPk_cust(),AuxiliaryConstant.ITEM_CUSTOMER);
+            if(!b){
+                throw new BusinessException("客户已删除或者不存在，请确认!");
+            }
+        }
 	}
 
 	private void checkBodys(IntradeoutVO[] bodyvos, IntradeHVO headvo, StringBuffer strb) {
@@ -804,7 +815,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 
 		IntradeHVO oldvo = (IntradeHVO) singleObjectBO.queryByPrimaryKey(IntradeHVO.class, vo.getPrimaryKey());
-		checkIntradeH(oldvo, pk_corp);
+		checkIntradeH(oldvo, pk_corp,true);
 
 		// 更新生成销售退回来源单据的单据
 		if (!StringUtil.isEmptyWithTrim(oldvo.getSourcebillid())
@@ -827,7 +838,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		}
 	}
 
-	private void checkIntradeH(IntradeHVO hvo, String pk_corp) {
+	private void checkIntradeH(IntradeHVO hvo, String pk_corp,boolean isdel) {
 		if (hvo == null) {
 			throw new BusinessException("该条数据不存在,请刷新后再试!");
 		}
@@ -840,6 +851,15 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		if (hvo.getIsjz() != null && hvo.getIsjz().booleanValue()) {
 			throw new BusinessException("已经生成凭证,不允许其他操作!");
 		}
+
+		if(!isdel){
+            if(!StringUtil.isEmpty(hvo.getPk_cust())){
+                boolean b = gl_fzhsserv.isExistFz(hvo.getPk_corp(),hvo.getPk_cust(),AuxiliaryConstant.ITEM_CUSTOMER);
+                if(!b){
+                    throw new BusinessException("客户已删除或者不存在，请确认!");
+                }
+            }
+        }
 	}
 
 	@Override
@@ -850,7 +870,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 			// throw new BusinessException("其他出库单不能生成凭证");
 		}
 
-		checkIntradeH(intradevo, pk_corp);
+		checkIntradeH(intradevo, pk_corp,false);
 		Map<String, YntCpaccountVO> ccountMap = accountService.queryMapByPk(pk_corp);
 		TzpzHVO headvo = createGLVO(intradevo, userid, zy, ccountMap, corpvo);
 		headvo.setIsqxsy(DZFBoolean.TRUE);
@@ -2001,7 +2021,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 				nbills++;
 			}
 			IntradeHVO intradevo = queryIntradeHVOByID(ivo.getPk_ictrade_h(), pk_corp);
-			checkIntradeH(intradevo, pk_corp);
+			checkIntradeH(intradevo, pk_corp,false);
 
 			List<TzpzBVO> list = createTzpzBVO(intradevo, userid, zy, setvo, ccountMap, corpvo, iprice);
 			if (list == null || list.size() == 0) {
@@ -2142,32 +2162,32 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		return prefix;
 	}
 
-	/**
-	 * 检查出库单引用的客户是否存在
-	 * 
-	 * @param corpvo
-	 * @param vo
-	 */
-	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
-		Set<String> assists = new HashSet<String>();
-		if (!StringUtil.isEmpty(vo.getPk_cust())) {
-			assists.add(vo.getPk_cust());
-			StringBuilder sb = new StringBuilder();
-			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and pk_auacount_h = ? and pk_auacount_b in ")
-					.append(SQLHelper.getInSQL(new ArrayList<String>(assists))).append(" and nvl(dr,0)=0 ");
-			SQLParameter sp = new SQLParameter();
-			sp.addParam(corpvo.getPk_corp());
-			sp.addParam(AuxiliaryConstant.ITEM_CUSTOMER);
-			for (String pk : assists) {
-				sp.addParam(pk);
-			}
-
-			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
-			if (count == null || count.intValue() != assists.size()) {
-				throw new BusinessException("客户[" + vo.getCustname() + "]不存在，或已被删除，请检查");
-			}
-		}
-	}
+//	/**
+//	 * 检查出库单引用的客户是否存在
+//	 *
+//	 * @param corpvo
+//	 * @param vo
+//	 */
+//	private void checkAssistExist(CorpVO corpvo, IntradeHVO vo) {
+//		Set<String> assists = new HashSet<String>();
+//		if (!StringUtil.isEmpty(vo.getPk_cust())) {
+//			assists.add(vo.getPk_cust());
+//			StringBuilder sb = new StringBuilder();
+//			sb.append("select count(1) from ynt_fzhs_b where pk_corp = ? and pk_auacount_h = ? and pk_auacount_b in ")
+//					.append(SQLHelper.getInSQL(new ArrayList<String>(assists))).append(" and nvl(dr,0)=0 ");
+//			SQLParameter sp = new SQLParameter();
+//			sp.addParam(corpvo.getPk_corp());
+//			sp.addParam(AuxiliaryConstant.ITEM_CUSTOMER);
+//			for (String pk : assists) {
+//				sp.addParam(pk);
+//			}
+//
+//			BigDecimal count = (BigDecimal) singleObjectBO.executeQuery(sb.toString(), sp, new ColumnProcessor());
+//			if (count == null || count.intValue() != assists.size()) {
+//				throw new BusinessException("客户[" + vo.getCustname() + "]不存在，或已被删除，请检查");
+//			}
+//		}
+//	}
 
 	// 检验存货是否存在
 	private void checkBodyInventory(SuperVO[] childs, String pk_corp) {

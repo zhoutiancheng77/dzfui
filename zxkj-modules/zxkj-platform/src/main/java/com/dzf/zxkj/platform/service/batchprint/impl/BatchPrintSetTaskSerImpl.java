@@ -62,6 +62,7 @@ import org.springframework.stereotype.Service;
  * @author zhangj
  *
  */
+@Deprecated
 @Service("batchprintser")
 @Slf4j
 public class BatchPrintSetTaskSerImpl implements IBatchPrintSetTaskSer {

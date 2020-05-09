@@ -9,7 +9,7 @@ public class PiaoTongResInvVO implements Serializable {
     private String invoiceIssueResultCode;//
     private String invoiceIssueResultMsg;//
 
-    private PiaoTongResHVO invoiceInfo;//
+    private PiaoTongResInvHVO invoiceInfo;//
 
     public String getInvoiceReqSerialNo() {
         return invoiceReqSerialNo;
@@ -43,11 +43,11 @@ public class PiaoTongResInvVO implements Serializable {
         this.invoiceIssueResultMsg = invoiceIssueResultMsg;
     }
 
-    public PiaoTongResHVO getInvoiceInfo() {
+    public PiaoTongResInvHVO getInvoiceInfo() {
         return invoiceInfo;
     }
 
-    public void setInvoiceInfo(PiaoTongResHVO invoiceInfo) {
+    public void setInvoiceInfo(PiaoTongResInvHVO invoiceInfo) {
         this.invoiceInfo = invoiceInfo;
     }
 }

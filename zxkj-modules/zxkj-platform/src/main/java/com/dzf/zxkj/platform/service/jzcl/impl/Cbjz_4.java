@@ -120,7 +120,7 @@ public class Cbjz_4 {
 //		String dbillid = ic_purchinserv.getNewBillNo(pk_corp,billdate,IcConst.WGTYPE);
 //		hvo.setDbillid(dbillid);
 		hvo.setDbilldate(billdate);
-//		hvo.setIpayway(ipayway);//付款方式
+		hvo.setIpayway(0);//付款方式
 //		hvo.setIarristatus(iarristatus);//到货状态 
 		hvo.setCbusitype(IcConst.WGTYPE);//业务类型
 		hvo.setCreator(billvo.getCoperatorid());

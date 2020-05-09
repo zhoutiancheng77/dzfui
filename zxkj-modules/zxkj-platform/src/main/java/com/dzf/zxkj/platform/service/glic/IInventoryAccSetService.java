@@ -7,12 +7,12 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 
 public interface IInventoryAccSetService {
 	
-	public InventorySetVO query(String pk_corp) throws DZFWarpException;
+	 InventorySetVO query(String pk_corp) throws DZFWarpException;
 
-	public InventorySetVO save(String userid,String pk_corp,InventorySetVO vo1,boolean ischeck) throws DZFWarpException;
+	 InventorySetVO save(String userid,String pk_corp,InventorySetVO vo1,boolean ischeck) throws DZFWarpException;
 	
-	public InventorySetVO getDefaultValue(String userid, CorpVO cpvo) throws DZFWarpException;
+	 InventorySetVO saveDefaultValue(String userid, CorpVO cpvo,boolean isQy) throws DZFWarpException;
 	
-	public String checkInventorySet(String userid,String pk_corp,InventorySetVO vo) throws DZFWarpException;
+	 String checkInventorySet(String userid,String pk_corp,InventorySetVO vo) throws DZFWarpException;
 
 }

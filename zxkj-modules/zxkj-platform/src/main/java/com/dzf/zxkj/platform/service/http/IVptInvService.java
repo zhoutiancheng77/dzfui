@@ -5,5 +5,7 @@ import com.dzf.zxkj.platform.model.piaotong.PiaoTongReqVO;
 
 public interface IVptInvService {
 
+    void saveRegis(PiaoTongReqVO reqvo) throws DZFWarpException;
+
     boolean updateInvoice(PiaoTongReqVO reqVO) throws DZFWarpException;
 }

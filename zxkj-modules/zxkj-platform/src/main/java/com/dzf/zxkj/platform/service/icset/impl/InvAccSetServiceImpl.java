@@ -61,6 +61,12 @@ public class InvAccSetServiceImpl implements IInvAccSetService {
 		}
 		if (gvo == null)
 			gvo = new InvAccSetVO();
+		if(!StringUtil.isEmpty(gvo.getZgkhfz())){
+			boolean b = gl_fzhsserv.isExistFz(gvo.getPk_corp(), gvo.getZgkhfz(), AuxiliaryConstant.ITEM_SUPPLIER);
+			if (!b) {
+				gvo.setZgkhfz(null);
+			}
+		}
 		return gvo;
 	}
 
