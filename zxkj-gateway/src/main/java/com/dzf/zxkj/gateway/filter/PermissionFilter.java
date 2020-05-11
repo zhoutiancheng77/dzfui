@@ -94,7 +94,7 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
 
-        if (request.getRequestURL().indexOf("/api/auth/to") != -1) {
+        if (request.getRequestURL().indexOf("/api/auth/to") != -1 || request.getRequestURL().indexOf("/api/auth/updatePassword") != -1) {
             return null;
         }
 
