@@ -3115,7 +3115,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 
 		if (!StringUtil.isEmpty(msg.toString())) {
-			sf.append("<p>第").append(index + 1).append("行  ").append(msg.toString()).append(" </p> ");
+			sf.append("第").append(index + 1).append("行  ").append(msg.toString()).append(" <br> ");
 		}
 	}
 
