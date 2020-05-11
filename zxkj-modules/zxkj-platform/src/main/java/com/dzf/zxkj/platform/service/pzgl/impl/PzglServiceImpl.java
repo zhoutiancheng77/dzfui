@@ -1540,7 +1540,18 @@ public class PzglServiceImpl implements IPzglService {
 			int length = sheet1.getLastRowNum();
 
 			Map<String, Integer> headMap = new HashMap<String, Integer>();
-			Row headRow = sheet1.getRow(0);
+            int headRowIndex = 0;
+            // 找标题行
+            for (int i = 0; i < 5; i++) {
+                Row row = sheet1.getRow(i);
+                String title = getCellValue(row, 0, 0, false);
+                if ("日期".equals(title)) {
+                    headRowIndex = i;
+                    break;
+                }
+            }
+            Row headRow = sheet1.getRow(headRowIndex);
+            // 创建列名和列索引map
 			for (int i = 0; i < 50; i++) {
 				Cell cell = headRow.getCell(i);
 				if (cell == null) {
@@ -1550,7 +1561,7 @@ public class PzglServiceImpl implements IPzglService {
 				val = val.trim();
 				headMap.put(val, i);
 			}
-			for (int iBegin = 1; iBegin <= length; iBegin++) {
+			for (int iBegin = headRowIndex + 1; iBegin <= length; iBegin++) {
 
 				Row row = sheet1.getRow(iBegin);
 				TzpzBVO bvo = new TzpzBVO();
@@ -2141,6 +2152,16 @@ public class PzglServiceImpl implements IPzglService {
 	public byte[] exportTemplate(String pk_corp, String tempPath) throws DZFWarpException {
 		byte[] byteArray = null;
 		InputStream is = null;
+        // 列名行
+        int headRowIndex = 1;
+		// 凭证开始行
+		int voucherRowBegin = 2;
+		int voucherRowEnd = 8;
+		// 辅助核算开始列
+		int auxiliaryColBegin = 15;
+		int numberCol = 8;
+		int priceCol = 9;
+		int rateCol = 14;
 		try {
 			is = this.getClass().getResourceAsStream("/template/凭证模板-导入.xls");
 			Workbook impBook = new HSSFWorkbook(is);
@@ -2150,33 +2171,24 @@ public class PzglServiceImpl implements IPzglService {
 			Map<String, Integer> precisionMap = new HashMap<String, Integer>();
 			Map<Integer, CellStyle> styleMap = new HashMap<Integer, CellStyle>();
 			DataFormat df = impBook.createDataFormat();
-			CellStyle baseStyle = exampleRefSheet.getRow(1).getCell(0).getCellStyle();
-			for (int i = 1; i < 8; i++) {
+			CellStyle baseStyle = exampleRefSheet.getRow(voucherRowBegin)
+					.getCell(0).getCellStyle();
+			for (int i = voucherRowBegin; i <= voucherRowEnd; i++) {
 				Row row = exampleRefSheet.getRow(i);
 				// 数量
-				row.getCell(6).setCellStyle(getCellStyle(pk_corp, "dzf009", precisionMap, styleMap, impBook, baseStyle, df));
+				row.getCell(numberCol).setCellStyle(getCellStyle(pk_corp, "dzf009",
+						precisionMap, styleMap, impBook, baseStyle, df));
 				// 单价
-				row.getCell(7).setCellStyle(getCellStyle(pk_corp, "dzf010", precisionMap, styleMap, impBook, baseStyle, df));
+				row.getCell(priceCol).setCellStyle(getCellStyle(pk_corp, "dzf010",
+						precisionMap, styleMap, impBook, baseStyle, df));
 				// 汇率
-				row.getCell(12).setCellStyle(getCellStyle(pk_corp, "dzf011", precisionMap, styleMap, impBook, baseStyle, df));
+				row.getCell(rateCol).setCellStyle(getCellStyle(pk_corp, "dzf011",
+						precisionMap, styleMap, impBook, baseStyle, df));
 			}
 			
 			Sheet kmRefSheet = impBook.getSheetAt(1);
-			Row headRow = impBook.getSheetAt(0).getRow(0);
+			Row headRow = impBook.getSheetAt(0).getRow(headRowIndex);
 			CellStyle style = headRow.getCell(0).getCellStyle();
-			// 辅助核算开始列
-			int headIndex = 15;
-			for (int i = 0; i < 50; i++) {
-				Cell cell = headRow.getCell(i);
-				if (cell == null) {
-					break;
-				}
-				String val = cell.getRichStringCellValue().getString();
-				if ("客户编码".equals(val)) {
-					headIndex = i;
-					break;
-				}
-			}
 
 			AuxiliaryAccountHVO[] auxhvos = gl_fzhsserv.queryH(pk_corp);
 			Map<Integer, String> auxCodeMap = new HashMap<Integer, String>();
@@ -2185,11 +2197,11 @@ public class PzglServiceImpl implements IPzglService {
 			for (AuxiliaryAccountHVO auxiliaryAccountHVO : auxhvos) {
 				auxCodeMap.put(auxiliaryAccountHVO.getCode(), auxiliaryAccountHVO.getName());
 				auxPkMap.put(auxiliaryAccountHVO.getPk_auacount_h(), auxiliaryAccountHVO.getName());
-				Cell cell = headRow.createCell(headIndex++);
+				Cell cell = headRow.createCell(auxiliaryColBegin++);
 				cell.setCellStyle(style);
 				cell.setCellValue(auxiliaryAccountHVO.getName() + "编码");
 
-				cell = headRow.createCell(headIndex++);
+				cell = headRow.createCell(auxiliaryColBegin++);
 				cell.setCellStyle(style);
 				cell.setCellValue(auxiliaryAccountHVO.getName() + "名称");
 			}
