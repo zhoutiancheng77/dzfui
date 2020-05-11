@@ -111,7 +111,7 @@ public class FsYeController  extends ReportBaseController {
         return ReturnData.ok().data(grid);
     }
 
-    private Set<String> filterDatas(DZFBoolean isshowfs, DZFBoolean isxswyewfs, DZFBoolean isxswyewfs_bn,
+    public Set<String> filterDatas(DZFBoolean isshowfs, DZFBoolean isxswyewfs, DZFBoolean isxswyewfs_bn,
                                     FseJyeVO[] fsejyevos,QueryParamVO vo) {
         Set<String> ids = new HashSet<String>();
         for (int i = fsejyevos.length - 1; i >= 0; i--) {
@@ -523,7 +523,7 @@ public class FsYeController  extends ReportBaseController {
         return field;
     }
 
-    private void putFsyeOnKmlb(FseJyeVO[] vos) {
+    public void putFsyeOnKmlb(FseJyeVO[] vos) {
         if (vos != null && vos.length > 0) {
             for(FseJyeVO vo:vos){
                 if(StringUtil.isEmpty(vo.getKmlb())){

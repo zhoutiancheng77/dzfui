@@ -548,14 +548,9 @@ public class ZcfzController extends ReportBaseController {
             checkSecurityData(null, new String[]{queryparamvo.getPk_corp()}, null);
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
-            String strlist = printParamVO.getList();
             String type = printParamVO.getType();
             String font = printParamVO.getFont();
-            if (strlist == null) {
-                return;
-            }
             printReporUtil.setIscross(DZFBoolean.FALSE);// 是否横向
-            ZcFzBVO[] bodyvos = JsonUtils.deserialize(strlist, ZcFzBVO[].class);
             Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("公司", printParamVO.getCorpName());
             tmap.put("期间", printParamVO.getTitleperiod());
@@ -584,7 +579,7 @@ public class ZcfzController extends ReportBaseController {
             printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = getPrintXm(0);
-            printReporUtil.printHz(getZcfzMap(queryparamvo), null, "资 产 负 债 表",
+            printReporUtil.printHz(getZcfzMap(queryparamvo,zxkjPlatformService, gl_rep_zcfzserv), null, "资 产 负 债 表",
                     (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
             //日志记录
             writeLogRecord(LogRecordEnum.OPE_KJ_CWREPORT,
@@ -596,7 +591,8 @@ public class ZcfzController extends ReportBaseController {
         }
     }
 
-    private Map<String, List<SuperVO>> getZcfzMap(QueryParamVO queryParamvo) {
+    public Map<String, List<SuperVO>> getZcfzMap(QueryParamVO queryParamvo, IZxkjPlatformService zxkjPlatformService,
+                                                 IZcFzBReport gl_rep_zcfzserv) {
         Map<String, List<SuperVO>> resmap = new LinkedHashMap<String, List<SuperVO>>();
 
         String ishajz = "N";

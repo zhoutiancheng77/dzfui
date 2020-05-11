@@ -9,8 +9,8 @@ import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.*;
-import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
-import com.dzf.zxkj.platform.model.icset.InventoryVO;
+import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
+import com.dzf.zxkj.platform.model.icset.*;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
@@ -19,9 +19,16 @@ import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
+import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
+import com.dzf.zxkj.platform.model.zcgl.ZcMxZVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.*;
 import com.dzf.zxkj.platform.service.common.ISecurityService;
+import com.dzf.zxkj.platform.service.gzgl.ISalaryReportService;
+import com.dzf.zxkj.platform.service.icbill.IPurchInService;
+import com.dzf.zxkj.platform.service.icbill.ISaleoutService;
+import com.dzf.zxkj.platform.service.icbill.ITradeinService;
+import com.dzf.zxkj.platform.service.icbill.ITradeoutService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
@@ -31,6 +38,7 @@ import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.tax.ICorpTaxService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
+import com.dzf.zxkj.platform.service.zcgl.IZczjmxReport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +51,8 @@ import java.util.Map;
 @org.apache.dubbo.config.annotation.Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
 public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
+    @Autowired
+    ISaleoutService ic_saleoutserv;
     @Autowired
     private ICpaccountService gl_cpacckmserv;
     @Autowired
@@ -96,6 +106,20 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     private IXssrTemService xssrTemService;
     @Autowired
     private ISecurityService securityserv;
+
+    @Autowired
+    private ISalaryReportService gl_gzbserv;
+
+    @Autowired
+    private ITradeoutService ic_tradeoutserv;
+
+    @Autowired
+    private ITradeinService ic_tradeinserv;
+    @Autowired
+    private IPurchInService ic_purchinserv;
+
+    @Autowired
+    private IZczjmxReport am_rep_zczjmxserv;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -463,6 +487,66 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     @Override
     public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData){
         securityserv.checkSecurityData(vos,corps,cuserid,isCheckData);
+    }
+
+    @Override
+    public SalaryReportVO[] queryGzb(String pk_corp, String beginPeriod, String endPeriod, String billtype) {
+        try {
+            return gl_gzbserv.query(pk_corp, beginPeriod,endPeriod, billtype);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryGzb异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<IctradeinVO> queryTradeIn(QueryParamVO paramvo) {
+        try {
+            return ic_tradeinserv.query(paramvo);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryTradeIn异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<IntradeoutVO> queryTradeOut(QueryParamVO paramvo) {
+        try {
+            return ic_tradeoutserv.query(paramvo);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryTradeOut异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public IntradeHVO queryIntradeHVOByID(String pk_ictrade_h, String pk_corp) {
+        try {
+            return ic_saleoutserv.queryIntradeHVOByID(pk_ictrade_h, pk_corp);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryIntradeHVOByID异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public IntradeHVO queryIntradeHVOByIDIn(String pk_ictrade_h, String pk_corp) {
+        try {
+            return ic_purchinserv.queryIntradeHVOByID(pk_ictrade_h, pk_corp);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryIntradeHVOByIDIn异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public AssetDepreciaTionVO[] getZczjMxVOs(QueryParamVO queryParamvo) {
+        try {
+            return am_rep_zczjmxserv.getZczjMxVOs(queryParamvo, null);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryIntradeHVOByIDIn异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
     }
 
 }

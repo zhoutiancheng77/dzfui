@@ -68,17 +68,19 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         SQLParameter  sp = new SQLParameter();
         String wherepart = SqlUtil.buildSqlForIn("a.pk_corp",cpids.toArray(new String[0]));
         StringBuffer tasksql = new StringBuffer();
-        tasksql.append(" select a.unitname,b.*,c.isgz");
+        tasksql.append(" select a.unitname,c.isgz,a.pk_corp");
         tasksql.append(" from bd_corp  a ");
-        tasksql.append(" left join " +  BatchPrintSetVo.TABLE_NAME + " b  on a.pk_corp = b.pk_corp and b.vprintperiod = ?  ");
-        tasksql.append(" left join ynt_qmcl c on a.pk_corp = c.pk_corp  and c.period = ? ");
-        tasksql.append(" where nvl(b.dr,0)=0 ");
-        tasksql.append(" and  "+ wherepart);
+        //tasksql.append(" left join " +  BatchPrintSetVo.TABLE_NAME + " b  on a.pk_corp = b.pk_corp and b.vprintperiod = ?  ");
+        tasksql.append(" left join ynt_qmcl c on a.pk_corp = c.pk_corp  and c.period = ?  and nvl(c.dr,0)=0");
+        tasksql.append(" where " + wherepart);
         tasksql.append(" order by a.innercode");
-        sp.addParam(period + "~"+ period);
+//        sp.addParam(period + "~"+ period);
         sp.addParam(period);
 
         List<BatchPrintSetVo> taskvoslist = (List<BatchPrintSetVo>) singleObjectBO.executeQuery(tasksql.toString(), sp, new BeanListProcessor(BatchPrintSetVo.class));
+
+        // 当前用户设置的任务
+        List<BatchPrintSetVo> taskvos = queryTask(cuserid,period);
 
         if (taskvoslist!=null && taskvoslist.size() > 0) {
             List<BatchPrintSetQryVo> reslist  = new ArrayList<BatchPrintSetQryVo>();
@@ -91,14 +93,20 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
                 } else {
                     qryvo.setCname(CodeUtils1.deCode(vo.getUnitname()));
                 }
-                if (!StringUtil.isEmpty(vo.getVprintcode())) {
-                    String[] codevos = vo.getVprintcode().split(",");
-                    if (codevos!=null && codevos.length > 0) {
-                        for (String str: codevos) {
-                            qryvo.setAttributeValue(str+ "_bs", "Y");
+                for (BatchPrintSetVo setvo2 : taskvos) {
+                    if (setvo2.getPk_corp().equals(vo.getPk_corp())) { //
+                        if (!StringUtil.isEmpty(setvo2.getVprintcode())) {
+                            String[] codevos = setvo2.getVprintcode().split(",");
+                            if (codevos!=null && codevos.length > 0) {
+                                for (String str: codevos) {
+                                    qryvo.setAttributeValue(str+ "_bs", "Y");
+                                }
+                            }
                         }
+                        break;
                     }
                 }
+
                 reslist.add(qryvo);
             }
             return reslist;
@@ -280,14 +288,14 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
 
         for (String cpid: corpids) {
             BatchPrintSetVo taskvo = SetCovertTask.convertTask(ressetvo,cpid,period,userid);
-
+            taskvo.setIfilestatue(PrintStatusEnum.PROCESSING.getCode());
             singleObjectBO.saveObject(cpid, taskvo);
         }
 
     }
 
     @Override
-    public List<BatchPrintSetVo> queryTask(String userid) throws DZFWarpException {
+    public List<BatchPrintSetVo> queryTask(String userid,String period) throws DZFWarpException {
 
         if (StringUtil.isEmpty(userid)) {
             throw new BusinessException("查询参数为空");
@@ -301,13 +309,19 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         }
 
         StringBuffer qry = new StringBuffer();
+        SQLParameter sp = new SQLParameter();
         qry.append(" select a.*,bd_corp.unitname as cname from ");
         qry.append(" " + BatchPrintSetVo.TABLE_NAME + " a");
         qry.append(" left join bd_corp on  a.pk_corp = bd_corp.pk_corp ");
         qry.append(" where nvl(a.dr,0)=0 and  " + SqlUtil.buildSqlForIn("a.pk_corp",cpids.toArray(new String[0])));
+        if (!StringUtil.isEmpty(period)) {
+            qry.append(" and a.vprintperiod = ? ");
+            sp.addParam(period+"~"+ period);
+        }
         qry.append(" order by a.doperadatetime desc , bd_corp.innercode ");
 
-        List<BatchPrintSetVo> qrylist = (List<BatchPrintSetVo>) singleObjectBO.executeQuery(qry.toString(), new SQLParameter(),new BeanListProcessor(BatchPrintSetVo.class));
+        List<BatchPrintSetVo> qrylist = (List<BatchPrintSetVo>) singleObjectBO.executeQuery(qry.toString(), sp
+                ,new BeanListProcessor(BatchPrintSetVo.class));
 
         QueryDeCodeUtils.decKeyUtils(new String[]{"cname"}, qrylist, 1 );
         return qrylist;

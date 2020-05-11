@@ -418,64 +418,70 @@ public class KmMxrController extends ReportBaseController {
             printReporUtil.setLineheight(StringUtil.isEmpty(lineHeight) ? 22f : Float.parseFloat(lineHeight));
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = null;
-            if (printParamVO.getIsPaging() != null && printParamVO.getIsPaging().equals("Y")) {  //需要分页打印
-                Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
-                for (KmMxZVO mxvo : bodyvos) {
-                    List<SuperVO> mxlist = null;
-                    mxvo.setGs(bodyvos[0].getGs());
-                    mxvo.setTitlePeriod(bodyvos[0].getTitlePeriod());
-                    if (!mxmap.containsKey(mxvo.getKmbm())) {  //map里的key 不包含当前数据科目编码
-                        mxlist = new ArrayList<SuperVO>();     // 就 创建一个list  把这条数据 加进去
-                        mxlist.add(mxvo);
-                    } else {
-                        mxlist = mxmap.get(mxvo.getKmbm()); //map里的key 包含当前数据科目编码
-                        mxlist.add(mxvo);
-                    }
-                    mxmap.put(mxvo.getKmbm(), mxlist);       // key=kmbn   value=list
-                }
-                //排序--根据key排序
-                mxmap = sortMapByKey(mxmap);
-                Map<String, YntCpaccountVO> cpamap = zxkjPlatformService.queryMapByPk(queryparamvo.getPk_corp());
-                String kmfullname = "";
-                for (Map.Entry<String, List<SuperVO>> kmEntry : mxmap.entrySet()) {
-                    List<SuperVO> kmList = kmEntry.getValue();// 得到当前科目 所对应的 数据
-                    SuperVO kmvo = kmEntry.getValue().get(0);
-                    String id = (String) kmList.get(0).getAttributeValue("pk_accsubj");
-                    if (cpamap.containsKey(id)) {
-                        kmList.get(0).setAttributeValue("km", cpamap.get(id).getAccountname());
-                    }
-                    if (kmvo.getAttributeValue("pk_accsubj") != null
-                            && ((String) kmvo.getAttributeValue("pk_accsubj")).length() > 24) {//默认有辅助项目
-                        kmfullname = kmvo.getAttributeValue("kmfullname") + "/" + kmvo.getAttributeValue("km") + "(" + kmEntry.getKey() + ")";
-                    } else {
-                        kmfullname = kmvo.getAttributeValue("kmfullname") + "(" + kmEntry.getKey() + ")";
-                    }
-                    kmList.get(0).setAttributeValue("kmfullname", kmfullname);
-                }
-                if (!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)) {
-                    obj = getPrintXm(3);
-                } else {
-                    obj = getPrintXm(2);
-                }
-                //打印
-                printReporUtil.printHz(mxmap, new SuperVO[]{}, "*科目明细账", (String[]) obj[0],
-                        (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
-            } else {//不需要分页打印
-                if (!StringUtil.isEmpty(queryparamvo.getPk_currency())) {
-                    obj = getPrintXm(1);
-                } else {
-                    obj = getPrintXm(0);
-                }
-                //打印
-                printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "科目明细账", (String[]) obj[0],
-                        (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
-            }
+            // 打印设置(列设置)
+            printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap);
             writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
                     "科目明细账打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
             log.error("打印错误", e);
         } catch (IOException e) {
             log.error("打印错误", e);
+        }
+    }
+
+    public void printAction(PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, PrintReporUtil printReporUtil, Map<String, String> pmap, KmMxZVO[] bodyvos, Map<String, String> tmap) throws DocumentException, IOException {
+        Object[] obj;
+        if (printParamVO.getIsPaging() != null && printParamVO.getIsPaging().equals("Y")) {  //需要分页打印
+            Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();
+            for (KmMxZVO mxvo : bodyvos) {
+                List<SuperVO> mxlist = null;
+                mxvo.setGs(bodyvos[0].getGs());
+                mxvo.setTitlePeriod(bodyvos[0].getTitlePeriod());
+                if (!mxmap.containsKey(mxvo.getKmbm())) {  //map里的key 不包含当前数据科目编码
+                    mxlist = new ArrayList<SuperVO>();     // 就 创建一个list  把这条数据 加进去
+                    mxlist.add(mxvo);
+                } else {
+                    mxlist = mxmap.get(mxvo.getKmbm()); //map里的key 包含当前数据科目编码
+                    mxlist.add(mxvo);
+                }
+                mxmap.put(mxvo.getKmbm(), mxlist);       // key=kmbn   value=list
+            }
+            //排序--根据key排序
+            mxmap = sortMapByKey(mxmap);
+            Map<String, YntCpaccountVO> cpamap = zxkjPlatformService.queryMapByPk(queryparamvo.getPk_corp());
+            String kmfullname = "";
+            for (Map.Entry<String, List<SuperVO>> kmEntry : mxmap.entrySet()) {
+                List<SuperVO> kmList = kmEntry.getValue();// 得到当前科目 所对应的 数据
+                SuperVO kmvo = kmEntry.getValue().get(0);
+                String id = (String) kmList.get(0).getAttributeValue("pk_accsubj");
+                if (cpamap.containsKey(id)) {
+                    kmList.get(0).setAttributeValue("km", cpamap.get(id).getAccountname());
+                }
+                if (kmvo.getAttributeValue("pk_accsubj") != null
+                        && ((String) kmvo.getAttributeValue("pk_accsubj")).length() > 24) {//默认有辅助项目
+                    kmfullname = kmvo.getAttributeValue("kmfullname") + "/" + kmvo.getAttributeValue("km") + "(" + kmEntry.getKey() + ")";
+                } else {
+                    kmfullname = kmvo.getAttributeValue("kmfullname") + "(" + kmEntry.getKey() + ")";
+                }
+                kmList.get(0).setAttributeValue("kmfullname", kmfullname);
+            }
+            if (!StringUtil.isEmpty(queryparamvo.getPk_currency()) && !queryparamvo.getPk_currency().equals(DzfUtil.PK_CNY)) {
+                obj = getPrintXm(3);
+            } else {
+                obj = getPrintXm(2);
+            }
+            //打印
+            printReporUtil.printHz(mxmap, new SuperVO[]{}, "*科目明细账", (String[]) obj[0],
+                    (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
+        } else {//不需要分页打印
+            if (!StringUtil.isEmpty(queryparamvo.getPk_currency())) {
+                obj = getPrintXm(1);
+            } else {
+                obj = getPrintXm(0);
+            }
+            //打印
+            printReporUtil.printHz(new HashMap<String, List<SuperVO>>(), bodyvos, "科目明细账", (String[]) obj[0],
+                    (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
         }
     }
 

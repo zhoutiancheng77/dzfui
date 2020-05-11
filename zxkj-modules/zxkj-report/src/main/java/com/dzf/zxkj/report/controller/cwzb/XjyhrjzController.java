@@ -118,7 +118,7 @@ public class XjyhrjzController extends ReportBaseController {
         return "现 金 / 银 行 日 记 账";
     }
 
-    private void putKmRq(KmMxZVO[] listVo) {
+    public void putKmRq(KmMxZVO[] listVo) {
         for (KmMxZVO vo : listVo) {
             if (vo.getZy() != null && ReportUtil.bSysZy(vo)
                     && (vo.getZy().equals("期初余额") || vo.getZy().equals("本月合计") || vo.getZy().equals("本年累计"))) {

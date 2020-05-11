@@ -26,7 +26,7 @@ public interface INewBatchPrintSetTaskSer {
      * @return
      * @throws DZFWarpException
      */
-    public List<BatchPrintSetVo> queryTask(String userid) throws DZFWarpException;
+    public List<BatchPrintSetVo> queryTask(String userid,String period) throws DZFWarpException;
 
     /**
      * 执行任务
