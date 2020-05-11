@@ -52,7 +52,7 @@ public class ZxkjBankAccountServiceImpl implements IBankAccountService {
         BankAccountVO bankAccount = new com.dzf.zxkj.platform.model.bdset.BankAccountVO();
         bankAccount.setBankname(bankAccountVO.getBankType());
         bankAccount.setBankaccount(bankAccountVO.getBankcode());
-        bankAccount.setLy("0"); //签约生成
+        bankAccount.setLy("1"); //签约生成
         bankAccount.setBankTypeCode("1");
         bankAccount.setCoperatorid(bankAccountVO.getUserid());
         bankAccount.setPk_corp(bankAccountVO.getPk_corp());
