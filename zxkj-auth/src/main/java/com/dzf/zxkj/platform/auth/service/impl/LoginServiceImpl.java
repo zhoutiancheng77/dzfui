@@ -135,6 +135,11 @@ public class LoginServiceImpl implements ILoginService {
             //查询是否是加盟商
             DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
             loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
+            if(!loginUser.getIsChannel()){
+                //非加盟商判断是否是重庆地区
+                String bankAccountArea = corpMapper.queryAreaByUserName(username);
+                loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
+            }
             return loginUser;
         }
         return null;
