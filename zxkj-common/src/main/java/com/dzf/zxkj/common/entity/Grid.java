@@ -16,6 +16,7 @@ public class Grid<T> implements java.io.Serializable {
     // 允许序列化空集合
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T rows;
+    private int status;
     private boolean success;
     private String msg;
     private List<String[]> msglist;
