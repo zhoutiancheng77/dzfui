@@ -33,6 +33,8 @@ public interface ICpaccountService {
 
     Map<String, List<YntCpaccountVO>> queryAccountVO(String userid, String pk_corp, boolean excludeSealed) throws DZFWarpException;
 
+    YntCpaccountVO[] queryCpAccountVOs(String pk_corp, String accountcode);
+
     /**
      * 增加下级科目时，校验是否被引用
      */

@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.service.bdset.impl;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -9,7 +10,6 @@ import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.DZFConstant;
 import com.dzf.zxkj.common.constant.IcCostStyle;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
@@ -37,7 +37,6 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.tax.ITaxitemsetService;
 import com.dzf.zxkj.report.service.IZxkjReportService;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -1195,7 +1194,7 @@ public class CpaccountServiceImpl implements ICpaccountService {
         }
     }
 
-    private YntCpaccountVO[] queryCpAccountVOs(String pk_corp, String accountcode) {
+    public YntCpaccountVO[] queryCpAccountVOs(String pk_corp, String accountcode) {
         SQLParameter sp = new SQLParameter();
         sp.addParam(accountcode + "%");
         sp.addParam(pk_corp);
