@@ -8,4 +8,5 @@ import org.apache.ibatis.annotations.Param;
 
 public interface CorpMapper extends BaseMapper<CorpModel> {
     DZFBoolean queryIsChannelByUserName(@Param("username") String username);
+    String queryAreaByUserName(@Param("username") String username);
 }

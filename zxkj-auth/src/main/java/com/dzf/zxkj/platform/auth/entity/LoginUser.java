@@ -44,4 +44,6 @@ public class LoginUser implements Serializable {
 
     @TableField(exist = false)
     private Boolean isChannel;
+    @TableField(exist = false)
+    private Boolean isBnakAccount;
 }

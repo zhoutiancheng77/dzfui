@@ -72,6 +72,11 @@ public class LoginServiceImpl implements ILoginService {
                 DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
                 LoginUser loginUser = transfer(userVO);
                 loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
+                if(!loginUser.getIsChannel()){
+                    //非加盟商判断是否是重庆地区
+                    String bankAccountArea = corpMapper.queryAreaByUserName(username);
+                    loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
+                }
                 return loginUser;
             }
         } catch (Exception e) {
@@ -130,6 +135,11 @@ public class LoginServiceImpl implements ILoginService {
             //查询是否是加盟商
             DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
             loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
+            if(!loginUser.getIsChannel()){
+                //非加盟商判断是否是重庆地区
+                String bankAccountArea = corpMapper.queryAreaByUserName(username);
+                loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
+            }
             return loginUser;
         }
         return null;
@@ -200,6 +210,17 @@ public class LoginServiceImpl implements ILoginService {
                     log.error("跳转在线会计生成token失败", e);
                 }
             });
+        }
+
+        if(loginUser != null && StringUtils.isNotBlank(loginUser.getUsername())){
+            //查询是否是加盟商
+            DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(loginUser.getUsername());
+            loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
+            if(!loginUser.getIsChannel()){
+                //非加盟商判断是否是重庆地区
+                String bankAccountArea = corpMapper.queryAreaByUserName(loginUser.getUsername());
+                loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
+            }
         }
 
         return loginUser;

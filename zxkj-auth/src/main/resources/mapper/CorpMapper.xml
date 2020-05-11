@@ -12,4 +12,14 @@
             c.PK_CORP = u.PK_CORP
             AND u.USER_CODE = #{username}
     </select>
+    <select id="queryAreaByUserName" resultType="java.lang.String">
+        SELECT
+            c.vprovince
+        FROM
+            BD_CORP c,
+            sm_user u
+        WHERE
+            c.PK_CORP = u.PK_CORP
+            AND u.USER_CODE = #{username}
+    </select>
 </mapper>
