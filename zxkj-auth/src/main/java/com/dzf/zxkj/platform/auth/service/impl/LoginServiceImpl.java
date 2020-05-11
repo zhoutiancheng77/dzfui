@@ -70,7 +70,10 @@ public class LoginServiceImpl implements ILoginService {
                 }
                 //查询是否是加盟商
                 DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
+                //是否是工行接口
+                String bankAccountArea = corpMapper.queryAreaByUserName(username);
                 LoginUser loginUser = transfer(userVO);
+                loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
                 loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
                 return loginUser;
             }
