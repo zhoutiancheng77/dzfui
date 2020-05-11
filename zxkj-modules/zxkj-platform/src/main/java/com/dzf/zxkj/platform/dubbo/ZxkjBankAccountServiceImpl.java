@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -82,24 +81,27 @@ public class ZxkjBankAccountServiceImpl implements IBankAccountService {
     }
 
     public ReturnData saveSignOnline(SignOnlineModel signOnlineVO) {
-        BankAccountVO[] bankAccountVOList = gl_yhzhserv.queryByCode(signOnlineVO.getBankcode(), signOnlineVO.getPk_bankAccount());
-        Optional<BankAccountVO> optional = Arrays.stream(bankAccountVOList).filter(v -> StringUtils.isNotBlank(v.getBanktype()) && v.getBanktype().contains("中国工商银行")).findFirst();
+
+
+        BankAccountVO bankAccountVO = gl_yhzhserv.queryById(signOnlineVO.getPk_bankAccount());
+
         ReturnData returnData = new ReturnData();
         returnData.setCode("500");
         returnData.setMessage("银行账户不存在");
 
-        optional.ifPresent(v -> {
-            v.setVapplycode(signOnlineVO.getVapplycode());
-            v.setIstatus(signOnlineVO.getIstatus().toString());
+        if (bankAccountVO != null) {
+            bankAccountVO.setVapplycode(signOnlineVO.getVapplycode());
+            bankAccountVO.setIstatus(signOnlineVO.getIstatus().toString());
             try {
-                gl_yhzhserv.update(v, new String[]{"vapplycode", "istatus"});
+                gl_yhzhserv.update(bankAccountVO, new String[]{"vapplycode", "istatus"});
                 returnData.setCode("200");
                 returnData.setMessage("签约信息更新成功");
             } catch (Exception e) {
                 returnData.setCode("500");
                 returnData.setMessage(e.getMessage());
             }
-        });
+        }
+
         return returnData;
     }
 
