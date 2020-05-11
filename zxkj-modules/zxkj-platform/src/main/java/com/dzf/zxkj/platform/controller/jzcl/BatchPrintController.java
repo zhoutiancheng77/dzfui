@@ -192,7 +192,7 @@ public class BatchPrintController extends BaseController {
         Grid grid = new Grid();
         try {
             // 查询归档任务
-            List<BatchPrintSetVo> list2 =  newbatchprintser.queryTask(getLoginUserId());
+            List<BatchPrintSetVo> list2 =  newbatchprintser.queryTask(getLoginUserId(),"");
             if (list2 == null) {
                 throw new BusinessException("查询数据为空");
             }

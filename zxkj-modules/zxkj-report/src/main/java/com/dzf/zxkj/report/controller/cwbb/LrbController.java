@@ -336,7 +336,7 @@ public class LrbController extends ReportBaseController {
             printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));
             String titlename = "利 润 表";
-            Map<String, List<SuperVO>> qrymap = getLrbMap(queryparamvo);
+            Map<String, List<SuperVO>> qrymap = getLrbMap(queryparamvo,zxkjPlatformService,gl_rep_lrbserv);
             Object[] obj = getPrintOrder(columnOrder);//根据类型查询
             if (!StringUtil.isEmpty(xmmcid)) {
                 titlename = "分 部 利 润 表";
@@ -372,7 +372,8 @@ public class LrbController extends ReportBaseController {
         return obj;
     }
 
-    private Map<String, List<SuperVO>> getLrbMap(QueryParamVO queryParamvo) {
+    public Map<String, List<SuperVO>> getLrbMap(QueryParamVO queryParamvo,IZxkjPlatformService zxkjPlatformService,
+                                                ILrbReport gl_rep_lrbserv) {
         Map<String, List<SuperVO>> resmap = new LinkedHashMap<String, List<SuperVO>>();
 
         CorpVO cpvo = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());

@@ -7,8 +7,8 @@ import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.*;
-import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
-import com.dzf.zxkj.platform.model.icset.InventoryVO;
+import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
+import com.dzf.zxkj.platform.model.icset.*;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
@@ -17,6 +17,8 @@ import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
+import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
+import com.dzf.zxkj.platform.model.zcgl.ZcMxZVO;
 
 import java.util.List;
 import java.util.Map;
@@ -100,5 +102,17 @@ public interface IZxkjPlatformService {
     List<CorpTaxVo> queryTaxVoByParam(QueryParamVO paramvo, UserVO uservo);
 
     void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData);
+
+    SalaryReportVO[] queryGzb(String pk_corp, String beginPeriod,String endPeriod, String billtype);
+
+    List<IctradeinVO> queryTradeIn(QueryParamVO paramvo);
+
+    List<IntradeoutVO> queryTradeOut(QueryParamVO paramvo);
+
+    IntradeHVO queryIntradeHVOByID(String pk_ictrade_h, String pk_corp);
+
+    IntradeHVO queryIntradeHVOByIDIn(String pk_ictrade_h, String pk_corp);
+
+    AssetDepreciaTionVO[] getZczjMxVOs(QueryParamVO queryParamvo);
 
 }
