@@ -58,8 +58,7 @@ public class PermissionFilter extends ZuulFilter {
     public boolean shouldFilter() {
         RequestContext requestContext = RequestContext.getCurrentContext();
         HttpServletRequest request = requestContext.getRequest();
-
-        if (StringUtils.equalsAnyIgnoreCase(request.getRequestURI(), "/api/auth/captcha", "/api/auth/login", "/api/auth/loginByToken")) {
+        if (StringUtils.equalsAnyIgnoreCase(request.getRequestURI(), "/api/auth/captcha", "/api/auth/login", "/api/auth/loginByToken", "/api/auth/updatePassword")) {
             return false;
         }
         return true;
@@ -94,7 +93,7 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
 
-        if (request.getRequestURL().indexOf("/api/auth/to") != -1 || request.getRequestURL().indexOf("/api/auth/updatePassword") != -1) {
+        if (request.getRequestURL().indexOf("/api/auth/to") != -1) {
             return null;
         }
 

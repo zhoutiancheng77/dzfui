@@ -157,25 +157,26 @@ public class AuthController {
             return ReturnData.ok().data(g);
         }
 
-        //初始密码修改
-        if (password.equals("dzf12345678")) {
-            LoginGrid g = new LoginGrid();
-            g.setSuccess(false);
-            g.setStatus(-200);
-            return ReturnData.ok().data(g);
-        }
-
         authCache.putLoginUnique(loginUser.getUserid(), clientid);
         authCache.putLoginUser(loginUser.getUserid(), loginUser);
         loginUser.setPassword("");
         loginLogVo.setMemo("登陸成功");
         loginLogVo.setPk_user(loginUser.getUserid());
+
+
         try {
             loginLogMapper.insert(loginLogVo);
         } catch (Exception e) {
             log.error("记录登录日志异常", e);
         }
         grid.setSuccess(true);
+
+        //初始密码修改
+        if (password.equals("dzf12345678")) {
+            grid.setSuccess(false);
+            grid.setStatus(-200);
+        }
+
         grid.setRows(loginUser);
         return ReturnData.ok().data(grid);
     }
