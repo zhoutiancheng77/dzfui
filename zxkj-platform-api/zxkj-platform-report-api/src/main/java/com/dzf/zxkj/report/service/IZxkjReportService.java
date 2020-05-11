@@ -5,14 +5,18 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.query.QueryCondictionVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.jzcl.KmZzVO;
 import com.dzf.zxkj.platform.model.report.*;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 
 import java.util.List;
 import java.util.Map;
 
 public interface IZxkjReportService {
+
+    String batchPrint(BatchPrintSetVo[] setvos, UserVO userVO);
     FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Integer direction);
     FseJyeVO[] getFsJyeVOs(QueryParamVO vo, Object[] qryobjs);
     Object[] getEveryPeriodFsJyeVOs(DZFDate startdate, DZFDate enddate, String pk_corp, Object[] objs, String rptsource, DZFBoolean ishasjz);

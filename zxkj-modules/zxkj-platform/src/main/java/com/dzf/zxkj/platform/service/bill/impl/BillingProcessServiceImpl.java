@@ -7,7 +7,9 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.common.constant.*;
+import com.dzf.zxkj.common.constant.AuxiliaryConstant;
+import com.dzf.zxkj.common.constant.IInvoiceApplyConstant;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.enums.MsgtypeEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -22,7 +24,6 @@ import com.dzf.zxkj.platform.model.bill.BillApplyDetailVo;
 import com.dzf.zxkj.platform.model.bill.BillApplyVO;
 import com.dzf.zxkj.platform.model.bill.BillHistoryVO;
 import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
-import com.dzf.zxkj.platform.model.glic.InventorySetVO;
 import com.dzf.zxkj.platform.model.message.MsgAdminVO;
 import com.dzf.zxkj.platform.model.piaotong.PiaoTongResVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -153,35 +154,44 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
         if (StringUtil.isEmpty(pk_apply)) {
             throw new BusinessException("ID信息为空!");
         }
-        CorpVO cpvo =  getCorpVO(pk_corp);
+//        CorpVO cpvo =  getCorpVO(pk_corp);
 
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_apply);
         sp.addParam(pk_corp);
         StringBuffer qrysql  = new StringBuffer();
 
-        if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){//启用存货
-            qrysql.append(" select b.*,   ");
-            qrysql.append(" c.name as spmc,c.invspec as ggxh, ");
-            qrysql.append(" d.name as jldw,c.taxratio as sl ");
-            qrysql.append(" from  "+ BillApplyDetailVo.TABLE_NAME +" b ");
-            qrysql.append(" left join  ynt_inventory c on b.pk_inventory = c.pk_inventory ");
-            qrysql.append(" left join ynt_measure d on c.pk_measure = d.pk_measure ");
-            qrysql.append(" where nvl(b.dr,0)=0 and nvl(c.dr,0)=0  ");
-            qrysql.append(" and  b.pk_app_billapply = ?  and b.pk_corp  = ? ");
-        }else{
-            qrysql.append(" select b.*, ");
-            qrysql.append(" c.name as spmc,c.spec as ggxh,   ");
-            qrysql.append(" c.unit as jldw,c.taxratio as sl  ");
-            qrysql.append(" from  "+ BillApplyDetailVo.TABLE_NAME +" b ");
-            qrysql.append(" left join ynt_fzhs_b c on b.pk_app_commodity = c.pk_auacount_b  and c.pk_auacount_h = '000001000000000000000006' ");
-            qrysql.append(" where nvl(b.dr,0)=0 and nvl(c.dr,0)=0  ");
-            qrysql.append(" and  b.pk_app_billapply = ?  and b.pk_corp  = ? ");
-        }
-        List<BillApplyDetailVo> vos = (List<BillApplyDetailVo>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(BillApplyDetailVo.class));
-
+        qrysql.append(" select *  ");
+        qrysql.append("   from ynt_app_billapply_detail y  ");
+        qrysql.append("  where nvl(y.dr, 0) = 0  ");
+        qrysql.append("    and y.pk_app_billapply = ?  ");
+        qrysql.append("    and y.pk_corp = ?  ");
+        List<BillApplyDetailVo> vos = (List<BillApplyDetailVo>) singleObjectBO.executeQuery(qrysql.toString(),
+                sp, new BeanListProcessor(BillApplyDetailVo.class));
 
         return vos;
+
+//        if(IcCostStyle.IC_ON.equals(cpvo.getBbuildic())){//启用存货
+//            qrysql.append(" select b.*,   ");
+//            qrysql.append(" c.name as spmc,c.invspec as ggxh, ");
+//            qrysql.append(" d.name as jldw,c.taxratio as sl ");
+//            qrysql.append(" from  "+ BillApplyDetailVo.TABLE_NAME +" b ");
+//            qrysql.append(" left join  ynt_inventory c on b.pk_inventory = c.pk_inventory ");
+//            qrysql.append(" left join ynt_measure d on c.pk_measure = d.pk_measure ");
+//            qrysql.append(" where nvl(b.dr,0)=0 and nvl(c.dr,0)=0  ");
+//            qrysql.append(" and  b.pk_app_billapply = ?  and b.pk_corp  = ? ");
+//        }else{
+//            qrysql.append(" select b.*, ");
+//            qrysql.append(" c.name as spmc,c.spec as ggxh,   ");
+//            qrysql.append(" c.unit as jldw,c.taxratio as sl  ");
+//            qrysql.append(" from  "+ BillApplyDetailVo.TABLE_NAME +" b ");
+//            qrysql.append(" left join ynt_fzhs_b c on b.pk_app_commodity = c.pk_auacount_b  and c.pk_auacount_h = '000001000000000000000006' ");
+//            qrysql.append(" where nvl(b.dr,0)=0 and nvl(c.dr,0)=0  ");
+//            qrysql.append(" and  b.pk_app_billapply = ?  and b.pk_corp  = ? ");
+//        }
+//        List<BillApplyDetailVo> vos = (List<BillApplyDetailVo>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(BillApplyDetailVo.class));
+//
+//        return vos;
     }
 
     private boolean isExcel(String fileType) throws DZFWarpException {
@@ -402,59 +412,59 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
         setCustomerFzhsValue(blist, customerMap, new String[]{ "vcompanyname" });
 
         //先查询
-        Map<String, AuxiliaryAccountBVO> invenMap = new LinkedHashMap<>();
-        Map<String, InventoryAliasVO> alisInvenMap = new LinkedHashMap<>();
-
-        AuxiliaryAccountBVO[] invenvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
-        if(invenvos == null || invenvos.length == 0)
-            throw new BusinessException("存货档案为空, 请检查");
-
-        String stype = corpvo.getBbuildic();//模式
-        if(IcCostStyle.IC_INVTENTORY.equals(stype)){//启用总账存货
-            InventorySetVO invsetvo = gl_ic_invtorysetserv.query(pk_corp);
-            if(invsetvo == null){
-                throw new BusinessException("启用总账核算存货，请先设置存货成本核算方式!");
-            }
-
-            List<AuxiliaryAccountBVO> invenList = Arrays.asList(invenvos);
-
-            List<InventoryAliasVO> alisList = queryAlisInven(pk_corp);
-
-            int pprule = invsetvo.getChppjscgz();//匹配规则
-
-            if(pprule == InventoryConstant.IC_RULE_1 ){//存货名称+计量单位
-                String[] keys =  new String[] { "name", "unit" };
-                invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
-
-                alisInvenMap = buildAlistMap(alisList, new String[]{ "aliasname", "unit" });
-
-                setInventoryFzhsValue(blist, invenMap, alisInvenMap, false, new String[]{ "bspmc", "jldw" });
-            }else{
-                String[] keys =  new String[] { "name", "spec", "unit" };
-                invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
-
-                alisInvenMap = buildAlistMap(alisList,  new String[]{ "aliasname", "spec", "unit" });
-
-                setInventoryFzhsValue(blist, invenMap, alisInvenMap, false, new String[]{ "bspmc", "ggxh", "jldw" });
-            }
-
-        }else if(IcCostStyle.IC_ON.equals(stype)){
-            List<AuxiliaryAccountBVO> invenList = Arrays.asList(invenvos);
-            List<InventoryAliasVO> alisList = queryAlisInven(pk_corp);
-            String[] keys =  new String[] { "name", "spec", "unit" };
-
-            invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
-            alisInvenMap = buildAlistMap(alisList, keys);
-
-            setInventoryFzhsValue(blist, invenMap, alisInvenMap, true, new String[]{ "bspmc", "ggxh", "jldw" });
-        }else{
-
-            List<AuxiliaryAccountBVO> invenList = Arrays.asList(invenvos);
-            String[] keys =  new String[] { "name", "spec", "unit" };
-            invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
-
-            setInventoryFzhsValue(blist, invenMap, alisInvenMap, false, new String[]{ "bspmc", "ggxh", "jldw" });
-        }
+//        Map<String, AuxiliaryAccountBVO> invenMap = new LinkedHashMap<>();
+//        Map<String, InventoryAliasVO> alisInvenMap = new LinkedHashMap<>();
+//
+//        AuxiliaryAccountBVO[] invenvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
+//        if(invenvos == null || invenvos.length == 0)
+//            throw new BusinessException("存货档案为空, 请检查");
+//
+//        String stype = corpvo.getBbuildic();//模式
+//        if(IcCostStyle.IC_INVTENTORY.equals(stype)){//启用总账存货
+//            InventorySetVO invsetvo = gl_ic_invtorysetserv.query(pk_corp);
+//            if(invsetvo == null){
+//                throw new BusinessException("启用总账核算存货，请先设置存货成本核算方式!");
+//            }
+//
+//            List<AuxiliaryAccountBVO> invenList = Arrays.asList(invenvos);
+//
+//            List<InventoryAliasVO> alisList = queryAlisInven(pk_corp);
+//
+//            int pprule = invsetvo.getChppjscgz();//匹配规则
+//
+//            if(pprule == InventoryConstant.IC_RULE_1 ){//存货名称+计量单位
+//                String[] keys =  new String[] { "name", "unit" };
+//                invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
+//
+//                alisInvenMap = buildAlistMap(alisList, new String[]{ "aliasname", "unit" });
+//
+//                setInventoryFzhsValue(blist, invenMap, alisInvenMap, false, new String[]{ "bspmc", "jldw" });
+//            }else{
+//                String[] keys =  new String[] { "name", "spec", "unit" };
+//                invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
+//
+//                alisInvenMap = buildAlistMap(alisList,  new String[]{ "aliasname", "spec", "unit" });
+//
+//                setInventoryFzhsValue(blist, invenMap, alisInvenMap, false, new String[]{ "bspmc", "ggxh", "jldw" });
+//            }
+//
+//        }else if(IcCostStyle.IC_ON.equals(stype)){
+//            List<AuxiliaryAccountBVO> invenList = Arrays.asList(invenvos);
+//            List<InventoryAliasVO> alisList = queryAlisInven(pk_corp);
+//            String[] keys =  new String[] { "name", "spec", "unit" };
+//
+//            invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
+//            alisInvenMap = buildAlistMap(alisList, keys);
+//
+//            setInventoryFzhsValue(blist, invenMap, alisInvenMap, true, new String[]{ "bspmc", "ggxh", "jldw" });
+//        }else{
+//
+//            List<AuxiliaryAccountBVO> invenList = Arrays.asList(invenvos);
+//            String[] keys =  new String[] { "name", "spec", "unit" };
+//            invenMap = DZfcommonTools.hashlizeObjectByPk(invenList, keys);
+//
+//            setInventoryFzhsValue(blist, invenMap, alisInvenMap, false, new String[]{ "bspmc", "ggxh", "jldw" });
+//        }
 
     }
 
@@ -488,48 +498,48 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
 
     }
 
-    private void setInventoryFzhsValue(List<BillApplyVO> list,
-                                       Map<String, AuxiliaryAccountBVO> invenMap,
-                                       Map<String, InventoryAliasVO> alisInvenMap,
-                                       boolean kcflag,
-                                       String[] arr){
-
-        String key;
-        String value;
-
-        for(BillApplyVO vo : list){
-            key = "";
-            for(String str : arr){
-                value = (String) vo.getAttributeValue(str);
-                key += "," + value;
-            }
-            key = key.substring(1);
-            String pk_inventory = "";
-            if(alisInvenMap.containsKey(key)){
-                InventoryAliasVO alisvo = alisInvenMap.get(key);
-                pk_inventory = alisvo.getPk_inventory();
-
-            }
-
-            if(StringUtil.isEmpty(pk_inventory)
-                    && invenMap.containsKey(key)){
-                AuxiliaryAccountBVO invenvo = invenMap.get(key);
-                pk_inventory = invenvo.getPk_auacount_b();
-            }
-
-            if(StringUtil.isEmpty(pk_inventory)){
-                throw new BusinessException("<p>第" + (vo.getSerino()) + "行 未匹配上存货</p> ");
-            }
-
-            if(kcflag){
-                vo.setPk_inventory(pk_inventory);
-            }else{
-                vo.setPk_app_commodity(pk_inventory);
-            }
-
-        }
-
-    }
+//    private void setInventoryFzhsValue(List<BillApplyVO> list,
+//                                       Map<String, AuxiliaryAccountBVO> invenMap,
+//                                       Map<String, InventoryAliasVO> alisInvenMap,
+//                                       boolean kcflag,
+//                                       String[] arr){
+//
+//        String key;
+//        String value;
+//
+//        for(BillApplyVO vo : list){
+//            key = "";
+//            for(String str : arr){
+//                value = (String) vo.getAttributeValue(str);
+//                key += "," + value;
+//            }
+//            key = key.substring(1);
+//            String pk_inventory = "";
+//            if(alisInvenMap.containsKey(key)){
+//                InventoryAliasVO alisvo = alisInvenMap.get(key);
+//                pk_inventory = alisvo.getPk_inventory();
+//
+//            }
+//
+//            if(StringUtil.isEmpty(pk_inventory)
+//                    && invenMap.containsKey(key)){
+//                AuxiliaryAccountBVO invenvo = invenMap.get(key);
+//                pk_inventory = invenvo.getPk_auacount_b();
+//            }
+//
+//            if(StringUtil.isEmpty(pk_inventory)){
+//                throw new BusinessException("<p>第" + (vo.getSerino()) + "行 未匹配上存货</p> ");
+//            }
+//
+//            if(kcflag){
+//                vo.setPk_inventory(pk_inventory);
+//            }else{
+//                vo.setPk_app_commodity(pk_inventory);
+//            }
+//
+//        }
+//
+//    }
 
     private Object[][] getStyleByExcel(){
         Object[][] obj0 = new Object[][] {
@@ -567,8 +577,8 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
     private String[][] getBStyle(){
         String[][] obj0 = new String[][] { //
                 { "pk_corp", "pk_corp" },
-                { "pk_app_commodity", "pk_app_commodity" },
-                { "pk_inventory", "pk_inventory" },
+//                { "pk_app_commodity", "pk_app_commodity" },
+//                { "pk_inventory", "pk_inventory" },
                 { "pk_corp", "pk_corp" },
                 { "bspmc", "spmc" },
                 { "taxclassname", "taxclassname" },
@@ -719,16 +729,16 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
         return alisInvenMap;
     }
 
-    private List<InventoryAliasVO> queryAlisInven(String pk_corp){
-        String sql = "Select * From ynt_icalias y Where y.pk_corp = ? and nvl(dr,0) = 0 order by ts desc";
-        SQLParameter sp = new SQLParameter();
-        sp.addParam(pk_corp);
-        List<InventoryAliasVO> list = (List<InventoryAliasVO>) singleObjectBO.executeQuery(sql, sp,
-                new BeanListProcessor(InventoryAliasVO.class));
-
-        return list;
-
-    }
+//    private List<InventoryAliasVO> queryAlisInven(String pk_corp){
+//        String sql = "Select * From ynt_icalias y Where y.pk_corp = ? and nvl(dr,0) = 0 order by ts desc";
+//        SQLParameter sp = new SQLParameter();
+//        sp.addParam(pk_corp);
+//        List<InventoryAliasVO> list = (List<InventoryAliasVO>) singleObjectBO.executeQuery(sql, sp,
+//                new BeanListProcessor(InventoryAliasVO.class));
+//
+//        return list;
+//
+//    }
 
     private void setDefaultValue(String pk_corp, String userid, BillApplyVO vo, int index){
         vo.setPk_corp(pk_corp);

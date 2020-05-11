@@ -30,6 +30,10 @@ public class BatchPrintSetVo extends SuperVO {
 	private String vfilepath;// 文件路径
 	@JsonProperty("zt")
 	private Integer ifilestatue;// 状态
+	@JsonProperty("mbxz")
+	private String vmobelsel;// 模板选择 A4,B5,A5
+	@JsonProperty("ylfx")
+	private String reviewdir;// 预览方向 横向，纵向
 	@JsonProperty("reportname")
 	private String vprintname;// 打印名称
 	@JsonProperty("reportcode")
@@ -47,6 +51,8 @@ public class BatchPrintSetVo extends SuperVO {
 	private Integer dr;//
 	@JsonProperty("memo")
 	private String vmemo;//备注
+	@JsonProperty("kmfystr")
+	private String kmpage;// 科目分页
 	
 	@JsonProperty("ztdx")
 	private DZFDouble vfontsize;// 字体大小
@@ -60,7 +66,31 @@ public class BatchPrintSetVo extends SuperVO {
 	private String cname;//公司名称
     private String unitname;//加密的公司名称，前台用cname
     private String isgz;// 是否关账
-	
+
+	public String getKmpage() {
+		return kmpage;
+	}
+
+	public void setKmpage(String kmpage) {
+		this.kmpage = kmpage;
+	}
+
+	public String getReviewdir() {
+		return reviewdir;
+	}
+
+	public void setReviewdir(String reviewdir) {
+		this.reviewdir = reviewdir;
+	}
+
+	public String getVmobelsel() {
+		return vmobelsel;
+	}
+
+	public void setVmobelsel(String vmobelsel) {
+		this.vmobelsel = vmobelsel;
+	}
+
 	public String getVothername() {
 		return vothername;
 	}

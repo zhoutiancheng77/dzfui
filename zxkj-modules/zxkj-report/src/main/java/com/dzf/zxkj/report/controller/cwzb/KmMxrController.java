@@ -324,7 +324,8 @@ public class KmMxrController extends ReportBaseController {
         }
     }
 
-    public KmMxZVO[] reloadNewValue(String titlePeriod, String gs, String isPaging, KmReoprtQueryParamVO queryParamvo) {
+    public KmMxZVO[] reloadNewValue(String titlePeriod, String gs, String isPaging, KmReoprtQueryParamVO queryParamvo,IKMMXZReport gl_rep_kmmxjserv,
+                                    IZxkjPlatformService zxkjPlatformService) {
         //重新赋以下3个值
         queryParamvo.setBtotalyear(DZFBoolean.TRUE);//是否显示本年累计
         KmMxZVO[] bodyvos = gl_rep_kmmxjserv.getKMMXZConFzVOs(queryParamvo, null);//KmmxReportCache.getInstance().get(userid);
@@ -406,7 +407,8 @@ public class KmMxrController extends ReportBaseController {
             String lineHeight = pmap.get("lineHeight");
             String font = pmap.get("font");
             printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));
-            KmMxZVO[] bodyvos = reloadNewValue(printParamVO.getTitleperiod(), printParamVO.getCorpName(), printParamVO.getIsPaging(), queryparamvo);
+            KmMxZVO[] bodyvos = reloadNewValue(printParamVO.getTitleperiod(), printParamVO.getCorpName(), printParamVO.getIsPaging(),
+                    queryparamvo,gl_rep_kmmxjserv,zxkjPlatformService);
             ReportUtil.updateKFx(bodyvos);
             Map<String, String> tmap = new LinkedHashMap<>();// 声明一个map用来存前台传来的设置参数
             String km = bodyvos[0].getKm();

@@ -67,8 +67,28 @@ public class PrintReporUtil {
 
     protected Map<String, String> precisionMap = null;
 
+    private DZFBoolean bSaveDfsSer = DZFBoolean.FALSE;// 是否保存到文件服务器
+
+    private byte[] contents = null;// byte字节内容
+
+    public DZFBoolean getbSaveDfsSer() {
+        return bSaveDfsSer;
+    }
+
+    public void setbSaveDfsSer(DZFBoolean bSaveDfsSer) {
+        this.bSaveDfsSer = bSaveDfsSer;
+    }
+
     public HttpServletResponse getResponse() {
         return response;
+    }
+
+    public byte[] getContents() {
+        return contents;
+    }
+
+    public void setContents(byte[] contents) {
+        this.contents = contents;
     }
 
     //凭证字张
@@ -342,6 +362,11 @@ public class PrintReporUtil {
                 filename = filename + "_" + new DZFDate().toString();
             }else{
                 filename = filename + "_" + printDate;
+            }
+            //  保存到文件服务器，则返回byte[]
+            if (bSaveDfsSer.booleanValue()) {
+                setContents(buffer.toByteArray()); // 先存储到数组中
+                return;
             }
             if (gvo != null && gvo.getPrintType() != null && gvo.getPrintType() == 1) {
                 getResponse().setContentType("application/octet-stream");
