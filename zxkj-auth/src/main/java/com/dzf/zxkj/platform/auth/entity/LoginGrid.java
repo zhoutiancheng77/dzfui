@@ -5,5 +5,5 @@ import lombok.Data;
 
 @Data
 public class LoginGrid extends Grid {
-    private Integer status;
+
 }
