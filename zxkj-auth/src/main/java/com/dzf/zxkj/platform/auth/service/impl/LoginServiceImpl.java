@@ -139,6 +139,8 @@ public class LoginServiceImpl implements ILoginService {
                 //非加盟商判断是否是重庆地区
                 String bankAccountArea = corpMapper.queryAreaByUserName(username);
                 loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
+            }else{
+                loginUser.setIsBnakAccount(false);
             }
             return loginUser;
         }
