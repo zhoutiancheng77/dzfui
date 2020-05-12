@@ -92,8 +92,9 @@ public class ZxkjBankAccountServiceImpl implements IBankAccountService {
         if (bankAccountVO != null) {
             bankAccountVO.setVapplycode(signOnlineVO.getVapplycode());
             bankAccountVO.setIstatus(signOnlineVO.getIstatus().toString());
+            bankAccountVO.setVnote(signOnlineVO.getVnote());
             try {
-                gl_yhzhserv.update(bankAccountVO, new String[]{"vapplycode", "istatus"});
+                gl_yhzhserv.update(bankAccountVO, new String[]{"vapplycode", "istatus", "vnote"});
                 returnData.setCode("200");
                 returnData.setMessage("签约信息更新成功");
             } catch (Exception e) {

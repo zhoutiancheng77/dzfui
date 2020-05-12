@@ -59,6 +59,16 @@ public class BankAccountVO extends SuperVO implements ICodeName {
 
     //开户网点
     private String khwd;
+    //签约备注信息
+    private String vnote;
+
+    public String getVnote() {
+        return vnote;
+    }
+
+    public void setVnote(String vnote) {
+        this.vnote = vnote;
+    }
 
     public String getKhwd() {
         return khwd;
