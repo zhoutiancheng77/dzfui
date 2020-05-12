@@ -45,13 +45,28 @@ public class BankAccountVO extends SuperVO implements ICodeName {
 
     // add 2020.03.17
     private String istatus;//	签约状态 0-未上送1-未签约2-已签约3-签约失败
+
+    //废弃字段
+    @Deprecated
     @JsonProperty("banktype")
     private String banktype;//	银行类型
     @JsonProperty("bankTypeCode")
     private String bankTypeCode; //银行账户编码  同步于手机app   1 工商银行
+
     @JsonProperty("applycode")
     private String vapplycode;//	申请码
-    private String ly; //来源  0 签约生成  1 手工生成
+    private String ly; //来源  1 签约生成  0或空 手工生成
+
+    //开户网点
+    private String khwd;
+
+    public String getKhwd() {
+        return khwd;
+    }
+
+    public void setKhwd(String khwd) {
+        this.khwd = khwd;
+    }
 
     public String getIstatus() {
         return istatus;
