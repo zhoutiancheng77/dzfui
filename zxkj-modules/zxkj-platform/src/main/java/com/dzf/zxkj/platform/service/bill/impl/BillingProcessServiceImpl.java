@@ -32,6 +32,7 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bill.IBillingProcessService;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
+import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.zncs.CommonXml;
 import com.dzf.zxkj.platform.util.zncs.ICaiFangTongConstant;
@@ -75,6 +76,8 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
     private IInventoryAccSetService gl_ic_invtorysetserv = null;
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
+    @Autowired
+    private IYntBoPubUtil yntBoPubUtil;
 
     @Override
     public List<BillApplyVO> query(String userid, String pk_corp,
@@ -471,7 +474,6 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
     private void setCustomerFzhsValue(List<BillApplyVO> list,
                                       Map<String, AuxiliaryAccountBVO> customerMap,
                                       String[] arr){
-
         String key;
         String value;
 
@@ -483,15 +485,31 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
             }
             key = key.substring(1);
             String pk_customer = "";
-            if(customerMap.containsKey(key)){
+            if(customerMap.containsKey(key)){//匹配上
                 AuxiliaryAccountBVO invenvo = customerMap.get(key);
                 pk_customer = invenvo.getPk_auacount_b();
-
+            }else{//未匹配上
+                String pk_corp = vo.getPk_corp();
+                String pk_auacount_h = AuxiliaryConstant.ITEM_CUSTOMER;
+                String invcode = yntBoPubUtil.getFZHsCode(pk_corp, pk_auacount_h);
+                AuxiliaryAccountBVO bvo = new AuxiliaryAccountBVO();
+                bvo.setPk_auacount_h(pk_auacount_h);
+                bvo.setPk_corp(vo.getPk_corp());
+                bvo.setCode(invcode);
+                bvo.setName(vo.getVcompanyname());
+                bvo.setCredit_code(vo.getVtaxcode());
+                bvo.setAddress(vo.getVcompanyaddr());
+                bvo.setPhone_num(vo.getVphone());
+                bvo.setBank(vo.getVbank());
+                bvo.setAccount_num(vo.getVbankcode());
+                bvo = (AuxiliaryAccountBVO) singleObjectBO.saveObject(pk_corp, bvo);
+                pk_customer = bvo.getPk_auacount_b();
+                customerMap.put(pk_customer, bvo);
             }
 
-            if(StringUtil.isEmpty(pk_customer)){
-                throw new BusinessException("<p>第" + (vo.getSerino()) + "行 未匹配上客户</p> ");
-            }
+//            if(StringUtil.isEmpty(pk_customer)){
+//                throw new BusinessException("<p>第" + (vo.getSerino()) + "行 未匹配上客户</p> ");
+//            }
 
             vo.setPk_app_customer(pk_customer);
         }
