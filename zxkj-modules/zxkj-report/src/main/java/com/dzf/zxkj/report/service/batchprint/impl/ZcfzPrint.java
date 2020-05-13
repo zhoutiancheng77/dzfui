@@ -6,6 +6,7 @@ import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -24,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
-public class ZcfzPrint {
+public class ZcfzPrint extends  AbstractPrint {
 
     private IZxkjPlatformService zxkjPlatformService;
 
@@ -42,7 +43,7 @@ public class ZcfzPrint {
         this.gl_rep_zcfzserv = gl_rep_zcfzserv;
     }
 
-    public byte[] print (CorpVO corpVO, UserVO userVO) {
+    public byte[] print (BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);
             printReporUtil.setbSaveDfsSer(DZFBoolean.TRUE);

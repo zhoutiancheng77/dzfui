@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
+import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.common.model.SuperVO;
@@ -108,6 +109,23 @@ public class PzglServiceImpl implements IPzglService {
 		qrySql.append("and pk_corp = ? and nvl(dr,0)=0 order by pzh");
 		List<TzpzHVO> listres = (List<TzpzHVO>) singleObjectBO.executeQuery(qrySql.toString(), sp,
 				new BeanListProcessor(TzpzHVO.class));
+		return listres;
+	}
+
+	@Override
+	public List<String> queryIds(String beg_period, String end_period, String pk_corp) throws DZFWarpException {
+		SQLParameter sp = new SQLParameter();
+		StringBuffer qrySql = new StringBuffer();
+		// period = period + "%";
+		sp.addParam(beg_period);
+		sp.addParam(end_period);
+		sp.addParam(pk_corp);
+		qrySql.append("select pk_tzpz_h from ynt_tzpz_h ");
+		qrySql.append("where period >= ? ");
+		qrySql.append(" and period <= ? ");
+		qrySql.append("and pk_corp = ? and nvl(dr,0)=0 order by pzh");
+		List<String> listres = (List<String>) singleObjectBO.executeQuery(qrySql.toString(), sp,
+				new ColumnListProcessor());
 		return listres;
 	}
 

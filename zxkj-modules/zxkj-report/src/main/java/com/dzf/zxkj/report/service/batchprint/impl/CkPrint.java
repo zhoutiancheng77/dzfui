@@ -14,8 +14,10 @@ import com.dzf.zxkj.common.utils.DZFArrayUtil;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
+import com.dzf.zxkj.platform.model.icset.IntradeParamVO;
 import com.dzf.zxkj.platform.model.icset.IntradeoutVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -33,7 +35,7 @@ import java.util.*;
  * 出库
  */
 @Slf4j
-public class CkPrint {
+public class CkPrint extends AbstractPrint {
 
     private IZxkjPlatformService zxkjPlatformService;
 
@@ -47,7 +49,7 @@ public class CkPrint {
         this.queryparamvo = queryparamvo;
     }
 
-    public byte[] print (CorpVO corpVO, UserVO userVO) {
+    public byte[] print (BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         // 老模式 启用库存
         PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);
         printReporUtil.setbSaveDfsSer(DZFBoolean.TRUE);
@@ -60,8 +62,8 @@ public class CkPrint {
                 IntradeoutVO[] bodyvos = list.toArray(new IntradeoutVO[0]);
                 String type = printParamVO.getType();
                 Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
-                tmap.put("公司", bodyvos[0].getGs());
-                tmap.put("期间", bodyvos[0].getTitlePeriod());
+                tmap.put("公司", corpVO.getUnitname());
+                tmap.put("期间", printParamVO.getTitleperiod());
                 IntradeoutVO nvo = calTotal(bodyvos);
                 bodyvos = DZFArrayUtil.combineArray(bodyvos,new IntradeoutVO[]{nvo});
                 setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());//为后续设置精度赋值
@@ -140,20 +142,18 @@ public class CkPrint {
     }
 
     private Map<String, List<SuperVO>> getVoMap(PrintParamVO printParamVO,String pk_corp) {
-        String list = printParamVO.getList();
-        String[] strs = list.split(",");
         String priceStr =zxkjPlatformService.queryParamterValueByCode(SystemUtil.getLoginCorpId(), IParameterConstants.DZF010);
         int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
         Map<String, List<SuperVO>> vomap = new LinkedHashMap<>();
 
         AuxiliaryAccountBVO[] fzvos =zxkjPlatformService.queryBByFzlb(pk_corp, AuxiliaryConstant.ITEM_CUSTOMER);
         Map<String, AuxiliaryAccountBVO> aumap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(fzvos), new String[]{"pk_auacount_b"});
-        for (String id : strs) {
-            if (StringUtil.isEmpty(id))
-                continue;
-            IntradeHVO head = zxkjPlatformService.queryIntradeHVOByID(id, SystemUtil.getLoginCorpId());
-            if (head == null)
-                continue;
+        IntradeParamVO paramVO = new IntradeParamVO();
+        paramVO.setPk_corp(queryparamvo.getPk_corp());
+        paramVO.setBegindate(queryparamvo.getBegindate1());
+        paramVO.setEnddate(queryparamvo.getEnddate());
+        List<IntradeHVO> list = zxkjPlatformService.queryIntradeHVOOut(paramVO);
+        for (IntradeHVO head: list) {
             AuxiliaryAccountBVO custvo = 	aumap.get(head.getPk_cust());
             SuperVO[] bodyvos = head.getChildren();
             List<SuperVO> alist = new ArrayList<>();
@@ -190,7 +190,7 @@ public class CkPrint {
             }
             IntradeoutVO nvo = calTotal(bodyvos);
             alist.add(nvo);
-            vomap.put(id, Arrays.asList(alist.toArray(new SuperVO[alist.size()])));
+            vomap.put(head.getPrimaryKey(), Arrays.asList(alist.toArray(new SuperVO[alist.size()])));
         }
         return vomap;
     }

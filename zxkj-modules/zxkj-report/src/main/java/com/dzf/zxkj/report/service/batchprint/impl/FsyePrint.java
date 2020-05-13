@@ -7,6 +7,7 @@ import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -22,7 +23,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Slf4j
-public class FsyePrint {
+public class FsyePrint extends AbstractPrint {
 
     private IFsYeReport gl_rep_fsyebserv;
 
@@ -40,7 +41,7 @@ public class FsyePrint {
     }
 
 
-    public byte[] print(CorpVO corpVO, UserVO userVO) {
+    public byte[] print(BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         try {
             FsYeController fsYeController = new FsYeController();
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);

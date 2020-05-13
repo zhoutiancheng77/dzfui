@@ -8,6 +8,7 @@ import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.util.*;
 
 @Slf4j
-public class ZjmxPrint {
+public class ZjmxPrint extends  AbstractPrint {
 
     private IZxkjPlatformService zxkjPlatformService;
 
@@ -34,7 +35,7 @@ public class ZjmxPrint {
         this.queryparamvo = queryparamvo;
     }
 
-    public byte[] print (CorpVO corpVO, UserVO userVO) {
+    public byte[] print (BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         try {
             // 校验
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);

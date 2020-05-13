@@ -53,6 +53,7 @@ public class BatchPrintSetVo extends SuperVO {
 	private String vmemo;//备注
 	@JsonProperty("kmfystr")
 	private String kmpage;// 科目分页
+	private String setselect;// month 按月打印，year 按年打印
 	
 	@JsonProperty("ztdx")
 	private DZFDouble vfontsize;// 字体大小
@@ -275,7 +276,15 @@ public class BatchPrintSetVo extends SuperVO {
         this.isgz = isgz;
     }
 
-    @Override
+	public String getSetselect() {
+		return setselect;
+	}
+
+	public void setSetselect(String setselect) {
+		this.setselect = setselect;
+	}
+
+	@Override
 	public String getPKFieldName() {
 		return PK_FIELD;
 	}

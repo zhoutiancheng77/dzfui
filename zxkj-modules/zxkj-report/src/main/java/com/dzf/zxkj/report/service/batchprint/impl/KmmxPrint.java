@@ -5,6 +5,7 @@ import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -21,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Slf4j
-public class KmmxPrint {
+public class KmmxPrint extends  AbstractPrint {
 
     private IZxkjPlatformService zxkjPlatformService;
 
@@ -41,7 +42,7 @@ public class KmmxPrint {
     /**
      * 科目明细账
      */
-    public byte[] print(CorpVO corpVO, UserVO userVO) {
+    public byte[] print(BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         try {
 
             KmMxrController kmMxrController = new KmMxrController();

@@ -1,6 +1,7 @@
 package com.dzf.zxkj.platform.dubbo;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -8,11 +9,14 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.controller.voucher.VoucherPrintController;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
 import com.dzf.zxkj.platform.model.icset.*;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherPrintParam;
 import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
@@ -32,6 +36,7 @@ import com.dzf.zxkj.platform.service.icbill.ITradeoutService;
 import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.jzcl.IQmclService;
+import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
@@ -45,6 +50,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -120,6 +126,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Autowired
     private IZczjmxReport am_rep_zczjmxserv;
+
+    @Autowired
+    private IPzglService gl_pzglserv;
 
     @Override
     public CorpVO queryCorpByPk(String pk_corp) {
@@ -520,9 +529,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     }
 
     @Override
-    public IntradeHVO queryIntradeHVOByID(String pk_ictrade_h, String pk_corp) {
+    public   List<IntradeHVO>  queryIntradeHVOOut(IntradeParamVO paramvo) {
         try {
-            return ic_saleoutserv.queryIntradeHVOByID(pk_ictrade_h, pk_corp);
+           return  ic_saleoutserv.query(paramvo);
         } catch (DZFWarpException e) {
             log.error(String.format("调用queryIntradeHVOByID异常,异常信息:%s", e.getMessage()), e);
             return null;
@@ -530,9 +539,9 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     }
 
     @Override
-    public IntradeHVO queryIntradeHVOByIDIn(String pk_ictrade_h, String pk_corp) {
+    public List<IntradeHVO> queryIntradeHVOIn(IntradeParamVO paramvo) {
         try {
-            return ic_purchinserv.queryIntradeHVOByID(pk_ictrade_h, pk_corp);
+            return ic_purchinserv.query(paramvo);
         } catch (DZFWarpException e) {
             log.error(String.format("调用queryIntradeHVOByIDIn异常,异常信息:%s", e.getMessage()), e);
             return null;
@@ -548,5 +557,58 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
             return null;
         }
     }
+
+    @Override
+    public Set<String> querypowercorpSet(String userid) {
+        try {
+            return userService.querypowercorpSet(userid);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用querypowercorpSet异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public BdCurrencyVO[] queryCurrency() {
+        try {
+            return sys_currentserv.queryCurrency();
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryCurrency异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public List<TzpzHVO> queryByIDs(String ids, VoucherPrintParam param) {
+        try {
+            return gl_pzglserv.queryByIDs(ids, param);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryCurrency异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public byte[] execPzCoverTask(BatchPrintSetVo setvo, UserVO userVO,CorpVO corpVO) {
+        try {
+            VoucherPrintController voucherPrintController = (VoucherPrintController) SpringUtils.getBean("voucherPrintController");
+            return voucherPrintController.printCoverFromBatchSet(setvo,userVO,corpVO);
+        } catch (Exception e) {
+            log.error(String.format("调用execPzCoverTask异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public byte[] execPzTask (BatchPrintSetVo setvo, UserVO userVO,CorpVO corpVO) {
+        try {
+            VoucherPrintController voucherPrintController = (VoucherPrintController) SpringUtils.getBean("voucherPrintController");
+            return voucherPrintController.printVoucherFromTask(setvo,userVO,corpVO);
+        } catch (Exception e) {
+            log.error(String.format("调用execPzCoverTask异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
 
 }

@@ -24,6 +24,7 @@ public class SetCovertTask {
         taskvo.setDleftmargin(setvo.getDleftmargin());
         taskvo.setDtopmargin(setvo.getDtopmargin());
         taskvo.setVprintcode(setvo.getVprintname());
+        taskvo.setSetselect(setvo.getSetselect());
         return taskvo;
     }
 

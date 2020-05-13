@@ -5,6 +5,7 @@ import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class XjrjPrint {
+public class XjrjPrint extends  AbstractPrint {
 
 
     private IXjRjZReport gl_rep_xjyhrjzserv;
@@ -42,7 +43,7 @@ public class XjrjPrint {
         this.queryparamvo = queryparamvo;
     }
 
-    public byte[] print(CorpVO corpVO, UserVO userVO) {
+    public byte[] print(BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         try {
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);
             XjyhrjzController xjyhrjzController = new XjyhrjzController();

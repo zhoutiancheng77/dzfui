@@ -10,6 +10,7 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
@@ -91,6 +92,45 @@ public class VoucherPrintController extends BaseController {
         printVoucherByTemplate(param, response);
     }
 
+    public byte[] printVoucherFromTask (BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO) {
+        VoucherPrintParam param = new VoucherPrintParam();
+        String printperiod =  setvo.getVprintperiod();
+        List<String> idlists =  gl_pzglserv.queryIds(printperiod.split("~")[0] , printperiod.split("~")[1], corpVO.getPk_corp());
+        param.setAccount_level(1);
+        param.setCollect(DZFBoolean.FALSE);
+        param.setFont_name("simkai");
+        param.setLeft(new DZFDouble("16.6"));
+        param.setPrint_rows(5);
+        param.setPrint_splitline(DZFBoolean.FALSE);
+        param.setShow_auxiliary(DZFBoolean.FALSE);
+        param.setShow_vappr(DZFBoolean.TRUE);
+        param.setShow_vjz(DZFBoolean.TRUE);
+        param.setTop(new DZFDouble(12.7));
+        param.setType(6);
+        param.setZdr(6);
+        param.setIds(StringUtils.join(idlists,","));
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        String pk_corp = corpVO.getPk_corp();
+        DZFBoolean isSuccess = DZFBoolean.TRUE;
+        isSuccess = printFromTemple(param, buffer, isSuccess,userVO.getCuserid());
+        try {
+            if (isSuccess.booleanValue()) {
+                buffer.flush();
+                return buffer.toByteArray();
+            }
+        } catch (IOException e) {
+            log.error("打印出错", e);
+        } finally {
+            if (buffer != null) {
+                try {
+                    buffer.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * 根据模板打印
      *
@@ -100,12 +140,52 @@ public class VoucherPrintController extends BaseController {
         if (StringUtils.isEmpty(param.getIds())) {
             return;
         }
-        VoucherPrintTemplate template = getTemplate(param);
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        String pk_corp = SystemUtil.getLoginCorpId();
+        DZFBoolean isSuccess = DZFBoolean.TRUE;
+        isSuccess = printFromTemple(param, buffer, isSuccess,SystemUtil.getLoginUserId());
+        ServletOutputStream out = null;
+        try {
+            if (isSuccess.booleanValue()) {
+                GxhszVO gxh = gl_gxhserv.query(pk_corp);
+                if (gxh != null && gxh.getPrintType() == 1) {
+                    response.setContentType("application/octet-stream");
+                    response.addHeader("Content-Disposition",
+                            "attachment;filename=voucher.pdf");
+                } else {
+                    response.setContentType("application/pdf");
+                }
+                response.setContentLength(buffer.size());
+                out = response.getOutputStream();
+                buffer.writeTo(out);
+                buffer.flush();
+                out.flush();
+            }
+        } catch (IOException e) {
+            log.error("打印出错", e);
+        } finally {
+            if (buffer != null) {
+                try {
+                    buffer.close();
+                } catch (IOException e) {
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+    }
 
+    private DZFBoolean printFromTemple(VoucherPrintParam param, ByteArrayOutputStream buffer, DZFBoolean isSuccess,
+                                       String userid) {
+        VoucherPrintTemplate template = getTemplate(param);
         // 打印页面总数
         Integer zdType = param.getZdr();
         String zdr = null;
-        Set<String> corpSet = userService.querypowercorpSet(SystemUtil.getLoginUserId());
+        Set<String> corpSet = userService.querypowercorpSet(userid);
         if (zdType == null) {
             zdType = IVoucherConstants.ORIGIN_USER;
         } else if (zdType == IVoucherConstants.ASSIGN_USER) {
@@ -125,17 +205,17 @@ public class VoucherPrintController extends BaseController {
 
         float originalTop = template.getMarginTop();
 
-        String pk_corp = SystemUtil.getLoginCorpId();
+
         Document document = null;
         PdfWriter writer = null;
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
         Map<String, String> userMap = new HashMap<String, String>();
         Map<String, String> corpMap = new HashMap<String, String>();
         BdCurrencyVO[] currencyVOS = sys_currentserv.queryCurrency();
         Map<String, BdCurrencyVO> currencyVOMap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(currencyVOS),
                 new String[]{"pk_currency"});
         int tableCount = 1;
-        boolean isSuccess = true;
+
         try {
             Rectangle rec = new Rectangle(template.getDocumentWidth(),
                     template.getDocumentHeight());
@@ -305,7 +385,7 @@ public class VoucherPrintController extends BaseController {
                 }
             }
         } catch (Exception e) {
-            isSuccess = false;
+            isSuccess = DZFBoolean.FALSE;
             log.error(param.getIds());
             log.error("打印出错", e);
         } finally {
@@ -326,39 +406,7 @@ public class VoucherPrintController extends BaseController {
             }
 
         }
-        ServletOutputStream out = null;
-        try {
-            if (isSuccess) {
-                GxhszVO gxh = gl_gxhserv.query(pk_corp);
-                if (gxh != null && gxh.getPrintType() == 1) {
-                    response.setContentType("application/octet-stream");
-                    response.addHeader("Content-Disposition",
-                            "attachment;filename=voucher.pdf");
-                } else {
-                    response.setContentType("application/pdf");
-                }
-                response.setContentLength(buffer.size());
-                out = response.getOutputStream();
-                buffer.writeTo(out);
-                buffer.flush();
-                out.flush();
-            }
-        } catch (IOException e) {
-            log.error("打印出错", e);
-        } finally {
-            if (buffer != null) {
-                try {
-                    buffer.close();
-                } catch (IOException e) {
-                }
-            }
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                }
-            }
-        }
+        return isSuccess;
     }
 
     private void insertSpaceLine(PdfPTable table, float cellHeight) {
@@ -1026,6 +1074,47 @@ public class VoucherPrintController extends BaseController {
         return template;
     }
 
+    /**
+     * 根据批量设置打印凭证封皮
+     */
+    public byte[] printCoverFromBatchSet(BatchPrintSetVo setvo, UserVO userVO,CorpVO corpVO) {
+        VoucherPrintParam param = new VoucherPrintParam();
+        param.setLeft(new DZFDouble(16));
+        param.setPage(1);
+        param.setTop(new DZFDouble(16));
+        param.setType(6);
+        VoucherPrintTemplate template = getTemplate(param);
+        String pk_corp =  corpVO.getPk_corp();
+        Document document = null;
+        PdfWriter writer = null;
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int pdfTotalPage = 0;
+        String corpNames = corpVO.getUnitname();
+        int page = 1;
+        float originalTop = template.getMarginTop();
+        pdfTotalPage = printCover(param, corpNames, page, template, pdfTotalPage, originalTop, document, writer, buffer);
+
+        if (pdfTotalPage <= 0) {
+            return null;
+        } else {
+            try {
+                buffer.flush();
+                return buffer.toByteArray();
+            } catch (IOException e) {
+                log.error("打印出错", e);
+            } finally {
+                if (buffer != null) {
+                    try {
+                        buffer.close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
     @PostMapping("/printCover")
     public void printCover(VoucherPrintParam param,
                            @RequestParam String corpNames,
@@ -1044,6 +1133,63 @@ public class VoucherPrintController extends BaseController {
         Document document = null;
         PdfWriter writer = null;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        pdfTotalPage = printCover(param, corpNames, page, template, pdfTotalPage, originalTop, document, writer, buffer);
+
+        if (pdfTotalPage <= 0) {
+            PrintWriter pw = null;
+            try {
+                pw = response.getWriter();
+                pw.write("打印失败");
+                pw.flush();
+            } catch (IOException e) {
+            } finally {
+                if (buffer != null) {
+                    try {
+                        buffer.close();
+                    } catch (IOException e) {
+                    }
+                }
+                if (pw != null) {
+                    pw.close();
+                }
+            }
+        } else {
+            ServletOutputStream out = null;
+            try {
+                GxhszVO gxh = gl_gxhserv.query(pk_corp);
+                if (gxh != null && gxh.getPrintType() == 1) {
+                    response.setContentType("application/octet-stream");
+                    response.addHeader("Content-Disposition",
+                            "attachment;filename=voucher.pdf");
+                } else {
+                    response.setContentType("application/pdf");
+                }
+                response.setContentLength(buffer.size());
+                out = response.getOutputStream();
+                buffer.writeTo(out);
+                buffer.flush();
+                out.flush();
+            } catch (IOException e) {
+                log.error("打印出错", e);
+            } finally {
+                if (buffer != null) {
+                    try {
+                        buffer.close();
+                    } catch (IOException e) {
+                    }
+                }
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                    }
+                }
+            }
+        }
+    }
+
+    private int printCover(VoucherPrintParam param, @RequestParam String corpNames, @RequestParam int page, VoucherPrintTemplate template, int pdfTotalPage, float originalTop, Document document, PdfWriter writer, ByteArrayOutputStream buffer) {
         int tableCount = 1;
         try {
             Rectangle rec = new Rectangle(template.getDocumentWidth(),
@@ -1245,58 +1391,7 @@ public class VoucherPrintController extends BaseController {
                 document.close();
             }
         }
-
-        if (pdfTotalPage <= 0) {
-            PrintWriter pw = null;
-            try {
-                pw = response.getWriter();
-                pw.write("打印失败");
-                pw.flush();
-            } catch (IOException e) {
-            } finally {
-                if (buffer != null) {
-                    try {
-                        buffer.close();
-                    } catch (IOException e) {
-                    }
-                }
-                if (pw != null) {
-                    pw.close();
-                }
-            }
-        } else {
-            ServletOutputStream out = null;
-            try {
-                GxhszVO gxh = gl_gxhserv.query(pk_corp);
-                if (gxh != null && gxh.getPrintType() == 1) {
-                    response.setContentType("application/octet-stream");
-                    response.addHeader("Content-Disposition",
-                            "attachment;filename=voucher.pdf");
-                } else {
-                    response.setContentType("application/pdf");
-                }
-                response.setContentLength(buffer.size());
-                out = response.getOutputStream();
-                buffer.writeTo(out);
-                buffer.flush();
-                out.flush();
-            } catch (IOException e) {
-                log.error("打印出错", e);
-            } finally {
-                if (buffer != null) {
-                    try {
-                        buffer.close();
-                    } catch (IOException e) {
-                    }
-                }
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                    }
-                }
-            }
-        }
+        return pdfTotalPage;
     }
 
 

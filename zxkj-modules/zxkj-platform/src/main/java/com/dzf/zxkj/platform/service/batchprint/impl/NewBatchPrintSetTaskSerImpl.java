@@ -80,7 +80,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         List<BatchPrintSetVo> taskvoslist = (List<BatchPrintSetVo>) singleObjectBO.executeQuery(tasksql.toString(), sp, new BeanListProcessor(BatchPrintSetVo.class));
 
         // 当前用户设置的任务
-        List<BatchPrintSetVo> taskvos = queryTask(cuserid,period);
+        List<BatchPrintSetVo> taskvos = queryTask(cuserid,"");
 
         if (taskvoslist!=null && taskvoslist.size() > 0) {
             List<BatchPrintSetQryVo> reslist  = new ArrayList<BatchPrintSetQryVo>();
@@ -94,7 +94,13 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
                     qryvo.setCname(CodeUtils1.deCode(vo.getUnitname()));
                 }
                 for (BatchPrintSetVo setvo2 : taskvos) {
-                    if (setvo2.getPk_corp().equals(vo.getPk_corp())) { //
+                    if (!StringUtil.isEmpty(setvo2.getVprintperiod())
+                    && setvo2.getPk_corp().equals(vo.getPk_corp()) && "month".equals(setvo2.getSetselect())) {
+                        String vprintperiod = setvo2.getVprintperiod();
+                        String[] periods = vprintperiod.split("~");
+                        if (period.compareTo(periods[0]) < 0 || period.compareTo( periods[1]) >0) {
+                            continue;
+                        }
                         if (!StringUtil.isEmpty(setvo2.getVprintcode())) {
                             String[] codevos = setvo2.getVprintcode().split(",");
                             if (codevos!=null && codevos.length > 0) {
@@ -315,8 +321,8 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         qry.append(" left join bd_corp on  a.pk_corp = bd_corp.pk_corp ");
         qry.append(" where nvl(a.dr,0)=0 and  " + SqlUtil.buildSqlForIn("a.pk_corp",cpids.toArray(new String[0])));
         if (!StringUtil.isEmpty(period)) {
-            qry.append(" and a.vprintperiod = ? ");
-            sp.addParam(period+"~"+ period);
+            qry.append(" and a.vprintperiod like ? ");
+            sp.addParam("%" + period + "%");
         }
         qry.append(" order by a.doperadatetime desc , bd_corp.innercode ");
 

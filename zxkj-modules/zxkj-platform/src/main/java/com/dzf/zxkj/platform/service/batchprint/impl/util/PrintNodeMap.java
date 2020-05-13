@@ -11,6 +11,7 @@ public class PrintNodeMap {
     public static Map<String,String> nodemap = new HashMap<>();
 
     static {
+         nodemap.put("voucher","凭证");
          nodemap.put("mly","目录页");
          nodemap.put("gzb","工资表");
          nodemap.put("kmzz","科目总账");
