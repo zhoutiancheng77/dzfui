@@ -4838,6 +4838,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		icHeadVO.setSourcebilltype(IBillTypeCode.HP95);//来源进项票
 		icHeadVO.setIszg(DZFBoolean.FALSE);// 不是暂估
 		khmc=vo.getXhfmc();//销售方
+		String numStr = parameterserv.queryParamterValueByCode(vo.getPk_corp(), IParameterConstants.DZF009);//数量精度
+		int num = StringUtil.isEmpty(numStr) ? 4 : Integer.parseInt(numStr);
 		if (!StringUtil.isEmpty(khmc)) {
 			AuxiliaryAccountBVO custvo = matchCustomer(vo, khmc, vo.getPk_corp(), userid, AuxiliaryConstant.ITEM_SUPPLIER);
 			icHeadVO.setPk_cust(custvo.getPk_auacount_b());//供应商
@@ -4923,22 +4925,22 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			if(details[j].getBnum()==null){
 				if(hsl!=null){
 					if(calcmode==1){
-						icbvo.setAttributeValue("nnum", new DZFDouble(1).div(new DZFDouble(hsl)));
+						icbvo.setAttributeValue("nnum", (new DZFDouble(1).div(new DZFDouble(hsl))).setScale(num,DZFDouble.ROUND_HALF_UP));
 					}else{
-						icbvo.setAttributeValue("nnum",new DZFDouble(1).multiply(new DZFDouble(hsl)));
+						icbvo.setAttributeValue("nnum",(new DZFDouble(1).multiply(new DZFDouble(hsl))).setScale(num,DZFDouble.ROUND_HALF_UP));
 					}
 				}else{
-					icbvo.setAttributeValue("nnum", new DZFDouble(1));
+					icbvo.setAttributeValue("nnum", (new DZFDouble(1)).setScale(num,DZFDouble.ROUND_HALF_UP));
 				}
 			}else{
 				if(hsl!=null){
 					if(calcmode==1){
-						icbvo.setAttributeValue("nnum", new DZFDouble(details[j].getBnum()).div(new DZFDouble(hsl)));//数量
+						icbvo.setAttributeValue("nnum", (new DZFDouble(details[j].getBnum()).div(new DZFDouble(hsl))).setScale(num,DZFDouble.ROUND_HALF_UP));//数量
 					}else{
-						icbvo.setAttributeValue("nnum", new DZFDouble(details[j].getBnum()).multiply(new DZFDouble(hsl)));//数量
+						icbvo.setAttributeValue("nnum", (new DZFDouble(details[j].getBnum()).multiply(new DZFDouble(hsl))).setScale(num,DZFDouble.ROUND_HALF_UP));//数量
 					}
 				}else{
-					icbvo.setAttributeValue("nnum", details[j].getBnum());
+					icbvo.setAttributeValue("nnum", details[j].getBnum().setScale(num,DZFDouble.ROUND_HALF_UP));
 				}
 			}
 			icbvo.setAttributeValue("nymny", details[j].getBhjje());
