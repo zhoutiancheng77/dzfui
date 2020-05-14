@@ -6,6 +6,7 @@ import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.constant.IcConst;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
@@ -66,7 +67,7 @@ public class CkPrint extends AbstractPrint {
                 tmap.put("期间", printParamVO.getTitleperiod());
                 IntradeoutVO nvo = calTotal(bodyvos);
                 bodyvos = DZFArrayUtil.combineArray(bodyvos,new IntradeoutVO[]{nvo});
-                setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());//为后续设置精度赋值
+                setDefaultValue(bodyvos, corpVO.getPk_corp(),queryparamvo.getBegindate1());//为后续设置精度赋值
                 printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
                 printReporUtil.setLineheight(22F);
                 printReporUtil.printHz(new HashMap<>(),bodyvos, "出 库 单",
@@ -210,10 +211,11 @@ public class CkPrint extends AbstractPrint {
         nvo.setNnum(d2);
         return nvo;
     }
-    private void setDefaultValue(IntradeoutVO[] bodyvos, String pk_corp){
+    private void setDefaultValue(IntradeoutVO[] bodyvos, String pk_corp, DZFDate date){
         if(bodyvos != null && bodyvos.length > 0){
             for(IntradeoutVO vo : bodyvos){
                 vo.setPk_corp(pk_corp);
+                vo.setDbilldate(date);
             }
         }
     }

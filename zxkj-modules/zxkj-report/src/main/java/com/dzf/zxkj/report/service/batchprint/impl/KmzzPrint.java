@@ -73,7 +73,16 @@ public class KmzzPrint extends  AbstractPrint {
             printReporUtil.setLineheight(StringUtil.isEmpty(lineHeight) ? 22f : Float.parseFloat(lineHeight));
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             // 具体打印配置
-            kmzzController.printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap);
+            printParamVO.setIsPaging("N"); // 是否分页
+            if (!StringUtil.isEmpty(setVo.getKmpage())) {
+                if (setVo.getKmpage().indexOf("kmmx") > 0) {
+                    printParamVO.setIsPaging("Y"); // 是否分页
+                    if (setVo.getVprintcode().indexOf("mly") > 0) {
+                        printReporUtil.setBmly(DZFBoolean.TRUE);
+                    }
+                }
+            }
+            kmzzController.printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap,zxkjPlatformService);
             return printReporUtil.getContents();
         } catch (DocumentException e) {
             log.error("错误", e);

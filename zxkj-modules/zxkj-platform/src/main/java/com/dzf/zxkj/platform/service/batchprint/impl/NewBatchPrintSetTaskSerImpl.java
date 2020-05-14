@@ -31,7 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service("newbatchprintser")
 @Slf4j
@@ -188,6 +192,61 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
             return objs;
         } catch (AppException e) {
             throw new BusinessException("获取文件失败!");
+        }
+    }
+
+    @Override
+    public Object[] downBatchLoadFiles(String pk_corp, String[] ids) throws DZFWarpException {
+        if(ids == null || ids.length == 0){
+            throw new BusinessException("信息不能为空");
+        }
+        String wherepart = SqlUtil.buildSqlForIn("pk_batch_print_set", ids);
+        BatchPrintSetVo[] setvos =  (BatchPrintSetVo[]) singleObjectBO.queryByCondition(BatchPrintSetVo.class,
+                "nvl(dr,0)=0 and ifilestatue in(1,2) and "+wherepart, new SQLParameter());
+
+        if(setvos == null || setvos.length == 0){
+            throw new BusinessException("暂无可下载的文件");
+        }
+
+        ByteArrayOutputStream zipbyte = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(zipbyte);
+        try {
+            Object[] objs = new Object[2];
+
+            for(BatchPrintSetVo vo :setvos){
+                if(StringUtil.isEmpty(vo.getVfilepath())){
+                    continue;
+                }
+
+                byte[] bytes = ((FastDfsUtil)SpringUtils.getBean("connectionPool")).downFile(vo.getVfilepath().substring(1));
+
+                zos.putNextEntry(new ZipEntry(vo.getVfilename()));
+
+                zos.write(bytes);
+
+                vo.setIfilestatue(PrintStatusEnum.LOADED.getCode());
+
+                singleObjectBO.update(vo, new String[]{"ifilestatue"});
+
+                updateBanding(vo);//更新装订信息
+            }
+
+            zos.close();
+            objs[0] = zipbyte.toByteArray();
+            objs[1] = new DZFDate().toString()+".zip";
+            return objs;
+        } catch (AppException e) {
+            throw new BusinessException("获取文件失败!");
+        } catch (IOException e) {
+            throw new BusinessException("获取文件失败!");
+        }finally {
+            if(zos !=null){
+                try {
+                    zos.close();
+                } catch (IOException e) {
+                }
+            }
+
         }
     }
 

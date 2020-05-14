@@ -168,6 +168,46 @@ public class BatchPrintController extends BaseController {
             }
         }
     }
+    @PostMapping("batchdown")
+    public void batchdown( @RequestParam Map<String, String> pmap1,@MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO,
+                           HttpServletResponse response){
+        ServletOutputStream out = null;
+        Grid json = new Grid();
+        try {
+            String ids = pmap1.get("ids");
+            Object[] objs = newbatchprintser.downBatchLoadFiles(corpVO.getFathercorp(), ids.split(","));
+            if(objs == null ||  objs.length ==0){
+                throw new BusinessException("暂无数据!");
+            }
+
+            byte[] bytes = (byte[]) objs[0];
+
+            if(bytes == null ||  bytes.length ==0 ){
+                throw new BusinessException("暂无数据!");
+            }
+
+            response.addCookie(new Cookie("downsuccess", "1"));
+            response.setContentType("application/octet-stream");
+            String contentDisposition = "attachment;filename=" + URLEncoder.encode((String)objs[1], "UTF-8")
+                    + ";filename*=UTF-8''" + URLEncoder.encode((String)objs[1], "UTF-8");
+            response.addHeader("Content-Disposition",  contentDisposition);
+            out = response.getOutputStream();
+            out.write((byte[])objs[0]);
+            out.flush();
+        } catch (Exception e) {
+            json.setMsg(e.getMessage());
+            json.setSuccess(false);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(),e);
+                }
+            }
+        }
+//		writeJson(json);
+    }
 
     @PostMapping("/execTask")
     public ReturnData<Grid> execTask() {

@@ -73,7 +73,16 @@ public class KmmxPrint extends  AbstractPrint {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = null;
             // 打印设置(列设置)
-            kmMxrController.printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap);
+            printParamVO.setIsPaging("N"); // 是否分页
+            if (!StringUtil.isEmpty(setVo.getKmpage())) {
+                if (setVo.getKmpage().indexOf("kmmx") > 0) {
+                    printParamVO.setIsPaging("Y"); // 是否分页
+                    if (setVo.getVprintcode().indexOf("mly") > 0) {
+                        printReporUtil.setBmly(DZFBoolean.TRUE);
+                    }
+                }
+            }
+            kmMxrController.printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap,zxkjPlatformService);
             return printReporUtil.getContents();
         } catch (DocumentException e) {
             log.error("打印错误", e);

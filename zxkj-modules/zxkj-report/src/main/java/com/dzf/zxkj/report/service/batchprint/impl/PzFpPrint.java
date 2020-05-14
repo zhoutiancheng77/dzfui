@@ -25,6 +25,6 @@ public class PzFpPrint extends  AbstractPrint {
     }
 
     public byte[] print (BatchPrintSetVo setvo,CorpVO corpVO, UserVO userVO) {
-        return zxkjPlatformService.execPzTask(setvo, userVO, corpVO);
+        return zxkjPlatformService.execPzCoverTask(setvo, userVO, corpVO);
     }
 }

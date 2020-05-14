@@ -47,6 +47,14 @@ public interface INewBatchPrintSetTaskSer {
      */
     public Object[] downLoadFile(String pk_corp,String id) throws DZFWarpException;
 
+    /**
+     * 批量下载
+     * @param pk_corp
+     * @param ids
+     * @return
+     * @throws DZFWarpException
+     */
+    public Object[] downBatchLoadFiles(String pk_corp,String[] ids) throws DZFWarpException;
 
     /**
      * 根据用户id + 公司信息生成任务信息

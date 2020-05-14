@@ -419,7 +419,7 @@ public class KmMxrController extends ReportBaseController {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = null;
             // 打印设置(列设置)
-            printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap);
+            printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap,zxkjPlatformService);
             writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
                     "科目明细账打印:" + printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
@@ -429,7 +429,10 @@ public class KmMxrController extends ReportBaseController {
         }
     }
 
-    public void printAction(PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, PrintReporUtil printReporUtil, Map<String, String> pmap, KmMxZVO[] bodyvos, Map<String, String> tmap) throws DocumentException, IOException {
+    public void printAction(PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo,
+                            PrintReporUtil printReporUtil, Map<String, String> pmap,
+                            KmMxZVO[] bodyvos, Map<String, String> tmap, IZxkjPlatformService zxkjPlatformService)
+            throws DocumentException, IOException {
         Object[] obj;
         if (printParamVO.getIsPaging() != null && printParamVO.getIsPaging().equals("Y")) {  //需要分页打印
             Map<String, List<SuperVO>> mxmap = new HashMap<String, List<SuperVO>>();

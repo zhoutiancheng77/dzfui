@@ -29,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -177,7 +175,9 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                         print = new VoucherPrint(zxkjPlatformService,printParamVO, queryparamvo);
                     }
                     // 合并数据
-                    in = mergeByte(setvo, userVO, in, corpVO, printParamVO, mergePdf, mergePdfHx, mergePdfPz, code, print);
+                    if (print != null) {
+                        in = mergeByte(setvo, userVO, in, corpVO, printParamVO, mergePdf, mergePdfHx, mergePdfPz, code, print);
+                    }
                     log.info(code+"执行完毕!");
                 }
                 resbytes = getPdfByte(mergePdf);
@@ -252,7 +252,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                                   PDFMergerUtility mergePdfPz, String code, AbstractPrint print) {
         String[] pzpages = new String[]{"pzfp","voucher"};// 凭证分组
         String[] zxpages = new String[]{"zcfz","lrb"};// 纵向打印分组
-        String[] hxpages = new String[]{"fsye"};// 横向分组
+        String[] hxpages = new String[]{"fsye","gzb"};// 横向分组
         byte[] byts = print.print(setvo,corpVO,userVO);
         if (byts!=null && byts.length > 0) {
             in = new ByteArrayInputStream(byts);
@@ -354,7 +354,16 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         printParamVO.setLeft(setvo.getDleftmargin().intValue() + "");
         printParamVO.setTop(setvo.getDtopmargin().intValue() + "");
         printParamVO.setPrintdate(setvo.getVprintperiod());// 打印期间
-        printParamVO.setIsPaging(fycode.equals(setvo.getKmpage()) ? "Y": "N"); // 是否分页
+
+        if (!StringUtil.isEmpty(setvo.getKmpage())) {
+            if (setvo.getKmpage().indexOf(fycode) > 0) {
+                printParamVO.setIsPaging("Y"); // 是否分页
+            } else {
+                printParamVO.setIsPaging("N"); // 是否分页
+            }
+        } else {
+            printParamVO.setIsPaging("N"); // 是否分页
+        }
         printParamVO.setPageOrt(getDirCode(setvo.getReviewdir()));
         return printParamVO;
     }
