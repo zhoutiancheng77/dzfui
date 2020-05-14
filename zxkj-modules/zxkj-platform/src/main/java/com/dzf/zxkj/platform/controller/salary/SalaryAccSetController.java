@@ -100,16 +100,14 @@ public class SalaryAccSetController extends BaseController {
 
         Json json = new Json();
         String kmdata = map.get("kmdata");
-        if (DZFValueCheck.isEmpty(kmdata)) {
-            throw new BusinessException("数据为空,保存失败!");
+        SalaryKmDeptVO[] vos = null;
+        if (!DZFValueCheck.isEmpty(kmdata)) {
+            vos = JsonUtils.deserialize(kmdata, SalaryKmDeptVO[].class);
         }
-        SalaryKmDeptVO[] vos = JsonUtils.deserialize(kmdata, SalaryKmDeptVO[].class);
-        if (vos == null || vos.length == 0) {
-            throw new BusinessException("数据为空,保存失败!");
-        }
+
         String pk_corp = SystemUtil.getLoginCorpId();
         SalaryKmDeptVO[] vos1 = gl_gzkmszserv.saveFykm(pk_corp, vos);
-        json.setRows(vos);
+        json.setRows(vos1);
         json.setMsg("保存部门费用科目成功");
         json.setSuccess(true);
 		writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "工资科目设置部门费用科目", ISysConstants.SYS_2);
