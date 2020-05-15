@@ -107,7 +107,7 @@ public class VoucherPrintController extends BaseController {
         param.setShow_vjz(DZFBoolean.TRUE);
         param.setTop(new DZFDouble(12.7));
         param.setType(6);
-        param.setZdr(6);
+//        param.setZdr(6);
         param.setIds(StringUtils.join(idlists,","));
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         String pk_corp = corpVO.getPk_corp();
