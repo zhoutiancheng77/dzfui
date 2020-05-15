@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: zxkj-backup
+  cloud:
+    nacos:
+      config:
+        server-addr: @dzf.mvn.nacos.config.server-addr@
+        namespace: @dzf.mvn.nacos.config.namespace@
+        file-extension: yaml
+        group: dzf-zxkj
+        prefix: ${spring.application.name}
+    zookeeper:
+      enabled: false
+    consul:
+      enabled: false
+eureka:
+  client:
+    enabled: false

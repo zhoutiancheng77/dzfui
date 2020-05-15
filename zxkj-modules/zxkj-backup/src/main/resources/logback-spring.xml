@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <property name="LOG_LEVEL" value="@dzf.mvn.logging.level@"/>
+    <property name="LOG_HOME" value="@dzf.mvn.logging.home@/zxkj-backup"/>
+    <property name="KAKFA_ADDRESS" value="@dzf.mvn.kafka.addr@"/>
+    <!-- 日志输出格式 -->
+    <property name="ENCODER_PATTERN"
+              value="%d{yyyy-MM-dd  HH:mm:ss.SSS} [%thread] %-5level %logger{80} - %msg%n"/>
+    <contextName>zxkj-backup</contextName>
+    <property name="maxHistory" value="7"/>
+    <!-- 控制台日志：输出全部日志到控制台 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%red(%d{yyyy-MM-dd HH:mm:ss}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger) - %cyan(%msg%n)</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- 文件日志：输出全部日志到文件 -->
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/output.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.dzf.cloud.log.layout.JsonLogLayout"/>
+        </encoder>
+    </appender>
+
+    <!-- 错误日志：用于将错误日志输出到独立文件 -->
+    <appender name="ERROR_FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/error.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${ENCODER_PATTERN}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+    <appender name="kafkaAppender" class="com.dzf.cloud.log.appender.KafkaAppender">
+        <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+            <layout class="com.dzf.cloud.log.layout.JsonLogLayout"/>
+        </encoder>
+        <topic>zxkj-backup-logs-hjd</topic>
+        <keyingStrategy class="com.dzf.cloud.log.appender.kafka.keying.ThreadNameKeyingStrategy"/>
+        <sendStrategy class="com.dzf.cloud.log.appender.kafka.sender.AsyncSendCallableStrategy"/>
+        <producerConfig>bootstrap.servers=${KAKFA_ADDRESS}</producerConfig>
+        <appender-ref ref="FILE"/>
+    </appender>
+    <logger name="kafkaLogger" additivity="false">
+        <appender-ref ref="kafkaAppender"/>
+    </logger>
+    <appender name="NACOS_CONFIG_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/nacos_config.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/nacos_config.log.%i</fileNamePattern>
+            <maxIndex>${JM.LOG.RETAIN.COUNT:-7}</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${JM.LOG.FILE.SIZE:-10MB}</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%-5t:%c{2}] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="NACOS_NAMING_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/nacos_naming.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/nacos_naming.log.%i</fileNamePattern>
+            <maxIndex>${JM.LOG.RETAIN.COUNT:-7}</maxIndex>
+        </rollingPolicy>
+
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>${JM.LOG.FILE.SIZE:-10MB}</maxFileSize>
+        </triggeringPolicy>
+
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %p [%-5t:%c{2}] %m%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="com.alibaba.nacos.client" level="${LOG_LEVEL}"
+            additivity="false">
+        <appender-ref ref="NACOS_CONFIG_LOG_FILE"/>
+    </logger>
+
+    <logger name="com.alibaba.nacos.client.config" level="${LOG_LEVEL}"
+            additivity="false">
+        <appender-ref ref="NACOS_CONFIG_LOG_FILE"/>
+    </logger>
+
+    <logger name="com.alibaba.nacos.client.naming" level="${LOG_LEVEL}"
+            additivity="false">
+        <appender-ref ref="NACOS_NAMING_LOG_FILE"/>
+    </logger>
+    <root>
+        <level value="${LOG_LEVEL}"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+</configuration>
