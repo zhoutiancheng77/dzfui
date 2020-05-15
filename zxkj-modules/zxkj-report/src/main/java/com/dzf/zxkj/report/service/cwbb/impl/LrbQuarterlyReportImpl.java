@@ -139,6 +139,11 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 				}
 			}
 		}
+		if(lrbquartervos!=null && lrbquartervos.length>0){
+			for(LrbquarterlyVO lrbvo:lrbquartervos){
+				lrbvo.setKmfa(corpschema+"");
+			}
+		}
 		return lrbquartervos;
 
 	}

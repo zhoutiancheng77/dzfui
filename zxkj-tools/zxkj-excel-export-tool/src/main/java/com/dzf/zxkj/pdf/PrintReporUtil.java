@@ -653,12 +653,23 @@ public class PrintReporUtil {
                                 table.addCell(cell);
                                 continue;
                         } else {
-                            if (tilename.equals("利 润 表") &&
-                                    "项　　　　目".equals(bvo.getAttributeValue("xm")) && "byje".equals(key)) {
+                            if ((tilename.equals("利 润 表") || tilename.equals("利 润 表 季 报")) &&
+                                    "项　　　　目".equals(bvo.getAttributeValue("xm")) ) {
                                 if (getBasecolor() != null) {
                                     cell.setBorderColor(getBasecolor());
                                 }
-                                cell = new PdfPCell(new Phrase("上年实际数", fonts));
+                                if ( "byje".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("上年实际数", fonts));
+                                } else if ("bnljje".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("本年累计金额", fonts));
+                                } else if  ("bnlj".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("本年累计数", fonts));
+                                } else if ( "sntqs".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("上年实际数", fonts));
+                                } else {
+                                    cell = new PdfPCell(new Phrase("", fonts));
+                                }
+//                                cell = new PdfPCell(new Phrase("上年实际数", fonts));
                                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                                 cell.setHorizontalAlignment(Element.ALIGN_CENTER); //水平居中
                                 if (totalMnyHight >= 0) {
