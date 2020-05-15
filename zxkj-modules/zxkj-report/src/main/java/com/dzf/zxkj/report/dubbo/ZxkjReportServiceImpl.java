@@ -59,7 +59,7 @@ public class ZxkjReportServiceImpl implements IZxkjReportService {
     public String batchPrint(BatchPrintSetVo[] setvos, UserVO userVO) {
         // 根据不同设置，先循环走打印操作
         try {
-            gl_rep_batchprinterv.print(setvos,userVO);
+            gl_rep_batchprinterv.batchexectask(setvos,userVO);
         } catch (DZFWarpException e) {
             log.error(String.format("调用getFsJyeVOs异常,异常信息:%s", e.getMessage()), e);
             return "执行出错";

@@ -112,12 +112,12 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
             DZFDate enddate   = param.getEnddate();
             if(begindate != null){
                 sql.append(" and bill.dapplydate >= ? ");
-                sp.addParam(begindate);
+                sp.addParam(begindate + " 00:00:00");
             }
             if(enddate != null){
 //                enddate = DateUtils.getPeriodEndDate(DateUtils.getPeriod(enddate)).getDateAfter(1);
                 sql.append(" and bill.dapplydate <= ? ");
-                sp.addParam(enddate);
+                sp.addParam(enddate + " 23:59:59");
             }
             if(!StringUtil.isEmpty(fpdm)){
                 sql.append(" and bill.fpdm like ? ");

@@ -6,5 +6,5 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 
 public interface IBatchPrintSer {
 
-    public void print(BatchPrintSetVo[] setVos, UserVO userVO) throws DZFWarpException;
+    public void batchexectask(BatchPrintSetVo[] setVos, UserVO userVO) throws DZFWarpException;
 }

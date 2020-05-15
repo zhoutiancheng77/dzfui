@@ -8,10 +8,7 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.ColumnCellAttr;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
-import com.dzf.zxkj.common.utils.DateUtils;
-import com.dzf.zxkj.common.utils.IGlobalConstants;
-import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
 import com.dzf.zxkj.platform.model.report.FzYebVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -20,12 +17,14 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.draw.DottedLineSeparator;
+import javafx.beans.binding.IntegerBinding;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.util.List;
@@ -60,6 +59,8 @@ public class PrintReporUtil {
     private DZFBoolean bshowzero;//空是否显示0
 
     public DZFBoolean rotate = DZFBoolean.FALSE;//是否旋转
+
+    private DZFBoolean bmly = DZFBoolean.FALSE;// 是否需要目录页，默认否
 
     private BaseFont bf = null;
 
@@ -652,12 +653,23 @@ public class PrintReporUtil {
                                 table.addCell(cell);
                                 continue;
                         } else {
-                            if (tilename.equals("利 润 表") &&
-                                    "项　　　　目".equals(bvo.getAttributeValue("xm")) && "byje".equals(key)) {
+                            if ((tilename.equals("利 润 表") || tilename.equals("利 润 表 季 报")) &&
+                                    "项　　　　目".equals(bvo.getAttributeValue("xm")) ) {
                                 if (getBasecolor() != null) {
                                     cell.setBorderColor(getBasecolor());
                                 }
-                                cell = new PdfPCell(new Phrase("上年实际数", fonts));
+                                if ( "byje".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("上年实际数", fonts));
+                                } else if ("bnljje".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("本年累计金额", fonts));
+                                } else if  ("bnlj".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("本年累计数", fonts));
+                                } else if ( "sntqs".equals(key)) {
+                                    cell = new PdfPCell(new Phrase("上年实际数", fonts));
+                                } else {
+                                    cell = new PdfPCell(new Phrase("", fonts));
+                                }
+//                                cell = new PdfPCell(new Phrase("上年实际数", fonts));
                                 cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
                                 cell.setHorizontalAlignment(Element.ALIGN_CENTER); //水平居中
                                 if (totalMnyHight >= 0) {
@@ -1049,7 +1061,7 @@ public class PrintReporUtil {
                         titleFonts, tableHeadFounts, leftsize, rightsize, topsize, document, totalwidthmap, writer, para);
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(),e);
             throw e;
         } finally {
             document.close();
@@ -1150,6 +1162,124 @@ public class PrintReporUtil {
         }
     }
 
+    private Integer createMly (Font tableHeadFounts, Document document,Map<String, List<SuperVO>> kmmap,
+                            String titlename, Font titleFonts,Map<String, Object> para, float topsize,
+                            Map<String, String> pmap) {
+        int pageNum = 1;
+        if (kmmap != null && kmmap.size() > 0) {
+            try {
+                //标题
+                String titlenametemp = titlename;
+                if (titlename.indexOf("科目明细账") > 0) {
+                    titlenametemp = "科目明细账";
+                } else if (titlename.indexOf("科目总账") > 0) {
+                    titlenametemp = "科目总账";
+                }
+                createBt(tableHeadFounts, document, new String[]{"目录页(" + titlenametemp + ")"}, titleFonts);
+                document.add(Chunk.NEWLINE);
+                int line = getA4LineNotPage(document.getPageSize().getHeight(), para.get("tableheight"), topsize,
+                        (float) 18, titlename);// 获取行数
+                List<String> kmList = new ArrayList<String>();
+                Map<String,String> map = new HashMap<>();
+                for (Map.Entry<String, List<SuperVO>> entry: kmmap.entrySet()) {
+                    List<SuperVO> list = entry.getValue();
+                    if (!StringUtil.isEmpty(titlename) && (titlename.indexOf("科目明细账") > 0
+                            || titlename.indexOf("科目总账") > 0)) {
+                        String kmbm = "(" + list.get(0).getAttributeValue("kmbm").toString() + ")";
+                        if (titlename.indexOf("科目明细账") > 0) {
+                            titlename = list.get(0).getAttributeValue("km").toString().replace(kmbm, "") + "科目明细账";
+                        } else if (titlename.indexOf("科目总账") > 0) {
+                            titlename = list.get(0).getAttributeValue("km").toString().replace(kmbm, "") + "科目总账";
+                        }
+                    }
+                    kmList.add(titlename);
+                    int count = list.size()/line + (list.size()%line == 0 ? 0 : 1);
+                    map.put(titlename, count+"");
+                }
+
+                List<String> zzvosList = null;
+                String[] zzvoArray = null;
+                zzvosList = new ArrayList<String>();
+                int mlycount = kmList.size()/line + (kmList.size()%line == 0 ? 0 : 1);
+                map.put("目录页", mlycount + "");
+                Integer totalpage = new Integer(Integer.parseInt(map.get("目录页") )+ 1);
+                for (int i = 0; i < kmList.size(); i++) { // 遍历本科目下的 所有数据
+                    zzvosList.add(kmList.get(i));
+                    if ((i + 1) % line == 0 && i != 0) { // 每页只打22行
+                        zzvoArray = zzvosList.toArray(new String[0]);
+                        // 把22行数据放进数组。 写入表格
+                        PdfPTable tablet = createMlyTable(tableHeadFounts, zzvoArray,map,totalpage);
+                        document.add(tablet);
+                        createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO,
+                                null);
+                        zzvosList.clear();
+                        if (i < kmList.size() - 1) {// 整数页最后一条打完不新建页
+                            pageNum++;
+                            document.newPage();
+                            document.add(new Chunk(PrintUtil.getSpace(1), tableHeadFounts));
+                            createBt(tableHeadFounts, document, new String[]{"目录页(" + titlenametemp + ")"}, titleFonts);
+                        }
+                    }
+                }
+                zzvoArray = zzvosList.toArray(new String[0]);
+                if (zzvoArray != null && zzvoArray.length > 0) {// 最后一页
+                    PdfPTable tablet = createMlyTable(tableHeadFounts, zzvoArray,map,totalpage);
+                    document.add(tablet);
+                    createBottomText(titlename, pmap, tableHeadFounts, document, pageNum + "", corpVO,
+                            null);
+                }
+                document.newPage(); // 新的一页 导出下一个科目
+                pageNum++;
+            } catch (DocumentException e) {
+
+            }
+        }
+        return pageNum;
+    }
+
+    private PdfPTable createMlyTable(Font tableHeadFounts,  String[] titlearray , Map<String,String> map, Integer totalPagenum) {
+        PdfPTable tablet = new PdfPTable(2);
+        try {
+            tablet.setWidthPercentage(100);
+            tablet.setWidths(new int[]{20,1});
+            StringBuffer xx = new StringBuffer();
+            for (int i =0;i<1000;i++) {
+                xx.append(".");
+            }
+            for (String str: titlearray) {
+                Chunk tt = new Chunk(str+xx.toString());
+                tt.setFont(tableHeadFounts);
+                tt.setSplitCharacter(TabSplitCharacter.TAB);
+                PdfPCell cell1 = new PdfPCell( new Phrase(tt));
+                cell1.disableBorderSide(15);// 不需要边框
+                cell1.setHorizontalAlignment(Element.ALIGN_LEFT);
+                cell1.setPadding(0f);
+                cell1.setPaddingTop(2f);
+                cell1.setFixedHeight(18);
+                cell1.setVerticalAlignment(Element.ALIGN_BOTTOM);
+                tablet.addCell(cell1);
+
+                Chunk tt2 = new Chunk(totalPagenum + "");
+                tt.setFont(tableHeadFounts);
+                tt.setSplitCharacter(TabSplitCharacter.TAB);
+                PdfPCell cell2 = new PdfPCell( new Phrase(tt2));
+                cell2.disableBorderSide(15);// 不需要边框
+                cell2.setHorizontalAlignment(Element.ALIGN_LEFT);
+                cell2.setPadding(0f);
+                cell2.setPaddingTop(2f);
+                cell2.setFixedHeight(18);
+                cell2.setVerticalAlignment(Element.ALIGN_CENTER);
+                tablet.addCell(cell2);
+                Field field = Integer.class.getDeclaredField("value");
+                field.setAccessible(true);
+                field.set(totalPagenum,new Integer(totalPagenum + Integer.parseInt(map.get(str))));
+            }
+        } catch (Exception e) {
+
+        }
+        return tablet;
+    }
+
     private void createTopAndBottom(Font tableHeadFounts, Document document, List<String[]> valuelist) {
         for (String[] value : valuelist) {
             PdfPTable tablet = new PdfPTable(value.length);
@@ -1189,6 +1319,9 @@ public class PrintReporUtil {
         SuperVO[] zzvoArray = null;
         Object[] titleobjs = null;
         PdfPTable table = null;
+        if (bmly.booleanValue()) {
+            pageNum = createMly(tableHeadFounts, document, kmmap,titlename,titleFonts,para, topsize,pmap);
+        }
         for (Map.Entry<String, List<SuperVO>> kmEntry : kmmap.entrySet()) {
             if ("资 产 负 债 表".equals(titlename) || "利 润 表".equals(titlename) || "分 部 利 润 表".equals(titlename)
                     || "现 金 流 量 表".equals(titlename) || titlename.startsWith("工 资 表")) {
@@ -2902,6 +3035,14 @@ public class PrintReporUtil {
             table.addCell(cell);
             count++;
         }
+    }
+
+    public DZFBoolean getBmly() {
+        return bmly;
+    }
+
+    public void setBmly(DZFBoolean bmly) {
+        this.bmly = bmly;
     }
 
     public DZFBoolean getBshowzero() {

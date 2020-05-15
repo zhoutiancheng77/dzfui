@@ -31,7 +31,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service("newbatchprintser")
 @Slf4j
@@ -80,7 +84,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         List<BatchPrintSetVo> taskvoslist = (List<BatchPrintSetVo>) singleObjectBO.executeQuery(tasksql.toString(), sp, new BeanListProcessor(BatchPrintSetVo.class));
 
         // 当前用户设置的任务
-        List<BatchPrintSetVo> taskvos = queryTask(cuserid,period);
+        List<BatchPrintSetVo> taskvos = queryTask(cuserid,"");
 
         if (taskvoslist!=null && taskvoslist.size() > 0) {
             List<BatchPrintSetQryVo> reslist  = new ArrayList<BatchPrintSetQryVo>();
@@ -94,7 +98,13 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
                     qryvo.setCname(CodeUtils1.deCode(vo.getUnitname()));
                 }
                 for (BatchPrintSetVo setvo2 : taskvos) {
-                    if (setvo2.getPk_corp().equals(vo.getPk_corp())) { //
+                    if (!StringUtil.isEmpty(setvo2.getVprintperiod())
+                    && setvo2.getPk_corp().equals(vo.getPk_corp()) && "month".equals(setvo2.getSetselect())) {
+                        String vprintperiod = setvo2.getVprintperiod();
+                        String[] periods = vprintperiod.split("~");
+                        if (period.compareTo(periods[0]) < 0 || period.compareTo( periods[1]) >0) {
+                            continue;
+                        }
                         if (!StringUtil.isEmpty(setvo2.getVprintcode())) {
                             String[] codevos = setvo2.getVprintcode().split(",");
                             if (codevos!=null && codevos.length > 0) {
@@ -182,6 +192,61 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
             return objs;
         } catch (AppException e) {
             throw new BusinessException("获取文件失败!");
+        }
+    }
+
+    @Override
+    public Object[] downBatchLoadFiles(String pk_corp, String[] ids) throws DZFWarpException {
+        if(ids == null || ids.length == 0){
+            throw new BusinessException("信息不能为空");
+        }
+        String wherepart = SqlUtil.buildSqlForIn("pk_batch_print_set", ids);
+        BatchPrintSetVo[] setvos =  (BatchPrintSetVo[]) singleObjectBO.queryByCondition(BatchPrintSetVo.class,
+                "nvl(dr,0)=0 and ifilestatue in(1,2) and "+wherepart, new SQLParameter());
+
+        if(setvos == null || setvos.length == 0){
+            throw new BusinessException("暂无可下载的文件");
+        }
+
+        ByteArrayOutputStream zipbyte = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(zipbyte);
+        try {
+            Object[] objs = new Object[2];
+
+            for(BatchPrintSetVo vo :setvos){
+                if(StringUtil.isEmpty(vo.getVfilepath())){
+                    continue;
+                }
+
+                byte[] bytes = ((FastDfsUtil)SpringUtils.getBean("connectionPool")).downFile(vo.getVfilepath().substring(1));
+
+                zos.putNextEntry(new ZipEntry(vo.getVfilename()));
+
+                zos.write(bytes);
+
+                vo.setIfilestatue(PrintStatusEnum.LOADED.getCode());
+
+                singleObjectBO.update(vo, new String[]{"ifilestatue"});
+
+                updateBanding(vo);//更新装订信息
+            }
+
+            zos.close();
+            objs[0] = zipbyte.toByteArray();
+            objs[1] = new DZFDate().toString()+".zip";
+            return objs;
+        } catch (AppException e) {
+            throw new BusinessException("获取文件失败!");
+        } catch (IOException e) {
+            throw new BusinessException("获取文件失败!");
+        }finally {
+            if(zos !=null){
+                try {
+                    zos.close();
+                } catch (IOException e) {
+                }
+            }
+
         }
     }
 
@@ -315,8 +380,8 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         qry.append(" left join bd_corp on  a.pk_corp = bd_corp.pk_corp ");
         qry.append(" where nvl(a.dr,0)=0 and  " + SqlUtil.buildSqlForIn("a.pk_corp",cpids.toArray(new String[0])));
         if (!StringUtil.isEmpty(period)) {
-            qry.append(" and a.vprintperiod = ? ");
-            sp.addParam(period+"~"+ period);
+            qry.append(" and a.vprintperiod like ? ");
+            sp.addParam("%" + period + "%");
         }
         qry.append(" order by a.doperadatetime desc , bd_corp.innercode ");
 

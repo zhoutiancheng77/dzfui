@@ -1,11 +1,11 @@
 package com.dzf.zxkj.report.service.batchprint.impl;
 
-import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.constant.IcConst;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
@@ -14,13 +14,14 @@ import com.dzf.zxkj.common.utils.DZFArrayUtil;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.icset.IctradeinVO;
 import com.dzf.zxkj.platform.model.icset.IntradeHVO;
+import com.dzf.zxkj.platform.model.icset.IntradeParamVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import com.dzf.zxkj.report.utils.SystemUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -33,7 +34,7 @@ import java.util.*;
  * 入库单打印
  */
 @Slf4j
-public class RkPrint {
+public class RkPrint extends  AbstractPrint {
     private IZxkjPlatformService zxkjPlatformService;
 
     private PrintParamVO printParamVO;
@@ -46,7 +47,7 @@ public class RkPrint {
         this.queryparamvo = queryparamvo;
     }
 
-    public byte[] print (CorpVO corpVO, UserVO userVO) {
+    public byte[] print (BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         // 老模式 启用库存
         PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);
         printReporUtil.setbSaveDfsSer(DZFBoolean.TRUE);
@@ -57,13 +58,12 @@ public class RkPrint {
                 List<IctradeinVO> list =  zxkjPlatformService.queryTradeIn(queryparamvo);
                 IctradeinVO[] bodyvos= list.toArray(new IctradeinVO[0]);
                 Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title
-                tmap.put("公司", bodyvos[0].getGs());
-                tmap.put("期间", bodyvos[0].getTitlePeriod());
+                tmap.put("公司", corpVO.getUnitname());
+                tmap.put("期间", printParamVO.getTitleperiod());
 
                 IctradeinVO nvo = calTotal(bodyvos);
                 bodyvos = DZFArrayUtil.combineArray(bodyvos,new IctradeinVO[]{nvo});
-
-                setDefaultValue(bodyvos, SystemUtil.getLoginCorpId());//为后续设置精度赋值
+                setDefaultValue(bodyvos, corpVO.getPk_corp(),queryparamvo.getBegindate1());//为后续设置精度赋值
                 printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(pmap.get("font")), Font.NORMAL));// 设置表头字体
                 printReporUtil.setLineheight(22F);
                 printReporUtil.printHz(new HashMap<>(),bodyvos, "入 库 单",
@@ -117,11 +117,11 @@ public class RkPrint {
                     invmaps.put("isHiddenPzh","N");
                 }
                 //会计
-                if(!pmap.get("ishidekj").equals("true")){
+                if(!"true".equals(pmap.get("ishidekj"))){
                     pmap.put("会计","");
                 }
                 //库管员
-                if(!pmap.get("ishidekgy") .equals("true")){
+                if(!"true".equals(pmap.get("ishidekgy"))){
                     pmap.put("库管员",pmap.get("ishidekgyname"));
                 }
                 Map<String, List<SuperVO>> vomap = getVoMap(printParamVO,corpVO.getPk_corp());
@@ -150,21 +150,16 @@ public class RkPrint {
     }
 
     private Map<String, List<SuperVO>> getVoMap(PrintParamVO printParamVO,String pk_corp) {
-        String list = printParamVO.getList();
-
-        String[] strs = DZFStringUtil.getString2Array(list, ",");
-
+        IntradeParamVO paramVO = new IntradeParamVO();
+        paramVO.setPk_corp(queryparamvo.getPk_corp());
+        paramVO.setBegindate(queryparamvo.getBegindate1());
+        paramVO.setEnddate(queryparamvo.getEnddate());
+        List<IntradeHVO> list = zxkjPlatformService.queryIntradeHVOIn(paramVO);
         Map<String, List<SuperVO>> vomap = new LinkedHashMap<>();
         AuxiliaryAccountBVO[] fzvos = zxkjPlatformService.queryBByFzlb(pk_corp, AuxiliaryConstant.ITEM_SUPPLIER);
         Map<String, AuxiliaryAccountBVO> aumap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(fzvos),
                 new String[] { "pk_auacount_b" });
-        for (String id : strs) {
-
-            if (StringUtil.isEmpty(id))
-                continue;
-            IntradeHVO head = zxkjPlatformService.queryIntradeHVOByIDIn(id, pk_corp);
-            if (head == null)
-                continue;
+        for (IntradeHVO head: list) {
             SuperVO[] bodyvos = head.getChildren();
             AuxiliaryAccountBVO custvo = aumap.get(head.getPk_cust());
             List<SuperVO> alist = new ArrayList<>();
@@ -200,7 +195,7 @@ public class RkPrint {
 
             IctradeinVO nvo = calTotal(bodyvos);
             alist.add(nvo);
-            vomap.put(id, alist);
+            vomap.put(head.getPrimaryKey(), alist);
         }
         return vomap;
     }
@@ -221,10 +216,11 @@ public class RkPrint {
         return nvo;
     }
 
-    private void setDefaultValue(IctradeinVO[] bodyvos, String pk_corp){
+    private void setDefaultValue(IctradeinVO[] bodyvos, String pk_corp, DZFDate date){
         if(bodyvos != null && bodyvos.length > 0){
             for(IctradeinVO vo : bodyvos){
                 vo.setPk_corp(pk_corp);
+                vo.setDbilldate(date);
             }
         }
     }

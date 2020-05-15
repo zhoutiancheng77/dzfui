@@ -223,7 +223,7 @@ public class KmzzController extends ReportBaseController {
             printReporUtil.setLineheight(StringUtil.isEmpty(lineHeight) ? 22f : Float.parseFloat(lineHeight));
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             // 具体打印配置
-            printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap);
+            printAction(printParamVO, queryparamvo, printReporUtil, pmap, bodyvos, tmap,zxkjPlatformService);
             writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
                     "科目总账打印:" +  printParamVO.getTitleperiod(), ISysConstants.SYS_2);
         } catch (DocumentException e) {
@@ -233,7 +233,8 @@ public class KmzzController extends ReportBaseController {
         }
     }
 
-    public void printAction(PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, PrintReporUtil printReporUtil, Map<String, String> pmap, KmZzVO[] bodyvos, Map<String, String> tmap) throws DocumentException, IOException {
+    public void printAction(PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, PrintReporUtil printReporUtil, Map<String, String> pmap,
+                            KmZzVO[] bodyvos, Map<String, String> tmap, IZxkjPlatformService zxkjPlatformService) throws DocumentException, IOException {
         Object[] obj = null;
         /** 需要分页打印 */
         if (bodyvos != null && bodyvos.length > 0 && printParamVO.getIsPaging().equals("Y")) {

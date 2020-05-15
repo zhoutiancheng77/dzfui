@@ -21,6 +21,8 @@ public interface IPzglService {
     // 查询
     List<TzpzHVO> query(String period, String pk_corp) throws DZFWarpException;
 
+    List<String> queryIds(String beg_period,String end_period , String pk_corp) throws DZFWarpException;
+
     List<TzpzBVO> queryB(String hid, String pk_corp) throws DZFWarpException;
 
     List<TzpzHVO> queryByIDs(String ids, VoucherPrintParam param) throws DZFWarpException;

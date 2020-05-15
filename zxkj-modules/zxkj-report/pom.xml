@@ -126,6 +126,11 @@
         </dependency>
         <dependency>
             <groupId>com.dzf</groupId>
+            <artifactId>zxkj-report-api</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
             <artifactId>zxkj-platform-report-api</artifactId>
             <version>1.0</version>
         </dependency>

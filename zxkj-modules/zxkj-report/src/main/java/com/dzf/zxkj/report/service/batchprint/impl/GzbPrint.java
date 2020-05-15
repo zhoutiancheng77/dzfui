@@ -15,6 +15,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportColumn;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class GzbPrint {
+public class GzbPrint extends AbstractPrint {
 
     private IZxkjPlatformService zxkjPlatformService;
 
@@ -47,7 +48,7 @@ public class GzbPrint {
         this.queryparamvo = queryparamvo;
     }
 
-    public byte[] print (CorpVO corpVO, UserVO userVO) {
+    public byte[] print (BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         String opdate = null;
         String beginPeriod = null;
         String endPeriod = null;

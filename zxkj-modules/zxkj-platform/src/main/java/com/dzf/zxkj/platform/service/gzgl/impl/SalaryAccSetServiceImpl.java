@@ -291,33 +291,37 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 	@Override
 	public SalaryKmDeptVO[] saveFykm(String pk_corp, SalaryKmDeptVO[] vos) throws DZFWarpException {
 
-		List<AuxiliaryAccountBVO> deptlist = gl_fzhsserv.queryPerson(AuxiliaryConstant.ITEM_DEPARTMENT, pk_corp, null);
-		Map<String, AuxiliaryAccountBVO> audeptmap = DZfcommonTools.hashlizeObjectByPk(deptlist,
-				new String[] { "pk_auacount_b" });
-		Set<String> set = new HashSet<>();
-		for (SalaryKmDeptVO vo : vos) {
-
-			if (StringUtil.isEmpty(vo.getCdeptid()) || StringUtil.isEmpty(vo.getCkjkmid())) {
-				throw new BusinessException("部门和科目不能空!");
-			}
-			if (set.contains(vo.getCdeptid())) {
-				AuxiliaryAccountBVO bvo = audeptmap.get(vo.getCdeptid());
-				if (bvo == null) {
-					throw new BusinessException("存在部门重复设置!");
-				} else {
-					throw new BusinessException("部门" + bvo.getName() + "重复设置!");
-				}
-
-			} else {
-				set.add(vo.getCdeptid());
-			}
-			vo.setPk_corp(pk_corp);
-			vo.setDr(0);
-		}
+		// 删除之前的数据
 		String delsqlb = "delete from ynt_salarykmdept where pk_corp = '" + pk_corp + "'";
 		singleObjectBO.executeUpdate(delsqlb, null);
-		singleObjectBO.insertVOArr(pk_corp, vos);
-		return null;
+
+		if(vos !=null && vos.length>0){
+			List<AuxiliaryAccountBVO> deptlist = gl_fzhsserv.queryPerson(AuxiliaryConstant.ITEM_DEPARTMENT, pk_corp, null);
+			Map<String, AuxiliaryAccountBVO> audeptmap = DZfcommonTools.hashlizeObjectByPk(deptlist,
+					new String[] { "pk_auacount_b" });
+			Set<String> set = new HashSet<>();
+			for (SalaryKmDeptVO vo : vos) {
+
+				if (StringUtil.isEmpty(vo.getCdeptid()) || StringUtil.isEmpty(vo.getCkjkmid())) {
+					throw new BusinessException("部门和科目不能空!");
+				}
+				if (set.contains(vo.getCdeptid())) {
+					AuxiliaryAccountBVO bvo = audeptmap.get(vo.getCdeptid());
+					if (bvo == null) {
+						throw new BusinessException("存在部门重复设置!");
+					} else {
+						throw new BusinessException("部门" + bvo.getName() + "重复设置!");
+					}
+
+				} else {
+					set.add(vo.getCdeptid());
+				}
+				vo.setPk_corp(pk_corp);
+				vo.setDr(0);
+			}
+			singleObjectBO.insertVOArr(pk_corp, vos);
+		}
+		return vos;
 	}
 
 	@Override

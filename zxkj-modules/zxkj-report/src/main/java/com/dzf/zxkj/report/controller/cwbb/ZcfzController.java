@@ -571,7 +571,12 @@ public class ZcfzController extends ReportBaseController {
                 });
             }
 
-            printReporUtil.setLineheight(-1f);//设置行高
+            if (type.equals("4")) {
+                printReporUtil.setLineheight(18f);//设置行高
+            } else {
+                printReporUtil.setLineheight(-1f);//设置行高
+            }
+
             printReporUtil.setFirstlineheight(20f);
 
             printReporUtil.setBshowzero(queryparamvo.getBshowzero());

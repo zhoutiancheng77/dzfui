@@ -174,6 +174,7 @@ public class DataBackUpImpl implements IDataBackUp {
 //			System.out.println(value);
 //			log.info(value);
             JSONArray res2 = JSONArray.parseArray(value);
+            value = null; // 垃圾回收
             Map<String, List<SuperVO>> mapvalues = new HashMap<String, List<SuperVO>>();
             if (res2 != null && res2.size() > 0) {
                 JSONObject obt = null;
@@ -223,6 +224,7 @@ public class DataBackUpImpl implements IDataBackUp {
                     }
                 }
             }
+            res2 = null; // 垃圾回收
             if (mapvalues.size() > 0) {
                 List<SuperVO> listvos = null;
                 SuperVO vo = null;

@@ -6,11 +6,13 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.*;
 import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
 import com.dzf.zxkj.platform.model.icset.*;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherPrintParam;
 import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
 import com.dzf.zxkj.platform.model.qcset.SsphRes;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
@@ -18,10 +20,10 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
-import com.dzf.zxkj.platform.model.zcgl.ZcMxZVO;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface IZxkjPlatformService {
 
@@ -109,10 +111,22 @@ public interface IZxkjPlatformService {
 
     List<IntradeoutVO> queryTradeOut(QueryParamVO paramvo);
 
-    IntradeHVO queryIntradeHVOByID(String pk_ictrade_h, String pk_corp);
+    List<IntradeHVO> queryIntradeHVOOut(IntradeParamVO paramvo);
 
-    IntradeHVO queryIntradeHVOByIDIn(String pk_ictrade_h, String pk_corp);
+    List<IntradeHVO> queryIntradeHVOIn(IntradeParamVO paramvo);
 
     AssetDepreciaTionVO[] getZczjMxVOs(QueryParamVO queryParamvo);
+
+    // 查询有权限的公司
+    Set<String> querypowercorpSet(String userid);
+
+    //查询币种信息
+    BdCurrencyVO[] queryCurrency();
+
+    List<TzpzHVO> queryByIDs(String ids, VoucherPrintParam param);
+
+    byte[] execPzCoverTask (BatchPrintSetVo setvo, UserVO userVO,CorpVO corpVO);
+
+    byte[] execPzTask (BatchPrintSetVo setvo, UserVO userVO,CorpVO corpVO);
 
 }

@@ -23,6 +23,8 @@ public class LrbquarterlyVO extends SuperVO {
 	
 	//本年累计(包含期初的本年累计)
 	private DZFDouble bnlj;
+
+	public String kmfa;//当前公司所属科目方案 值参照 DzfUtil类
 	
 	private DZFDouble quarterFirst ;//第一季度
 	private DZFDouble quarterSecond ;//第二季度
@@ -250,7 +252,12 @@ public class LrbquarterlyVO extends SuperVO {
 	public void setHs_id(String hs_id) {
 		this.hs_id = hs_id;
 	}
-	
 
-	
+	public String getKmfa() {
+		return kmfa;
+	}
+
+	public void setKmfa(String kmfa) {
+		this.kmfa = kmfa;
+	}
 }
