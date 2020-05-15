@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
+import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
@@ -29,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -139,7 +141,9 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             byte[] resbytes = null;
             byte[] resbytesHx = null;
             byte[] resbytesPz = null;
-            String filename = UUID.randomUUID().toString();
+            SimpleDateFormat f=new SimpleDateFormat("yyyy年MM月dd日HH点mm分ss秒");
+            String str_time = f.format(new Date());
+            String filename =corpVO.getUnitname()+"("+str_time+")";
             if (!StringUtil.isEmpty(printcode)) {
                 String[] printcodes = printcode.split(",");
                 // 涉及异常的处理，目前先不处理，生成的文件，放在文件服务器中
