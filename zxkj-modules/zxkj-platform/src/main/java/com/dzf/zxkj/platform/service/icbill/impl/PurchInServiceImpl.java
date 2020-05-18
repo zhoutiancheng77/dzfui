@@ -8,7 +8,6 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
-import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.utils.*;
 import com.dzf.zxkj.common.constant.*;
 import com.dzf.zxkj.common.enums.IFpStyleEnum;
@@ -2433,10 +2432,10 @@ public class PurchInServiceImpl implements IPurchInService {
 		}
 
 		if (StringUtil.isEmpty(vo.getCbusitype())) {
-			throw new BusinessException("出库类型不能为空");
+			throw new BusinessException("入库类型不能为空");
 		} else {
 			if (IcBillTypeEnum.getTypeEnumByName(vo.getCbusitype()) == null) {
-				throw new BusinessException("出库类型不存在");
+				throw new BusinessException("入库类型不存在");
 			} else {
 				vo.setCbusitype(IcBillTypeEnum.getTypeEnumByName(vo.getCbusitype()).getValue());
 			}

@@ -108,9 +108,8 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 			sp.addParam("000001000000000000000006");
 			singleObjectBO.executeUpdate(" update  ynt_fzhs_b set kmclassify = null  where pk_corp = ? and nvl(dr,0) = 0 and pk_auacount_h = ?  ", sp);
 		}
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(vo1.getPk_corp());
-		singleObjectBO.executeUpdate(" delete from ynt_glicset where pk_corp = ?  ", sp);
+
+        deleteDefaultValue(pk_corp);
 		vo1.setPk_glicset(null);
 		singleObjectBO.saveObject(vo1.getPk_corp(), vo1);
 
@@ -265,5 +264,13 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 	@Override
 	public String checkInventorySet(String userid,String pk_corp,InventorySetVO vo) throws DZFWarpException {
 		return inventory_setcheck.checkInventorySet(userid, pk_corp, vo);
+	}
+
+	@Override
+	public void deleteDefaultValue(String pk_corp) throws DZFWarpException{
+        String sql = "DELETE FROM ynt_glicset WHERE pk_corp = ?";
+        SQLParameter spm = new SQLParameter();
+        spm.addParam( pk_corp);
+        singleObjectBO.executeUpdate(sql, spm);
 	}
 }

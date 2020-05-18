@@ -15,4 +15,6 @@ public interface IInventoryAccSetService {
 	
 	 String checkInventorySet(String userid,String pk_corp,InventorySetVO vo) throws DZFWarpException;
 
+	void deleteDefaultValue(String pk_corp) throws DZFWarpException;
+
 }
