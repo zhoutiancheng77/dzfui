@@ -1226,8 +1226,14 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			
 			baseRequest.setServiceid("FW_DZSWJ_DYBBSBQKCX");
 			baseRequest.getBody().setSign("querySbqk");
-			
-			String ywbw = EncryptDecrypt.encode("{\"LSH\":\"''" + lsh + "''\"}", taxJstcConfig.app_secret);
+
+			Map<String, String> businessParam = new HashMap<>();
+			businessParam.put("nsrsbh", corpvo.getVsoccrecode());
+			businessParam.put("skssqq", reportvo.getPeriodfrom());
+			businessParam.put("skssqz", reportvo.getPeriodto());
+			businessParam.put("LSH", "''" + lsh + "''");
+			String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(businessParam),
+					taxJstcConfig.app_secret);
 			
 			baseRequest.getBody().setYwbw(ywbw);
 			

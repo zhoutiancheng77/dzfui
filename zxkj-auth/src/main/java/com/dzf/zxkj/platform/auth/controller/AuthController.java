@@ -30,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.awt.*;
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -73,13 +75,20 @@ public class AuthController {
 
         // 三个参数分别为宽、高、位数
         SpecCaptcha specCaptcha = new SpecCaptcha(110, 49, 4);
-        //设置内置字体
-        specCaptcha.setFont(new Random().nextInt(10));//10以内随机数
+        //设置内置字体先注释掉
+//        specCaptcha.setFont(new Random().nextInt(10));//10以内随机数
         // 设置字体
-//        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
+        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
         // 设置类型，纯数字、纯字母、字母数字混合
         specCaptcha.setCharType(Captcha.TYPE_DEFAULT);
-        String verCode = specCaptcha.text().toLowerCase();
+//        String verCode = specCaptcha.text().toLowerCase();先注释掉
+        String verCode = "1234";
+
+        //先注释掉
+        Field field = specCaptcha.getClass().getSuperclass().getDeclaredField("chars");
+        field.setAccessible(true);
+        field.set(specCaptcha, verCode);
+
         // 验证码存入缓存
         String key = UUID.randomUUID().toString();
         checkCodeCache.put(key, verCode);
@@ -113,17 +122,17 @@ public class AuthController {
         LoginLogVo loginLogVo = getLoginVo(ISysConstants.SYS_KJ);
 
         Grid<LoginUser> grid = new Grid<>();
-        String verify = checkCodeCache.get(loginUser.getKey());
-
-        if (verify == null) {
-            grid.setSuccess(false);
-            grid.setMsg("由于长时间未登录，请刷新后重新操作！");
-            return ReturnData.ok().data(grid);
-        } else if (!verify.equalsIgnoreCase(loginUser.getVerify())) {
-            grid.setSuccess(false);
-            grid.setMsg("验证码错误！");
-            return ReturnData.ok().data(grid);
-        }
+//        String verify = checkCodeCache.get(loginUser.getKey());先注释掉
+//
+//        if (verify == null) {
+//            grid.setSuccess(false);
+//            grid.setMsg("由于长时间未登录，请刷新后重新操作！");
+//            return ReturnData.ok().data(grid);
+//        } else if (!verify.equalsIgnoreCase(loginUser.getVerify())) {
+//            grid.setSuccess(false);
+//            grid.setMsg("验证码错误！");
+//            return ReturnData.ok().data(grid);
+//        }
 
         String username = RSAUtils.decryptStringByJs(loginUser.getUsername());
         String password = RSAUtils.decryptStringByJs(loginUser.getPassword());

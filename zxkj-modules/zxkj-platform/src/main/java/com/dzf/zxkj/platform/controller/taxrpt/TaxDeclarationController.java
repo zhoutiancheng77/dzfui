@@ -319,4 +319,70 @@ public class TaxDeclarationController  extends BaseController {
         json.setMsg("申报作废成功!");
         return ReturnData.ok().data(json);
     }
+
+    @PostMapping("/getSpreadJsData2")
+    public ReturnData<Json> getSpreadJsData2(@RequestBody Map<String, String> param) {
+        String pk_taxreport = param.get("pk_taxreport");
+        String pk_corp = param.get("pk_corp");
+        String userid = param.get("userid");
+        String readonly = param.get("readonly");
+        Boolean isReadonly = (readonly != null && readonly.toLowerCase().equals("y"));
+        Json json = new Json();
+        try {
+
+            //校验当前公司权限
+            UserVO uservo = userService.queryUserJmVOByID(userid);
+            Set<String> nnmnc = userService.querypowercorpSet(uservo.getPrimaryKey());
+            if (!nnmnc.contains(pk_corp)) {
+                throw new BusinessException("当前操作人，不包含该公司权限");
+            }
+            String spreadjson = taxDeclarationService.getSpreadJSData(pk_taxreport, uservo,null, isReadonly);
+
+            json.setData(spreadjson);
+            json.setStatus(200);
+            json.setSuccess(true);
+            json.setMsg("数据加载成功");
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            json.setSuccess(false);
+            json.setMsg(e instanceof BusinessException ? e.getMessage() : "获取模板数据失败");
+        }
+
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/saveReport2")
+    public ReturnData<Json> saveReport2(@RequestBody Map<String, String> param) {
+        String pk_taxreport = param.get("pk_taxreport");
+        String corpid = param.get("pk_corp");
+        String jsonString = param.get("jsonString");
+        String userid = param.get("userid");
+        String logindate = param.get("logindate");
+        //校验当前公司权限
+        UserVO uservo = userService.queryUserJmVOByID(userid);
+        Json rsjson = new Json();
+        try {
+            //校验当前公司权限
+            Set<String> nnmnc = userService.querypowercorpSet(uservo.getPrimaryKey());
+            if (!nnmnc.contains(corpid)) {
+                throw new BusinessException("当前操作人，不包含该公司权限");
+            }
+            String message = taxDeclarationService.saveReport(pk_taxreport, corpid, jsonString, uservo,logindate, null);
+
+            rsjson.setStatus(200);
+            rsjson.setSuccess(true);
+            if(!StringUtil.isEmpty(message)){
+                rsjson.setMsg("警告:"+message);
+            }else{
+                rsjson.setMsg("保存成功!");
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            rsjson.setSuccess(false);
+            rsjson.setMsg(e instanceof BusinessException ? e.getMessage() : "保存失败");
+            rsjson.setStatus(-100);
+        }
+
+        return ReturnData.ok().data(rsjson);
+    }
 }
