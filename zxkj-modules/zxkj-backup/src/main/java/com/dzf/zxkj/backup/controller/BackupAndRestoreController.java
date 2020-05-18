@@ -3,7 +3,6 @@ package com.dzf.zxkj.backup.controller;
 import com.dzf.zxkj.backup.service.ICorpService;
 import com.dzf.zxkj.backup.service.IDataBackUp;
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.common.base.IOperatorLogService;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -46,12 +45,12 @@ public class BackupAndRestoreController {
     @Autowired
     private ICorpService corpService;
 
-    @Autowired
-    private IOperatorLogService operatorLogService;
+//    @Autowired
+//    private IOperatorLogService operatorLogService;
 
 
-    @GetMapping("/query")
-    public ReturnData<Json> query(String pk_corp) {
+    @GetMapping("/query/{pk_corp}")
+    public ReturnData<Json> query(@PathVariable("pk_corp") String pk_corp) {
         Json json = new Json();
         try {
             List<BackupVO> bakeupData = gl_databackup.query(pk_corp);
