@@ -8,13 +8,13 @@ public enum IcBillTypeEnum {
 
 	WGTYPE("WGTYPE", "完工入库", IcConst.WGTYPE),
 
-	QTRTYPE("QTRTYPE", "其它入库", IcConst.QTRTYPE),
+	QTRTYPE("QTRTYPE", "其他入库", IcConst.QTRTYPE),
 
 	XSTYPE("XSTYPE", "销售出库", IcConst.XSTYPE),
 
 	LLTYPE("LLTYPE", "领料出库", IcConst.LLTYPE),
 
-	QTCTYPE("QTCTYPE", "其它出库", IcConst.QTCTYPE),
+	QTCTYPE("QTCTYPE", "其他出库", IcConst.QTCTYPE),
 
 	CBTZTYPE("CBTZTYPE", "成本调整", IcConst.CBTZTYPE);
 

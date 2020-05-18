@@ -81,7 +81,9 @@ public class BDCorpServiceImpl implements IBDCorpService {
 
     @Autowired
     IInventoryAccSetService  accSetService;
-	
+
+    @Autowired
+    private IInventoryAccSetService gl_ic_invtorysetserv;
 	@SuppressWarnings("unchecked")
 	public CorpVO[] queryCorp(QueryParamVO queryvo, UserVO uservo) throws DZFWarpException {
 		// 根据查询条件查询公司的信息
@@ -3480,10 +3482,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		}
 		corpvo.setBbuildic(IcCostStyle.IC_OFF);
 		singleObjectBO.update(corpvo, new String[] { "bbuildic"});
-
-		String sql = "DELETE FROM ynt_glicset WHERE pk_corp = ?";
-		SQLParameter spm = new SQLParameter();
-		spm.addParam(corpvo.getPk_corp());
-		singleObjectBO.executeUpdate(sql, spm);
+        gl_ic_invtorysetserv.deleteDefaultValue(corpvo.getPk_corp());
 	}
+
 }
