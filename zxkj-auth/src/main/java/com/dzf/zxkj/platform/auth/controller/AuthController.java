@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.awt.*;
+import java.lang.reflect.Field;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -76,13 +77,17 @@ public class AuthController {
         SpecCaptcha specCaptcha = new SpecCaptcha(110, 49, 4);
         //设置内置字体
 //        specCaptcha.setFont(new Random().nextInt(10));//10以内随机数
-        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));
         // 设置字体
-//        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
+        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
         // 设置类型，纯数字、纯字母、字母数字混合
         specCaptcha.setCharType(Captcha.TYPE_DEFAULT);
 //        String verCode = specCaptcha.text().toLowerCase();
         String verCode = "1234";
+
+        Field field = specCaptcha.getClass().getSuperclass().getDeclaredField("chars");
+        field.setAccessible(true);
+        field.set(specCaptcha, verCode);
+
         // 验证码存入缓存
         String key = UUID.randomUUID().toString();
         checkCodeCache.put(key, verCode);
