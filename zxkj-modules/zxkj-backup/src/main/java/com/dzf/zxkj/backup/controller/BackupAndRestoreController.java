@@ -2,12 +2,10 @@ package com.dzf.zxkj.backup.controller;
 
 import com.dzf.zxkj.backup.service.ICorpService;
 import com.dzf.zxkj.backup.service.IDataBackUp;
-import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
-import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.base.IOperatorLogService;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -40,13 +38,17 @@ import java.util.concurrent.Future;
 @RequestMapping("/gl/gl_backupact")
 @Slf4j
 @SuppressWarnings("all")
-public class BackupAndRestoreController extends BaseController {
+public class BackupAndRestoreController {
 
     @Autowired
     private IDataBackUp gl_databackup;
 
     @Autowired
     private ICorpService corpService;
+
+    @Autowired
+    private IOperatorLogService operatorLogService;
+
 
     @GetMapping("/query")
     public ReturnData<Json> query(String pk_corp) {
@@ -79,7 +81,6 @@ public class BackupAndRestoreController extends BaseController {
         String requestid = UUID.randomUUID().toString();
         String finalid = "DATABACKZXKJID";
         if (listVo != null && listVo.length > 0) {
-            checkSecurityData(listVo, null, null);
             saveBatch(listVo, json, tips);
         }
         if (tips.length() > 0) {
@@ -89,7 +90,8 @@ public class BackupAndRestoreController extends BaseController {
             json.setMsg("保存成功");
             json.setSuccess(true);
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据备份", ISysConstants.SYS_2);
+
+//        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据备份", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -152,7 +154,6 @@ public class BackupAndRestoreController extends BaseController {
             String end = "ok";
             String requestid = UUID.randomUUID().toString();
             String finalid = "DATABACKZXKJID_" + cpvo.getPk_corp();
-//			boolean lock = LockUtil.getInstance().addLockKey(finalid, id, requestid, 600);// 设置600秒
             //TODO
             boolean lock = true;
             try {
@@ -160,14 +161,13 @@ public class BackupAndRestoreController extends BaseController {
                     gl_databackup.updatedataBackUp(cpvo);
                 }
             } catch (Exception e) {
-//				printErrorLog(json, log, e, "保存失败！");
                 if (e instanceof BusinessException) {
                     tips.append("公司名称:" + cpvo.getUnitname() + e.getMessage() + "备份失败!<br/>");
                 } else {
                     tips.append("公司名称:" + cpvo.getUnitname() + "备份失败!<br/>");
                 }
             } finally {
-//				LockUtil.getInstance().unLock_Key(finalid, id, requestid);
+
             }
             return end;
         }
@@ -187,7 +187,7 @@ public class BackupAndRestoreController extends BaseController {
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "更新失败");
         }
 
-        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据备注更新", ISysConstants.SYS_2);
+//        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据备注更新", ISysConstants.SYS_2);
 
         return ReturnData.ok().data(json);
     }
@@ -203,7 +203,6 @@ public class BackupAndRestoreController extends BaseController {
 
         CorpVO[] listVo = JsonUtils.deserialize(strlist, CorpVO[].class);
         if (listVo != null && listVo.length > 0) {
-            checkSecurityData(listVo, null, null);
             for (CorpVO cpvo : listVo) {
                 try {
                     BackupVO oldvo = gl_databackup.queryNewByCorp(cpvo.getPk_corp());
@@ -222,7 +221,7 @@ public class BackupAndRestoreController extends BaseController {
             json.setMsg("恢复成功");
             json.setSuccess(true);
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据恢复", ISysConstants.SYS_2);
+//        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据恢复", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -240,7 +239,7 @@ public class BackupAndRestoreController extends BaseController {
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "恢复失败！");
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据恢复", ISysConstants.SYS_2);
+//        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "数据恢复", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -259,7 +258,7 @@ public class BackupAndRestoreController extends BaseController {
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败！");
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "备份删除", ISysConstants.SYS_2);
+//        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "备份删除", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
@@ -327,7 +326,7 @@ public class BackupAndRestoreController extends BaseController {
             json.setSuccess(false);
             json.setMsg(e instanceof BusinessException ? e.getMessage() : "上传失败！");
         }
-        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "上传本地备份", ISysConstants.SYS_2);
+//        writeLogRecord(LogRecordEnum.OPE_KJ_SJWH, "上传本地备份", ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
 
