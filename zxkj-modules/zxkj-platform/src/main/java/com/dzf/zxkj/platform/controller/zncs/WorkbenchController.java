@@ -2337,14 +2337,14 @@ public class WorkbenchController extends BaseController {
                 pkcorps = iInterfaceBill.queryCorpByName(corpNames);
             }
 
-            DutyPayVO[] datas = iInterfaceBill.queryDutyTolalInfo(pkcorps,period);
-            DutyPayVO[] data2 = getPageDutydata(datas,page,rows);
+            DutyPayVO[] datas = iInterfaceBill.queryDutyTolalInfo(pkcorps,period,page,rows);
+            //DutyPayVO[] data2 = getPageDutydata(datas,page,rows);
             json.setHead(pkcorps);
             json.setSuccess(true);
             json.setMsg("查询成功");
             json.setRows(rows);
             json.setTotal((long) (datas == null ? 0 : datas.length));
-            json.setData(data2);
+            json.setData(datas);
         } catch(Exception e) {
             json.setStatus(-100);
             printErrorLog(json, e, "查询失败");

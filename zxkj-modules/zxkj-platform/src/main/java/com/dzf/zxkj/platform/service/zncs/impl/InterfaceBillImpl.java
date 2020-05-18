@@ -2652,7 +2652,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	}
 
 	@Override
-	public DutyPayVO []queryDutyTolalInfo(String[] pkcorps, String period) throws DZFWarpException {
+	public DutyPayVO []queryDutyTolalInfo(String[] pkcorps, String period,int page,int rows) throws DZFWarpException {
 
 
 
@@ -2703,7 +2703,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			dtlist.add(dpvo);
 		}
 
-		return dtlist.toArray(new DutyPayVO[0]);
+		return getPageDutydata(dtlist.toArray(new DutyPayVO[0]),page,rows);
 	}
 	private String getDutyQuerySql(String []pkcorps,String period){
 		StringBuffer buff = new StringBuffer();
@@ -2753,6 +2753,17 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		return list.toArray(new String[0]);
 	}
 
+	private DutyPayVO []getPageDutydata(DutyPayVO[]datas,int page,int rows){
+		if(datas==null||datas.length==0)return  datas;
+		if(rows < 0) return datas;
+
+		List<DutyPayVO> list = new ArrayList<DutyPayVO>();
+		int start = (page - 1) * rows;
+		for (int i = start; i < page * rows && i < datas.length; i++) {
+			list.add(datas[i]);
+		}
+		return list.toArray(new DutyPayVO[0]);
+	}
 //	private String marchCorp(CorpVO corpvo[], String corpName){
 //		for (CorpVO corpVO:corpvo) {
 //			String cname = CodeUtils1.deCode(corpVO.getUnitname());

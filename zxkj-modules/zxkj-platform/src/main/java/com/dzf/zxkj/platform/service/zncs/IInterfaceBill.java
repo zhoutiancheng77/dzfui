@@ -210,7 +210,7 @@ public interface IInterfaceBill {
 	 * 统计完税统计信息
 	 * @throws DZFWarpException
 	 */
-	public DutyPayVO []queryDutyTolalInfo(String pkcorps[],String period)throws DZFWarpException;
+	public DutyPayVO []queryDutyTolalInfo(String pkcorps[],String period,int page,int rows)throws DZFWarpException;
 
 	/**
 	 * 根据公司名称查出公司
