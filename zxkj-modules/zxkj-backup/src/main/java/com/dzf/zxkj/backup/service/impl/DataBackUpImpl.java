@@ -54,7 +54,7 @@ import java.util.zip.GZIPOutputStream;
  *
  * @author zhangj
  */
-@Service("gl_databackup")
+@Service
 @Slf4j
 @SuppressWarnings("all")
 public class DataBackUpImpl implements IDataBackUp {

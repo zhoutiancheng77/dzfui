@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@Service("secretkeyser")
+@Service
 @Slf4j
 public class SecretKeyServiceImpl implements ISecretKeyService {
 

@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan(basePackages = {"com.dzf.zxkj.platform", "com.dzf.file"})
+@ComponentScan(basePackages = {"com.dzf.zxkj.backup", "com.dzf.file"})
 public class BackUpApplication {
     public static void main(String[] args) {
         SpringApplication.run(BackUpApplication.class, args);
