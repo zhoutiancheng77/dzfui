@@ -305,4 +305,18 @@ public class TaxDeclarationController  extends BaseController {
         writeLogRecord(LogRecordEnum.OPE_KJ_TAX, msg, ISysConstants.SYS_2);
         return ReturnData.ok().data(json);
     }
+
+    /**
+     * 申报作废
+     */
+    @PostMapping("/onDeclareCancel")
+    public ReturnData<Json> onDeclareCancel(@RequestBody Map<String, String> param) {
+        Json json = new Json();
+        String pk_taxreport = param.get("pk_taxreport");
+        String ts = param.get("ts");
+        taxDeclarationService.processDeclareCancel(pk_taxreport, SystemUtil.getLoginUserVo(), ts);
+        json.setSuccess(true);
+        json.setMsg("申报作废成功!");
+        return ReturnData.ok().data(json);
+    }
 }
