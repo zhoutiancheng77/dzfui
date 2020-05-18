@@ -1,9 +1,9 @@
 package com.dzf.zxkj.backup.service;
 
 
-import com.dzf.zxkj.backup.entity.BackupVO;
-import com.dzf.zxkj.backup.entity.CorpVO;
-import com.dzf.zxkj.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.platform.model.bdset.BackupVO;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
 
 import java.io.InputStream;
 import java.util.List;
