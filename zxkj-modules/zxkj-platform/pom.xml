@@ -213,7 +213,11 @@
             <artifactId>dzf-account-api</artifactId>
             <version>1.1.0-SNAPSHOT</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-qfwsinfo-api</artifactId>
+            <version>1.0.4</version>
+        </dependency>
         <dependency>
             <groupId>com.alicp.jetcache</groupId>
             <artifactId>jetcache-starter-redis-lettuce</artifactId>
