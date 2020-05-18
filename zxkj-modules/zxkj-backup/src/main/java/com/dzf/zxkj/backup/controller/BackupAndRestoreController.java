@@ -6,9 +6,6 @@ import com.dzf.zxkj.backup.vo.BackupQuery;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
-import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
-import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.BackupVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -186,15 +182,9 @@ public class BackupAndRestoreController {
     }
 
     @PostMapping("/multiRestore")
-    public ReturnData<Json> multiRestore(@MultiRequestBody String listvalue) {
+    public ReturnData<Json> multiRestore(@RequestBody CorpVO[] listVo) {
         Json json = new Json();
         StringBuffer tips = new StringBuffer();
-        String strlist = listvalue;
-        if (StringUtil.isEmpty(strlist)) {
-            tips.append("请选择数据!");
-        }
-
-        CorpVO[] listVo = JsonUtils.deserialize(strlist, CorpVO[].class);
         if (listVo != null && listVo.length > 0) {
             for (CorpVO cpvo : listVo) {
                 try {
@@ -256,14 +246,13 @@ public class BackupAndRestoreController {
     }
 
     @PostMapping("/download")
-    public void download(HttpServletRequest request, HttpServletResponse response, String pk_corp, @RequestParam Map<String, String> pmap) {
+    public void download(HttpServletRequest request, HttpServletResponse response, BackupQuery backupQuery) {
         FileInputStream fileis = null;
         ServletOutputStream out = null;
         Json json = new Json();
         try {
-            String fid = pmap.get("fid");
-            BackupVO oldvo = gl_databackup.queryByID(fid);
-            checkData(oldvo, pk_corp);
+            BackupVO oldvo = gl_databackup.queryByID(backupQuery.getFid());
+            checkData(oldvo, backupQuery.getPk_corp());
             fileis = new FileInputStream(oldvo.getFilePath());
             response.setContentType("application/octet-stream");
 
@@ -304,10 +293,10 @@ public class BackupAndRestoreController {
     }
 
     @PostMapping("/upload")
-    public ReturnData<Json> upload(@RequestParam("impfile") MultipartFile file, String pk_corp) {
+    public ReturnData<Json> upload(@RequestParam("impfile") MultipartFile file, HttpServletRequest request) {
         Json json = new Json();
         try {
-            CorpVO corp = corpService.queryByPk(pk_corp);
+            CorpVO corp = corpService.queryByPk(request.getHeader("X-Login-Corp"));
             if (file != null) {
                 String filename = file.getOriginalFilename();
                 gl_databackup.saveUpFile(file.getInputStream(), filename, corp);

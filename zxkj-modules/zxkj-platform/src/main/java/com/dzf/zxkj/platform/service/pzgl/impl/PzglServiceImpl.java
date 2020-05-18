@@ -1856,13 +1856,15 @@ public class PzglServiceImpl implements IPzglService {
 		if (cell == null) {
 			return val;
 		}
-		if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
+		if (cell.getCellTypeEnum() == CellType.BLANK) {
+			val = null;
+		} else if (cell.getCellTypeEnum() == CellType.STRING) {
 			val = cell.getRichStringCellValue().getString();
 			val = val.trim();
 		} else if (HSSFDateUtil.isCellDateFormatted(cell)) {
 			SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 			val = dateFormatter.format(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()));
-		} else if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
+		} else if (cell.getCellTypeEnum() == CellType.NUMERIC) {
 			DecimalFormat format = isNum ? new DecimalFormat("#.########") : new DecimalFormat("#");
 			double numVal = cell.getNumericCellValue();
 			val = format.format(numVal);
