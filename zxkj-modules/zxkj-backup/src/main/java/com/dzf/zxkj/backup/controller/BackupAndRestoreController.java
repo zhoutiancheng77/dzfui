@@ -2,6 +2,7 @@ package com.dzf.zxkj.backup.controller;
 
 import com.dzf.zxkj.backup.service.ICorpService;
 import com.dzf.zxkj.backup.service.IDataBackUp;
+import com.dzf.zxkj.backup.vo.BackupQuery;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -66,16 +67,9 @@ public class BackupAndRestoreController {
     }
 
     @PostMapping("/save")
-    public ReturnData<Json> save(@RequestBody String listvalue) {
-        String strlist = listvalue;
-//		String strlist = param.get("listvalue"); @RequestParam Map<String, String> param
+    public ReturnData<Json> save(@RequestBody CorpVO[] listVo) {
         Json json = new Json();
         StringBuffer tips = new StringBuffer();
-        if (StringUtil.isEmpty(strlist)) {
-            tips.append("请选择数据!");
-        }
-
-        CorpVO[] listVo = JsonUtils.deserialize(strlist, CorpVO[].class);
 
         String requestid = UUID.randomUUID().toString();
         String finalid = "DATABACKZXKJID";
@@ -244,11 +238,11 @@ public class BackupAndRestoreController {
 
 
     @PostMapping("/delete")
-    public ReturnData<Json> delete(String fid, String pk_corp) {
+    public ReturnData<Json> delete(@RequestBody BackupQuery backupQuery) {
         Json json = new Json();
         try {
-            BackupVO oldvo = gl_databackup.queryByID(fid);
-            checkData(oldvo, pk_corp);
+            BackupVO oldvo = gl_databackup.queryByID(backupQuery.getFid());
+            checkData(oldvo, backupQuery.getPk_corp());
             gl_databackup.delete(oldvo);
             json.setMsg("删除成功");
             json.setSuccess(true);
