@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 public class WsDutyServiceImpl implements IWsDutyService {
     @Autowired
     IInterfaceBill iInterfaceBill;
-    @Autowired
-    SingleObjectBO singleObjectBO;
     @Override
     public ReturnData queryDutyTolalInfo(String period,String corpNames[],String []pkcorps,int page,int rows) {
         ReturnData data = new ReturnData();
