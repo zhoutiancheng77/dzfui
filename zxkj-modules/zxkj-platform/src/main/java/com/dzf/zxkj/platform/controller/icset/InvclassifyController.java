@@ -30,9 +30,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 存货类别
@@ -53,7 +51,13 @@ public class InvclassifyController extends BaseController{
 		Grid grid = new Grid();
 		list = ic_inclsserv.queryByPkcorp(InvclassifyVO.class, SystemUtil.getLoginCorpId());//
 		if (list != null && list.size() > 0) {
-			// log.info("查询成功！");
+			Collections.sort(list, new Comparator<InvclassifyVO>() {
+				@Override
+				public int compare(InvclassifyVO o1, InvclassifyVO o2) {
+					int i = o1.getCode().compareTo(o2.getCode());
+					return i;
+				}
+			});
 			grid.setSuccess(true);
 			grid.setTotal((long) list.size());
 			grid.setRows(list);
