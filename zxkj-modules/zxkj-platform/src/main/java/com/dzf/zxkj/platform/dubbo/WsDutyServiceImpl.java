@@ -33,7 +33,7 @@ public class WsDutyServiceImpl implements IWsDutyService {
     @Autowired
     private ICorpService corpService;
     @Override
-    public ReturnData queryDutyTolalInfo(String period,String corpNames[],String []pkcorps,int page,int rows) {
+    public ReturnData queryDutyTolalInfo(String period,String corpNames[],String []pkcorps,String izdf,int page,int rows) {
         ReturnData data = new ReturnData();
         try{
             if(StringUtil.isEmpty(period)){
@@ -63,13 +63,13 @@ public class WsDutyServiceImpl implements IWsDutyService {
     }
 
     @Override
-    public InputStream searhImage(String Pk_image_library, String pk_cprp_ser,
+    public InputStream searhImage(String Pk_image_library, String pk_cprp,
                                  String imgname, String isSmall, String isMiddle){
         {
             InputStream is = null;
             FileInputStream fis = null;
             try {
-                ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(pk_cprp_ser, Pk_image_library);
+                ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(pk_cprp, Pk_image_library);
                 String imgPathName = null;
                 String type = null;
                 if (imglibvo != null && imgname.equals(imglibvo.getImgname())) {
@@ -90,7 +90,7 @@ public class WsDutyServiceImpl implements IWsDutyService {
                     }
 
                 }
-                CorpVO corpVO2 = corpService.queryByPk(pk_cprp_ser);//图片浏览查询框中公司pk
+                CorpVO corpVO2 = corpService.queryByPk(pk_cprp);//图片浏览查询框中公司pk
                 File dir = getImageFolder(type, corpVO2, imgPathName, imgname);
                 String lujing = dir.getAbsolutePath();
                 File file = new File(lujing);
