@@ -238,6 +238,7 @@ public class FzKmmxController extends ReportBaseController {
             }
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String print_all = pmap.get("print_all");
+            printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));
             FzKmmxVO[] bodyvos = JsonUtils.deserialize(printParamVO.getList(),FzKmmxVO[].class);
             Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("公司", printParamVO.getCorpName());
