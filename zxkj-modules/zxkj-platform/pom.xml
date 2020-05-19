@@ -216,7 +216,12 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-qfwsinfo-api</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.6</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-corpinfo-api</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.alicp.jetcache</groupId>

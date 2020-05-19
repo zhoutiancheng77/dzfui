@@ -18,5 +18,6 @@
         <module>zxkj-platform-main-api</module>
         <module>zxkj-platform-report-api</module>
         <module>zxkj-platform-taxrpt-api</module>
+        <module>zxkj-platform-corp-api</module>
     </modules>
 </project>
