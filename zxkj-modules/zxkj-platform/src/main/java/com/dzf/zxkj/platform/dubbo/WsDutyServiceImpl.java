@@ -104,6 +104,21 @@ public class WsDutyServiceImpl implements IWsDutyService {
                     return fis;
                 }
             }catch (Exception e){
+                if(fis != null){
+                    try{
+                        fis.close();
+                    }catch(Exception e1){
+                        //e.printStackTrace();
+                    }
+                }
+                if(is != null){
+                    try{
+                        is.close();
+                    }catch(Exception e1){
+                        //e.printStackTrace();
+                    }
+                }
+                return  null;
             }
             return is;
         }
