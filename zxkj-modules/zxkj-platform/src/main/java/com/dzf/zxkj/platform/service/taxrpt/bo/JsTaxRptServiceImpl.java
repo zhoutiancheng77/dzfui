@@ -568,7 +568,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
 
 		//调用初始化接口获取期初数据
-		if ("on".equals(taxJstcConfig.service_switch)
+		if ("true".equals(taxJstcConfig.service_switch)
 				&& !StringUtil.isEmpty(corpvo.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())
 				&& corpvo.getVsoccrecode().length() > 1
@@ -593,7 +593,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	public Object sendTaxReport(CorpVO corpVO, UserVO userVO, Map objMapReport,
 			SpreadTool spreadtool, TaxReportVO reportvo, SingleObjectBO sbo)
 			throws DZFWarpException {
-		if (!"on".equals(taxJstcConfig.service_switch)) {
+		if (!"true".equals(taxJstcConfig.service_switch)) {
 			throw new BusinessException("申报接口未启用");
 		}
 		if (!TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())
@@ -1191,7 +1191,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	@Override
 	public void getDeclareStatus(CorpVO corpvo, CorpTaxVo taxvo,TaxReportVO reportvo)
 			throws DZFWarpException {
-		if (!"on".equals(taxJstcConfig.service_switch)) {
+		if (!"true".equals(taxJstcConfig.service_switch)) {
 			return;
 		}
 		if (StringUtil.isEmpty(corpvo.getVsoccrecode())
@@ -1313,7 +1313,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	public void processObsoleteDeclare(CorpVO corpvo, TaxReportVO reportvo)
 			throws DZFWarpException {
 		
-		if (!"on".equals(taxJstcConfig.service_switch)) {
+		if (!"true".equals(taxJstcConfig.service_switch)) {
 			return;
 		}
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
@@ -2439,7 +2439,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		// 用户勾选的报表
 		List<String> checkedRpt = super.queryCorpTaxRptVO(corpvo, period);
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
-		if ("on".equals(taxJstcConfig.service_switch)
+		if ("true".equals(taxJstcConfig.service_switch)
 				&& !"true".equals(taxJstcConfig.dev_mode)
 				&& !StringUtil.isEmpty(corpvo.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
@@ -2473,7 +2473,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			List<TaxReportVO> adddetails,String period) {
 		List<TaxReportDetailVO> allDetails = new ArrayList<TaxReportDetailVO>();
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpVO.getPk_corp());
-		if ("on".equals(taxJstcConfig.service_switch)
+		if ("true".equals(taxJstcConfig.service_switch)
 				&& !StringUtil.isEmpty(corpVO.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
 			// 用户勾选的表
@@ -2654,7 +2654,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			msg = "纳税人识别号为空";
 		} else if (StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
 			msg = "国税密码为空";
-		} else if ("on".equals(taxJstcConfig.service_switch)) {
+		} else if ("true".equals(taxJstcConfig.service_switch)) {
 			if (list != null && list.size() > 0) {
 				String period = DateUtils.getPeriod(new DZFDate());
 				JSONObject rsJosn = getInventoryJson(period, corpvo,taxvo);

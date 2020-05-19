@@ -2652,11 +2652,11 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	}
 
 	@Override
-	public DutyPayVO []queryDutyTolalInfo(String[] pkcorps, String period,int page,int rows) throws DZFWarpException {
+	public DutyPayVO []queryDutyTolalInfo(String[] pkcorps, String period,String izdf,int page,int rows) throws DZFWarpException {
 
 
 
-		String sql = getDutyQuerySql(pkcorps,period);
+		String sql = getDutyQuerySql(pkcorps,period,izdf);
 
 		 List<DutyPayVO> dutilist =  (List<DutyPayVO>)singleObjectBO.executeQuery(sql,new SQLParameter(),new BeanListProcessor(DutyPayVO.class));
 		 if(dutilist==null||dutilist.isEmpty()){
@@ -2694,6 +2694,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			dpvo.setCorpname(SecretCodeUtils.deCode(dvo.getCorpname()));
 			dpvo.setInvname(dvo.getInvname());
 			dpvo.setPeriod(dvo.getPeriod());
+			dpvo.setIzdf(dvo.getIzdf());
 			for (DutyPayVO dvo_2:dutilist) {
 				if(dvo.getPeriod().equals(dvo_2.getPeriod())  && dvo.getPk_corp().equals(dvo_2.getPk_corp())  && dvo.getInvname().equals(dvo_2.getInvname()) ){
 					dpvo.setItemmny(new DZFDouble(dpvo.getItemmny()).add(dvo_2.getItemmny()).doubleValue());
@@ -2706,20 +2707,29 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 		return getPageDutydata(dtlist.toArray(new DutyPayVO[0]),page,rows);
 	}
-	private String getDutyQuerySql(String []pkcorps,String period){
+	private String getDutyQuerySql(String []pkcorps,String period,String izdf){
 		StringBuffer buff = new StringBuffer();
 		String corpsql = "   and  " + SqlUtil.buildSqlForIn("c.pk_corp", pkcorps);
 		//buff.append(" insert into DZF_TMP_DUTY(invname,corpname,itemmny,period,pk_corp,sourceid,imgname)  ");
 		buff.append(" select d.invname as invname ,e.unitname as corpname,d.itemmny as itemmny,c.period as period ,d.pk_corp as pk_corp,f.crelationid as sourceid,f.imgname ");
+		buff.append(" ,case when t1.pk_taxadvance is not null then 'Y' else 'N' end as izdf ");
 		buff.append(" From ynt_interface_invoice_detail d ");
 		buff.append(" left join ynt_interface_invoice c on c.pk_invoice =d.pk_invoice  ");
 		buff.append(" left join ynt_image_ocrlibrary f on f.pk_image_ocrlibrary = c.ocr_id ");
 		buff.append(" left join bd_corp e on d.pk_corp = e.pk_corp ");
 		buff.append(" left join ynt_billcategory b1 on b1.pk_category = c.pk_billcategory ");
 		buff.append(" left join ynt_image_group g1 on g1.pk_image_group = c.pk_image_group ");
+		buff.append(" left join ynt_taxadvance t1 on t1.pk_corp = d.pk_corp and nvl(t1.dr,0)=0 and trim(t1.begindate)<='"+period+"' and '"+period+"'<=trim(t1.enddate) and t1.advstatus =2");
 		buff.append(" where c.invoicetype = 'b税收完税证明' and invname is not null  and b1.categorycode!='18' and c.pk_billcategory is not null ");
 		buff.append(" and g1.istate!='205' and nvl(d.dr,0)=0 and  nvl(c.dr,0)=0   and nvl(g1.dr,0)=0  ");
 		buff.append(" and c.period ='"+period+"' ");
+		if(!StringUtil.isEmpty(izdf)){
+			if(izdf.equals("Y")){
+				buff.append("and t1.pk_taxadvance is not null");
+			}else if(izdf.equals("N")){
+				buff.append("and t1.pk_taxadvance is  null");
+			}
+		}
 		buff.append(corpsql);
 		buff.append(" order by d.pk_corp,d.invname ");
 		return buff.toString();

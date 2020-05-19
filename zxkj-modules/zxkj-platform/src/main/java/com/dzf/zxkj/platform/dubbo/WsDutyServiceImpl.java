@@ -46,8 +46,7 @@ public class WsDutyServiceImpl implements IWsDutyService {
                 pkcorps = iInterfaceBill.queryCorpByName(corpNames);
             }
 
-            DutyPayVO[] datas = iInterfaceBill.queryDutyTolalInfo(pkcorps,period,page,rows);
-            //DutyPayVO[] data2 = getPageDutydata(datas,page,rows);
+            DutyPayVO[] datas = iInterfaceBill.queryDutyTolalInfo(pkcorps,period,izdf,page,rows);
 
             data.setTotal((datas == null ? 0 : datas.length));
             data.setCode("200");

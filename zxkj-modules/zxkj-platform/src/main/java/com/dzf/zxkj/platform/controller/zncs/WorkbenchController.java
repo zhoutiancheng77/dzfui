@@ -2321,7 +2321,7 @@ public class WorkbenchController extends BaseController {
     }
 
     @PostMapping("/queryDutyInfo")
-    public ReturnData<Json> queryDutyInfo(@MultiRequestBody String period,@MultiRequestBody String corpNames[],@MultiRequestBody String []pkcorps,@MultiRequestBody int page,@MultiRequestBody int rows){
+    public ReturnData<Json> queryDutyInfo(@MultiRequestBody String period,@MultiRequestBody String corpNames[],@MultiRequestBody String []pkcorps,@MultiRequestBody String izdf,@MultiRequestBody int page,@MultiRequestBody int rows){
         Json json = new Json();
         try{
 //            if(corpNames==null ){
@@ -2337,8 +2337,8 @@ public class WorkbenchController extends BaseController {
                 pkcorps = iInterfaceBill.queryCorpByName(corpNames);
             }
 
-            DutyPayVO[] datas = iInterfaceBill.queryDutyTolalInfo(pkcorps,period,page,rows);
-            //DutyPayVO[] data2 = getPageDutydata(datas,page,rows);
+            DutyPayVO[] datas = iInterfaceBill.queryDutyTolalInfo(pkcorps,period,izdf,page,rows);
+            DutyPayVO[] data2 = getPageDutydata(datas,page,rows);
             json.setHead(pkcorps);
             json.setSuccess(true);
             json.setMsg("查询成功");
