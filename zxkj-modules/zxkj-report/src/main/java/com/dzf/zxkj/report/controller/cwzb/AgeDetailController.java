@@ -64,6 +64,11 @@ public class AgeDetailController extends BaseController {
                 throw new BusinessException("截止日期不能早于建账日期");
             }
             ageReportQueryVO.setJz_date(corpVO.getBegindate());
+
+            if (ageReportQueryVO.getFzlb() != null && ageReportQueryVO.getFzlb() > 0) {
+                ageReportQueryVO.setAuaccount_type("fzhsx" + ageReportQueryVO.getFzlb());
+            }
+
             AgeReportResultVO rs = gl_rep_zlmxb.query(ageReportQueryVO);
             json.setRows(rs);
             json.setSuccess(true);
