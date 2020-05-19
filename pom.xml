@@ -14,7 +14,6 @@
     <modules>
         <module>zxkj-gateway</module>
         <module>zxkj-modules</module>
-        <module>zxkj-common</module>
         <module>zxkj-tools</module>
         <module>zxkj-platform-api</module>
         <module>zxkj-platform-model</module>
