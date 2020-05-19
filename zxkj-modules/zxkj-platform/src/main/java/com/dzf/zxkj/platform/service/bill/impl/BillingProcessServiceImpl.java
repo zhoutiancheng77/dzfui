@@ -128,7 +128,7 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
                 sp.addParam("%" + fphm + "%");
             }
             if(!StringUtil.isEmpty(customer)) {
-                sql.append(" and customer.vcompanyname like ? ");
+                sql.append(" and fzkh.name like ? ");
                 sp.addParam("%" + customer + "%");
             }
             sql.append(" order by  bill.dapplydate desc ");
