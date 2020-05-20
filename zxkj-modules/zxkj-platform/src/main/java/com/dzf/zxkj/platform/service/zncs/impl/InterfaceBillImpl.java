@@ -2719,7 +2719,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		buff.append(" left join bd_corp e on d.pk_corp = e.pk_corp ");
 		buff.append(" left join ynt_billcategory b1 on b1.pk_category = c.pk_billcategory ");
 		buff.append(" left join ynt_image_group g1 on g1.pk_image_group = c.pk_image_group ");
-		buff.append(" left join ynt_taxadvance t1 on t1.pk_corp = d.pk_corp and nvl(t1.dr,0)=0 and trim(t1.begindate)<='"+period+"' and '"+period+"'<=trim(t1.enddate) and t1.advstatus =2");
+		buff.append(" left join ynt_taxadvance t1 on t1.pk_corpk = d.pk_corp and nvl(t1.dr,0)=0 and trim(t1.begindate)<='"+period+"' and '"+period+"'<=trim(t1.enddate) and t1.advstatus =2");
 		buff.append(" where c.invoicetype = 'b税收完税证明' and invname is not null  and b1.categorycode!='18' and c.pk_billcategory is not null ");
 		buff.append(" and g1.istate!='205' and nvl(d.dr,0)=0 and  nvl(c.dr,0)=0   and nvl(g1.dr,0)=0  ");
 		buff.append(" and c.period ='"+period+"' ");
