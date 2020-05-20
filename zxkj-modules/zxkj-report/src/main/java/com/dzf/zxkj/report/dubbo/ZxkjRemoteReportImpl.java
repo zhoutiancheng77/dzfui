@@ -4,6 +4,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.*;
@@ -46,6 +47,10 @@ public class ZxkjRemoteReportImpl implements IRemoteReportService {
     private ILrbQuarterlyReport gl_rep_lrbquarterlyserv;
     @Autowired
     private INummnyReport gl_rep_nmdtserv;
+    @Autowired
+    private IFzhsYebReport gl_rep_fzyebserv;
+    @Autowired
+    private IFzKmmxReport gl_rep_fzkmmxjrptserv;
 
     @Override
     public Map<String, double[]> queryLrbData(String period, String[] cids) {
@@ -195,6 +200,33 @@ public class ZxkjRemoteReportImpl implements IRemoteReportService {
             return gl_rep_nmdtserv.getNumMnyDetailVO(startDate,enddate,pk_inventory,paramvo,pk_corp,user_id,pk_bz,xsfzhs,begdate);
         } catch (DZFWarpException e) {
             log.error(String.format("调用getNumMnyDetailVO异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+    @Override
+    public List<FzYebVO> getFzYebVOs(KmReoprtQueryParamVO paramVo){
+        try {
+            return gl_rep_fzyebserv.getFzYebVOs(paramVo);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getFzYebVOs异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+    @Override
+    public Object[] getFzkmmxVos(KmReoprtQueryParamVO paramavo, DZFBoolean bshowcolumn){
+        try {
+            return gl_rep_fzkmmxjrptserv.getFzkmmxVos(paramavo,bshowcolumn);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getFzkmmxVos异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+    @Override
+    public Map<String,List<FzKmmxVO>> getAllFzKmmxVos(KmReoprtQueryParamVO paramavo){
+        try {
+            return gl_rep_fzkmmxjrptserv.getAllFzKmmxVos(paramavo);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getAllFzKmmxVos异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
     }
