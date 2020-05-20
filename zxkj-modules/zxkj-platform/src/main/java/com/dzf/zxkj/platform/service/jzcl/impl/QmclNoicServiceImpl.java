@@ -30,10 +30,10 @@ import com.dzf.zxkj.platform.model.sys.BdTradeCostTransferVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.glic.IInventoryQcService;
+import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.jzcl.ICbComconstant;
 import com.dzf.zxkj.platform.service.jzcl.IQmclNoicService;
 import com.dzf.zxkj.platform.service.pzgl.IVoucherService;
-import com.dzf.zxkj.platform.service.icreport.IQueryLastNum;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 不启用库存部分 期末结转业务逻辑类
@@ -923,7 +924,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		YntCpaccountVO accvo = null;
 		String temp = null;
 		//zpm ,,如果存货有大类。
-		String classify = queryClassifyKm(fzid);
+		String classify = queryClassifyKm(fzid,map);
 		if(!StringUtil.isEmpty(classify)){
 			kmid = classify;
 		}
@@ -1030,7 +1031,7 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 				jzvo.setBqfcnum(numvo.getNdnum());
 				jzvo.setFzid(numvo.getFzhsx6());
 				//查询分类
-				kmid = queryClassifyKm(numvo.getFzhsx6());
+				kmid = queryClassifyKm(numvo.getFzhsx6(),fzmap);
 				if(StringUtil.isEmpty(kmid)){
 					kmid = slist.get(0);
 				}
@@ -1051,11 +1052,13 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 	}
 	
 	//查询得到科目，这里不用通过 corpvo 中的bbuildic 字段来区分。
-	private String queryClassifyKm(String fzid){
+	private String queryClassifyKm(String fzid, Map<String, AuxiliaryAccountBVO> map){
 		if(StringUtil.isEmpty(fzid)){
 			return null;
 		}
-		AuxiliaryAccountBVO bvo = (AuxiliaryAccountBVO)singleObjectBO.queryByPrimaryKey(AuxiliaryAccountBVO.class, fzid);
+        AuxiliaryAccountBVO bvo = map.get(fzid);
+		if(bvo == null)
+		    bvo = (AuxiliaryAccountBVO)singleObjectBO.queryByPrimaryKey(AuxiliaryAccountBVO.class, fzid);
 		return bvo.getKmclassify();
 	}
 
@@ -1363,6 +1366,40 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 		}
 		return list;
 	}
+    /**
+     * 查询凭证子表数据 只查科目
+     */
+    private List<TzpzBVO> queryTzpzBVO(String pk_corp,String[] hids) {
+        StringBuffer sf = new StringBuffer();
+        SQLParameter pa = new SQLParameter();
+        pa.addParam(pk_corp);
+        sf.append(" select tb.pk_accsubj pk_subject, ");
+        sf.append(" tb.kmmchie  kmmc, ");
+        sf.append(" tb.vcode  kmbm, ");
+        sf.append(" th.period qj, ");
+        sf.append(" th.doperatedate opdate, ");
+        sf.append(" th.pzh, ");
+        sf.append(" th.pk_tzpz_h pzhhid, ");
+        sf.append(" tb.zy, ");
+        sf.append(" tb.nnumber,");
+        sf.append(" tb.nprice, ");
+        sf.append(" tb.jfmny jfmny, ");
+        sf.append(" tb.dfmny dfmny, ");
+        sf.append(" tb.pk_tzpz_h, ");
+        sf.append(" tb.vdirect");
+        sf.append(" from ynt_tzpz_b tb ");
+        sf.append(" join ynt_tzpz_h th on tb.pk_tzpz_h = th.pk_tzpz_h ");
+        sf.append(" where th.pk_corp = ? ");
+        sf.append(" and nvl(th.dr, 0) = 0 and nvl(tb.dr, 0) = 0 ");
+        sf.append(" and " + SqlUtil.buildSqlForIn(" tb.pk_tzpz_h", hids));
+        //
+        List<TzpzBVO> list = (List<TzpzBVO>) singleObjectBO.executeQuery(sf.toString(), pa,
+                new BeanListProcessor(TzpzBVO.class));
+        if(list == null || list.isEmpty()){
+            return new ArrayList<TzpzBVO> ();
+        }
+        return list;
+    }
 	
 	/**
 	 * 查询明细数据 不启用库存(成本结转处理)
@@ -1372,7 +1409,15 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 			throws DZFWarpException {
 		List<NumMnyDetailVO> list = queryDetailVOsNoIC(period, pk_corp, isqc, slist, jzdate);
 		if (list != null && list.size() > 0) {
-			for (int i = 0; i < list.size(); i++) {
+            List<String> idlist = list.stream()
+                    .map(v -> {
+                        return v.getPzhhid();
+                    }).distinct().collect(Collectors.toList());
+            List<TzpzBVO> tlist = queryTzpzBVO( pk_corp,idlist.toArray(new String[idlist.size()]));
+            Map<String,List<TzpzBVO>> map = DZfcommonTools.hashlizeObject(tlist,new String[]{"pk_tzpz_h"});
+            TzpzBVO[] bodys = null;
+            List<TzpzBVO> ttlist = null;
+            for (int i = 0; i < list.size(); i++) {
 				NumMnyDetailVO v = list.get(i);
 				//判断入出库
 				YntCpaccountVO vo = ccountMap.get(v.getPk_subject());
@@ -1400,7 +1445,9 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 								//查询本期，，应该不统计 [成本类的出库] ，，但此刻就是成本结转。因此不用考虑的。
 								//但也有特殊情况，自己手工结转了一部分。
 								//但也有特殊情况，自己手工结转了一部分。因此加上，大部分情况没有
-								TzpzBVO[] bodys = queryTZpzBvos(pk_corp,v.getPzhhid());///
+//								TzpzBVO[] bodys = queryTZpzBvos(pk_corp,v.getPzhhid());///
+                                ttlist = map.get(v.getPzhhid());
+								bodys = ttlist.toArray(new TzpzBVO[ttlist.size()]);
 								//非成本类的出库///////
 								if(!Kmschema.ischengbenpz(corpvo,bodys)){//这个千万不能启用了。
 									//这块处理有问题。
@@ -1424,7 +1471,9 @@ public class QmclNoicServiceImpl implements IQmclNoicService {
 							&& vo.getIsnum()!= null && vo.getIsnum().booleanValue()//启用数量
 							)
 					{//统计本期出库的
-						TzpzBVO[] bodys = queryTZpzBvos(pk_corp,v.getPzhhid());
+//						TzpzBVO[] bodys = queryTZpzBvos(pk_corp,v.getPzhhid());
+                        ttlist = map.get(v.getPzhhid());
+                        bodys = ttlist.toArray(new TzpzBVO[ttlist.size()]);
 						//统计收入类，肯定是在本期//但也有特殊情况，自己手工结转了一部分。因此加上，大部分情况没有
 						//非本年利润的凭证，本期还没开始做。就是统计本期的。统计本期出库的
 						//但也有特殊情况，自己手工结转了一部分。
