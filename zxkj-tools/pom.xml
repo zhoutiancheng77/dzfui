@@ -16,8 +16,6 @@
     <modules>
         <module>zxkj-persistent-framework-starter</module>
         <module>zxkj-jackson-serialize</module>
-        <module>zxkj-mybatis-plus-starter</module>
-        <module>zxkj-redis-cache-starter</module>
         <module>zxkj-operate-log-starter</module>
         <module>zxkj-excel-export-tool</module>
         <module>zxkj-fastdfs-starter</module>
