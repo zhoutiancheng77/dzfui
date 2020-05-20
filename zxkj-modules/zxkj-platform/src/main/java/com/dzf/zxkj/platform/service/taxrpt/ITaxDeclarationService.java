@@ -10,7 +10,6 @@ import com.dzf.zxkj.platform.model.tax.TaxReportDetailVO;
 import com.dzf.zxkj.platform.model.tax.TaxReportInitVO;
 import com.dzf.zxkj.platform.model.tax.TaxReportVO;
 
-import javax.servlet.http.Cookie;
 import java.util.List;
 import java.util.Map;
 
@@ -261,13 +260,17 @@ public interface ITaxDeclarationService {
 	
 	/**
 	 * 批量填写
-	 * @param corp_id
-	 * @param userVO
+	 * @param token
+	 * @param clientid
+	 * @param clientpk_corp
+	 * @param clientuserid
 	 * @param logindate
+	 * @param pk_corp
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public String saveBatWriteInfo(String corp_id, UserVO userVO, String logindate, Cookie[] cookies)throws DZFWarpException;
+	public String saveBatWriteInfo(String token, String clientid, String clientpk_corp,
+								   String clientuserid, String logindate, String pk_corp)throws DZFWarpException;
 	
 	/**
 	 * 判断填报列表是否有效数据

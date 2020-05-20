@@ -46,7 +46,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.Cookie;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -2713,14 +2712,19 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 
 	/**
 	 * 一台应用服务器，最多10个线程同时访问。
-	 * 
-	 * @param corp_id
-	 * @param userVO
-	 * @param logindate
-	 * @throws DZFWarpException
+	 *
+     * @param token
+     * @param clientid
+     * @param clientpk_corp
+     * @param clientuserid
+     * @param logindate
+     * @param corp_id
+     * @return
+     * @throws DZFWarpException
 	 */
 	@Override
-	public String saveBatWriteInfo(String corp_id,UserVO userVO,String logindate,Cookie[] cookies) throws DZFWarpException {
+	public String saveBatWriteInfo(String token, String clientid, String clientpk_corp,
+                                   String clientuserid, String logindate, String corp_id) throws DZFWarpException {
 		if(StringUtil.isEmpty(corp_id)){
 			throw new BusinessException("批量填写公司为空，请重试");
 		}
@@ -2742,7 +2746,7 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 			//查询当前公司没有填写的申报信息
 			String period = DateUtils.getPeriod(new DZFDate());
 			ITaxRptService rpt = rptbillfactory.produce(corptaxvo);
-			List<TaxReportVO> list = rpt.getTypeList(vo,corptaxvo, period, userVO.getCuserid(),logindate, sbo);
+			List<TaxReportVO> list = rpt.getTypeList(vo,corptaxvo, period, clientuserid, logindate, sbo);
 			//这里事务可能现在问题。在刷新状态的时候
 //			List<TaxReportVO> list = getTypeList(corp_id,userVO,period,userVO.getCuserid(),logindate);
 			if(list == null || list.size() == 0)
@@ -2756,7 +2760,8 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 				if(!String.valueOf(TaxRptConst.iSBZT_DM_UnSubmit).equals(rvo.getSbzt_dm())){
 					continue;
 				}
-				boolean flag = Phantomjs.savewrite(userVO.getCuserid(), corp_id, corpname, ccounty, logindate, rvo,cookies);
+				boolean flag = Phantomjs.savewrite(token, clientid, clientpk_corp, clientuserid, logindate,
+                        corp_id, corpname, ccounty, rvo);
 				if(flag){
 					sf.append(rvo.getSbname()+"填写成功</font><br>");
 				}else{

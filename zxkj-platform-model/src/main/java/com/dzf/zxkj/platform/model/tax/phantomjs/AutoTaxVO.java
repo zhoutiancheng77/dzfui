@@ -5,19 +5,18 @@ import com.dzf.zxkj.common.model.SuperVO;
 public class AutoTaxVO extends SuperVO {
 
 	private String url;
-	private String corp;
-	private String corp_id;
+
+	private String token;
+	private String clientid;
+	private String clientpk_corp;
+	private String clientuserid;
+	private String logindate;
+	private String corpid;
+	private String corpname;
 	private String ccounty;
 	private String pk_taxreport;
 	private String sbcode;
-	private String userid;
-	private String logindate;
-	private String ssoserver ="n";
-	//cookie
-	private String dzfsso = null;
-	private String dzfcorp = null;
-	private String dzfuid = null;
-	
+
 	public String getUrl() {
 		return url;
 	}
@@ -26,20 +25,60 @@ public class AutoTaxVO extends SuperVO {
 		this.url = url;
 	}
 
-	public String getCorp() {
-		return corp;
+	public String getToken() {
+		return token;
 	}
 
-	public void setCorp(String corp) {
-		this.corp = corp;
+	public void setToken(String token) {
+		this.token = token;
 	}
 
-	public String getCorp_id() {
-		return corp_id;
+	public String getClientid() {
+		return clientid;
 	}
 
-	public void setCorp_id(String corp_id) {
-		this.corp_id = corp_id;
+	public void setClientid(String clientid) {
+		this.clientid = clientid;
+	}
+
+	public String getClientpk_corp() {
+		return clientpk_corp;
+	}
+
+	public void setClientpk_corp(String clientpk_corp) {
+		this.clientpk_corp = clientpk_corp;
+	}
+
+	public String getClientuserid() {
+		return clientuserid;
+	}
+
+	public void setClientuserid(String clientuserid) {
+		this.clientuserid = clientuserid;
+	}
+
+	public String getLogindate() {
+		return logindate;
+	}
+
+	public void setLogindate(String logindate) {
+		this.logindate = logindate;
+	}
+
+	public String getCorpid() {
+		return corpid;
+	}
+
+	public void setCorpid(String corpid) {
+		this.corpid = corpid;
+	}
+
+	public String getCorpname() {
+		return corpname;
+	}
+
+	public void setCorpname(String corpname) {
+		this.corpname = corpname;
 	}
 
 	public String getCcounty() {
@@ -64,54 +103,6 @@ public class AutoTaxVO extends SuperVO {
 
 	public void setSbcode(String sbcode) {
 		this.sbcode = sbcode;
-	}
-
-	public String getUserid() {
-		return userid;
-	}
-
-	public void setUserid(String userid) {
-		this.userid = userid;
-	}
-
-	public String getLogindate() {
-		return logindate;
-	}
-
-	public void setLogindate(String logindate) {
-		this.logindate = logindate;
-	}
-
-	public String getSsoserver() {
-		return ssoserver;
-	}
-
-	public void setSsoserver(String ssoserver) {
-		this.ssoserver = ssoserver;
-	}
-
-	public String getDzfsso() {
-		return dzfsso;
-	}
-
-	public void setDzfsso(String dzfsso) {
-		this.dzfsso = dzfsso;
-	}
-
-	public String getDzfcorp() {
-		return dzfcorp;
-	}
-
-	public void setDzfcorp(String dzfcorp) {
-		this.dzfcorp = dzfcorp;
-	}
-
-	public String getDzfuid() {
-		return dzfuid;
-	}
-
-	public void setDzfuid(String dzfuid) {
-		this.dzfuid = dzfuid;
 	}
 
 	@Override

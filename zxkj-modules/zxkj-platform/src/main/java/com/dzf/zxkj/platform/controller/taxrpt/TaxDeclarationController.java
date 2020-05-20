@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.controller.taxrpt;
 
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
@@ -19,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
@@ -257,10 +257,12 @@ public class TaxDeclarationController  extends BaseController {
             if (!nnmnc.contains(pk_corp)) {
                 throw new BusinessException("当前操作人，不包含该公司权限");
             }
-            //获取cookie
-            Cookie[] cookies  = request.getCookies();
-            String info = taxDeclarationService.saveBatWriteInfo(pk_corp,
-                    SystemUtil.getLoginUserVo(), SystemUtil.getLoginDate(), cookies);
+            String token = request.getHeader(ISysConstant.TOKEN);
+            String clientid = request.getHeader(ISysConstant.CLIENT_ID);
+            String clientuserid = request.getHeader(ISysConstant.LOGIN_USER_ID);
+            String clientpk_corp = request.getHeader(ISysConstant.LOGIN_PK_CORP);
+            String info = taxDeclarationService.saveBatWriteInfo(token, clientid, clientpk_corp,
+                    clientuserid, SystemUtil.getLoginDate(), pk_corp);
             json.setStatus(200);
             json.setSuccess(true);
             if(StringUtil.isEmpty(info)){
@@ -320,12 +322,12 @@ public class TaxDeclarationController  extends BaseController {
         return ReturnData.ok().data(json);
     }
 
-    @PostMapping("/getSpreadJsData2")
-    public ReturnData<Json> getSpreadJsData2(@RequestBody Map<String, String> param) {
-        String pk_taxreport = param.get("pk_taxreport");
-        String pk_corp = param.get("pk_corp");
-        String userid = param.get("userid");
-        String readonly = param.get("readonly");
+    @GetMapping("/getSpreadJsData2")
+    public ReturnData<Json> getSpreadJsData2(String pk_taxreport, String pk_corp, String userid, String readonly) {
+//        String pk_taxreport = param.get("pk_taxreport");
+//        String pk_corp = param.get("pk_corp");
+//        String userid = param.get("userid");
+//        String readonly = param.get("readonly");
         Boolean isReadonly = (readonly != null && readonly.toLowerCase().equals("y"));
         Json json = new Json();
         try {
