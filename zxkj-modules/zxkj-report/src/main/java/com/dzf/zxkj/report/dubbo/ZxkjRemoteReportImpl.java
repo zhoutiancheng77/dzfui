@@ -10,10 +10,7 @@ import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.report.service.IRemoteReportService;
 import com.dzf.zxkj.report.service.cwbb.*;
-import com.dzf.zxkj.report.service.cwzb.IFkTjBgService;
-import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
-import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
-import com.dzf.zxkj.report.service.cwzb.IXjRjZReport;
+import com.dzf.zxkj.report.service.cwzb.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +44,8 @@ public class ZxkjRemoteReportImpl implements IRemoteReportService {
     private IXjRjZReport gl_rep_xjyhrjzserv;
     @Autowired
     private ILrbQuarterlyReport gl_rep_lrbquarterlyserv;
+    @Autowired
+    private INummnyReport gl_rep_nmdtserv;
 
     @Override
     public Map<String, double[]> queryLrbData(String period, String[] cids) {
@@ -186,6 +185,16 @@ public class ZxkjRemoteReportImpl implements IRemoteReportService {
             return gl_rep_lrbquarterlyserv.getLRBquarterlyVOs(paramVO);
         } catch (DZFWarpException e) {
             log.error(String.format("调用getLRBquarterlyVOs异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+    @Override
+    public List<NumMnyDetailVO> getNumMnyDetailVO(String startDate, String enddate,
+                                                  String pk_inventory, QueryParamVO paramvo, String pk_corp, String user_id, String pk_bz, String xsfzhs, DZFDate begdate){
+        try {
+            return gl_rep_nmdtserv.getNumMnyDetailVO(startDate,enddate,pk_inventory,paramvo,pk_corp,user_id,pk_bz,xsfzhs,begdate);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getNumMnyDetailVO异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
     }

@@ -1,8 +1,10 @@
 package com.dzf.zxkj.platform.dubbo;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
@@ -26,6 +28,8 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
     private ICpaccountService iCpaccountService;
     @Autowired
     private ICpaccountCodeRuleService iCpaccountCodeRuleService;
+    @Autowired
+    private IAuxiliaryAccountService gl_fzhsserv;
     @Override
     public CorpVO queryByPk(String pk_corp) {
         try {
@@ -40,7 +44,7 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
         try {
             return yntBoPubUtil.getAccountSchema(pk_corp);
         } catch (DZFWarpException e) {
-            log.error(String.format("调用getAccountSchema异常,参数pk_currency:%s,异常信息:%s", e.getMessage()), e);
+            log.error(String.format("调用getAccountSchema异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
     }
@@ -49,7 +53,7 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
         try {
             return iCpaccountService.queryAccountRule(pk_corp);
         } catch (DZFWarpException e) {
-            log.error(String.format("调用queryAccountRule异常,参数pk_currency:%s,异常信息:%s", e.getMessage()), e);
+            log.error(String.format("调用queryAccountRule异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
     }
@@ -58,7 +62,16 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
         try {
             return iCpaccountCodeRuleService.getNewRuleCode(oldCode,oldrule,newrule);
         } catch (DZFWarpException e) {
-            log.error(String.format("调用getNewRuleCode异常,参数pk_currency:%s,异常信息:%s", e.getMessage()), e);
+            log.error(String.format("调用getNewRuleCode异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+    @Override
+    public AuxiliaryAccountBVO[] queryAllBByLb(String pk_corp, String fzlb){
+        try {
+            return gl_fzhsserv.queryAllBByLb(pk_corp,fzlb);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryAllBByLb异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
     }
