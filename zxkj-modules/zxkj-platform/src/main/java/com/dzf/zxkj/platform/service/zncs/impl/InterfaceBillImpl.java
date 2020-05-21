@@ -2695,6 +2695,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			dpvo.setInvname(dvo.getInvname());
 			dpvo.setPeriod(dvo.getPeriod());
 			dpvo.setIzdf(dvo.getIzdf());
+            dpvo.setPk_corp(dvo.getPk_corp());
 			for (DutyPayVO dvo_2:dutilist) {
 				if(dvo.getPeriod().equals(dvo_2.getPeriod())  && dvo.getPk_corp().equals(dvo_2.getPk_corp())  && dvo.getInvname().equals(dvo_2.getInvname()) ){
 					dpvo.setItemmny(new DZFDouble(dpvo.getItemmny()).add(dvo_2.getItemmny()).doubleValue());
