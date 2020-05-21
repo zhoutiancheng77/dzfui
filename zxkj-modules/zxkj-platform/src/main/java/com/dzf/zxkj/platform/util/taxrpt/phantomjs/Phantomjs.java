@@ -39,10 +39,12 @@ public class Phantomjs {
 					exePath = projectPath + File.separator + "phantomjs-2.1.1" + File.separator + "bin" + File.separator+ "phantomjs.exe";
 				}else{
 					if("false".equals(test)){//测试
-						jsPath = projectPath + File.separator + "opt" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+//						jsPath = projectPath + File.separator + "opt" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
 						exePath = "phantomjs";
 					}else{
-						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs-2.1.1"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+//						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs-2.1.1"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
 						exePath = "phantomjs";
 					}
 				}
