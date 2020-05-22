@@ -405,6 +405,7 @@ public class QmgzController  extends PrintAndExcelExportController {
             QmclVO[] bodyvos =JsonUtils.deserialize(printParamVO.getList(),QmclVO[].class) ;
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存前台传来的设置参数
             tmap.put("期间", printParamVO.getTitleperiod());
+            printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));
             printReporUtil.setBf_Bold(printReporUtil.getBf());
             printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体

@@ -357,7 +357,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         printParamVO.setFont(setvo.getVfontsize().intValue() + "");
         printParamVO.setLeft(setvo.getDleftmargin().intValue() + "");
         printParamVO.setTop(setvo.getDtopmargin().intValue() + "");
-        printParamVO.setPrintdate(setvo.getVprintperiod());// 打印期间
+        printParamVO.setPrintdate(setvo.getDprintdate() == null ? "" : setvo.getDprintdate().toString());// 打印期间
 
         if (!StringUtil.isEmpty(setvo.getKmpage())) {
             if (setvo.getKmpage().indexOf(fycode) > 0) {

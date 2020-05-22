@@ -20,7 +20,7 @@ public class SetCovertTask {
         taskvo.setVmobelsel(setvo.getVmobelsel());
         taskvo.setReviewdir(setvo.getReviewdir());// 横纵向
         taskvo.setVfontsize(setvo.getVfontsize());
-        taskvo.setDprintdate(setvo.getDprintdate());
+        taskvo.setDprintdate("Y".equalsIgnoreCase(setvo.getBdyrqsel())?setvo.getDprintdate():null);
         taskvo.setDleftmargin(setvo.getDleftmargin());
         taskvo.setDtopmargin(setvo.getDtopmargin());
         taskvo.setVprintcode(setvo.getVprintname());
