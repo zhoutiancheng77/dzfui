@@ -187,18 +187,20 @@ public class ExcelExportPubHandler extends ExcelExportHander implements CommonEx
             case "32":
                 //直接修改《公共信息表》页单元格即可
                 sheet = sheet.getWorkbook().getSheet("公共信息表");
-                putValue(sheet, "B5", nsrsbh); //B5 - TaxNo
-                putValue(sheet, "B6", nsrmc); //B6 - CorpName
-                //日期短一点，要不单元格写不下
-                putValue(sheet, "B7", sDate.getYear()); //B7 - BeginDate.Year
-                putValue(sheet, "D7", sDate.getMonth()); //D7 - BeginDate.Month
-                putValue(sheet, "F7", sDate.getDay()); //F7 - BeginDate.Day
-                putValue(sheet, "B8", eDate.getYear()); //B8 - EndDate.Year
-                putValue(sheet, "D8", eDate.getMonth()); //D8 - EndDate.Month
-                putValue(sheet, "F8", eDate.getDay()); //F8 - EndDate.Day
-                putValue(sheet, "B9", eDate.getYear()); //B9 - EndDate.Year
-                putValue(sheet, "D9", eDate.getMonth()); //D9 - EndDate.Month
-                putValue(sheet, "F9", eDate.getDay()); //F9 - EndDate.Day
+                if(sheet != null){
+                    putValue(sheet, "B5", nsrsbh); //B5 - TaxNo
+                    putValue(sheet, "B6", nsrmc); //B6 - CorpName
+                    //日期短一点，要不单元格写不下
+                    putValue(sheet, "B7", sDate.getYear()); //B7 - BeginDate.Year
+                    putValue(sheet, "D7", sDate.getMonth()); //D7 - BeginDate.Month
+                    putValue(sheet, "F7", sDate.getDay()); //F7 - BeginDate.Day
+                    putValue(sheet, "B8", eDate.getYear()); //B8 - EndDate.Year
+                    putValue(sheet, "D8", eDate.getMonth()); //D8 - EndDate.Month
+                    putValue(sheet, "F8", eDate.getDay()); //F8 - EndDate.Day
+                    putValue(sheet, "B9", eDate.getYear()); //B9 - EndDate.Year
+                    putValue(sheet, "D9", eDate.getMonth()); //D9 - EndDate.Month
+                    putValue(sheet, "F9", eDate.getDay()); //F9 - EndDate.Day
+                }
                 break;
         }
     }

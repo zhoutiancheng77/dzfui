@@ -186,4 +186,11 @@ public class PiaoTongUtil {
         return shortBuffer.toString();
     }
 
+    public static String getSerialNo(String prefix, String pk_corp, String date, int len){
+        return prefix
+                + pk_corp
+                + date
+                + generateShortUuid(len);
+    }
+
 }

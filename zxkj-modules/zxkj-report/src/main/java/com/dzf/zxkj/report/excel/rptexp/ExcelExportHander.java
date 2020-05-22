@@ -214,8 +214,8 @@ public abstract class ExcelExportHander {
     public void init(String areaType, String corpType) {
         //地区
         this.areaType = areaType;
-        //多excel的地区：浙江、上海、河南、厦门、内蒙古、山西、新疆、宁波、江西等
-        List<String> moreDocArea = Arrays.asList("2", "5", "8", "16", "22", "25", "27", "29", "30");
+        //多excel的地区：浙江、上海、河南、厦门、内蒙古、山西、陕西、新疆、宁波、江西等
+        List<String> moreDocArea = Arrays.asList("2", "5", "8", "16", "22", "25","26", "27", "29", "30");
         //是否多文件
         this.isMoreDoc = moreDocArea.contains(areaType);
         //会计制度（企业会计准则、小企业会计准则等）

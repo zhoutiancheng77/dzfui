@@ -313,6 +313,9 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
 
         Object[][] STYLE_1 = getStyleByExcel();
 
+        String prefix = new DZFDateTime().toString().replace(" ", "").replace(":", "").replace("-", "");
+        prefix = prefix.substring(2, 6);
+
         int count;// 计数器的作用判断该行是不是空行，如count == STYLE_1.length 则为空行
         boolean isNullFlag;
         StringBuffer innermsg = new StringBuffer();
@@ -362,7 +365,7 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
                     continue;
                 }
 
-                setDefaultValue(pk_corp, userid, excelvo, iBegin);
+                setDefaultValue(pk_corp, userid, excelvo, iBegin, prefix);
                 blist.add(excelvo);
 
             }else{
@@ -758,11 +761,11 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
 //
 //    }
 
-    private void setDefaultValue(String pk_corp, String userid, BillApplyVO vo, int index){
+    private void setDefaultValue(String pk_corp, String userid, BillApplyVO vo, int index, String prefix){
         vo.setPk_corp(pk_corp);
         vo.setIbillstatus(IInvoiceApplyConstant.INV_STATUS_0);//未开票
 //		vo.setVbilltype(); 这个字段不知道设置什么值
-        vo.setInvoserino(getSeriNO());//发票请求流水号
+        vo.setInvoserino(getSeriNO(pk_corp, prefix));//发票请求流水号
         vo.setSerino(index+1);
 
         vo.setSourcetype(IInvoiceApplyConstant.KP_SOURCE_1);//在线会计
@@ -771,8 +774,8 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
 
     }
 
-    private String getSeriNO(){
-        return PiaoTongUtil.getSerialNo(PiaoTongUtil.xxptbm, 2);
+    private String getSeriNO(String pk_corp, String prefix){
+        return PiaoTongUtil.getSerialNo(PiaoTongUtil.xxptbm, pk_corp, prefix, 6);
     }
 
     private void checkDataValid(BillApplyVO vo, StringBuffer sf,
@@ -1204,6 +1207,9 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
     }
 
     private BillApplyVO cloneBill(BillApplyVO vo, String userid){
+        String prefix = new DZFDateTime().toString().replace(" ", "").replace(":", "").replace("-", "");
+        prefix = prefix.substring(2, 6);
+
         BillApplyVO newvo = deepClone(vo);
         newvo.setPk_app_billapply(null);
         newvo.setNmny(SafeCompute.sub(DZFDouble.ZERO_DBL, vo.getNmny()));
@@ -1213,7 +1219,7 @@ public class BillingProcessServiceImpl implements IBillingProcessService {
         newvo.setIbillstatus(IInvoiceApplyConstant.INV_STATUS_0);
         newvo.setVapplytor(userid);
         newvo.setDapplydate(new DZFDateTime());
-        newvo.setInvoserino(getSeriNO());
+        newvo.setInvoserino(getSeriNO(vo.getPk_corp(), prefix));
         newvo.setFpdm(null);
         newvo.setFphm(null);
         newvo.setYfpdm(vo.getFpdm());

@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.service.cwbb.impl;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -116,12 +117,20 @@ public class BatchLrbReportImpl implements IBatchLrbReport {
             try {
                 QueryParamVO paramVO = new QueryParamVO();
                 paramVO.setRptsource("lrb");
+                paramVO.setIshasjz(DZFBoolean.FALSE);
+                paramVO.setXswyewfs(DZFBoolean.FALSE);
+                paramVO.setBtotalyear(DZFBoolean.TRUE);//本年累计
+                paramVO.setCjq(1);
+                paramVO.setCjz(6);
+                paramVO.setQjq(period);
                 paramVO.setQjz(period);
                 paramVO.setBegindate1(DateUtils.getPeriodStartDate(period));
                 paramVO.setEnddate(DateUtils.getPeriodEndDate(period));
+                paramVO.setPk_corp(cid);
                 LrbVO[] lrbvos =  gl_rep_lrbserv.getLRBVOs(paramVO);
                 map.put(cid, lrbvos);
             } catch (Exception e) {
+                log.error(e.getMessage(),e);
             } finally {
             }
             return "end";

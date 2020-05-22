@@ -1,13 +1,13 @@
 package com.dzf.zxkj.platform.util.taxrpt.phantomjs;
 
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.TaxPhantomjsConfig;
 import com.dzf.zxkj.platform.model.tax.TaxReportVO;
 import com.dzf.zxkj.platform.model.tax.phantomjs.AutoTaxVO;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.servlet.http.Cookie;
 import java.io.*;
-import java.util.Properties;
 @Slf4j
 public class Phantomjs {
 	
@@ -25,39 +25,33 @@ public class Phantomjs {
 	
 	private static String exePath = "";
 	
-	private static String[] paramters = new String[]{"sbcode","ccounty","pk_taxreport","corp","corp_id","userid","logindate","ssoserver","dzfsso","dzfcorp","dzfuid"};
+	private static String[] paramters = new String[]{"sbcode","ccounty","pk_taxreport",
+			"corpid","logindate","token","clientid","clientpk_corp","clientuserid"};
 	
 	static{
-			Properties prop = new Properties();
-			InputStream in = null;
 			try {
-				in =  Phantomjs.class.getResourceAsStream("/phantomjs.properties");
-				prop.load(in);
-				url = prop.getProperty("phantomjs_URL");
-				devmode = prop.getProperty("devmode");
-				test = prop.getProperty("test");
-				if("on".equals(devmode)){
+				TaxPhantomjsConfig config = (TaxPhantomjsConfig) SpringUtils.getBean(TaxPhantomjsConfig.class);
+				url = config.phantomjs_URL;
+				devmode = config.devmode;
+				test = config.test;
+				if("true".equals(devmode)){
 					jsPath = projectPath + File.separator + "phantomjs-2.1.1"+ File.separator + "runjs"+ File.separator+"autocalc.js";
 					exePath = projectPath + File.separator + "phantomjs-2.1.1" + File.separator + "bin" + File.separator+ "phantomjs.exe";
 				}else{
-					if("on".equals(test)){//测试
-						jsPath = projectPath + File.separator + "opt" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+					if("false".equals(test)){//测试
+//						jsPath = projectPath + File.separator + "opt" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
 						exePath = "phantomjs";
 					}else{
-						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs-2.1.1"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+//						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs-2.1.1"+ File.separator + "runjs" + File.separator+ "autocalc.js";
+						jsPath = projectPath + File.separator + "apps" +File.separator+"phantomjs"+ File.separator + "runjs" + File.separator+ "autocalc.js";
 						exePath = "phantomjs";
 					}
 				}
 			} catch (Exception e) {
 			} finally{
-				if(in != null){
-					try {
-						in.close();
-					} catch (IOException e) {
-					}
-				}
 				if(StringUtil.isEmpty(url)){
-					url = "http://localhost:8089/DZF_KJ/gl/taxrpt/tax_declaration2.jsp";
+					url = "http://localhost:8521/nssb/taxrpt/tax-declaration";
 				}
 			}
 	}
@@ -94,11 +88,12 @@ public class Phantomjs {
 	}
 	
 	
-	public static boolean savewrite(String userid, String corpid, String unitname,
-									Integer ccounty, String logindate, TaxReportVO rvo, Cookie[] cookies){
+	public static boolean savewrite(String token, String clientid, String clientpk_corp,
+									String clientuserid, String logindate, String corpid, String corpname,
+									Integer ccounty, TaxReportVO rvo){
 		boolean flag = false;
-		AutoTaxVO vo = buildTaxVO(userid,corpid,unitname,
-				ccounty,logindate,rvo,cookies);
+		AutoTaxVO vo = buildTaxVO(token, clientid, clientpk_corp, clientuserid, logindate,
+				corpid, corpname, ccounty, rvo);
 		String p = getParseredHtml2(vo);
 		if(!StringUtil.isEmpty(p) &&
 				p.contains(savesuccess)){
@@ -107,28 +102,22 @@ public class Phantomjs {
 		return flag;
 	}
 	
-	private static AutoTaxVO buildTaxVO(String userid,String corpid,String unitname,
-			Integer ccounty,String logindate,TaxReportVO rvo,Cookie[] cookies){
+	private static AutoTaxVO buildTaxVO(String token, String clientid, String clientpk_corp,
+										String clientuserid, String logindate, String corpid, String corpname,
+										Integer ccounty, TaxReportVO rvo){
 		AutoTaxVO vo = new  AutoTaxVO();
 		vo.setUrl(url);
-		vo.setSbcode(rvo.getSb_zlbh());
+		vo.setToken(token);
+		vo.setClientid(clientid);
+		vo.setClientpk_corp(clientpk_corp);
+		vo.setClientuserid(clientuserid);
+		vo.setLogindate(logindate);
+		vo.setCorpid(corpid);
+		vo.setCorpname(corpname);
 		vo.setCcounty(String.valueOf(ccounty));
 		vo.setPk_taxreport(rvo.getPk_taxreport());
-		vo.setCorp(unitname);
-		vo.setCorp_id(corpid);
-		vo.setUserid(userid);
-		vo.setLogindate(logindate);
-		if(cookies!=null && cookies.length>0){
-			for(Cookie cook : cookies){
-				if("dzfsso".equals(cook.getName())){
-					vo.setDzfsso(cook.getValue());
-				}else if("dzfcorp".equals(cook.getName())){
-					vo.setDzfcorp(cook.getValue());
-				}else if("dzfuid".equals(cook.getName())){
-					vo.setDzfuid(cook.getValue());
-				}
-			}
-		}
+		vo.setSbcode(rvo.getSb_zlbh());
+
 		return vo;
 	}
 }
