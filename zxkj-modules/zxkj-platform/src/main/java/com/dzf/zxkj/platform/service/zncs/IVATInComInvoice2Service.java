@@ -13,10 +13,7 @@ import com.dzf.zxkj.platform.model.pjgl.VatInvoiceSetVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
-import com.dzf.zxkj.platform.model.zncs.BillCategoryVO;
-import com.dzf.zxkj.platform.model.zncs.CategorysetVO;
-import com.dzf.zxkj.platform.model.zncs.CorpReferenceVO;
-import com.dzf.zxkj.platform.model.zncs.VATInComInvoiceVO2;
+import com.dzf.zxkj.platform.model.zncs.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -66,7 +63,7 @@ public interface IVATInComInvoice2Service {
 	 * 生成凭证
 	 * @throws DZFWarpException
 	 */
-	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid, String period, VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT) throws DZFWarpException;
+	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid, String period, VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT, ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 //	public Map<String, DcModelHVO> queryDcModelVO(String pk_corp) throws DZFWarpException;
 	/**
@@ -123,7 +120,7 @@ public interface IVATInComInvoice2Service {
 	 * @param isT
 	 * @throws DZFWarpException
 	 */
-	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, String period, VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT) throws DZFWarpException;
+	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, String period, VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT,ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 	/**
 	 * 构造需要的业务类型
@@ -188,7 +185,7 @@ public interface IVATInComInvoice2Service {
 	 * 生成凭证
 	 * @throws DZFWarpException
 	 */
-	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid, boolean accway, boolean isT, InventorySetVO invsetvo, VatInvoiceSetVO setvo, String jsfs) throws DZFWarpException;
+	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid, boolean accway, boolean isT, InventorySetVO invsetvo, VatInvoiceSetVO setvo, String jsfs,ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 	/**
 	 * 合并生单F
@@ -199,7 +196,7 @@ public interface IVATInComInvoice2Service {
 	 * @param isT
 	 * @throws DZFWarpException
 	 */
-	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo, boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs) throws DZFWarpException;
+	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo, boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs,ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 	public CorpVO chooseTicketWay(String pk_corp) throws DZFWarpException;
 
