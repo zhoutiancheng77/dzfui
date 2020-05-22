@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.controller.taxrpt;
 
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
@@ -11,6 +12,7 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.config.TaxSpreadjsComfig;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.tax.TaxReportVO;
 import com.dzf.zxkj.platform.service.sys.IUserService;
@@ -385,6 +387,24 @@ public class TaxDeclarationController  extends BaseController {
             rsjson.setStatus(-100);
         }
 
+        return ReturnData.ok().data(rsjson);
+    }
+
+    @GetMapping("/getLicenseKey")
+    public ReturnData<Json> getLicenseKey() {
+        Json rsjson = new Json();
+        try {
+            TaxSpreadjsComfig config = (TaxSpreadjsComfig) SpringUtils.getBean(TaxSpreadjsComfig.class);
+            String lic_key = config.license_key;
+            rsjson.setData(lic_key);
+            rsjson.setStatus(200);
+            rsjson.setSuccess(true);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            rsjson.setSuccess(false);
+            rsjson.setMsg(e instanceof BusinessException ? e.getMessage() : "获取失败");
+            rsjson.setStatus(-100);
+        }
         return ReturnData.ok().data(rsjson);
     }
 }
