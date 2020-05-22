@@ -13,14 +13,10 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zncs.IInterfaceBill;
 import com.dzf.zxkj.platform.service.zncs.IWsDutyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.ServletOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 @Service
@@ -62,12 +58,11 @@ public class WsDutyServiceImpl implements IWsDutyService {
     }
 
     @Override
-    public InputStream searhImage(String Pk_image_library, String pk_cprp,
+    public String searhImage(String Pk_image_library, String pk_cprp,
                                  String imgname, String isSmall, String isMiddle){
-        {
+//        {
             InputStream is = null;
             FileInputStream fis = null;
-            try {
                 ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(pk_cprp, Pk_image_library);
                 String imgPathName = null;
                 String type = null;
@@ -90,61 +85,35 @@ public class WsDutyServiceImpl implements IWsDutyService {
 
                 }
                 CorpVO corpVO2 = corpService.queryByPk(pk_cprp);//图片浏览查询框中公司pk
-                File dir = getImageFolder(type, corpVO2, imgPathName, imgname);
-                String lujing = dir.getAbsolutePath();
-                File file = new File(lujing);
-                if (!file.exists()) {
-                    String pathNoExist = "img"+ File.separator+ "picnoexist.jpg";
-
-                    Resource exportTemplate = new ClassPathResource(pathNoExist);
-                    is = exportTemplate.getInputStream();
-                } else {
-                    fis = new FileInputStream(file);
-                    return fis;
-                }
-            }catch (Exception e){
-                if(fis != null){
-                    try{
-                        fis.close();
-                    }catch(Exception e1){
-                        //e.printStackTrace();
-                    }
-                }
-                if(is != null){
-                    try{
-                        is.close();
-                    }catch(Exception e1){
-                        //e.printStackTrace();
-                    }
-                }
-                return  null;
-            }
-            return is;
-        }
+               return getImageFolder(type, corpVO2, imgPathName, imgname);
+               // String lujing = dir.getAbsolutePath();
+           // return is;
+//        }
       }
 
-        public  File getImageFolder(String type,CorpVO corpvo,String imgPathName, String imgName) throws FileNotFoundException {
+        public  String getImageFolder(String type,CorpVO corpvo,String imgPathName, String imgName)  {
             File dir = null;
             String dateFolder = imgName.substring(0, 8);
+            String folder = null;
             if("vchImg".equals(type)){
                 if (imgPathName.indexOf("/") < 0 && imgPathName.indexOf("\\") < 0)	//原始文件名，无目录
                 {
                     String imgfolder = ImageCommonPath.getDataCenterPhotoPath()  + "/" +  corpvo.getUnitcode() + "/" + dateFolder;
-                    String folder = imgfolder +"/"+ imgPathName; //DZFConstant.DZF_KJ_UPLOAD_BASE + imgfolder;
-                    dir = new File(folder);
+                     folder = imgfolder +"/"+ imgPathName; //DZFConstant.DZF_KJ_UPLOAD_BASE + imgfolder;
+                    //dir = new File(folder);
                 }
                 else	//已经包含路径的文件名
                 {
-                    String folder = ImageCommonPath.getDataCenterPhotoPath()  +"/"+ imgPathName;
+                     folder = ImageCommonPath.getDataCenterPhotoPath()  +"/"+ imgPathName;
                     dir = new File(folder);
                 }
 
             }else if("ImageOcr".equals(type)){
 //			String imgfolder = ImageCommonPath.getDataCenterPhotoPath()  + "/" +  corpvo.getUnitcode() + "/" + dateFolder;
-                String folder = ImageCommonPath.getDataCenterPhotoPath()  +"/"+ imgPathName; //DZFConstant.DZF_KJ_UPLOAD_BASE + imgfolder;
-                dir = new File(folder);
+                 folder = ImageCommonPath.getDataCenterPhotoPath()  +"/"+ imgPathName; //DZFConstant.DZF_KJ_UPLOAD_BASE + imgfolder;
+                //dir = new File(folder);
             }
 
-            return dir;
+            return folder;
         }
 }
