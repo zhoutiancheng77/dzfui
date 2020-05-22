@@ -141,7 +141,6 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                 for (String str: templist) {
                     periodlist.add(str + "~" + str);
                 }
-                periodlist = null;
             } else {
                 periodlist.add(setvo.getVprintperiod());
             }

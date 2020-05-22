@@ -45,11 +45,12 @@ public class LrbPrint extends  AbstractPrint {
         this.gl_rep_lrbserv = gl_rep_lrbserv;
         this.zxkjPlatformService = zxkjPlatformService;
         this.printParamVO = printParamVO;
-        this.queryparamvo = queryparamvo;
+        this.queryparamvo = (KmReoprtQueryParamVO) queryparamvo.clone();
     }
 
     public byte[] print (BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         try {
+            this.queryparamvo.setQjq(this.queryparamvo.getBegindate1().getYear()+ "-01");
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);
             LrbController lrbController = new LrbController();
             printReporUtil.setbSaveDfsSer(DZFBoolean.TRUE);
@@ -90,12 +91,15 @@ public class LrbPrint extends  AbstractPrint {
             String titlename = "利 润 表";
             Map<String, List<SuperVO>> qrymap = lrbController.getLrbMap(queryparamvo,zxkjPlatformService,gl_rep_lrbserv);
             Object[] obj = lrbController.getPrintOrder(columnOrder);//根据类型查询
-            printReporUtil.printHz(qrymap, null, titlename,
-                    (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
-            return printReporUtil.getContents();
+            if (qrymap!=null && qrymap.size() > 0) {
+                printReporUtil.printHz(qrymap, null, titlename,
+                        (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
+                return printReporUtil.getContents();
+            }
+
         } catch (DocumentException e) {
             log.error("打印错误", e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("打印错误", e);
         }
         return  null;
