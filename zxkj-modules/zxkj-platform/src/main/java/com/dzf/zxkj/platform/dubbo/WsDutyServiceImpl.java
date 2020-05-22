@@ -92,7 +92,7 @@ public class WsDutyServiceImpl implements IWsDutyService {
       }
 
         public  String getImageFolder(String type,CorpVO corpvo,String imgPathName, String imgName)  {
-            File dir = null;
+           // File dir = null;
             String dateFolder = imgName.substring(0, 8);
             String folder = null;
             if("vchImg".equals(type)){
@@ -105,7 +105,7 @@ public class WsDutyServiceImpl implements IWsDutyService {
                 else	//已经包含路径的文件名
                 {
                      folder = ImageCommonPath.getDataCenterPhotoPath()  +"/"+ imgPathName;
-                    dir = new File(folder);
+                   // dir = new File(folder);
                 }
 
             }else if("ImageOcr".equals(type)){
