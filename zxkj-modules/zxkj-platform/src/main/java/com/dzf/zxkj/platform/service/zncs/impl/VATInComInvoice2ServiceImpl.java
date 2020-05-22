@@ -5570,6 +5570,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 					}
 				}
 				relvo.setFphm(bvo.getFphm());//发票号
+				relvo.setPk_invoicce_b(bvo.getPk_vatincominvoice_b());//给前端用
 				list.add(relvo);
 			}
 		}
