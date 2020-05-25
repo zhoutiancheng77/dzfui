@@ -30,6 +30,7 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.glic.IKcCbb;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -172,6 +173,7 @@ public class KcCbbController extends GlicReportController{
 
         List<IcDetailVO> resList= new ArrayList<IcDetailVO>();
         if(spList != null && spList.size() > 0){
+            spList.sort(Comparator.comparing(IcDetailVO::getSpbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
             int start= (page-1)*rows;
             for(int i = start ; i < page * rows && i < spList.size(); i++){
                 resList.add(spList.get(i));

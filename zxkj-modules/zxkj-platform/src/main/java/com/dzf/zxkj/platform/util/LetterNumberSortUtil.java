@@ -1,5 +1,7 @@
 package com.dzf.zxkj.platform.util;
 
+import com.dzf.zxkj.common.utils.StringUtil;
+
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -38,7 +40,7 @@ public class LetterNumberSortUtil {
 
         @Override
         public int compare(String as, String bs) {
-            if(as != null || bs != null){
+            if(StringUtil.isEmpty(as) || StringUtil.isEmpty(bs)){
                 char[] a = as.toCharArray();
                 char[] b = bs.toCharArray();
                 Int aNonzeroIndex = new Int();

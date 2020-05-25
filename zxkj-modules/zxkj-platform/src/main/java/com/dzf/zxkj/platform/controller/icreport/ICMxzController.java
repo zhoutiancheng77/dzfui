@@ -31,6 +31,7 @@ import com.dzf.zxkj.platform.service.icreport.IICMxz;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
@@ -289,6 +290,7 @@ public class ICMxzController extends BaseController {
 
 		List<IcDetailVO> resList = new ArrayList<IcDetailVO>();
 		if (spList != null && spList.size() > 0) {
+            spList.sort(Comparator.comparing(IcDetailVO::getSpbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 			int start = (page - 1) * rows;
 			for (int i = start; i < page * rows && i < spList.size(); i++) {
 				resList.add(spList.get(i));
@@ -586,8 +588,8 @@ public class ICMxzController extends BaseController {
 				return i;
 			}
 		});
-
-		return list.stream().toArray(IcDetailVO[]::new);
+        list.sort(Comparator.comparing(IcDetailVO::getSpbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+		return list.toArray(new IcDetailVO[list.size()]);
 	}
 
 	private Map<String, List<SuperVO>> reloadVOs(IcDetailVO[] bodyvos, QueryParamVO paramvo) {
@@ -646,11 +648,7 @@ public class ICMxzController extends BaseController {
 			});
 		}
 
-		Map<String, List<SuperVO>> sortMap = new TreeMap<String, List<SuperVO>>(new Comparator<String>() {
-			public int compare(String str1, String str2) {
-				return str1.compareTo(str2);
-			}
-		});
+		Map<String, List<SuperVO>> sortMap = new TreeMap<String, List<SuperVO>>(Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder()));
 		sortMap.putAll(mxmap);
 		return sortMap;
 	}

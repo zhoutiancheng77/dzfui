@@ -30,6 +30,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.Kmschema;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -169,13 +170,7 @@ public class ICbbController  extends BaseController {
 				}
 			}
 			if (flist != null && flist.size() > 0) {
-				Collections.sort(flist, new Comparator<IcbalanceVO>() {
-					@Override
-					public int compare(IcbalanceVO o1, IcbalanceVO o2) {
-						int i = o1.getInventorycode().compareTo(o2.getInventorycode());
-						return i;
-					}
-				});
+                flist.sort(Comparator.comparing(IcbalanceVO::getInventorycode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 			}
 		}
 		return flist;

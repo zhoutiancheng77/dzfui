@@ -28,6 +28,7 @@ import com.dzf.zxkj.platform.service.icreport.IICHzb;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -162,6 +163,7 @@ public class ICHzbController  extends BaseController {
 		}
 		List<IcDetailVO> resList = new ArrayList<IcDetailVO>();
 		if (spList != null && spList.size() > 0) {
+            spList.sort(Comparator.comparing(IcDetailVO::getSpbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 			int start = (page - 1) * rows;
 			for (int i = start; i < page * rows && i < spList.size(); i++) {
 				resList.add(spList.get(i));

@@ -24,6 +24,7 @@ import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.glic.IMllbReport;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -95,7 +96,7 @@ public class MllbReportController  extends GlicReportController{
             currsp = listsps.get(1).getId();
             list = getCurrSp(result, currsp);
         }
-
+        list.sort(Comparator.comparing(MllDetailVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
         grid.setTotal((long)list.size());
 
         return list.subList((page-1)*rows, page * rows > list.size() ? list.size() : page * rows);
