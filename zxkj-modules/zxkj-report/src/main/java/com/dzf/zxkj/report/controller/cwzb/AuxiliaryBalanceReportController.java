@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.controller.cwzb;
 
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -62,26 +63,31 @@ public class AuxiliaryBalanceReportController extends BaseController {
 
         KmReoprtQueryParamVO queryParam = JsonUtils.convertValue(param, KmReoprtQueryParamVO.class);
 
-        CorpVO corpVo = SystemUtil.getLoginCorpVo();
-        DZFDate beginDate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(corpVo.getBegindate()));
-        if (beginDate.after(queryParam.getBegindate1())) {
-            throw new BusinessException("开始日期不能在建账日期(" + DateUtils.getPeriod(beginDate) + ")前!");
-        }
-        if (StringUtils.isBlank(queryParam.getPk_corp())) {
-            queryParam.setPk_corp(corpVo.getPk_corp());
-        }
-        // 校验
-        checkSecurityData(null, new String[]{queryParam.getPk_corp()},null);
+        try {
+            CorpVO corpVo =  zxkjPlatformService.queryCorpByPk(queryParam.getPk_corp());
+            DZFDate beginDate = DateUtils.getPeriodStartDate(DateUtils.getPeriod(corpVo.getBegindate()));
+            if (beginDate.after(queryParam.getBegindate1())) {
+                throw new BusinessException("开始日期不能在建账日期(" + DateUtils.getPeriod(beginDate) + ")前!");
+            }
+            if (StringUtils.isBlank(queryParam.getPk_corp())) {
+                queryParam.setPk_corp(corpVo.getPk_corp());
+            }
+            // 校验
+            checkSecurityData(null, new String[]{queryParam.getPk_corp()},null);
 
-        List<FzYebVO> fzyevoList = gl_rep_fzyebserv.getFzYebVOs(queryParam);
-        if (fzyevoList != null && fzyevoList.size() > 0) {
-            grid.setSuccess(true);
-            grid.setTotal(fzyevoList == null ? 0 : (long) fzyevoList.size());
-            grid.setRows(fzyevoList == null ? new ArrayList<FzYebVO>() : fzyevoList);
-        } else {
-            grid.setSuccess(false);
-            grid.setRows(new ArrayList<FzYebVO>());
-            grid.setMsg("查询为空!");
+            List<FzYebVO> fzyevoList = gl_rep_fzyebserv.getFzYebVOs(queryParam);
+            if (fzyevoList != null && fzyevoList.size() > 0) {
+                grid.setSuccess(true);
+                grid.setTotal(fzyevoList == null ? 0 : (long) fzyevoList.size());
+                grid.setRows(fzyevoList == null ? new ArrayList<FzYebVO>() : fzyevoList);
+            } else {
+                grid.setSuccess(false);
+                grid.setRows(new ArrayList<FzYebVO>());
+                grid.setMsg("查询为空!");
+            }
+        } catch (DZFWarpException e) {
+            printErrorLog(grid, e, "查询失败！");
+            log.error(e.getMessage(),e);
         }
         writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
                 "辅助余额表查询:" + queryParam.getBegindate1().toString().substring(0, 7)

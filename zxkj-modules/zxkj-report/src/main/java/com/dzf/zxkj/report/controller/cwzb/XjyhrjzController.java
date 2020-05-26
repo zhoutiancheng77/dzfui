@@ -61,6 +61,7 @@ public class XjyhrjzController extends ReportBaseController {
             int page = queryParamvo == null ? 1 : queryParamvo.getPage();
             int rows = queryParamvo == null ? 100000 : queryParamvo.getRows();
             /** 验证 查询范围应该在当前登录人的权限范围内 */
+            corpVO = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
             checkPowerDate(queryParamvo, corpVO);
             KmMxZVO[] kmmxvos = gl_rep_xjyhrjzserv.getXJRJZVOsConMo(queryParamvo.getPk_corp(),
                     queryParamvo.getKms_first(), queryParamvo.getKms_last(), queryParamvo.getBegindate1(), queryParamvo.getEnddate(),

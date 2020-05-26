@@ -157,8 +157,11 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                 String printcode = setvo.getVprintcode();
                 // 合并数据
                 PDFMergerUtility mergePdf = new PDFMergerUtility(); // 纵向
+                StringBuffer filenamezx = new StringBuffer();
                 PDFMergerUtility mergePdfHx = new PDFMergerUtility();// 横向
+                StringBuffer filenamehx = new StringBuffer();
                 PDFMergerUtility mergePdfPz = new PDFMergerUtility(); // 凭证
+                StringBuffer filenamepz = new StringBuffer();
                 byte[] resbytes = null;
                 byte[] resbytesHx = null;
                 byte[] resbytesPz = null;
@@ -185,7 +188,8 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                         } else if ("crk".equals(code)) {
                             print = new CkPrint(zxkjPlatformService,printParamVO,queryparamvo);
                             // 先出库
-                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO, mergePdf, mergePdfHx, mergePdfPz, code, print);
+                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
+                                    mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
                             print = new RkPrint(zxkjPlatformService,printParamVO, queryparamvo);
                         } else if ("zjmx".equals(code)) {
                             print = new ZjmxPrint(zxkjPlatformService, printParamVO, queryparamvo);
@@ -198,7 +202,8 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                         }
                         // 合并数据
                         if (print != null) {
-                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO, mergePdf, mergePdfHx, mergePdfPz, code, print);
+                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
+                                    mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
                         }
                         log.info(code+"执行完毕!");
                     }
@@ -212,19 +217,19 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                         List<InnerClass> innerClassList = new ArrayList<>();
                         if (resbytes != null && resbytes.length > 0) {
                             InnerClass innerClass = new InnerClass();
-                            innerClass.setName("hor.pdf");
+                            innerClass.setName(filenamezx.substring(0,filenamezx.length()-1)+".pdf");
                             innerClass.setContent(resbytes);
                             innerClassList.add(innerClass);
                         }
                         if (resbytesHx != null && resbytesHx.length > 0) {
                             InnerClass innerClass = new InnerClass();
-                            innerClass.setName("por.pdf");
+                            innerClass.setName(filenamehx.substring(0, filenamehx.length()-1)+".pdf");
                             innerClass.setContent(resbytesHx);
                             innerClassList.add(innerClass);
                         }
                         if (resbytesPz != null && resbytesPz.length > 0) {
                             InnerClass innerClass = new InnerClass();
-                            innerClass.setName("voucher.pdf");
+                            innerClass.setName(filenamepz.substring(0, filename.length()-1)+".pdf");
                             innerClass.setContent(resbytesPz);
                             innerClassList.add(innerClass);
                         }
@@ -304,7 +309,8 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
 
     private InputStream mergeByte(BatchPrintSetVo setvo, UserVO userVO, InputStream in, CorpVO corpVO, PrintParamVO printParamVO,
                                   PDFMergerUtility mergePdf, PDFMergerUtility mergePdfHx,
-                                  PDFMergerUtility mergePdfPz, String code, AbstractPrint print) {
+                                  PDFMergerUtility mergePdfPz, String code, AbstractPrint print,StringBuffer pagezx,
+                                  StringBuffer pagehx, StringBuffer pagepz) {
         String[] pzpages = new String[]{"pzfp","voucher"};// 凭证分组
         String[] zxpages = new String[]{"zcfz","lrb"};// 纵向打印分组
         String[] hxpages = new String[]{"fsye","gzb"};// 横向分组
@@ -313,15 +319,20 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             in = new ByteArrayInputStream(byts);
             if (Arrays.asList(hxpages).contains(code)) {
                 mergePdfHx.addSource(in);
+                pagehx.append(PrintNodeMap.nodemap.get(code)+",");
             } else if (Arrays.asList( zxpages).contains(code)) {
                 mergePdf.addSource(in);
+                pagezx.append(PrintNodeMap.nodemap.get(code)+",");
             } else if (Arrays.asList(pzpages).contains(code)) {
                 mergePdfPz.addSource(in);
+                pagepz.append(PrintNodeMap.nodemap.get(code)+",");
             } else {
                 if ( "Y".equals(printParamVO.getPageOrt())) { // 横向
                     mergePdfHx.addSource(in);
+                    pagehx.append(PrintNodeMap.nodemap.get(code)+",");
                 } else {
                     mergePdf.addSource(in);
+                    pagezx.append(PrintNodeMap.nodemap.get(code)+",");
                 }
             }
         }

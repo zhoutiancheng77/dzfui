@@ -57,6 +57,7 @@ public class FzKmmxController extends ReportBaseController {
             // 校验
             checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
             /** 开始日期应该在建账日期前 */
+            corpVO = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
             checkPowerDate(queryparamvo,corpVO);
             Object[] objs = gl_rep_fzkmmxjrptserv.getFzkmmxVos(queryparamvo, DZFBoolean.FALSE);
             List<FzKmmxVO> rsfzvos = (List<FzKmmxVO>) objs[0];

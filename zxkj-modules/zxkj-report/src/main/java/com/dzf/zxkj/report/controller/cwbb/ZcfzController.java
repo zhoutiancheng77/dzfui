@@ -103,6 +103,7 @@ public class ZcfzController extends ReportBaseController {
             }
             /** 全局记忆 按往来科目明细分析填列 */
 //            getSession().setAttribute("ishasye", ishasye);
+            corpVO = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
             checkPowerDate(queryParamvo, corpVO);
             ZcFzBVO[] kmmxvos = null;
             Object[] objs = null;

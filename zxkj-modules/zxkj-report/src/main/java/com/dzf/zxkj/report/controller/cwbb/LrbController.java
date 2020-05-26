@@ -70,6 +70,7 @@ public class LrbController extends ReportBaseController {
             queryParamvo.setEnddate(queryParamvo.getBegindate1());
             LrbVO[] fsejyevos = null;
             /** 开始日期应该在建账日期前,检查权限 */
+            corpVO = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
             checkPowerDate(queryParamvo, corpVO);
             fsejyevos = gl_rep_lrbserv.getLRBVOs(queryParamvo);
 

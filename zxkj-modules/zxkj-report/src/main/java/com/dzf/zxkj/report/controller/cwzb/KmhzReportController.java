@@ -63,6 +63,7 @@ public class KmhzReportController extends ReportBaseController {
             // 校验
             checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             /** 验证权限 */
+            corpVO = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
             checkPowerDate(vo, corpVO);
             begin = vo.getBegindate1();
             end = vo.getEnddate();
