@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +74,7 @@ public class TradeoutController extends BaseController {
 		IntradeoutVO[] vos = null;
 		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 		if (list != null && list.size() > 0) {
-			vos = getPageVOs(list.toArray(new IntradeoutVO[list.size()]), page, rows);
+			vos = (IntradeoutVO[])getPageVOs(list.toArray(new IntradeoutVO[list.size()]), page, rows);
 		}
 
 		grid.setRows(vos == null ? new IntradeoutVO[0] : vos);
@@ -110,17 +109,6 @@ public class TradeoutController extends BaseController {
         }
         return paramvo;
     }
-
-	// 将查询后的结果分页
-	private IntradeoutVO[] getPageVOs(IntradeoutVO[] pageVos, int page, int rows) {
-		int beginIndex = rows * (page - 1);
-		int endIndex = rows * page;
-		if (endIndex >= pageVos.length) {// 防止endIndex数组越界
-			endIndex = pageVos.length;
-		}
-		pageVos = Arrays.copyOfRange(pageVos, beginIndex, endIndex);
-		return pageVos;
-	}
 
 	/**
 	 * 打印操作

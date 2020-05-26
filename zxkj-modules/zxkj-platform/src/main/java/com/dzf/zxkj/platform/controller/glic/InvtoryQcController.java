@@ -27,7 +27,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +54,7 @@ public class InvtoryQcController extends BaseController {
             if("Y".equals(isfenye)) {
                 int page = queryParamvo.getPage();
                 int rows = queryParamvo.getRows();
-                vos = getPagedZZVOs(list.toArray(new InventoryQcVO[list.size()]), page, rows);
+                vos = (InventoryQcVO[])getPageVOs(list.toArray(new InventoryQcVO[list.size()]), page, rows);
             }else {
                 vos = list.toArray(new InventoryQcVO[list.size()]);
             }
@@ -65,18 +64,6 @@ public class InvtoryQcController extends BaseController {
         grid.setSuccess(true);
         return ReturnData.ok().data(grid);
     }
-
-    // 将查询后的结果分页
-    private InventoryQcVO[] getPagedZZVOs(InventoryQcVO[] PzglPagevos, int page, int rows) {
-        int beginIndex = rows * (page - 1);
-        int endIndex = rows * page;
-        if (endIndex >= PzglPagevos.length) {// 防止endIndex数组越界
-            endIndex = PzglPagevos.length;
-        }
-        PzglPagevos = Arrays.copyOfRange(PzglPagevos, beginIndex, endIndex);
-        return PzglPagevos;
-    }
-
     @PostMapping("/save")
     public ReturnData save(@RequestBody InventoryQcVO data) {
         Json json = new Json();

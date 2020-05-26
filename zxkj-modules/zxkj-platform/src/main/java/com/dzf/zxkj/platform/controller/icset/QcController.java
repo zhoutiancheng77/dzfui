@@ -12,6 +12,7 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -66,7 +67,8 @@ public class QcController  extends BaseController {
 		list = filterData(list, searchField);
 		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 		if (list != null && list.size() > 0) {
-			IcbalanceVO[] pvos = getPageVOs(list.toArray(new IcbalanceVO[list.size()]), page, rows);
+			SuperVO[] vos1 = list.toArray(new IcbalanceVO[list.size()]);
+			IcbalanceVO[] pvos = (IcbalanceVO[])getPageVOs(vos1, page, rows);
 			list = Arrays.asList(pvos);
 		}
 		grid.setRows(list == null ? new ArrayList<IcbalanceVO>() : list);
@@ -188,16 +190,6 @@ public class QcController  extends BaseController {
 		return ReturnData.ok().data(json);
 	}
 
-	// 将查询后的结果分页
-	private IcbalanceVO[] getPageVOs(IcbalanceVO[] pageVos, int page, int rows) {
-		int beginIndex = rows * (page - 1);
-		int endIndex = rows * page;
-		if (endIndex >= pageVos.length) {// 防止endIndex数组越界
-			endIndex = pageVos.length;
-		}
-		pageVos = Arrays.copyOfRange(pageVos, beginIndex, endIndex);
-		return pageVos;
-	}
 	private Map<String, Integer> getPreMap() {
 		String pk_corp = SystemUtil.getLoginCorpId();
 		String numStr = parameterserv.queryParamterValueByCode(pk_corp, IParameterConstants.DZF009);

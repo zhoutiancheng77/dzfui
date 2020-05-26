@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -47,24 +46,14 @@ public class InvAliasController extends BaseController {
 			if("Y".equals(isfenye)) {
 				int page = queryParamvo.getPage();
 				int rows = queryParamvo.getRows();
-				vos = getPagedZZVOs(vos, page, rows);
+//				vos = getPagedZZVOs(vos, page, rows);
+				vos = (InventoryAliasVO[])getPageVOs(vos, page, rows);
 			}
 		}
         grid.setRows(vos == null ? new InventoryAliasVO[0] : vos);
 		grid.setSuccess(true);
         grid.setMsg("查询成功");
 		return ReturnData.ok().data(grid);
-	}
-
-	// 将查询后的结果分页
-	private InventoryAliasVO[] getPagedZZVOs(InventoryAliasVO[] PzglPagevos, int page, int rows) {
-		int beginIndex = rows * (page - 1);
-		int endIndex = rows * page;
-		if (endIndex >= PzglPagevos.length) {// 防止endIndex数组越界
-			endIndex = PzglPagevos.length;
-		}
-		PzglPagevos = Arrays.copyOfRange(PzglPagevos, beginIndex, endIndex);
-		return PzglPagevos;
 	}
 
 	@PostMapping("/save")

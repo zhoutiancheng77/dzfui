@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 @Slf4j
 public class BaseController {
@@ -127,6 +128,22 @@ public class BaseController {
 
     public String getLoginUserId() {
         return request.getHeader(ISysConstant.LOGIN_USER_ID);
+    }
+
+    // 将查询后的结果分页
+    public SuperVO[] getPageVOs(SuperVO[] pageVos, int page, int rows) {
+
+        int beginIndex = rows * (page - 1);
+        if (beginIndex >= pageVos.length) {// 防止beginIndex数组越界
+            beginIndex = rows *(pageVos.length/ rows);
+        }
+
+        int endIndex = rows * page;
+        if (endIndex >= pageVos.length) {// 防止endIndex数组越界
+            endIndex = pageVos.length;
+        }
+        pageVos = Arrays.copyOfRange(pageVos, beginIndex, endIndex);
+        return pageVos;
     }
 
 }
