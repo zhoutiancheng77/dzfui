@@ -2151,7 +2151,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	// }
 
 	@Override
-	public String checkInvtorySubj(InventoryAliasVO[] invectory,InventorySetVO vo, String pk_corp,String userid,boolean ischecked) throws DZFWarpException {
+	public String checkInvtorySubj(InventoryAliasVO[] invectory,InventorySetVO vo, String pk_corp,String userid,boolean ischecked,YntCpaccountVO[] accountvos) throws DZFWarpException {
 		if(invectory==null || invectory.length==0)
 			return "";
 		if(StringUtil.isEmpty(pk_corp))
@@ -2169,7 +2169,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			return "";
 		StringBuffer sbf = new StringBuffer();
 		String str = "";
-		YntCpaccountVO[] accountvos =accountService.queryByPk(cpvo.getPk_corp());
+		//YntCpaccountVO[]
+		accountvos = accountvos != null ? accountvos : accountService.queryByPk(cpvo.getPk_corp());
 		Map<String, YntCpaccountVO> map = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(accountvos), new String[]{"accountcode"});
 		
 		Map<String,YntCpaccountVO> subjmap = new HashMap<String,YntCpaccountVO>();

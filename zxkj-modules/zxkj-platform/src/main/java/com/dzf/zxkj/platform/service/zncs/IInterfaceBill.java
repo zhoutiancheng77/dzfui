@@ -176,7 +176,7 @@ public interface IInterfaceBill {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public String checkInvtorySubj(InventoryAliasVO[] invectory, InventorySetVO vo, String pk_corp, String userid, boolean ischecked) throws DZFWarpException;
+	public String checkInvtorySubj(InventoryAliasVO[] invectory, InventorySetVO vo, String pk_corp, String userid, boolean ischecked,YntCpaccountVO[] accountvos) throws DZFWarpException;
 
 
 	/**

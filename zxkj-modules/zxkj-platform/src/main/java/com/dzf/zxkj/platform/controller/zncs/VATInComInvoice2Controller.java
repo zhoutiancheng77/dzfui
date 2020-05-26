@@ -1796,6 +1796,7 @@ public class VATInComInvoice2Controller extends BaseController {
     public String processGoods(List<VATInComInvoiceVO2> list,String pk_corp,String userid ){
 
         CorpVO corpVo = corpService.queryByPk(pk_corp);
+        YntCpaccountVO[] accountvos = null;
         //处理存货匹配yinyx1
         try {
             if(IcCostStyle.IC_INVTENTORY.equals(corpVo.getBbuildic())){
@@ -1804,7 +1805,7 @@ public class VATInComInvoice2Controller extends BaseController {
                     return "存货设置未设置!";
 
                 List<InventoryAliasVO> relvos = gl_vatincinvact2.matchInventoryData(pk_corp, list.toArray(new VATInComInvoiceVO2[0]),invsetvo);
-                String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false);
+                String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false,accountvos);
                 if (!StringUtil.isEmpty(error)) {
                     error = error.replaceAll("<br>", " ");
                     throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2061,6 +2062,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
     @RequestMapping("/matchInventoryData_long")
     public ReturnData<Grid> matchInventoryData_long(@RequestBody Map<String,String> param) {
+        YntCpaccountVO[] accountvos = null;
         Grid grid = new Grid();
         try {
             String body = param.get("head");
@@ -2118,7 +2120,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
                 if(relvos != null && relvos.size()>0){
 
-                    String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp,SystemUtil.getLoginUserId(), false);
+                    String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp,SystemUtil.getLoginUserId(), false,accountvos);
                     if (!StringUtil.isEmpty(error)) {
                         error = error.replaceAll("<br>", " ");
                         throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2177,6 +2179,7 @@ public class VATInComInvoice2Controller extends BaseController {
     public ReturnData<Grid> saveInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         String pk_corp = "";
+        YntCpaccountVO[] accountvos = null;
         boolean lock = false;
         try {
             String goods = param.get("goods");
@@ -2194,7 +2197,7 @@ public class VATInComInvoice2Controller extends BaseController {
             if (goodvos == null || goodvos.length == 0)
                 throw new BusinessException("未找到存货别名数据，请检查");
             InventorySetVO invsetvo = query();
-            String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), true);
+            String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), true,accountvos);
             if (!StringUtil.isEmpty(error)) {
                 error = error.replaceAll("<br>", " ");
                 throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2312,6 +2315,7 @@ public class VATInComInvoice2Controller extends BaseController {
         checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         String sourceName = StringUtil.isEmpty(sourcename)?"填制凭证_":sourcename+"_";
+        YntCpaccountVO[] accountvos = null;
         try {
 
             //加锁
@@ -2369,7 +2373,7 @@ public class VATInComInvoice2Controller extends BaseController {
             if (chcbjzfs != 2) {
                 InventoryAliasVO[] goodvos = getInvAliasData(goods);
                 if(goodvos != null &&goodvos.length> 0){
-                    String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), false);
+                    String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), false,accountvos);
                     if (!StringUtil.isEmpty(error)) {
                         error = error.replaceAll("<br>", " ");
                         throw new BusinessException("进项发票存货匹配失败:"+error);

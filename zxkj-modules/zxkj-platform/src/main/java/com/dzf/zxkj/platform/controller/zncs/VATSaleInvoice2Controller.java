@@ -2221,7 +2221,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         return errorCount;
     }
     public String processGoods(List<VATSaleInvoiceVO2> list,String pk_corp,String userid ){
-
+        YntCpaccountVO[] accountvos = null;
         CorpVO corpVo = corpService.queryByPk(pk_corp);
         //处理存货匹配yinyx1
         try {
@@ -2231,7 +2231,7 @@ public class VATSaleInvoice2Controller extends BaseController {
                     return "存货设置未设置!";
 
                 List<InventoryAliasVO> relvos = gl_vatsalinvserv2.matchInventoryData(pk_corp, list.toArray(new VATSaleInvoiceVO2[0]),invsetvo);
-                String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false);
+                String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false,accountvos);
                 if (!StringUtil.isEmpty(error)) {
                     error = error.replaceAll("<br>", " ");
                     throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2530,6 +2530,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         Grid grid = new Grid();
         String pk_corp = SystemUtil.getLoginCorpId();
         checkSecurityData(null,new String[]{pk_corp}, null);
+        YntCpaccountVO[] accountvos = null;
         try {
             String body = param.get("head");
             String isshow = param.get("ishow");
@@ -2587,7 +2588,7 @@ public class VATSaleInvoice2Controller extends BaseController {
                 List<InventoryAliasVO> relvos = gl_vatsalinvserv2.matchInventoryData(pk_corp, vos,invsetvo);
 
                 if(relvos != null && relvos.size()>0){
-                    String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false);
+                    String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false,accountvos);
                     if (!StringUtil.isEmpty(error)) {
                         error = error.replaceAll("<br>", " ");
                         throw new BusinessException("销项发票存货匹配失败:"+error);
@@ -2647,6 +2648,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         String goods = param.get("goods");
+        YntCpaccountVO[] accountvos = null;
         try {
             // 加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiang2pp"+pk_corp);
@@ -2660,7 +2662,7 @@ public class VATSaleInvoice2Controller extends BaseController {
             if (goodvos == null || goodvos.length == 0)
                 throw new BusinessException("未找到存货别名数据，请检查");
             InventorySetVO invsetvo = query();
-            String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp,SystemUtil.getLoginUserId(), true);
+            String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp,SystemUtil.getLoginUserId(), true,accountvos);
             if (!StringUtil.isEmpty(error)) {
                 error = error.replaceAll("<br>", " ");
                 throw new BusinessException("销项发票存货匹配失败:"+error);
@@ -2693,6 +2695,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         String inperiod = param.get("inperiod");
         String goods = param.get("goods");
         Grid grid = new Grid();
+        YntCpaccountVO[] accountvos = null;
         String pk_corp = SystemUtil.getLoginCorpId();
         checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
@@ -2770,7 +2773,7 @@ public class VATSaleInvoice2Controller extends BaseController {
                 InventoryAliasVO[] goodvos = getInvAliasData(goods);
                 if(goodvos != null &&goodvos.length> 0){
 
-                    String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), false);
+                    String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), false,accountvos);
                     if (!StringUtil.isEmpty(error)) {
                         error = error.replaceAll("<br>", " ");
                         throw new BusinessException("销项发票生成凭证失败:"+error);

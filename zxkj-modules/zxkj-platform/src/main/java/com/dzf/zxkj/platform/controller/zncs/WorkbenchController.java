@@ -1241,6 +1241,7 @@ public class WorkbenchController extends BaseController {
     @RequestMapping("/saveInventoryData_long")
     public ReturnData<Grid> saveInventoryData_long(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
+        YntCpaccountVO[] accountvos = null;
         boolean lock = false;
         String pk_corp = SystemUtil.getLoginCorpId();
         checkSecurityData(null,new String[]{pk_corp}, null);
@@ -1261,7 +1262,7 @@ public class WorkbenchController extends BaseController {
             InventoryAliasVO[] goodvos = getInvAliasData(goods);
             if (goodvos == null || goodvos.length == 0)
                 throw new BusinessException("未找到存货别名数据，请检查");
-            String error = iInterfaceBill.checkInvtorySubj(goodvos, inventorySetVO, pk_corp, SystemUtil.getLoginUserId(), true);
+            String error = iInterfaceBill.checkInvtorySubj(goodvos, inventorySetVO, pk_corp, SystemUtil.getLoginUserId(), true,accountvos);
             if (!StringUtil.isEmpty(error)) {
                 error = error.replaceAll("<br>", " ");
                 throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -1306,6 +1307,7 @@ public class WorkbenchController extends BaseController {
             String category = param.get("categoryid");
             String bills = param.get("ids");
             CorpVO corpvo = SystemUtil.getLoginCorpVo();
+            YntCpaccountVO[] accountvos = null;
             if(StringUtil.isEmpty(isshow)){
                 isshow ="Y";
             }
@@ -1338,7 +1340,7 @@ public class WorkbenchController extends BaseController {
                 List<InventoryAliasVO> relvos = iInterfaceBill.matchInventoryData(corpvo.getPk_corp(), list, inventorySetVO);
                 if(relvos != null && relvos.size()>0){
 
-                    String error = iInterfaceBill.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), inventorySetVO, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), false);
+                    String error = iInterfaceBill.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), inventorySetVO, SystemUtil.getLoginCorpId(), SystemUtil.getLoginUserId(), false,accountvos);
                     if (!StringUtil.isEmpty(error)) {
                         error = error.replaceAll("<br>", " ");
                         throw new BusinessException("存货匹配失败:"+error);
