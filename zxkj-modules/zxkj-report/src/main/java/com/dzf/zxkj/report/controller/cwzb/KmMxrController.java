@@ -78,6 +78,7 @@ public class KmMxrController extends ReportBaseController {
             int rows = queryParamvo == null ? 100000 : queryParamvo.getRows();
             KmMxZVO[] vos = null;
             //验证 查询范围应该在当前登录人的权限范围内
+            corpVO = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
             checkPowerDate(queryParamvo, corpVO);
             queryParamvo.setIsnomonthfs(DZFBoolean.FALSE);
             queryParamvo.setBtotalyear(DZFBoolean.TRUE);//是否显示本年累计

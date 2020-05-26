@@ -65,6 +65,7 @@ public class FsYeController  extends ReportBaseController {
             // 校验
             checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
             /** 验证 查询范围应该在当前登录人的权限范围内 */
+            corpVO = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
             checkPowerDate(queryvo,corpVO);
             DZFBoolean isshowfs = vo.getIshowfs();
             DZFBoolean isxswyewfs = vo.getXswyewfs();

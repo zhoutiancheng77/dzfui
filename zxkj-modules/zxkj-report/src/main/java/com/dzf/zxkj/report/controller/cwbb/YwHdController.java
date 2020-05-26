@@ -67,6 +67,7 @@ public class YwHdController  extends ReportBaseController {
             queryParamvo.setXswyewfs(DZFBoolean.FALSE);
 
             //开始日期应该在建账日期前
+            corpVO = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
             checkPowerDate(queryParamvo,corpVO);
 
             YwHdVO[] ywvos =  gl_rep_ywhdserv.queryYwHdValues(queryParamvo);
