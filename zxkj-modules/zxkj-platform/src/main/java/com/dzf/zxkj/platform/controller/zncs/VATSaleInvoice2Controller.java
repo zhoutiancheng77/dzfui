@@ -3270,7 +3270,7 @@ public class VATSaleInvoice2Controller extends BaseController {
 
 
     @Override
-    public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid, boolean isCheckData) {
+    public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid) {
         boolean lock= false;
 
 
@@ -3282,6 +3282,14 @@ public class VATSaleInvoice2Controller extends BaseController {
 //                return ReturnData.error().data(json);
             throw new BusinessException("正在处理中，请稍候刷新界面");
         }
-        super.checkSecurityData(vos, corps, cuserid, isCheckData);
+        lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiangcreatepz"+corps[0]);
+
+        if(!lock){//处理
+//                json.setSuccess(false);
+//                json.setMsg("正在处理中，请稍候刷新界面");
+//                return ReturnData.error().data(json);
+            throw new BusinessException("正在处理中，请稍候刷新界面");
+        }
+        super.checkSecurityData(vos, corps, cuserid);
     }
 }
