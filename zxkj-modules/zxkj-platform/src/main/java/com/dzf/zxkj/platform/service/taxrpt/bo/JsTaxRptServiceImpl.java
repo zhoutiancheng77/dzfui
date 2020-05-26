@@ -90,7 +90,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	@Autowired
 	private SingleObjectBO sbov;
 //	private static Logger log = Logger.getLogger(JsTaxRptServiceImpl.class);
-	
+
 //	private ITaxRequestSrv taxrequestsrv;
 	@Autowired
 	private IFctpubService pubFctService;
@@ -109,7 +109,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	/**
 	 * 江苏
 	 */
-	@Override 
+	@Override
 	public List<TaxReportVO> getTypeList(CorpVO corpvo, CorpTaxVo corptaxvo, String yearmonth,
 										 String operatorid, String operatedate, SingleObjectBO sbo)
 			throws DZFWarpException {
@@ -150,7 +150,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		}
 //		// 建立主表记录
 //		String pk = IDGenerate.getInstance().getNextID(pk_corp);
-//		
+//
 //		TaxTypeListVO headvo = new TaxTypeListVO();
 //		headvo.setPk_taxtypelist(pk);
 //		headvo.setPk_corp(pk_corp);
@@ -176,7 +176,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		}
 //		return vos;
 //	}
-	
+
 //	@Override
 //	public TaxTypeListDetailVO[] getTaxTypeListDetailVO(boolean showYearInTax, String yearmonth, CorpVO corpvo,
 //			SingleObjectBO sbo) throws DZFWarpException {
@@ -226,20 +226,20 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //				detailvo.setPeriodto(getQuarterEndDate(yearmonth));
 //				detailvo.setZsxm_dm("01"); // 增值税
 //				detailvo.setPeriodtype(1); // 季报
-//				
+//
 //				list.add(detailvo);
-//				
+//
 //				// 小规模纳税人，所得税季报，A类
 //				TaxTypeListDetailVO detailvo1 = new TaxTypeListDetailVO();
 //				detailvo1.setSb_zlbh("10412");
-//				
+//
 //				detailvo1.setPeriodfrom(getQuarterStartDate(yearmonth));
 //				detailvo1.setPeriodto(getQuarterEndDate(yearmonth));
 //				detailvo1.setZsxm_dm("04"); // 所得税
 //				detailvo1.setPeriodtype(1); // 季报报
-//				
+//
 //				list.add(detailvo1);
-//				
+//
 //				// 小规模，所得税季报，B类
 //				TaxTypeListDetailVO intaxB = new TaxTypeListDetailVO();
 //				intaxB.setSb_zlbh("10413");
@@ -269,12 +269,12 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		addLocalTax(corpvo, yearmonth, list);
 //		return list.toArray(new TaxTypeListDetailVO[0]);
 //	}
-	
+
 	// 江苏应申报清册接口
 	private List<String> getDeclarableInventory(String yearmonth, CorpVO corpvo,CorpTaxVo taxvo) {
 		JSONObject rsJosn = getInventoryJson(yearmonth, corpvo,taxvo);
 		String status = rsJosn.getString("RESULT");
-		
+
 		List<String> list = new ArrayList<String>();
 		if ("0000".equals(status)) {
 			List<TaxTypeSBZLVO> zlist = queryTypeSBZLVOs();
@@ -297,7 +297,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				} else if ("29801".equals(code)) {
 					code = TaxRptConst.SB_ZLBHC2;
 				}
-				
+
 				// 申报种类相同的生成一条记录
 				if (codes.contains(code)) {
 					continue;
@@ -315,7 +315,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		//增加地税
 //		addLocalTax(corpvo, yearmonth, list);
 		return list;
-	
+
 	}
 	private List<String> getInventoryCodes(String yearmonth, CorpVO corpvo,CorpTaxVo taxvo) {
 		List<String> codes = new ArrayList<String>();
@@ -335,7 +335,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				} else if ("29801".equals(code)) {
 					code = TaxRptConst.SB_ZLBHC2;
 				}
-				
+
 				// 申报种类相同的生成一条记录
 				if (codes.contains(code)) {
 					continue;
@@ -347,7 +347,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return codes;
 	}
-	
+
 	private JSONObject getInventoryJson(String yearmonth, CorpVO corpvo,CorpTaxVo taxvo ) {
 		BaseRequestVO baseReq = getBaseRequset(corpvo,taxvo);
 
@@ -359,7 +359,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("NSRSBH", corpvo.getVsoccrecode());
-		
+
 		String[] period = yearmonth.split("-");
 		map.put("ND", period[0]);
 		map.put("YF", period[1]);
@@ -383,23 +383,23 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		JSONObject rsJosn = (JSONObject) JSON.parse(result);
 		return rsJosn;
 	}
-	
+
 //	@Override
 //	public List<RptBillVO> getRptBillVO(TaxReportVO paravo, SingleObjectBO sbo,
 //			CorpVO corpvo) throws DZFWarpException {
 //		List<RptBillVO> volist = null;
 //		SQLParameter params = new SQLParameter();
 //		List<String> listRptcode = new ArrayList<String>();
-//		
+//
 //		if ("on".equals(JSTaxPropUtil.getprop("service_switch"))
 //				&& !StringUtil.isEmpty(corpvo.getVsoccrecode())
 //				&& !StringUtil.isEmpty(corpvo.getVstatetaxpwd())) {
 //			// 通过出表规则查询报表
 //			listRptcode.addAll(getReportList(corpvo, paravo));
 //		}
-//		
+//
 //		DZFBoolean isSave = DZFBoolean.FALSE;
-//		
+//
 //		if(listRptcode.size() == 0) {
 //			// 查询客户档案中勾选的报表
 //			params.addParam(paravo.getPk_corp());
@@ -408,10 +408,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //					"nvl(dr,0)=0 and pk_corp=? and taxrptcode like '"
 //							+ paravo.getSb_zlbh() + "%'", params);
 //			if (taxrptvos != null && taxrptvos.length > 0) {
-//				
+//
 //				isSave = DZFBoolean.TRUE;
 //				DZFBoolean isselect;
-//				
+//
 //				for (CorpTaxRptVO vo : taxrptvos) {
 //					isselect = vo.getIsselect();
 //					if(isselect != null && isselect.booleanValue()){
@@ -445,7 +445,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //				if (listRptcode.contains(tvo.getReportcode()) == false) {
 //					continue;
 //				}
-//			} else if(isSave.booleanValue()) 
+//			} else if(isSave.booleanValue())
 //			{
 //				continue;
 //			} else // 客户档案没设置过填报列表，只填写必填内容
@@ -509,7 +509,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 	/**
 	 * 生成pdf文件
-	 * 
+	 *
 	 * @param detailvos
 	 * @throws DZFWarpException
 	 */
@@ -610,7 +610,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		if (StringUtil.isEmpty(vstatetaxpwd)) {
 			throw new BusinessException("纳税密码不能为空");
 		}
-		
+
 		int isbzt_dm = Integer.parseInt(reportvo.getSbzt_dm());
 		if (!(isbzt_dm == TaxRptConst.iSBZT_DM_UnSubmit
 				|| isbzt_dm == TaxRptConst.iSBZT_DM_AcceptFailute
@@ -640,7 +640,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			// 重复申报时流水号不变
 			lsh = UUID.randomUUID().toString().replaceAll("-", "");
 		}
-		
+
 		String bw = constructPostData(corpVO, taxvo,reportvo, objMapReport,
 				spreadtool, lsh);
 
@@ -649,21 +649,21 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		params.put("request", encode);
 		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
-		
+
 		String result = HttpUtil.parseRes(rmap.get("response"));
-		
+
 		JSONObject rsJosn = (JSONObject) JSON.parse(result);
-		
+
 		String status = rsJosn.getString("RESULT");
 		String msg = rsJosn.getString("MSG");
 
 		if (!"0000".equals(status)) {
 			throw new BusinessException(msg);
 		}
-		
+
 		// 记录申报流水号
 		reportvo.setRegion_extend1(lsh);
-		
+
 		// 更新状态为已提交
 		String sbzt_dm = "" + TaxRptConst.iSBZT_DM_Submitted;
 		reportvo.setSbzt_dm(sbzt_dm);
@@ -677,13 +677,13 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		sp.addParam(reportvo.getPk_corp());
 		sp.addParam(reportvo.getPk_taxreport());
 		singleObjectBO.executeUpdate(sql, sp);
-		
+
 		return msg;
 	}
 
 	/**
 	 * 构造JSON格式申报数据
-	 * 
+	 *
 	 * @return
 	 */
 	private String constructPostData(CorpVO corpVO,CorpTaxVo taxvo, TaxReportVO reportvo,
@@ -692,7 +692,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 		BaseRequestVO baseRequest = getBaseRequset(corpVO,taxvo);
 
-		
+
 		Map<String, Object> map = new HashMap<String, Object>();
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -741,7 +741,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			baseRequest.setServiceid("FW_DZSWJ_FJS_TJ");
 			baseRequest.getBody().setSign("sb10516Submit");
 		}
-		
+
 
 		map.put("params", params);
 //		Set<String> reports = getReportList(corpVO, reportvo);
@@ -830,25 +830,25 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		} else if (TaxRptConst.SB_ZLBH50101.equals(type) || TaxRptConst.SB_ZLBH50102.equals(type)) {
 			cls = SurtaxRequest.class;
 		}
-		
+
 		return cls;
 	}
 
-	
+
 	private void fillFields(Object datas, Map objMapReport,
 			SpreadTool spreadtool) throws Exception {
 		for (Field field : datas.getClass().getDeclaredFields()) {
-			
+
 			Class<?> fieldType = field.getType();
 			boolean isArray = fieldType.isArray();
-			
+
 			if (isArray)
 				fieldType = fieldType.getComponentType();
-			
+
 			TaxExcelPos clsAnno = fieldType
 					.getAnnotation(TaxExcelPos.class);
-			
-			
+
+
 			Object obj = null;
 			if (clsAnno != null && !"".equals(clsAnno.reportname())) {
 				if (isArray) {
@@ -884,7 +884,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 								spreadtool, null, null);
 					}
 				}
-			
+
 			} else {
 				if (isArray) {
 					// 数组类型，没有注解，只有一个对象
@@ -897,7 +897,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					fillFields(obj, objMapReport, spreadtool);
 				}
 			}
-			
+
 			String fname = field.getName();
 			Method setMtd = datas.getClass().getMethod(
 					"set" + fname.substring(0, 1).toUpperCase()
@@ -905,10 +905,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			setMtd.invoke(datas, obj);
 		}
 	}
-	
+
 	/**
 	 * 根据类从报表取数生成对象
-	 * 
+	 *
 	 * @param fieldType
 	 * @param reportname
 	 * @param objMapReport
@@ -971,7 +971,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 				val = valStr;
 			} else if (field.getType().isAssignableFrom(DZFDouble.class)) {
-				if (valStr.indexOf("——") > -1) {
+				if (valStr.trim().equals("——") || valStr.trim().equals("--")) {
 //					valStr = null;
 					val = DZFDouble.ZERO_DBL;
 				} else if (valStr.indexOf("%") > -1) {
@@ -981,7 +981,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					val = new DZFDouble(valStr);
 				}
 			} else if (field.getType().isAssignableFrom(Double.class)) {
-				if (valStr.indexOf("——") > -1) {
+				if (valStr.trim().equals("——") || valStr.trim().equals("--")) {
 					val = new Double("0");
 				} else if (valStr.indexOf("%") > -1) {
 					valStr = valStr.substring(0, valStr.indexOf("%"));
@@ -1014,14 +1014,14 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 	/**
 	 * 初始化，获取期初数据
-	 * 
+	 *
 	 * @param corpVO
 	 * @param reportvo
 	 * @return
 	 */
 	private HashMap<String, Object> initTax(CorpVO corpVO, CorpTaxVo taxvo,TaxReportVO reportvo) {
 		BaseRequestVO baseReq = getBaseRequset(corpVO,taxvo);
-		
+
 		if (TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
 				|| TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())) {
 			baseReq.setServiceid("FW_DZSWJ_ZZSXGM_CSH");
@@ -1069,18 +1069,18 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		} else {
 			throw new BusinessException((String) rsJosn.get("MSG"));
 		}
-		
+
 		// 记录流水号
 		if (StringUtil.isEmpty(lsh)) {
 			singleObjectBO.update(reportvo, new String[]{"region_extend1"});
 		}
-		
+
 		return initData;
 	}
 
 	/**
 	 * 解析期初数据为Map
-	 * 
+	 *
 	 * @param data
 	 * @param reportvo
 	 * @return
@@ -1157,7 +1157,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 											(String) qcVO.get(entry.getValue()));
 								}
 							}
-							
+
 						}
 					}
 				} else {
@@ -1175,7 +1175,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 
 	}
-	
+
 	private void putInitMapValue(Map<String, Object> initData, String key,
 			String value) {
 		DZFDouble doubleVal = new DZFDouble(value);
@@ -1205,7 +1205,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			yzpzzlDm = "BDA0611038";
 		}
 		params.put("yzpzzlDm", yzpzzlDm);
-		
+
 		String uuid = null;
 		if (StringUtil.isEmpty(reportvo.getRegion_extend1())) {
 			uuid = UUID.randomUUID().toString().replaceAll("-", "");
@@ -1213,7 +1213,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		} else {
 			uuid = reportvo.getRegion_extend1();
 		}
-		
+
 		params.put("sbuuid", uuid);
 
 //		String ywbw = OFastJSON.toJSONString(params);
@@ -1223,7 +1223,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 		return ywbw;
 	}
-	
+
 	@Override
 	public void getDeclareStatus(CorpVO corpvo, CorpTaxVo taxvo,TaxReportVO reportvo)
 			throws DZFWarpException {
@@ -1234,11 +1234,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				|| StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
 			return;
 		}
-		
+
 		if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
 			return;
 		}
-		
+
 		String lsh =  reportvo.getRegion_extend1();
 		boolean isSaveFile = !StringUtil.isEmpty(reportvo.getSpreadfile());
 		if (!isSaveFile || lsh == null || reportvo.getSbzt_dm() != null
@@ -1250,7 +1250,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			reportvo.setSbzt_dm(sbzt_dm);
 		} else {
 			BaseRequestVO baseRequest = getBaseRequset(corpvo,taxvo);
-			
+
 			baseRequest.setServiceid("FW_DZSWJ_DYBBSBQKCX");
 			baseRequest.getBody().setSign("querySbqk");
 
@@ -1258,26 +1258,27 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			businessParam.put("nsrsbh", corpvo.getVsoccrecode());
 			businessParam.put("skssqq", reportvo.getPeriodfrom());
 			businessParam.put("skssqz", reportvo.getPeriodto());
+			businessParam.put("sbzlid", getSbzlbh(reportvo.getSb_zlbh()));
 			businessParam.put("LSH", "''" + lsh + "''");
 			String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(businessParam),
 					taxJstcConfig.app_secret);
-			
+
 			baseRequest.getBody().setYwbw(ywbw);
-			
+
 //			String bw = OFastJSON.toJSONString(baseRequest);
 			String bw = JsonUtils.serialize(baseRequest);
 
 			String encode = ZipUtil.zipEncode(bw, true);
 			HashMap<String, String> params = new HashMap<String, String>();
 			params.put("request", encode);
-			
+
 			Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 					params);
-			
+
 			String result = HttpUtil.parseRes(rmap.get("response"));
 			JSONObject rsJosn = (JSONObject) JSON.parse(result);
 			String status = rsJosn.getString("RESULT");
-			
+
 			if (!"0000".equals(status)) {
 				log.error("更新申报状态失败:" + rsJosn);
 //				throw new BusinessException((String) rsJosn.get("MSG"));
@@ -1325,7 +1326,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 		updateSBZTJS(reportvo);
 	}
-	
+
 	private void updateSBZTJS(TaxReportVO reportvo){
 		singleObjectBO.update(reportvo, new String[]{"sbzt_dm", "remark", "region_extend2", "taxmny"});
 		String sql = "update ynt_taxreportdetail set sbzt_dm = ? where pk_corp = ? and  pk_taxreport = ? and nvl(dr, 0) = 0";
@@ -1339,7 +1340,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	@Override
 	public void processObsoleteDeclare(CorpVO corpvo, TaxReportVO reportvo)
 			throws DZFWarpException {
-		
+
 		if (!"true".equals(taxJstcConfig.service_switch)) {
 			return;
 		}
@@ -1348,11 +1349,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				|| StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
 			return;
 		}
-		
+
 		if (Integer.valueOf(reportvo.getSbzt_dm()) != TaxRptConst.iSBZT_DM_ReportSuccess) {
 			throw new BusinessException("非申报成功状态，不能申报作废");
 		}
-		
+
 		String zflag = "other";
 		String yzpz = reportvo.getRegion_extend2();
 		if ("C".equals(reportvo.getZsxm_dm())
@@ -1361,11 +1362,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			zflag = "cwbb";
 			yzpz = reportvo.getRegion_extend1();
 		}
-		
+
 		if (StringUtil.isEmpty(yzpz)) {
 			throw new BusinessException("非在本系统申报，不能申报作废");
 		}
-		
+
 		BaseRequestVO baseRequest = getBaseRequset(corpvo,taxvo);
 
 		baseRequest.setServiceid("FW_DZSWJ_SBZF");
@@ -1380,7 +1381,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				taxJstcConfig.app_secret);
 
 		baseRequest.getBody().setYwbw(ywbw);
-		
+
 //		String bw = OFastJSON.toJSONString(baseRequest);
 		String bw = JsonUtils.serialize(baseRequest);
 
@@ -1390,7 +1391,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				params);
-		
+
 		String result = HttpUtil.parseRes(rmap.get("response"));
 		JSONObject rsJosn = (JSONObject) JSON.parse(result);
 		String status = rsJosn.getString("RESULT");
@@ -1408,13 +1409,13 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			}
 			throw new BusinessException(msg);
 		}
-		
+
 		//更新申报状态
 		reportvo.setSbzt_dm(TaxRptConst.iSBZT_DM_ReportCancel + "");
 		singleObjectBO.update(reportvo, new String[]{"sbzt_dm"});
-		
+
 	}
-	
+
 	@Override
 	public String[] getCondition(String pk_taxreport, UserVO userVO,
 			TaxReportVO reportvo, SingleObjectBO sbo) throws DZFWarpException {
@@ -1469,7 +1470,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return listCondition.toArray(new String[0]);
 	}
-	
+
 	@Override
 	public String checkReportData(Map mapJson, CorpVO corpvo, TaxReportVO reportvo,
 			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
@@ -1494,7 +1495,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				if (val1.doubleValue() != 0 && val1.compareTo(val2) != 0) {
 					errmsg += "主表服务、不动产和无形资产应征增值税不含税销售额（5%征收率）不等于本期数《增值税纳税申报表（适用于增值税小规模纳税人）附列资料》第16栏的“应税行为（5%征收率）不含税销售额”<br>";
 				}
-				
+
 			}
 			if (listReportName.contains(rpt2)) {
 				val1 = getCellNumber(spreadtool.getCellValue(mapJson, rpt2, 16, 3));
@@ -1526,7 +1527,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 							+ "应等于《增值税减免税申报明细表》免税项目第1列免征增值税项目销售额合计值<br>";
 				}
 			}
-			
+
 //			errmsg +=checkForSB_ZLBH10102_js(mapJson, corpvo, reportvo, hmRptDetail, sbo);
 		} else if (TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())) {
 			String rpt1 = "增值税纳税申报表附列资料（一）";
@@ -1541,7 +1542,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						errmsg += "增值税纳税申报表附列资料一第6行第9列数据应小于等于本表第1、3、4a行第9列之和<br>";
 					}
 				}
-				
+
 				val1 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 7, 13));
 				val2 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 9, 13));
 				val3 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 10, 13));
@@ -1552,7 +1553,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						errmsg += "增值税纳税申报表附列资料一第6行第10列数据应小于等于本表第1、3、4a行第10列之和<br>";
 					}
 				}
-				
+
 				val1 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 8, 12));
 				val2 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 11, 12));
 				val3 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 12, 12));
@@ -1563,7 +1564,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						errmsg += "增值税纳税申报表附列资料一第7行第9列数据应小于等于本表第2、4b、5行第9列之和<br>";
 					}
 				}
-				
+
 				val1 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 8, 13));
 				val2 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 11, 13));
 				val3 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 12, 13));
@@ -1574,7 +1575,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						errmsg += "增值税纳税申报表附列资料一第7行第10列数据应小于等于本表第2、4b、5行第10列之和<br>";
 					}
 				}
-				
+
 				val1 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 8, 17));
 				val2 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 11, 17));
 				val3 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 12, 17));
@@ -1585,7 +1586,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						errmsg += "增值税纳税申报表附列资料一第7行第14列数据应小于等于本表第2、4b、5行第14列之和<br>";
 					}
 				}
-				
+
 			}*/
 			String rpt2 = "增值税纳税申报表附列资料（三）";
 			if (listReportName.contains(rpt2)) {
@@ -1602,7 +1603,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 							errmsg += "增值税纳税申报表附列资料三第" + (i + 1) + "栏第5列数据应小于等于本表第4列数据<br>";
 						}
 					}
-					
+
 				}
 			}
 		} else if (TaxRptConst.SB_ZLBHC1.equals(reportvo.getSb_zlbh())) {
@@ -1663,7 +1664,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					}
 				}
 			}
-			
+
 			errmsg += checkForSB_ZLBH10412(mapJson, corpvo, reportvo, hmRptDetail, sbo);
 		} else if (TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh()) && reportvo.getPeriodtype() == 1) {
 			String rpt1 = "主表";
@@ -1686,14 +1687,14 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return errmsg;
 	}
-	
-	
+
+
 	@Override
 	public String checkReportDataWarning(Map mapJson, CorpVO corpvo, TaxReportVO reportvo,
 			HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
 		String warningmsg = "";
 		if (TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
-				|| TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())) {	
+				|| TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())) {
 //			warningmsg = checkForSB_ZLBH10102_js(mapJson, corpvo, reportvo, hmRptDetail, sbo);
 		}
 		return warningmsg;
@@ -1760,7 +1761,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return errmsg;
 	}
-	
+
 	/**
 	 * 出表规则
 	 * @param corpVO
@@ -1769,7 +1770,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	 */
 	private Set<String> getReportList(CorpVO corpVO, CorpTaxVo taxvo,TaxReportVO reportvo) {
 		Set<String> reports = new HashSet<String>();
-		
+
 		if (!TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())
 				&& !TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
 				&& !TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())
@@ -1777,7 +1778,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				&& !TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh())) {
 			return reports;
 		}
-		
+
 		BaseRequestVO baseReq = getBaseRequset(corpVO,taxvo);
 
 		baseReq.setServiceid("FW_DZSWJ_CBGZCX");
@@ -1788,7 +1789,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		map.put("skssqq", reportvo.getPeriodfrom());
 		map.put("skssqz", reportvo.getPeriodto());
 		map.put("sbzlid", getSbzlbh(reportvo.getSb_zlbh()));
-		
+
 //		String ywbw = OFastJSON.toJSONString(map);
 		String ywbw = JsonUtils.serialize(map);
 
@@ -1821,7 +1822,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return reports;
 	}
-	
+
 	private DZFDouble getCellNumber(Object val) {
 		DZFDouble numberVal = null;
 		String valStr = null;
@@ -1835,10 +1836,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return numberVal;
 	}
-	
+
 	/**
 	 * 调用已申报未申报接口获取申报状态
-	 * 
+	 *
 	 * @param corpVO
 	 * @param reportvo
 	 * @return "已申报"|"未申报"|null
@@ -1856,7 +1857,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		map.put("NSRSBH", corpVO.getVsoccrecode());
 		map.put("ND", period.substring(0, 4));
 		map.put("YF", period.substring(5, 7));
-		
+
 //		String ywbw = OFastJSON.toJSONString(map);
 		String ywbw = JsonUtils.serialize(map);
 
@@ -1896,8 +1897,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return null;
 	}
-	
-	
+
+
 //	/**
 //	 * 江苏地区财报为月报
 //	 */
@@ -1917,7 +1918,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		if(StringUtil.isEmpty(detailvo.getSb_zlbh()))
 //			return;
 //		list.add(detailvo);
-//		
+//
 //		boolean showYearInTax = Integer.valueOf(yearmonth.substring(5)) <= 5;
 //		if (showYearInTax) {
 //			int year = Integer.valueOf(yearmonth.substring(0, 4)) - 1;
@@ -1940,7 +1941,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //			}
 //		}
 //	}
-	
+
 	// 地税
 //	private void addLocalTax(CorpVO corpvo, String yearmonth, List<TaxTypeListDetailVO> list) {
 //		TaxTypeListDetailVO detailvo = new TaxTypeListDetailVO();
@@ -1983,7 +1984,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		detailvo1.setZsxm_dm("04"); // 所得税
 //		detailvo1.setPeriodtype(0); // 月报
 //		list.add(detailvo1);
-//		
+//
 //		TaxTypeListDetailVO inTaxB = new TaxTypeListDetailVO();
 //		inTaxB.setSb_zlbh("10413");
 //		inTaxB.setPeriodfrom(periodBegin);
@@ -2037,7 +2038,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	public String getLocation(CorpVO corpvo) throws DZFWarpException {
 		return "江苏";
 	}
-	
+
 	/**
 	 * 转换申报种类编号
 	 * @param sbzl_bh
@@ -2056,11 +2057,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return sbzl_bh;
 	}
-	
+
 	private void setTaxTypeListValue(TaxReportVO detailvo,String pk_corp, JSONObject json,Map<String,TaxTypeSBZLVO> zlmap) {
 		String sb_zlbh = json.getString("SB_ZLBH");
 //		String zsxm_dm = null;
-//		
+//
 //		switch (sb_zlbh) {
 //		case "29806":
 //		case "29801":
@@ -2081,10 +2082,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //		default:
 //			break;
 //		}
-		
+
 		detailvo.setPeriodfrom(json.getString("SKSSQQ"));
 		detailvo.setPeriodto(json.getString("SKSSQZ"));
-		
+
 		int periodType = getPeriodType(detailvo.getPeriodfrom(), detailvo.getPeriodto());
 		if ("10102".equals(sb_zlbh) && periodType == 0) {
 			sb_zlbh = TaxRptConst.SB_ZLBH1010201;
@@ -2104,13 +2105,13 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		TaxTypeSBZLVO vo = zlmap.get(sb_zlbh+","+periodType);
 		if(vo!=null){
 			detailvo.setPk_taxsbzl(vo.getPk_taxsbzl());
-			
+
 		}
 	}
-	
+
 	/**
 	 * 过滤未填写的非必填报表
-	 * 
+	 *
 	 * @param data
 	 */
 	private void filterEmptyReport(TaxReportVO reportvo, Object data) {
@@ -2128,7 +2129,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				requiredReport.add(taxRptTempletVO.getReportname());
 			}
 		}
-		
+
 		Map<String, Boolean> rptCheck = new HashMap<String, Boolean>();
 		Map<Field, String> fieldRptInfo = new HashMap<Field, String>();
 		for (Field field : data.getClass().getDeclaredFields()) {
@@ -2139,17 +2140,17 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						"get" + fname.substring(0, 1).toUpperCase()
 						+ fname.substring(1));
 				val = getMtd.invoke(data);
-				
-				
+
+
 				Class<?> fieldType = val.getClass();
 				boolean isArray = fieldType.isArray();
-				
+
 				if (isArray)
 					fieldType = fieldType.getComponentType();
-				
+
 				TaxExcelPos clsAnno = fieldType
 						.getAnnotation(TaxExcelPos.class);
-				
+
 				boolean isEmpty = checkReportIsEmpty(requiredReport, val);
 				if (clsAnno != null && !"".equals(clsAnno.reportname())) {
 					fieldRptInfo.put(field, clsAnno.reportname());
@@ -2168,7 +2169,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				log.error("校验申报表是否为空失败", e);
 			}
 		}
-		
+
 		for (Entry<Field, String> fieldEntry : fieldRptInfo.entrySet()) {
 			Field field = fieldEntry.getKey();
 			String fname = field.getName();
@@ -2185,27 +2186,27 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			}
 		}
 	}
-	
+
 	private boolean checkReportIsEmpty(Set<String> requiredReport, Object data) throws Exception {
 		boolean isEmpty = true;
-		
+
 		if (data == null) {
 			return isEmpty;
 		}
-		
+
 		Class<?> fieldType = data.getClass();
 		boolean isArray = fieldType.isArray();
 		if (isArray)
 			fieldType = fieldType.getComponentType();
 		TaxExcelPos clsAnno = fieldType
 				.getAnnotation(TaxExcelPos.class);
-		
+
 		if (clsAnno != null && !"".equals(clsAnno.reportname())
 				&& requiredReport.contains(clsAnno.reportname())) {
 			// 必填表返回false
 			return false;
 		}
-		
+
 		if (isArray) {
 			Object[] dataArray= (Object[]) data;
 			if (clsAnno == null || "".equals(clsAnno.reportname())) {
@@ -2250,11 +2251,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			CorpVO corpvo,CorpTaxVo corptaxvo, SingleObjectBO singleObjectBO) {
 		if(reportvo == null)
 			return;
-		
+
 		TaxReportDetailVO[] detailvos = (TaxReportDetailVO[])reportvo.getChildren();
-		
+
 		//zpm
-		
+
 		// 无模板，重新生成
 		String pk_templet = "";
 		if(detailvos!=null && detailvos.length>0){
@@ -2293,13 +2294,13 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			throw new BusinessException("解析报表失败");
 		}
 		processSaveFile(sReturn, reportvo, corpvo);
-		
+
 		//zpm
 //		if (isNewReport) {
 //			singleObjectBO.insertVOWithPK(reportvo);
 //			singleObjectBO.insertVOArr(corpvo.getPk_corp(), detailvos);
 //		} else {
-			
+
 		    //更新子表字段
 		singleObjectBO.updateAry(detailvos);
 		singleObjectBO.update(reportvo, new String[]{ "spreadfile" });
@@ -2332,7 +2333,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				false);
 		return objectMapper;
 	}
-	
+
 	// 收费
 	private void doCharge(CorpVO corpVO, TaxReportVO reportvo, String userId) {
 		IVersionMngService verionMng = (IVersionMngService) SpringUtils
@@ -2398,7 +2399,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					bvo.setPk_corp(reportvo.getPk_corp());
 					bvo.setPk_dzfservicedes(IDzfServiceConst.DzfServiceProduct_03);
 					bvo.setPk_user(userId);
-					bvo.setPk_corpkjgs(corpVO.getFathercorp());			
+					bvo.setPk_corpkjgs(corpVO.getFathercorp());
 					//DZFDate dzfdate = new DZFDate(period + "-15");
 					//查询委托公司
 					//String wtcorp = pubFctService.getAthorizeFactoryCorp(dzfdate, reportvo.getPk_corp());
@@ -2418,7 +2419,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					}else{
 						throw new BusinessException(e.getMessage());
 					}
-					
+
 				} else {
 					throw new WiseRunException(e);
 				}
@@ -2430,7 +2431,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			}
 		}
 	}
-	
+
 	/**
 	 * 减免类型
 	 * @param initData
@@ -2467,7 +2468,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		initData.put("jmxzlist-js", jsStr.toString());
 		initData.put("jmxzlist-ms", msStr.toString());
 	}
-	
+
 	@Override
 	protected List<String> queryCorpTaxRptVO(CorpVO corpvo, String period) {
 		// 用户勾选的报表
@@ -2501,7 +2502,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return checkedRpt;
 	}
-	
+
 	@Override
 	protected List<TaxReportDetailVO> queryReportDetailVOs(CorpVO corpVO,
 			List<TaxReportVO> adddetails,String period) {
@@ -2514,10 +2515,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			List<TaxRptTempletVO> checkedTemp = queryRptTempletVOs(corpVO.getPk_corp(),period);
 			// 所有表
 			List<TaxRptTempletVO> allTemp = queryAllRptTempletVOs(corpVO);
-			
+
 			Map<String, List<TaxRptTempletVO>> checkedTempMap = DZfcommonTools
 					.hashlizeObject(checkedTemp, new String[] { "pk_taxsbzl" });
-			
+
 			Map<String, List<TaxRptTempletVO>> allTempMap = DZfcommonTools
 					.hashlizeObject(allTemp, new String[] { "pk_taxsbzl" });
 			for (TaxReportVO reportvo : adddetails) {
@@ -2588,7 +2589,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				break;
 			}
 		}
-		
+
 		List<TaxRptTempletVO> tempList = allTempMap.get(reportvo.getPk_taxsbzl());
 		if (tempList != null) {
 			if (checkedCodes.size() == 0) {
@@ -2610,7 +2611,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return tempList;
 	}
-	
+
 	private List<TaxRptTempletVO> queryAllRptTempletVOs(CorpVO corpVO) {
 		SQLParameter params = new SQLParameter();
 		params.addParam(getLocation(corpVO));
@@ -2620,14 +2621,14 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		List<TaxRptTempletVO> list = (List<TaxRptTempletVO>)
 				singleObjectBO.executeQuery(sf.toString(), params,new BeanListProcessor(TaxRptTempletVO.class));
 		return list;
-	
+
 	}
-	
+
 	public TaxPaymentVO[] queryTaxPayment(CorpVO corpvo, CorpTaxVo taxvo,TaxReportVO reportvo) {
 		BaseRequestVO baseRequest = getBaseRequset(corpvo,taxvo);
 		baseRequest.setServiceid("FW_DZSWJ_WSPZ");
 		baseRequest.getBody().setSign("wspznfService");
-		
+
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("NSRSBH", corpvo.getVsoccrecode());
 		// 缴款日期起
@@ -2639,21 +2640,21 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(params), taxJstcConfig.app_secret);
 
 		baseRequest.getBody().setYwbw(ywbw);
-		
+
 //		String bw = OFastJSON.toJSONString(baseRequest);
 		String bw = JsonUtils.serialize(baseRequest);
-		
+
 		String encode = ZipUtil.zipEncode(bw, true);
 		HashMap<String, String> requestParam = new HashMap<String, String>();
 		requestParam.put("request", encode);
-		
+
 		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
 				requestParam);
-		
+
 		String result = HttpUtil.parseRes(rmap.get("response"));
 		JSONObject rsJosn = (JSONObject) JSON.parse(result);
 		String status = rsJosn.getString("RESULT");
-		
+
 		if (!"0000".equals(status)) {
 			log.error("查询完税凭证失败" + rsJosn);
 			throw new BusinessException((String) rsJosn.get("MSG"));
@@ -2672,7 +2673,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					continue;
 				}
 				it.remove();
-				
+
 			}
 			payments = TypeUtils.cast(dataArray,
 					TaxPaymentVO[].class, JSONConvtoJAVA.getParserConfig());
@@ -2698,7 +2699,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String checkReportList(CorpVO corpvo,CorpTaxVo taxvo, List<TaxReportVO> list)
 			throws DZFWarpException {
@@ -2731,11 +2732,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		}
 		return msg;
 	}
-	
-	
+
+
 	/**
 	 * 级联查询总公司
-	 * 
+	 *
 	 * @param pk_corp
 	 * @return
 	 * @throws DZFWarpException
@@ -2753,7 +2754,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		return null;
 
 	}
-	
+
 	private void getQcFromJsonFile(HashMap<String, Object> qcData, TaxReportVO reportvo) {
 		TaxReportNewQcInitVO qcVO = null;
 
@@ -2766,7 +2767,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		if (rs != null && rs.length > 0) {
 			qcVO = rs[0];
 		}
-		
+
 		if (qcVO != null) {
 			String file = qcVO.getSpreadfile();
 			String strJson = TaxRptemptools.readFileString(file);
