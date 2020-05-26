@@ -4,6 +4,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.DzfUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.report.LrbVO;
 import com.dzf.zxkj.report.service.cwbb.IBatchLrbReport;
@@ -75,21 +76,36 @@ public class BatchLrbReportImpl implements IBatchLrbReport {
                     //利润总额
                     double d3 = 0;
                     double d4 = 0;
-                    //净利润
+                    //净利润主营业务收入
+
                     double d5 = 0;
                     double d6 = 0;
                     for (LrbVO vo: lrvbos) {
                         if (!StringUtil.isEmpty(vo.getXm())) {
-                            if (vo.getXm().indexOf("营业收入") > 0) {
-                                d1 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
-                                d2 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
-                            } else if (vo.getXm().indexOf("利润总额") > 0) {
-                                d3 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
-                                d4 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
-                            } else if (vo.getXm().indexOf("净利润") > 0) {
-                                d5 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
-                                d6 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
+                            if ( (DzfUtil.COMPANYACCOUNTSYSTEM.intValue() + "").equals(vo.getKmfa()) ){//企业会计制度
+                                if (vo.getXm().indexOf("主营业务收入") > 0) {
+                                    d1 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
+                                    d2 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
+                                } else if (vo.getXm().indexOf("四、利润总额") > 0) {
+                                    d3 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
+                                    d4 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
+                                } else if (vo.getXm().indexOf("净利润") > 0) {
+                                    d5 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
+                                    d6 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
+                                }
+                            } else {
+                                if (vo.getXm().indexOf("营业收入") > 0) {
+                                    d1 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
+                                    d2 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
+                                } else if (vo.getXm().indexOf("利润总额") > 0) {
+                                    d3 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
+                                    d4 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
+                                } else if (vo.getXm().indexOf("四、净利润") > 0) {
+                                    d5 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
+                                    d6 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
+                                }
                             }
+
                         }
                     }
                     res.put(entry.getKey(),new double[]{d1, d2, d3, d4,d5,d6});
