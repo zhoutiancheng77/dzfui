@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -30,7 +31,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 存货类别
@@ -101,7 +105,8 @@ public class InvclassifyController extends BaseController{
 			if("Y".equals(isfenye)) {
 				int page = queryParamvo.getPage();
 				int rows = queryParamvo.getRows();
-				vos = getPagedZZVOs(list.toArray(new InvclassifyVO[list.size()]),page, rows);
+				SuperVO[] vos1 = list.toArray(new InvclassifyVO[list.size()]);
+				vos = (InvclassifyVO[])getPageVOs(vos1, page, rows);
 			}else{
 				vos = list.toArray(new InvclassifyVO[list.size()]);
 			}
@@ -112,16 +117,6 @@ public class InvclassifyController extends BaseController{
 		grid.setMsg("查询成功");
 		return ReturnData.ok().data(grid);
 	}
-
-    private InvclassifyVO[] getPagedZZVOs(InvclassifyVO[] vos, int page, int rows) {
-        int beginIndex = rows * (page - 1);
-        int endIndex = rows * page;
-        if (endIndex >= vos.length) {// 防止endIndex数组越界
-            endIndex = vos.length;
-        }
-        vos = Arrays.copyOfRange(vos, beginIndex, endIndex);
-        return vos;
-    }
 
 	@PostMapping("/delete")
 	public ReturnData delete(@RequestBody Map<String, String> param) {

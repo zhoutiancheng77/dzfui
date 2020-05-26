@@ -13,6 +13,7 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -258,10 +259,10 @@ public class InventoryController extends BaseController {
 		grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 
 		if (list != null && list.size() > 0) {
-			InventoryVO[] pvos = getPageVOs(list.toArray(new InventoryVO[list.size()]), page, rows);
-			list = Arrays.asList(pvos);
+            SuperVO[] vos = list.toArray(new InventoryVO[list.size()]);
+            InventoryVO[] pvos = (InventoryVO[])getPageVOs(vos, page, rows);
+            list = Arrays.asList(pvos);
 		}
-
 		grid.setRows(list == null ? new ArrayList<InventoryVO>() : list);
 		grid.setSuccess(true);
 		return ReturnData.ok().data(grid);
@@ -525,17 +526,6 @@ public class InventoryController extends BaseController {
 		json.setSuccess(true);
         writeLogRecord(LogRecordEnum.OPE_KJ_IC_SET, "导入存货", ISysConstants.SYS_2);
 		return ReturnData.ok().data(json);
-	}
-
-	// 将查询后的结果分页
-	private InventoryVO[] getPageVOs(InventoryVO[] pageVos, int page, int rows) {
-		int beginIndex = rows * (page - 1);
-		int endIndex = rows * page;
-		if (endIndex >= pageVos.length) {// 防止endIndex数组越界
-			endIndex = pageVos.length;
-		}
-		pageVos = Arrays.copyOfRange(pageVos, beginIndex, endIndex);
-		return pageVos;
 	}
 
 	// 查询单据号

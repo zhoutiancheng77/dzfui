@@ -89,8 +89,9 @@ public class ICbbController  extends BaseController {
         List<IcbalanceVO> flist = queryList(qryDate, pk_invtory, xsyye, pk_subjectname, price);
 		grid.setTotal(Long.valueOf(flist == null ? 0 : flist.size()));
         if (flist != null && flist.size() > 0) {
-            IcbalanceVO[] pvos = getPageVOs(flist.toArray(new IcbalanceVO[flist.size()]), page, rows);
-            flist = Arrays.asList(pvos);
+			SuperVO[] vos1 = flist.toArray(new IcbalanceVO[flist.size()]);
+			IcbalanceVO[] pvos = (IcbalanceVO[])getPageVOs(vos1, page, rows);
+			flist = Arrays.asList(pvos);
         }
         grid.setRows(flist == null ? new ArrayList<IcbalanceVO>() : flist);
         grid.setSuccess(true);
