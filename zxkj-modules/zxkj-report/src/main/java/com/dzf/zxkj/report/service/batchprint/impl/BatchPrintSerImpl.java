@@ -237,7 +237,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             if (groupmap.size() > 0) {
                 setvo.setVfilename(filename+".zip");
                 setvo.setVmemo("文件已生成!");
-                byte[] resbytes = zip(groupmap);
+                byte[] resbytes = zip(groupmap, setvo);
                 String id = util.upload(resbytes, filename+".zip", new HashMap<String,String>());
                 setvo.setVfilepath(id);
             } else {
@@ -329,7 +329,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
     }
 
 
-    public byte[] zip(Map<String,InnerClass[]> groupmap) throws IOException {
+    public byte[] zip(Map<String,InnerClass[]> groupmap,BatchPrintSetVo setvo) throws IOException {
         ByteArrayOutputStream bos = null;
         ZipOutputStream zipOutputStream =null;
 
@@ -337,12 +337,13 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             bos = new ByteArrayOutputStream();
             zipOutputStream = new ZipOutputStream(bos);
             for (Map.Entry entry: groupmap.entrySet()) {
-//                zipOutputStream.putNextEntry(new ZipEntry(entry.getKey() + File.separator));
-//                // 没有文件，不需要文件的copy
-//                zipOutputStream.closeEntry();
-
                 for (InnerClass innerClasses :  (InnerClass[]) entry.getValue()) {
-                    zipOutputStream.putNextEntry(new ZipEntry(entry.getKey() + File.separator+ innerClasses.getName()));
+                    if ("year".equals(setvo.getSetselect())) {
+                        zipOutputStream.putNextEntry(new ZipEntry(entry.getKey() + File.separator+ innerClasses.getName()));
+                    } else {
+                        zipOutputStream.putNextEntry(new ZipEntry(innerClasses.getName()));
+                    }
+
                     zipOutputStream.write(innerClasses.getContent());
                 }
             }
