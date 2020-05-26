@@ -18,6 +18,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.DZFMapUtil;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
@@ -3067,4 +3068,20 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
+
+    @Override
+    public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid, boolean isCheckData) {
+        boolean lock= false;
+
+
+            //加锁
+            lock=redissonDistributedLock.tryGetDistributedFairLock("jinxiang2pz"+corps[0]);
+            if(!lock){//处理
+//                json.setSuccess(false);
+//                json.setMsg("正在处理中，请稍候刷新界面");
+//                return ReturnData.error().data(json);
+                throw new BusinessException("正在处理中，请稍候刷新界面");
+            }
+            super.checkSecurityData(vos, corps, cuserid, isCheckData);
+    }
 }

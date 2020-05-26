@@ -3268,4 +3268,20 @@ public class VATSaleInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
+
+    @Override
+    public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid, boolean isCheckData) {
+        boolean lock= false;
+
+
+        //加锁
+        lock=redissonDistributedLock.tryGetDistributedFairLock("xiaoxiang2pz"+corps[0]);
+        if(!lock){//处理
+//                json.setSuccess(false);
+//                json.setMsg("正在处理中，请稍候刷新界面");
+//                return ReturnData.error().data(json);
+            throw new BusinessException("正在处理中，请稍候刷新界面");
+        }
+        super.checkSecurityData(vos, corps, cuserid, isCheckData);
+    }
 }
