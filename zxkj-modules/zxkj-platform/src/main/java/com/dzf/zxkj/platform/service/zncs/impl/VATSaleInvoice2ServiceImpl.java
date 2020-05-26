@@ -6188,6 +6188,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					}
 				}
 				relvo.setFphm(bvo.getFphm());//发票号
+				relvo.setPk_invoicce_b(bvo.getPk_vatsaleinvoice_b());//给前端用
 				list.add(relvo);
 			}
 		}

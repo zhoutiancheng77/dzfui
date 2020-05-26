@@ -209,7 +209,7 @@ private Map<String, DcModelHVO> hashlizeDcModel(List<DcModelHVO> list){
 		
 		svo.setPeriod(DateUtils.getPeriod(svo.getKprj()));
 		svo.setInperiod(svo.getPeriod());//入账期间
-		svo.setIszhuan(ICaiFangTongConstant.FPZLDM_Z0.equals(
+		svo.setIszhuan(ICaiFangTongConstant.FPZLDM_RZ_01.equals(
 				hvo.getFp_zldm()) ? DZFBoolean.TRUE : DZFBoolean.FALSE);
 //		DZFDouble bsl = DZFDouble.ZERO_DBL;
 //		bsl = SafeCompute.multiply(SafeCompute.div(svo.getSpse(), svo.getHjje()), new DZFDouble(100));

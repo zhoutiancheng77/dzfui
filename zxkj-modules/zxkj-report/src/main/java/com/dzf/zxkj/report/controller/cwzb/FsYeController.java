@@ -88,8 +88,8 @@ public class FsYeController  extends ReportBaseController {
                 }
                 fsejyevos = fsjyevoList.toArray(new FseJyeVO[0]);
                 /** 转换成tree类型 */
-                FseJyeVO fsvo = (FseJyeVO) BDTreeCreator.createTree(fsejyevos, new KmConFzVoTreeStrateGyByPk(isshowfs,isxswyewfs,isxswyewfs_bn));
-                fsejyevos = (FseJyeVO[]) fsvo.getChildren();
+//                FseJyeVO fsvo = (FseJyeVO) BDTreeCreator.createTree(fsejyevos, new KmConFzVoTreeStrateGyByPk(isshowfs,isxswyewfs,isxswyewfs_bn));
+//                fsejyevos = (FseJyeVO[]) fsvo.getChildren();
                 fsejyevos = getTotalRow(fsejyevos,true);
                 log.info("查询成功！");
                 grid.setSuccess(true);
