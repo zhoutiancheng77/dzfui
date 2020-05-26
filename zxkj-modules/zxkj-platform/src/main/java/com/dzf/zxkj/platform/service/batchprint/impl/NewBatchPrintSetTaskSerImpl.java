@@ -109,7 +109,11 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
                             String[] codevos = setvo2.getVprintcode().split(",");
                             if (codevos!=null && codevos.length > 0) {
                                 for (String str: codevos) {
-                                    qryvo.setAttributeValue(str+ "_bs", "Y");
+                                    if ("voucher".equals(str)) {
+                                        qryvo.setAttributeValue("pz_bs","Y");
+                                    } else {
+                                        qryvo.setAttributeValue(str+ "_bs", "Y");
+                                    }
                                 }
                             }
                         }

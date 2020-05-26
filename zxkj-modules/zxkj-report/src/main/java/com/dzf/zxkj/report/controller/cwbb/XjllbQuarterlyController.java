@@ -56,6 +56,7 @@ public class XjllbQuarterlyController extends ReportBaseController {
             // 校验
             checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             if (vo != null) {
+                corpVO = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
                 checkPowerDate(vo,corpVO);
                 List<XjllquarterlyVo> xjllbvos = gl_rep_xjlyquarbserv.getXjllQuartervos(vo,resvalue[1]);
                 if (xjllbvos != null && xjllbvos.size() > 0) {

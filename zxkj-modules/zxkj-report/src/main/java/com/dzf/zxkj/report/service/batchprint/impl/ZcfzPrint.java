@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.service.batchprint.impl;
 
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
@@ -39,12 +40,13 @@ public class ZcfzPrint extends  AbstractPrint {
     public ZcfzPrint(IZxkjPlatformService zxkjPlatformService, PrintParamVO printParamVO, KmReoprtQueryParamVO queryparamvo, IZcFzBReport gl_rep_zcfzserv) {
         this.zxkjPlatformService = zxkjPlatformService;
         this.printParamVO = printParamVO;
-        this.queryparamvo = queryparamvo;
+        this.queryparamvo = (KmReoprtQueryParamVO) queryparamvo.clone();
         this.gl_rep_zcfzserv = gl_rep_zcfzserv;
     }
 
     public byte[] print (BatchPrintSetVo setVo,CorpVO corpVO, UserVO userVO) {
         try {
+            queryparamvo.setQjq(queryparamvo.getBegindate1().getYear() + "-01");
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);
             printReporUtil.setbSaveDfsSer(DZFBoolean.TRUE);
             ZcfzController zcfzController = new ZcfzController();
@@ -80,12 +82,15 @@ public class ZcfzPrint extends  AbstractPrint {
             printReporUtil.setBasecolor(new BaseColor(0, 0, 0));//设置单元格线颜色
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(font), Font.NORMAL));//设置表头字体
             Object[] obj = zcfzController.getPrintXm(0);
-            printReporUtil.printHz(zcfzController.getZcfzMap(queryparamvo,zxkjPlatformService, gl_rep_zcfzserv), null, "资 产 负 债 表",
-                    (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
-            return printReporUtil.getContents();
+            Map<String, List<SuperVO>> stringListMap = zcfzController.getZcfzMap(queryparamvo,zxkjPlatformService, gl_rep_zcfzserv);
+            if (stringListMap !=null && stringListMap.size() > 0) {
+                printReporUtil.printHz(stringListMap, null, "资 产 负 债 表",
+                        (String[]) obj[0], (String[]) obj[1], (int[]) obj[2], (int) obj[3], pmap, tmap);
+                return printReporUtil.getContents();
+            }
         } catch (DocumentException e) {
             log.error("打印错误", e);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("打印错误", e);
         }
         return null;

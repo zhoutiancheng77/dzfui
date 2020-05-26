@@ -65,6 +65,7 @@ public class FsYeController  extends ReportBaseController {
             // 校验
             checkSecurityData(null, new String[]{queryvo.getPk_corp()},null);
             /** 验证 查询范围应该在当前登录人的权限范围内 */
+            corpVO = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
             checkPowerDate(queryvo,corpVO);
             DZFBoolean isshowfs = vo.getIshowfs();
             DZFBoolean isxswyewfs = vo.getXswyewfs();
@@ -88,8 +89,8 @@ public class FsYeController  extends ReportBaseController {
                 }
                 fsejyevos = fsjyevoList.toArray(new FseJyeVO[0]);
                 /** 转换成tree类型 */
-                FseJyeVO fsvo = (FseJyeVO) BDTreeCreator.createTree(fsejyevos, new KmConFzVoTreeStrateGyByPk(isshowfs,isxswyewfs,isxswyewfs_bn));
-                fsejyevos = (FseJyeVO[]) fsvo.getChildren();
+//                FseJyeVO fsvo = (FseJyeVO) BDTreeCreator.createTree(fsejyevos, new KmConFzVoTreeStrateGyByPk(isshowfs,isxswyewfs,isxswyewfs_bn));
+//                fsejyevos = (FseJyeVO[]) fsvo.getChildren();
                 fsejyevos = getTotalRow(fsejyevos,true);
                 log.info("查询成功！");
                 grid.setSuccess(true);

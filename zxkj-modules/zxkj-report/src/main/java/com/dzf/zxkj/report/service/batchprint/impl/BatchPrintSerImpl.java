@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
@@ -24,6 +25,7 @@ import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.service.cwzb.IKMZZReport;
 import com.dzf.zxkj.report.service.cwzb.IXjRjZReport;
+import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,85 +134,118 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         KmReoprtQueryParamVO queryparamvo = getKmReoprtQueryParamVO(setvo, corpVO);
         InputStream in = null;
         try {
-            // 想着走Action 打印方法
-            String printcode = setvo.getVprintcode();
-            // 合并数据
-            PDFMergerUtility mergePdf = new PDFMergerUtility(); // 纵向
-            PDFMergerUtility mergePdfHx = new PDFMergerUtility();// 横向
-            PDFMergerUtility mergePdfPz = new PDFMergerUtility(); // 凭证
-            byte[] resbytes = null;
-            byte[] resbytesHx = null;
-            byte[] resbytesPz = null;
+            List<String> periodlist = new ArrayList<>();
+            int cyclecount = 1;
+            if ("year".equals(setvo.getSetselect())) {
+                List<String> templist = ReportUtil.getPeriodsByPeriod(setvo.getVprintperiod().split("~")[0], setvo.getVprintperiod().split("~")[1]);
+                for (String str: templist) {
+                    periodlist.add(str + "~" + str);
+                }
+            } else {
+                periodlist.add(setvo.getVprintperiod());
+            }
+            Map<String, InnerClass[]> groupmap = new LinkedHashMap<>();
             SimpleDateFormat f=new SimpleDateFormat("yyyy年MM月dd日HH点mm分ss秒");
+            SimpleDateFormat f1=new SimpleDateFormat("yyyy年MM月");
             String str_time = f.format(new Date());
             String filename =corpVO.getUnitname()+"("+str_time+")";
-            if (!StringUtil.isEmpty(printcode)) {
-                String[] printcodes = printcode.split(",");
-                // 涉及异常的处理，目前先不处理，生成的文件，放在文件服务器中
-                for (String code: printcodes) {
-                    // 代码来源是每个action对应的Print方法
-                    AbstractPrint print = null;
-                    if ("kmmx".equals(code)) { // 科目明细账
-                        print = new KmmxPrint(zxkjPlatformService,gl_rep_kmmxjserv,printParamVO,queryparamvo);
-                    } else if ("kmzz".equals(code)) {
-                        print= new KmzzPrint(zxkjPlatformService,gl_rep_kmzjserv,printParamVO,queryparamvo);
-                    } else if ("xjrj".equals(code)) {
-                        print = new XjrjPrint(gl_rep_xjyhrjzserv,zxkjPlatformService,printParamVO,queryparamvo);
-                    } else if ("fsye".equals(code)) {
-                        print = new FsyePrint(gl_rep_fsyebserv,zxkjPlatformService,printParamVO,queryparamvo);
-                    } else if ("zcfz".equals(code)) {
-                        print = new ZcfzPrint(zxkjPlatformService,printParamVO,queryparamvo,gl_rep_zcfzserv);
-                    } else if ("lrb".equals(code)) {
-                        print = new LrbPrint(gl_rep_lrbserv,zxkjPlatformService,printParamVO,queryparamvo);
-                    } else if ("gzb".equals(code)) {
-                        print = new GzbPrint(zxkjPlatformService,printParamVO,queryparamvo);
-                    } else if ("crk".equals(code)) {
-                        print = new CkPrint(zxkjPlatformService,printParamVO,queryparamvo);
-                        // 先出库
-                        in = mergeByte(setvo, userVO, in, corpVO, printParamVO, mergePdf, mergePdfHx, mergePdfPz, code, print);
-                        print = new RkPrint(zxkjPlatformService,printParamVO, queryparamvo);
-                    } else if ("zjmx".equals(code)) {
-                        print = new ZjmxPrint(zxkjPlatformService, printParamVO, queryparamvo);
-                    } else if ("mxzfp".equals(code)) {
-                        print = new MxzfpPrint(zxkjPlatformService,printParamVO, queryparamvo);
-                    } else if ("pzfp".equals(code)) {
-                        print = new PzFpPrint(zxkjPlatformService,printParamVO, queryparamvo);
-                    } else if ("voucher".equals(code)) {
-                        print = new VoucherPrint(zxkjPlatformService,printParamVO, queryparamvo);
+            for (String period_str: periodlist) {
+                String str_time_period = f1.format(new DZFDate(period_str.split("~")[0] + "-01").toDate());
+                queryparamvo.setBegindate1(DateUtils.getPeriodStartDate(period_str.split("~")[0]) );
+                queryparamvo.setEnddate(DateUtils.getPeriodEndDate(period_str.split("~")[1]));
+                // 想着走Action 打印方法
+                String printcode = setvo.getVprintcode();
+                // 合并数据
+                PDFMergerUtility mergePdf = new PDFMergerUtility(); // 纵向
+                StringBuffer filenamezx = new StringBuffer();
+                PDFMergerUtility mergePdfHx = new PDFMergerUtility();// 横向
+                StringBuffer filenamehx = new StringBuffer();
+                PDFMergerUtility mergePdfPz = new PDFMergerUtility(); // 凭证
+                StringBuffer filenamepz = new StringBuffer();
+                byte[] resbytes = null;
+                byte[] resbytesHx = null;
+                byte[] resbytesPz = null;
+                if (!StringUtil.isEmpty(printcode)) {
+                    String[] printcodes = printcode.split(",");
+                    // 涉及异常的处理，目前先不处理，生成的文件，放在文件服务器中
+                    for (String code: printcodes) {
+                        // 代码来源是每个action对应的Print方法
+                        AbstractPrint print = null;
+                        if ("kmmx".equals(code)) { // 科目明细账
+                            print = new KmmxPrint(zxkjPlatformService,gl_rep_kmmxjserv,printParamVO,queryparamvo);
+                        } else if ("kmzz".equals(code)) {
+                            print= new KmzzPrint(zxkjPlatformService,gl_rep_kmzjserv,printParamVO,queryparamvo);
+                        } else if ("xjrj".equals(code)) {
+                            print = new XjrjPrint(gl_rep_xjyhrjzserv,zxkjPlatformService,printParamVO,queryparamvo);
+                        } else if ("fsye".equals(code)) {
+                            print = new FsyePrint(gl_rep_fsyebserv,zxkjPlatformService,printParamVO,queryparamvo);
+                        } else if ("zcfz".equals(code)) {
+                            print = new ZcfzPrint(zxkjPlatformService,printParamVO,queryparamvo,gl_rep_zcfzserv);
+                        } else if ("lrb".equals(code)) {
+                            print = new LrbPrint(gl_rep_lrbserv,zxkjPlatformService,printParamVO,queryparamvo);
+                        } else if ("gzb".equals(code)) {
+                            print = new GzbPrint(zxkjPlatformService,printParamVO,queryparamvo);
+                        } else if ("crk".equals(code)) {
+                            print = new CkPrint(zxkjPlatformService,printParamVO,queryparamvo);
+                            // 先出库
+                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
+                                    mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
+                            print = new RkPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                        } else if ("zjmx".equals(code)) {
+                            print = new ZjmxPrint(zxkjPlatformService, printParamVO, queryparamvo);
+                        } else if ("mxzfp".equals(code)) {
+                            print = new MxzfpPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                        } else if ("pzfp".equals(code)) {
+                            print = new PzFpPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                        } else if ("voucher".equals(code)) {
+                            print = new VoucherPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                        }
+                        // 合并数据
+                        if (print != null) {
+                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
+                                    mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
+                        }
+                        log.info(code+"执行完毕!");
                     }
-                    // 合并数据
-                    if (print != null) {
-                        in = mergeByte(setvo, userVO, in, corpVO, printParamVO, mergePdf, mergePdfHx, mergePdfPz, code, print);
+                    resbytes = getPdfByte(mergePdf);
+                    resbytesHx = getPdfByte(mergePdfHx);
+                    resbytesPz = getPdfByte(mergePdfPz);
+
+                    if ((resbytes != null && resbytes.length > 0) ||
+                            (resbytesHx != null && resbytesHx.length > 0)||
+                            (resbytesPz != null && resbytesPz.length > 0)){
+                        List<InnerClass> innerClassList = new ArrayList<>();
+                        if (resbytes != null && resbytes.length > 0) {
+                            InnerClass innerClass = new InnerClass();
+                            innerClass.setName(filenamezx.substring(0,filenamezx.length()-1)+".pdf");
+                            innerClass.setContent(resbytes);
+                            innerClassList.add(innerClass);
+                        }
+                        if (resbytesHx != null && resbytesHx.length > 0) {
+                            InnerClass innerClass = new InnerClass();
+                            innerClass.setName(filenamehx.substring(0, filenamehx.length()-1)+".pdf");
+                            innerClass.setContent(resbytesHx);
+                            innerClassList.add(innerClass);
+                        }
+                        if (resbytesPz != null && resbytesPz.length > 0) {
+                            InnerClass innerClass = new InnerClass();
+                            innerClass.setName(filenamepz.substring(0, filename.length()-1)+".pdf");
+                            innerClass.setContent(resbytesPz);
+                            innerClassList.add(innerClass);
+                        }
+                        if (innerClassList.size() > 0) {
+                            groupmap.put(str_time_period, innerClassList.toArray(new InnerClass[0]));
+                        }
                     }
-                    log.info(code+"执行完毕!");
                 }
-                resbytes = getPdfByte(mergePdf);
-                resbytesHx = getPdfByte(mergePdfHx);
-                resbytesPz = getPdfByte(mergePdfPz);
             }
-            if ((resbytes != null && resbytes.length > 0) ||
-                    (resbytesHx != null && resbytesHx.length > 0)||
-                    (resbytesPz != null && resbytesPz.length > 0)){
-                List<byte[]> listbytes = new ArrayList<byte[]>();
-                List<String> listname = new ArrayList<String>();
-                if (resbytes != null && resbytes.length > 0) {
-                    listbytes.add(resbytes);
-                    listname.add("hor.pdf");
-                }
-                if (resbytesHx != null && resbytesHx.length > 0) {
-                    listbytes.add(resbytesHx);
-                    listname.add("por.pdf");
-                }
-                if (resbytesPz != null && resbytesPz.length > 0) {
-                    listbytes.add(resbytesPz);
-                    listname.add("voucher.pdf");
-                }
-                resbytes = zip(listbytes, listname);
-                String id = util.upload(resbytes, filename+".zip", new HashMap<String,String>());
-                setvo.setVfilepath(id);
+            if (groupmap.size() > 0) {
                 setvo.setVfilename(filename+".zip");
                 setvo.setVmemo("文件已生成!");
-            } else{
+                byte[] resbytes = zip(groupmap, setvo);
+                String id = util.upload(resbytes, filename+".zip", new HashMap<String,String>());
+                setvo.setVfilepath(id);
+            } else {
                 setvo.setVmemo("无数据");
             }
             setvo.setIfilestatue(PrintStatusEnum.GENERATE.getCode());
@@ -226,6 +261,27 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             } catch (IOException e) {
                 log.error(e.getMessage(),e);
             }
+        }
+    }
+
+    public class InnerClass {
+        private String name;
+        private byte[] content;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public byte[] getContent() {
+            return content;
+        }
+
+        public void setContent(byte[] content) {
+            this.content = content;
         }
     }
 
@@ -253,7 +309,8 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
 
     private InputStream mergeByte(BatchPrintSetVo setvo, UserVO userVO, InputStream in, CorpVO corpVO, PrintParamVO printParamVO,
                                   PDFMergerUtility mergePdf, PDFMergerUtility mergePdfHx,
-                                  PDFMergerUtility mergePdfPz, String code, AbstractPrint print) {
+                                  PDFMergerUtility mergePdfPz, String code, AbstractPrint print,StringBuffer pagezx,
+                                  StringBuffer pagehx, StringBuffer pagepz) {
         String[] pzpages = new String[]{"pzfp","voucher"};// 凭证分组
         String[] zxpages = new String[]{"zcfz","lrb"};// 纵向打印分组
         String[] hxpages = new String[]{"fsye","gzb"};// 横向分组
@@ -262,15 +319,20 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             in = new ByteArrayInputStream(byts);
             if (Arrays.asList(hxpages).contains(code)) {
                 mergePdfHx.addSource(in);
+                pagehx.append(PrintNodeMap.nodemap.get(code)+",");
             } else if (Arrays.asList( zxpages).contains(code)) {
                 mergePdf.addSource(in);
+                pagezx.append(PrintNodeMap.nodemap.get(code)+",");
             } else if (Arrays.asList(pzpages).contains(code)) {
                 mergePdfPz.addSource(in);
+                pagepz.append(PrintNodeMap.nodemap.get(code)+",");
             } else {
                 if ( "Y".equals(printParamVO.getPageOrt())) { // 横向
                     mergePdfHx.addSource(in);
+                    pagehx.append(PrintNodeMap.nodemap.get(code)+",");
                 } else {
                     mergePdf.addSource(in);
+                    pagezx.append(PrintNodeMap.nodemap.get(code)+",");
                 }
             }
         }
@@ -278,18 +340,23 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
     }
 
 
-    public byte[] zip(List<byte[]> list,List<String> listname) throws IOException {
+    public byte[] zip(Map<String,InnerClass[]> groupmap,BatchPrintSetVo setvo) throws IOException {
         ByteArrayOutputStream bos = null;
         ZipOutputStream zipOutputStream =null;
 
         try {
             bos = new ByteArrayOutputStream();
             zipOutputStream = new ZipOutputStream(bos);
-            int count = 0;
-            for (byte[] bytes : list) {
-                zipOutputStream.putNextEntry(new ZipEntry(listname.get(count)));
-                zipOutputStream.write(bytes);
-                count++;
+            for (Map.Entry entry: groupmap.entrySet()) {
+                for (InnerClass innerClasses :  (InnerClass[]) entry.getValue()) {
+                    if ("year".equals(setvo.getSetselect())) {
+                        zipOutputStream.putNextEntry(new ZipEntry(entry.getKey() + File.separator+ innerClasses.getName()));
+                    } else {
+                        zipOutputStream.putNextEntry(new ZipEntry(innerClasses.getName()));
+                    }
+
+                    zipOutputStream.write(innerClasses.getContent());
+                }
             }
             zipOutputStream.close();
             return bos.toByteArray();
@@ -357,7 +424,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         printParamVO.setFont(setvo.getVfontsize().intValue() + "");
         printParamVO.setLeft(setvo.getDleftmargin().intValue() + "");
         printParamVO.setTop(setvo.getDtopmargin().intValue() + "");
-        printParamVO.setPrintdate(setvo.getVprintperiod());// 打印期间
+        printParamVO.setPrintdate(setvo.getDprintdate() == null ? "" : setvo.getDprintdate().toString());// 打印期间
 
         if (!StringUtil.isEmpty(setvo.getKmpage())) {
             if (setvo.getKmpage().indexOf(fycode) > 0) {

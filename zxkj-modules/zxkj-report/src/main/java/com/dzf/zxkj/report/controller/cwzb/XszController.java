@@ -58,6 +58,8 @@ public class XszController  extends ReportBaseController {
             queryvo= getQueryParamVO(queryvo,corpVO);
             int page = queryvo.getPage();
             int rows = queryvo.getRows();
+            corpVO = zxkjPlatformService.queryCorpByPk(queryvo.getPk_corp());
+            checkPowerDate(queryvo,corpVO);
             XsZVO[] kmmxvos = queryVOsFromCon(queryvo,corpVO);
             grid.setTotal((long) (kmmxvos==null?0:kmmxvos.length));
             if(kmmxvos!=null  && kmmxvos.length >0){
@@ -67,9 +69,7 @@ public class XszController  extends ReportBaseController {
             grid.setMsg("查询成功");
             grid.setSuccess(true);
         } catch (Exception e) {
-            grid.setRows(new ArrayList<XsZVO>());
-            grid.setSuccess(false);
-            grid.setMsg("查询失败");
+            printErrorLog(grid, e, "查询失败！");
             log.error(e.getMessage(),e);
         }
         /** 日志记录 */

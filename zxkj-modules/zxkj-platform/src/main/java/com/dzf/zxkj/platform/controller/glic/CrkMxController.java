@@ -26,6 +26,7 @@ import com.dzf.zxkj.platform.service.glic.ICrkMxService;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -148,6 +149,7 @@ public class CrkMxController extends GlicReportController{
 
         List<IcDetailVO> resList= new ArrayList<IcDetailVO>();
         if(spList != null && spList.size() > 0){
+            spList.sort(Comparator.comparing(IcDetailVO::getSpbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
             int start= (page-1)*rows;
             for(int i = start ; i < page * rows && i < spList.size(); i++){
                 resList.add(spList.get(i));

@@ -30,6 +30,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.Kmschema;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -88,8 +89,9 @@ public class ICbbController  extends BaseController {
         List<IcbalanceVO> flist = queryList(qryDate, pk_invtory, xsyye, pk_subjectname, price);
 		grid.setTotal(Long.valueOf(flist == null ? 0 : flist.size()));
         if (flist != null && flist.size() > 0) {
-            IcbalanceVO[] pvos = getPageVOs(flist.toArray(new IcbalanceVO[flist.size()]), page, rows);
-            flist = Arrays.asList(pvos);
+			SuperVO[] vos1 = flist.toArray(new IcbalanceVO[flist.size()]);
+			IcbalanceVO[] pvos = (IcbalanceVO[])getPageVOs(vos1, page, rows);
+			flist = Arrays.asList(pvos);
         }
         grid.setRows(flist == null ? new ArrayList<IcbalanceVO>() : flist);
         grid.setSuccess(true);
@@ -169,13 +171,7 @@ public class ICbbController  extends BaseController {
 				}
 			}
 			if (flist != null && flist.size() > 0) {
-				Collections.sort(flist, new Comparator<IcbalanceVO>() {
-					@Override
-					public int compare(IcbalanceVO o1, IcbalanceVO o2) {
-						int i = o1.getInventorycode().compareTo(o2.getInventorycode());
-						return i;
-					}
-				});
+                flist.sort(Comparator.comparing(IcbalanceVO::getInventorycode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 			}
 		}
 		return flist;

@@ -10,6 +10,7 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -90,7 +91,8 @@ public class MeasureController extends BaseController {
             if("Y".equals(isfenye)) {
                 int page = queryParamvo.getPage();
                 int rows = queryParamvo.getRows();
-                vos = getPagedZZVOs(list.toArray(new MeasureVO[list.size()]),page, rows);
+                SuperVO[] vos1 = list.toArray(new MeasureVO[list.size()]);
+                vos = (MeasureVO[])getPageVOs(vos1, page, rows);
             }else{
                 vos = list.toArray(new MeasureVO[list.size()]);
             }

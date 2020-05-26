@@ -8,6 +8,13 @@ public class ICaiFangTongConstant {
 	public static final String FPZLDM_41 = "41";//卷式
 	public static final String FPZLDM_51 = "51";//电子发票
 	public static final String FPZLDM_JDC = "JDC";//机动车发票
+
+	//票通认证状态  2020-05确认
+	public static final String FPZLDM_RZ_01 = "01";//增值税专用发票
+	public static final String FPZLDM_RZ_04 = "04";//增值税普通发票
+	public static final String FPZLDM_RZ_10 = "10";//增值税电子普通发票
+	public static final String FPZLDM_RZ_51 = "51";//增值税电子普通发票
+	public static final String FPZLDM_RZ_41 = "41";//卷票
 	
 	//发票类型 来源发票扫码
 	public static final String FPZLDM_SM_01 = "01";//增值税专用发票

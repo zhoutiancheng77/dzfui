@@ -61,6 +61,7 @@ public class KmzzController extends ReportBaseController {
             checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
             KmZzVO[] vos = null;
             /** 验证 查询范围应该在当前登录人的权限范围内 */
+            corpVO = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
             checkPowerDate(queryParamvo, corpVO);
             queryParamvo.setIsnomonthfs(DZFBoolean.TRUE);
             queryParamvo.setBtotalyear(DZFBoolean.TRUE);

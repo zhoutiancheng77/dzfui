@@ -2908,26 +2908,32 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 							String[] sa = value.split(" ");
 							value = sa[0];
 						}
-						if (value.length() == 8)
-						{
+						try {
+							if (value.length() == 8)
+							{
+								date = DateUtils.parse(value, "yyyyMMdd");
+							}
+							else if (value.length() == 16)
+							{
+								date = DateUtils.parse(value, "yyyyMMddhh:mm:ss");
+							}
+							else if (value.length() == 17)
+							{
+								date = DateUtils.parse(value, "yyyyMMdd hh:mm:ss");
+							}
+							else if (value.length() == 18)
+							{
+								date = DateUtils.parse(value, "yyyy-MM-ddhh:mm:ss");
+							}
+							else if (value.length() == 19)
+							{
+								date = DateUtils.parse(value, "yyyy-MM-dd hh:mm:ss");
+							}
+						} catch (Exception e) {
+							value = tranDateValue(value, xy);
 							date = DateUtils.parse(value, "yyyyMMdd");
 						}
-						else if (value.length() == 16)
-						{
-							date = DateUtils.parse(value, "yyyyMMddhh:mm:ss");
-						}
-						else if (value.length() == 17)
-						{
-							date = DateUtils.parse(value, "yyyyMMdd hh:mm:ss");
-						}
-						else if (value.length() == 18)
-						{
-							 date = DateUtils.parse(value, "yyyy-MM-ddhh:mm:ss");
-						}
-						else if (value.length() == 19)
-						{
-							 date = DateUtils.parse(value, "yyyy-MM-dd hh:mm:ss");
-						}
+
 						if (date != null)
 						{
 							value = DateUtils.format(date, "yyyy-MM-dd");

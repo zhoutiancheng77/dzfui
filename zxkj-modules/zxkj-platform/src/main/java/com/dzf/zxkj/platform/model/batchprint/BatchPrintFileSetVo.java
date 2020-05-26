@@ -42,6 +42,8 @@ public class BatchPrintFileSetVo extends SuperVO {
     private DZFDouble dleftmargin;// 左边距
     @JsonProperty("top")
     private DZFDouble dtopmargin;// 上边距
+    @JsonProperty("dyrqsel")
+    private String bdyrqsel;
 
     public String getSetselect() {
         return setselect;
@@ -189,4 +191,11 @@ public class BatchPrintFileSetVo extends SuperVO {
         return TABLE_NAME;
     }
 
+    public String getBdyrqsel() {
+        return bdyrqsel;
+    }
+
+    public void setBdyrqsel(String bdyrqsel) {
+        this.bdyrqsel = bdyrqsel;
+    }
 }

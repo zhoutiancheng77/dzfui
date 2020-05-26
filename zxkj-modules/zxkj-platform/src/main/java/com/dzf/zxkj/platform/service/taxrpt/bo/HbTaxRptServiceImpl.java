@@ -50,25 +50,25 @@ public class HbTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		if (listReportName.contains(rpt1)) {
 			String qylx = (String) spreadtool.getCellValue(mapJson, rpt1, 5, 1);
 			if ("一般企业".equals(qylx) || "跨地区经营汇总纳税企业总机构".equals(qylx)) {
-				
+
 				if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 31, 8))) {
 					errmsg += "企业类型为“一般企业”或“跨地区经营汇总纳税企业总机构”的纳税人必须填写是否科技型中小企业<br>";
 				}
-				if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 32, 3))) {
+				if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 31, 3))) {
 					errmsg += "企业类型为“一般企业”或“跨地区经营汇总纳税企业总机构”的纳税人必须填写是否高新技术企业<br>";
 				}
-				if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 32, 8))) {
+				if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 32, 3))) {
 					errmsg += "企业类型为“一般企业”或“跨地区经营汇总纳税企业总机构”的纳税人必须填写是否技术入股递延纳税事项<br>";
 				}
-				
+
 //				if(PeriodType.jidureport == reportvo.getPeriodtype()){//季报才校验
-					if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 31, 3))) {//小型微利企业
+					if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 36, 8))) {//小型微利企业
 						errmsg += "企业类型为“一般企业”或“跨地区经营汇总纳税企业总机构”的纳税人必须填写是否小型微利企业<br>";
 					}
-					if (getDzfDouble(spreadtool.getCellValue(mapJson, rpt1, 33, 3)).doubleValue() <= 0) {
+					if (getDzfDouble(spreadtool.getCellValue(mapJson, rpt1, 34, 8)).doubleValue() <= 0) {
 						errmsg += "企业类型为“一般企业”或“跨地区经营汇总纳税企业总机构”的纳税人必须填写季末从业人数，且人数必须大于0且为整数<br>";
 					}
-					
+
 //				}
 				
 			}

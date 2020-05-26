@@ -78,6 +78,7 @@ public class KmMxrController extends ReportBaseController {
             int rows = queryParamvo == null ? 100000 : queryParamvo.getRows();
             KmMxZVO[] vos = null;
             //验证 查询范围应该在当前登录人的权限范围内
+            corpVO = zxkjPlatformService.queryCorpByPk(queryParamvo.getPk_corp());
             checkPowerDate(queryParamvo, corpVO);
             queryParamvo.setIsnomonthfs(DZFBoolean.FALSE);
             queryParamvo.setBtotalyear(DZFBoolean.TRUE);//是否显示本年累计
@@ -284,30 +285,33 @@ public class KmMxrController extends ReportBaseController {
             return kmmxvos;
         }
 
-        Map<String, List<KmMxZVO>> kmmap = new HashMap<String, List<KmMxZVO>>();
-
-        //vo变成map
-        for (KmMxZVO zvo : kmmxvos) {
-            if (kmmap.containsKey(zvo.getPk_accsubj())) {
-                kmmap.get(zvo.getPk_accsubj()).add(zvo);
-            } else {
-                List<KmMxZVO> templist = new ArrayList<KmMxZVO>();
-                templist.add(zvo);
-                kmmap.put(zvo.getPk_accsubj(), templist);
-            }
-        }
+//        Map<String, List<KmMxZVO>> kmmap = new HashMap<String, List<KmMxZVO>>();
 
         List<KmMxZVO> kmlist = new ArrayList<>();
         String[] currkms = currkm.split(",");
-        List<KmMxZVO> tlist = null;
-        for (String str : currkms) {
-            tlist = kmmap.get(str);
-            if (tlist != null && tlist.size() > 0) {
-                for (KmMxZVO mxzvo : tlist) {
-                    kmlist.add(mxzvo);
-                }
+        List<String> currkmslist = Arrays.asList(currkms);
+        for (KmMxZVO zvo : kmmxvos) {
+            if (!StringUtil.isEmpty(zvo.getPk_accsubj())
+              && currkmslist.contains(zvo.getPk_accsubj())) {
+                kmlist.add(zvo);
             }
+//            if (kmmap.containsKey(zvo.getPk_accsubj())) {
+//                kmmap.get(zvo.getPk_accsubj()).add(zvo);
+//            } else {
+//                List<KmMxZVO> templist = new ArrayList<KmMxZVO>();
+//                templist.add(zvo);
+//                kmmap.put(zvo.getPk_accsubj(), templist);
+//            }
         }
+//        List<KmMxZVO> tlist = null;
+//        for (String str : currkms) {
+//            tlist = kmmap.get(str);
+//            if (tlist != null && tlist.size() > 0) {
+//                for (KmMxZVO mxzvo : tlist) {
+//                    kmlist.add(mxzvo);
+//                }
+//            }
+//        }
 
         return kmlist.toArray(new KmMxZVO[0]);
     }

@@ -31,16 +31,16 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.tax.*;
 import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10101_jiangsu;
 import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10102_jiangsu;
-import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.BaseRequestVO;
-import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.InitParse;
-import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.RequestBodyVO;
-import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelPos;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.*;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.annual.ordinary.FinancialOrdinaryInit;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.enterprise.FinancialEnterpriseRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.ordinary.FinancialOrdinaryRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.small.FinancialSmallRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.incometax.a.IncomeTaxInit;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.incometax.b.IncomeTaxRequest;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.surtax.SurtaxDetail;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.surtax.SurtaxRequest;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.surtax.TaxpayerInfo;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.ordinary.VATOrdinaryInit;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.ordinary.VATOrdinaryRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.small.VATSmallInit;
@@ -596,16 +596,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		if (!"true".equals(taxJstcConfig.service_switch)) {
 			throw new BusinessException("申报接口未启用");
 		}
-		if (!TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBHC1.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBHC2.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH29805.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH10412.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH39801.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH39806.equals(reportvo.getSb_zlbh())) {
+		if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
 			throw new BusinessException("暂不支持上报当前税种");
 		}
 		CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpVO.getPk_corp());
@@ -745,6 +736,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		} else if (TaxRptConst.SB_ZLBH39806.equals(reportvo.getSb_zlbh())) {
 			baseRequest.setServiceid("FW_DZSWJ_CWBB_XQY_ND_TJ");
 			baseRequest.getBody().setSign("sb39806Submit");
+		} else if (TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
+				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) {
+			baseRequest.setServiceid("FW_DZSWJ_FJS_TJ");
+			baseRequest.getBody().setSign("sb10516Submit");
 		}
 		
 
@@ -756,6 +751,26 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			map.put("datas", datas);
 			fillFields(datas, objMapReport, spreadtool);
 			filterEmptyReport(reportvo, datas);
+			if (datas instanceof SurtaxRequest) {
+				SurtaxRequest surtaxRequest = (SurtaxRequest) datas;
+				TaxpayerInfo taxpayerInfo = surtaxRequest.getSb10516001vo_01();
+				taxpayerInfo.setNsrsbh(corpVO.getVsoccrecode());
+				taxpayerInfo.setSkssqq(reportvo.getPeriodfrom());
+				taxpayerInfo.setSkssqz(reportvo.getPeriodto());
+//                taxpayerInfo.setNsrmc(corpVO.getUnitname());
+//                taxpayerInfo.setHydm("7212");
+//                taxpayerInfo.setDjzclxdm("411");
+//                taxpayerInfo.setSfzjlxdm("201");
+//                taxpayerInfo.setTbrq(new DZFDate().toString());
+//                taxpayerInfo.setSfdwgt("0");
+//                taxpayerInfo.setSfzjhm("00000");
+				for (SurtaxDetail surtaxDetail : surtaxRequest.getSb10516001vo_02()) {
+					surtaxDetail.setLsh(lsh);
+				}
+				surtaxRequest.getSb10516001vo_03().setLsh(lsh);
+				surtaxRequest.getSb10516001vo_04().setLsh(lsh);
+				surtaxRequest.getSb10516001vo_05().setLsh(lsh);
+			}
 		} catch (Exception e) {
 			log.error("上报失败", e);
 			throw new BusinessException("上报失败");
@@ -812,6 +827,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			cls = com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.annual.ordinary.FinancialOrdinaryRequest.class;
 		} else if (TaxRptConst.SB_ZLBH39806.equals(type)) {
 			cls = com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.annual.small.FinancialSmallRequest.class;
+		} else if (TaxRptConst.SB_ZLBH50101.equals(type) || TaxRptConst.SB_ZLBH50102.equals(type)) {
+			cls = SurtaxRequest.class;
 		}
 		
 		return cls;
@@ -937,6 +954,21 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 						valStr = strArray[index].trim();
 					}
 				}
+
+				if (!StringUtil.isEmpty(valStr)) {
+					TaxExcelValueCast valueCast = field.getAnnotation(TaxExcelValueCast.class);
+					if (valueCast != null) {
+						String[] src = valueCast.src();
+						String[] dest = valueCast.dest();
+						for (int i = 0; i < src.length; i++) {
+							if (src[i].equals(valStr)) {
+								valStr = dest[i];
+								break;
+							}
+						}
+					}
+				}
+
 				val = valStr;
 			} else if (field.getType().isAssignableFrom(DZFDouble.class)) {
 				if (valStr.indexOf("——") > -1) {
@@ -1006,6 +1038,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		} else if (TaxRptConst.SB_ZLBH39801.equals(reportvo.getSb_zlbh())) {
 			baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_ND_CSH");
 			baseReq.getBody().setSign("sb39801InitService");
+		} else if (TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
+				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) {
+			baseReq.setServiceid("FW_DZSWJ_FJS_CSH");
+			baseReq.getBody().setSign("sb10516InitService");
 		}
 		String lsh = reportvo.getRegion_extend1();
 		baseReq.getBody().setYwbw(getInitParams(corpVO, reportvo));
@@ -1199,16 +1235,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			return;
 		}
 		
-		if (!TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBHC1.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBHC2.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH29805.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH10412.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH39801.equals(reportvo.getSb_zlbh())
-				&& !TaxRptConst.SB_ZLBH39806.equals(reportvo.getSb_zlbh())) {
+		if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
 			return;
 		}
 		
@@ -1343,11 +1370,15 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 		baseRequest.setServiceid("FW_DZSWJ_SBZF");
 		baseRequest.getBody().setSign("sbZfService");
-		
-		String ywbw = EncryptDecrypt.encode("{\"YZPZXH\":\""
-				+ yzpz + "\", \"ZFLAG\":\"" + zflag + "\"}",
+
+		Map<String, String> businessParam = new HashMap<>();
+		businessParam.put("YZPZXH", yzpz);
+		businessParam.put("ZFLAG", zflag);
+		String businessJson = JsonUtils.serialize(businessParam);
+//		log.info(businessJson);
+		String ywbw = EncryptDecrypt.encode(businessJson,
 				taxJstcConfig.app_secret);
-		
+
 		baseRequest.getBody().setYwbw(ywbw);
 		
 //		String bw = OFastJSON.toJSONString(baseRequest);
@@ -2019,6 +2050,9 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			sbzl_bh = "29806";
 		} else if (TaxRptConst.SB_ZLBHC2.equals(sbzl_bh)) {
 			sbzl_bh = "29801";
+		} else if (TaxRptConst.SB_ZLBH50101.equals(sbzl_bh)
+				|| TaxRptConst.SB_ZLBH50102.equals(sbzl_bh)) {
+			sbzl_bh = "10516";
 		}
 		return sbzl_bh;
 	}
@@ -2644,6 +2678,25 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					TaxPaymentVO[].class, JSONConvtoJAVA.getParserConfig());
 		}
 		return payments;
+	}
+
+	// 税种是否有报税接口
+	private boolean hasDeclareInterface (String taxTypeCode) {
+		if (TaxRptConst.SB_ZLBH10101.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH10102.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH1010201.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBHC1.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH29805.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH39801.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH39806.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH50101.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH50102.equals(taxTypeCode)) {
+			return true;
+		}
+		return false;
 	}
 	
 	@Override

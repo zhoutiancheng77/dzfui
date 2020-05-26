@@ -49,6 +49,8 @@ public class InventoryAliasVO extends SuperVO {
     private DZFDouble saleNumber;//销售数量
     
 	private DZFDouble salePrice;//销售价格
+
+	private String pk_invoicce_b;//票据主键
 	
 	public DZFDouble getSaleNumber() {
 		return saleNumber;
@@ -305,4 +307,11 @@ public class InventoryAliasVO extends SuperVO {
 		return "ynt_icalias";
 	}
 
+	public String getPk_invoicce_b() {
+		return pk_invoicce_b;
+	}
+
+	public void setPk_invoicce_b(String pk_invoicce_b) {
+		this.pk_invoicce_b = pk_invoicce_b;
+	}
 }

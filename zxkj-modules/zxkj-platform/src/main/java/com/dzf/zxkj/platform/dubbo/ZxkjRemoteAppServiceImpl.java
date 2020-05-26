@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.dubbo;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
@@ -7,11 +8,14 @@ import com.dzf.zxkj.platform.model.bdset.BdCurrencyVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.image.DcModelBVO;
 import com.dzf.zxkj.platform.model.image.DcModelHVO;
+import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountService;
+import com.dzf.zxkj.platform.service.common.IReferenceCheck;
 import com.dzf.zxkj.platform.service.jzcl.IQmgzService;
 import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
@@ -22,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +61,12 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
     private IBankStatementService gl_yhdzdserv;
     @Autowired
     private IMsgService sys_msgtzserv;
+    @Autowired
+    private RedissonDistributedLock redissonDistributedLock;
+	@Autowired
+	private IUserService userServiceImpl;
+    @Autowired
+    private IReferenceCheck refchecksrv;
 
 
 
@@ -219,6 +230,51 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
             sys_msgtzserv.saveImageRecord(pk_image_group,pk_source_id,currs,nextid,currope,pk_corp,pk_temp_corp,vmemo);
         } catch (DZFWarpException e) {
             log.error(String.format("调用checkCreatePZ异常,异常信息:%s", e.getMessage()), e);
+
+        }
+    }
+    @Override
+    public boolean tryGetDistributedFairLock(String lock){
+        try {
+             return redissonDistributedLock.tryGetDistributedFairLock(lock);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用tryGetDistributedFairLock异常,异常信息:%s", e.getMessage()), e);
+            return false;
+        }
+    }
+    @Override
+    public void releaseDistributedFairLock(String lock){
+        try {
+            redissonDistributedLock.releaseDistributedFairLock(lock);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用releaseDistributedFairLock异常,异常信息:%s", e.getMessage()), e);
+
+        }
+    }
+    @Override
+    public UserVO queryUserJmVOByID(String userid){
+        try {
+            return userServiceImpl.queryUserJmVOByID(userid);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryUserJmVOByID异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+    @Override
+    public boolean isReferenced(final String tableName, String key){
+        try {
+            return refchecksrv.isReferenced(tableName,key);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryUserJmVOByID异常,异常信息:%s", e.getMessage()), e);
+            return false;
+        }
+    }
+    @Override
+    public void  deleteMsg(ImageGroupVO grouvo) {
+        try {
+            sys_msgtzserv.deleteMsg(grouvo);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用deleteMsg异常,异常信息:%s", e.getMessage()), e);
 
         }
     }

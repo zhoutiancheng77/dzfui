@@ -72,6 +72,7 @@ public class XjllController extends ReportBaseController {
             // 校验
             checkSecurityData(null, new String[]{vo.getPk_corp()},null);
             if (vo != null) {
+                corpVO = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
                 checkPowerDate(vo,corpVO);
                 XjllbVO[] xjllbvos = gl_rep_xjlybserv.query(vo);
                 if (xjllbvos != null && xjllbvos.length > 0) {
@@ -86,6 +87,7 @@ public class XjllController extends ReportBaseController {
         } catch (Exception e) {
             grid.setRows(new ArrayList<XjllbVO>());
             printErrorLog(grid, e, "查询失败！");
+            log.error(e.getMessage(),e);
         }
 
         // 日志记录接口

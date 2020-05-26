@@ -93,7 +93,7 @@ public class PurchInController extends BaseController {
 			IntradeHVO[] vos = null;
 			grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
 			if (list != null && list.size() > 0) {
-				vos = getPagedZZVOs(list.toArray(new IntradeHVO[list.size()]), page, rows);
+				vos = (IntradeHVO[])getPageVOs(list.toArray(new IntradeHVO[list.size()]), page, rows);
 			}
 			grid.setRows(vos == null ? new IntradeHVO[0] : vos);
             grid.setSuccess(true);
@@ -114,17 +114,6 @@ public class PurchInController extends BaseController {
                 new StringBuffer().append("入库单查询:").append(begindate).append("至").append(endate).toString(),
                 ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);
-	}
-
-	// 将查询后的结果分页
-	private IntradeHVO[] getPagedZZVOs(IntradeHVO[] PzglPagevos, int page, int rows) {
-		int beginIndex = rows * (page - 1);
-		int endIndex = rows * page;
-		if (endIndex >= PzglPagevos.length) {// 防止endIndex数组越界
-			endIndex = PzglPagevos.length;
-		}
-		PzglPagevos = Arrays.copyOfRange(PzglPagevos, beginIndex, endIndex);
-		return PzglPagevos;
 	}
 
 	private IntradeParamVO getQueryParamVO( IntradeParamVO paramvo ) {

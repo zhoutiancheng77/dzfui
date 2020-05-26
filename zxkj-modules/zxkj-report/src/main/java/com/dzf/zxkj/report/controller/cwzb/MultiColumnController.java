@@ -73,6 +73,7 @@ public class MultiColumnController extends ReportBaseController {
             List<KmReportDatagridColumn> columnList2 = new ArrayList<KmReportDatagridColumn>();
             /** 先动态生成column数据 */
             /** 开始日期应该在建账日期前 */
+            corpVO = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());
             checkPowerDate(vo, corpVO);
             /** 是否显示当年的本年累计 */
             vo.setBtotalyear(DZFBoolean.TRUE);

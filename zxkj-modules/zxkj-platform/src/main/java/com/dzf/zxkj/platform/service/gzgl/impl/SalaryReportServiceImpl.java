@@ -566,6 +566,20 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		List<AuxiliaryAccountBVO> uplist = new ArrayList<>();
 
 		Map<String, SalaryBaseVO> basemap = gl_gzbbaseserv.getSalaryBaseVO(pk_corp, opdate);
+		List<AuxiliaryAccountBVO> auxiliaryAccountBVOList = gl_fzhsserv.queryPerson(AuxiliaryConstant.ITEM_STAFF,
+				pk_corp, null);
+
+		List<String> codeListFc = auxiliaryAccountBVOList.stream()
+				.filter(v -> v.getSffc() != null && v.getSffc() == 1).map(v -> {
+					String uniqueCheck = null;
+					if (StringUtil.isEmpty(v.getBilltype())) {
+						uniqueCheck = getPersonKey1(v) + billtype;
+					} else {
+						uniqueCheck = getPersonKey1(v) + v.getBilltype();
+					}
+					return uniqueCheck;
+				}).collect(Collectors.toList());
+
 		for (SalaryReportVO vo : vos) {
 
 			if (vo.getYgbm() == null || StringUtil.isEmpty(vo.getYgbm())) {
@@ -638,20 +652,6 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 			} else {
 				key1 = getPersonKey(vo) + vo.getBilltype();
 			}
-
-			List<AuxiliaryAccountBVO> auxiliaryAccountBVOList = gl_fzhsserv.queryPerson(AuxiliaryConstant.ITEM_STAFF,
-					pk_corp, null);
-
-			List<String> codeListFc = auxiliaryAccountBVOList.stream()
-					.filter(v -> v.getSffc() != null && v.getSffc() == 1).map(v -> {
-						String uniqueCheck = null;
-						if (StringUtil.isEmpty(v.getBilltype())) {
-							uniqueCheck = getPersonKey1(v) + billtype;
-						} else {
-							uniqueCheck = getPersonKey1(v) + v.getBilltype();
-						}
-						return uniqueCheck;
-					}).collect(Collectors.toList());
 
 			if (!codelist.contains(key1) && !codeListFc.contains(key1)) {
 				codelist.add(key1);
