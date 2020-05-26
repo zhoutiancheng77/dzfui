@@ -197,6 +197,7 @@ public class LrbController extends ReportBaseController {
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         // 校验
         checkSecurityData(null, new String[]{queryparamvo.getPk_corp()},null);
+        corpVO = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
         LrbVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), LrbVO[].class);
         String gs = excelExportVO.getCorpName();
         String qj = excelExportVO.getTitleperiod();

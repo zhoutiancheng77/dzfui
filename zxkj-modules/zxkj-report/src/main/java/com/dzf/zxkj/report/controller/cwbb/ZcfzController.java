@@ -221,6 +221,7 @@ public class ZcfzController extends ReportBaseController {
     public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         // 校验
         checkSecurityData(null, new String[]{queryparamvo.getPk_corp()}, null);
+        corpVO = zxkjPlatformService.queryCorpByPk(queryparamvo.getPk_corp());
         ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
 
