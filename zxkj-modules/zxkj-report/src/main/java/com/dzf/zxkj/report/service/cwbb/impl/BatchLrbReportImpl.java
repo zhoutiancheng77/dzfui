@@ -83,24 +83,24 @@ public class BatchLrbReportImpl implements IBatchLrbReport {
                     for (LrbVO vo: lrvbos) {
                         if (!StringUtil.isEmpty(vo.getXm())) {
                             if ( (DzfUtil.COMPANYACCOUNTSYSTEM.intValue() + "").equals(vo.getKmfa()) ){//企业会计制度
-                                if (vo.getXm().indexOf("主营业务收入") > 0) {
+                                if (vo.getXm().indexOf("主营业务收入") >= 0) {
                                     d1 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
                                     d2 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
-                                } else if (vo.getXm().indexOf("四、利润总额") > 0) {
+                                } else if (vo.getXm().indexOf("四、利润总额") >= 0) {
                                     d3 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
                                     d4 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
-                                } else if (vo.getXm().indexOf("净利润") > 0) {
+                                } else if (vo.getXm().indexOf("净利润") >= 0) {
                                     d5 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
                                     d6 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
                                 }
                             } else {
-                                if (vo.getXm().indexOf("营业收入") > 0) {
+                                if (vo.getXm().indexOf("营业收入") >= 0) {
                                     d1 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
                                     d2 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
-                                } else if (vo.getXm().indexOf("利润总额") > 0) {
+                                } else if (vo.getXm().indexOf("利润总额") >= 0) {
                                     d3 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
                                     d4 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
-                                } else if (vo.getXm().indexOf("四、净利润") > 0) {
+                                } else if (vo.getXm().indexOf("四、净利润") >= 0) {
                                     d5 = vo.getByje() == null ? 0 : vo.getByje().doubleValue();
                                     d6 = vo.getBnljje() == null ? 0 : vo.getBnljje().doubleValue();
                                 }
