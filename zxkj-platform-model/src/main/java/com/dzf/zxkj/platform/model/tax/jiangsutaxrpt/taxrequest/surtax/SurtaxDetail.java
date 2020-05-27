@@ -41,7 +41,7 @@ public class SurtaxDetail {
 
     // 合计
     @TaxExcelPos(col = 5)
-    private String hj;
+    private DZFDouble hj;
 
     // 税率
     @TaxExcelPos(col = 6)
@@ -174,11 +174,11 @@ public class SurtaxDetail {
         this.yys = yys;
     }
 
-    public String getHj() {
+    public DZFDouble getHj() {
         return hj;
     }
 
-    public void setHj(String hj) {
+    public void setHj(DZFDouble hj) {
         this.hj = hj;
     }
 

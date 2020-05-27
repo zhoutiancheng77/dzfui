@@ -27,6 +27,7 @@ public class TaxCredit {
     private DZFDouble jzxqkdmje;
 
     // 计税依据修改原因
+    @TaxExcelPos(row = 18, col = 1)
     private String jsyjxgyy;
 
     // 当期新增投资额
