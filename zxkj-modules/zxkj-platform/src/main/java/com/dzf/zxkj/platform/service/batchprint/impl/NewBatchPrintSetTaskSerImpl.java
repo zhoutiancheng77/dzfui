@@ -4,6 +4,7 @@ import com.dzf.file.fastdfs.AppException;
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DAOException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -222,25 +223,33 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
                     continue;
                 }
 
-                byte[] bytes = ((FastDfsUtil)SpringUtils.getBean("connectionPool")).downFile(vo.getVfilepath().substring(1));
+                try {
+                    byte[] bytes = ((FastDfsUtil)SpringUtils.getBean("connectionPool")).downFile(vo.getVfilepath().substring(1));
 
-                zos.putNextEntry(new ZipEntry(vo.getVfilename()));
+                    if (bytes !=null && bytes.length >0) {
+                        zos.putNextEntry(new ZipEntry(vo.getVfilename()));
 
-                zos.write(bytes);
+                        zos.write(bytes);
 
-                vo.setIfilestatue(PrintStatusEnum.LOADED.getCode());
+                        vo.setIfilestatue(PrintStatusEnum.LOADED.getCode());
 
-                singleObjectBO.update(vo, new String[]{"ifilestatue"});
+                        singleObjectBO.update(vo, new String[]{"ifilestatue"});
 
-                updateBanding(vo);//更新装订信息
+                        updateBanding(vo);//更新装订信息
+                    }
+                } catch (AppException e) {
+                    log.error(e.getMessage(),e);
+                } catch (IOException e) {
+                    log.error(e.getMessage(),e);
+                } catch (DAOException e) {
+                    log.error(e.getMessage(),e);
+                }
             }
 
             zos.close();
             objs[0] = zipbyte.toByteArray();
             objs[1] = new DZFDate().toString()+".zip";
             return objs;
-        } catch (AppException e) {
-            throw new BusinessException("获取文件失败!");
         } catch (IOException e) {
             throw new BusinessException("获取文件失败!");
         }finally {
@@ -324,7 +333,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
     }
 
     @Override
-    public void saveTask(String corpidstr, String userid,String type,String period) throws DZFWarpException {
+    public void saveTask(String corpidstr, String userid,String type,String period, String vprintdate,String bsysdate) throws DZFWarpException {
 
         if (StringUtil.isEmpty(corpidstr)) {
             throw new BusinessException("公司不存在");
@@ -356,7 +365,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         }
 
         for (String cpid: corpids) {
-            BatchPrintSetVo taskvo = SetCovertTask.convertTask(ressetvo,cpid,period,userid);
+            BatchPrintSetVo taskvo = SetCovertTask.convertTask(ressetvo,cpid,period,userid,vprintdate,bsysdate);
             taskvo.setIfilestatue(PrintStatusEnum.PROCESSING.getCode());
             singleObjectBO.saveObject(cpid, taskvo);
         }

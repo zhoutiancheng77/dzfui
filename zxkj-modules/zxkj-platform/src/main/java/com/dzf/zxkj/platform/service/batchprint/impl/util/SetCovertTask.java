@@ -1,6 +1,8 @@
 package com.dzf.zxkj.platform.service.batchprint.impl.util;
 
+import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintFileSetVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 
@@ -10,7 +12,8 @@ public class SetCovertTask {
      * 打印设置转换成打印任务
      * @return
      */
-    public static BatchPrintSetVo convertTask (BatchPrintFileSetVo setvo,String pk_corp,String period,String cuserid) {
+    public static BatchPrintSetVo convertTask (BatchPrintFileSetVo setvo,String pk_corp,String period,
+                                               String cuserid,String vprintdate, String bsysdate) {
         BatchPrintSetVo taskvo = new BatchPrintSetVo();
         taskvo.setPk_corp(pk_corp);
         taskvo.setVprintperiod(period);
@@ -20,7 +23,13 @@ public class SetCovertTask {
         taskvo.setVmobelsel(setvo.getVmobelsel());
         taskvo.setReviewdir(setvo.getReviewdir());// 横纵向
         taskvo.setVfontsize(setvo.getVfontsize());
-        taskvo.setDprintdate("Y".equalsIgnoreCase(setvo.getBdyrqsel())?setvo.getDprintdate():null);
+        if ("Y".equals(bsysdate)) {
+            taskvo.setDprintdate(new DZFDate());
+        } else {
+            if (!StringUtil.isEmpty(vprintdate)) {
+                taskvo.setDprintdate(new DZFDate(vprintdate));
+            }
+        }
         taskvo.setDleftmargin(setvo.getDleftmargin());
         taskvo.setDtopmargin(setvo.getDtopmargin());
         taskvo.setVprintcode(setvo.getVprintname());
