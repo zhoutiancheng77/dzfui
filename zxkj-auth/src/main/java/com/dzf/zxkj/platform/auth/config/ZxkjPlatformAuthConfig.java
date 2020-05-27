@@ -16,4 +16,6 @@ public class ZxkjPlatformAuthConfig {
     private String url;
     private String platformAdminName = "xwwy";
     private String bankAcountArea = "23";
+    @Value("${env.profile:'dev'}")
+    private String profile;
 }

@@ -115,14 +115,16 @@ public class AuthController {
         Grid<LoginUser> grid = new Grid<>();
         String verify = checkCodeCache.get(loginUser.getKey());
 
-        if (verify == null) {
-            grid.setSuccess(false);
-            grid.setMsg("由于长时间未登录，请刷新后重新操作！");
-            return ReturnData.ok().data(grid);
-        } else if (!verify.equalsIgnoreCase(loginUser.getVerify())) {
-            grid.setSuccess(false);
-            grid.setMsg("验证码错误！");
-            return ReturnData.ok().data(grid);
+        if(!"test".equals(zxkjPlatformAuthConfig.getProfile())){//配合测试压力 如果是测试环境 不校验验证码
+            if (verify == null) {
+                grid.setSuccess(false);
+                grid.setMsg("由于长时间未登录，请刷新后重新操作！");
+                return ReturnData.ok().data(grid);
+            } else if (!verify.equalsIgnoreCase(loginUser.getVerify())) {
+                grid.setSuccess(false);
+                grid.setMsg("验证码错误！");
+                return ReturnData.ok().data(grid);
+            }
         }
 
         String username = RSAUtils.decryptStringByJs(loginUser.getUsername());
