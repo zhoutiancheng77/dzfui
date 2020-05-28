@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.util;
+package com.dzf.zxkj.report.utils;
 
 import com.dzf.zxkj.common.utils.StringUtil;
 
