@@ -15,6 +15,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
+import com.dzf.zxkj.platform.model.icset.IcbalanceVO;
 import com.dzf.zxkj.platform.model.report.FseJyeVO;
 import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.report.VoucherFseQryVO;
@@ -24,6 +25,7 @@ import com.dzf.zxkj.report.service.cwbb.IRptSetService;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
 import com.dzf.zxkj.report.service.cwzb.IKMMXZReport;
 import com.dzf.zxkj.report.utils.BeanUtils;
+import com.dzf.zxkj.report.utils.LetterNumberSortUtil;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -170,6 +172,7 @@ public class FsJyeBReportImpl implements IFsYeReport {
 			List<KmMxZVO> fzkmmxvos = gl_rep_kmmxjserv.getResultVos(qcfzmap, fsfzmap,corpbegqcmap, 
 					ReportUtil.getPeriods(vo.getBegindate1(), vo.getEnddate()), mp,vo.getPk_corp(),vo.getIshowfs(),vo.getKms_last(),vo.getBtotalyear());
 			if(fzkmmxvos!=null && fzkmmxvos.size()>0){
+				fzkmmxvos.sort(Comparator.comparing(KmMxZVO::getKmbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 				kvoList.addAll(fzkmmxvos);
 			}
 		}
