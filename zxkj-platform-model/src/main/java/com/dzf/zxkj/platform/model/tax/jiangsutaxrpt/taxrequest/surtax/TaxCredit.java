@@ -2,6 +2,7 @@ package com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.surtax;
 
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelPos;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelValueCast;
 
 @TaxExcelPos(reportID = "10516001", reportname = "城建税、教育费附加、地方教育附加税（费）申报表")
 public class TaxCredit {
@@ -9,18 +10,24 @@ public class TaxCredit {
     private String lsh;
 
     // 本期是否适用试点建设培养产教融合型企业抵免政策(Y:是，N：否)
+    @TaxExcelPos(row = 7, col = 6)
+    @TaxExcelValueCast
     private String bqsfsycjrhxqyjzzc;
 
     // 当前新增可抵免金额
+    @TaxExcelPos(row = 7, col = 10)
     private DZFDouble dqxzktme;
 
     // 上期留抵可抵免金额
+    @TaxExcelPos(row = 8, col = 10)
     private DZFDouble sqldkdmje;
 
     // 结转下期可抵免金额
+    @TaxExcelPos(row = 9, col = 10)
     private DZFDouble jzxqkdmje;
 
     // 计税依据修改原因
+    @TaxExcelPos(row = 18, col = 1)
     private String jsyjxgyy;
 
     // 当期新增投资额

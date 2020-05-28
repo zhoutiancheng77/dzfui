@@ -9,20 +9,20 @@ public class UniversalTaxPrivilege {
     // 流水号
     private String lsh;
     // 本期是否适用增值税小规模减征政策
-    @TaxExcelPos(row = 7, col = 6)
+    @TaxExcelPos(row = 4, col = 6)
     @TaxExcelValueCast
     private String bqsfsyxgmyhzc;
 
     // 普惠减征比例城建税
-    @TaxExcelPos(row = 7, col = 10)
+    @TaxExcelPos(row = 4, col = 10)
     private DZFDouble phjzblcjs;
 
     // 普惠减征比例教育附加
-    @TaxExcelPos(row = 8, col = 10)
+    @TaxExcelPos(row = 5, col = 10)
     private DZFDouble phjzbljyfj;
 
     // 普惠减征比例地方教育附加
-    @TaxExcelPos(row = 9, col = 10)
+    @TaxExcelPos(row = 6, col = 10)
     private DZFDouble phjzbldfjyfj;
 
     // 本期适用小规模减征政策终止时间

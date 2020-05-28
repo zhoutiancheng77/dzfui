@@ -91,7 +91,7 @@ public class FsYeController  extends ReportBaseController {
                 /** 转换成tree类型 */
 //                FseJyeVO fsvo = (FseJyeVO) BDTreeCreator.createTree(fsejyevos, new KmConFzVoTreeStrateGyByPk(isshowfs,isxswyewfs,isxswyewfs_bn));
 //                fsejyevos = (FseJyeVO[]) fsvo.getChildren();
-                fsejyevos = getTotalRow(fsejyevos,true);
+                fsejyevos = getTotalRow(fsejyevos,false);
                 log.info("查询成功！");
                 grid.setSuccess(true);
                 grid.setTotal(fsejyevos == null ? 0 : (long) Arrays.asList(fsejyevos).size());

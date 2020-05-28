@@ -62,5 +62,5 @@ public interface INewBatchPrintSetTaskSer {
      * @param userid
      * @throws DZFWarpException
      */
-    public void saveTask(String corpidstr,String userid,String type,String period) throws DZFWarpException;
+    public void saveTask(String corpidstr,String userid,String type,String period, String vprintdate,String bsysdate) throws DZFWarpException;
 }

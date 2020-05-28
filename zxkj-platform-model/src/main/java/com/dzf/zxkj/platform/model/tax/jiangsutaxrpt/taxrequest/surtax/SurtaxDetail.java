@@ -41,7 +41,7 @@ public class SurtaxDetail {
 
     // 合计
     @TaxExcelPos(col = 5)
-    private String hj;
+    private DZFDouble hj;
 
     // 税率
     @TaxExcelPos(col = 6)
@@ -64,9 +64,10 @@ public class SurtaxDetail {
     private DZFDouble phjmse;
 
     // 试点建设培养产教融合型企业—减免性质代码
-    @TaxExcelPos(col = 11)
+    @TaxExcelPos(col = 11, splitIndex = 0)
     private String jmxzdm;
     // 试点建设培养产教融合型企业—减免性质名称
+    @TaxExcelPos(col = 11, splitIndex = 1)
     private String jmxzmc;
 
     // 本期抵免金额
@@ -173,11 +174,11 @@ public class SurtaxDetail {
         this.yys = yys;
     }
 
-    public String getHj() {
+    public DZFDouble getHj() {
         return hj;
     }
 
-    public void setHj(String hj) {
+    public void setHj(DZFDouble hj) {
         this.hj = hj;
     }
 

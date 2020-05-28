@@ -1762,7 +1762,9 @@ public class VATSaleInvoice2Controller extends BaseController {
             String ccrecode = param.get("ccrecode");
             String f2 = param.get("f2");
             String period = param.get("period");
-            paramvo.setKprj(new DZFDate(SystemUtil.getLoginDate()));//参数：当前登录时间
+//            paramvo.setKprj(new DZFDate(SystemUtil.getLoginDate()));//参数：当前登录时间
+            DZFDate date = DateUtils.getPeriodEndDate(period);
+            paramvo.setKprj(date);//参数：当前登录时间
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock(paramvo.getTableName()+pk_corp);
             if(!lock){
@@ -1777,8 +1779,7 @@ public class VATSaleInvoice2Controller extends BaseController {
 
             if(nssbvo == null){//规则  未认证走 账方通 ， 已认证走 票通取数 票通宝
 
-                DZFDate date = DateUtils.getPeriodEndDate(period);
-                paramvo.setKprj(date);//参数：当前登录时间
+
                 String crecode = null;
                 if(!StringUtils.isEmpty(ccrecode)){
                     crecode = ccrecode.trim();

@@ -78,7 +78,8 @@ public class BatchPrintController extends BaseController {
         Grid grid = new Grid();
         try {
             // 查询设置
-            newbatchprintser.saveTask(pmap1.get("corpids"),getLoginUserId(),pmap1.get("type"),pmap1.get("period"));
+            newbatchprintser.saveTask(pmap1.get("corpids"),getLoginUserId(),pmap1.get("type"),
+                    pmap1.get("period"), pmap1.get("vprintdate"), pmap1.get("bsysdate"));
             grid.setSuccess(true);
             grid.setMsg("保存成功！");
         } catch (Exception e) {
@@ -197,6 +198,7 @@ public class BatchPrintController extends BaseController {
         } catch (Exception e) {
             json.setMsg(e.getMessage());
             json.setSuccess(false);
+            log.error(e.getMessage(),e);
         } finally {
             if (out != null) {
                 try {
