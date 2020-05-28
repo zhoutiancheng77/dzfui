@@ -63,6 +63,8 @@ public class QueryVoucher {
         String join = "";
         DZFDouble mny1 = paramvo.getMny1();
         DZFDouble mny2 = paramvo.getMny2();
+        // 出纳签字
+        boolean isCashSign = paramvo.getCnqz() != null && paramvo.getCnqz().booleanValue();
         if (StringUtil.isEmpty(id) && (StringUtil.isEmpty(pk_corp) || bdate == null || edate == null)) {
             throw new BusinessException("传入查询条件为空！");
         }
@@ -71,7 +73,8 @@ public class QueryVoucher {
         SQLParameter sp = new SQLParameter();
 //        sp.addParam(pk_corp);
         if (!StringUtil.isEmptyWithTrim(vname) || !StringUtil.isEmptyWithTrim(zy) || !StringUtil.isEmptyWithTrim(fzhslb)
-                || mny1 != null && mny1.toDouble() != 0 || mny2 != null && mny2.toDouble() != 0) {
+                || mny1 != null && mny1.toDouble() != 0 || mny2 != null && mny2.toDouble() != 0
+                || isCashSign) {
             join = "  join ynt_tzpz_b tb on ynt_tzpz_h.pk_tzpz_h = tb.pk_tzpz_h  ";
         }
 //        wheresql.append(" where ynt_tzpz_h.pk_corp = ? ");
@@ -155,6 +158,12 @@ public class QueryVoucher {
             wheresql.append("and (tb.kmmchie like ? or tb.vcode like ?) ");
             sp.addParam(vname.trim());
             sp.addParam(vname.trim());
+        }
+
+        if (isCashSign) {
+            wheresql.append("and (tb.vcode like '1001%' ")
+                    .append(" or tb.vcode like '1002%' ")
+                    .append(" or tb.vcode like '1012%') ");
         }
 
         if (!StringUtil.isEmptyWithTrim(fzhslb)) {
@@ -253,21 +262,11 @@ public class QueryVoucher {
             for (TzpzHVO th : hvo) {
                 Map<String, AuxiliaryAccountBVO> fzhsMap = getAuxiliaryMap(th.getPk_corp(), corpFzhsMap);
                 List<TzpzBVO> liz = map.get(th.getPrimaryKey());
-                DZFBoolean ishashb = DZFBoolean.FALSE;
                 if (liz != null && !liz.isEmpty()) {
                     for (TzpzBVO tzpzBVO : liz) {
                         tzpzBVO.setFzhs_list(getFzhs(tzpzBVO, fzhsMap));
-                        if (tzpzBVO.getVcode() != null &&
-                                (tzpzBVO.getVcode().startsWith("1001") || tzpzBVO.getVcode().startsWith("1002")
-                                        || tzpzBVO.getVcode().startsWith("1012"))) {
-                            ishashb = DZFBoolean.TRUE;
-                        }
                     }
                     th.setChildren(liz.toArray(new TzpzBVO[0]));
-                    ;
-                }
-                if (paramvo.getCnqz() != null && paramvo.getCnqz().booleanValue() && !ishashb.booleanValue()) {//不包含货币资金的不显示
-                    continue;
                 }
                 reshvo.add(th);
             }
