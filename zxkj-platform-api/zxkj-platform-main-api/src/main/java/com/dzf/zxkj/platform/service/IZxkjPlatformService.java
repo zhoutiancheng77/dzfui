@@ -113,6 +113,10 @@ public interface IZxkjPlatformService {
 
     List<IntradeHVO> queryIntradeHVOOut(IntradeParamVO paramvo);
 
+    IntradeHVO queryIntradeHVOByID(String id, String pk_corp);
+
+    IntradeHVO queryIntradeHVOByIDIn(String pk_ictrade_h, String pk_corp);
+
     List<IntradeHVO> queryIntradeHVOIn(IntradeParamVO paramvo);
 
     AssetDepreciaTionVO[] getZczjMxVOs(QueryParamVO queryParamvo);

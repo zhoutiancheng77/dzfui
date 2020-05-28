@@ -229,7 +229,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                         }
                         if (resbytesPz != null && resbytesPz.length > 0) {
                             InnerClass innerClass = new InnerClass();
-                            innerClass.setName(filenamepz.substring(0, filename.length()-1)+".pdf");
+                            innerClass.setName(filenamepz.substring(0, filenamepz.length()-1)+".pdf");
                             innerClass.setContent(resbytesPz);
                             innerClassList.add(innerClass);
                         }

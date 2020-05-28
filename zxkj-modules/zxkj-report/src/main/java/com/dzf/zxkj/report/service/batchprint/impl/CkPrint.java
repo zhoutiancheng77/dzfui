@@ -117,6 +117,9 @@ public class CkPrint extends AbstractPrint {
                     pmap.put("库管员",pmap.get("ishidekgyname"));
                 }
                 Map<String, List<SuperVO>> vomap = getVoMap(printParamVO,queryparamvo.getPk_corp());
+                if (vomap == null || vomap.size() == 0) {
+                    return null;
+                }
                 if(pmap.get("type").equals("3")){//发票纸模板打印
                     printReporUtil.printICInvoice(vomap, null, title, columns, columnnames, widths, 20,invmaps, pmap, tmap);
                 }else{
@@ -143,7 +146,7 @@ public class CkPrint extends AbstractPrint {
     }
 
     private Map<String, List<SuperVO>> getVoMap(PrintParamVO printParamVO,String pk_corp) {
-        String priceStr =zxkjPlatformService.queryParamterValueByCode(SystemUtil.getLoginCorpId(), IParameterConstants.DZF010);
+        String priceStr =zxkjPlatformService.queryParamterValueByCode(pk_corp, IParameterConstants.DZF010);
         int price = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
         Map<String, List<SuperVO>> vomap = new LinkedHashMap<>();
 
@@ -156,8 +159,12 @@ public class CkPrint extends AbstractPrint {
         List<IntradeHVO> list = zxkjPlatformService.queryIntradeHVOOut(paramVO);
         for (IntradeHVO head: list) {
             AuxiliaryAccountBVO custvo = 	aumap.get(head.getPk_cust());
-            SuperVO[] bodyvos = head.getChildren();
+            IntradeHVO newhead = zxkjPlatformService.queryIntradeHVOByID(head.getPrimaryKey(), pk_corp);
+            SuperVO[] bodyvos = newhead.getChildren();
             List<SuperVO> alist = new ArrayList<>();
+            if (bodyvos ==null || bodyvos.length ==0) {
+                continue;
+            }
             for (SuperVO body : bodyvos) {
                 IntradeoutVO ivo = (IntradeoutVO) body;
 
