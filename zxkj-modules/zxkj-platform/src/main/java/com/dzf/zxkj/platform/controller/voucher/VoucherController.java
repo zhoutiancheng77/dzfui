@@ -136,7 +136,7 @@ public class VoucherController extends BaseController {
         // user解密缓存
         Map<String, String> decodeUserCache = new HashMap<>();
 
-        QueryPageVO pagedVO = gl_tzpzserv.query(paramvo);
+        QueryPageVO pagedVO = gl_tzpzserv.processQueryVoucherPaged(paramvo);
         long total = pagedVO.getTotal();
         // 按公司分组
         Map<String, List<TzpzHVO>> corpVoucherMap = DZfcommonTools
