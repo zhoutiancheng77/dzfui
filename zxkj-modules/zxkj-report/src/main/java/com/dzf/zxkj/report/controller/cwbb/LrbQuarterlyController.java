@@ -63,6 +63,8 @@ public class LrbQuarterlyController extends ReportBaseController {
             queryParamvo.setQjq(queryParamvo.getBegindate1().toString().substring(0, 7));
             queryParamvo.setQjz(queryParamvo.getBegindate1().toString().substring(0, 7));
             queryParamvo.setEnddate(queryParamvo.getBegindate1());
+            /** 开始日期应该在建账日期前,检查权限 */
+            checkPowerDate(queryParamvo, corpVO);
             LrbquarterlyVO[] fsejyevos = null;
             fsejyevos = gl_rep_lrbquarterlyserv.getLRBquarterlyVOs(queryParamvo);
             grid.setTotal(fsejyevos == null ? 0 : (long) Arrays.asList(fsejyevos).size());
