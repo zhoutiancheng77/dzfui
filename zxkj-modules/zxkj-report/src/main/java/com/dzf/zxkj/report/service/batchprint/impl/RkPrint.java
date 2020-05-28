@@ -102,12 +102,12 @@ public class RkPrint extends  AbstractPrint {
                     columnnames = new String[] { "入库类型", "存货分类", "存货名称", "规格(型号)", "计量单位", "数量", "单价", "金额" };
                     widths = new int[] { 1, 1, 4, 2,1, 2, 2, 2 };
                 }
-                boolean isCombin = false;
-
-                if (printParamVO != null && !StringUtil.isEmpty(printParamVO.getIsmerge())
-                        && (printParamVO.getIsmerge().equals("Y") || printParamVO.getIsmerge().equals("true"))) {
-                    isCombin = true;
-                }
+//                boolean isCombin = false;
+//
+//                if (printParamVO != null && !StringUtil.isEmpty(printParamVO.getIsmerge())
+//                        && (printParamVO.getIsmerge().equals("Y") || printParamVO.getIsmerge().equals("true"))) {
+                boolean isCombin = true;
+//                }
                 printReporUtil.setLineheight(22f);
                 Map<String, String> invmaps = new HashMap<>();
                 if(printParamVO != null && !StringUtil.isEmpty(printParamVO.getIshidepzh())
@@ -125,6 +125,9 @@ public class RkPrint extends  AbstractPrint {
                     pmap.put("库管员",pmap.get("ishidekgyname"));
                 }
                 Map<String, List<SuperVO>> vomap = getVoMap(printParamVO,corpVO.getPk_corp());
+                if (vomap == null || vomap.size() == 0) {
+                    return null;
+                }
                 if (pmap.get("type").equals("3")) {// 发票纸模板打印
                     printReporUtil.printICInvoice(vomap, null, title, columns, columnnames, widths, 20, invmaps, pmap, tmap);
                 } else {
@@ -160,9 +163,14 @@ public class RkPrint extends  AbstractPrint {
         Map<String, AuxiliaryAccountBVO> aumap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(fzvos),
                 new String[] { "pk_auacount_b" });
         for (IntradeHVO head: list) {
-            SuperVO[] bodyvos = head.getChildren();
+            IntradeHVO newhead = zxkjPlatformService.queryIntradeHVOByIDIn(head.getPk_ictrade_h(), pk_corp);
+            SuperVO[] bodyvos = newhead.getChildren();
+//            SuperVO[] bodyvos = head.getChildren();
             AuxiliaryAccountBVO custvo = aumap.get(head.getPk_cust());
             List<SuperVO> alist = new ArrayList<>();
+            if (bodyvos == null || bodyvos.length ==0) {
+                continue;
+            }
             for (SuperVO body : bodyvos) {
                 IctradeinVO ivo = (IctradeinVO) body;
                 if (DZFValueCheck.isNotEmpty(custvo)) {

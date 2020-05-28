@@ -44,6 +44,7 @@ import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.tax.ICorpTaxService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
 import com.dzf.zxkj.platform.service.zcgl.IZczjmxReport;
+import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -532,6 +533,26 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
     public   List<IntradeHVO>  queryIntradeHVOOut(IntradeParamVO paramvo) {
         try {
            return  ic_saleoutserv.query(paramvo);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryIntradeHVOByID异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public IntradeHVO queryIntradeHVOByID(String id, String pk_corp) {
+        try {
+            return ic_saleoutserv.queryIntradeHVOByID(id, pk_corp);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用queryIntradeHVOByID异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public IntradeHVO queryIntradeHVOByIDIn(String pk_ictrade_h, String pk_corp) {
+        try {
+            return ic_purchinserv.queryIntradeHVOByID(pk_ictrade_h, pk_corp);
         } catch (DZFWarpException e) {
             log.error(String.format("调用queryIntradeHVOByID异常,异常信息:%s", e.getMessage()), e);
             return null;
