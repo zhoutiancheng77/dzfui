@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.qcset.FzhsqcVO;
 import com.dzf.zxkj.platform.model.qcset.QcYeVO;
+import com.dzf.zxkj.platform.model.report.KmMxZVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
@@ -22,6 +23,7 @@ import com.dzf.zxkj.platform.service.icset.IInventoryService;
 import com.dzf.zxkj.platform.service.qcset.IFzhsqcService;
 import com.dzf.zxkj.platform.service.qcset.IQcye;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -404,12 +406,14 @@ public class FzhsqcServiceImpl implements IFzhsqcService {
 			setDefaultVal(rs, pk_corp, accountService.queryMapByPk(pk_corp));
 		}
 		//按编码排序
-		Arrays.sort(rs,new Comparator<FzhsqcVO>() {
-			@Override
-			public int compare(FzhsqcVO o1, FzhsqcVO o2) {
-				return o1.getVcode().compareTo(o2.getVcode());
-			}
-		});
+//		Arrays.sort(rs,new Comparator<FzhsqcVO>() {
+//			@Override
+//			public int compare(FzhsqcVO o1, FzhsqcVO o2) {
+//				return o1.getVcode().compareTo(o2.getVcode());
+//			}
+//		});
+		Arrays.sort(rs, Comparator.comparing(FzhsqcVO::getVcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+//		rs.sort(Comparator.comparing(FzhsqcVO::getVcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return rs;
 	}
 	
