@@ -34,6 +34,7 @@ import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -308,6 +309,7 @@ public class InventoryServiceImpl implements IInventoryService {
 				new BeanListProcessor(InventoryVO.class));
 		if (ancevos == null || ancevos.size() == 0)
 			return null;
+        ancevos.sort(Comparator.comparing(InventoryVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return ancevos;
 	}
 
@@ -378,7 +380,7 @@ public class InventoryServiceImpl implements IInventoryService {
 				vo.setKmname(accvo.getAccountname());
 			}
 		}
-		VOUtil.ascSort(ancevos, new String[] { "code" });
+        ancevos.sort(Comparator.comparing(InventoryVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return ancevos;
 	}
 
@@ -429,6 +431,7 @@ public class InventoryServiceImpl implements IInventoryService {
 				new BeanListProcessor(InventoryVO.class));
 		if (ancevos == null || ancevos.size() == 0)
 			return null;
+        ancevos.sort(Comparator.comparing(InventoryVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return ancevos;
 	}
 
@@ -1181,7 +1184,7 @@ public class InventoryServiceImpl implements IInventoryService {
 		if (ancevos == null || ancevos.size() == 0)
 			return null;
 
-		VOUtil.ascSort(ancevos, new String[] { "code" });
+		ancevos.sort(Comparator.comparing(InventoryVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return ancevos;
 	}
 

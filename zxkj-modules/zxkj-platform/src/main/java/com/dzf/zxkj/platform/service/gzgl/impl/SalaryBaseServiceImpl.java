@@ -7,9 +7,9 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.utils.*;
-import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
+import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.gzgl.SalaryAccSetVO;
@@ -20,13 +20,11 @@ import com.dzf.zxkj.platform.service.gzgl.ISalaryAccSetService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryBaseService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryCalService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryReportService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("gl_gzbbaseserv")
 public class SalaryBaseServiceImpl implements ISalaryBaseService {
@@ -65,8 +63,10 @@ public class SalaryBaseServiceImpl implements ISalaryBaseService {
 				vo.setZjlx(personvo.getZjlx());
 			}
 		}
-		VOUtil.ascSort(srvos, new String[] { "ygbm" });
-		return srvos;
+
+		List<SalaryBaseVO> slist = Arrays.asList(srvos);
+		slist.sort(Comparator.comparing(SalaryBaseVO::getYgbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+		return slist.toArray(new SalaryBaseVO[slist.size()]);
 	}
 
 	public Map<String, SalaryBaseVO> getSalaryBaseVO(String pk_corp, String qj) throws BusinessException {

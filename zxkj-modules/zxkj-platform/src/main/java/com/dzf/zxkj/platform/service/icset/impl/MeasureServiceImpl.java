@@ -7,8 +7,6 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.base.utils.FieldMapping;
-import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.SqlUtil;
@@ -16,6 +14,7 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.icset.MeasureVO;
 import com.dzf.zxkj.platform.service.icset.IMeasureService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.NotOLE2FileException;
@@ -60,16 +59,18 @@ public class MeasureServiceImpl implements IMeasureService {
 		sp.addParam(pk_corp);
 		
 		List<MeasureVO> listVo = (List<MeasureVO>) singleObjectBO.retrieveByClause(MeasureVO.class, sb.toString(), sp);
-		if (!StringUtil.isEmpty(sort)) {// sort != null && !"".equals(sort)
-			String sortb = FieldMapping.getFieldNameByAlias(new MeasureVO(), sort);
-			sortb = StringUtil.isEmpty(sortb)? sort : sortb;
-			int flag = VOUtil.DESC;
-			if("asc".equalsIgnoreCase(order)){
-				flag = VOUtil.ASC;
-			}
-			VOUtil.sort(listVo, new String[]{sortb}, new int[]{flag});
-		}
-		
+//		if (!StringUtil.isEmpty(sort)) {// sort != null && !"".equals(sort)
+//			String sortb = FieldMapping.getFieldNameByAlias(new MeasureVO(), sort);
+//			sortb = StringUtil.isEmpty(sortb)? sort : sortb;
+//			int flag = VOUtil.DESC;
+//			if("asc".equalsIgnoreCase(order)){
+//				flag = VOUtil.ASC;
+//			}
+//			VOUtil.sort(listVo, new String[]{sortb}, new int[]{flag});
+//		}
+		if (listVo == null || listVo.size() == 0)
+			return new ArrayList<>();
+		listVo.sort(Comparator.comparing(MeasureVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return listVo;
 	}
 

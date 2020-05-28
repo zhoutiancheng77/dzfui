@@ -18,6 +18,7 @@ import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.util.ExcelReport;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -55,13 +55,7 @@ public class InvclassifyController extends BaseController{
 		Grid grid = new Grid();
 		list = ic_inclsserv.queryByPkcorp(InvclassifyVO.class, SystemUtil.getLoginCorpId());//
 		if (list != null && list.size() > 0) {
-			Collections.sort(list, new Comparator<InvclassifyVO>() {
-				@Override
-				public int compare(InvclassifyVO o1, InvclassifyVO o2) {
-					int i = o1.getCode().compareTo(o2.getCode());
-					return i;
-				}
-			});
+			list.sort(Comparator.comparing(InvclassifyVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 			grid.setSuccess(true);
 			grid.setTotal((long) list.size());
 			grid.setRows(list);
