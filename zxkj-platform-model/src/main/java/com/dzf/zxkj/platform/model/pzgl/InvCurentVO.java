@@ -31,7 +31,9 @@ public class InvCurentVO extends SuperVO {
 	private String accountname;
 	
 	private String invname;
-	
+
+	private String invcode;
+
 	private DZFDouble nnumber;
 	
 	private DZFDouble ndef1;
@@ -236,7 +238,13 @@ public class InvCurentVO extends SuperVO {
 		this.isback = isback;
 	}
 
-	@Override
+    public String getInvcode() {
+        return invcode;
+    }
+    public void setInvcode(String invcode) {
+        this.invcode = invcode;
+    }
+    @Override
 	public String getParentPKFieldName() {
 		return "pk_tzpz_b";
 	}

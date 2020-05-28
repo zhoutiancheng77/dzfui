@@ -48,6 +48,7 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.IVATInComInvoice2Service;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -1218,7 +1219,6 @@ public class PurchInServiceImpl implements IPurchInService {
 		SuperVO[] ibodyvos = (SuperVO[]) ivo.getChildren();
 		if (ibodyvos == null || ibodyvos.length == 0)
 			return null;
-
 		String column2 = null;
 		String column3 = null;
 
@@ -1839,6 +1839,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		if (listBVO == null || listBVO.size() == 0) {
 			return null;
 		}
+        listBVO.sort(Comparator.comparing(IctradeinVO::getInvcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return listBVO.toArray(new IctradeinVO[listBVO.size()]);
 	}
 
@@ -2873,6 +2874,7 @@ public class PurchInServiceImpl implements IPurchInService {
 				continue;
 			icbvo = new IctradeinVO();
 			icbvo.setPk_inventory(inbvo.getPk_invtory());
+			icbvo.setInvcode(inbvo.getSpbm());
 			icbvo.setPk_subject(inbvo.getKmid());
 			icbvo.setNnum(inbvo.getNnumber());
 			icbvo.setNprice(inbvo.getNprice());
@@ -2897,7 +2899,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		if (icList.size() == 0) {
 			throw new BusinessException("暂估数据出错，暂估失败");
 		}
-
+		icList.sort(Comparator.comparing(IctradeinVO::getInvcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		IntradeHVO ichvo = new IntradeHVO();
 		ichvo.setDbilldate(DateUtils.getPeriodEndDate(period));
 		ichvo.setDbillid(null);// 设置为空，调用入库接口会重新生成
