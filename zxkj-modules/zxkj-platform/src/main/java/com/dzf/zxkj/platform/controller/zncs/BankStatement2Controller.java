@@ -1078,7 +1078,7 @@ public class BankStatement2Controller extends BaseController {
     private String buildkey(BankStatementVO2 vo, VatInvoiceSetVO setvo){
         String key = null;
         if(setvo.getPzrq()!=null&&setvo.getPzrq()==2 ){//凭证日期选实际日期按交易日期合并
-            key = vo.getTradingdate().toString();
+            key = vo.getInperiod()+vo.getTradingdate().toString();
         }else if(!StringUtil.isEmpty(vo.getInperiod())){
             key = vo.getInperiod();
         }else if(StringUtil.isEmpty(vo.getPeriod())){
