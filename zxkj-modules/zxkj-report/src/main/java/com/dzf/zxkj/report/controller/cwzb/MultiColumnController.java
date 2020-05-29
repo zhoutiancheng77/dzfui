@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("gl_rep_multiserv")
@@ -200,7 +201,8 @@ public class MultiColumnController extends ReportBaseController {
                         resultData.add(votemp.getHash());
                     }
                 }
-                grid.setRows(resultData);
+                grid.setTotal((long)resultData.size());
+                grid.setRows(resultData.stream().skip((queryvo.getPage()-1) * queryvo.getRows()).limit(queryvo.getRows()).collect(Collectors.toList()));
                 grid.setColumns(columnList);
                 grid.setColumnlist2(columnList2);
                 grid.setSuccess(true);
