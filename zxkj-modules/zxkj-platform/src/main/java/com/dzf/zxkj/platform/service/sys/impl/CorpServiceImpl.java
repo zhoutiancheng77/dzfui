@@ -10,6 +10,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,11 @@ public class CorpServiceImpl implements ICorpService {
 
     @Override
     public String getDefaultLoginDate(String pk_corp) throws DZFWarpException {
+
+        if(StringUtils.isBlank(pk_corp)){
+            return "";
+        }
+
         CorpVO corpVO = queryByPk(pk_corp);
         String beginPeriod = DateUtils.getPeriod(corpVO.getBegindate());
         String date;
