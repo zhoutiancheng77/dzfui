@@ -2573,7 +2573,7 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 		}
 		
 		if (StringUtil.isEmpty(spreadfile)) {
-			throw new BusinessException("纳税申报信息未填写");
+			throw new BusinessException("纳税申报表未填写");
 		}
 
 		
