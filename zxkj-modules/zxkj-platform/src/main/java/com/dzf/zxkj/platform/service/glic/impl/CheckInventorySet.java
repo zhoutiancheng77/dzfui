@@ -328,10 +328,10 @@ public class CheckInventorySet {
 		String result = "";
 		if(chcbjzfs == InventoryConstant.IC_CHDLHS){//大类
 			isDl =  true;
-			result = "<font color='blue'>存货大类核算</font>";
+			result = "启用存货大类：<br>";
 		}else if(chcbjzfs == InventoryConstant.IC_FZMXHS){//明细
 			isDl =  false;
-			result = "<font color='blue'>辅助明细核算</font>";
+			result = "启用明细核算：<br>";
 		}
 		//校验科目 
 		String error1 = checkKM(cpvo.getCorptype(), kmids,kmmap,isDl);
