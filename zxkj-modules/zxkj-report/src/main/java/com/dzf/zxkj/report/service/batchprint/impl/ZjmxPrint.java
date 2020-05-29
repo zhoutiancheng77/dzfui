@@ -1,12 +1,10 @@
 package com.dzf.zxkj.report.service.batchprint.impl;
 
-import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.KmReoprtQueryParamVO;
 import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -56,35 +54,40 @@ public class ZjmxPrint extends  AbstractPrint {
             printReporUtil.setTableHeadFount(new Font(printReporUtil.getBf(), Float.parseFloat(printParamVO.getFont()), Font.NORMAL));//设置表头字体
             Map<String, String> tmap = new LinkedHashMap<String, String>();// 声明一个map用来存title
             tmap.put("公司", printParamVO.getCorpName());
-            tmap.put("期间", printParamVO.getPeriod());
+            tmap.put("期间", printParamVO.getTitleperiod());
             String title = "折 旧 明 细 账";
             //转换map
             Map<String, List<SuperVO>> maps = new LinkedHashMap<>();
             String assetcode = "";
-            for (AssetDepreciaTionVO vo : bodyvos) {
-                assetcode = vo.getAssetcode();
-                if ("0".equals(vo.getAssetproperty()) || "2".equals(vo.getAssetproperty())) {//固定资产
-                    vo.setZy("计提折旧");
-                } else if (!StringUtil.isEmpty(vo.getAssetproperty())) {
-                    vo.setZy("计提摊销");
-                    title = "资 产 摊 销 明 细 账";
-                }
-                if (StringUtil.isEmpty(assetcode)) {
-                    continue;
-                }
-                if (maps.containsKey(assetcode)) {
-                    maps.get(assetcode).add(vo);
-                } else {
-                    List<SuperVO> list = new ArrayList<SuperVO>();
-                    list.add(vo);
-                    maps.put(assetcode, list);
-                }
-            }
-            printReporUtil.printHz(maps, new SuperVO[]{}, title,
-                    new String[]{"zy", "businessdate", "assetmny", "depreciationmny", "assetnetmny",
+//            for (AssetDepreciaTionVO vo : bodyvos) {
+//                assetcode = vo.getAssetcode();
+//                if ("0".equals(vo.getAssetproperty()) || "2".equals(vo.getAssetproperty())) {//固定资产
+//                    vo.setZy("计提折旧");
+//                } else if (!StringUtil.isEmpty(vo.getAssetproperty())) {
+//                    vo.setZy("计提摊销");
+//                    title = "资 产 摊 销 明 细 账";
+//                }
+//                if (StringUtil.isEmpty(assetcode)) {
+//                    continue;
+//                }
+//                if (maps.containsKey(assetcode)) {
+//                    maps.get(assetcode).add(vo);
+//                } else {
+//                    List<SuperVO> list = new ArrayList<SuperVO>();
+//                    list.add(vo);
+//                    maps.put(assetcode, list);
+//                }
+//            }
+            printReporUtil.printHz(maps, bodyvos, title,
+                    new String[]{"catename", "assetcode", "assetname", "businessdate",
+                            "uselimit", "assetmny", "depreciationmny", "assetnetmny",
                             "originalvalue"},
-                    new String[]{"摘要", "折旧日期", "资产原值", "累计折旧", "资产净值", "本期折旧"},
-                    new int[]{3, 3, 3, 3, 3, 3}, 20,  pmap, tmap);
+                    new String[]{"类别", "资产编码", "资产名称", "折旧日期",
+                            "预计使用年限", "资产原值", "累计折旧", "资产净值",
+                            "本期折旧"},
+                    new int[]{3,2,
+                            4,3, 3,
+                            4, 4, 4, 4}, 20,  pmap, tmap);
             return printReporUtil.getContents();
         } catch (DocumentException e) {
             log.error("折旧明细账打印失败", e);
