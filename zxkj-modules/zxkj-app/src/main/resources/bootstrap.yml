@@ -5,7 +5,7 @@ spring:
     nacos:
       config:
         server-addr: @dzf.mvn.nacos.config.server-addr@
-          namespace: @dzf.mvn.nacos.config.namespace@
+        namespace: @dzf.mvn.nacos.config.namespace@
         file-extension: yaml
         group: dzf-zxkj
         prefix: ${spring.application.name}
