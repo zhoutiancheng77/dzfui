@@ -1,25 +1,25 @@
 package com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.annual.ordinary;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * 财务报表一般企业年报
- * 
+ *
  * @author liubj
  *
  */
 public class FinancialOrdinaryRequest {
 	// 资产负债表
-	@JSONField(name = "Data1_01")
+	@JsonProperty("Data1_01")
 	private BalanceSheet data1_01;
 	// 利润表
-	@JSONField(name = "Data2_01")
+	@JsonProperty("Data2_01")
 	private ProfitStatement data2_01;
 	// 现金流量表
-	@JSONField(name = "Data3_01")
+	@JsonProperty("Data3_01")
 	private CashFlowStatement data3_01;
 	// 所有者权益变更表
-//	@JSONField(name = "Data4_01")
+//	@JsonProperty("Data4_01")
 //	private ChangeOfOwnersEquity[] data4_01;
 
 	public BalanceSheet getData1_01() {

@@ -29,6 +29,10 @@ import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -43,6 +47,9 @@ import java.util.zip.ZipOutputStream;
 
 @Service("gl_rep_batchprinterv")
 @Slf4j
+@Component                //实例化
+@Configurable             //注入bean
+@EnableScheduling
 public class BatchPrintSerImpl implements IBatchPrintSer {
 
     @Autowired
@@ -64,6 +71,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
 
 
     @Override
+    @Scheduled(cron = " 0 0 0 * * ?  ")
     public void batchexectask (BatchPrintSetVo[] setvos,UserVO userVO) {
         if (setvos != null && setvos.length > 0) {
             ExecutorService pool = null;
