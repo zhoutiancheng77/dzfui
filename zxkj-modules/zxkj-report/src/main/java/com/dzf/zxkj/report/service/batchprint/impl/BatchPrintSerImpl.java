@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.service.batchprint.impl;
 
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.utils.SpringUtils;
@@ -47,9 +48,6 @@ import java.util.zip.ZipOutputStream;
 
 @Service("gl_rep_batchprinterv")
 @Slf4j
-@Component                //实例化
-@Configurable             //注入bean
-@EnableScheduling
 public class BatchPrintSerImpl implements IBatchPrintSer {
 
     @Autowired
@@ -71,7 +69,6 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
 
 
     @Override
-//    @Scheduled(cron = " 0 0 0 * * ?  ")
     public void batchexectask (BatchPrintSetVo[] setvos,UserVO userVO) {
         if (setvos != null && setvos.length > 0) {
             ExecutorService pool = null;
@@ -124,7 +121,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         @Override
         public String call() throws Exception {
             try {
-               print(setvo,userVO);
+               print(setvo);
             } catch (Exception e) {
             } finally {
             }
@@ -132,10 +129,11 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         }
     }
 
-    public void print(BatchPrintSetVo setvo,UserVO userVO) throws DZFWarpException {
+    public void print(BatchPrintSetVo setvo) throws DZFWarpException {
         //byte[] 字节生成pdf文件
         FastDfsUtil util = (FastDfsUtil) SpringUtils.getBean("connectionPool");
         CorpVO corpVO = zxkjPlatformService.queryCorpByPk(setvo.getPk_corp());
+        UserVO userVO = (UserVO) singleObjectBO.queryByPrimaryKey(UserVO.class, setvo.getVoperateid());
         // 打印参数设定
         PrintParamVO printParamVO = getPrintParamVO(setvo,corpVO,"");
         // 查询参数设定
@@ -258,8 +256,14 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             }
             setvo.setIfilestatue(PrintStatusEnum.GENERATE.getCode());
             setvo.setDgendatetime(new DZFDateTime());
-            singleObjectBO.update(setvo);
         } catch (Exception e) {
+            setvo.setIfilestatue(PrintStatusEnum.GENFAIL.getCode());
+            if (e instanceof BusinessException) {
+                setvo.setVmemo(e.getMessage());
+            } else {
+                log.error("错误", e);
+                setvo.setVmemo("生成失败!");
+            }
             log.error(e.getMessage(),e);
         } finally {
             try {
@@ -270,6 +274,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                 log.error(e.getMessage(),e);
             }
         }
+        singleObjectBO.update(setvo);
     }
 
     public class InnerClass {

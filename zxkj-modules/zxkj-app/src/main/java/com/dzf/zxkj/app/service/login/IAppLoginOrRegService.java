@@ -39,6 +39,19 @@ public interface IAppLoginOrRegService {
 	 * @throws DZFWarpException
 	 */
 	public LoginResponseBeanVO logingGetCorpVOs260(UserBeanVO userBean) throws DZFWarpException;//
-	
 
+	/**
+	 * 扫描二维码
+	 * @param userBean
+	 * @throws DZFWarpException
+	 */
+	public void saveScanQrCode(UserBeanVO userBean,String requrl) throws DZFWarpException;
+
+
+	/**
+	 * 确认二维码信息
+	 * @param userBean
+	 * @throws DZFWarpException
+	 */
+	public void saveConfirmQrCode(UserBeanVO userBean,String requrl) throws DZFWarpException;
 }

@@ -1,5 +1,6 @@
 package com.dzf.zxkj.app.service.login.impl;
 
+import com.dzf.zxkj.app.model.app.LoginQRVO;
 import com.dzf.zxkj.app.model.app.corp.TempCorpVO;
 import com.dzf.zxkj.app.model.app.user.AppUserVO;
 import com.dzf.zxkj.app.model.app.user.TempUserRegVO;
@@ -9,6 +10,7 @@ import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.ISysSourceConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
+import com.dzf.zxkj.app.pub.constant.LoginQRConstant;
 import com.dzf.zxkj.app.service.corp.IAppCorpService;
 import com.dzf.zxkj.app.service.login.IAppDemoCorpService;
 import com.dzf.zxkj.app.service.login.IAppLoginCorpService;
@@ -29,6 +31,7 @@ import com.dzf.zxkj.platform.model.sys.AccountVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -622,5 +625,71 @@ public class AppLoginOrRegImpl implements IAppLoginOrRegService {
 		return pwd.toString();
 		
 	}
+	@Override
+	public void saveScanQrCode(UserBeanVO userBean,String requrl) throws DZFWarpException {
+		LoginQRVO loginQRVO = new LoginQRVO();
+		loginQRVO.setUuid(requrl);
+		loginQRVO.setCoperatorid(userBean.getAccount_id());
+		loginQRVO.setPk_corp(userBean.getPk_corp());
+		loginQRVO.setIstatus(LoginQRConstant.QR_SCAN);
+		updateQRCode(loginQRVO);
+	}
+	public void updateQRCode(LoginQRVO loginQRVO) throws DZFWarpException {
+		if(StringUtil.isEmpty(loginQRVO.getUuid())){
+			throw new BusinessException("二维码请求串不能为空！");
+		}
+		if(StringUtil.isEmpty(loginQRVO.getPk_corp())){
+			throw new BusinessException("会计公司信息不能为空！");
+		}
+		if(StringUtil.isEmpty(loginQRVO.getCoperatorid())){
+			throw new BusinessException("登录人员信息不能为空！");
+		}
 
+		String strUUID = loginQRVO.getUuid();
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(strUUID);
+		String sql="select * from ynt_login_qrcode where nvl(dr,0) = 0 and uuid = ?";
+		List<LoginQRVO> list = (ArrayList<LoginQRVO>)singleObjectBO.executeQuery(sql, sp, new BeanListProcessor(LoginQRVO.class));
+
+		if (list== null || list.size()<=0) {
+			String msg = "";
+			if (loginQRVO.getIstatus() == LoginQRConstant.QR_SCAN) {
+				msg = "扫码失败";
+			} else if (loginQRVO.getIstatus() == LoginQRConstant.QR_AUTH) {
+				msg = "授权失败";
+			}
+			throw new BusinessException(msg);
+		}
+		LoginQRVO qrvo = list.get(0);
+		if (loginQRVO.getIstatus() == LoginQRConstant.QR_AUTH) {
+			checkDataValid(loginQRVO, qrvo);
+		}
+		qrvo.setIstatus(loginQRVO.getIstatus());
+		qrvo.setCoperatorid(loginQRVO.getCoperatorid());
+		qrvo.setPk_corp(loginQRVO.getPk_corp());
+		singleObjectBO.saveObject(qrvo.getPk_corp(),qrvo);
+	}
+	/**
+	 * loginQRVO 为前台传递来 loginQROldVO为数据库来
+	 */
+	private void checkDataValid(LoginQRVO loginQRVO, LoginQRVO loginQROldVO) throws DZFWarpException {
+		if (loginQRVO.getPk_corp() == null || loginQRVO.getCoperatorid() == null) {
+			throw new BusinessException("用户名或公司不能为空，请检查");
+		}
+		if (!loginQRVO.getPk_corp().equals(loginQROldVO.getPk_corp())) {
+			throw new BusinessException("授权公司与扫码公司不一致，请检查");
+		}
+		if (!loginQRVO.getCoperatorid().equals(loginQROldVO.getCoperatorid())) {
+			throw new BusinessException("授权人与扫码处理人不一致，请检查");
+		}
+	}
+	@Override
+	public void saveConfirmQrCode(UserBeanVO userBean,String requrl) throws DZFWarpException {
+		LoginQRVO auloginQRVO = new LoginQRVO();
+		auloginQRVO.setUuid(requrl);
+		auloginQRVO.setCoperatorid(userBean.getAccount_id());
+		auloginQRVO.setPk_corp(userBean.getPk_corp());
+		auloginQRVO.setIstatus(LoginQRConstant.QR_AUTH);
+		updateQRCode(auloginQRVO);
+	}
 }
