@@ -47,9 +47,6 @@ import java.util.zip.ZipOutputStream;
 
 @Service("gl_rep_batchprinterv")
 @Slf4j
-@Component                //实例化
-@Configurable             //注入bean
-@EnableScheduling
 public class BatchPrintSerImpl implements IBatchPrintSer {
 
     @Autowired
@@ -71,7 +68,6 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
 
 
     @Override
-//    @Scheduled(cron = " 0 0 0 * * ?  ")
     public void batchexectask (BatchPrintSetVo[] setvos,UserVO userVO) {
         if (setvos != null && setvos.length > 0) {
             ExecutorService pool = null;
@@ -124,7 +120,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         @Override
         public String call() throws Exception {
             try {
-               print(setvo,userVO);
+               print(setvo);
             } catch (Exception e) {
             } finally {
             }
@@ -132,10 +128,11 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         }
     }
 
-    public void print(BatchPrintSetVo setvo,UserVO userVO) throws DZFWarpException {
+    public void print(BatchPrintSetVo setvo) throws DZFWarpException {
         //byte[] 字节生成pdf文件
         FastDfsUtil util = (FastDfsUtil) SpringUtils.getBean("connectionPool");
         CorpVO corpVO = zxkjPlatformService.queryCorpByPk(setvo.getPk_corp());
+        UserVO userVO = (UserVO) singleObjectBO.queryByPrimaryKey(UserVO.class, setvo.getVoperateid());
         // 打印参数设定
         PrintParamVO printParamVO = getPrintParamVO(setvo,corpVO,"");
         // 查询参数设定
