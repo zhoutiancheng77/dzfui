@@ -886,7 +886,6 @@ public class UserServiceImpl implements IAppUserService {
 		}
 		//判断用户是否已经停用
 		//根据用户account获取用户主键
-		SingleObjectBO sbo = new SingleObjectBO(DataSourceFactory.getDataSource(null, IGlobalConstants.DefaultGroup));
 		SQLParameter sp = new SQLParameter();
 		String pk_user ; 
 		if(!StringUtil.isEmpty(pk_account_id)){

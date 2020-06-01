@@ -7,10 +7,13 @@ import com.dzf.zxkj.app.pub.constant.IBillConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.service.app.act.ILog;
 import com.dzf.zxkj.app.service.corp.IAppCorpService;
+import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.BeanUtils;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,17 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/app/billhandlesvlt")
 public class KcdrBillController {
 
+    @Autowired
+    private IUserPubService userPubService;
+
     @RequestMapping("/doAction")
     public ReturnData<BillResonseBeanVO> doAction(BillCustomerBean userbean) {
 
         BillResonseBeanVO beanvo = new  BillResonseBeanVO();
+        UserVO uservo = userPubService.queryUserVOId(userbean.getAccount_id());
+        userbean.setAccount_id(uservo.getCuserid());
 
         Integer operate = Integer.parseInt(userbean.getOperate());
-
-
-        ILog lo = (ILog) SpringUtils.getBean("applog");
-        lo.savelog(userbean);
-
         switch (operate) {
             case IBillConstant.CORP_BILL_QRY://开票信息(大账房app也需要)
                 beanvo = doQueryCorpBill(userbean);

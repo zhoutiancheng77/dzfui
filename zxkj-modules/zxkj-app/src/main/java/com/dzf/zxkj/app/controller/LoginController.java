@@ -49,7 +49,7 @@ public class LoginController {
      * 查询科目明细数据
      */
     @RequestMapping("/doLogin")
-    public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean) {
+    public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean,String uuid) {
         UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
         userBean.setUsercode(uservo.getUser_code());
         userBean.setAccount_id(uservo.getCuserid());
@@ -73,9 +73,39 @@ public class LoginController {
                 case IConstant.TWO_ZERO_NINE://获取公司信息(token)
                     bean = corp320service.getCorpMsg(userBean);
                     break;
+                case IConstant.TWO_TWO_ZERO://扫码二维码(扫码登录)
+                    bean = doScanQrcode(userBean,uuid);
+                    break;
+                case IConstant.TWO_TWO_ONE://确认二维码(扫码登录)
+                    bean =  doconfirmQrCode(userBean,uuid);
+                    break;
             }
         }
         return ReturnData.ok().data(bean);
+    }
+
+    private ResponseBaseBeanVO doconfirmQrCode(UserBeanVO userBean,String requrl) {
+        ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
+        try {
+            user300service.saveConfirmQrCode(userBean, requrl);
+            bean.setRescode(IConstant.DEFAULT);
+            bean.setResmsg("授权成功");
+        } catch (Exception e) {
+            log.error("授权失败", log);
+        }
+        return bean;
+    }
+
+    private ResponseBaseBeanVO doScanQrcode(UserBeanVO userbean,String requrl) {
+        ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
+        try {
+            user300service.saveScanQrCode(userbean, requrl);
+            bean.setRescode(IConstant.DEFAULT);
+            bean.setResmsg("扫描成功");
+        } catch (Exception e) {
+            log.error("扫描失败", log);
+        }
+        return bean;
     }
 
     public LoginResponseBeanVO logingGetCorpVOs(UserBeanVO userBean) throws DZFWarpException {

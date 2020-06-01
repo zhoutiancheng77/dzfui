@@ -52,6 +52,7 @@ public class ReportController {
         UserVO uservo = userPubService.queryUserVOId(reportBean.getAccount_id());
         reportBean.setUsercode(uservo.getUser_code());
         reportBean.setAccount_id(uservo.getCuserid());
+        reportBean.setAccount(uservo.getUser_code());
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         Integer operate = Integer.parseInt(reportBean.getOperate());
         try {
@@ -94,6 +95,9 @@ public class ReportController {
                 break;
             case IConstant.THIRTEEN:// 利润增长分析
                 bean = orgreportService.profitgrow(reportBean);
+                break;
+            case IConstant.NSSB_QRY://实际缴纳纳税申报
+                bean = qryReport1Service.qrynssb(reportBean);
                 break;
             case IConstant.ONE_ZERO_ZERO://税负预警
                 bean = querySfyj(reportBean);
