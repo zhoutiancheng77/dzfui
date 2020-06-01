@@ -4,8 +4,8 @@ spring:
   cloud:
     nacos:
       config:
-        server-addr: 172.16.6.124:8848
-        namespace: bddf255f-a744-4702-9aea-6e6b7016eb75
+        server-addr: @dzf.mvn.nacos.config.server-addr@
+          namespace: @dzf.mvn.nacos.config.namespace@
         file-extension: yaml
         group: dzf-zxkj
         prefix: ${spring.application.name}
