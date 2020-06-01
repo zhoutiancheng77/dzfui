@@ -13,10 +13,12 @@ import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.glic.InventoryAliasVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.glic.IInvAccAliasService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -42,6 +44,7 @@ public class InvAccAliasServiceImpl implements IInvAccAliasService {
 		if (list == null || list.isEmpty()) {
 			return new InventoryAliasVO[0];
 		} else {
+			list.sort(Comparator.comparing(InventoryAliasVO::getAliasname,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 			return list.toArray(new InventoryAliasVO[list.size()]);
 		}
 	}

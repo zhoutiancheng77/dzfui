@@ -12,6 +12,7 @@ import com.dzf.zxkj.platform.model.icset.InvclassifyVO;
 import com.dzf.zxkj.platform.service.common.impl.BgPubServiceImpl;
 import com.dzf.zxkj.platform.service.icset.IInvclassifyService;
 import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -63,14 +64,7 @@ public class InvclassifyServiceImpl extends BgPubServiceImpl implements IInvclas
 		params.addParam(pk_corp);
 		List<InvclassifyVO> qryVOs = (List<InvclassifyVO>) getSingleObjectBO().retrieveByClause(InvclassifyVO.class, " pk_corp = ? and nvl(dr,0) = 0 ", params);//order by code asc
 		if(qryVOs != null && qryVOs.size()>0){
-			//排序 wzn
-			Collections.sort(qryVOs, new Comparator<InvclassifyVO>() {
-				@Override
-				public int compare(InvclassifyVO o1, InvclassifyVO o2) {
-					int i = o1.getCode().compareTo(o2.getCode());
-					return i;
-				}
-			});
+			qryVOs.sort(Comparator.comparing(InvclassifyVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 			return qryVOs;
 		}
 		return null;

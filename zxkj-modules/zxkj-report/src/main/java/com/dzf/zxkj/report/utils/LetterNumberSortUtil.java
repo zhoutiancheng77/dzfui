@@ -10,10 +10,10 @@ public class LetterNumberSortUtil {
     public static <T extends Comparable<String>> Comparator<String> letterNumberOrder() {
         return LetterNumberOrderComparator.INSTANCE;
     }
-        enum LetterNumberOrderComparator implements Comparator<String> {
-            INSTANCE;
+    enum LetterNumberOrderComparator implements Comparator<String> {
+        INSTANCE;
 
-            class Int{
+        class Int{
             public int i;
         }
         public int findDigitEnd(char[] arrChar, Int at) {
@@ -40,7 +40,7 @@ public class LetterNumberSortUtil {
 
         @Override
         public int compare(String as, String bs) {
-            if(StringUtil.isEmpty(as) || StringUtil.isEmpty(bs)){
+            if(!StringUtil.isEmpty(as) && !StringUtil.isEmpty(bs)){
                 char[] a = as.toCharArray();
                 char[] b = bs.toCharArray();
                 Int aNonzeroIndex = new Int();
@@ -87,11 +87,10 @@ public class LetterNumberSortUtil {
                     }
 
                 }
-
+                return as.length() - bs.length();
             }
-            return as.length() - bs.length();
+            return 0;
         }
-
     };
 
     public static void main(String[] args) {
@@ -113,7 +112,5 @@ public class LetterNumberSortUtil {
             System.out.println(line);
 
         }
-
-
     }
 }

@@ -7,7 +7,6 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
-import com.dzf.zxkj.base.framework.util.SQLHelper;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
@@ -50,6 +49,7 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.IVATSaleInvoice2Service;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -803,6 +803,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 					outvo.setVdef1(SafeCompute.div(outvo.getNcost(), outvo.getNnum()).setScale(2, 0).toString());
 				}
 			}
+			list.sort(Comparator.comparing(IntradeoutVO::getInvcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		}
 		return list;
 	}

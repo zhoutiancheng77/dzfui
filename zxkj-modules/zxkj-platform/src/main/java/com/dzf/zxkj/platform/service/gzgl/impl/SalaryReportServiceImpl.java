@@ -23,6 +23,7 @@ import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.gzgl.*;
+import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -36,6 +37,7 @@ import com.dzf.zxkj.platform.service.gzgl.ISalaryReportService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.util.AccountUtil;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.VoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.map.LinkedMap;
@@ -253,16 +255,10 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				list2.add(vo);
 			}
 		}
-		SalaryReportVO[] vos = list2.toArray(new SalaryReportVO[list2.size()]);
-		VOUtil.ascSort(vos, new String[] { "ygbm" });
+		list2.sort(Comparator.comparing(SalaryReportVO::getYgbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 
-		Collections.sort(list1, new Comparator<SalaryReportVO>() {
-			@Override
-			public int compare(SalaryReportVO o1, SalaryReportVO o2) {
-				return o1.getZjbm().compareTo(o2.getZjbm());
-			}
-		});
-		for (SalaryReportVO vo : vos) {
+		list1.sort(Comparator.comparing(SalaryReportVO::getZjbm,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+		for (SalaryReportVO vo : list2) {
 			list1.add(vo);
 		}
 		return list1;

@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.service.batchprint.impl;
 
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.utils.SpringUtils;
@@ -29,6 +30,10 @@ import com.dzf.zxkj.report.utils.ReportUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -116,7 +121,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         @Override
         public String call() throws Exception {
             try {
-               print(setvo,userVO);
+               print(setvo);
             } catch (Exception e) {
             } finally {
             }
@@ -124,10 +129,11 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         }
     }
 
-    public void print(BatchPrintSetVo setvo,UserVO userVO) throws DZFWarpException {
+    public void print(BatchPrintSetVo setvo) throws DZFWarpException {
         //byte[] 字节生成pdf文件
         FastDfsUtil util = (FastDfsUtil) SpringUtils.getBean("connectionPool");
         CorpVO corpVO = zxkjPlatformService.queryCorpByPk(setvo.getPk_corp());
+        UserVO userVO = (UserVO) singleObjectBO.queryByPrimaryKey(UserVO.class, setvo.getVoperateid());
         // 打印参数设定
         PrintParamVO printParamVO = getPrintParamVO(setvo,corpVO,"");
         // 查询参数设定
@@ -250,8 +256,14 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             }
             setvo.setIfilestatue(PrintStatusEnum.GENERATE.getCode());
             setvo.setDgendatetime(new DZFDateTime());
-            singleObjectBO.update(setvo);
         } catch (Exception e) {
+            setvo.setIfilestatue(PrintStatusEnum.GENFAIL.getCode());
+            if (e instanceof BusinessException) {
+                setvo.setVmemo(e.getMessage());
+            } else {
+                log.error("错误", e);
+                setvo.setVmemo("生成失败!");
+            }
             log.error(e.getMessage(),e);
         } finally {
             try {
@@ -262,6 +274,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                 log.error(e.getMessage(),e);
             }
         }
+        singleObjectBO.update(setvo);
     }
 
     public class InnerClass {

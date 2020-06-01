@@ -35,6 +35,7 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -94,6 +95,7 @@ public class QcServiceImpl extends BgPubServiceImpl implements IQcService {
 		List<IcbalanceVO> list = (List<IcbalanceVO>) getSingleObjectBO().executeQuery(sf.toString(), sp,
 				new BeanListProcessor(IcbalanceVO.class));
 //		list = completinfo1(list, pk_corp);
+		list.sort(Comparator.comparing(IcbalanceVO::getInventorycode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		return list;
 	}
 	

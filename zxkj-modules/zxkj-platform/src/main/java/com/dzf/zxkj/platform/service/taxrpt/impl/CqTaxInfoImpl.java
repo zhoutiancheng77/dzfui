@@ -95,7 +95,7 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 		}
 
 		if (StringUtil.isEmpty(detailvo[0].getSpreadfile())) {
-			throw new BusinessException("纳税申报信息未填写");
+			throw new BusinessException("纳税申报表未填写");
 		}
 
 		Map objMapReport = readJsonValue(readFileString(detailvo[0].getSpreadfile()), LinkedHashMap.class);

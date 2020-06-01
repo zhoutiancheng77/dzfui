@@ -136,7 +136,7 @@ public class VoucherController extends BaseController {
         // user解密缓存
         Map<String, String> decodeUserCache = new HashMap<>();
 
-        QueryPageVO pagedVO = gl_tzpzserv.query(paramvo);
+        QueryPageVO pagedVO = gl_tzpzserv.processQueryVoucherPaged(paramvo);
         long total = pagedVO.getTotal();
         // 按公司分组
         Map<String, List<TzpzHVO>> corpVoucherMap = DZfcommonTools
@@ -531,7 +531,7 @@ public class VoucherController extends BaseController {
             checkVoucherData(headvo);
 
             gl_tzpzserv.checkQjsy(headvo);
-            //校验总账存货，提示性
+            //校验总账存货，提示性  isglicsave
             checkInventorySet(headvo, corpvo);
 
             headvo = gl_tzpzserv.saveVoucher(corpvo, headvo);
@@ -557,8 +557,8 @@ public class VoucherController extends BaseController {
             }
             if (errorMsg.startsWith(IVoucherConstants.EXE_INVGL_CODE)) {
                 errorMsg = errorMsg.replaceAll(IVoucherConstants.EXE_INVGL_CODE, "");
-                errorMsg = errorMsg + "点击[<font color='blue'>确定</font>]按钮，该凭证继续保存，" +
-                        "影响成本核算，请后续修改！<br>点击[<font color='blue'>取消</font>]按钮，即取消本次保存操作！";
+//                errorMsg = errorMsg + "点击[<font color='blue'>确定</font>]按钮，该凭证继续保存，" +
+//                        "影响成本核算，请后续修改！<br>点击[<font color='blue'>取消</font>]按钮，即取消本次保存操作！";
                 json.setStatus(IVoucherConstants.STATUS_INVGL_CODE);
                 json.setMsg(errorMsg);
             }

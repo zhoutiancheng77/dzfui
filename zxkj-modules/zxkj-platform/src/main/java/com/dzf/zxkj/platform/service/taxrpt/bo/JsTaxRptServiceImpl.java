@@ -572,6 +572,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				&& !StringUtil.isEmpty(corpvo.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())
 				&& corpvo.getVsoccrecode().length() > 1
+				&& hasDeclareInterface(reportvo.getSb_zlbh())
 				&& (TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())
 						|| TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
 						|| TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())
@@ -2686,13 +2687,13 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		if (TaxRptConst.SB_ZLBH10101.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH10102.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH1010201.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBHC1.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBH29805.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBH39801.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBH39806.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBHC1.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBH29805.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBH39801.equals(taxTypeCode)
+//				|| TaxRptConst.SB_ZLBH39806.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH50101.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH50102.equals(taxTypeCode)) {
 			return true;

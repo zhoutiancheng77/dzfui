@@ -51,6 +51,8 @@ public class ZxkjRemoteReportImpl implements IRemoteReportService {
     private IFzhsYebReport gl_rep_fzyebserv;
     @Autowired
     private IFzKmmxReport gl_rep_fzkmmxjrptserv;
+    @Autowired
+    private ICwgyInfoReport gl_rep_cwgyinfoserv;
 
     @Override
     public Map<String, double[]> queryLrbData(String period, String[] cids) {
@@ -225,6 +227,15 @@ public class ZxkjRemoteReportImpl implements IRemoteReportService {
     public Map<String,List<FzKmmxVO>> getAllFzKmmxVos(KmReoprtQueryParamVO paramavo){
         try {
             return gl_rep_fzkmmxjrptserv.getAllFzKmmxVos(paramavo);
+        } catch (DZFWarpException e) {
+            log.error(String.format("调用getAllFzKmmxVos异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+    @Override
+    public CwgyInfoVO[] getCwgyInfoVOs(QueryParamVO paramVO){
+        try {
+            return gl_rep_cwgyinfoserv.getCwgyInfoVOs(paramVO);
         } catch (DZFWarpException e) {
             log.error(String.format("调用getAllFzKmmxVos异常,异常信息:%s", e.getMessage()), e);
             return null;

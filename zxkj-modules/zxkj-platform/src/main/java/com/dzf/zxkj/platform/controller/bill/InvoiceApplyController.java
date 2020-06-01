@@ -3,8 +3,10 @@ package com.dzf.zxkj.platform.controller.bill;
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.IInvoiceApplyConstant;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bill.InvoiceApplyVO;
@@ -16,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +68,15 @@ public class InvoiceApplyController extends BaseController {
             grid.setTotal(Long.valueOf(list.size()));
             grid.setRows(list);
             grid.setMsg("新增成功");
+
+            //写日志
+            if(list != null && list.size() > 0){
+                for(InvoiceApplyVO vo : list){
+                    writeLogRecord(vo.getPk_corp(), LogRecordEnum.OPE_KJ_KPGL,
+                            "开通申请新增成功", ISysConstants.SYS_2);
+                }
+            }
+
         } catch (Exception e) {
             printErrorLog(grid, e, "新增失败");
         }
@@ -90,6 +102,9 @@ public class InvoiceApplyController extends BaseController {
 
             int errorCount = 0;
             String temp;
+
+            Map<String, String> msgMap = new HashMap<String, String>();
+
             StringBuffer msg = new StringBuffer();
             for(InvoiceApplyVO vo : vos){
                 try {
@@ -98,6 +113,8 @@ public class InvoiceApplyController extends BaseController {
                         errorCount++;
                         msg.append(String.format("<font color='red'><p>%s申请失败:%s</p></font>",
                                 vo.getUnitname(), temp));
+
+                        msgMap.put(vo.getPk_corp(), "开通申请失败");
                         continue;
                     }
                     PiaoTongResVO resvo = invoiceApplyService.saveApply(userid, vo);
@@ -105,9 +122,13 @@ public class InvoiceApplyController extends BaseController {
                     if(CommonXml.rtnsucccode.equals(code)){
                         msg.append(String.format("<font color='#2ab30f'><p>%s申请成功</p></font>",
                                 vo.getUnitname()));
+
+                        msgMap.put(vo.getPk_corp(), "开通申请成功");
                     }else{
                         msg.append(String.format("<font color='#2ab30f'><p>%s申请失败:%s</p></font>",
                                 vo.getUnitname(), resvo.getMsg()));
+
+                        msgMap.put(vo.getPk_corp(), "开通申请失败");
                     }
 
                 } catch (Exception e) {
@@ -121,11 +142,21 @@ public class InvoiceApplyController extends BaseController {
                                 vo.getUnitname()));
                     }
 
+                    msgMap.put(vo.getPk_corp(), "开通申请失败");
+
                 }
 
             }
             grid.setSuccess(errorCount > 0 ? false : true);
             grid.setMsg(msg.toString());
+
+            //写日志
+            if(msgMap.size() > 0){
+                for(Map.Entry<String, String> entry : msgMap.entrySet()){
+                    writeLogRecord(entry.getKey(), LogRecordEnum.OPE_KJ_KPGL,
+                            entry.getValue(), ISysConstants.SYS_2);
+                }
+            }
         } catch (Exception e) {
             printErrorLog(grid, e, "申请失败");
         }

@@ -39,6 +39,7 @@ import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.Kmschema;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.VoUtils;
 
 import java.math.BigDecimal;
@@ -248,9 +249,10 @@ public class NumberForward {
 
 		StringBuffer sf1 = new StringBuffer();
 		sf1.append(
-				" select distinct y.*, t.accountcode,t.accountname,y.pk_subject,y.pk_ictradeout,h.isback,h.dbillid from ynt_ictradeout y ");
+				" select distinct y.*,iy.code,iy.name, t.accountcode,t.accountname,y.pk_subject,y.pk_ictradeout,h.isback,h.dbillid from ynt_ictradeout y ");
 		sf1.append("  join ynt_cpaccount t on y.pk_subject = t.pk_corp_account ");
 		sf1.append("  join ynt_ictrade_h h on y.pk_ictrade_h = h.pk_ictrade_h ");
+        sf1.append("  left join ynt_inventory iy on y.pk_inventory = iy.pk_inventory ");
 		sf1.append("  where y.pk_corp = ? and nvl(h.isback,'N')='N' ");
 		sf1.append("  and y.dbilldate like '" + vo.getPeriod() + "%' ");
 		sf1.append("  and nvl(t.dr,0) = 0 and nvl(y.dr,0) = 0  and nvl(h.dr,0) = 0 ");
@@ -274,6 +276,8 @@ public class NumberForward {
 						String accountname = null;
 						String pk_ictradeout = null;
 						String isback = null;
+                        String invcode = null;
+                        String invname = null;
 						String dbillid = null;
 						BigDecimal nnumber = null;
 						while (rs.next()) {
@@ -288,6 +292,8 @@ public class NumberForward {
 							pk_ictradeout = rs.getString("pk_ictradeout");
 							isback = rs.getString("isback");
 							dbillid = rs.getString("dbillid");
+                            invcode = rs.getString("code");
+                            invname = rs.getString("name");
 							InvCurentVO env = new InvCurentVO();
 							env.setPk_tzpz_b(pk_tzpz_b);
 							env.setPk_corp(pk_corp);
@@ -298,6 +304,8 @@ public class NumberForward {
 							env.setAccountcode(accountcode);
 							env.setAccountname(accountname);
 							env.setDbillid(dbillid);
+							env.setInvcode(invcode);
+							env.setInvname(invname);
 							env.setInvname(null);
 							if (nnumber == null) {
 								env.setNnumber(DZFDouble.ZERO_DBL);
@@ -656,6 +664,7 @@ public class NumberForward {
 			dfbodyVO.setPk_accsubj(dvo.getPk_corp_account());// 贷方科目
 			dfbodyVO.setVcode(dvo.getAccountcode());
 			dfbodyVO.setVname(dvo.getAccountname());
+            dfbodyVO.setInvcode(cvo.getInvcode());
 			if (df == null ||df.doubleValue()==0) {
 				continue;
 			} else {
@@ -730,6 +739,7 @@ public class NumberForward {
 
 		if (list1 == null || list1.size() == 0)
 			return null;
+        list1.sort(Comparator.comparing(TzpzBVO::getInvcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
 		if (jfnmny.compareTo(DZFDouble.ZERO_DBL) != 0) {
 			TzpzBVO jfbodyVO = new TzpzBVO();
 			jfbodyVO.setPk_accsubj(jfkm);// 借方科目
@@ -1001,6 +1011,7 @@ public class NumberForward {
 		int iprice = StringUtil.isEmpty(priceStr) ? 4 : Integer.parseInt(priceStr);
 		List<String> chpks = new ArrayList<String>();
 		IcbalanceVO balancevo = null;
+
 		for (InvCurentVO cvo : pzHVOs) {
 			balancevo = map.get(cvo.getPk_inventory());
 			if(balancevo == null)

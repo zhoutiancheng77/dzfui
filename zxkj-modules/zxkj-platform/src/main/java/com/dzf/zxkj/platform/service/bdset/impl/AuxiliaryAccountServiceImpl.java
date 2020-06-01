@@ -17,6 +17,7 @@ import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.SafeCompute;
@@ -46,6 +47,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.AccountUtil;
 import com.dzf.zxkj.platform.util.Kmschema;
+import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import com.dzf.zxkj.platform.util.TaxClassifyGetValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -220,7 +222,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         sp.addParam(pk_corp);
         AuxiliaryAccountBVO[] results = (AuxiliaryAccountBVO[]) singleObjectBO
                 .queryByCondition(AuxiliaryAccountBVO.class, condition, sp);
-        VOUtil.ascSort(results, new String[]{"code"});
+        Arrays.asList(results).sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
         return results;
     }
 
@@ -229,19 +231,27 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         SQLParameter sp = new SQLParameter();
         sp.addParam(pk_auacount_h);
         sp.addParam(pk_corp);
+
+        StringBuffer strb = new StringBuffer("select * from  ynt_fzhs_b where ");
+        strb.append(condition);
         // 查询总数
         int total = singleObjectBO.getTotalRow("ynt_fzhs_b", condition, sp);
-        // 查询分页数据
-        List<AuxiliaryAccountBVO> auxiliaryAccountBVOS = (List<AuxiliaryAccountBVO>) singleObjectBO
-                .execQueryWithPage(AuxiliaryAccountBVO.class, "ynt_fzhs_b", condition, sp, page, rows, "order by code");
-
-        AuxiliaryAccountBVO[] results = auxiliaryAccountBVOS
-                .toArray(new AuxiliaryAccountBVO[auxiliaryAccountBVOS.size()]);
+        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.executeQuery(strb.toString(),sp, new BeanListProcessor(AuxiliaryAccountBVO.class));
+//        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
+//                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", null, sp, page, rows, "order by code");
+        list.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+        SuperVO[] pageVos = getPageVOs(list.toArray(new AuxiliaryAccountBVO[0]),page,rows);
+//        // 查询分页数据
+//        List<AuxiliaryAccountBVO> auxiliaryAccountBVOS = (List<AuxiliaryAccountBVO>) singleObjectBO
+//                .execQueryWithPage(AuxiliaryAccountBVO.class, "ynt_fzhs_b", condition, sp, page, rows, "order by code");
+//
+//        AuxiliaryAccountBVO[] results = auxiliaryAccountBVOS
+//                .toArray(new AuxiliaryAccountBVO[auxiliaryAccountBVOS.size()]);
         QueryPageVO pagevo = new QueryPageVO();
         pagevo.setTotal(total);
         pagevo.setPage(page);
         pagevo.setPageofrows(rows);
-        pagevo.setPagevos(results);
+        pagevo.setPagevos(pageVos);
         return pagevo;
     }
 
@@ -276,14 +286,33 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
             sf.append(" and y.billtype <> ?");
             sp.addParam(SalaryTypeEnum.NONORMAL.getValue());
         }
-        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
-                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", null, sp, page, rows, "order by code");
+        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.executeQuery(sf.toString(),sp, new BeanListProcessor(AuxiliaryAccountBVO.class));
+//        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
+//                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", null, sp, page, rows, "order by code");
+        list.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+        SuperVO[] pageVos = getPageVOs(list.toArray(new AuxiliaryAccountBVO[0]),page,rows);
         QueryPageVO pagevo = new QueryPageVO();
         pagevo.setTotal(total);
         pagevo.setPage(page);
         pagevo.setPageofrows(rows);
-        pagevo.setPagevos(list.toArray(new AuxiliaryAccountBVO[0]));
+        pagevo.setPagevos(pageVos);
         return pagevo;
+    }
+
+    // 将查询后的结果分页
+    private SuperVO[] getPageVOs(SuperVO[] pageVos, int page, int rows) {
+
+        int beginIndex = rows * (page - 1);
+        if (beginIndex >= pageVos.length) {// 防止beginIndex数组越界
+            beginIndex = rows *(pageVos.length/ rows);
+        }
+
+        int endIndex = rows * page;
+        if (endIndex >= pageVos.length) {// 防止endIndex数组越界
+            endIndex = pageVos.length;
+        }
+        pageVos = Arrays.copyOfRange(pageVos, beginIndex, endIndex);
+        return pageVos;
     }
 
     public List<AuxiliaryAccountBVO> queryPerson(String pk_auacount_h, String pk_corp, String billtype) {
@@ -310,7 +339,8 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 
         List<AuxiliaryAccountBVO> listVO = (List<AuxiliaryAccountBVO>) singleObjectBO.executeQuery(sf.toString(), sp,
                 new BeanListProcessor(AuxiliaryAccountBVO.class));
-        VOUtil.ascSort(listVO, new String[]{"code"});
+//        VOUtil.ascSort(listVO, new String[]{"code"});
+        listVO.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
         return listVO;
 
     }
@@ -323,7 +353,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         sp.addParam(pk_corp);
         AuxiliaryAccountBVO[] results = (AuxiliaryAccountBVO[]) singleObjectBO
                 .queryByCondition(AuxiliaryAccountBVO.class, condition, sp);
-        VOUtil.ascSort(results, new String[]{"code"});
+        Arrays.asList(results).sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
         return results;
     }
 
@@ -357,6 +387,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
             bvo.setSubjname(invo.getKmname());//科目名称
             alist.add(bvo);
         }
+        alist.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
         return alist.toArray(new AuxiliaryAccountBVO[alist.size()]);
     }
 
@@ -733,7 +764,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         sp.addParam(pk_corp);
         AuxiliaryAccountBVO[] results = (AuxiliaryAccountBVO[]) singleObjectBO
                 .queryByCondition(AuxiliaryAccountBVO.class, condition, sp);
-        VOUtil.ascSort(results, new String[]{"code"});
+        Arrays.asList(results).sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
         if (results != null && results.length > 0) {
             return results[0];
         }
@@ -2425,7 +2456,8 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         }
         List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
                 AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", "", sp, page, rows, "order by code");
-//		VOUtil.ascSort(list, new String[]{"code"});
+        list.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+
         sbf1.setLength(0);
         sbf2.setLength(0);
         sf.setLength(0);

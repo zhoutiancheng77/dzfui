@@ -1,32 +1,32 @@
 package com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.small;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 /**
  * 增值税小规模纳税人申报数据
- * 
+ *
  * @author liubj
  *
  */
 public class VATSmallRequest {
-	
-	@JSONField(name = "Data1_01")
+
+	@JsonProperty("Data1_01")
 	private TaxReturn data1_01;
 
-	@JSONField(name = "Data1_02")
+	@JsonProperty("Data1_02")
 	private AcceptanceInfo data1_02;
-	
-	@JSONField(name = "Data2_01")
+
+	@JsonProperty("Data2_01")
 	private TaxReturnAttach data2_01;
-	
-	@JSONField(name = "Data4_01")
+
+	@JsonProperty("Data4_01")
 	private TaxCut[] data4_01;
-	
-	@JSONField(name = "Data4_02")
+
+	@JsonProperty("Data4_02")
 	private TaxFree[] data4_02;
-	
-	@JSONField(name = "Data4_03")
+
+	@JsonProperty("Data4_03")
 	private TaxReliefSum data4_03;
 
 	public TaxReturn getData1_01() {
