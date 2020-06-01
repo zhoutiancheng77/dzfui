@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: zxkj-app
+  cloud:
+    nacos:
+      config:
+        server-addr: 172.16.6.124:8848
+        namespace: bddf255f-a744-4702-9aea-6e6b7016eb75
+        file-extension: yaml
+        group: dzf-zxkj
+        prefix: ${spring.application.name}
+    zookeeper:
+      enabled: false
+    consul:
+      enabled: false
+eureka:
+  client:
+    enabled: false
