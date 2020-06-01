@@ -2,6 +2,7 @@ package com.dzf.zxkj.report.service.batchprint.impl;
 
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.utils.SpringUtils;
@@ -255,8 +256,14 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             }
             setvo.setIfilestatue(PrintStatusEnum.GENERATE.getCode());
             setvo.setDgendatetime(new DZFDateTime());
-            singleObjectBO.update(setvo);
         } catch (Exception e) {
+            setvo.setIfilestatue(PrintStatusEnum.GENFAIL.getCode());
+            if (e instanceof BusinessException) {
+                setvo.setVmemo(e.getMessage());
+            } else {
+                log.error("错误", e);
+                setvo.setVmemo("生成失败!");
+            }
             log.error(e.getMessage(),e);
         } finally {
             try {
@@ -267,6 +274,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                 log.error(e.getMessage(),e);
             }
         }
+        singleObjectBO.update(setvo);
     }
 
     public class InnerClass {
