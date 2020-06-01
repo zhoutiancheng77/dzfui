@@ -71,7 +71,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
 
 
     @Override
-    @Scheduled(cron = " 0 0 0 * * ?  ")
+//    @Scheduled(cron = " 0 0 0 * * ?  ")
     public void batchexectask (BatchPrintSetVo[] setvos,UserVO userVO) {
         if (setvos != null && setvos.length > 0) {
             ExecutorService pool = null;
