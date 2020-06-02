@@ -73,7 +73,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         if (setvos != null && setvos.length > 0) {
             ExecutorService pool = null;
             try {
-                int maxcount = 100;
+                int maxcount = 20;
 
                 if (setvos.length <= maxcount) {
                     maxcount = setvos.length;
