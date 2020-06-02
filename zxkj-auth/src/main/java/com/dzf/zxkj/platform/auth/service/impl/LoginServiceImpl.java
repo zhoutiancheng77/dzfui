@@ -100,7 +100,8 @@ public class LoginServiceImpl implements ILoginService {
         Result<UserVO> rs = userService.exchangeResource(zxkjPlatformAuthConfig.getPlatformName(), resource);
         if (rs.getCode() == 200) {
             UserVO userVO = rs.getData();
-            if (zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(userVO.getPlatformTag())) {
+            if (zxkjPlatformAuthConfig.getPlatformName().equalsIgnoreCase(userVO.getPlatformTag())
+                    || zxkjPlatformAuthConfig.getPlatformAdminName().equalsIgnoreCase(userVO.getPlatformTag())) {
                 return transferToZxkjUser(userVO);
             } else {
                 if (userVO.getBindUsers() != null) {
