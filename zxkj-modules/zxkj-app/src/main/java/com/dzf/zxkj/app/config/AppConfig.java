@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AppConfig {
-//    @Value("${app.democorpcode}")
+    @Value("${app.democorpcode}")
     public String democorpcode;
 //    @Value("${app.chat_user_code_kf}")
     public String chat_user_code_kf;

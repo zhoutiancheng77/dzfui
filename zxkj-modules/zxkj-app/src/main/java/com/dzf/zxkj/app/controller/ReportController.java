@@ -48,11 +48,14 @@ public class ReportController {
     private IZxkjRemoteAppService iZxkjRemoteAppService;
 
     @RequestMapping("/doReport")
-    public ReturnData<ResponseBaseBeanVO> doReport(ReportBeanVO reportBean){
+    public ReturnData<ResponseBaseBeanVO> doReport(ReportBeanVO reportBean,String corp,String tcorp,String cname){
         UserVO uservo = userPubService.queryUserVOId(reportBean.getAccount_id());
         reportBean.setUsercode(uservo.getUser_code());
         reportBean.setAccount_id(uservo.getCuserid());
         reportBean.setAccount(uservo.getUser_code());
+        reportBean.setPk_corp(corp);
+        reportBean.setPk_tempcorp(tcorp);
+        reportBean.setCorpname(cname);
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         Integer operate = Integer.parseInt(reportBean.getOperate());
         try {
@@ -65,7 +68,7 @@ public class ReportController {
             } else {
                 bean.setResmsg("查询失败");
             }
-            return ReturnData.error().data(bean);
+            return ReturnData.ok().data(bean);
         }
 
         switch (operate) {
