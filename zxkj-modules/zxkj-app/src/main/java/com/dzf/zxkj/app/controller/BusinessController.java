@@ -12,6 +12,7 @@ import com.dzf.zxkj.app.model.sys.*;
 import com.dzf.zxkj.app.pub.constant.IBusiConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
+import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
 import com.dzf.zxkj.app.service.app.act.IQryReport1Service;
 import com.dzf.zxkj.app.service.bill.IAppInvoiceService;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
@@ -49,6 +50,8 @@ public class BusinessController {
     private SingleObjectBO singleObjectBO;
     @Autowired
     private IUserPubService userPubService;
+    @Autowired
+    private IAppBusinessService appbusihand;
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppFiletransService iDzfAppFiletransService;
 
@@ -63,9 +66,9 @@ public class BusinessController {
 //            case IBusiConstant.SEVENTY_THREE:
 //                bean = appbusihand.getWorkTips(userbean);
 //                break;
-//            case IBusiConstant.NINE_TWO:
-//                bean = doSaveTickmsg(userbean);
-//                break;
+            case IBusiConstant.NINE_TWO:
+                bean = doSaveTickmsg(userbean);
+                break;
 //            case IBusiConstant.NINE_THREE:// 图片生成凭证
 //                bean = dobusiVoucher(getRequest(), bean);
 //                break;
@@ -601,5 +604,20 @@ public class BusinessController {
         }
         bean.setRescode(IConstant.DEFAULT);
         bean.setResmsg(list);
+    }
+    private BusinessResonseBeanVO doSaveTickmsg(BusiReqBeanVo userbean){
+        BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+        try {
+
+            // 如果该公司没签约则返回是空的
+            if (AppCheckValidUtils.isEmptyCorp(userbean.getPk_corp())) {
+                throw new BusinessException("您公司没签约，不能做相关业务!");
+            }
+
+            bean = appbusihand.saveTickMsg(userbean);
+        } catch (Exception e) {
+            log.error("获取票据信息失败!",log);
+        }
+        return bean;
     }
 }

@@ -17,22 +17,32 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.dzf.zxkj.app.model.image.TransVspstyleModel;
+import com.dzf.zxkj.app.model.resp.bean.BusinessResonseBeanVO;
+import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
+import com.dzf.zxkj.app.model.ticket.MapBean;
+import com.dzf.zxkj.app.model.ticket.TicketRecordVO;
+import com.dzf.zxkj.app.model.ticket.ZzsTicketBVO;
 import com.dzf.zxkj.app.model.ticket.ZzsTicketHVO;
+import com.dzf.zxkj.app.pub.PayMethodEnum;
+import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
-import com.dzf.zxkj.app.utils.AppCheckValidUtils;
-import com.dzf.zxkj.app.utils.CpaccountUtil;
-import com.dzf.zxkj.app.utils.TaxCalUtil;
+import com.dzf.zxkj.app.service.pub.IAppPubservice;
+import com.dzf.zxkj.app.utils.*;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.common.constant.FieldConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.utils.Common;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -44,7 +54,9 @@ import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
+import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.report.service.IZxkjRemoteAppService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
@@ -65,15 +77,16 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 
 	@Autowired
 	private SingleObjectBO singleObjectBO;
+	@Autowired
+	private IAppPubservice apppubservice;
+
 	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
 	private IZxkjRemoteAppService iZxkjRemoteAppService;
 
 //	@Autowired
 //	private YntBoPubUtil yntBoPubUtil;
 //
-//	@Autowired
-//	private IAppPubservice apppubservice;
-//
+
 //	@Autowired
 //	private IAppApproveService appapprovehand;
 //
@@ -595,6 +608,292 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 
 	}
 
+	@Override
+	public BusinessResonseBeanVO saveTickMsg(UserBeanVO uvo) throws DZFWarpException {
+
+		BusinessResonseBeanVO beanvo = new BusinessResonseBeanVO();
+
+		SuperVO vo = saveTickFromPt(uvo.getPk_corp(), null, uvo.getDrcode(), uvo.getAccount_id(), null,
+				3);
+
+		if (vo == null) {
+			throw new BusinessException("提示：查无此票！注意，发票信息会延迟一天，建议您开票次日扫描或拍照上传。");
+		} else {
+			beanvo.setRescode(IConstant.DEFAULT);
+			beanvo.setResmsg(vo);
+		}
+
+		return beanvo;
+	}
+	/**
+	 * 从票通，获取发票信息
+	 * @param uvo
+	 * @return
+	 */
+	public SuperVO saveTickFromPt(String pk_corp ,String admincorpid,
+			String drcode,String account_id,Integer power,Integer limitcount)  throws DZFWarpException{
+
+		//校验是否有该权限
+		String corpid = validateTickFromPt(pk_corp, admincorpid, drcode, account_id, limitcount);
+
+		CorpVO cpvo  = iZxkjRemoteAppService.queryByPk(pk_corp);
+
+		SuperVO vo = getZzsVos(drcode);
+
+		if (vo == null) {
+
+			String value = iZxkjRemoteAppService.sendPostXml(drcode);
+
+			// 根据生成的value 解析xml
+			GenTicketUtil util = new GenTicketUtil();
+
+			vo = util.genTickMsgVO(value, drcode, account_id);
+
+			vo.setAttributeValue("drcode", drcode);
+
+			vo.setAttributeValue("pk_corp", corpid);
+
+			vo = singleObjectBO.saveObject(Common.tempidcreate, vo);
+
+		}
+		String firstcorpid = pk_corp;
+		String memo = "商品收入";
+		if(vo instanceof ZzsTicketHVO){
+			SuperVO[] childvo= vo.getChildren();
+			if(cpvo!=null){
+				if(cpvo.getUnitname().equals(((ZzsTicketHVO) vo).getGfmc())){
+					((ZzsTicketHVO) vo).setFplx("0");
+					((ZzsTicketHVO) vo).setFplx_str("进项发票");
+				}else if(cpvo.getUnitname().equals(((ZzsTicketHVO) vo).getXfmc())){
+					((ZzsTicketHVO) vo).setFplx("1");
+					((ZzsTicketHVO) vo).setFplx_str("销项发票");
+				}
+			}
+
+			if(childvo!=null && childvo.length>0){
+				ZzsTicketBVO bvo =null;
+				DZFDouble jshj = DZFDouble.ZERO_DBL;
+				DZFDouble se = DZFDouble.ZERO_DBL;
+				DZFDouble je = DZFDouble.ZERO_DBL;
+				for(SuperVO bvotemp:childvo){
+					bvo = (ZzsTicketBVO) bvotemp;
+					if(!StringUtil.isEmpty( bvo.getHwmc()) && (bvo.getHwmc().indexOf("服务")>0
+							|| bvo.getHwmc().indexOf("费")>0 || bvo.getHwmc().indexOf("维修")>0)){
+						memo = "服务收入";
+					}
+					if(!StringUtil.isEmpty(bvo.getJe())){
+						je = new DZFDouble(bvo.getJe());
+					}else{
+						je = DZFDouble.ZERO_DBL;
+					}
+					if(!StringUtil.isEmpty(bvo.getSe())){
+						se = new DZFDouble(bvo.getSe());
+					}else{
+						se = DZFDouble.ZERO_DBL;
+					}
+					jshj =  SafeCompute.add(je, se);
+					bvotemp.setAttributeValue("jshj", AppStringUtils.fmtMicrometer(jshj.toString()));
+				}
+			}
+		}
+
+		// 保存扫描记录
+		saveTickRecord(corpid, account_id, vo);
+
+		//管理端赋值公司列表(小微无忧app使用)
+		firstcorpid = putAdminCorpList(admincorpid, account_id, power, vo, firstcorpid);
+
+		putMemoAndPayMend(firstcorpid, vo, memo);
+
+		return vo;
+	}
+	private String validateTickFromPt(String pk_corp, String admincorpid, String drcode, String account_id,
+			Integer limitcount) {
+		if(StringUtil.isEmpty(drcode)){
+			throw new BusinessException("发票二维码信息不全!");
+		}
+		String corpid = pk_corp;
+		if(AppCheckValidUtils.isEmptyCorp(pk_corp)){
+			corpid = admincorpid;
+		}
+		if(AppCheckValidUtils.isEmptyCorp(corpid)){
+			throw new BusinessException("公司不能为空!");
+		}
+
+		//是否有次数限制
+		StringBuffer checksql = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+		checksql.append(" select count(1) ");
+		checksql.append(" from " + TicketRecordVO.TABLE_NAME);
+		checksql.append(" where 1=1 ");
+		checksql.append(" and pk_corp = ? and cuserid = ?  ");
+		checksql.append(" and dsmdate like ?");
+		sp.addParam(corpid);
+		sp.addParam(account_id);
+		sp.addParam(new DZFDate().toString() + "%");
+
+		BigDecimal resbig = (BigDecimal) singleObjectBO.executeQuery(checksql.toString(), sp,
+				new ColumnProcessor());
+
+		if (limitcount!=null && resbig != null && resbig.intValue() >= limitcount) {
+			throw new BusinessException("超过您当前最多查验次数!");
+		}
+		return corpid;
+	}
+	public ZzsTicketHVO getZzsVos(String drcode) throws DZFWarpException {
+
+		if (StringUtil.isEmpty(drcode)) {
+			throw new BusinessException("二维码信息为空!");
+		}
+
+		if (drcode.indexOf(",") < 0) {
+			throw new BusinessException("二维码信息缺失!");
+		}
+
+		String[] strs = drcode.split(",");
+
+		if (!strs[1].equals("01") && !strs[1].equals("04") && !strs[1].equals("10") && !strs[1].equals("51")) {
+			throw new BusinessException("暂不支持当前发票类型!");
+		}
+
+		ZzsTicketHVO hvo = null;
+
+		SQLParameter sp = new SQLParameter();
+		String qrysqlh = "select * from " + ZzsTicketHVO.TABLENAME + " where nvl(dr,0)=0 and drcode = ? ";
+		sp.addParam(drcode);
+		List<ZzsTicketHVO> hvoslist = (List<ZzsTicketHVO>) singleObjectBO.executeQuery(qrysqlh, sp,
+				new BeanListProcessor(ZzsTicketHVO.class));
+
+		if (hvoslist != null && hvoslist.size() > 0) {
+			hvo = hvoslist.get(0);
+			hvo.setFpzl(strs[1]);// 发票种类
+			sp.clearParams();
+			String bodysql = "select  * from " + ZzsTicketBVO.TABLENAME + " where nvl(dr,0)=0 and pk_zzstiket = ?";
+
+			sp.addParam(hvoslist.get(0).getPrimaryKey());// 二维码 默认是不一样的
+
+			List<ZzsTicketBVO> bvolists = (List<ZzsTicketBVO>) singleObjectBO.executeQuery(bodysql, sp,
+					new BeanListProcessor(ZzsTicketBVO.class));
+
+			if (bvolists != null && bvolists.size() > 0) {
+				hvo.setChildren(bvolists.toArray(new ZzsTicketBVO[0]));
+			}
+		}
+		return hvo;
+	}
+	private void saveTickRecord(String pk_corp,String account_id, SuperVO vo) {
+		UserVO uvo =  iZxkjRemoteAppService.queryUserJmVOByID(account_id) ;//UserCache.getInstance().get(account_id, "");
+		String user_code = null;
+		if (uvo != null) {
+			user_code = uvo.getUser_code();
+		}
+
+		TicketRecordVO recordvo = new TicketRecordVO();
+
+		recordvo.setPk_corp(pk_corp);
+
+		recordvo.setUser_code(user_code);
+
+		recordvo.setCuserid(account_id);
+
+		recordvo.setVgfmc(vo.getAttributeValue("gfmc")==null?"":(String)vo.getAttributeValue("gfmc"));
+
+		recordvo.setVxfmc(vo.getAttributeValue("xfmc")==null?"":(String)vo.getAttributeValue("xfmc"));
+
+		recordvo.setDsmdate(new DZFDateTime());
+
+		recordvo.setPk_zzstiket(vo.getPrimaryKey());
+
+		singleObjectBO.saveObject(pk_corp, recordvo);
+	}
+	private String putAdminCorpList(String admincorpid, String account_id, Integer power, SuperVO vo,
+			String firstcorpid) {
+		if (!StringUtil.isEmpty(admincorpid)) {
+
+			String gfmc = (String) vo.getAttributeValue("gfmc");// 购物方名称
+
+			String xfmc = (String) vo.getAttributeValue("xfmc");
+
+			String[] cpnames = new String[] { gfmc, xfmc };
+
+			Map<String, String> tempmap = apppubservice.getCorpid(cpnames, admincorpid, account_id, power);// 公司对照
+
+			String[][] strs = null;
+			if (tempmap != null && tempmap.size() > 0) {
+				strs = new String[tempmap.size()][];
+				int index = 0;
+				for (Entry<String, String> entry : tempmap.entrySet()) {
+					strs[index] = new String[] {entry.getKey(), entry.getValue() };
+					index++;
+				}
+			}
+
+			String[] strtemp = null;
+			if(strs!=null && strs.length==2 && strs[1][1].equals(gfmc)){//如果购方在下面，则调下顺序
+				strtemp = strs[0];
+				strs[0]= strs[1];
+				strs[1]= strtemp;
+			}
+
+			if (strs != null && strs.length > 0) {
+				List<MapBean> beanlist = new ArrayList<MapBean>();
+				MapBean beantemp =null;
+				for(String[] temps :strs){
+					beantemp = new MapBean();
+					beantemp.setClient_id(temps[0]);
+					beantemp.setClient_name(temps[1]);
+					beanlist.add(beantemp);
+				}
+
+				vo.setAttributeValue("kpgsmap", beanlist);
+
+				firstcorpid = beanlist.get(0).getClient_id();
+			} else {
+				vo.setAttributeValue("scanmsg", "无该公司上传权限");
+			}
+		}
+		return firstcorpid;
+	}
+
+	private void putMemoAndPayMend(String pk_corp, SuperVO vo, String memo) {
+		//判断摘要结算方式
+		CorpVO corpvo = iZxkjRemoteAppService.queryByPk(pk_corp);
+		if(corpvo!=null){
+			SQLParameter sp = new SQLParameter();
+			sp.addParam(corpvo.getPk_corp());
+			CorpTaxVo[] corptaxvos = (CorpTaxVo[]) singleObjectBO.queryByCondition(CorpTaxVo.class, "nvl(dr,0)=0 and pk_corp = ?", sp);
+			String corpname = corpvo.getUnitname();
+			String taxcode ="";// corpvo.getTaxcode();
+			if(corptaxvos!=null && corptaxvos.length>0){
+				taxcode = corptaxvos[0].getTaxcode();
+			}
+			if((!StringUtil.isEmpty(((ZzsTicketHVO) vo).getGfmc())
+					&& ((ZzsTicketHVO) vo).getGfmc().equals(corpname))
+					|| (!StringUtil.isEmpty(((ZzsTicketHVO) vo).getGfsbh())
+					&& ((ZzsTicketHVO) vo).getGfsbh().equals(taxcode))
+					){//进项发票
+				vo.setAttributeValue("memo", "办公费");
+				vo.setAttributeValue("method", PayMethodEnum.BANK.getCode());
+			}
+			if((!StringUtil.isEmpty(((ZzsTicketHVO) vo).getXfmc())
+					&& ((ZzsTicketHVO) vo).getXfmc().equals(corpname))
+					|| (!StringUtil.isEmpty(((ZzsTicketHVO) vo).getXfsbh())
+					&& ((ZzsTicketHVO) vo).getXfsbh().equals(taxcode))
+					){//销项发票
+				vo.setAttributeValue("memo", memo);
+				vo.setAttributeValue("method", PayMethodEnum.OTHER.getCode());
+			}
+		}
+		if(vo.getAttributeValue("memo") == null ){
+			vo.setAttributeValue("memo", "其他费用");
+		}
+		if(vo.getAttributeValue("method") == null ){
+			vo.setAttributeValue("method", PayMethodEnum.OTHER.getCode());
+		}
+	}
+
+
+
 //	@Override
 //	public BusinessResonseBeanVO getWorkTips(UserBeanVO uvo) throws DZFWarpException {
 //
@@ -933,52 +1232,8 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 
 
 
-//	@Override
-//	public BusinessResonseBeanVO saveTickMsg(UserBeanVO uvo) throws DZFWarpException {
-//
-//		BusinessResonseBeanVO beanvo = new BusinessResonseBeanVO();
-//
-//		CorpVO cpvo = CorpCache.getInstance().get("", uvo.getPk_corp());
-//
-//		SuperVO vo = saveTickFromPt(uvo.getPk_corp(), null, uvo.getDrcode(), uvo.getAccount_id(), null,
-//				3);
-//
-//		if (vo == null) {
-//			throw new BusinessException("提示：查无此票！注意，发票信息会延迟一天，建议您开票次日扫描或拍照上传。");
-//		} else {
-//			beanvo.setRescode(IConstant.DEFAULT);
-//			beanvo.setResmsg(vo);
-//		}
-//
-//		return beanvo;
-//	}
-//
-//	private void saveTickRecord(String pk_corp,String account_id, SuperVO vo) {
-//		UserVO uvo =  userServiceImpl.queryUserJmVOByID(account_id) ;//UserCache.getInstance().get(account_id, "");
-//		String user_code = null;
-//		if (uvo != null) {
-//			user_code = uvo.getUser_code();
-//		}
-//
-//		TicketRecordVO recordvo = new TicketRecordVO();
-//
-//		recordvo.setPk_corp(pk_corp);
-//
-//		recordvo.setUser_code(user_code);
-//
-//		recordvo.setCuserid(account_id);
-//
-//		recordvo.setVgfmc(vo.getAttributeValue("gfmc")==null?"":(String)vo.getAttributeValue("gfmc"));
-//
-//		recordvo.setVxfmc(vo.getAttributeValue("xfmc")==null?"":(String)vo.getAttributeValue("xfmc"));
-//
-//		recordvo.setDsmdate(new DZFDateTime());
-//
-//		recordvo.setPk_zzstiket(vo.getPrimaryKey());
-//
-//		singleObjectBO.saveObject(pk_corp, recordvo);
-//	}
-//
+
+
 //	public String getUserCode(String account_id){
 //
 //		if(StringUtil.isEmpty(account_id)){
@@ -1007,49 +1262,6 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 //
 //	}
 //
-//	public ZzsTicketHVO getZzsVos(String drcode) throws DZFWarpException {
-//
-//		if (StringUtil.isEmpty(drcode)) {
-//			throw new BusinessException("二维码信息为空!");
-//		}
-//
-//		if (drcode.indexOf(",") < 0) {
-//			throw new BusinessException("二维码信息缺失!");
-//		}
-//
-//		String[] strs = drcode.split(",");
-//
-//		if (!strs[1].equals("01") && !strs[1].equals("04") && !strs[1].equals("10") && !strs[1].equals("51")) {
-//			throw new BusinessException("暂不支持当前发票类型!");
-//		}
-//
-//		ZzsTicketHVO hvo = null;
-//
-//		SQLParameter sp = new SQLParameter();
-//		String qrysqlh = "select * from " + ZzsTicketHVO.TABLENAME + " where nvl(dr,0)=0 and drcode = ? ";
-//		sp.addParam(drcode);
-//		List<ZzsTicketHVO> hvoslist = (List<ZzsTicketHVO>) singleObjectBO.executeQuery(qrysqlh, sp,
-//				new BeanListProcessor(ZzsTicketHVO.class));
-//
-//		if (hvoslist != null && hvoslist.size() > 0) {
-//			hvo = hvoslist.get(0);
-//			hvo.setFpzl(strs[1]);// 发票种类
-//			sp.clearParams();
-//			String bodysql = "select  * from " + ZzsTicketBVO.TABLENAME + " where nvl(dr,0)=0 and pk_zzstiket = ?";
-//
-//			sp.addParam(hvoslist.get(0).getPrimaryKey());// 二维码 默认是不一样的
-//
-//			List<ZzsTicketBVO> bvolists = (List<ZzsTicketBVO>) singleObjectBO.executeQuery(bodysql, sp,
-//					new BeanListProcessor(ZzsTicketBVO.class));
-//
-//			if (bvolists != null && bvolists.size() > 0) {
-//				hvo.setChildren(bvolists.toArray(new ZzsTicketBVO[0]));
-//			}
-//		}
-//		return hvo;
-//	}
-//
-//
 //
 //	/**
 //	 * 获取参数设置
@@ -1068,211 +1280,6 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 //	}
 //
 
-//	/**
-//	 * 从票通，获取发票信息
-//	 * @param uvo
-//	 * @return
-//	 */
-//	public SuperVO saveTickFromPt(String pk_corp ,String admincorpid,
-//			String drcode,String account_id,Integer power,Integer limitcount)  throws DZFWarpException{
-//
-//		//校验是否有该权限
-//		String corpid = validateTickFromPt(pk_corp, admincorpid, drcode, account_id, limitcount);
-//
-//		CorpVO cpvo  = CorpCache.getInstance().get("", pk_corp);
-//
-//		SuperVO vo = getZzsVos(drcode);
-//
-//		if (vo == null) {
-//
-//			FpMsgClient fpclient = new FpMsgClient();
-//
-//			String[] value = fpclient.sendPostXml(drcode);
-//
-//			// 根据生成的value 解析xml
-//			GenTicketUtil util = new GenTicketUtil();
-//
-//			vo = util.genTickMsgVO(value[0], drcode, account_id);
-//
-//			vo.setAttributeValue("drcode", drcode);
-//
-//			vo.setAttributeValue("pk_corp", corpid);
-//
-//			vo = singleObjectBO.saveObject(Common.tempidcreate, vo);
-//
-//		}
-//		String firstcorpid = pk_corp;
-//		String memo = "商品收入";
-//		if(vo instanceof ZzsTicketHVO){
-//			SuperVO[] childvo= vo.getChildren();
-//			if(cpvo!=null){
-//				if(cpvo.getUnitname().equals(((ZzsTicketHVO) vo).getGfmc())){
-//					((ZzsTicketHVO) vo).setFplx("0");
-//					((ZzsTicketHVO) vo).setFplx_str("进项发票");
-//				}else if(cpvo.getUnitname().equals(((ZzsTicketHVO) vo).getXfmc())){
-//					((ZzsTicketHVO) vo).setFplx("1");
-//					((ZzsTicketHVO) vo).setFplx_str("销项发票");
-//				}
-//			}
-//
-//			if(childvo!=null && childvo.length>0){
-//				ZzsTicketBVO bvo =null;
-//				DZFDouble jshj = DZFDouble.ZERO_DBL;
-//				DZFDouble se = DZFDouble.ZERO_DBL;
-//				DZFDouble je = DZFDouble.ZERO_DBL;
-//				for(SuperVO bvotemp:childvo){
-//					bvo = (ZzsTicketBVO) bvotemp;
-//					if(!StringUtil.isEmpty( bvo.getHwmc()) && (bvo.getHwmc().indexOf("服务")>0
-//							|| bvo.getHwmc().indexOf("费")>0 || bvo.getHwmc().indexOf("维修")>0)){
-//						memo = "服务收入";
-//					}
-//					if(!StringUtil.isEmpty(bvo.getJe())){
-//						je = new DZFDouble(bvo.getJe());
-//					}else{
-//						je = DZFDouble.ZERO_DBL;
-//					}
-//					if(!StringUtil.isEmpty(bvo.getSe())){
-//						se = new DZFDouble(bvo.getSe());
-//					}else{
-//						se = DZFDouble.ZERO_DBL;
-//					}
-//					jshj =  SafeCompute.add(je, se);
-//					bvotemp.setAttributeValue("jshj", AppStringUtils.fmtMicrometer(jshj.toString()));
-//				}
-//			}
-//		}
-//
-//		// 保存扫描记录
-//		saveTickRecord(corpid, account_id, vo);
-//
-//		//管理端赋值公司列表(小微无忧app使用)
-//		firstcorpid = putAdminCorpList(admincorpid, account_id, power, vo, firstcorpid);
-//
-//		putMemoAndPayMend(firstcorpid, vo, memo);
-//
-//		return vo;
-//	}
-//
-//	private String validateTickFromPt(String pk_corp, String admincorpid, String drcode, String account_id,
-//			Integer limitcount) {
-//		if(StringUtil.isEmpty(drcode)){
-//			throw new BusinessException("发票二维码信息不全!");
-//		}
-//		String corpid = pk_corp;
-//		if(AppCheckValidUtils.isEmptyCorp(pk_corp)){
-//			corpid = admincorpid;
-//		}
-//		if(AppCheckValidUtils.isEmptyCorp(corpid)){
-//			throw new BusinessException("公司不能为空!");
-//		}
-//
-//		//是否有次数限制
-//		StringBuffer checksql = new StringBuffer();
-//		SQLParameter sp = new SQLParameter();
-//		checksql.append(" select count(1) ");
-//		checksql.append(" from " + TicketRecordVO.TABLE_NAME);
-//		checksql.append(" where 1=1 ");
-//		checksql.append(" and pk_corp = ? and cuserid = ?  ");
-//		checksql.append(" and dsmdate like ?");
-//		sp.addParam(corpid);
-//		sp.addParam(account_id);
-//		sp.addParam(new DZFDate().toString() + "%");
-//
-//		BigDecimal resbig = (BigDecimal) singleObjectBO.executeQuery(checksql.toString(), sp,
-//				new ColumnProcessor());
-//
-//		if (limitcount!=null && resbig != null && resbig.intValue() >= limitcount) {
-//			throw new BusinessException("超过您当前最多查验次数!");
-//		}
-//		return corpid;
-//	}
-//
-//	private String putAdminCorpList(String admincorpid, String account_id, Integer power, SuperVO vo,
-//			String firstcorpid) {
-//		if (!StringUtil.isEmpty(admincorpid)) {
-//
-//			String gfmc = (String) vo.getAttributeValue("gfmc");// 购物方名称
-//
-//			String xfmc = (String) vo.getAttributeValue("xfmc");
-//
-//			String[] cpnames = new String[] { gfmc, xfmc };
-//
-//			Map<String, String> tempmap = apppubservice.getCorpid(cpnames, admincorpid, account_id, power);// 公司对照
-//
-//			String[][] strs = null;
-//			if (tempmap != null && tempmap.size() > 0) {
-//				strs = new String[tempmap.size()][];
-//				int index = 0;
-//				for (Entry<String, String> entry : tempmap.entrySet()) {
-//					strs[index] = new String[] {entry.getKey(), entry.getValue() };
-//					index++;
-//				}
-//			}
-//
-//			String[] strtemp = null;
-//			if(strs!=null && strs.length==2 && strs[1][1].equals(gfmc)){//如果购方在下面，则调下顺序
-//				strtemp = strs[0];
-//				strs[0]= strs[1];
-//				strs[1]= strtemp;
-//			}
-//
-//			if (strs != null && strs.length > 0) {
-//				List<MapBean> beanlist = new ArrayList<MapBean>();
-//				MapBean beantemp =null;
-//				for(String[] temps :strs){
-//					beantemp = new MapBean();
-//					beantemp.setClient_id(temps[0]);
-//					beantemp.setClient_name(temps[1]);
-//					beanlist.add(beantemp);
-//				}
-//
-//				vo.setAttributeValue("kpgsmap", beanlist);
-//
-//				firstcorpid = beanlist.get(0).getClient_id();
-//			} else {
-//				vo.setAttributeValue("scanmsg", "无该公司上传权限");
-//			}
-//		}
-//		return firstcorpid;
-//	}
-//
-//	private void putMemoAndPayMend(String pk_corp, SuperVO vo, String memo) {
-//		//判断摘要结算方式
-//		CorpVO corpvo = CorpCache.getInstance().get("", pk_corp);
-//		if(corpvo!=null){
-//			SQLParameter sp = new SQLParameter();
-//			sp.addParam(corpvo.getPk_corp());
-//			CorpTaxVo[] corptaxvos = (CorpTaxVo[]) singleObjectBO.queryByCondition(CorpTaxVo.class, "nvl(dr,0)=0 and pk_corp = ?", sp);
-//			String corpname = corpvo.getUnitname();
-//			String taxcode ="";// corpvo.getTaxcode();
-//			if(corptaxvos!=null && corptaxvos.length>0){
-//				taxcode = corptaxvos[0].getTaxcode();
-//			}
-//			if((!StringUtil.isEmpty(((ZzsTicketHVO) vo).getGfmc())
-//					&& ((ZzsTicketHVO) vo).getGfmc().equals(corpname))
-//					|| (!StringUtil.isEmpty(((ZzsTicketHVO) vo).getGfsbh())
-//					&& ((ZzsTicketHVO) vo).getGfsbh().equals(taxcode))
-//					){//进项发票
-//				vo.setAttributeValue("memo", "办公费");
-//				vo.setAttributeValue("method", PayMethodEnum.BANK.getCode());
-//			}
-//			if((!StringUtil.isEmpty(((ZzsTicketHVO) vo).getXfmc())
-//					&& ((ZzsTicketHVO) vo).getXfmc().equals(corpname))
-//					|| (!StringUtil.isEmpty(((ZzsTicketHVO) vo).getXfsbh())
-//					&& ((ZzsTicketHVO) vo).getXfsbh().equals(taxcode))
-//					){//销项发票
-//				vo.setAttributeValue("memo", memo);
-//				vo.setAttributeValue("method", PayMethodEnum.OTHER.getCode());
-//			}
-//		}
-//		if(vo.getAttributeValue("memo") == null ){
-//			vo.setAttributeValue("memo", "其他费用");
-//		}
-//		if(vo.getAttributeValue("method") == null ){
-//			vo.setAttributeValue("method", PayMethodEnum.OTHER.getCode());
-//		}
-//	}
-//
 //	@Override
 //	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException {
 //
