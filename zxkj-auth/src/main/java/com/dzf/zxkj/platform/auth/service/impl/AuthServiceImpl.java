@@ -1,7 +1,5 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.Cached;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.result.Result;
@@ -58,7 +56,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    @Cached(name = "user_corp", expire = 3600, cacheType = CacheType.REMOTE)
+//    @Cached(name = "user_corp", expire = 3600, cacheType = CacheType.REMOTE)
     public List<String> getPkCorpByUserId(String userid) {
         QueryWrapper<UserCorpRelation> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(UserCorpRelation::getUserid, userid).and(condition -> condition.eq(UserCorpRelation::getDr, 0).or().isNull(UserCorpRelation::getDr));
@@ -70,7 +68,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    @Cached(name = "all_perssion", expire = Integer.MAX_VALUE, cacheType = CacheType.REMOTE)
+//    @Cached(name = "all_perssion", expire = Integer.MAX_VALUE, cacheType = CacheType.REMOTE)
     public Set<String> getAllPermission() {
         QueryWrapper<FunNode> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(FunNode::getModule, "dzf_kj").and(condition -> condition.eq(FunNode::getDr, "0").or().isNull(FunNode::getDr));
