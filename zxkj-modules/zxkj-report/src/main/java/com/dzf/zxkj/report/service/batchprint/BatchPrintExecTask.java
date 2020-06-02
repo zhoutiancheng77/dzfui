@@ -31,7 +31,8 @@ public class BatchPrintExecTask {
     private IBatchPrintSer batchPrintSer;
 
 //    @Scheduled(cron = " 0 0 0 * * ?  ")
-    @Scheduled(cron = " 0/30 * * * * ?")
+//    @Scheduled(cron = " 0 0 11 * * ? ")
+    @Scheduled(cron = " 0 0/30 * * * ? ")
     public void execTask (){
         SQLParameter sp = new SQLParameter();
 
