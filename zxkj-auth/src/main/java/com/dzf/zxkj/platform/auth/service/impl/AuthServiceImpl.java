@@ -79,7 +79,7 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
-    @Cached(name = "corp_user_perssion", expire = Integer.MAX_VALUE, key = "#userid+'-'+#pk_corp", cacheType = CacheType.REMOTE)
+//    @Cached(name = "corp_user_perssion", expire = Integer.MAX_VALUE, key = "#userid+'-'+#pk_corp", cacheType = CacheType.REMOTE)
     public Set<String> getPermisssionByUseridAndPkCorp(String userid, String pk_corp) {
         List<FunNode> funNodeList = versionMngService.getFunNodeByUseridAndPkCorp(userid, pk_corp);
         return funNodeList.stream().filter(v -> StringUtils.isNotBlank(v.getNodeurl())).map(FunNode::getNodeurl).flatMap(str -> Stream.of(str.split(","))).collect(Collectors.toSet());
