@@ -49,11 +49,14 @@ public class LoginController {
      * 查询科目明细数据
      */
     @RequestMapping("/doLogin")
-    public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean,String uuid) {
+    public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean,String uuid,String cname,String uname,String corp,String tcorp,String ucode) {
         UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
         userBean.setUsercode(uservo.getUser_code());
         userBean.setAccount_id(uservo.getCuserid());
-
+        userBean.setCorpname(cname);
+        userBean.setUsername(uname);
+        userBean.setPk_corp(corp);
+        userBean.setPk_tempcorp(tcorp);
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         Integer versionno = userBean.getVersionno();
         if(versionno == null || versionno.intValue() ==0){
