@@ -6,11 +6,12 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
-import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
@@ -22,7 +23,6 @@ import com.dzf.zxkj.platform.model.qcset.QcYeVO;
 import com.dzf.zxkj.platform.model.report.NumMnyDetailVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
-import io.swagger.models.auth.In;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -651,10 +651,11 @@ public class QueryMxKC1 {
                 sf.append(" and nvl(th.ishasjz,'N') = 'Y'  ");
             }
         }
-        sf.append(" order by tb.vcode, pk_accsubj,opdate,pzh ");
-        //
+//        sf.append(" order by tb.vcode, pk_accsubj,opdate,pzh ");
+
         List<NumMnyDetailVO> list = (List<NumMnyDetailVO>) singleObjectBO.executeQuery(sf.toString(), pa, new BeanListProcessor(NumMnyDetailVO.class));
         if (list != null && list.size() > 0) {
+            VOUtil.ascSort(list, new String[]{"kmbm", "pk_subject", "opdate", "pzh"});
             for (int i = 0; i < list.size(); i++) {
                 NumMnyDetailVO v = list.get(i);
                 if (v.getJfmny() != null && v.getJfmny().doubleValue() > 0) {
