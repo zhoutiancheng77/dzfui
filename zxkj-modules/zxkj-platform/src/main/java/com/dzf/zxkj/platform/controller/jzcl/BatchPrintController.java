@@ -216,7 +216,7 @@ public class BatchPrintController extends BaseController {
         Grid grid = new Grid();
         try {
             // 执行任务
-             newbatchprintser.execTask(getLoginUserId());
+//             newbatchprintser.execTask(getLoginUserId());
             grid.setSuccess(true);
             grid.setMsg("任务执行成功！");
         } catch (Exception e) {

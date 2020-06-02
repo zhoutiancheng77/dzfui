@@ -34,8 +34,6 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.service.taxrpt.IKmQryService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxRptCalCellService;
 import com.dzf.zxkj.platform.service.taxrpt.IbsWorkbenchService;
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellBVO;
-import com.dzf.zxkj.platform.model.tax.workbench.TaxRptCalCellVO;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.vo.QrySqlSpmVO;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +43,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * 纳税工作台实现类
@@ -92,9 +94,15 @@ public class BsWorkbenchServiceImpl implements IbsWorkbenchService {
 		if (list != null && list.size() > 0) {
 			QueryDeCodeUtils.decKeyUtils(new String[]{"khname","pcountname"}, list, 1);
 		}
-		return list;
+		return list.stream().filter(distinctByKey(b -> b.getPk_corp())).collect(Collectors.toList());
 	}
-	
+
+	private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+		Map<Object,Boolean> seen = new ConcurrentHashMap<>();
+		return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+	}
+
+
 	/**
 	 * 获取查询条件
 	 * @param pk_corp
