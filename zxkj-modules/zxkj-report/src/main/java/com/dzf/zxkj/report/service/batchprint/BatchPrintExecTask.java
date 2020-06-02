@@ -6,6 +6,7 @@ import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,13 +21,17 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class BatchPrintExecTask {
 
+    @Autowired
     private SingleObjectBO singleObjectBO;
 
+    @Autowired
     private IZxkjPlatformService zxkjPlatformService;
 
+    @Autowired
     private IBatchPrintSer batchPrintSer;
 
-    @Scheduled(cron = " 0 0 0 * * ?  ")
+//    @Scheduled(cron = " 0 0 0 * * ?  ")
+    @Scheduled(cron = " 0/30 * * * * ?")
     public void execTask (){
         SQLParameter sp = new SQLParameter();
 
