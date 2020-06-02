@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpSession;
 
-import com.caucho.hessian.client.HessianProxyFactory;
 import com.dzf.zxkj.app.service.ticket.IAppBwTicket;
 import com.dzf.zxkj.app.utils.AppQueryUtil;
 import com.dzf.zxkj.base.exception.BusinessException;
