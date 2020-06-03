@@ -1240,6 +1240,9 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			return;
 		}
 
+		// （有流水号的，按流水号查，没有流水号的或者用流水号查不到的，再按sbzlid查）
+		// 暂定：不管有无流水号，始终使用szblid去查，这样当残留了错误流水号或流水号丢失时，保证能查出最新状态。未填写或未提交的，也用szblid去查。不再使用"已申报未申报查询"接口查，因为该接口状态更新有延迟，且财报状态只会正向同步，不会回退。
+		/*
 		String lsh =  reportvo.getRegion_extend1();
 		boolean isSaveFile = !StringUtil.isEmpty(reportvo.getSpreadfile());
 		if (!isSaveFile || lsh == null || reportvo.getSbzt_dm() != null
@@ -1250,73 +1253,74 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 					: (TaxRptConst.iSBZT_DM_UnSubmit + "");
 			reportvo.setSbzt_dm(sbzt_dm);
 		} else {
-			BaseRequestVO baseRequest = getBaseRequset(corpvo,taxvo);
+		}*/
 
-			baseRequest.setServiceid("FW_DZSWJ_DYBBSBQKCX");
-			baseRequest.getBody().setSign("querySbqk");
+		BaseRequestVO baseRequest = getBaseRequset(corpvo,taxvo);
 
-			Map<String, String> businessParam = new HashMap<>();
-			businessParam.put("nsrsbh", corpvo.getVsoccrecode());
-			businessParam.put("skssqq", reportvo.getPeriodfrom());
-			businessParam.put("skssqz", reportvo.getPeriodto());
-			businessParam.put("sbzlid", getSbzlbh(reportvo.getSb_zlbh()));
-			businessParam.put("LSH", "''" + lsh + "''");
-			String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(businessParam),
-					taxJstcConfig.app_secret);
+		baseRequest.setServiceid("FW_DZSWJ_DYBBSBQKCX");
+		baseRequest.getBody().setSign("querySbqk");
 
-			baseRequest.getBody().setYwbw(ywbw);
+		Map<String, String> businessParam = new HashMap<>();
+		businessParam.put("nsrsbh", corpvo.getVsoccrecode());
+		businessParam.put("skssqq", reportvo.getPeriodfrom());
+		businessParam.put("skssqz", reportvo.getPeriodto());
+		businessParam.put("sbzlid", getSbzlbh(reportvo.getSb_zlbh()));
+		// businessParam.put("LSH", "''" + lsh + "''");
+		String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(businessParam),
+				taxJstcConfig.app_secret);
+
+		baseRequest.getBody().setYwbw(ywbw);
 
 //			String bw = OFastJSON.toJSONString(baseRequest);
-			String bw = JsonUtils.serialize(baseRequest);
+		String bw = JsonUtils.serialize(baseRequest);
 
-			String encode = ZipUtil.zipEncode(bw, true);
-			HashMap<String, String> params = new HashMap<String, String>();
-			params.put("request", encode);
+		String encode = ZipUtil.zipEncode(bw, true);
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("request", encode);
 
-			Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
-					params);
+		Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
+				params);
 
-			String result = HttpUtil.parseRes(rmap.get("response"));
-			JSONObject rsJosn = (JSONObject) JSON.parse(result);
-			String status = rsJosn.getString("RESULT");
+		String result = HttpUtil.parseRes(rmap.get("response"));
+		JSONObject rsJosn = (JSONObject) JSON.parse(result);
+		String status = rsJosn.getString("RESULT");
 
-			if (!"0000".equals(status)) {
-				log.error("更新申报状态失败:" + rsJosn);
+		if (!"0000".equals(status)) {
+			log.error("更新申报状态失败:" + rsJosn);
 //				throw new BusinessException((String) rsJosn.get("MSG"));
-				return;
-			}
-
-			JSONArray dataArray = (JSONArray) rsJosn.get("DATA");
-			JSONObject data = (JSONObject) dataArray.get(0);
-			String sbzt_dm = data.getString("SBZT_DM");
-			//申报成功记录凭证序号
-			if (TaxRptConst.iSBZT_DM_ReportSuccess == Integer.valueOf(sbzt_dm)) {
-				String yzpzxh = data.getString("YZPZXH");
-				reportvo.setRegion_extend2(yzpzxh);
-				BigDecimal tax = data.getBigDecimal("YBTSE");
-				reportvo.setTaxmny(new DZFDouble(tax));
-			}
-			String remark = data.getString("SB_CWXX");
-			// 票表比对错误信息
-			Object pbcw = data.get("PBCWXX");
-			if (pbcw instanceof JSONArray) {
-				JSONArray pbcwList = (JSONArray) pbcw;
-				if (pbcwList.size() > 0) {
-					StringBuilder sb = new StringBuilder();
-					if (remark != null) {
-						sb.append(remark).append("。");
-					}
-					for (Object obj : pbcwList) {
-						JSONObject cwxx = (JSONObject) obj;
-						sb.append(cwxx.getString("BDBFJGBCNR"));
-					}
-					remark = sb.toString();
-				}
-			}
-			reportvo.setRemark(remark);
-			//更新申报状态
-			reportvo.setSbzt_dm(sbzt_dm);
+			return;
 		}
+
+		JSONArray dataArray = (JSONArray) rsJosn.get("DATA");
+		JSONObject data = (JSONObject) dataArray.get(0);
+		String sbzt_dm = data.getString("SBZT_DM");
+		//申报成功记录凭证序号
+		if (TaxRptConst.iSBZT_DM_ReportSuccess == Integer.valueOf(sbzt_dm)) {
+			String yzpzxh = data.getString("YZPZXH");
+			reportvo.setRegion_extend2(yzpzxh);
+			BigDecimal tax = data.getBigDecimal("YBTSE");
+			reportvo.setTaxmny(new DZFDouble(tax));
+		}
+		String remark = data.getString("SB_CWXX");
+		// 票表比对错误信息
+		Object pbcw = data.get("PBCWXX");
+		if (pbcw instanceof JSONArray) {
+			JSONArray pbcwList = (JSONArray) pbcw;
+			if (pbcwList.size() > 0) {
+				StringBuilder sb = new StringBuilder();
+				if (remark != null) {
+					sb.append(remark).append("。");
+				}
+				for (Object obj : pbcwList) {
+					JSONObject cwxx = (JSONObject) obj;
+					sb.append(cwxx.getString("BDBFJGBCNR"));
+				}
+				remark = sb.toString();
+			}
+		}
+		reportvo.setRemark(remark);
+		//更新申报状态
+		reportvo.setSbzt_dm(sbzt_dm);
 
 		TaxReportDetailVO[] details = (TaxReportDetailVO[]) reportvo.getChildren();
 		if (details != null) {
@@ -2690,8 +2694,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //				|| TaxRptConst.SB_ZLBHC1.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBH29805.equals(taxTypeCode)
-//				|| TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
-//				|| TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBH39801.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBH39806.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH50101.equals(taxTypeCode)
