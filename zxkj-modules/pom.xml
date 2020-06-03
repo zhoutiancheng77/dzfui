@@ -16,7 +16,7 @@
         <module>zxkj-platform</module>
         <module>zxkj-report</module>
         <module>zxkj-backup</module>
-<!--        <module>zxkj-app</module>-->
+        <module>zxkj-app</module>
     </modules>
     <packaging>pom</packaging>
 </project>
