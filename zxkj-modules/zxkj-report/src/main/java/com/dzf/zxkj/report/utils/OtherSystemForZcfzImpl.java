@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.model.report.ZcfzRptSetVo;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class OtherSystemForZcfzImpl {
 	}
 
 	public ZcFzBVO[] getCompanyZCFZBVOs(Map<String, FseJyeVO> map, String[] hasyes, Map<String, YntCpaccountVO> mapc,
-										SingleObjectBO sbo, String hy, String pk_corp) throws BusinessException {
+										SingleObjectBO sbo, String hy, String pk_corp, String versionno) throws BusinessException {
 
 		if(StringUtil.isEmpty(hy)){
 			throw new BusinessException("行业为空!");
@@ -42,8 +43,15 @@ public class OtherSystemForZcfzImpl {
 		// 查询设置数据
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(hy);
+		StringBuffer wherepart = new StringBuffer();
+		wherepart.append(" nvl(dr,0)=0 and pk_trade_accountschema= ? ");
+		if (!StringUtil.isEmpty(versionno)) {
+			sp.addParam(versionno);
+			wherepart.append(" and versionno = ? ");
+		}
+		wherepart.append(" order by ordernum ");
 		ZcfzRptSetVo[] setvos = (ZcfzRptSetVo[]) sbo.queryByCondition(ZcfzRptSetVo.class,
-				" nvl(dr,0)=0 and pk_trade_accountschema= ? order by ordernum", sp);
+				wherepart.toString(), sp);
 
 		if (setvos == null || setvos.length == 0) {
 			throw new BusinessException("该制度暂不支持,敬请期待");
@@ -66,8 +74,8 @@ public class OtherSystemForZcfzImpl {
 			zcfzbvo.setHc1_id(setvo.getZchc_id());
 			zcfzbvo.setHc2_id(setvo.getFzhc_id());
 			// 设置金额
-			String zckm = getkm(hasyes,setvo,0);
-			String fzkm = getkm(hasyes,setvo,1);
+			String zckm = getkm(hasyes,setvo,0,hy);
+			String fzkm = getkm(hasyes,setvo,1,hy);
 			String[] getzckms = getkms(zckm);
 			String[] getfzkms = getkms(fzkm);
 			
@@ -79,9 +87,9 @@ public class OtherSystemForZcfzImpl {
 				}else{
 					for(String str:getzckms){
 						if(str.indexOf("(重)")>=0){
-							getZCFZBVO1(map, zcfzbvo, true, mapc,newrule,str.replace("(重)", ""));
+							getZCFZBVO1(map, zcfzbvo, true, mapc,false,newrule,hy,str.replace("(重)", ""));
 						}else{
-							getZCFZBVO(map, zcfzbvo, true,newrule,str );
+							getZCFZBVO(map, zcfzbvo, true,newrule,hy,str );
 						}
 					}
 				}
@@ -92,10 +100,16 @@ public class OtherSystemForZcfzImpl {
 					total(zcfzbvo,zcfzlist,getfzkms,false);
 				}else{
 					for(String str:getfzkms){
-						if(str.indexOf("(重)")>=0){
-							getZCFZBVO1(map, zcfzbvo, false, mapc, newrule,str.replace("(重)", ""));
-						}else{
-							getZCFZBVO(map, zcfzbvo, false,newrule, str);
+						if ("Y".equals(hasyes[4]) && "00000100AA10000000000BMF".equals(hy)
+								&& "　应交税费".equals(setvo.getFzname())) {
+							//应交税费重分类取数
+							zcfzbvo = getZcFzBVO_YJSF_CFL(map, mapc, newrule, zcfzbvo,hy);
+						} else {
+							if(str.indexOf("(重)")>=0){
+								getZCFZBVO1(map, zcfzbvo, false, mapc,false,newrule,hy,str.replace("(重)", ""));
+							}else{
+								getZCFZBVO(map, zcfzbvo, false,newrule,hy, str);
+							}
 						}
 					}
 					
@@ -116,33 +130,64 @@ public class OtherSystemForZcfzImpl {
 	 * @param lx 0是资产 1是负债
 	 * @return
 	 */
-	private String getkm(String[] hasyes, ZcfzRptSetVo setvo,Integer lx) {
-		if("Y".equals(hasyes[1])){//应收和预收
-			if(!StringUtil.isEmpty(setvo.getZcname())
-				&&	"  应收账款".equals(setvo.getZcname()) && lx == 0){
-				return setvo.getZckm_re();
-			}else if(!StringUtil.isEmpty(setvo.getFzname())
-					&&	"  预收账款".equals(setvo.getFzname())  && lx == 1){
-				return setvo.getFzkm_re();
+	private String getkm(String[] hasyes, ZcfzRptSetVo setvo,Integer lx, String pk_trade_accountschema) {
+		if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)){
+			if("Y".equals(hasyes[1])){//应收和预收
+				if(!StringUtil.isEmpty(setvo.getZcname())
+						&&	"  应收账款".equals(setvo.getZcname()) && lx == 0){
+					return setvo.getZckm_re();
+				}else if(!StringUtil.isEmpty(setvo.getFzname())
+						&&	"　预收款项".equals(setvo.getFzname())  && lx == 1){
+					return setvo.getFzkm_re();
+				}
 			}
-		}
-		if("Y".equals(hasyes[2])){//应付预付
-			if(!StringUtil.isEmpty(setvo.getZcname())
-					&&	"  预付账款".equals(setvo.getZcname())  && lx == 0){
+			if("Y".equals(hasyes[2])){//应付预付
+				if(!StringUtil.isEmpty(setvo.getZcname())
+						&&	"　预付款项".equals(setvo.getZcname())  && lx == 0){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
 						&&	"  应付账款".equals(setvo.getFzname())  && lx == 1){
 					return setvo.getFzkm_re();
 				}
-		}
-		if("Y".equals(hasyes[3])){//其他应收，其他应付
-			if(!StringUtil.isEmpty(setvo.getZcname())
-					&&	"  其他应收款".equals(setvo.getZcname())  && lx == 0 ){
+			}
+			if("Y".equals(hasyes[3])){//其他应收，其他应付
+				if(!StringUtil.isEmpty(setvo.getZcname())
+						&&	"其他应收款".equals(setvo.getZcname())  && lx == 0 ){
+					return setvo.getZckm_re();
+				}else if(!StringUtil.isEmpty(setvo.getFzname())
+						&&	"　其他应付款".equals(setvo.getFzname())  && lx == 1){
+					return setvo.getFzkm_re();
+				}
+			}
+		} else {
+
+			if("Y".equals(hasyes[1])){//应收和预收
+				if(!StringUtil.isEmpty(setvo.getZcname())
+						&&	"  应收账款".equals(setvo.getZcname()) && lx == 0){
+					return setvo.getZckm_re();
+				}else if(!StringUtil.isEmpty(setvo.getFzname())
+						&&	"  预收账款".equals(setvo.getFzname())  && lx == 1){
+					return setvo.getFzkm_re();
+				}
+			}
+			if("Y".equals(hasyes[2])){//应付预付
+				if(!StringUtil.isEmpty(setvo.getZcname())
+						&&	"  预付账款".equals(setvo.getZcname())  && lx == 0){
+					return setvo.getZckm_re();
+				}else if(!StringUtil.isEmpty(setvo.getFzname())
+						&&	"  应付账款".equals(setvo.getFzname())  && lx == 1){
+					return setvo.getFzkm_re();
+				}
+			}
+			if("Y".equals(hasyes[3])){//其他应收，其他应付
+				if(!StringUtil.isEmpty(setvo.getZcname())
+						&&	"  其他应收款".equals(setvo.getZcname())  && lx == 0 ){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
 						&&	"  其他应付款".equals(setvo.getFzname())  && lx == 1){
 					return setvo.getFzkm_re();
 				}
+			}
 		}
 		if(lx == 0){
 			return setvo.getZckm();
@@ -217,7 +262,7 @@ public class OtherSystemForZcfzImpl {
 	}
 	
 	
-	private ZcFzBVO getZCFZBVO(Map<String,FseJyeVO> map, ZcFzBVO vo,boolean is1,String newrule,String...kms){
+	private ZcFzBVO getZCFZBVO(Map<String,FseJyeVO> map, ZcFzBVO vo,boolean is1,String newrule,String pk_trade_accountschema,String...kms){
 		
 		List<FseJyeVO> ls=null;
 		DZFDouble ufd=null;
@@ -229,6 +274,8 @@ public class OtherSystemForZcfzImpl {
 		}else{
 			appkms= new StringBuffer(StringUtil.isEmpty(vo.getFzconkms()) ? "" : vo.getFzconkms()+",");
 		}
+		// 获取工程施工，工程结算差额
+		DZFDouble[] cefrom0102 = new DZFDouble[] { DZFDouble.ZERO_DBL, DZFDouble.ZERO_DBL };// getCeFrom0102(map,"4401","4402");
 		String kmtemp = "";
 		for (int i = 0; i < len; i++) {
 			kmtemp = kms[i];
@@ -240,6 +287,15 @@ public class OtherSystemForZcfzImpl {
 			ls=getData(map, kmtemp,newrule);
 			appkms.append(kmtemp+",");
 			if(ls==null)continue;
+			if ("　存货".equals(vo.getZc()) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07工程结算
+				cefrom0102 = getCeFrom0102(map, "5401", "5402");
+				continue;
+			}
+			if ("　预收款项".equals(vo.getFzhsyzqy()) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
+				// 工程结算
+				cefrom0102 = getCeFrom0102(map, "5401", "5402");
+				continue;
+			}
 			for (FseJyeVO fvo : ls) {
 				if(is1){
 					ufd=VoUtils.getDZFDouble(vo.getQmye1());
@@ -281,7 +337,27 @@ public class OtherSystemForZcfzImpl {
 					vo.setQcye2(ufd) ;
 				}
 			}
-			
+			// 07 13 写在了一块了
+			if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
+				if ("　存货".equals(vo.getZc())) {
+					// 获取工程施工，工程结算差额
+					if (cefrom0102[0].doubleValue() > 0) {
+						vo.setNcye1(SafeCompute.add(vo.getNcye1(), cefrom0102[0]));
+					}
+					if (cefrom0102[1].doubleValue() > 0) {
+						vo.setQmye1(SafeCompute.add(vo.getQmye1(), cefrom0102[1]));
+					}
+				}
+				if ("　预收款项".equals(vo.getFzhsyzqy()) || "　预收账款".equals(vo.getFzhsyzqy())) {
+					// 获取工程施工，工程结算差额
+					if (cefrom0102[0].doubleValue() < 0) {
+						vo.setNcye2(SafeCompute.add(vo.getNcye2(), cefrom0102[0].multiply(-1)));
+					}
+					if (cefrom0102[1].doubleValue() < 0) {
+						vo.setQmye2(SafeCompute.add(vo.getQmye2(), cefrom0102[1].multiply(-1)));
+					}
+				}
+			}
 			if(is1){
 				vo.setZcconkms(appkms.toString().substring(0,appkms.length()-1));
 			}else{
@@ -292,8 +368,8 @@ public class OtherSystemForZcfzImpl {
 	}
 	
 	//往来分析
-	private ZcFzBVO getZCFZBVO1(Map<String, FseJyeVO> map, ZcFzBVO vo, boolean is1, Map<String, YntCpaccountVO> mapc,String newrule,
-			String... kms) {
+	private ZcFzBVO getZCFZBVO1(Map<String, FseJyeVO> map, ZcFzBVO vo, boolean is1, Map<String, YntCpaccountVO> mapc,
+								boolean bthislevel,String newrule,String pk_trade_accountschema,String... kms) {
 
 		List<FseJyeVO> ls = null;
 		DZFDouble ufd = null;
@@ -304,12 +380,20 @@ public class OtherSystemForZcfzImpl {
 		} else {
 			appkms = new StringBuffer(vo.getFzconkms() == null ? "" : vo.getFzconkms() + ",");
 		}
+		DZFDouble[] cefrom0102 = new DZFDouble[] { DZFDouble.ZERO_DBL, DZFDouble.ZERO_DBL };
 		for (int i = 0; i < len; i++) {
-			ls = getData1(map, kms[i], mapc,newrule);
+			ls = getData1(map, kms[i], mapc,bthislevel,newrule);
 			if(StringUtil.isEmpty(kms[i]) && kms[i].startsWith("-")){
 				appkms.append(kms[i].substring(1) + ",");
 			}else{
 				appkms.append(kms[i] + ",");
+			}
+			if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
+				if ("　预收款项".equals(vo.getFzhsyzqy()) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
+					// 工程结算
+					cefrom0102 = getCeFrom0102(map, "5401", "5402");
+					continue;
+				}
 			}
 			if (ls == null)
 				continue;
@@ -364,6 +448,17 @@ public class OtherSystemForZcfzImpl {
 				}
 			}
 		}
+		if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
+			if ("　预收款项".equals(vo.getFzhsyzqy()) || "　预收账款".equals(vo.getFzhsyzqy())) {
+				// 获取工程施工，工程结算差额
+				if (cefrom0102[0].doubleValue() < 0) {
+					vo.setNcye2(SafeCompute.add(vo.getNcye2(), cefrom0102[0].multiply(-1)));
+				}
+				if (cefrom0102[1].doubleValue() < 0) {
+					vo.setQmye2(SafeCompute.add(vo.getQmye2(), cefrom0102[1].multiply(-1)));
+				}
+			}
+		}
 		if (is1) {
 			vo.setZcconkms(appkms.toString().substring(0, appkms.length() - 1));
 		} else {
@@ -373,7 +468,8 @@ public class OtherSystemForZcfzImpl {
 		return vo;
 	}
 
-	private List<FseJyeVO> getData1(Map<String, FseJyeVO> map, String kmtemp, Map<String, YntCpaccountVO> mapc,String newrule) {
+	private List<FseJyeVO> getData1(Map<String, FseJyeVO> map, String kmtemp, Map<String, YntCpaccountVO> mapc
+			,boolean bthislevel,String newrule) {
 		List<FseJyeVO> list = new ArrayList<FseJyeVO>();
 		//考虑科目升级
 		String km = zxkjPlatformService.getNewRuleCode(kmtemp, DZFConstant.ACCOUNTCODERULE, newrule);
@@ -384,13 +480,20 @@ public class OtherSystemForZcfzImpl {
 			} else {
 				kmbm = fsejyevo.getKmbm();
 			}
-			if (kmbm.startsWith(km)) {
-				YntCpaccountVO xs = mapc.get(kmbm);
-				if (xs.getIsleaf() != null && xs.getIsleaf().booleanValue()) {
-					if (xs.getIsfzhs().indexOf("1") >= 0 && fsejyevo.getKmbm().indexOf("_") >= 0) {// 包含辅助项目
-						list.add(fsejyevo);
-					} else if (xs.getIsfzhs().indexOf("1") < 0) {// 如果不包含辅助项目处理
-						list.add(fsejyevo);
+			if(bthislevel){
+				if(kmbm.equals(km)){
+					list.add(fsejyevo);
+					return list;
+				}
+			}else{
+				if (kmbm.startsWith(km)) {
+					YntCpaccountVO xs = mapc.get(kmbm);
+					if (xs.getIsleaf() != null && xs.getIsleaf().booleanValue()) {
+						if (xs.getIsfzhs().indexOf("1") >= 0 && fsejyevo.getKmbm().indexOf("_") >= 0) {// 包含辅助项目
+							list.add(fsejyevo);
+						} else if (xs.getIsfzhs().indexOf("1") < 0) {// 如果不包含辅助项目处理
+							list.add(fsejyevo);
+						}
 					}
 				}
 			}
@@ -400,7 +503,14 @@ public class OtherSystemForZcfzImpl {
 	
 	private List<FseJyeVO> getData(Map<String,FseJyeVO> map,String kmtemp,String newrule){
 		//考虑科目升级
-		String km = zxkjPlatformService.getNewRuleCode(kmtemp, DZFConstant.ACCOUNTCODERULE, newrule);
+		//当期科目非DZFConstant.ACCOUNTCODERULE 则不用升级
+		String km = "";
+		if(bexitsRule(kmtemp, DZFConstant.ACCOUNTCODERULE)) {
+			km = zxkjPlatformService.getNewRuleCode(kmtemp, DZFConstant.ACCOUNTCODERULE, newrule);
+		}else {
+			km = kmtemp;
+		}
+//		String km = zxkjPlatformService.getNewRuleCode(kmtemp, DZFConstant.ACCOUNTCODERULE, newrule);
 		List<FseJyeVO> list=new ArrayList<FseJyeVO>();
 		for (FseJyeVO fsejyevo : map.values()) {
 			if(fsejyevo.getKmbm().equals(km)){//已经合计过了，不要用startwidh
@@ -411,5 +521,79 @@ public class OtherSystemForZcfzImpl {
 		return list;
 	}
 
+	private boolean bexitsRule(String kmtemp, String accountcoderule) {
+		String[] rules = accountcoderule.split("/");
+		int sum = 0;
+		for (String str: rules) {
+			sum = sum + Integer.parseInt(str);
+			if (kmtemp.length() == sum){
+				return true;
+			}
+		}
+		return false;
+	}
 
+	private ZcFzBVO getZcFzBVO_YJSF_CFL(Map<String, FseJyeVO> map, Map<String, YntCpaccountVO> mapc,
+										String queryAccountRule, ZcFzBVO vo6, String pk_trade_accountschema) {
+		List<String> list = getYSJFKmList(queryAccountRule);
+		ZcFzBVO vo6temp = new ZcFzBVO();
+		vo6temp = getZCFZBVO1(map, vo6temp, false, mapc,true,queryAccountRule,
+				pk_trade_accountschema,list.toArray(new String[0]));
+		//2221下的所有科目
+		List<String> orderlist = new ArrayList<String>();
+		String filtercode = zxkjPlatformService.getNewRuleCode("222114",DZFConstant.ACCOUNTCODERULE, queryAccountRule);
+		for (Map.Entry<String, YntCpaccountVO> entry : mapc.entrySet()) {
+			if (entry.getValue() != null && entry.getValue().getAccountcode().startsWith("2221")
+					&& entry.getValue().getAccountlevel() ==2
+			) {//只是核算2级科目
+				if (!list.contains(entry.getValue().getAccountcode())
+						&& !filtercode.equals(entry.getValue().getAccountcode()) ) {
+					orderlist.add(entry.getValue().getAccountcode());
+				}
+			}
+		}
+		// 不需要重分类的科目
+		vo6 = getZCFZBVO(map, vo6, false,queryAccountRule,
+				pk_trade_accountschema, orderlist.toArray(new String[0]));
+		vo6.setNcye2(SafeCompute.add(vo6temp.getNcye2(), vo6.getNcye2()));
+		vo6.setQmye2(SafeCompute.add(vo6temp.getQmye2(), vo6.getQmye2()));
+		vo6.setFzconkms(vo6.getFzconkms()+","+vo6temp.getFzconkms());
+		return vo6;
+	}
+
+	/**
+	 * 应交税费科目list
+	 * @param queryAccountRule
+	 * @return
+	 */
+	private List<String> getYSJFKmList(String queryAccountRule) {
+		// 需要重分类的科目
+		String[] kms = new String[] { "222101", "222109", "222110", "222113", "222115" };
+		return  Arrays.asList(kms);
+	}
+
+	private DZFDouble[] getCeFrom0102(Map<String, FseJyeVO> map, String str1, String str2) {
+		DZFDouble qcd1 = DZFDouble.ZERO_DBL;
+		DZFDouble qcd2 = DZFDouble.ZERO_DBL;
+		DZFDouble qmd1 = DZFDouble.ZERO_DBL;
+		DZFDouble qmd2 = DZFDouble.ZERO_DBL;
+		FseJyeVO fsevo1 = null;
+		FseJyeVO fsevo2 = null;
+		if (!StringUtil.isEmpty(str1)) {
+			fsevo1 = map.get(str1);
+		}
+		if (!StringUtil.isEmpty(str2)) {
+			fsevo2 = map.get(str2);
+		}
+		if (fsevo1 != null) {
+			qcd1 = SafeCompute.add(fsevo1.getQcjf(), fsevo1.getQcdf());
+			qmd1 = SafeCompute.add(fsevo1.getQmjf(), fsevo1.getQmdf());
+		}
+		if (fsevo2 != null) {
+			qcd2 = SafeCompute.add(fsevo2.getQcjf(), fsevo2.getQcdf());
+			qmd2 = SafeCompute.add(fsevo2.getQmjf(), fsevo2.getQmdf());
+		}
+
+		return new DZFDouble[] { qcd1.sub(qcd2), qmd1.sub(qmd2) };
+	}
 }

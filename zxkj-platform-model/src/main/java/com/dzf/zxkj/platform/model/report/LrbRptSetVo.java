@@ -20,7 +20,16 @@ public class LrbRptSetVo extends SuperVO {
 	private Integer	ordernum;//序号
 	private String pk_trade_accountschema;// 行业
 	private Integer ilevel;//层级
-	
+	private String versionno;//版本号
+
+	public String getVersionno() {
+		return versionno;
+	}
+
+	public void setVersionno(String versionno) {
+		this.versionno = versionno;
+	}
+
 	public String getHc_id() {
 		return hc_id;
 	}

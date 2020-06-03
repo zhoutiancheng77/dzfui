@@ -26,16 +26,22 @@ import java.util.Map;
 public class OtherSystemForLrb {
 
 	public LrbVO[] getCompanyVos(Map<String, FseJyeVO> map, Map<String, YntCpaccountVO> mp, String qjz, String pk_corp,
-								 String xmmcid, SingleObjectBO sbo, String hy) {
+								 String xmmcid, SingleObjectBO sbo, String hy,String versionno) {
 
 		if(StringUtil.isEmpty(hy)){
 			throw new BusinessException("行业信息不能为空!");
 		}
-		
+
 		SQLParameter sp = new SQLParameter();
+		StringBuffer wherepart = new StringBuffer();
+		wherepart.append("nvl(dr,0)=0 and pk_trade_accountschema = ? ");
 		sp.addParam(hy);
+		if (!StringUtil.isEmpty(versionno)) {
+			sp.addParam(versionno);
+			wherepart.append(" and versionno = ? ");
+		}
 		LrbRptSetVo[] setvos = (LrbRptSetVo[]) sbo.queryByCondition(LrbRptSetVo.class,
-				"nvl(dr,0)=0 and pk_trade_accountschema = ? ", sp);
+				wherepart.toString(), sp);
 
 		if (setvos == null || setvos.length == 0) {
 			throw new BusinessException("该制度暂不支持,敬请期待");
