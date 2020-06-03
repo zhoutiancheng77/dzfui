@@ -164,7 +164,7 @@ public interface IInterfaceBill {
 	public InventoryVO matchInvtoryIC(VatGoosInventoryRelationVO gvo, String pk_corp, String cuserid, String newrule, Map<String, YntCpaccountVO> accmap, YntCpaccountVO[] accounts)throws DZFWarpException;
 
 
-	public YntCpaccountVO queryCategorSubj(String pk_billcagegory, String catecode[], int jici, String pk_corp, Map<String, YntCpaccountVO> accmap, String newrule) throws DZFWarpException;
+	public YntCpaccountVO queryCategorSubj(Map<String, YntCpaccountVO> catchmap,String pk_billcagegory, String catecode[], int jici, String pk_corp, Map<String, YntCpaccountVO> accmap, String newrule,CorpVO corp) throws DZFWarpException;
 
 	/**
 	 * 校验存货科目
@@ -176,7 +176,7 @@ public interface IInterfaceBill {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public String checkInvtorySubj(InventoryAliasVO[] invectory, InventorySetVO vo, String pk_corp, String userid, boolean ischecked) throws DZFWarpException;
+	public String checkInvtorySubj(InventoryAliasVO[] invectory, InventorySetVO vo, String pk_corp, String userid, boolean ischecked,YntCpaccountVO[] accountvos) throws DZFWarpException;
 
 
 	/**

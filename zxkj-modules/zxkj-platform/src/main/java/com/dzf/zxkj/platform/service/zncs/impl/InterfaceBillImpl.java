@@ -1105,11 +1105,11 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	@Override
 	public List<InventoryAliasVO> matchInventoryData(String pk_corp, List<OcrInvoiceVO> ocrlist,
 													 InventorySetVO invsetvo) throws DZFWarpException {
-
+		CorpVO corp = corpService.queryByPk(pk_corp);
 		Map<String, AuxiliaryAccountBVO> invenMap = new LinkedHashMap<>();
 		Map<String, InventoryAliasVO> invenMap1 = new LinkedHashMap<>();
 		Map<String, YntCpaccountVO> accountmap= new HashMap<String, YntCpaccountVO>();
-		
+		Map<String, YntCpaccountVO> accmap2 =  new LinkedHashMap<>();
 		String newrule = gl_cpacckmserv.queryAccountRule(pk_corp);
 		AuxiliaryAccountBVO[] invenvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
 		int pprule = invsetvo.getChppjscgz();//匹配规则
@@ -1169,8 +1169,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 						if(StringUtil.isEmpty(relvo.getChukukmid())){
 							accvo = accountmap.get(bvo.getPk_billcategory()+"_1");
 							if(accvo==null){
-								accvo = queryCategorSubj(bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
-										pk_corp, accmap, newrule);
+								accvo = queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
+										pk_corp, accmap, newrule,corp);
 							}
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("600101",accmap);
@@ -1188,8 +1188,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 						if(StringUtil.isEmpty(relvo.getKmclassify())){
 							accvo = accountmap.get(bvo.getPk_billcategory()+"_2");
 							if(accvo==null){
-								accvo = queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
-										newrule);
+								accvo = queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
+										newrule,corp);
 							}
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("1405",accmap);
@@ -1224,8 +1224,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 						relvo.setKmclassify(invsetvo.getKcsprkkm());
 						accvo = accountmap.get(bvo.getPk_billcategory()+"_1");
 						if(accvo==null){
-							accvo = queryCategorSubj(bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
-									pk_corp, accmap, newrule);
+							accvo = queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
+									pk_corp, accmap, newrule,corp);
 						}
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("600101",accmap);
@@ -1241,8 +1241,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 						}
 						accvo = accountmap.get(bvo.getPk_billcategory()+"_2");
 						if(accvo==null){
-							accvo = queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
-									newrule);
+							accvo = queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
+									newrule,corp);
 						}
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("1405",accmap);
@@ -1426,7 +1426,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	@Override
 	public List<VatGoosInventoryRelationVO> getGoodsInvenRela(List<OcrInvoiceVO> saleList, String pk_corp)
 			throws DZFWarpException {
-
+		CorpVO corp = corpService.queryByPk(pk_corp);
+		Map<String, YntCpaccountVO> accmap2 =  new LinkedHashMap<>();
 		Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(pk_corp);
 		String newrule = gl_cpacckmserv.queryAccountRule(pk_corp);
 		YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);
@@ -1479,8 +1480,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				if(StringUtil.isEmpty(relvo.getPk_subj())){
 					YntCpaccountVO accountvo = accountmap.get(bvo.getPk_billcategory());
 					if(accountvo==null){
-						queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp,
-								accmap, newrule);
+						queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp,
+								accmap, newrule,corp);
 						}
 					if (accountvo == null) {
 						for (YntCpaccountVO acc : accounts) {
@@ -1703,6 +1704,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 	public InventoryVO matchInvtoryIC(VatGoosInventoryRelationVO gvo, String pk_corp, String cuserid, String newrule, Map<String, YntCpaccountVO> accmap, YntCpaccountVO[] accounts)
 			throws DZFWarpException {
+		CorpVO corp = corpService.queryByPk(pk_corp);
+		Map<String, YntCpaccountVO> accmap2 =  new LinkedHashMap<>();
 		//Map<String, YntCpaccountVO> accmap = AccountCache.getInstance().getMap(null, pk_corp);
 		if (StringUtil.isEmpty(pk_corp) || gvo == null)
 			return null;
@@ -1738,8 +1741,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			invvo.setPk_subject(gvo.getPk_subj());
 			// invvo.setPk_measure(pk_measure);
 			if(StringUtil.isEmpty(gvo.getPk_subj())){
-				YntCpaccountVO accountvo = queryCategorSubj(gvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp,
-						accmap, newrule);
+				YntCpaccountVO accountvo = queryCategorSubj(accmap2,gvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp,
+						accmap, newrule,corp);
 				if (accountvo == null) {
 					for (YntCpaccountVO acc : accounts) {
 						if ("1405".equalsIgnoreCase(acc.getAccountcode())){
@@ -1756,13 +1759,15 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		return invvo;
 	}
 
-	public YntCpaccountVO queryCategorSubj(String pk_billcagegory, String catecode[], int jici, String pk_corp,
-			Map<String, YntCpaccountVO> accmap, String newrule) throws DZFWarpException {
+	public YntCpaccountVO queryCategorSubj(Map<String, YntCpaccountVO> catchmap,String pk_billcagegory, String catecode[], int jici, String pk_corp,
+			Map<String, YntCpaccountVO> accmap, String newrule,CorpVO corp) throws DZFWarpException {
 		if (StringUtil.isEmpty(pk_billcagegory)) {
 			return null;
 		}
-		YntCpaccountVO cavo = new YntCpaccountVO();
-		CorpVO corp = corpService.queryByPk(pk_corp);
+		if(catchmap ==null) catchmap = new LinkedHashMap<>();
+		if(catchmap.containsKey(pk_billcagegory)) return catchmap.get(pk_billcagegory);
+ 		YntCpaccountVO cavo = new YntCpaccountVO();
+		//CorpVO corp = corpService.queryByPk(pk_corp);
 		String corptype = corp.getCorptype();
 
 		// 先去前台编辑分类的设置里面找
@@ -1809,7 +1814,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				sqlbuff.toString(), param);
 		if (setvo != null && setvo.length > 0 && !StringUtil.isEmpty(setvo[0].getPk_accsubj())) {
 			// cavo.setPk_corp_account(setvo[0].getPk_accsubj());
-			return getAccountVO(accmap, setvo[0].getPk_accsubj());
+			//return getAccountVO(accmap, setvo[0].getPk_accsubj());
+			catchmap.put(pk_billcagegory,getAccountVO(accmap, setvo[0].getPk_accsubj()));
+			return catchmap.get(pk_billcagegory);
 		}
 
 		// 然后再去后台入账规则去找
@@ -1821,7 +1828,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 		if (categorycode.startsWith("1110") || categorycode.startsWith("1111")// 库存商品和原材料
 				|| categorycode.startsWith("101015") || categorycode.startsWith("101110")) {
-			return processAccount(category.getPk_basecategory(), corptype, accmap, newrule);
+			 processAccount(category.getPk_basecategory(), corptype, accmap, newrule);
+			return catchmap.get(pk_billcagegory);
 		} else {
 			String defaultcode = "1110";
 			if (catecode.length == 1) {
@@ -1832,7 +1840,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			String sql = " categorycode ='" + defaultcode + "' and nvl(dr,0)=0  ";
 			BaseCategoryVO catevo[] = (BaseCategoryVO[]) singleObjectBO.queryByCondition(BaseCategoryVO.class, sql,
 					new SQLParameter());
-			return processAccount(catevo[0].getPk_basecategory(), corptype, accmap, newrule);
+			//return processAccount(catevo[0].getPk_basecategory(), corptype, accmap, newrule);
+			catchmap.put(pk_billcagegory,processAccount(catevo[0].getPk_basecategory(), corptype, accmap, newrule));
+			return catchmap.get(pk_billcagegory);
 		}
 
 	}
@@ -2087,6 +2097,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	@Override
 	public boolean checkIsMatchCategroy(String categoryKey, Map<String, BillCategoryVO> map) throws DZFWarpException {
 		BillCategoryVO categoryvo = null;
+		Map<String, YntCpaccountVO> accmap2 =  new LinkedHashMap<>();
 		if (map == null)
 			map = new HashMap<String, BillCategoryVO>();
 		if (map.containsKey(categoryKey)) {// 用个map缓存这次查过的数据避免重复查...
@@ -2115,12 +2126,12 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				// corp.getCorptype(), accmap, newrule);
 				YntCpaccountVO accountvo = null;
 				if (code.startsWith("11")) {
-					accountvo = queryCategorSubj(categoryvo.getPk_category(), new String[] { "11" }, 2, pk_corp, accmap,
-							newrule);
+					accountvo = queryCategorSubj(accmap2,categoryvo.getPk_category(), new String[] { "11" }, 2, pk_corp, accmap,
+							newrule,corp);
 				} else {
 
-					accountvo = queryCategorSubj(categoryvo.getPk_category(), new String[] { "101015", "101110" }, 1,
-							pk_corp, accmap, newrule);
+					accountvo = queryCategorSubj(accmap2,categoryvo.getPk_category(), new String[] { "101015", "101110" }, 1,
+							pk_corp, accmap, newrule,corp);
 				}
 
 				if (accountvo != null) {// && !StringUtil.isEmpty(accountvo.getIsfzhs())&& accountvo.getIsfzhs().charAt(5) == '1'
@@ -2140,7 +2151,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	// }
 
 	@Override
-	public String checkInvtorySubj(InventoryAliasVO[] invectory,InventorySetVO vo, String pk_corp,String userid,boolean ischecked) throws DZFWarpException {
+	public String checkInvtorySubj(InventoryAliasVO[] invectory,InventorySetVO vo, String pk_corp,String userid,boolean ischecked,YntCpaccountVO[] accountvos) throws DZFWarpException {
 		if(invectory==null || invectory.length==0)
 			return "";
 		if(StringUtil.isEmpty(pk_corp))
@@ -2158,7 +2169,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			return "";
 		StringBuffer sbf = new StringBuffer();
 		String str = "";
-		YntCpaccountVO[] accountvos =accountService.queryByPk(cpvo.getPk_corp());
+		//YntCpaccountVO[]
+		accountvos = accountvos != null ? accountvos : accountService.queryByPk(cpvo.getPk_corp());
 		Map<String, YntCpaccountVO> map = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(accountvos), new String[]{"accountcode"});
 		
 		Map<String,YntCpaccountVO> subjmap = new HashMap<String,YntCpaccountVO>();

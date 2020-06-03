@@ -23,7 +23,6 @@ import com.dzf.zxkj.common.utils.DZFMapUtil;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
@@ -50,7 +49,6 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IDcpzService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
-import com.dzf.zxkj.platform.util.Kmschema;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -60,8 +58,12 @@ import com.dzf.zxkj.platform.util.zncs.VatExportUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
@@ -647,6 +649,7 @@ public class VATInComInvoice2Controller extends BaseController {
             String period;
             List<String> periodSet = new ArrayList<String>();
             String kplx = null;
+            ZncsParamVO zncsParamVO = new ZncsParamVO();
             for(VATInComInvoiceVO2 vo : storeList){
                 DZFDate rzrj = TimeUtils.getLastMonthDay(new DZFDate(vo.getInperiod()+"-01"));
                 if(vo.getKprj().after(rzrj)){
@@ -673,7 +676,7 @@ public class VATInComInvoice2Controller extends BaseController {
                         msg.append("<font color='red'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据已关联入库，不能生成凭证。</p></font>");
                     }
                     else if(StringUtil.isEmpty(vo.getPk_tzpz_h())){
-                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, false);
+                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, false,zncsParamVO);
                         msg.append("<font color='#2ab30f'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据生成凭证成功。</p></font>");
                     }else{
                         errorCount++;
@@ -688,7 +691,7 @@ public class VATInComInvoice2Controller extends BaseController {
                             && !e.getMessage().startsWith("进项发票")
                             && !e.getMessage().startsWith("制单失败")){
                         try {
-                            gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, true);
+                            gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, true,zncsParamVO);
                             msg.append("<font color='#2ab30f'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据生成凭证成功。</p></font>");
                         } catch (Exception ex) {
 
@@ -987,7 +990,7 @@ public class VATInComInvoice2Controller extends BaseController {
         checkSecurityData(null,new String[]{pk_corp}, null);
         boolean lock = false;
         try {
-
+            ZncsParamVO zncsParamVO = new ZncsParamVO();
             //加锁
             lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcombinepz"+pk_corp);
             if(!lock){//处理
@@ -1047,6 +1050,7 @@ public class VATInComInvoice2Controller extends BaseController {
             List<String> periodSet = new ArrayList<String>();
             List<VATInComInvoiceVO2> combineList = null;
             String kplx = null;
+
             for(VATInComInvoiceVO2 vo : storeList){
 
                 key = buildkey(vo, setvo);
@@ -1074,12 +1078,12 @@ public class VATInComInvoice2Controller extends BaseController {
                     periodSet.remove(period);
                 }else if(IcCostStyle.IC_ON.equals(corpvo.getBbuildic())&&gl_vatincinvact2.checkIsStock(vo)){
                     try {
-                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, false);
+                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, false,zncsParamVO);
                         msg.append("<font color='#2ab30f'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据生成凭证成功。</p></font>");
 
                     } catch (Exception e) {
                         try {
-                            gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, true);
+                            gl_vatincinvact2.createPZ(vo, pk_corp, userid, period, setvo, lwflag, accway, true,zncsParamVO);
                             msg.append("<font color='#2ab30f'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据生成凭证成功。</p></font>");
 
                         } catch (Exception e2) {
@@ -1118,7 +1122,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
                     combineList = entry.getValue();
                     gl_vatincinvact2.saveCombinePZ(combineList,
-                            pk_corp, userid, key, setvo, lwflag, accway, false);
+                            pk_corp, userid, key, setvo, lwflag, accway, false,zncsParamVO);
                     msg.append("<font color='#2ab30f'><p>入账期间为" + key + "的单据生成凭证成功。</p></font>");
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -1128,7 +1132,7 @@ public class VATInComInvoice2Controller extends BaseController {
                             && !e.getMessage().startsWith("制单失败")){
                         try {
 
-                            gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, key, setvo, lwflag, accway, true);
+                            gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, key, setvo, lwflag, accway, true,zncsParamVO);
                             msg.append("<font color='#2ab30f'><p>入账期间为" + key + "的单据生成凭证成功。</p></font>");
                         } catch (Exception ex) {
                             errorCount++;
@@ -1525,6 +1529,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
     private int dealAfterTicketByPZ(Map<String, VATInComInvoiceVO2> map, StringBuffer msg){
         List<VATInComInvoiceVO2> list = buildMap2List(map);
+        ZncsParamVO zncsParamVO = new ZncsParamVO();
         int errorCount = 0;
         String pk_corp = SystemUtil.getLoginCorpId();
         String userid = SystemUtil.getLoginUserId();
@@ -1586,7 +1591,7 @@ public class VATInComInvoice2Controller extends BaseController {
                 combineList = entry.getValue();
 
                 gl_vatincinvact2.saveCombinePZ(combineList,
-                        pk_corp, userid, key, setvo, null, accway, false);
+                        pk_corp, userid, key, setvo, null, accway, false,zncsParamVO);
                 msg.append("<font color='#2ab30f'><p>入账期间为" + key + "的单据生成凭证成功。</p></font>");
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -1595,7 +1600,7 @@ public class VATInComInvoice2Controller extends BaseController {
                         && !e.getMessage().startsWith("进项发票")
                         && !e.getMessage().startsWith("制单失败")){
                     try {
-                        gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, key, setvo, null, accway, true);
+                        gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, key, setvo, null, accway, true,zncsParamVO);
                         msg.append("<font color='#2ab30f'><p>入账期间为" + key + "的单据生成凭证成功。</p></font>");
                     } catch (Exception ex) {
                         errorCount++;
@@ -1792,6 +1797,7 @@ public class VATInComInvoice2Controller extends BaseController {
     public String processGoods(List<VATInComInvoiceVO2> list,String pk_corp,String userid ){
 
         CorpVO corpVo = corpService.queryByPk(pk_corp);
+        YntCpaccountVO[] accountvos = null;
         //处理存货匹配yinyx1
         try {
             if(IcCostStyle.IC_INVTENTORY.equals(corpVo.getBbuildic())){
@@ -1800,7 +1806,7 @@ public class VATInComInvoice2Controller extends BaseController {
                     return "存货设置未设置!";
 
                 List<InventoryAliasVO> relvos = gl_vatincinvact2.matchInventoryData(pk_corp, list.toArray(new VATInComInvoiceVO2[0]),invsetvo);
-                String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false);
+                String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp, SystemUtil.getLoginUserId(), false,accountvos);
                 if (!StringUtil.isEmpty(error)) {
                     error = error.replaceAll("<br>", " ");
                     throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2057,6 +2063,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
     @RequestMapping("/matchInventoryData_long")
     public ReturnData<Grid> matchInventoryData_long(@RequestBody Map<String,String> param) {
+        YntCpaccountVO[] accountvos = null;
         Grid grid = new Grid();
         try {
             String body = param.get("head");
@@ -2114,7 +2121,7 @@ public class VATInComInvoice2Controller extends BaseController {
 
                 if(relvos != null && relvos.size()>0){
 
-                    String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp,SystemUtil.getLoginUserId(), false);
+                    String error = ocrinterface.checkInvtorySubj(relvos.toArray(new InventoryAliasVO[0]), invsetvo, pk_corp,SystemUtil.getLoginUserId(), false,accountvos);
                     if (!StringUtil.isEmpty(error)) {
                         error = error.replaceAll("<br>", " ");
                         throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2173,6 +2180,7 @@ public class VATInComInvoice2Controller extends BaseController {
     public ReturnData<Grid> saveInventoryData(@RequestBody Map<String,String> param) {
         Grid grid = new Grid();
         String pk_corp = "";
+        YntCpaccountVO[] accountvos = null;
         boolean lock = false;
         try {
             String goods = param.get("goods");
@@ -2190,7 +2198,7 @@ public class VATInComInvoice2Controller extends BaseController {
             if (goodvos == null || goodvos.length == 0)
                 throw new BusinessException("未找到存货别名数据，请检查");
             InventorySetVO invsetvo = query();
-            String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), true);
+            String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), true,accountvos);
             if (!StringUtil.isEmpty(error)) {
                 error = error.replaceAll("<br>", " ");
                 throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2308,6 +2316,7 @@ public class VATInComInvoice2Controller extends BaseController {
         checkSecurityData(null,new String[]{pk_corp},null);
         boolean lock = false;
         String sourceName = StringUtil.isEmpty(sourcename)?"填制凭证_":sourcename+"_";
+        YntCpaccountVO[] accountvos = null;
         try {
 
             //加锁
@@ -2365,7 +2374,7 @@ public class VATInComInvoice2Controller extends BaseController {
             if (chcbjzfs != 2) {
                 InventoryAliasVO[] goodvos = getInvAliasData(goods);
                 if(goodvos != null &&goodvos.length> 0){
-                    String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), false);
+                    String error = ocrinterface.checkInvtorySubj(goodvos, invsetvo, pk_corp, SystemUtil.getLoginUserId(), false,accountvos);
                     if (!StringUtil.isEmpty(error)) {
                         error = error.replaceAll("<br>", " ");
                         throw new BusinessException("进项发票存货匹配失败:"+error);
@@ -2543,6 +2552,7 @@ public class VATInComInvoice2Controller extends BaseController {
         String period;
         List<String> periodSet = new ArrayList<String>();
         int err=0;
+        ZncsParamVO zncsParamVO = new ZncsParamVO();
         for (VATInComInvoiceVO2 vo : stoList) {
             kplx = vo.getKplx();
             key = buildkey(vo, setvo);
@@ -2559,10 +2569,10 @@ public class VATInComInvoice2Controller extends BaseController {
                     msg.append("<font color='red'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据是废票，不能生成凭证。</p></font>");
                 } else if (StringUtil.isEmpty(vo.getPk_tzpz_h())) {
                     try {
-                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, accway, false, invsetvo, setvo, jsfs);
+                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, accway, false, invsetvo, setvo, jsfs,zncsParamVO);
                         msg.append("<font color='#2ab30f'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据生成凭证成功。</p></font>");
                     } catch (Exception e) {
-                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, accway, true, invsetvo, setvo, jsfs);
+                        gl_vatincinvact2.createPZ(vo, pk_corp, userid, accway, true, invsetvo, setvo, jsfs,zncsParamVO);
                         msg.append("<font color='#2ab30f'><p>进项发票[" + vo.getFp_dm() + "_" + vo.getFp_hm() + "]的单据生成凭证成功。</p></font>");
                     }
 
@@ -2609,7 +2619,7 @@ public class VATInComInvoice2Controller extends BaseController {
     private List<Object>  combinePZData1(List<VATInComInvoiceVO2> stoList, VatInvoiceSetVO setvo, InventorySetVO invsetvo,
                                          String jsfs) {
         String pk_corp = SystemUtil.getLoginCorpId();
-
+        ZncsParamVO zncsParamVO = new ZncsParamVO();
         String userid = SystemUtil.getLoginUserId();
 
         boolean accway = getAccWay(pk_corp);
@@ -2660,11 +2670,11 @@ public class VATInComInvoice2Controller extends BaseController {
                 key = splitKey(key);
 
                 combineList = entry.getValue();
-                gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, setvo, accway, false, invsetvo, jsfs);
+                gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, setvo, accway, false, invsetvo, jsfs,zncsParamVO);
                 msg.append("<font color='#2ab30f'><p>入账期间为" + key + "的单据生成凭证成功。</p></font>");
             } catch (Exception e) {
                 try {
-                    gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, setvo, accway, true, invsetvo, jsfs);
+                    gl_vatincinvact2.saveCombinePZ(combineList, pk_corp, userid, setvo, accway, true, invsetvo, jsfs,zncsParamVO);
                     msg.append("<font color='#2ab30f'><p>入账期间为" + key + "的单据生成凭证成功。</p></font>");
                 } catch (Exception e2) {
                     log.error(e.getMessage(), e);
@@ -3058,4 +3068,28 @@ public class VATInComInvoice2Controller extends BaseController {
         return ReturnData.ok().data(json);
     }
 
+
+    @Override
+    public void checkSecurityData(SuperVO[] vos, String[] corps, String cuserid) {
+        boolean lock= false;
+
+
+            //加锁
+            lock=redissonDistributedLock.tryGetDistributedFairLock("jinxiang2pz"+corps[0]);
+            if(!lock){//处理
+//                json.setSuccess(false);
+//                json.setMsg("正在处理中，请稍候刷新界面");
+//                return ReturnData.error().data(json);
+                throw new BusinessException("正在处理中，请稍候刷新界面");
+            }
+        lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcreatepz"+corps[0]);
+
+        if(!lock){//处理
+//                json.setSuccess(false);
+//                json.setMsg("正在处理中，请稍候刷新界面");
+//                return ReturnData.error().data(json);
+            throw new BusinessException("正在处理中，请稍候刷新界面");
+        }
+            super.checkSecurityData(vos, corps, cuserid);
+    }
 }

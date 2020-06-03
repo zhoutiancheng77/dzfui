@@ -742,11 +742,12 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 		return invo2;
 	}
-	// private static String ISTEMP = "ISTEMP";//暂存标识
+	// private static String ISTEMP = "ISTEMP";/, List<AuxiliaryAccountBVO> chFzhsBodyVOs/暂存标识
 	@Override
 	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid,String period,
-						 VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT) throws DZFWarpException {
-		CorpVO corpvo = corpService.queryByPk(pk_corp);
+						 VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT,ZncsParamVO zncsParamVO) throws DZFWarpException {
+		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
+		CorpVO corpvo = zncsParamVO.getCorpvo();//corpService.queryByPk(pk_corp);
 		//YntCpaccountVO[] accounts = AccountCache.getInstance().get(null, pk_corp);
 
 		List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
@@ -764,14 +765,14 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		OcrImageLibraryVO lib = changeOcrInvoiceVO(vo, pk_corp, ifptype, fp_style);
 		OcrInvoiceDetailVO[] detailvos = changeOcrInvoiceDetailVO(vo, pk_corp);
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();*/
-		YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);
+		YntCpaccountVO[] accounts =zncsParamVO.getAccVOs(); //accountService.queryByPk(pk_corp);
 		//生成入库单
 		IntradeHVO ichvo = createIH(vo, accounts, corpvo, userid);
 
-		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
-		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
+		Map<String,YntCpaccountVO> accountMap = zncsParamVO.getAccountMap();//accountService.queryMapByPk(corpvo.getPk_corp());
+		YntCpaccountVO[] accVOs=zncsParamVO.getAccVOs();//accountService.queryByPk(corpvo.getPk_corp());
 
-		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo, period,false);
+		Map<String, Object> paramMap=zncsParamVO.getParamMap().get(pk_corp+period);//zncsVoucher.initVoucherParam(corpvo, period,false);
 		List<List<Object[]>> levelList=(List<List<Object[]>>) paramMap.get("levelList");
 		Map<String, Object[]> categoryMap =(Map<String, Object[]>) paramMap.get("categoryMap");
 		Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap=(Map<Integer, AuxiliaryAccountHVO>) paramMap.get("fzhsHeadMap");
@@ -3826,7 +3827,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	@Override
 	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, String period,
-							  VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT) throws DZFWarpException {
+							  VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT,ZncsParamVO zncsParamVO) throws DZFWarpException {
 		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		checkisGroup(list, pk_corp);//校验
 		YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);
@@ -5419,6 +5420,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	public List<InventoryAliasVO> matchInventoryData(String pk_corp, VATInComInvoiceVO2[] vos, InventorySetVO invsetvo)
 			throws DZFWarpException {
 		String newrule = gl_cpacckmserv.queryAccountRule(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
+		Map<String, YntCpaccountVO> accmap2 =  new LinkedHashMap<>();
 		List<VATInComInvoiceVO2> saleList = construcComInvoice(vos, pk_corp);
 
 		if (saleList == null || saleList.size() == 0)
@@ -5444,10 +5447,10 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 
 		Map<String, VATInComInvoiceBVO2> bvoMap = buildGoodsInvenRelaMapModel7(saleList, invsetvo);
+		Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(pk_corp);
 		List<InventoryAliasVO> list = null;
 		if (bvoMap != null && bvoMap.size() > 0) {
 			list = new ArrayList<InventoryAliasVO>();
-			Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(pk_corp);
 			String key;
 			AuxiliaryAccountBVO invenvo;
 			VATInComInvoiceBVO2 bvo;
@@ -5485,8 +5488,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 						if(StringUtil.isEmpty(relvo.getChukukmid())){
 							accvo = getAccountVO(accmap, bvo.getPk_accsubj());
 							if(accvo == null){
-								accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
-										pk_corp, accmap, newrule);
+								accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
+										pk_corp, accmap, newrule,corpvo);
 							}
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("600101",accmap);
@@ -5503,8 +5506,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 						if(StringUtil.isEmpty(relvo.getKmclassify())){
 							accvo = getAccountVO(accmap, bvo.getPk_accsubj());
 							if(accvo == null){
-								accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
-										newrule);
+								accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
+										newrule,corpvo);
 							}
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("1405",accmap);
@@ -5536,8 +5539,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 						String pk_accsubj = null;
 						relvo.setChukukmid(invsetvo.getKcspckkm());
 						relvo.setKmclassify(invsetvo.getKcsprkkm());
-						accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
-								pk_corp, accmap, newrule);
+						accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
+								pk_corp, accmap, newrule,corpvo);
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("600101",accmap);
 						}
@@ -5552,8 +5555,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 						}
 						accvo = getAccountVO(accmap, bvo.getPk_accsubj());
 						if(accvo == null){
-							accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
-									newrule);
+							accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
+									newrule,corpvo);
 						}
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("1405",accmap);
@@ -5958,11 +5961,12 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	@Override
 	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid, boolean accway, boolean isT,
-						 InventorySetVO invsetvo, VatInvoiceSetVO setvo, String jsfs) throws DZFWarpException {
+						 InventorySetVO invsetvo, VatInvoiceSetVO setvo, String jsfs,ZncsParamVO zncsParamVO) throws DZFWarpException {
 		if(StringUtils.isEmpty(vo.getPk_model_h())){
 			throw new BusinessException("进项发票:业务类型为空,请重新选择业务类型");
 		}
-		CorpVO corpvo =  corpService.queryByPk(pk_corp);
+		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
+		CorpVO corpvo =  zncsParamVO.getCorpvo();//corpService.queryByPk(pk_corp);
 		// 1-----普票 2----专票 3--- 未开票
 		int fp_style = getFpStyle(vo);
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();
@@ -5971,10 +5975,10 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		headVO.setIfptype(ifptype);
 		headVO.setFp_style(fp_style);
 
-		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
-		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
+		Map<String,YntCpaccountVO> accountMap = zncsParamVO.getAccountMap();//accountService.queryMapByPk(corpvo.getPk_corp());
+		YntCpaccountVO[] accVOs=zncsParamVO.getAccVOs(); //accountService.queryByPk(corpvo.getPk_corp());
 
-		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo, vo.getInperiod(),false);
+		Map<String, Object> paramMap=zncsParamVO.getParamMap().get(pk_corp+vo.getInperiod());//zncsVoucher.initVoucherParam(corpvo, vo.getInperiod(),false);
 		List<List<Object[]>> levelList=(List<List<Object[]>>) paramMap.get("levelList");
 		Map<String, Object[]> categoryMap =(Map<String, Object[]>) paramMap.get("categoryMap");
 		Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap=(Map<Integer, AuxiliaryAccountHVO>) paramMap.get("fzhsHeadMap");
@@ -6038,7 +6042,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	@Override
 	public void saveCombinePZ(List<VATInComInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo,
-							  boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
+							  boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs,ZncsParamVO zncsParamVO) throws DZFWarpException {
 		CorpVO corpvo =  corpService.queryByPk(pk_corp);
 
 		int fp_style;
@@ -7646,6 +7650,23 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		return list!=null&&list.size()>0?list.get(0):new CorpReferenceVO();
 	}
 
-
+	private ZncsParamVO initZncsParamVO(ZncsParamVO zncsParamVO,String pk_corp,VATInComInvoiceVO2 vatvo){
+		//Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
+		//		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
+		//
+		//		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo, vo.getInperiod(),false);
+		//CorpVO corpvo =  corpService.queryByPk(pk_corp);
+		if(zncsParamVO.getCorpvo() == null){
+			zncsParamVO.setCorpvo(corpService.queryByPk(pk_corp));
+			zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
+			zncsParamVO.setAccVOs(accountService.queryByPk(pk_corp));
+		}
+		String key = pk_corp +vatvo.getPeriod();
+		if(zncsParamVO.getParamMap().get(key) == null){
+			Map<String, Object> paramMap=zncsVoucher.initVoucherParam(zncsParamVO.getCorpvo(), vatvo.getInperiod(),false);
+			zncsParamVO.getParamMap().put(key,paramMap);
+		}
+		return zncsParamVO;
+	}
 }
 

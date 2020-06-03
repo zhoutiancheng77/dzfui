@@ -12,6 +12,7 @@ import com.dzf.zxkj.app.service.user.IAppUserService;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
 import com.dzf.zxkj.app.utils.AppQueryUtil;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -105,12 +106,33 @@ public class ReportController {
             case IConstant.ONE_ZERO_ZERO://税负预警
                 bean = querySfyj(reportBean);
                 break;
+            case IConstant.ONE_ZERO_ONE://征期日历
+                bean = queryZqrl(reportBean);
+                break;
             case IConstant.ONE_ZERO_TWO://辅助余额表
                 bean = queryFzYe(reportBean);
                 break;
         }
 
         return ReturnData.ok().data(bean);
+    }
+
+    /**
+     * 征期日历
+     * @param reportBean
+     * @return
+     */
+    private ResponseBaseBeanVO queryZqrl(ReportBeanVO reportBean) {
+        ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
+        IQryReport1Service iqr1=	(IQryReport1Service) SpringUtils.getBean("orgreport1");
+        try {
+            ReportResBean rptbean = iqr1.qryZqrl(reportBean.getPk_corp(), reportBean.getPeriod());
+            bean.setRescode(IConstant.DEFAULT);
+            bean.setResmsg(rptbean);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return bean;
     }
 
     private ResponseBaseBeanVO queryFzYe(ReportBeanVO reportBean) {

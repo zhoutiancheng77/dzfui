@@ -785,9 +785,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			, Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap, InventorySetVO inventorySetVO, CorpVO corp, Map<String, InventoryAliasVO> fzhsBMMap
 			, List<Object> paramList, Map<String, BdCurrencyVO> currMap, Map<String, Object[]> rateMap, Map<String, String> bankAccountMap, Map<String, YntCpaccountVO> accountMap
 			, Map<String, AuxiliaryAccountBVO> assistMap, Map<String, List<AccsetVO>> accsetMap, Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map, Map<String, String> jituanSubMap, YntCpaccountVO[] accVOs
-			, String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs) throws DZFWarpException {
-
-		CorpVO corpvo = corpService.queryByPk(pk_corp);
+			, String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs, ZncsParamVO zncsParamVO) throws DZFWarpException {
+		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
+		CorpVO corpvo = zncsParamVO.getCorpvo();// corpService.queryByPk(pk_corp);
 
 		List<VATSaleInvoiceVO2> ll = new ArrayList<VATSaleInvoiceVO2>();
 		ll.add(vo);
@@ -4172,8 +4172,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			,Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap,InventorySetVO inventorySetVO,CorpVO corp,Map<String, InventoryAliasVO> fzhsBMMap
 			,List<Object> paramList,Map<String, BdCurrencyVO> currMap,Map<String, Object[]> rateMap,Map<String, String> bankAccountMap,Map<String,YntCpaccountVO> accountMap
 			,Map<String, AuxiliaryAccountBVO> assistMap,Map<String, List<AccsetVO>> accsetMap,Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map,Map<String, String> jituanSubMap,YntCpaccountVO[] accVOs
-			,String tradeCode,String newrule,List<AuxiliaryAccountBVO> chFzhsBodyVOs) throws DZFWarpException {
-		CorpVO corpvo = corpService.queryByPk(pk_corp);
+			,String tradeCode,String newrule,List<AuxiliaryAccountBVO> chFzhsBodyVOs,ZncsParamVO zncsParamVO) throws DZFWarpException {
+		//zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,null);
+		CorpVO corpvo =corp; //zncsParamVO.getCorpvo();//corpService.queryByPk(pk_corp);
 
 		checkisGroup(list, pk_corp);// 校验
 
@@ -6033,9 +6034,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	@Override
 	public List<InventoryAliasVO> matchInventoryData(String pk_corp, VATSaleInvoiceVO2[] vos, InventorySetVO invsetvo)
 			throws DZFWarpException {
-
+		CorpVO corp = corpService.queryByPk(pk_corp);
 		String newrule = gl_cpacckmserv.queryAccountRule(pk_corp);
 		List<VATSaleInvoiceVO2> saleList = constructVatSale(vos, pk_corp);
+        Map<String, YntCpaccountVO> accmap2 =  new LinkedHashMap<>();
 		int pprule = invsetvo.getChppjscgz();//匹配规则
 		if (saleList == null || saleList.size() == 0)
 			throw new BusinessException("未找销项发票数据，请检查");
@@ -6059,10 +6061,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 
 		Map<String, VATSaleInvoiceBVO2> bvoMap = buildGoodsInvenRelaMapModel7(saleList, invsetvo);
+		Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(pk_corp);
 		List<InventoryAliasVO> list = null;
 		if (bvoMap != null && bvoMap.size() > 0) {
 			list = new ArrayList<InventoryAliasVO>();
-			Map<String, YntCpaccountVO> accmap = accountService.queryMapByPk(pk_corp);
 			String key;
 			AuxiliaryAccountBVO invenvo;
 			VATSaleInvoiceBVO2 bvo;
@@ -6100,8 +6102,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						if(StringUtil.isEmpty(relvo.getChukukmid())){
 							accvo = getAccountVO(accmap, bvo.getPk_accsubj());
 							if(accvo == null){
-								accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
-										pk_corp, accmap, newrule);
+								accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
+										pk_corp, accmap, newrule,corp);
 							}
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("600101",accmap);
@@ -6117,8 +6119,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						}
 						if(StringUtil.isEmpty(relvo.getKmclassify())){
 
-							accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
-									newrule);
+							accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
+									newrule,corp);
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("1405",accmap);
 							}
@@ -6153,8 +6155,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 						accvo = getAccountVO(accmap, bvo.getPk_accsubj());
 						if(accvo == null){
-							accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
-									pk_corp, accmap, newrule);
+							accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "101015", "101110" }, 1,
+									pk_corp, accmap, newrule,corp);
 						}
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("600101",accmap);
@@ -6169,8 +6171,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 							relvo.setChukukmid(accvo.getPk_corp_account());
 						}
 
-						accvo = ocrinterface.queryCategorSubj(bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
-								newrule);
+						accvo = ocrinterface.queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp, accmap,
+								newrule,corp);
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("1405",accmap);
 						}
@@ -6591,8 +6593,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public void createPZ(VATSaleInvoiceVO2 vo, String pk_corp, String userid, boolean accway, boolean isT,
-						 VatInvoiceSetVO setvo, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
-		CorpVO corpvo = corpService.queryByPk(pk_corp);
+						 VatInvoiceSetVO setvo, InventorySetVO invsetvo, String jsfs, ZncsParamVO zncsParamVO) throws DZFWarpException {
+		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
+		CorpVO corpvo = zncsParamVO.getCorpvo();//corpService.queryByPk(pk_corp);
 		if(StringUtils.isEmpty(vo.getPk_model_h())){
 			throw new BusinessException("销项发票:业务类型为空,请重新选择业务类型");
 		}
@@ -6606,10 +6609,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		headVO.setIfptype(ifptype);
 		headVO.setFp_style(fp_style);
 
-		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
-		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
+		Map<String,YntCpaccountVO> accountMap = zncsParamVO.getAccountMap();//accountService.queryMapByPk(corpvo.getPk_corp());
+		YntCpaccountVO[] accVOs=zncsParamVO.getAccVOs();//accountService.queryByPk(corpvo.getPk_corp());
 
-		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo,vo.getInperiod(),false);
+		Map<String, Object> paramMap=zncsParamVO.getParamMap().get(corpvo.getPk_corp()+vo.getInperiod());//zncsVoucher.initVoucherParam(corpvo,vo.getInperiod(),false);
 		List<List<Object[]>> levelList=(List<List<Object[]>>) paramMap.get("levelList");
 		Map<String, Object[]> categoryMap =(Map<String, Object[]>) paramMap.get("categoryMap");
 		Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap=(Map<Integer, AuxiliaryAccountHVO>) paramMap.get("fzhsHeadMap");
@@ -6670,8 +6673,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	@Override
 	public void saveCombinePZ(List<VATSaleInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo,
-							  boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs) throws DZFWarpException {
-		CorpVO corpvo = corpService.queryByPk(pk_corp);
+							  boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs,ZncsParamVO zncsParamVO) throws DZFWarpException {
+		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,list.get(0));
+		CorpVO corpvo = zncsParamVO.getCorpvo();//corpService.queryByPk(pk_corp);
 		int fp_style;
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();
 		List<TzpzBVO> inlist=null;
@@ -6684,10 +6688,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		//Map<String, YntCpaccountVO> ccountMap = AccountCache.getInstance().getMap(userid, pk_corp);
 		Integer pzstatus = null;
 
-		Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
-		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
+		Map<String,YntCpaccountVO> accountMap = zncsParamVO.getAccountMap();//accountService.queryMapByPk(corpvo.getPk_corp());
+		YntCpaccountVO[] accVOs=zncsParamVO.getAccVOs();//accountService.queryByPk(corpvo.getPk_corp());
 
-		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo,list.get(0).getInperiod(),false);
+		Map<String, Object> paramMap=zncsParamVO.getParamMap().get(pk_corp+list.get(0).getInperiod()); //zncsVoucher.initVoucherParam(corpvo,list.get(0).getInperiod(),false);
 		List<List<Object[]>> levelList=(List<List<Object[]>>) paramMap.get("levelList");
 		Map<String, Object[]> categoryMap =(Map<String, Object[]>) paramMap.get("categoryMap");
 		Map<Integer, AuxiliaryAccountHVO> fzhsHeadMap=(Map<Integer, AuxiliaryAccountHVO>) paramMap.get("fzhsHeadMap");
@@ -7751,5 +7755,26 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 		return ichvo;
 
+	}
+	private ZncsParamVO initZncsParamVO(ZncsParamVO zncsParamVO,String pk_corp,VATSaleInvoiceVO2 vatvo){
+		//Map<String,YntCpaccountVO> accountMap = accountService.queryMapByPk(corpvo.getPk_corp());
+		//		YntCpaccountVO[] accVOs=accountService.queryByPk(corpvo.getPk_corp());
+		//
+		//		Map<String, Object> paramMap=zncsVoucher.initVoucherParam(corpvo, vo.getInperiod(),false);
+		//CorpVO corpvo =  corpService.queryByPk(pk_corp);
+		if(zncsParamVO.getCorpvo() == null){
+			zncsParamVO.setCorpvo(corpService.queryByPk(pk_corp));
+			zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
+			zncsParamVO.setAccVOs(accountService.queryByPk(pk_corp));
+		}
+		if(vatvo!=null){
+			String key = pk_corp +vatvo.getPeriod();
+			if(zncsParamVO.getParamMap().get(key) == null){
+				Map<String, Object> paramMap=zncsVoucher.initVoucherParam(zncsParamVO.getCorpvo(), vatvo.getInperiod(),false);
+				zncsParamVO.getParamMap().put(key,paramMap);
+			}
+		}
+
+		return zncsParamVO;
 	}
 }

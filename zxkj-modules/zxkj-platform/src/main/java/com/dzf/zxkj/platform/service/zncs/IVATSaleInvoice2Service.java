@@ -17,10 +17,7 @@ import com.dzf.zxkj.platform.model.pjgl.VatInvoiceSetVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.tax.TaxitemVO;
-import com.dzf.zxkj.platform.model.zncs.AccsetKeywordBVO2;
-import com.dzf.zxkj.platform.model.zncs.AccsetVO;
-import com.dzf.zxkj.platform.model.zncs.BillCategoryVO;
-import com.dzf.zxkj.platform.model.zncs.VATSaleInvoiceVO2;
+import com.dzf.zxkj.platform.model.zncs.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -77,7 +74,7 @@ public interface IVATSaleInvoice2Service {
             , Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap, InventorySetVO inventorySetVO, CorpVO corp, Map<String, InventoryAliasVO> fzhsBMMap
             , List<Object> paramList, Map<String, BdCurrencyVO> currMap, Map<String, Object[]> rateMap, Map<String, String> bankAccountMap, Map<String, YntCpaccountVO> accountMap
             , Map<String, AuxiliaryAccountBVO> assistMap, Map<String, List<AccsetVO>> accsetMap, Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map, Map<String, String> jituanSubMap, YntCpaccountVO[] accVOs
-            , String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs) throws DZFWarpException;
+            , String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs, ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 //	public Map<String, YntCpaccountVO> construcTemKm(CorpVO corpvo) throws DZFWarpException;
 	
@@ -94,7 +91,7 @@ public interface IVATSaleInvoice2Service {
             , Map<String, List<AuxiliaryAccountBVO>> fzhsBodyMap, InventorySetVO inventorySetVO, CorpVO corp, Map<String, InventoryAliasVO> fzhsBMMap
             , List<Object> paramList, Map<String, BdCurrencyVO> currMap, Map<String, Object[]> rateMap, Map<String, String> bankAccountMap, Map<String, YntCpaccountVO> accountMap
             , Map<String, AuxiliaryAccountBVO> assistMap, Map<String, List<AccsetVO>> accsetMap, Map<String, List<AccsetKeywordBVO2>> accsetKeywordBVO2Map, Map<String, String> jituanSubMap, YntCpaccountVO[] accVOs
-            , String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs) throws DZFWarpException;
+            , String tradeCode, String newrule, List<AuxiliaryAccountBVO> chFzhsBodyVOs,ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 	/*public List<String> getBusiTypes(String pk_corp) throws DZFWarpException;*/
 	
@@ -205,7 +202,7 @@ public interface IVATSaleInvoice2Service {
 	 * 生成凭证
 	 * @throws DZFWarpException
 	 */
-	public void createPZ(VATSaleInvoiceVO2 vo, String pk_corp, String userid, boolean accway, boolean isT, VatInvoiceSetVO setvo, InventorySetVO invsetvo, String jsfs) throws DZFWarpException;
+	public void createPZ(VATSaleInvoiceVO2 vo, String pk_corp, String userid, boolean accway, boolean isT, VatInvoiceSetVO setvo, InventorySetVO invsetvo, String jsfs, ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 	/**
 	 * 合并生单
@@ -216,7 +213,7 @@ public interface IVATSaleInvoice2Service {
 	 * @param isT
 	 * @throws DZFWarpException
 	 */
-	public void saveCombinePZ(List<VATSaleInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo, boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs) throws DZFWarpException;
+	public void saveCombinePZ(List<VATSaleInvoiceVO2> list, String pk_corp, String userid, VatInvoiceSetVO setvo, boolean accway, boolean isT, InventorySetVO invsetvo, String jsfs,ZncsParamVO zncsParamVO) throws DZFWarpException;
 	
 	/*public List<VatBusinessTypeVO> getBusiType(String pk_corp) throws DZFWarpException;*/
 	

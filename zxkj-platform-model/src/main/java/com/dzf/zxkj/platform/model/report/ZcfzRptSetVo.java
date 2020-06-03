@@ -25,7 +25,17 @@ public class ZcfzRptSetVo extends SuperVO {
 	private DZFDateTime ts;
 	private String zchc_id;//不可修改
 	private String fzhc_id;//不可修改
-	
+	private String versionno;//版本号
+
+
+	public String getVersionno() {
+		return versionno;
+	}
+
+	public void setVersionno(String versionno) {
+		this.versionno = versionno;
+	}
+
 	public String getZchc_id() {
 		return zchc_id;
 	}
