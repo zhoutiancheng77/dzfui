@@ -65,8 +65,8 @@ public class CrkMxController extends GlicReportController{
     private IParameterSetService parameterserv;
     @Autowired
     private IInventoryAccSetService gl_ic_invtorysetserv;
-    @GetMapping("/query")
-    public ReturnData queryAction(@RequestParam Map<String, String> param){
+    @PostMapping("/query")
+    public ReturnData queryAction(@RequestBody Map<String, String> param){
         ReportDataGrid grid = new ReportDataGrid();
         QueryParamVO queryParamvo = JsonUtils.convertValue(param, QueryParamVO.class);
         checkPowerDate(queryParamvo);
@@ -76,11 +76,9 @@ public class CrkMxController extends GlicReportController{
 
         List<IcDetailFzVO> listsps = createRightTree(result,currsp);
         //将查询后的数据分页展示
-        List<IcDetailVO> list = getPagedMXZVos(listsps, result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
+        List<IcDetailVO> list = getPagedMXZVos(listsps, result, queryParamvo.getPage(),100000, grid, currsp);
         grid.setIccombox(listsps);
-//        grid.setTotal(Long.valueOf(list == null ? 0 : list.size()));
         grid.setRows(list == null ? new ArrayList<>() : list);
-        grid.setKcDetail(list == null ? new ArrayList<>() : list);
         grid.setSuccess(true);
         writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,new StringBuffer().append("出入库明细表查询:").append(param.get("beginPeriod")).append("至").append(param.get("endPeriod")).toString(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);

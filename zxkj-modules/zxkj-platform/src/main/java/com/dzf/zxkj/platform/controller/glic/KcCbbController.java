@@ -70,11 +70,10 @@ public class KcCbbController extends GlicReportController{
         String currsp =  param.get("currsp");
         List<IcDetailFzVO> listsps = createRightTree(result,currsp);
         //将查询后的数据分页展示
-        List<IcDetailVO> list = getPagedMXZVos(listsps, result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
+        List<IcDetailVO> list = getPagedMXZVos(listsps, result, queryParamvo.getPage(),100000, grid, currsp);
 
         grid.setIccombox(listsps);
-        grid.setKcDetail(list);
-        grid.setRows(list);
+        grid.setRows(list == null ? new ArrayList<>() : list);
         grid.setSuccess(true);
         writeLogRecord(LogRecordEnum.OPE_KJ_CHGL,new StringBuffer().append("库存成本表查询:").append(param.get("beginPeriod")).append("至").append(param.get("endPeriod")).toString(), ISysConstants.SYS_2);
         return ReturnData.ok().data(grid);

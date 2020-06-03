@@ -113,7 +113,6 @@ public class LoginController {
 
     public LoginResponseBeanVO logingGetCorpVOs(UserBeanVO userBean) throws DZFWarpException {
         LoginResponseBeanVO bean = new LoginResponseBeanVO();
-        int versionno = userBean.getVersionno().intValue();
         try {
             bean = user300service.logingGetCorpVOs260(userBean);
             AppLoginOrRegImpl.log_identify.put(userBean.getAccount()+"@"+IConstant.TWO_ZERO_THREE, DZFBoolean.TRUE);

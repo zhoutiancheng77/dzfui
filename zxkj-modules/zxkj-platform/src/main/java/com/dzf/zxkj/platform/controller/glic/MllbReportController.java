@@ -66,7 +66,7 @@ public class MllbReportController  extends GlicReportController{
         String currsp =  param.get("currsp");
         List<IcDetailFzVO> listsps = createRightTree(result,currsp);
         //将查询后的数据分页展示
-        List<MllDetailVO> list = getPagedMllDetailVO(listsps,result, queryParamvo.getPage(), queryParamvo.getRows(), grid, currsp);
+        List<MllDetailVO> list = getPagedMllDetailVO(listsps,result, queryParamvo.getPage(), 100000, grid, currsp);
 
         grid.setIccombox(listsps);
         grid.setRows(list == null ? new ArrayList<>() : list);

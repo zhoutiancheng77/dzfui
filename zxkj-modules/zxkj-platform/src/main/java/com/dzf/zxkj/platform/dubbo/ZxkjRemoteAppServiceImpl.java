@@ -21,8 +21,11 @@ import com.dzf.zxkj.platform.service.pjgl.IImageGroupService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.zncs.IBankStatementService;
+import com.dzf.zxkj.platform.util.zncs.CommonXml;
+import com.dzf.zxkj.platform.util.zncs.FpMsgClient;
 import com.dzf.zxkj.report.service.IZxkjRemoteAppService;
 import lombok.extern.slf4j.Slf4j;
+import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -277,5 +280,18 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
             log.error(String.format("调用deleteMsg异常,异常信息:%s", e.getMessage()), e);
 
         }
+    }
+
+    @Override
+    public String sendPostXml(String drcode) {
+        FpMsgClient fpclient = new FpMsgClient();
+        String value = fpclient.sendPostXml(drcode);
+        return value;
+    }
+
+    @Override
+    public Element getContentElement(String zip, String encry, String content) {
+
+        return CommonXml.getContentElement(zip,encry,content);
     }
 }

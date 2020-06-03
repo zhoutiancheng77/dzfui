@@ -1,6 +1,5 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
-import com.alicp.jetcache.anno.CacheInvalidate;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -71,7 +70,7 @@ public class VersionMngServiceImpl implements IVersionMngService {
     }
 
     @Override
-    @CacheInvalidate(name = "corp_user_perssion", key = "#userid+'-'+#pk_corp")
+//    @CacheInvalidate(name = "corp_user_perssion", key = "#userid+'-'+#pk_corp")
     public List<FunNode> getFunNodeByUseridAndPkCorp(String userid, String pk_corp) {
         return funNodeMapper.getFunNodeByUseridAndPkCorp(userid, pk_corp);
     }

@@ -1,6 +1,8 @@
 package com.dzf.zxkj.app.service.app.act;
 
 
+import com.dzf.zxkj.app.model.resp.bean.BusinessResonseBeanVO;
+import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
 import com.dzf.zxkj.app.model.ticket.ZzsTicketHVO;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -35,6 +37,14 @@ public interface IAppBusinessService {
 	public void saveVoucherFromTicket(DZFDate kprq, DZFDouble mny, String paymetod, String memo, String pk_corp, String account_id,
 									  ZzsTicketHVO zzshvo, ImageGroupVO groupvo) throws DZFWarpException;
 
+	/**
+	 * 获取票据信息
+	 *
+	 * @param uvo
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public BusinessResonseBeanVO saveTickMsg(UserBeanVO uvo) throws DZFWarpException;
 
 
 
@@ -62,15 +72,7 @@ public interface IAppBusinessService {
 //	 */
 //	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException;
 //
-//	/**
-//	 * 获取票据信息
-//	 *
-//	 * @param uvo
-//	 * @return
-//	 * @throws DZFWarpException
-//	 */
-//	public BusinessResonseBeanVO saveTickMsg(UserBeanVO uvo) throws DZFWarpException;
-//
+
 
 //	/**
 //	 * 根据二维码，获取票据信息，同时保存发票信息

@@ -142,6 +142,9 @@ public class PermissionFilter extends ZuulFilter {
 
         //权限校验
         Set<String> allPermissions = authService.getAllPermission();
+        log.info("useridFormToken-----"+useridFormToken);
+        log.info("currentCorp-----"+currentCorp);
+        log.info("request.getRequestURL()-----"+request.getRequestURL());
         Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
 
         String path = request.getRequestURI();
