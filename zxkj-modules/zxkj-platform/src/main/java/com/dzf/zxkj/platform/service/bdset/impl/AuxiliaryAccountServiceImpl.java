@@ -2362,13 +2362,20 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         // 统计总数
         int total = singleObjectBO.getTotalRow("ynt_fzhs_b", condition, sp);
 
-        List<AuxiliaryAccountBVO> auxiliaryAccountBVOS = (List<AuxiliaryAccountBVO>) singleObjectBO
-                .execQueryWithPage(AuxiliaryAccountBVO.class, "ynt_fzhs_b", condition, sp, page, rows, "order by code");
+//        List<AuxiliaryAccountBVO> auxiliaryAccountBVOS = (List<AuxiliaryAccountBVO>) singleObjectBO
+//                .execQueryWithPage(AuxiliaryAccountBVO.class, "ynt_fzhs_b", condition, sp, page, rows, "order by code");
+        StringBuffer strb = new StringBuffer("select * from  ynt_fzhs_b where ");
+        strb.append(condition);
+        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.executeQuery(strb.toString(),sp, new BeanListProcessor(AuxiliaryAccountBVO.class));
+//        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
+//                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", null, sp, page, rows, "order by code");
+        list.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+        SuperVO[] pageVos = getPageVOs(list.toArray(new AuxiliaryAccountBVO[0]),page,rows);
         QueryPageVO pagevo = new QueryPageVO();
         pagevo.setTotal(total);
         pagevo.setPage(page);
         pagevo.setPageofrows(rows);
-        pagevo.setPagevos(auxiliaryAccountBVOS.toArray(new AuxiliaryAccountBVO[0]));
+        pagevo.setPagevos(pageVos);
         return pagevo;
     }
 
@@ -2391,15 +2398,21 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
 
             // 统计总数
             int total = singleObjectBO.getTotalRow("ynt_fzhs_b", condition, sp);
-            List<AuxiliaryAccountBVO> auxiliaryAccountBVOS = (List<AuxiliaryAccountBVO>) singleObjectBO
-                    .execQueryWithPage(AuxiliaryAccountBVO.class, new AuxiliaryAccountBVO().getTableName(), condition,
-                            sp, page, rows, "order by code");
-//			VOUtil.ascSort(auxiliaryAccountBVOS, new String[]{"code"});
+//            List<AuxiliaryAccountBVO> auxiliaryAccountBVOS = (List<AuxiliaryAccountBVO>) singleObjectBO
+//                    .execQueryWithPage(AuxiliaryAccountBVO.class, new AuxiliaryAccountBVO().getTableName(), condition,
+//                            sp, page, rows, "order by code");
+            StringBuffer strb = new StringBuffer("select * from  ynt_fzhs_b where ");
+            strb.append(condition);
+            List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.executeQuery(strb.toString(),sp, new BeanListProcessor(AuxiliaryAccountBVO.class));
+//        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
+//                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", null, sp, page, rows, "order by code");
+            list.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+            SuperVO[] pageVos = getPageVOs(list.toArray(new AuxiliaryAccountBVO[0]),page,rows);
             pagevo = new QueryPageVO();
             pagevo.setTotal(total);
             pagevo.setPage(page);
             pagevo.setPageofrows(rows);
-            pagevo.setPagevos(auxiliaryAccountBVOS.toArray(new AuxiliaryAccountBVO[auxiliaryAccountBVOS.size()]));
+            pagevo.setPagevos(pageVos);
         }
         return pagevo;
     }
@@ -2454,9 +2467,15 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
             sf.append(" and y.billtype <> ?");
             sp.addParam(SalaryTypeEnum.NONORMAL.getValue());
         }
-        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
-                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", "", sp, page, rows, "order by code");
+//        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
+//                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", "", sp, page, rows, "order by code");
+//        StringBuffer strb = new StringBuffer("select * from  ynt_fzhs_b where ");
+//        strb.append(sf.toString());
+        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.executeQuery(sf.toString(),sp, new BeanListProcessor(AuxiliaryAccountBVO.class));
+//        List<AuxiliaryAccountBVO> list = (List<AuxiliaryAccountBVO>) singleObjectBO.execQueryWithPage(
+//                AuxiliaryAccountBVO.class, "(" + sf.toString() + ")", null, sp, page, rows, "order by code");
         list.sort(Comparator.comparing(AuxiliaryAccountBVO::getCode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+        SuperVO[] pageVos = getPageVOs(list.toArray(new AuxiliaryAccountBVO[0]),page,rows);
 
         sbf1.setLength(0);
         sbf2.setLength(0);
@@ -2465,7 +2484,7 @@ public class AuxiliaryAccountServiceImpl implements IAuxiliaryAccountService {
         pagevo.setTotal(total);
         pagevo.setPage(page);
         pagevo.setPageofrows(rows);
-        pagevo.setPagevos(list.toArray(new AuxiliaryAccountBVO[0]));
+        pagevo.setPagevos(pageVos);
         return pagevo;
     }
 
