@@ -2,6 +2,9 @@ package com.dzf.zxkj.platform.service.pzgl.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.admin.zxkj.model.contract.AppContractQryVO;
+import com.dzf.admin.zxkj.model.result.ZxkjResult;
+import com.dzf.admin.zxkj.service.contract.IZxkjContractService;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -107,7 +110,7 @@ public class VoucherServiceImpl implements IVoucherService {
 	@Autowired
 	private IQmclService gl_qmclserv = null;
 	@Autowired
-	private ICorpAccountService corpAccountServiceImpl;
+	private IZxkjContractService zxkjContractService;
 	@Autowired
 	IDcpzService dcpzjmbserv;
 	@Autowired
@@ -143,19 +146,24 @@ public class VoucherServiceImpl implements IVoucherService {
 
 	@Autowired
 	private IYntBoPubUtil yntBoPubUtil;
-	// zpm
-	private void shoufeiCheck(String pk_corp) throws DZFWarpException {
-		DatatruansVO dvo = corpAccountServiceImpl.queryBuyRecords(pk_corp);
-//		CorpVO topCorpVO = CorpCache.getInstance().get(null, dvo.getPk_corp());
-//		if (topCorpVO != null) {
-//			if (topCorpVO.getIschannel() == null || !topCorpVO.getIschannel().booleanValue()) {
-				String msg = corpAccountServiceImpl.checkCorpAccount(dvo.getPk_corp(), dvo.getUsercount(), false,
-						pk_corp);
-				if (!StringUtil.isEmpty(msg)) {
-					throw new BusinessException(msg);
-				}
-//			}
-//		}
+	// 检查合同
+	private String checkContract(String fatherCorp, String corp, String date) throws DZFWarpException {
+		String msg = null;
+		AppContractQryVO param = new AppContractQryVO();
+		param.setPk_corp(fatherCorp);
+		param.setPk_corpk(corp);
+		param.setVoucherdate(date);
+		try {
+			ZxkjResult<String> rs = zxkjContractService.checkCorpContract(param);
+			if (rs != null && rs.getCode() == 200) {
+				msg = rs.getData();
+			} else {
+				log.error("调用合同检查接口失败", rs);
+			}
+		} catch (Exception e) {
+			log.error("调用合同检查接口失败", e);
+		}
+		return msg;
 	}
 
 	@Override
@@ -163,7 +171,11 @@ public class VoucherServiceImpl implements IVoucherService {
 		
 		// TODO 需要验证科目是否停用，是否启用外币，是否启用存货，外币是否浮动，单价和数量与金额是否匹配
 		// saveBefore(hvo);
-		shoufeiCheck(corpvo.getPk_corp());
+		String contractMsg = checkContract(corpvo.getFathercorp(), corpvo.getPk_corp(),
+				hvo.getDoperatedate().toString());
+		if (!StringUtil.isEmpty(contractMsg)) {
+			throw new BusinessException(contractMsg);
+		}
 		//智能新版相关处理
 		dealAIInfoByAddBefore(hvo);
 
@@ -3746,8 +3758,9 @@ public class VoucherServiceImpl implements IVoucherService {
 		//判断是否到期 集合
 		String msg = null;
 		List<String> warns = new ArrayList<String>();
+		String date = new DZFDate().toString();
 		for(DatatruansVO dvo : list){
-			msg = corpAccountServiceImpl.checkChannelContract(dvo.getFathercorp(), dvo.getPk_corp());
+			msg = checkContract(dvo.getFathercorp(), dvo.getPk_corp(), date);
 			if(!StringUtil.isEmpty(msg)){
 				warns.add(dvo.getFathercorp());
 			}
