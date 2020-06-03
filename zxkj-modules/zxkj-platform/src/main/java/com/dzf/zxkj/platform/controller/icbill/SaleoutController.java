@@ -154,24 +154,35 @@ public class SaleoutController extends BaseController {
 			headvo.setPk_corp(SystemUtil.getLoginCorpId());
             checkSecurityData(new IntradeHVO[]{headvo},null,null,StringUtil.isEmpty(headvo.getPk_ictrade_h()));
 			headvo.setChildren(bodyvos);
-
+            List<String> periodSet = new ArrayList<String>();
 			if(!StringUtil.isEmpty(auto)&&"auto".equals(auto)){
+                periodSet.add(DateUtils.getPeriod(headvo.getDbilldate()));
                 if (DZFBoolean.valueOf(repeat).booleanValue()) {
                     ic_saleoutserv.saveSaleAndGl(headvo, false);
                 } else {
                     ic_saleoutserv.saveSaleAndGl(headvo, true);
                 }
-                title ="生成凭证";
+                String msg = checkJzMsg(periodSet, SystemUtil.getLoginCorpId(), false);
+                if (!StringUtil.isEmpty(msg)) {
+                    json.setSuccess(false);
+                    json.setStatus(-100);
+                    json.setMsg(msg);
+                }else{
+                    json.setSuccess(true);
+                    json.setStatus(200);
+                    json.setMsg("保存并生成凭证成功");
+                }
+                title ="保存并生成凭证";
             }else{
                 if (DZFBoolean.valueOf(repeat).booleanValue()) {
                     ic_saleoutserv.saveSale(headvo, false, false);
                 } else {
                     ic_saleoutserv.saveSale(headvo, true, false);
                 }
+                json.setSuccess(true);
+                json.setStatus(200);
+                json.setMsg("保存成功");
             }
-			json.setSuccess(true);
-			json.setStatus(200);
-			json.setMsg(title+"成功");
 		} catch (IcExBusinessException ie) {
 			List<IntradeoutVO> errList = ie.getErrList();
 			json.setStatus(IICConstants.STATUS_RECONFM_CODE);
