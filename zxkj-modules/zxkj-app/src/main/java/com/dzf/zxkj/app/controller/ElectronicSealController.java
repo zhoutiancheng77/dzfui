@@ -3,10 +3,17 @@ package com.dzf.zxkj.app.controller;
 import com.dzf.admin.dzfapp.model.econtract.AppSealVO;
 import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.econtract.IDzfAppSealService;
+import com.dzf.zxkj.app.service.pub.IUserPubService;
+import com.dzf.zxkj.app.utils.AppkeyUtil;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -15,55 +22,66 @@ public class ElectronicSealController {
 
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppSealService dzfAppSealService;
-
+    @Autowired
+    private IUserPubService userPubService;
     @RequestMapping("/haveSealStatus")
-    public AppResult<Boolean> haveSealStatus(AppSealVO sealVO) {
+    public AppResult<Boolean> haveSealStatus(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.haveSealStatus(sealVO);
+            return dzfAppSealService.haveSealStatus(changeParamvo(param));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
+            return  new AppResult(-100,null,e.getMessage());
         }
-        return null;
-
     }
 
     @RequestMapping("/updateSealStatus")
-    public AppResult updateSealStatus(AppSealVO sealVO) {
+    public AppResult updateSealStatus(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.confirmSealStatus(sealVO);
+            return dzfAppSealService.confirmSealStatus(changeParamvo(param));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
+            return  new AppResult(-100,null,e.getMessage());
         }
-        return null;
+        
     }
 
     @RequestMapping("/getCorpkSeals")
-    public AppResult getCorpkSeals(AppSealVO sealVO) {
+    public AppResult getCorpkSeals(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.getCorpkSeals(sealVO);
+            return dzfAppSealService.getCorpkSeals(changeParamvo(param));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
+            return  new AppResult(-100,null,e.getMessage());
         }
-        return null;
+        
     }
 
     @RequestMapping("/savePersonSign")
-    public AppResult savePersonSign(AppSealVO sealVO) {
+    public AppResult savePersonSign(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.confirmPersonSign(sealVO, null);
+            return dzfAppSealService.confirmPersonSign(changeParamvo(param), null);
         } catch (Exception e) {
             log.error(e.getMessage(),e);
+            return  new AppResult(-100,null,e.getMessage());
         }
-        return null;
+        
     }
 
     @RequestMapping("/getSealImg")
-    public AppResult<byte[]> getSealImg(AppSealVO sealVO) {
+    public AppResult<byte[]> getSealImg(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.getSealImg(sealVO);
+            return dzfAppSealService.getSealImg(changeParamvo(param));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
+            return  new AppResult(-100,null,e.getMessage());
         }
-        return null;
+        
+    }
+    private AppSealVO changeParamvo(Map<String,Object> param){
+        AppSealVO pamVO= new AppSealVO();
+        UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
+        pamVO.setCuserid(uservo.getCuserid());
+        AppkeyUtil.setAppValue(param,pamVO );
+        return pamVO;
     }
 }
