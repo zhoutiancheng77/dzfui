@@ -34,6 +34,11 @@ public class ExcelExportGuangDongHander extends ExcelExportHander implements One
     }
 
     @Override
+    public Workbook createWorkBookKj2007(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap, String versionno) throws Exception {
+        return null;
+    }
+
+    @Override
     public Workbook createWorkBookKj2013(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) throws Exception {
         Resource resource = ResourceUtil.get(ExportTemplateEnum.GUANGDONG, ResourceUtil.ResourceEnum.KJ2013ALL);
         Workbook workbook = WorkbookFactory.create(resource.getInputStream());

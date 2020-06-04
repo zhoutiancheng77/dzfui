@@ -38,6 +38,11 @@ public class ExcelExportNeiMengGuHander extends ExcelExportHander implements One
         return workbook;
     }
 
+    @Override
+    public Workbook createWorkBookKj2007(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap, String versionno) throws Exception {
+        return null;
+    }
+
     //old-单文件（多表）
     public Workbook createWorkBookKj2013(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) throws Exception {
         Resource resource = ResourceUtil.get(ExportTemplateEnum.NEIMENGGU, ResourceUtil.ResourceEnum.KJ2013ALL);

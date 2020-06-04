@@ -55,6 +55,15 @@ public class ResourceUtil {
             return null;
         }
     }
+    public static Resource get(ExportTemplateEnum templateEnum, ResourceEnum resourceEnum,String versionno){
+        String path = ReportConfigUtil.getProperty("report.template.local.path");
+        File file = new File(path+File.separator+templateEnum.getAreaType()+File.separator+ resourceEnum.getValue() + versionno + "." + ("0".equals(templateEnum.getFileType()) ? "xls" : "xml") );
+        if(file.exists()){
+            return new FileSystemResource(file);
+        }else{
+            return null;
+        }
+    }
 
     public static Resource get(String areaType, String corpType, CwbbType cwbbType) {
         String fileName = getFileSuffix(corpType, cwbbType);

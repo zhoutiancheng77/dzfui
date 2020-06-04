@@ -1,11 +1,13 @@
 package com.dzf.zxkj.report.excel.rptexp;
 
 import com.dzf.zxkj.base.utils.DZfcommonTools;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -283,7 +285,7 @@ public abstract class ExcelExportHander {
         return XjllTaxVoMap;
     }
 
-    public Map<String, Workbook> handle(String corptype, LrbTaxVo[] lrbtaxvos, ZcfzTaxVo[] zcfztaxvos, XjllTaxVo[] xjlltaxvos, LrbVO[] lrbvos, XjllbVO[] xjllbvos, ZcFzBVO[] zcFzBVOS) {
+    public Map<String, Workbook> handle(String corptype,  String pk_corp,LrbTaxVo[] lrbtaxvos, ZcfzTaxVo[] zcfztaxvos, XjllTaxVo[] xjlltaxvos, LrbVO[] lrbvos, XjllbVO[] xjllbvos, ZcFzBVO[] zcFzBVOS) {
 
         Map<String, LrbVO> lrbVOMap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(lrbvos), new String[]{"hs"});
         Map<String, XjllbVO> xjllbVOMap = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(xjllbvos), new String[]{"hc"});
@@ -294,7 +296,7 @@ public abstract class ExcelExportHander {
             case "00000100AA10000000000BMD":
                 return handleKJQJ2013(handLrbTaxVoArrKJQJ(lrbtaxvos), handZcfzTaxVoArrKJQJ(zcfztaxvos), handXjllTaxVoArrKJQJ(xjlltaxvos), lrbVOMap, xjllbVOMap, zcFzBVOMap);
             case "00000100AA10000000000BMF":
-                return handleKJQJ2007(handLrbTaxVoArrKJQJ(lrbtaxvos), handZcfzTaxVoArrKJQJ(zcfztaxvos), handXjllTaxVoArrKJQJ(xjlltaxvos), lrbVOMap, xjllbVOMap, zcFzBVOMap);
+                return handleKJQJ2007(pk_corp,handLrbTaxVoArrKJQJ(lrbtaxvos), handZcfzTaxVoArrKJQJ(zcfztaxvos), handXjllTaxVoArrKJQJ(xjlltaxvos), lrbVOMap, xjllbVOMap, zcFzBVOMap);
             default:
                 return new HashMap();
         }
@@ -322,7 +324,7 @@ public abstract class ExcelExportHander {
         return workBookMap;
     }
 
-    protected Map<String, Workbook> handleKJQJ2007(Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) {
+    protected Map<String, Workbook> handleKJQJ2007(String pk_corp,Map<String, String> lrbTaxVoMap, Map<String, String> zcfzTaxVoMap, Map<String, String> xjllTaxVoMap, Map<String, LrbVO> lrbVOMap, Map<String, XjllbVO> xjllbVOMap, Map<String, ZcFzBVO> zcFzBVOMap) {
         Map<String, Workbook> workBookMap = new HashMap<>();
         try {
             //湖北导出的报表文件名，需按税局模板的文件名来，才能成功导入进税局。如：CWBB_XQYKJZZ_V2.0.xls（小企业）、CWBB_QYKJZZ_YBQY_V1.0.xls（一般企业）
@@ -335,7 +337,15 @@ public abstract class ExcelExportHander {
 
             if (this instanceof OneWorkBookKj2007Excel) {
                 OneWorkBookKj2007Excel oneWorkBookKj2007Excel = (OneWorkBookKj2007Excel) this;
-                Workbook workbook = oneWorkBookKj2007Excel.createWorkBookKj2007(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap, lrbVOMap, xjllbVOMap, zcFzBVOMap);
+                IZxkjPlatformService zxkjPlatformService = (IZxkjPlatformService) SpringUtils.getBean("zxkjPlatformService");
+                String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+                Workbook workbook = null;
+                if ("财会【2019】6号".equals(zxzc)) {
+                    workbook = oneWorkBookKj2007Excel.createWorkBookKj2007(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap,
+                            lrbVOMap, xjllbVOMap, zcFzBVOMap, "20196");
+                } else {
+                    workbook = oneWorkBookKj2007Excel.createWorkBookKj2007(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap, lrbVOMap, xjllbVOMap, zcFzBVOMap);
+                }
                 String xlsname = areaType.equals("7") ? "CWBB_QYKJZZ_YBQY_V1.0" : "企业会计准则财务报表报送与信息采集";
                 workBookMap.put(xlsname, workbook);
             }

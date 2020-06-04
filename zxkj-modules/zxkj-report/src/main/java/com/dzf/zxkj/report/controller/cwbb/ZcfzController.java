@@ -274,14 +274,22 @@ public class ZcfzController extends ReportBaseController {
         //获取现金流量数据
         XjllbVO[] xjllbvos = gl_rep_xjlybserv.getXjllDataForCwBs(qj, corpIds, excelExportVO.getQjlx());
 
+        String zxzc = zxkjPlatformService.queryParamterValueByCode(corpIds, "dzf025");
         //税局模式
         SQLParameter sp = new SQLParameter();
         sp.addParam(excelExportVO.getAreaType());
         sp.addParam(corpType);
-        LrbTaxVo[] lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
-        ZcfzTaxVo[] zcfztaxvos = (ZcfzTaxVo[]) singleObjectBO.queryByCondition(ZcfzTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype =?   order by ordernum", sp);
         XjllTaxVo[] xjlltaxvos = (XjllTaxVo[]) singleObjectBO.queryByCondition(XjllTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
-
+        LrbTaxVo[] lrbtaxvos = null;
+        ZcfzTaxVo[] zcfztaxvos = null;
+        if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+            sp.addParam("【2019】6号");
+            zcfztaxvos= (ZcfzTaxVo[]) singleObjectBO.queryByCondition(ZcfzTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype =?  and  versionno= ? order by ordernum", sp);
+            lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ?  and  versionno= ? order by ordernum", sp);
+        } else {
+            zcfztaxvos= (ZcfzTaxVo[]) singleObjectBO.queryByCondition(ZcfzTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype =?   order by ordernum", sp);
+            lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
+        }
         String fileType = ExportTemplateEnum.getFileType(excelExportVO.getAreaType());
 
         if ("1".equals(fileType)) {
@@ -304,7 +312,8 @@ public class ZcfzController extends ReportBaseController {
             if (excelExportHander instanceof ExcelExportPubHandler)
                 workBookMap = excelExportHander.handleCommon(corpType, lrbtaxvos, zcfztaxvos, xjlltaxvos, lrbvos, xjllbvos, listVo);
             else
-                workBookMap = excelExportHander.handle(corpType, lrbtaxvos, zcfztaxvos, xjlltaxvos, lrbvos, xjllbvos, listVo);
+//                workBookMap = excelExportHander.handle(corpType, lrbtaxvos, zcfztaxvos, xjlltaxvos, lrbvos, xjllbvos, listVo);
+                  workBookMap = excelExportHander.handle(corpType,corpIds, lrbtaxvos, zcfztaxvos, xjlltaxvos, lrbvos, xjllbvos, listVo);
 
             exportExcelToZip(response, workBookMap, "资产负债表、利润表、现金流量表(" + qj + ")");
         }
