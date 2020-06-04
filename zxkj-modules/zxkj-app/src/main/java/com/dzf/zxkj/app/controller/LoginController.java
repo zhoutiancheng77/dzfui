@@ -1,6 +1,7 @@
 package com.dzf.zxkj.app.controller;
 
 import com.dzf.zxkj.app.model.resp.bean.LoginResponseBeanVO;
+import com.dzf.zxkj.app.model.resp.bean.OrgRespBean;
 import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
 import com.dzf.zxkj.app.pub.constant.IConstant;
@@ -9,13 +10,17 @@ import com.dzf.zxkj.app.service.corp.IAppCorp320Service;
 import com.dzf.zxkj.app.service.login.IAppLoginCorpService;
 import com.dzf.zxkj.app.service.login.IAppLoginOrRegService;
 import com.dzf.zxkj.app.service.login.impl.AppLoginOrRegImpl;
+import com.dzf.zxkj.app.service.org.IOrgService;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
+import com.dzf.zxkj.app.utils.BeanUtils;
 import com.dzf.zxkj.app.utils.SourceSysEnum;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +54,19 @@ public class LoginController {
      * 查询科目明细数据
      */
     @RequestMapping("/doLogin")
-    public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean,String uuid,String cname,String uname,String corp,String tcorp,String ucode) {
+    public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean,String uuid,String cname,String uname,String corp,String tcorp,String ucode,
+                                                  Double lade,Double lode,String caddr,String ph) {
         UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
-        userBean.setUsercode(uservo.getUser_code());
         userBean.setAccount_id(uservo.getCuserid());
         userBean.setCorpname(cname);
         userBean.setUsername(uname);
         userBean.setPk_corp(corp);
         userBean.setPk_tempcorp(tcorp);
+        userBean.setUsercode(StringUtil.isEmpty(ucode)?uservo.getUser_code():ucode);
+        userBean.setLatitude(lade!=null?lade:0);
+        userBean.setLongitude(lade!=null?lade:0);
+        userBean.setCorpaddr(caddr);
+        userBean.setPhone(ph);
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         Integer versionno = userBean.getVersionno();
         if(versionno == null || versionno.intValue() ==0){
@@ -81,6 +91,11 @@ public class LoginController {
                     break;
                 case IConstant.TWO_TWO_ONE://确认二维码(扫码登录)
                     bean =  doconfirmQrCode(userBean,uuid);
+                    break;
+                case IConstant.SIX://查询服务机构
+                case IConstant.SIXTY_ONE://签约服务机构*
+                case IConstant.SIXTY_FIVE://服务机构版申请代账机构
+                    bean=doOrgAction(operate,userBean);
                     break;
             }
         }
@@ -154,5 +169,41 @@ public class LoginController {
                 bean.setResmsg(errormsg);
             }
         }
+    }
+    private ResponseBaseBeanVO doOrgAction(Integer operate, UserBeanVO userBean) throws BusinessException {
+        ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
+        IOrgService iorg = (IOrgService) SpringUtils.getBean("orgservice");
+        switch (operate) {
+//            case IConstant.SIX:
+//                bean = iorg.qrySvorgLs(userBean,null);
+//                break;
+            case IConstant.SIXTY_ONE:
+                bean = commitSvOrgSetting(iorg,userBean);
+                break;
+//            case IConstant.SIXTY_FIVE:
+//                bean = commitCstSvOrgSetting(iorg, userBean);
+//                break;
+        }
+        return bean;
+    }
+    /**
+     * 保存服务机构
+     * @param request
+     * @param response
+     * @param userBean
+     */
+    public LoginResponseBeanVO commitSvOrgSetting(IOrgService iorg,UserBeanVO userBean)throws DZFWarpException{
+        LoginResponseBeanVO bean = new LoginResponseBeanVO();
+        try {
+            if(userBean.getVersionno().intValue() >= IVersionConstant.VERSIONNO1){//第一版走的代码
+                String item = userBean.getItems().toString();
+                OrgRespBean[] userBeanLs = JsonUtils.deserialize(item, OrgRespBean[].class);
+                ResponseBaseBeanVO basebean = iorg.saveSvOrgSetting(userBean,userBeanLs);
+                BeanUtils.copyNotNullProperties(basebean, bean);
+            }
+        } catch (Exception e) {
+            log.error( "保存服务机构出错！", log);
+        }
+        return bean;
     }
 }

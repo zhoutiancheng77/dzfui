@@ -29,11 +29,17 @@ public class UserController {
     private IAppCorpService corpservice;
 
     @RequestMapping("/doAction")
-    public ReturnData<ResponseBaseBeanVO> doAction(UserBeanVO userBean) {
+    public ReturnData<ResponseBaseBeanVO> doAction(UserBeanVO userBean,String corp,String tcorp,String cname,String icmsg,String acode,String hcorp) {
 //        CommonServ common = new CommonServ();
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
         userBean.setAccount_id(uservo.getCuserid());
+        userBean.setPk_corp(corp);
+        userBean.setPk_tempcorp(tcorp);
+        userBean.setCorpname(cname);
+        userBean.setIsconfirmsg(icmsg);
+        userBean.setActivecode(acode);
+        userBean.setHandcorp(hcorp);
 //        UserBeanVO userBean = (UserBeanVO) DzfTypeUtils.cast(getRequest(), new UserBeanVO());
 //        if (userBean.getOperate() != null && Integer.parseInt(userBean.getOperate()) == IConstant.ELEVEN) {
 //            userBean.setAccount("test001");

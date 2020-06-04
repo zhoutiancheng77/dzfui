@@ -8,12 +8,13 @@ import com.dzf.zxkj.base.exception.DZFWarpException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Slf4j
 @Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
 public class AppBillDubbo implements IAppBillService {
-
     @Autowired
+    @Qualifier("corpservice")
     private IAppCorpService appCorpService;
 
     @Override
