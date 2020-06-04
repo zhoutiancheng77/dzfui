@@ -3,12 +3,15 @@ package com.dzf.zxkj.app.service.app.act;
 
 import com.dzf.zxkj.app.model.resp.bean.BusinessResonseBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
+import com.dzf.zxkj.app.model.sys.ProblemVo;
 import com.dzf.zxkj.app.model.ticket.ZzsTicketHVO;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
+
+import java.util.List;
 
 /**
  * 业务处理
@@ -46,6 +49,31 @@ public interface IAppBusinessService {
 	 */
 	public BusinessResonseBeanVO saveTickMsg(UserBeanVO uvo) throws DZFWarpException;
 
+	/**
+	 * 生成图片
+	 * @param uvo
+	 * @throws DZFWarpException
+	 */
+	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException;
+
+	/**
+	 * 生成凭证+图片
+	 *
+	 * @param uvo
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public void saveVoucherFromTicket(UserBeanVO uvo, ImageGroupVO groupvo) throws DZFWarpException;
+	/**
+	 * 获取常见问题
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public List<ProblemVo> getProblems() throws DZFWarpException;
+
+
+
+
 
 
 //	/**
@@ -55,23 +83,7 @@ public interface IAppBusinessService {
 //	 * @throws DZFWarpException
 //	 */
 //	public BusinessResonseBeanVO getWorkTips(UserBeanVO uvo) throws DZFWarpException;
-//
-//	/**
-//	 * 生成凭证+图片
-//	 *
-//	 * @param uvo
-//	 * @return
-//	 * @throws DZFWarpException
-//	 */
-//	public void saveVoucherFromTicket(UserBeanVO uvo, ImageGroupVO groupvo) throws DZFWarpException;
-//
-//	/**
-//	 * 生成图片
-//	 * @param uvo
-//	 * @throws DZFWarpException
-//	 */
-//	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException;
-//
+
 
 
 //	/**
@@ -84,14 +96,7 @@ public interface IAppBusinessService {
 //	public SuperVO saveTickFromPt(String pk_corp, String admincorpid,
 //                                  String drcode, String account_id, Integer power, Integer limitcount)  throws DZFWarpException;
 //
-//	/**
-//	 * 获取常见问题
-//	 * @return
-//	 * @throws DZFWarpException
-//	 */
-//	public List<ProblemVo>  getProblems() throws DZFWarpException;
-//
-//
+
 //	/**
 //	 * 查询更多服务
 //	 * @return

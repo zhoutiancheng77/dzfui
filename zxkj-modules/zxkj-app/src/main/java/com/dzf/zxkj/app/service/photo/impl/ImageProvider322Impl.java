@@ -20,6 +20,7 @@ import com.dzf.zxkj.app.model.resp.bean.ImageBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.ImageReqVO;
 import com.dzf.zxkj.app.model.resp.bean.ReportBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
+import com.dzf.zxkj.app.model.sys.OcrInvoiceVOForApp;
 import com.dzf.zxkj.app.pub.ImageBeanConvert;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.MarkConstant;
@@ -679,11 +680,14 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 			throws DZFWarpException {
 
 	}
+	public OcrInvoiceVOForApp[] querySbVos(String pk_group) throws DZFWarpException {
+		return null;
+	}
 
-
-
-
-
+	@Override
+	public OcrInvoiceVOForApp querySbDetail(String sbid) throws DZFWarpException {
+		return null;
+	}
 
 
 //	 public static int GetNextNumber(Integer[] iNumList)

@@ -174,9 +174,9 @@ public class LoginController {
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         IOrgService iorg = (IOrgService) SpringUtils.getBean("orgservice");
         switch (operate) {
-//            case IConstant.SIX:
-//                bean = iorg.qrySvorgLs(userBean,null);
-//                break;
+            case IConstant.SIX:
+                bean = iorg.qrySvorgLs(userBean,null);
+                break;
             case IConstant.SIXTY_ONE:
                 bean = commitSvOrgSetting(iorg,userBean);
                 break;

@@ -4,6 +4,7 @@ import com.dzf.zxkj.app.model.image.ImageUploadRecordVO;
 import com.dzf.zxkj.app.model.resp.bean.ImageBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.ImageReqVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
+import com.dzf.zxkj.app.model.sys.OcrInvoiceVOForApp;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -46,6 +47,20 @@ public interface IImageProviderPhoto {
 	 */
 	public void downloadImage(String filePath, OutputStream out, ImageParamBeanVO[] paramBeans) throws DZFWarpException;//void
 
+	/**
+	 * 查询识别历史
+	 * @param pk_group
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public OcrInvoiceVOForApp[] querySbVos(String pk_group) throws DZFWarpException;
+	/**
+	 * 查询识别详情
+	 * @param sbid
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public OcrInvoiceVOForApp querySbDetail(String sbid) throws DZFWarpException;
 
 
 
@@ -270,20 +285,6 @@ public interface IImageProviderPhoto {
 //
 //	public ImageTurnMsgVO[] queryReturnmsgHeadVOs(String pk_corp, String strWhere) throws Exception;
 //
-//
-//	/**
-//	 * 查询识别历史
-//	 * @param pk_group
-//	 * @return
-//	 * @throws DZFWarpException
-//	 */
-//	public OcrInvoiceVOForApp[] querySbVos(String pk_group) throws DZFWarpException;
-//
-//	/**
-//	 * 查询识别详情
-//	 * @param sbid
-//	 * @return
-//	 * @throws DZFWarpException
-//	 */
-//	public OcrInvoiceVOForApp querySbDetail(String sbid) throws DZFWarpException;
+
+
 }

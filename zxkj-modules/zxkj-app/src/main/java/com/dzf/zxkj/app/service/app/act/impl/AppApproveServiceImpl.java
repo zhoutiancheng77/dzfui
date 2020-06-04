@@ -25,6 +25,7 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDateTime;
+import com.dzf.zxkj.common.utils.Common;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 import com.dzf.zxkj.platform.model.image.ImageRecordVO;
@@ -54,6 +55,7 @@ public class AppApproveServiceImpl implements IAppApproveService {
 	private IManagingUsers mguser;
 	@Autowired
 	private IAppBusinessService appbusihand;
+
 	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
 	private IZxkjRemoteAppService iZxkjRemoteAppService;
 
@@ -64,8 +66,7 @@ public class AppApproveServiceImpl implements IAppApproveService {
 //
 
 
-//	@Autowired
-//	private IUserService userServiceImpl;
+
 
 
 
@@ -317,159 +318,159 @@ public class AppApproveServiceImpl implements IAppApproveService {
 
 		return bean;
 	}
+	@Override
+	public boolean bOpenApprove(String pk_corp) throws DZFWarpException {
+
+		if (AppCheckValidUtils.isEmptyCorp(pk_corp)){
+			throw new BusinessException("公司信息不能为空!");
+		}
+
+		StringBuffer qrysql = new StringBuffer();
+		qrysql.append("select * from " + ApproveSetVo.TABLE_NAME);
+		qrysql.append(" where nvl(dr,0) =0 ");
+		qrysql.append("  and pk_corp = ?  ");
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(pk_corp);
+
+	 	List<ApproveSetVo> listvos =
+	 			(List<ApproveSetVo>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(ApproveSetVo.class));
+
+	 	if(listvos == null || listvos.size() == 0 ){
+	 		return false;
+	 	}
+
+	 	DZFBoolean bopen = listvos.get(0).getBuse();
+
+	 	if(bopen!=null && bopen.booleanValue()){
+	 		return true;
+	 	}
+
+		return false;
+	}
+
+	@Override
+	public BusinessResonseBeanVO updateReject(BusiReqBeanVo ubean) throws DZFWarpException {
+		// 寻找当前审批人的最开始的人
+		BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+
+		if (StringUtil.isEmpty(ubean.getPk_image_group())) {
+			throw new BusinessException("图片信息为空!");
+		}
+
+		ImageGroupVO groupvo = (ImageGroupVO) singleObjectBO.queryByPrimaryKey(ImageGroupVO.class,
+				ubean.getPk_image_group());
+
+		if (groupvo == null) {
+			throw new BusinessException("图片不存在!");
+		}
+
+		// 寻找当前审批人的下个人
+		String currappid = groupvo.getVapprovetor();
+		String currope = IConstant.APPRETURN;
+
+		String[] currs = new String[]{currappid,""};
+		String[] nextid = new String[]{"",""};
+
+		iZxkjRemoteAppService.saveImageRecord(ubean.getPk_image_group(), ubean.getPk_image_group(), currs,
+				nextid, currope, ubean.getPk_corp(), ubean.getPk_tempcorp(),ubean.getVmemo());
+
+		groupvo.setIstate(PhotoState.state201);
+		groupvo.setVapprovetor("");
+
+		singleObjectBO.update(groupvo);
 
 
-//
-//	@Override
-//	public BusinessResonseBeanVO saveApproveSet(ApproveSetVo setvo) throws DZFWarpException {
-//		BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
-//
-//		AppCheckValidUtils.isEmptyWithCorp(setvo.getPk_corp(), setvo.getPk_temp_corp(), "审批流设置失败：公司信息为空!");
-//
-//		// 查询当前公司是否已经存在，
-//		SQLParameter sp = new SQLParameter();
-//		StringBuffer qrysql = new StringBuffer();
-//		qrysql.append(" select * from " + ApproveSetVo.TABLE_NAME);
-//		qrysql.append(" where ");
-//		if (!AppCheckValidUtils.isEmptyCorp(setvo.getPk_corp())) {
-//			qrysql.append(" pk_corp = ?  ");
-//			sp.addParam(setvo.getPk_corp());
-//		} else {
-//			qrysql.append(" pk_temp_corp = ? ");
-//			sp.addParam(setvo.getPk_temp_corp());
-//		}
-//		qrysql.append(" and nvl(dr,0) = 0 ");
-//
-//		List<ApproveSetVo> setvos = (List<ApproveSetVo>) singleObjectBO.executeQuery(qrysql.toString(), sp,
-//				new BeanListProcessor(ApproveSetVo.class));
-//
-//
-//		if(setvo.getBuse()!=null && setvo.getBuse().booleanValue()){
-//			if(StringUtil.isEmpty(setvo.getVboss())){
-//				throw new BusinessException("老板不能为空!");
-//			}
-//			if(StringUtil.isEmpty(setvo.getVcash())){
-//				throw new BusinessException("出纳不能为空!");
-//			}
-//		}
-//
-//
-//		if (setvos != null && setvos.size() > 0) {
-//			ApproveSetVo vo = setvos.get(0);
-//			vo.setVstaff(setvo.getVstaff());
-//			vo.setVboss(setvo.getVboss());
-//			vo.setVcash(setvo.getVcash());
-//			vo.setBuse(setvo.getBuse());
-//			singleObjectBO.update(vo, new String[] { "vstaff", "vboss", "vcash", "buse" });
-//		} else {
-//			String pk_corp = setvo.getPk_corp();
-//			if (StringUtil.isEmpty(setvo.getPk_corp())) {
-//				pk_corp = Common.tempidcreate;
-//			}
-//			singleObjectBO.saveObject(pk_corp, setvo);
-//		}
-//
-//		bean.setRescode(IConstant.DEFAULT);
-//		bean.setResmsg("设置成功!");
-//
-//		return bean;
-//	}
-//
+		//生成消息记录
+		MsgAdminVO msgvo = new MsgAdminVO();
+		UserVO currappvo =iZxkjRemoteAppService.queryUserJmVOByID(currappid);// UserCache.getInstance().get(currappid, "");
+		UserVO copervo =iZxkjRemoteAppService.queryUserJmVOByID(groupvo.getCoperatorid());// UserCache.getInstance().get(groupvo.getCoperatorid(), "");
+		//给上传人发当前人的审批
+		msgvo.setPk_corp("");
+		msgvo.setCuserid(groupvo.getCoperatorid());
+		msgvo.setMsgtype(MsgtypeEnum.MSG_TYPE_APPROVE.getValue());
+		msgvo.setMsgtypename(MsgtypeEnum.MSG_TYPE_APPROVE.getName());
+		msgvo.setVcontent(currappvo.getUser_name() +"拒绝您"+groupvo.getDoperatedate()+"申请审批的票据，审批说明:"+ubean.getVmemo() +",请点击查看!");
+		msgvo.setSendman(currappvo.getPrimaryKey());
+		msgvo.setVsenddate(new DZFDateTime().toString());
+		msgvo.setSys_send(ISysConstants.DZF_APP);
+		msgvo.setVtitle(null);
+		msgvo.setIsread(DZFBoolean.FALSE);
+		msgvo.setPk_corpk(groupvo.getPk_corp());//小企业主信息
+		msgvo.setDr(0);
+		msgvo.setPk_bill(groupvo.getPrimaryKey());
+		singleObjectBO.saveObject(groupvo.getPk_corp(), msgvo);
 
-//
-//
-//
-//
+		bean.setRescode(IConstant.DEFAULT);
+		bean.setResmsg("驳回成功!");
 
-//
-//	@Override
-//	public BusinessResonseBeanVO updateReject(BusiReqBeanVo ubean) throws DZFWarpException {
-//		// 寻找当前审批人的最开始的人
-//		BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
-//
-//		if (StringUtil.isEmpty(ubean.getPk_image_group())) {
-//			throw new BusinessException("图片信息为空!");
-//		}
-//
-//		ImageGroupVO groupvo = (ImageGroupVO) singleObjectBO.queryByPrimaryKey(ImageGroupVO.class,
-//				ubean.getPk_image_group());
-//
-//		if (groupvo == null) {
-//			throw new BusinessException("图片不存在!");
-//		}
-//
-//		// 寻找当前审批人的下个人
-//		String currappid = groupvo.getVapprovetor();
-//		String currope = IConstant.APPRETURN;
-//
-//		String[] currs = new String[]{currappid,""};
-//		String[] nextid = new String[]{"",""};
-//
-//		sys_msgtzserv.saveImageRecord(ubean.getPk_image_group(), ubean.getPk_image_group(), currs,
-//				nextid, currope, ubean.getPk_corp(), ubean.getPk_tempcorp(),ubean.getVmemo());
-//
-//		groupvo.setIstate(PhotoState.state201);
-//		groupvo.setVapprovetor("");
-//
-//		singleObjectBO.update(groupvo);
-//
-//
-//		//生成消息记录
-//		MsgAdminVO msgvo = new MsgAdminVO();
-//		UserVO currappvo =userServiceImpl.queryUserJmVOByID(currappid);// UserCache.getInstance().get(currappid, "");
-//		UserVO copervo =userServiceImpl.queryUserJmVOByID(groupvo.getCoperatorid());// UserCache.getInstance().get(groupvo.getCoperatorid(), "");
-//		//给上传人发当前人的审批
-//		msgvo.setPk_corp("");
-//		msgvo.setCuserid(groupvo.getCoperatorid());
-//		msgvo.setMsgtype(MsgtypeEnum.MSG_TYPE_APPROVE.getValue());
-//		msgvo.setMsgtypename(MsgtypeEnum.MSG_TYPE_APPROVE.getName());
-//		msgvo.setVcontent(currappvo.getUser_name() +"拒绝您"+groupvo.getDoperatedate()+"申请审批的票据，审批说明:"+ubean.getVmemo() +",请点击查看!");
-//		msgvo.setSendman(currappvo.getPrimaryKey());
-//		msgvo.setVsenddate(new DZFDateTime().toString());
-//		msgvo.setSys_send(ISysConstants.DZF_APP);
-//		msgvo.setVtitle(null);
-//		msgvo.setIsread(DZFBoolean.FALSE);
-//		msgvo.setPk_corpk(groupvo.getPk_corp());//小企业主信息
-//		msgvo.setDr(0);
-//		msgvo.setPk_bill(groupvo.getPrimaryKey());
-//		singleObjectBO.saveObject(groupvo.getPk_corp(), msgvo);
-//
-//		bean.setRescode(IConstant.DEFAULT);
-//		bean.setResmsg("驳回成功!");
-//
-//
-//		return bean;
-//	}
-//
-//
-//	@Override
-//	public boolean bOpenApprove(String pk_corp) throws DZFWarpException {
-//
-//		if (AppCheckValidUtils.isEmptyCorp(pk_corp)){
-//			throw new BusinessException("公司信息不能为空!");
-//		}
-//
-//		StringBuffer qrysql = new StringBuffer();
-//		qrysql.append("select * from " + ApproveSetVo.TABLE_NAME);
-//		qrysql.append(" where nvl(dr,0) =0 ");
-//		qrysql.append("  and pk_corp = ?  ");
-//		SQLParameter sp = new SQLParameter();
-//		sp.addParam(pk_corp);
-//
-//	 	List<ApproveSetVo> listvos =
-//	 			(List<ApproveSetVo>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(ApproveSetVo.class));
-//
-//	 	if(listvos == null || listvos.size() == 0 ){
-//	 		return false;
-//	 	}
-//
-//	 	DZFBoolean bopen = listvos.get(0).getBuse();
-//
-//	 	if(bopen!=null && bopen.booleanValue()){
-//	 		return true;
-//	 	}
-//
-//		return false;
-//	}
-//
+
+		return bean;
+	}
+
+	@Override
+	public BusinessResonseBeanVO saveApproveSet(ApproveSetVo setvo) throws DZFWarpException {
+		BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+
+		AppCheckValidUtils.isEmptyWithCorp(setvo.getPk_corp(), setvo.getPk_temp_corp(), "审批流设置失败：公司信息为空!");
+
+		// 查询当前公司是否已经存在，
+		SQLParameter sp = new SQLParameter();
+		StringBuffer qrysql = new StringBuffer();
+		qrysql.append(" select * from " + ApproveSetVo.TABLE_NAME);
+		qrysql.append(" where ");
+		if (!AppCheckValidUtils.isEmptyCorp(setvo.getPk_corp())) {
+			qrysql.append(" pk_corp = ?  ");
+			sp.addParam(setvo.getPk_corp());
+		} else {
+			qrysql.append(" pk_temp_corp = ? ");
+			sp.addParam(setvo.getPk_temp_corp());
+		}
+		qrysql.append(" and nvl(dr,0) = 0 ");
+
+		List<ApproveSetVo> setvos = (List<ApproveSetVo>) singleObjectBO.executeQuery(qrysql.toString(), sp,
+				new BeanListProcessor(ApproveSetVo.class));
+
+
+		if(setvo.getBuse()!=null && setvo.getBuse().booleanValue()){
+			if(StringUtil.isEmpty(setvo.getVboss())){
+				throw new BusinessException("老板不能为空!");
+			}
+			if(StringUtil.isEmpty(setvo.getVcash())){
+				throw new BusinessException("出纳不能为空!");
+			}
+		}
+
+
+		if (setvos != null && setvos.size() > 0) {
+			ApproveSetVo vo = setvos.get(0);
+			vo.setVstaff(setvo.getVstaff());
+			vo.setVboss(setvo.getVboss());
+			vo.setVcash(setvo.getVcash());
+			vo.setBuse(setvo.getBuse());
+			singleObjectBO.update(vo, new String[] { "vstaff", "vboss", "vcash", "buse" });
+		} else {
+			String pk_corp = setvo.getPk_corp();
+			if (StringUtil.isEmpty(setvo.getPk_corp())) {
+				pk_corp = Common.tempidcreate;
+			}
+			singleObjectBO.saveObject(pk_corp, setvo);
+		}
+
+		bean.setRescode(IConstant.DEFAULT);
+		bean.setResmsg("设置成功!");
+
+		return bean;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 }

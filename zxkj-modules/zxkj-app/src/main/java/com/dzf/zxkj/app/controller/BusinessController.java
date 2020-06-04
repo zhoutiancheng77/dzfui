@@ -4,14 +4,17 @@ import com.dzf.admin.dzfapp.model.filetrans.*;
 import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.econtract.IDzfAppEcontractService;
 import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
+import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
 import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
 import com.dzf.zxkj.app.model.resp.bean.BusinessResonseBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.ReportResBean;
+import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
 import com.dzf.zxkj.app.model.sys.*;
 import com.dzf.zxkj.app.pub.constant.IBusiConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
+import com.dzf.zxkj.app.service.app.act.IAppApproveService;
 import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
 import com.dzf.zxkj.app.service.app.act.IQryReport1Service;
 import com.dzf.zxkj.app.service.bill.IAppInvoiceService;
@@ -20,12 +23,15 @@ import com.dzf.zxkj.app.service.ticket.impl.AppBwTicketImpl;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.Common;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 import com.dzf.zxkj.platform.model.report.CwgyInfoVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -57,7 +63,7 @@ public class BusinessController {
 
 
     @RequestMapping("/doBusiAction")
-    public ReturnData<BusinessResonseBeanVO> doBusiAction(BusiReqBeanVo userbean) {
+    public ReturnData<BusinessResonseBeanVO> doBusiAction(BusiReqBeanVo userbean,ApproveSetVo approveset) {
         BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
         UserVO uservo = userPubService.queryUserVOId(userbean.getAccount_id());
         userbean.setAccount_id(uservo.getCuserid());
@@ -69,9 +75,16 @@ public class BusinessController {
             case IBusiConstant.NINE_TWO:
                 bean = doSaveTickmsg(userbean);
                 break;
-//            case IBusiConstant.NINE_THREE:// 图片生成凭证
-//                bean = dobusiVoucher(getRequest(), bean);
-//                break;
+            case IBusiConstant.NINE_THREE:// 图片生成凭证
+                bean = dobusiVoucher(userbean, bean);
+                break;
+            //审批流
+            case IBusiConstant.NINE_ZERO_THREE:
+            case IBusiConstant.NINE_ZERO_FIVE:
+            case IBusiConstant.NINE_ZERO_FOUR:
+            case IBusiConstant.NINE_ZERO_SIX:
+                bean = doApprove(operate,approveset, userbean);
+                break;
 //            //订单
 //            case IBusiConstant.NINE_FIVE:
 //            case IBusiConstant.NINE_SIX:
@@ -82,13 +95,7 @@ public class BusinessController {
 //            case IBusiConstant.NINE_ZERO_TWO:
 //                bean = doOrder(operate,getRequest(), userbean);
 //                break;
-//            //审批流
-//            case IBusiConstant.NINE_ZERO_THREE:
-//            case IBusiConstant.NINE_ZERO_FIVE:
-//            case IBusiConstant.NINE_ZERO_FOUR:
-//            case IBusiConstant.NINE_ZERO_SIX:
-//                bean = doApprove(operate,getRequest(), userbean);
-//                break;
+
 //            case IBusiConstant.NINE_ZERO_SEVEN://百旺信息生成凭证
 //                bean = dobwbusiVoucher(getRequest(), bean);
 //                break;
@@ -114,14 +121,15 @@ public class BusinessController {
             case IBusiConstant.EIGHTEEN:
                 bean = doMaterial(operate,userbean);
                 break;
+             case IBusiConstant.FOURTEEN://常见问题
+                bean = doProblem();
+                break;
 //            //进项销项发票查询
 //            case IBusiConstant.TWELVE://票据
 //            case IBusiConstant.THIRTEEN:
 //                bean = doCollticket(operate,userbean);
 //                break;
-//            case IBusiConstant.FOURTEEN://常见问题
-//                bean = doProblem();
-//                break;
+
 //            case IBusiConstant.TRADE_QRY://行业档案查询
 //                bean = doTradeQry(userbean);
 //                break;
@@ -617,6 +625,146 @@ public class BusinessController {
             bean = appbusihand.saveTickMsg(userbean);
         } catch (Exception e) {
             log.error("获取票据信息失败!",log);
+        }
+        return bean;
+    }
+    private BusinessResonseBeanVO dobusiVoucher(BusiReqBeanVo uBean, ResponseBaseBeanVO bean) {
+
+        BusinessResonseBeanVO beanvo = new BusinessResonseBeanVO();
+        try {
+
+            // 如果该公司没签约则返回是空的
+            if (AppCheckValidUtils.isEmptyCorp(uBean.getPk_corp())) {
+                throw new BusinessException("您公司没签约，不能做相关业务!");
+            }
+
+            ImageGroupVO groupvo =  appbusihand.saveImgFromTicket(uBean);
+
+            try {
+                appbusihand.saveVoucherFromTicket(uBean,groupvo);
+            } catch (Exception e) {
+                if(groupvo!=null){
+                    singleObjectBO.deleteObject(groupvo);
+                }
+                log.error("生成凭证失败!", log);
+                return beanvo;
+            }
+
+            beanvo.setRescode(IConstant.DEFAULT);
+
+            beanvo.setResmsg("操作成功!");
+
+        } catch (Exception e) {
+            log.error("生成凭证失败!", log);
+        }
+
+        return beanvo;
+    }
+    private BusinessResonseBeanVO doProblem() {
+        BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+        try {
+            List<ProblemVo> list = appbusihand.getProblems();
+            bean.setRescode(IConstant.DEFAULT);
+            bean.setResmsg(list);
+        } catch (Exception e) {
+            log.error("获取数据失败", log);
+        }
+        return bean;
+    }
+    /**
+     *
+     * @param request
+     * @param userbean
+     * @return
+     */
+    private BusinessResonseBeanVO doApprove(Integer operate, ApproveSetVo approveset, BusiReqBeanVo userbean) {
+
+        BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+
+        try {
+            switch (operate) {
+                case IBusiConstant.NINE_ZERO_THREE://审批流保存
+                    bean =  doApproveSave(approveset,userbean);
+                    break;
+                case IBusiConstant.NINE_ZERO_FIVE://审批流查询
+                    bean = doApproveQry(userbean);
+                    break;
+                case IBusiConstant.NINE_ZERO_FOUR://审批流审核
+                    bean = doApprove(userbean);
+                    break;
+                case IBusiConstant.NINE_ZERO_SIX://审批流驳回
+                    bean = doReturn(userbean);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            log.error("审批操作失败!", log);
+        }
+
+        return bean;
+    }
+    private BusinessResonseBeanVO doReturn(BusiReqBeanVo userbean) {
+        BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+        try {
+            // 如果该公司没签约则返回是空的
+            if (AppCheckValidUtils.isEmptyCorp(userbean.getPk_corp())) {
+                throw new BusinessException("您公司没签约，不能做相关业务!");
+            }
+
+            IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
+            bean =  approveser.updateReject(userbean);
+        } catch (DZFWarpException e) {
+            log.error( "驳回失败!", log);
+        }
+
+        return bean;
+    }
+    private BusinessResonseBeanVO doApprove(BusiReqBeanVo userbean) {
+        BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+        try {
+            // 如果该公司没签约则返回是空的
+            if (AppCheckValidUtils.isEmptyCorp(userbean.getPk_corp())) {
+                throw new BusinessException("您公司没签约，不能做相关业务!");
+            }
+            IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
+            bean =  approveser.updateApprove(userbean,singleObjectBO);
+
+            //审批成功后是否匹配模板生成凭证
+//			try {
+//				IAppBusinessService iappbusihand = (IAppBusinessService) SpringUtils.getBean("appbusihand");
+//				iappbusihand.saveVoucherFromPic(userbean.getPk_image_group(),
+//						userbean.getPk_corp());
+//			} catch (Exception e) {
+//
+//			}
+        } catch (DZFWarpException e) {
+            log.error("审批失败!", log);
+        }
+
+        return bean;
+    }
+    private BusinessResonseBeanVO doApproveSave(ApproveSetVo approveset, BusiReqBeanVo userbean) {
+        BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
+        try {
+
+            IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
+
+            bean =  approveser.saveApproveSet(approveset);
+        } catch (DZFWarpException e) {
+            log.error("保存审批流设置失败!", log);
+        }
+
+        return bean;
+
+    }
+    private BusinessResonseBeanVO doApproveQry(BusiReqBeanVo userbean) {
+        BusinessResonseBeanVO bean= new BusinessResonseBeanVO();
+        try {
+            IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
+            bean = approveser.queryApprovSet(userbean);
+        } catch (DZFWarpException e) {
+            log.error("查询审批流设置失败!", log);
         }
         return bean;
     }

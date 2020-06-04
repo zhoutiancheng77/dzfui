@@ -39,12 +39,14 @@ import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
 import com.dzf.zxkj.app.model.resp.bean.ImageBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.ImageReqVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
+import com.dzf.zxkj.app.model.sys.OcrInvoiceVOForApp;
 import com.dzf.zxkj.app.pub.ImageBeanConvert;
 import com.dzf.zxkj.app.pub.UploadRule;
 import com.dzf.zxkj.app.service.app.act.IAppApproveService;
 import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
 import com.dzf.zxkj.app.service.photo.IImageProviderPhoto;
 import com.dzf.zxkj.app.utils.BeanUtils;
+import com.dzf.zxkj.app.utils.CryptUtil;
 import com.dzf.zxkj.app.utils.ImageHelper;
 import com.dzf.zxkj.app.utils.ImageProcessor;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
@@ -1272,6 +1274,112 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 			throw new WiseRunException(e);
 		}
 	}
+
+	/**
+	 * 查询识别记录
+	 */
+	public OcrInvoiceVOForApp[] querySbVos(String pk_group) throws DZFWarpException {
+
+		if(StringUtil.isEmpty(pk_group)){
+			throw new BusinessException("图片信息为空");
+		}
+
+		StringBuffer qrysql = new StringBuffer();
+		qrysql.append(" select b.* ,a.imgpath as filepath,nvl(a.isinterface,'N') res,nvl(a.iszd,'N') zdres  ");
+		qrysql.append(" from  ynt_image_ocrlibrary a ");
+		qrysql.append(" left join ynt_interface_invoice b on a.pk_image_ocrlibrary = b.ocr_id  ");
+		qrysql.append(" where nvl(a.dr,0) =0 and nvl(b.dr,0)=0   ");
+		qrysql.append(" and  a.crelationid in (  ");
+		qrysql.append(" select tt.pk_image_library from  ynt_image_library tt  where nvl(tt.dr,0)=0 and tt.pk_image_group = ? )");
+
+		SQLParameter  sp = new SQLParameter();
+		sp.addParam(pk_group);
+
+		List<OcrInvoiceVOForApp> ocrlist1 =  (List<OcrInvoiceVOForApp>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(OcrInvoiceVOForApp.class));
+
+		if(ocrlist1==null || ocrlist1.size() == 0){
+			throw new BusinessException("识别信息为空!");
+		}
+
+		for(OcrInvoiceVOForApp votemp:ocrlist1){
+
+			if(!StringUtil.isEmpty(votemp.getFilepath())){
+				votemp.setFilepath(CryptUtil.getInstance().encryptAES(votemp.getFilepath()));
+			}
+			if(votemp.getIstate()!=null && ("已被识别".equals(votemp.getIstate())
+					||"识别正确".equals(votemp.getIstate())) ){
+				votemp.setSb_status(0);
+			}else if(StringUtil.isEmpty(votemp.getPk_invoice())){
+				// res是否的，制单，识别失败
+				if(!votemp.getRes().booleanValue() && votemp.getZdres().booleanValue()){
+					votemp.setSb_status(1);//识别失败
+				}else{
+					votemp.setSb_status(2);//识别中
+				}
+			}else{
+				votemp.setSb_status(1);//识别失败
+			}
+			//增值税普通发票、增值税专用发票、增值税电子普通发票
+			if(votemp.getInvoicetype()!=null){
+				if(votemp.getInvoicetype().indexOf("增值税普通发票")>=0){
+					votemp.setInvoicetype("1");
+				}else if(votemp.getInvoicetype().indexOf("增值税专用发票")>=0){
+					votemp.setInvoicetype("0");
+				}else if(votemp.getInvoicetype().indexOf("增值税电子普通发票")>=0){
+					votemp.setInvoicetype("2");
+				}
+			}
+		}
+
+		return ocrlist1.toArray(new OcrInvoiceVOForApp[0]);
+	}
+	@Override
+	public OcrInvoiceVOForApp querySbDetail(String sbid) throws DZFWarpException {
+		if (StringUtil.isEmpty(sbid)) {
+			OcrInvoiceVOForApp sbvo = new OcrInvoiceVOForApp();
+			sbvo.setSb_status(2);//识别中
+			return sbvo;
+		}
+
+		SQLParameter sp = new SQLParameter();
+		StringBuffer qrysql = new StringBuffer();
+//		qrysql.append(" select vinvoicecode ,vinvoiceno  ,dinvoicedate ,  ");
+//		qrysql.append(" jym , nmny  ,ntaxnmny ,ntotaltax  ");
+//		qrysql.append(" ,vpurchname ,vpurchtaxno  ,vsalename ,vsaletaxno   ");
+		qrysql.append(" select *  ");
+		qrysql.append("  from  ynt_interface_invoice ");
+		qrysql.append(" where  pk_invoice = ? ");
+		sp.addParam(sbid);
+
+		List<OcrInvoiceVOForApp> lists = (List<OcrInvoiceVOForApp>) singleObjectBO.executeQuery(qrysql.toString(), sp,
+				new BeanListProcessor(OcrInvoiceVOForApp.class));
+
+		if (lists == null || lists.size() == 0) {
+			throw new BusinessException("识别信息不存在!");
+		}
+
+
+		//增值税普通发票、增值税专用发票、增值税电子普通发票
+		if(lists.get(0).getInvoicetype()!=null){
+			if(lists.get(0).getInvoicetype().indexOf("增值税普通发票")>=0){
+				lists.get(0).setInvoicetype("1");
+			}else if(lists.get(0).getInvoicetype().indexOf("增值税专用发票")>=0){
+				lists.get(0).setInvoicetype("0");
+			}else if(lists.get(0).getInvoicetype().indexOf("增值税电子普通发票")>=0){
+				lists.get(0).setInvoicetype("2");
+			}
+		}
+
+		if(lists.get(0).getIstate()!=null && ("已被识别".equals(lists.get(0).getIstate())
+				||"识别正确".equals(lists.get(0).getIstate())) ){
+			lists.get(0).setSb_status(0);
+		}else{
+			lists.get(0).setSb_status(1);//识别失败
+		}
+
+		return lists.get(0);
+	}
+
 
 
 
@@ -3511,112 +3619,6 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 //		return listvos.toArray(new ImageTurnMsgVO[0]);
 //	}
 //
-//
-//	/**
-//	 * 查询识别记录
-//	 */
-//	public OcrInvoiceVOForApp[] querySbVos(String pk_group) throws DZFWarpException {
-//
-//		if(StringUtil.isEmpty(pk_group)){
-//			throw new BusinessException("图片信息为空");
-//		}
-//
-//		StringBuffer qrysql = new StringBuffer();
-//		qrysql.append(" select b.* ,a.imgpath as filepath,nvl(a.isinterface,'N') res,nvl(a.iszd,'N') zdres  ");
-//		qrysql.append(" from  ynt_image_ocrlibrary a ");
-//		qrysql.append(" left join ynt_interface_invoice b on a.pk_image_ocrlibrary = b.ocr_id  ");
-//		qrysql.append(" where nvl(a.dr,0) =0 and nvl(b.dr,0)=0   ");
-//		qrysql.append(" and  a.crelationid in (  ");
-//		qrysql.append(" select tt.pk_image_library from  ynt_image_library tt  where nvl(tt.dr,0)=0 and tt.pk_image_group = ? )");
-//
-//		SQLParameter  sp = new SQLParameter();
-//		sp.addParam(pk_group);
-//
-//		List<OcrInvoiceVOForApp> ocrlist1 =  (List<OcrInvoiceVOForApp>) singleObjectBO.executeQuery(qrysql.toString(), sp, new BeanListProcessor(OcrInvoiceVOForApp.class));
-//
-//		if(ocrlist1==null || ocrlist1.size() == 0){
-//			throw new BusinessException("识别信息为空!");
-//		}
-//
-//		for(OcrInvoiceVOForApp votemp:ocrlist1){
-//
-//			if(!StringUtil.isEmpty(votemp.getFilepath())){
-//				votemp.setFilepath(CryptUtil.getInstance().encryptAES(votemp.getFilepath()));
-//			}
-//			if(votemp.getIstate()!=null && ("已被识别".equals(votemp.getIstate())
-//					||"识别正确".equals(votemp.getIstate())) ){
-//				votemp.setSb_status(0);
-//			}else if(StringUtil.isEmpty(votemp.getPk_invoice())){
-//				// res是否的，制单，识别失败
-//				if(!votemp.getRes().booleanValue() && votemp.getZdres().booleanValue()){
-//					votemp.setSb_status(1);//识别失败
-//				}else{
-//					votemp.setSb_status(2);//识别中
-//				}
-//			}else{
-//				votemp.setSb_status(1);//识别失败
-//			}
-//			//增值税普通发票、增值税专用发票、增值税电子普通发票
-//			if(votemp.getInvoicetype()!=null){
-//				if(votemp.getInvoicetype().indexOf("增值税普通发票")>=0){
-//					votemp.setInvoicetype("1");
-//				}else if(votemp.getInvoicetype().indexOf("增值税专用发票")>=0){
-//					votemp.setInvoicetype("0");
-//				}else if(votemp.getInvoicetype().indexOf("增值税电子普通发票")>=0){
-//					votemp.setInvoicetype("2");
-//				}
-//			}
-//		}
-//
-//		return ocrlist1.toArray(new OcrInvoiceVOForApp[0]);
-//	}
-//
-//	@Override
-//	public OcrInvoiceVOForApp querySbDetail(String sbid) throws DZFWarpException {
-//		if (StringUtil.isEmpty(sbid)) {
-//			OcrInvoiceVOForApp sbvo = new OcrInvoiceVOForApp();
-//			sbvo.setSb_status(2);//识别中
-//			return sbvo;
-//		}
-//
-//		SQLParameter sp = new SQLParameter();
-//		StringBuffer qrysql = new StringBuffer();
-////		qrysql.append(" select vinvoicecode ,vinvoiceno  ,dinvoicedate ,  ");
-////		qrysql.append(" jym , nmny  ,ntaxnmny ,ntotaltax  ");
-////		qrysql.append(" ,vpurchname ,vpurchtaxno  ,vsalename ,vsaletaxno   ");
-//		qrysql.append(" select *  ");
-//		qrysql.append("  from  ynt_interface_invoice ");
-//		qrysql.append(" where  pk_invoice = ? ");
-//		sp.addParam(sbid);
-//
-//		List<OcrInvoiceVOForApp> lists = (List<OcrInvoiceVOForApp>) singleObjectBO.executeQuery(qrysql.toString(), sp,
-//				new BeanListProcessor(OcrInvoiceVOForApp.class));
-//
-//		if (lists == null || lists.size() == 0) {
-//			throw new BusinessException("识别信息不存在!");
-//		}
-//
-//
-//		//增值税普通发票、增值税专用发票、增值税电子普通发票
-//		if(lists.get(0).getInvoicetype()!=null){
-//			if(lists.get(0).getInvoicetype().indexOf("增值税普通发票")>=0){
-//				lists.get(0).setInvoicetype("1");
-//			}else if(lists.get(0).getInvoicetype().indexOf("增值税专用发票")>=0){
-//				lists.get(0).setInvoicetype("0");
-//			}else if(lists.get(0).getInvoicetype().indexOf("增值税电子普通发票")>=0){
-//				lists.get(0).setInvoicetype("2");
-//			}
-//		}
-//
-//		if(lists.get(0).getIstate()!=null && ("已被识别".equals(lists.get(0).getIstate())
-//				||"识别正确".equals(lists.get(0).getIstate())) ){
-//			lists.get(0).setSb_status(0);
-//		}else{
-//			lists.get(0).setSb_status(1);//识别失败
-//		}
-//
-//		return lists.get(0);
-//	}
-//
-//
+
+
 }

@@ -17,25 +17,29 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import com.dzf.zxkj.app.model.image.TransVspstyleModel;
+import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
 import com.dzf.zxkj.app.model.resp.bean.BusinessResonseBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
-import com.dzf.zxkj.app.model.ticket.MapBean;
-import com.dzf.zxkj.app.model.ticket.TicketRecordVO;
-import com.dzf.zxkj.app.model.ticket.ZzsTicketBVO;
-import com.dzf.zxkj.app.model.ticket.ZzsTicketHVO;
+import com.dzf.zxkj.app.model.sys.ProblemVo;
+import com.dzf.zxkj.app.model.ticket.*;
+import com.dzf.zxkj.app.pub.GenTickImageUtil;
 import com.dzf.zxkj.app.pub.PayMethodEnum;
 import com.dzf.zxkj.app.pub.constant.IConstant;
+import com.dzf.zxkj.app.service.app.act.IAppApproveService;
 import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
 import com.dzf.zxkj.app.service.pub.IAppPubservice;
+import com.dzf.zxkj.app.service.ticket.IAppTicketService;
 import com.dzf.zxkj.app.utils.*;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.common.constant.FieldConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -51,6 +55,7 @@ import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.image.DcModelBVO;
 import com.dzf.zxkj.platform.model.image.DcModelHVO;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
+import com.dzf.zxkj.platform.model.image.ImageLibraryVO;
 import com.dzf.zxkj.platform.model.pjgl.PhotoState;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
@@ -79,6 +84,12 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 	private SingleObjectBO singleObjectBO;
 	@Autowired
 	private IAppPubservice apppubservice;
+	@Autowired
+	private IAppTicketService apppthand;
+	@Autowired
+	private IAppApproveService appapprovehand;
+
+
 
 	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
 	private IZxkjRemoteAppService iZxkjRemoteAppService;
@@ -87,12 +98,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 //	private YntBoPubUtil yntBoPubUtil;
 //
 
-//	@Autowired
-//	private IAppApproveService appapprovehand;
-//
-//	@Autowired
-//	private IAppTicketService apppthand;
-//
+
 //	@Autowired
 //	private IParameterSetService paramService;
 //
@@ -892,6 +898,287 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 		}
 	}
 
+	@Override
+	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException {
+
+		if(AppCheckValidUtils.isEmptyCorp(uvo.getPk_corp())){
+			throw new BusinessException("您公司不存在!");
+		}
+
+		CorpVO cpvo = iZxkjRemoteAppService.queryByPk(uvo.getPk_corp());
+
+		if(cpvo == null){
+			throw new BusinessException("您公司不存在!");
+		}
+
+		// 根据发票号获取发票的信息
+		ZzsTicketHVO zzshvo = getZzsVos(uvo.getDrcode());
+
+
+		if(uvo.getKpdate() == null){//如果开票日期为空，则取票据的开票日期
+			uvo.setKpdate(zzshvo.getKprq());
+		}
+
+		if(StringUtil.isEmpty(uvo.getMny())){//如果金额为空则取
+			uvo.setMny(zzshvo.getJshj());
+		}
+
+		if(zzshvo == null){
+			throw new BusinessException("生成图片失败，发票信息不存在!");
+		}
+
+		List<ImageGroupVO>  gplist = apppthand.qryGroupFromPt(uvo.getPk_corp(), zzshvo.getPk_zzstiket());
+
+		//获取图片组信息
+		ImageGroupVO groupvo = null;
+
+		if(gplist!=null && gplist.size() >1 ){
+			throw new BusinessException("发票已生成多张图片，请查询图片处理!");
+		} else if(gplist!=null && gplist.size() ==1 ){
+			groupvo = gplist.get(0);
+		}
+
+		if (groupvo == null) {
+			String path = genImage(cpvo.getUnitcode(),cpvo.getUnitname(), zzshvo); // 生成图片信息
+			groupvo = genImageGroup(cpvo, uvo, zzshvo.getPrimaryKey(), path); // 生成图片信息(图片信息是已生成凭证的信息)
+			log.info("地址>>>>>>>>>>>>>>>>>>>>>>>"+path);
+		}
+
+		//更新票据信息
+		groupvo.setSettlemode(uvo.getPaymethod());
+		groupvo.setMemo(uvo.getMemo());//摘要
+		groupvo.setMny(new DZFDouble(uvo.getMny()));
+		groupvo.setMemo1(uvo.getMemo1());//备注
+		if(uvo.getKpdate()!=null){
+			groupvo.setCvoucherdate(new DZFDate(uvo.getKpdate()));//开票日期
+		}
+		singleObjectBO.update(groupvo);
+
+
+		return groupvo;
+	}
+	private String genImage(String unitcode, String unitname, ZzsTicketHVO hvo) {
+		String imgFileNm = UUID.randomUUID().toString() + ".png";
+		String path = unitcode + "/" + getCurDate() + "/" + imgFileNm;
+		String outpath = Common.imageBasePath + path;
+
+		URL xmlpath = getXmlPath_new(hvo);
+
+		List<FontText> fonttexts = new ArrayList<FontText>();
+
+		newGenImg(hvo, fonttexts);
+
+		GenTickImageUtil.drawTextInImg(xmlpath.getFile(), outpath, fonttexts.toArray(new FontText[0]));
+
+		return path;
+	}
+	// 获取当前年月日
+	private static String getCurDate() {
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		return format.format(Calendar.getInstance().getTime());
+	}
+
+	private URL getXmlPath_new(ZzsTicketHVO hvo) {
+		// 通过drcode 查询对应的信息
+		URL xmlpath = this.getClass().getClassLoader().getResource("app_model_dz.jpg");
+		String[] strs = hvo.getDrcode().split(",");
+		if(strs[1].equals("01")){//专票
+			xmlpath = this.getClass().getClassLoader().getResource("app_model_zp.jpg");
+		}else if(strs[1].equals("04")){//普票
+			xmlpath = this.getClass().getClassLoader().getResource("app_model_pp.jpg");
+		}
+		return xmlpath;
+	}
+	private void newGenImg(ZzsTicketHVO hvo, List<FontText> fonttexts) {
+
+		//表头显示
+		fonttexts.add(new FontText(hvo.getFpdm(),500,16));
+		fonttexts.add(new FontText(hvo.getFphm(),500,36));
+		fonttexts.add(new FontText(hvo.getKprq().substring(0, 4), 512, 54));
+		fonttexts.add(new FontText(hvo.getKprq().substring(5, 7), 552, 54));
+		fonttexts.add(new FontText(hvo.getKprq().substring(8), 578, 54));
+		fonttexts.add(new FontText(hvo.getJym(),500, 72));
+
+		fonttexts.add(new FontText(hvo.getGfmc(),168,96));//购买方
+		fonttexts.add(new FontText(hvo.getGfsbh(),168,116));//购买方识别号
+		fonttexts.add(new FontText(hvo.getGfdzdh(),168,136));//购买方地址，电话
+		fonttexts.add(new FontText(hvo.getGfyhzh(),168,156));//购买方开户银行账号
+
+		//价税合计
+		fonttexts.add(new FontText(NumberToCN.number2CnFromStr(hvo.getJshj()),236,260));
+		fonttexts.add(new FontText(hvo.getJshj(),538,260));
+
+		//销售方
+		fonttexts.add(new FontText(hvo.getXfmc(),164,284));//销方名称
+		fonttexts.add(new FontText(hvo.getXfsbh(),164,300));
+		fonttexts.add(new FontText(hvo.getXfdzdh(),164,314));
+		fonttexts.add(new FontText(hvo.getXfyhzh(),164,334));//银行账号
+
+
+		//查询对应的子表项目
+		SQLParameter sp = new SQLParameter();
+		sp.addParam(hvo.getPk_zzstiket());
+		ZzsTicketBVO[] bvos = (ZzsTicketBVO[]) singleObjectBO.queryByCondition(ZzsTicketBVO.class, "nvl(dr,0)=0 and pk_zzstiket = ? ", sp);
+		// 发票项目
+		if(bvos!=null && bvos.length>0){
+			for(int i =0;i<bvos.length;i++){
+				if(i==5){
+					fonttexts.add(new FontText("...", 58, 172 + i * 12, 12));
+					break;
+				}
+				String hwmc = bvos[i].getHwmc();
+				if(!StringUtil.isEmpty(hwmc) && hwmc.length()>20){
+					hwmc = hwmc.substring(0, 20)+"...";
+				}
+				fonttexts.add(new FontText(hwmc, 58, 176 + i * 12, 12));
+				fonttexts.add(new FontText(bvos[i].getSl(),380, 176 + i * 12, 12));
+				fonttexts.add(new FontText(bvos[i].getDj(),434, 176 + i * 12, 12));//单价
+				fonttexts.add(new FontText(bvos[i].getJe(),500,176 + i * 12, 12));//金额
+				fonttexts.add(new FontText(bvos[i].getSlv(),550,176 + i * 12, 12));//税率
+				fonttexts.add(new FontText(bvos[i].getSe(),604,176 + i * 12, 12));//税额
+			}
+		}
+	}
+	private ImageGroupVO genImageGroup(CorpVO corpvo, UserBeanVO uvo,String pk_ticket_h,String path) {
+		ImageGroupVO groupvo = new ImageGroupVO();
+		groupvo.setPk_corp(corpvo.getPk_corp());
+		groupvo.setCoperatorid(uvo.getAccount_id());
+		groupvo.setDoperatedate(new DZFDate());
+		groupvo.setMemo(uvo.getMemo());
+		groupvo.setMemo1(uvo.getMemo1());//备注
+		groupvo.setSettlemode(uvo.getPaymethod());
+		groupvo.setImagecounts(1);// 图片张数
+		groupvo.setMny(uvo.getMny()==null?DZFDouble.ZERO_DBL:new DZFDouble(uvo.getMny()));
+		groupvo.setPk_ticket_h(pk_ticket_h);//票通的信息主键
+		// istate=0 标识对应直接生单,不启用切图、识图，以后用PhotoState常量类
+		groupvo.setIstate(PhotoState.state0);// 0
+		// 保存为凭证日期
+		groupvo.setCvoucherdate(new DZFDate(uvo.getKpdate()));
+		long maxCode = getNowMaxImageGroupCode(corpvo.getPk_corp());
+		if (maxCode > 0) {
+			groupvo.setGroupcode(maxCode + 1 + "");
+		} else {
+			groupvo.setGroupcode(getCurDate() + "0001");
+		}
+		groupvo.setSessionflag(groupvo.getGroupcode());
+
+
+		ImageLibraryVO il = new ImageLibraryVO();
+		il.setImgpath(path);
+		il.setImgname(groupvo.getGroupcode() + "-001.jpg");
+		il.setPk_corp(corpvo.getPk_corp());
+		il.setCoperatorid(uvo.getAccount_id());
+		il.setDoperatedate(new DZFDate());
+		il.setCvoucherdate(new DZFDate(uvo.getKpdate()));//生成凭证时间
+
+		groupvo.addChildren(il);
+
+		groupvo = (ImageGroupVO) singleObjectBO.saveObject(corpvo.getPk_corp(), groupvo);
+
+		// 生成imagelibvo
+		return groupvo;
+	}
+	public long getNowMaxImageGroupCode(String pk_corp) {
+		SQLParameter params = new SQLParameter();
+		params.addParam(pk_corp);
+		params.addParam(new DZFDate().toString());
+
+		String sql = "select max(groupcode) from ynt_image_group where pk_corp = ? and doperatedate = ? ";
+		long maxcode = 0;
+
+		Object[] array = (Object[]) singleObjectBO.executeQuery(sql, params, new ArrayProcessor());
+		if (array != null && array.length > 0) {
+			if (array[0] != null)
+				maxcode = Long.parseLong(array[0].toString());
+		}
+		return maxcode;
+	}
+	@Override
+	public void saveVoucherFromTicket(UserBeanVO uvo,ImageGroupVO groupvo) throws DZFWarpException {
+
+		CorpVO cpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, uvo.getPk_corp());
+
+		// 根据发票号获取发票的信息
+		ZzsTicketHVO zzshvo = getZzsVos(uvo.getDrcode());
+
+		if(uvo.getKpdate() == null){//如果开票日期为空，则取票据的开票日期
+			uvo.setKpdate(zzshvo.getKprq());
+		}
+
+//		if(StringUtil.isEmpty(uvo.getMny())){//如果金额为空则取
+//			uvo.setMny(zzshvo.getJshj());
+//		}
+
+		if (zzshvo == null) {
+			throw new BusinessException("扫码票据生成凭证失败：发票信息不存在!");
+		}
+
+		if (StringUtil.isEmpty(zzshvo.getKprq())) {
+			throw new BusinessException("扫码票据生成凭证失败：开票日期为空!");
+		}
+
+		if (cpvo == null || cpvo.getBegindate() == null) {
+			throw new BusinessException("扫码票据生成凭证失败：您公司尚未建账!");
+		}
+
+		if (new DZFDate(uvo.getKpdate()).before(cpvo.getBegindate())) {
+			throw new BusinessException("扫码票据生成凭证失败：开票日期在正式签约日期前!");
+		}
+
+		if(StringUtil.isEmpty(uvo.getAccount_id())){
+			throw new BusinessException("当前帐号信息为空!");
+		}
+
+//		if(groupvo.getIstate() != null && (PhotoState.state100 == groupvo.getIstate() || PhotoState.state101 == groupvo.getIstate())){
+//			throw new BusinessException("发票已生成凭证，不能多次生成!");
+//		}
+
+		if(groupvo.getIstate()!=null && PhotoState.state200 == groupvo.getIstate()){
+			throw new BusinessException("当前票待审核，不能生成凭证!");
+		}
+
+		boolean buse = appapprovehand.bOpenApprove(uvo.getPk_corp());
+
+		//是否需要走审批(大账房app)
+		if (buse && !ISysConstants.SYS_ADMIN.equals(uvo.getSourcesys())) {
+			BusiReqBeanVo ubean = new BusiReqBeanVo();
+			ubean.setPk_image_group(groupvo.getPrimaryKey());
+			ubean.setPk_corp(uvo.getPk_corp());
+			ubean.setAccount_id(uvo.getAccount_id());
+			appapprovehand.updateApprove(ubean,singleObjectBO);
+		}
+
+		if (!buse || ISysConstants.SYS_ADMIN.equals(uvo.getSourcesys())) {
+			try {
+				saveVoucherFromTicket(new DZFDate(uvo.getKpdate()),new DZFDouble(uvo.getMny()),uvo.getPaymethod(), uvo.getMemo(), uvo.getPk_corp(),
+						uvo.getAccount_id(), zzshvo, groupvo);
+			} catch (Exception e) {
+				if(e instanceof BusinessException){
+					throw new BusinessException(e.getMessage()+"请查询图片,手工生成凭证!");
+				}else{
+					throw new BusinessException("生成凭证失败:请查询图片,手工生成凭证!!");
+				}
+			}
+		}
+
+	}
+	@Override
+	public List<ProblemVo> getProblems() throws DZFWarpException {
+
+		ProblemVo[] vos = (ProblemVo[]) singleObjectBO.queryByCondition(ProblemVo.class, "nvl(dr,0)=0 order by iorder",
+				new SQLParameter());
+
+		if (vos == null || vos.length == 0) {
+			throw new BusinessException("暂无数据");
+		}
+
+		return Arrays.asList(vos);
+	}
+
+
+
+
+
 
 
 //	@Override
@@ -944,167 +1231,9 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 //		return resvo;
 //	}
 //
-//	@Override
-//	public void saveVoucherFromTicket(UserBeanVO uvo,ImageGroupVO groupvo) throws DZFWarpException {
-//
-//		CorpVO cpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, uvo.getPk_corp());
-//
-//		// 根据发票号获取发票的信息
-//		ZzsTicketHVO zzshvo = getZzsVos(uvo.getDrcode());
-//
-//		if(uvo.getKpdate() == null){//如果开票日期为空，则取票据的开票日期
-//			uvo.setKpdate(zzshvo.getKprq());
-//		}
-//
-////		if(StringUtil.isEmpty(uvo.getMny())){//如果金额为空则取
-////			uvo.setMny(zzshvo.getJshj());
-////		}
-//
-//		if (zzshvo == null) {
-//			throw new BusinessException("扫码票据生成凭证失败：发票信息不存在!");
-//		}
-//
-//		if (StringUtil.isEmpty(zzshvo.getKprq())) {
-//			throw new BusinessException("扫码票据生成凭证失败：开票日期为空!");
-//		}
-//
-//		if (cpvo == null || cpvo.getBegindate() == null) {
-//			throw new BusinessException("扫码票据生成凭证失败：您公司尚未建账!");
-//		}
-//
-//		if (new DZFDate(uvo.getKpdate()).before(cpvo.getBegindate())) {
-//			throw new BusinessException("扫码票据生成凭证失败：开票日期在正式签约日期前!");
-//		}
-//
-//		if(StringUtil.isEmpty(uvo.getAccount_id())){
-//			throw new BusinessException("当前帐号信息为空!");
-//		}
-//
-////		if(groupvo.getIstate() != null && (PhotoState.state100 == groupvo.getIstate() || PhotoState.state101 == groupvo.getIstate())){
-////			throw new BusinessException("发票已生成凭证，不能多次生成!");
-////		}
-//
-//		if(groupvo.getIstate()!=null && PhotoState.state200 == groupvo.getIstate()){
-//			throw new BusinessException("当前票待审核，不能生成凭证!");
-//		}
-//
-//		boolean buse = appapprovehand.bOpenApprove(uvo.getPk_corp());
-//
-//		//是否需要走审批(大账房app)
-//		if (buse && !ISysConstants.SYS_ADMIN.equals(uvo.getSourcesys())) {
-//			BusiReqBeanVo ubean = new BusiReqBeanVo();
-//			ubean.setPk_image_group(groupvo.getPrimaryKey());
-//			ubean.setPk_corp(uvo.getPk_corp());
-//			ubean.setAccount_id(uvo.getAccount_id());
-//			appapprovehand.updateApprove(ubean,singleObjectBO);
-//		}
-//
-//		if (!buse || ISysConstants.SYS_ADMIN.equals(uvo.getSourcesys())) {
-//			try {
-//				saveVoucherFromTicket(new DZFDate(uvo.getKpdate()),new DZFDouble(uvo.getMny()),uvo.getPaymethod(), uvo.getMemo(), uvo.getPk_corp(),
-//						uvo.getAccount_id(), zzshvo, groupvo);
-//			} catch (Exception e) {
-//				if(e instanceof BusinessException){
-//					throw new BusinessException(e.getMessage()+"请查询图片,手工生成凭证!");
-//				}else{
-//					throw new BusinessException("生成凭证失败:请查询图片,手工生成凭证!!");
-//				}
-//			}
-//		}
-//
-//	}
-//
 
-//	private ImageGroupVO genImageGroup(CorpVO corpvo, UserBeanVO uvo,String pk_ticket_h,String path) {
-//		ImageGroupVO groupvo = new ImageGroupVO();
-//		groupvo.setPk_corp(corpvo.getPk_corp());
-//		groupvo.setCoperatorid(uvo.getAccount_id());
-//		groupvo.setDoperatedate(new DZFDate());
-//		groupvo.setMemo(uvo.getMemo());
-//		groupvo.setMemo1(uvo.getMemo1());//备注
-//		groupvo.setSettlemode(uvo.getPaymethod());
-//		groupvo.setImagecounts(1);// 图片张数
-//		groupvo.setMny(uvo.getMny()==null?DZFDouble.ZERO_DBL:new DZFDouble(uvo.getMny()));
-//		groupvo.setPk_ticket_h(pk_ticket_h);//票通的信息主键
-//		// istate=0 标识对应直接生单,不启用切图、识图，以后用PhotoState常量类
-//		groupvo.setIstate(PhotoState.state0);// 0
-//		// 保存为凭证日期
-//		groupvo.setCvoucherdate(new DZFDate(uvo.getKpdate()));
-//		long maxCode = getNowMaxImageGroupCode(corpvo.getPk_corp());
-//		if (maxCode > 0) {
-//			groupvo.setGroupcode(maxCode + 1 + "");
-//		} else {
-//			groupvo.setGroupcode(getCurDate() + "0001");
-//		}
-//		groupvo.setSessionflag(groupvo.getGroupcode());
-//
-//
-//		ImageLibraryVO il = new ImageLibraryVO();
-//		il.setImgpath(path);
-//		il.setImgname(groupvo.getGroupcode() + "-001.jpg");
-//		il.setPk_corp(corpvo.getPk_corp());
-//		il.setCoperatorid(uvo.getAccount_id());
-//		il.setDoperatedate(new DZFDate());
-//		il.setCvoucherdate(new DZFDate(uvo.getKpdate()));//生成凭证时间
-//
-//		groupvo.addChildren(il);
-//
-//		groupvo = (ImageGroupVO) singleObjectBO.saveObject(corpvo.getPk_corp(), groupvo);
-//
-//		// 生成imagelibvo
-//		return groupvo;
-//	}
-//
-//	// 获取当前年月日
-//	private static String getCurDate() {
-//		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
-//		return format.format(Calendar.getInstance().getTime());
-//	}
-//
-//	public long getNowMaxImageGroupCode(String pk_corp) {
-//		SQLParameter params = new SQLParameter();
-//		params.addParam(pk_corp);
-//		params.addParam(new DZFDate().toString());
-//
-//		String sql = "select max(groupcode) from ynt_image_group where pk_corp = ? and doperatedate = ? ";
-//		long maxcode = 0;
-//
-//		Object[] array = (Object[]) singleObjectBO.executeQuery(sql, params, new ArrayProcessor());
-//		if (array != null && array.length > 0) {
-//			if (array[0] != null)
-//				maxcode = Long.parseLong(array[0].toString());
-//		}
-//		return maxcode;
-//	}
-//
-//	private String genImage(String unitcode, String unitname, ZzsTicketHVO hvo) {
-//		String imgFileNm = UUID.randomUUID().toString() + ".png";
-//		String path = unitcode + "/" + getCurDate() + "/" + imgFileNm;
-//		String outpath = Common.imageBasePath + path;
-//
-//		URL xmlpath = getXmlPath_new(hvo);
-//
-//		List<FontText> fonttexts = new ArrayList<FontText>();
-//
-//		newGenImg(hvo, fonttexts);
-//
-//		GenTickImageUtil.drawTextInImg(xmlpath.getFile(), outpath, fonttexts.toArray(new FontText[0]));
-//
-//		return path;
-//	}
-//
-//	private URL getXmlPath_new(ZzsTicketHVO hvo) {
-//		// 通过drcode 查询对应的信息
-//		URL xmlpath = this.getClass().getClassLoader().getResource("app_model_dz.jpg");
-//		String[] strs = hvo.getDrcode().split(",");
-//		if(strs[1].equals("01")){//专票
-//			xmlpath = this.getClass().getClassLoader().getResource("app_model_zp.jpg");
-//		}else if(strs[1].equals("04")){//普票
-//			xmlpath = this.getClass().getClassLoader().getResource("app_model_pp.jpg");
-//		}
-//		return xmlpath;
-//	}
-//
+
+
 //	private URL getXmlPath_old(String unitname, ZzsTicketHVO hvo) {
 //		// 通过drcode 查询对应的信息
 //		URL xmlpath = this.getClass().getClassLoader().getResource("app_model.png");
@@ -1118,58 +1247,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 //		return xmlpath;
 //	}
 //
-//	private void newGenImg(ZzsTicketHVO hvo, List<FontText> fonttexts) {
-//
-//		//表头显示
-//		fonttexts.add(new FontText(hvo.getFpdm(),500,16));
-//		fonttexts.add(new FontText(hvo.getFphm(),500,36));
-//		fonttexts.add(new FontText(hvo.getKprq().substring(0, 4), 512, 54));
-//		fonttexts.add(new FontText(hvo.getKprq().substring(5, 7), 552, 54));
-//		fonttexts.add(new FontText(hvo.getKprq().substring(8), 578, 54));
-//		fonttexts.add(new FontText(hvo.getJym(),500, 72));
-//
-//		fonttexts.add(new FontText(hvo.getGfmc(),168,96));//购买方
-//		fonttexts.add(new FontText(hvo.getGfsbh(),168,116));//购买方识别号
-//		fonttexts.add(new FontText(hvo.getGfdzdh(),168,136));//购买方地址，电话
-//		fonttexts.add(new FontText(hvo.getGfyhzh(),168,156));//购买方开户银行账号
-//
-//		//价税合计
-//		fonttexts.add(new FontText(NumberToCN.number2CnFromStr(hvo.getJshj()),236,260));
-//		fonttexts.add(new FontText(hvo.getJshj(),538,260));
-//
-//		//销售方
-//		fonttexts.add(new FontText(hvo.getXfmc(),164,284));//销方名称
-//		fonttexts.add(new FontText(hvo.getXfsbh(),164,300));
-//		fonttexts.add(new FontText(hvo.getXfdzdh(),164,314));
-//		fonttexts.add(new FontText(hvo.getXfyhzh(),164,334));//银行账号
-//
-//
-//		//查询对应的子表项目
-//		SQLParameter sp = new SQLParameter();
-//		sp.addParam(hvo.getPk_zzstiket());
-//		ZzsTicketBVO[] bvos = (ZzsTicketBVO[]) singleObjectBO.queryByCondition(ZzsTicketBVO.class, "nvl(dr,0)=0 and pk_zzstiket = ? ", sp);
-//		// 发票项目
-//		if(bvos!=null && bvos.length>0){
-//			for(int i =0;i<bvos.length;i++){
-//				if(i==5){
-//					fonttexts.add(new FontText("...", 58, 172 + i * 12, 12));
-//					break;
-//				}
-//				String hwmc = bvos[i].getHwmc();
-//				if(!StringUtil.isEmpty(hwmc) && hwmc.length()>20){
-//					hwmc = hwmc.substring(0, 20)+"...";
-//				}
-//				fonttexts.add(new FontText(hwmc, 58, 176 + i * 12, 12));
-//				fonttexts.add(new FontText(bvos[i].getSl(),380, 176 + i * 12, 12));
-//				fonttexts.add(new FontText(bvos[i].getDj(),434, 176 + i * 12, 12));//单价
-//				fonttexts.add(new FontText(bvos[i].getJe(),500,176 + i * 12, 12));//金额
-//				fonttexts.add(new FontText(bvos[i].getSlv(),550,176 + i * 12, 12));//税率
-//				fonttexts.add(new FontText(bvos[i].getSe(),604,176 + i * 12, 12));//税额
-//			}
-//		}
-//	}
-//
-//
+
 //
 //	private void oldGenImg(ZzsTicketHVO hvo, List<FontText> fonttexts) {
 //		String[] strs = hvo.getDrcode().split(",");
@@ -1280,79 +1358,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 //	}
 //
 
-//	@Override
-//	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException {
-//
-//		if(AppCheckValidUtils.isEmptyCorp(uvo.getPk_corp())){
-//			throw new BusinessException("您公司不存在!");
-//		}
-//
-//		CorpVO cpvo = CorpCache.getInstance().get("", uvo.getPk_corp());
-//
-//		if(cpvo == null){
-//			throw new BusinessException("您公司不存在!");
-//		}
-//
-//		// 根据发票号获取发票的信息
-//		ZzsTicketHVO zzshvo = getZzsVos(uvo.getDrcode());
-//
-//
-//		if(uvo.getKpdate() == null){//如果开票日期为空，则取票据的开票日期
-//			uvo.setKpdate(zzshvo.getKprq());
-//		}
-//
-//		if(StringUtil.isEmpty(uvo.getMny())){//如果金额为空则取
-//			uvo.setMny(zzshvo.getJshj());
-//		}
-//
-//		if(zzshvo == null){
-//			throw new BusinessException("生成图片失败，发票信息不存在!");
-//		}
-//
-//		List<ImageGroupVO>  gplist = apppthand.qryGroupFromPt(uvo.getPk_corp(), zzshvo.getPk_zzstiket());
-//
-//		//获取图片组信息
-//		ImageGroupVO groupvo = null;
-//
-//		if(gplist!=null && gplist.size() >1 ){
-//			throw new BusinessException("发票已生成多张图片，请查询图片处理!");
-//		} else if(gplist!=null && gplist.size() ==1 ){
-//			groupvo = gplist.get(0);
-//		}
-//
-//		if (groupvo == null) {
-//			String path = genImage(cpvo.getUnitcode(),cpvo.getUnitname(), zzshvo); // 生成图片信息
-//			groupvo = genImageGroup(cpvo, uvo, zzshvo.getPrimaryKey(), path); // 生成图片信息(图片信息是已生成凭证的信息)
-//			log.info("地址>>>>>>>>>>>>>>>>>>>>>>>"+path);
-//		}
-//
-//		//更新票据信息
-//		groupvo.setSettlemode(uvo.getPaymethod());
-//		groupvo.setMemo(uvo.getMemo());//摘要
-//		groupvo.setMny(new DZFDouble(uvo.getMny()));
-//		groupvo.setMemo1(uvo.getMemo1());//备注
-//		if(uvo.getKpdate()!=null){
-//			groupvo.setCvoucherdate(new DZFDate(uvo.getKpdate()));//开票日期
-//		}
-//		singleObjectBO.update(groupvo);
-//
-//
-//		return groupvo;
-//	}
-//
-//	@Override
-//	public List<ProblemVo> getProblems() throws DZFWarpException {
-//
-//		ProblemVo[] vos = (ProblemVo[]) singleObjectBO.queryByCondition(ProblemVo.class, "nvl(dr,0)=0 order by iorder",
-//				new SQLParameter());
-//
-//		if (vos == null || vos.length == 0) {
-//			throw new BusinessException("暂无数据");
-//		}
-//
-//		return Arrays.asList(vos);
-//	}
-//
+
 //	@Override
 //	public List<MoreServiceHVo> queryMoreService(String pk_corp) throws DZFWarpException {
 //
