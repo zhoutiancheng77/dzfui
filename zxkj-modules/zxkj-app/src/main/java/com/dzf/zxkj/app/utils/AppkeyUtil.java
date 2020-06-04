@@ -17,9 +17,12 @@ public class AppkeyUtil {
             {
                 String ankey = annotation.value();
                 Object obj = map.get(ankey);
+                if(obj==null) continue;
                 BeanHelper.setProperty(svo, fieldkey, obj);
             }else {
-               // BeanHelper.setProperty(svo, fieldkey ,map.get(fieldkey));
+                Object obj = map.get(fieldkey);
+                if(obj==null) continue;
+                BeanHelper.setProperty(svo, fieldkey ,map.get(fieldkey));
             }
         }
     }
