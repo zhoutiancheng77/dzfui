@@ -128,7 +128,7 @@ public class LrbReportImpl implements ILrbReport {
 			String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
 			if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
 				OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
-				lrbvos = lrb_qykj.getCompanyVos(map, mp, vo.getQjz(), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","");
+				lrbvos = lrb_qykj.getCompanyVos(map, mp, vo.getQjz(), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","【2019】6号");
 			}else {
 				lrbvos = getLRB2007VOs(map, mp, vo.getQjz(), pk_corp, xmmcid);
 			}
@@ -930,7 +930,7 @@ public class LrbReportImpl implements ILrbReport {
 				/** 2007会计准则 */
 				if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
 					OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
-					lrbvos = lrb_qykj.getCompanyVos(map, mp, str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","");
+					lrbvos = lrb_qykj.getCompanyVos(map, mp, str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","【2019】6号");
 				}else {
 					lrbvos = getLRB2007VOs(map, mp, str.substring(0, 7), pk_corp, xmmcid);
 				}
