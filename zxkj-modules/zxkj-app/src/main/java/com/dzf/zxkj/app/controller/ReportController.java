@@ -53,6 +53,7 @@ public class ReportController {
         UserVO uservo = userPubService.queryUserVOId(reportBean.getAccount_id());
         reportBean.setUsercode(uservo.getUser_code());
         reportBean.setAccount_id(uservo.getCuserid());
+        reportBean.setAccount(uservo.getUser_code());
         reportBean.setPk_corp(corp);
         reportBean.setPk_tempcorp(tcorp);
         reportBean.setCorpname(cname);
