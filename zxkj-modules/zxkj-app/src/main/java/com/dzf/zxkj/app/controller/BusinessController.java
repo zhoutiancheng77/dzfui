@@ -332,7 +332,7 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(bvos);
         } catch (Exception e) {
-            log.error("查询列表出错!", log);
+            log.error(e.getMessage(), log);
         }
 
     }
