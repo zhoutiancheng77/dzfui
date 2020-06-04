@@ -70,9 +70,9 @@ public class ElectronicContractController {
 
     private AppEContQryVO changeParamvo( Map<String,Object> param){
         AppEContQryVO pamVO= new AppEContQryVO();
+        AppkeyUtil.setAppValue(param,pamVO );
         UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
-        AppkeyUtil.setAppValue(param,pamVO );
         return pamVO;
     }
 }

@@ -79,9 +79,9 @@ public class ElectronicSealController {
     }
     private AppSealVO changeParamvo(Map<String,Object> param){
         AppSealVO pamVO= new AppSealVO();
+        AppkeyUtil.setAppValue(param,pamVO );
         UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
-        AppkeyUtil.setAppValue(param,pamVO );
         return pamVO;
     }
 }
