@@ -1052,12 +1052,11 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 				 +" inner join ynt_image_library lb on gr.pk_image_group=lb.pk_image_group"
 				 +" where gr.pk_corp = ? AND gr.doperatedate between ? AND ?"
 				 +" and (nvl(gr.dr, 0) = 0) group by gr.doperatedate";
-		 SingleObjectBO sbo=new SingleObjectBO(DataSourceFactory.getDataSource(null, pk_corp));
 			SQLParameter sp=new SQLParameter();
 			sp.addParam(pk_corp);
 			sp.addParam(startdate);
 			sp.addParam(enddate);
-		 ArrayList<ImageGroupVO> al = (ArrayList<ImageGroupVO>)sbo.executeQuery(picSql, sp,new BeanListProcessor(ImageGroupVO.class));
+		 ArrayList<ImageGroupVO> al = (ArrayList<ImageGroupVO>)singleObjectBO.executeQuery(picSql, sp,new BeanListProcessor(ImageGroupVO.class));
 		 if(al!= null&& al.size()>0){
 			 for(int i = 0 ; i < al.size() ; i++){
 				 dtHs.put(al.get(i).getDoperatedate().toString(), al.get(i).getDr());
@@ -1189,12 +1188,11 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 		 String vouSql = "select count(h.pk_tzpz_h) dr,h.doperatedate doperatedate from ynt_tzpz_h h"
 				 +" left join ynt_image_group g on h.pk_image_group=g.pk_image_group"
 				 +" where h.pk_corp = ? AND h.doperatedate between ? AND ? and (nvl(h.dr,0)=0)  group by h.doperatedate";
-		 SingleObjectBO sbo=new SingleObjectBO(DataSourceFactory.getDataSource(null, pk_corp));
 			SQLParameter sp=new SQLParameter();
 			sp.addParam(pk_corp);
 			sp.addParam(startdate);
 			sp.addParam(enddate);
-		 ArrayList<ImageGroupVO> al = (ArrayList<ImageGroupVO>)sbo.executeQuery(vouSql, sp,new BeanListProcessor(ImageGroupVO.class));
+		 ArrayList<ImageGroupVO> al = (ArrayList<ImageGroupVO>)singleObjectBO.executeQuery(vouSql, sp,new BeanListProcessor(ImageGroupVO.class));
 		 if(al!= null&& al.size()>0){
 			 for(int i = 0 ; i < al.size() ; i++){
 				 dtHs.put(al.get(i).getDoperatedate().toString(), al.get(i).getDr());
@@ -1268,12 +1266,11 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 		qrySum2BeginDateSql.append("  and nvl(h.dr,0)=0  and nvl(b.dr,0)=0");
 		qrySum2BeginDateSql.append("  and (sub.accountcode like '1001%' or sub.accountcode like '1002%') " );;
 		qrySum2BeginDateSql.append("  group by substr(sub.accountcode,0,4),h.doperatedate order by h.doperatedate  ");
-			 SingleObjectBO sbo=new SingleObjectBO(DataSourceFactory.getDataSource(null, pk_corp));
 				SQLParameter sp=new SQLParameter();
 				sp.addParam(pk_corp);
 				sp.addParam(startdate.toString());
 				sp.addParam(enddate.toString());
-			List<TzpzHVO> acvos = (List<TzpzHVO>) sbo.executeQuery(qrySum2BeginDateSql.toString(), sp,new BeanListProcessor(TzpzHVO.class));
+			List<TzpzHVO> acvos = (List<TzpzHVO>) singleObjectBO.executeQuery(qrySum2BeginDateSql.toString(), sp,new BeanListProcessor(TzpzHVO.class));
 
 
 		//按照发生额日期排序

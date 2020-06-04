@@ -19,19 +19,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/app/billhandlesvlt")
+@RequestMapping("/app/dzfbillhandlesvlt")
 public class KcdrBillController {
 
     @Autowired
     private IUserPubService userPubService;
 
     @RequestMapping("/doAction")
-    public ReturnData<BillResonseBeanVO> doAction(BillCustomerBean userbean) {
+    public ReturnData<BillResonseBeanVO> doAction(BillCustomerBean userbean,String corp,String tcorp,String caddr) {
 
         BillResonseBeanVO beanvo = new  BillResonseBeanVO();
         UserVO uservo = userPubService.queryUserVOId(userbean.getAccount_id());
         userbean.setAccount_id(uservo.getCuserid());
-
+        userbean.setPk_corp(corp);
+        userbean.setPk_tempcorp(tcorp);
+        userbean.setCorpaddr(caddr);
         Integer operate = Integer.parseInt(userbean.getOperate());
         switch (operate) {
             case IBillConstant.CORP_BILL_QRY://开票信息(大账房app也需要)

@@ -60,12 +60,11 @@ public class QryReportDaoImpl implements IQryReportDao {
 		String picSql = "select count(pk_image_library) dr from ynt_image_group gr"
 				+ " inner join ynt_image_library lb on gr.pk_image_group=lb.pk_image_group"
 				+ " where gr.pk_corp = ? AND gr.doperatedate between ? AND ?" + " and (nvl(gr.dr, 0) = 0) ";
-		SingleObjectBO sbo = new SingleObjectBO(DataSourceFactory.getDataSource(null, pk_corp));
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(startdate);
 		sp.addParam(enddate);
-		ArrayList al = (ArrayList) sbo.executeQuery(picSql, sp, new ArrayListProcessor());
+		ArrayList al = (ArrayList) singleObjectBO.executeQuery(picSql, sp, new ArrayListProcessor());
 		if (al != null && al.size() > 0) {
 			monthPics = Integer.parseInt(((Object[]) al.get(0))[0].toString());
 		}
@@ -85,12 +84,11 @@ public class QryReportDaoImpl implements IQryReportDao {
 		int vouchs = 0;
 		String vouSql = "select count(h.pk_tzpz_h) dr from ynt_tzpz_h h"
 				+ " where h.pk_corp = ? AND h.doperatedate between ? AND ? and nvl(h.dr,0)=0";
-		SingleObjectBO sbo = new SingleObjectBO(DataSourceFactory.getDataSource(null, pk_corp));
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
 		sp.addParam(startdate);
 		sp.addParam(enddate);
-		ArrayList al = (ArrayList) sbo.executeQuery(vouSql, sp, new ArrayListProcessor());
+		ArrayList al = (ArrayList) singleObjectBO.executeQuery(vouSql, sp, new ArrayListProcessor());
 		if (al != null && al.size() > 0) {
 			vouchs = Integer.parseInt(((Object[]) al.get(0))[0].toString());
 		}

@@ -25,6 +25,8 @@ public class UserController {
 
     @Autowired
     private IUserPubService userPubService;
+    @Autowired
+    private IAppCorpService corpservice;
 
     @RequestMapping("/doAction")
     public ReturnData<ResponseBaseBeanVO> doAction(UserBeanVO userBean) {
@@ -120,9 +122,9 @@ public class UserController {
             case IConstant.TWO_ONE_ONE://激活公司
                 bean = activeCorp(userBean);
                 break;
-//            case IConstant.TWO_ZERO_SIX:// 公司上传信息
-//                bean = corpservice.corpAddMsg(userBean);
-//                break;
+            case IConstant.TWO_ZERO_SIX:// 公司上传信息
+                bean = corpservice.corpAddMsg(userBean);
+                break;
 //            case IConstant.TAXMSGQRY:  //申报信息查询
 //                bean = doTaxQuery(operate, userBean);
 //                break;
