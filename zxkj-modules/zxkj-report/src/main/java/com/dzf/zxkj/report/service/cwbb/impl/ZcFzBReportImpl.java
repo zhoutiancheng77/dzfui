@@ -208,7 +208,13 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 		} else if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {// 2007会计准则 , 企业会计准则
 			zctotalname = "资产总计";
 			fztotalname = "负债合计";
-			qytotalname = "所有者权益(或股东权益)合计";
+//			qytotalname = "所有者权益(或股东权益)合计";
+			String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+			if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+				qytotalname = "负债和所有者权益(或股东权益)总计";
+			}else {
+				qytotalname = "所有者权益(或股东权益)合计";
+			}
 		} else if (corpschema == DzfUtil.POPULARSCHEMA.intValue()) {// 民间
 			zctotalname = "资产总计";
 			fztotalname = "负债合计";
@@ -439,7 +445,13 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 		if (corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {// 2013会计准则 小企业会计准则
 			return new XqyZcfzBReportService(zxkjPlatformService).getZCFZB2013VOs(map, hasyes, mapc,queryAccountRule);
 		} else if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {//2007会计准则 企业会计准则
-			return new QyZcfzBReportService(zxkjPlatformService).getZCFZB2007VOs(map, hasyes, mapc,queryAccountRule);
+			String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+			if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+				OtherSystemForZcfzImpl companyimpl = new OtherSystemForZcfzImpl(zxkjPlatformService);
+				return companyimpl.getCompanyZCFZBVOs(map, hasyes, mapc,singleObjectBO,"00000100AA10000000000BMF",pk_corp, "【2019】6号");
+			} else {
+				return new QyZcfzBReportService(zxkjPlatformService).getZCFZB2007VOs(map, hasyes, mapc,queryAccountRule);
+			}
 		} else if (corpschema == DzfUtil.POPULARSCHEMA.intValue()) {// 民间
 			PopularRpForZcfzImpl popularimpl = new PopularRpForZcfzImpl(zxkjPlatformService);
 			return popularimpl.getPopularZCFZBVOs(map, hasyes, mapc, pk_corp);
@@ -451,10 +463,10 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 			return villageimpl.getCauseZCFZBVOs(map, hasyes, mapc);
 		}else if(corpschema ==  DzfUtil.COMPANYACCOUNTSYSTEM.intValue() ){//企业会计制度
 			OtherSystemForZcfzImpl  companyimpl = new OtherSystemForZcfzImpl(zxkjPlatformService);
-			return companyimpl.getCompanyZCFZBVOs(map, hasyes, mapc,singleObjectBO,"00000100000000Ig4yfE0005",pk_corp);
+			return companyimpl.getCompanyZCFZBVOs(map, hasyes, mapc,singleObjectBO,"00000100000000Ig4yfE0005",pk_corp,"");
 		}  else if(corpschema == DzfUtil.RURALCOOPERATIVE.intValue()){//农村合作社
 			OtherSystemForZcfzImpl  companyimpl = new OtherSystemForZcfzImpl(zxkjPlatformService);
-			return companyimpl.getCompanyZCFZBVOs(map, hasyes, mapc,singleObjectBO,"00000100000000Ig4yfE0006",pk_corp);
+			return companyimpl.getCompanyZCFZBVOs(map, hasyes, mapc,singleObjectBO,"00000100000000Ig4yfE0006",pk_corp,"");
 		}
 		else {
 			throw new BusinessException("该制度暂不支持资产负债表,敬请期待!");

@@ -125,12 +125,18 @@ public class LrbReportImpl implements ILrbReport {
 		LrbVO[] lrbvos = null;
 		/** 2007会计准则(一般) */
 		if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
-			lrbvos = getLRB2007VOs(map, mp, vo.getQjz(), pk_corp, xmmcid);
+			String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+			if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+				OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
+				lrbvos = lrb_qykj.getCompanyVos(map, mp, vo.getQjz(), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","");
+			}else {
+				lrbvos = getLRB2007VOs(map, mp, vo.getQjz(), pk_corp, xmmcid);
+			}
 		} else if (corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {/** 2013会计准则(小企业) */
 			lrbvos = getLRB2013VOs(map, mp, vo.getQjz(), pk_corp, xmmcid);
 		} else if(corpschema == DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){/** 企业会计制度 */
 			OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
-			lrbvos = lrb_qykj.getCompanyVos(map, mp, vo.getQjz(), pk_corp, xmmcid,singleObjectBO,"00000100000000Ig4yfE0005");
+			lrbvos = lrb_qykj.getCompanyVos(map, mp, vo.getQjz(), pk_corp, xmmcid,singleObjectBO,"00000100000000Ig4yfE0005","");
 		} 
 //		else if(corpschema == DzfUtil.RURALCOOPERATIVE.intValue()){//农村合作社
 //			OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
@@ -920,14 +926,20 @@ public class LrbReportImpl implements ILrbReport {
 
 			LrbVO[] lrbvos = null;
 			if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
+				String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
 				/** 2007会计准则 */
-				lrbvos = getLRB2007VOs(map, mp, str.substring(0, 7), pk_corp, xmmcid);
+				if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+					OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
+					lrbvos = lrb_qykj.getCompanyVos(map, mp, str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","");
+				}else {
+					lrbvos = getLRB2007VOs(map, mp, str.substring(0, 7), pk_corp, xmmcid);
+				}
 			} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 				/** 2013会计准则 */
 				lrbvos = getLRB2013VOs(map, mp, str.substring(0, 7), pk_corp, xmmcid);
 			} else if(corpschema == DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){//企业会计制度
 				OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
-				lrbvos = lrb_qykj.getCompanyVos(map, mp,str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100000000Ig4yfE0005");
+				lrbvos = lrb_qykj.getCompanyVos(map, mp,str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100000000Ig4yfE0005","");
 			} 
 //			else if(corpschema == DzfUtil.RURALCOOPERATIVE.intValue()){//农村合作社
 //				OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
@@ -982,14 +994,20 @@ public class LrbReportImpl implements ILrbReport {
 			LrbVO[] lrbvos = null;
 			Integer corpschema = zxkjPlatformService.getAccountSchema(pk_corp);
 			if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
-				/** 2007会计准则 */
-				lrbvos = getLRB2007VOs(map, mp, str.substring(0, 7), pk_corp, xmmcid);
+				String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+				if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+					OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
+					lrbvos = lrb_qykj.getCompanyVos(map, mp, str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","【2019】6号");
+				}else {
+					/** 2007会计准则 */
+					lrbvos = getLRB2007VOs(map, mp, str.substring(0, 7), pk_corp, xmmcid);
+				}
 			} else if (corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 				/** 2013会计准则 */
 				lrbvos = getLRB2013VOs(map, mp, str.substring(0, 7), pk_corp, xmmcid);
 			} else if(corpschema == DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){
 				OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
-				lrbvos = lrb_qykj.getCompanyVos(map, mp,  str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100000000Ig4yfE0005");
+				lrbvos = lrb_qykj.getCompanyVos(map, mp,  str.substring(0, 7), pk_corp, xmmcid,singleObjectBO,"00000100000000Ig4yfE0005","");
 			}else {
 				continue;
 			}

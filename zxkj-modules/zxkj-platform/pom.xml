@@ -254,6 +254,11 @@
             <artifactId>zxkj-xxljob-api</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>admin-zxkj-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <filters>
