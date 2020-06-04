@@ -1,7 +1,10 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
+import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.utils.FieldMapping;
+import com.dzf.zxkj.base.utils.JSONConvtoJAVA;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
@@ -17,6 +20,8 @@ import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
+import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
+import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -34,6 +39,8 @@ import com.dzf.zxkj.report.excel.rptexp.handler.TaxExportHander;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.service.cwbb.IXjllbReport;
 import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
+import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
+import com.dzf.zxkj.report.utils.OtherSystemForZcfzImpl;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
 import com.itextpdf.text.BaseColor;
@@ -77,7 +84,8 @@ public class ZcfzController extends ReportBaseController {
     @Autowired
     public SingleObjectBO singleObjectBO;
 
-
+    @Autowired
+    private IFsYeReport gl_rep_fsyebserv ;
     /**
      * 查询
      */
@@ -258,7 +266,6 @@ public class ZcfzController extends ReportBaseController {
     public void excelReportSj(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryparamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
         // 校验
         checkSecurityData(null, new String[]{queryparamvo.getPk_corp()}, null);
-        ZcFzBVO[] listVo = JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
         String qj = excelExportVO.getPeriod();
 
         //获取利润表数据
@@ -270,26 +277,17 @@ public class ZcfzController extends ReportBaseController {
         String corpType = cpvo.getCorptype();
 
         //获取利润表数据
-        LrbVO[] lrbvos = gl_rep_lrbserv.getLrbDataForCwBs(qj, corpIds, excelExportVO.getQjlx());
+        LrbVO[] lrbvos = getRptLrbVos(qj,corpIds, excelExportVO.getQjlx(),corpType,excelExportVO.getAreaType());
         //获取现金流量数据
-        XjllbVO[] xjllbvos = gl_rep_xjlybserv.getXjllDataForCwBs(qj, corpIds, excelExportVO.getQjlx());
+        XjllbVO[] xjllbvos =  gl_rep_xjlybserv.getXjllDataForCwBs(qj, corpIds, excelExportVO.getQjlx());
+        //获取资产负债数据
+        ZcFzBVO[] listVo = getRptZcfzBvos(excelExportVO.getAreaType(), corpType,corpIds,queryparamvo, corpVO,excelExportVO);
 
-        String zxzc = zxkjPlatformService.queryParamterValueByCode(corpIds, "dzf025");
         //税局模式
-        SQLParameter sp = new SQLParameter();
-        sp.addParam(excelExportVO.getAreaType());
-        sp.addParam(corpType);
-        XjllTaxVo[] xjlltaxvos = (XjllTaxVo[]) singleObjectBO.queryByCondition(XjllTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
-        LrbTaxVo[] lrbtaxvos = null;
-        ZcfzTaxVo[] zcfztaxvos = null;
-        if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
-            sp.addParam("【2019】6号");
-            zcfztaxvos= (ZcfzTaxVo[]) singleObjectBO.queryByCondition(ZcfzTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype =?  and  versionno= ? order by ordernum", sp);
-            lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ?  and  versionno= ? order by ordernum", sp);
-        } else {
-            zcfztaxvos= (ZcfzTaxVo[]) singleObjectBO.queryByCondition(ZcfzTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype =?   order by ordernum", sp);
-            lrbtaxvos = (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
-        }
+        XjllTaxVo[] xjlltaxvos = getXjllTaxVos(excelExportVO.getAreaType(), corpType);
+        LrbTaxVo[] lrbtaxvos = getLrbTaxVos(excelExportVO.getAreaType(), corpType);
+        ZcfzTaxVo[] zcfztaxvos = getZcfzTaxVos(excelExportVO.getAreaType(), corpType);
+
         String fileType = ExportTemplateEnum.getFileType(excelExportVO.getAreaType());
 
         if ("1".equals(fileType)) {
@@ -324,6 +322,131 @@ public class ZcfzController extends ReportBaseController {
                 "财务报表税局模式导出:" + ExportRecordEnum.getRecordMessage(excelExportVO.getAreaType(), excelExportVO.getPeriod(), excelExportVO.getQjlx()), ISysConstants.SYS_2);
     }
 
+    private XjllTaxVo[] getXjllTaxVos(String areaType, String corpType) {
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(areaType);
+        sp.addParam(corpType);
+        return (XjllTaxVo[]) singleObjectBO.queryByCondition(XjllTaxVo.class,
+                "nvl(dr,0)=0 and area_type = ? and corptype = ? order by ordernum", sp);
+    }
+
+
+
+    private ZcfzTaxVo[] getZcfzTaxVos(String areaType, String corpType) {
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(areaType);
+        sp.addParam(corpType);
+        StringBuffer wherepart = new StringBuffer();
+        wherepart.append("nvl(dr,0)=0 and area_type = ? and corptype = ?  ");
+        if ("00000100AA10000000000BMF".equals(corpType)) {
+            if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)) { // 07 北京
+                sp.addParam("【2019】6号");
+                wherepart.append(" and versionno= ? ");
+            } else if(ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)) {// 福建
+                sp.addParam("【2019】6号");
+                wherepart.append(" and versionno= ? ");
+            }
+        }
+        wherepart.append("order by ordernum");
+        return (ZcfzTaxVo[]) singleObjectBO.queryByCondition(ZcfzTaxVo.class, wherepart.toString(), sp);
+    }
+
+    private LrbTaxVo[] getLrbTaxVos(String areaType, String corpType) {
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(areaType);
+        sp.addParam(corpType);
+        StringBuffer wherepart = new StringBuffer();
+        wherepart.append("nvl(dr,0)=0 and area_type = ? and corptype = ?  ");
+        if ("00000100AA10000000000BMF".equals(corpType)) {
+            if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)) { // 07 北京
+                sp.addParam("【2019】6号");
+                wherepart.append(" and versionno= ? ");
+            } else if(ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)) {// 福建
+                sp.addParam("【2019】6号");
+                wherepart.append(" and versionno= ? ");
+            }
+        }
+        wherepart.append("order by ordernum");
+        return (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, wherepart.toString(), sp);
+    }
+
+    private LrbVO[] getRptLrbVos(String qj, String corpIds, String qjlx,String corpType, String areaType) {
+
+        return gl_rep_lrbserv.getLrbDataForCwBs(qj, corpIds, qjlx,corpType, areaType);
+    }
+
+    private ZcFzBVO[] getRptZcfzBvos(String areaType, String corpType,String pk_corp,QueryParamVO queryvo, CorpVO corpVO
+    ,ReportExcelExportVO excelExportVO) {
+
+        if ("00000100AA10000000000BMF".equals(corpType)) {
+            if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)
+                    || ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)
+                    || ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)) { // 07 北京 福建 贵州
+                QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
+                String ishajz = "N";
+                if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
+                    ishajz = "Y";
+                }
+                String ishasye = queryParamvo.getIshasye();
+                String hasye1 = queryParamvo.getHasye1();
+                String hasye2 = queryParamvo.getHasye2();
+                String hasye3 = queryParamvo.getHasye3();
+                String hasye4 = queryParamvo.getHasye4();
+                if (ishasye == null || "".equals(ishasye)) {
+                    ishasye = "N";
+                }
+                String period = DateUtils.getPeriod(queryParamvo.getBegindate1());
+                // 获取发生额余额表
+                Map<String, FseJyeVO> map = getFsyeVo(pk_corp, ishajz, ishasye, period);
+                // 获取科目
+                Map<String, YntCpaccountVO> mapc = getKmMap(pk_corp);
+
+                OtherSystemForZcfzImpl companyimpl = new OtherSystemForZcfzImpl(zxkjPlatformService);
+                return companyimpl.getCompanyZCFZBVOs(map, new String[] { ishasye, hasye1, hasye2, hasye3, hasye4 },
+                        mapc, singleObjectBO, "00000100AA10000000000BMF", pk_corp, "【2019】6号");
+            }
+        }
+        return  JsonUtils.deserialize(excelExportVO.getList(), ZcFzBVO[].class);
+    }
+
+    private Map<String, YntCpaccountVO> getKmMap(String pk_corp) {
+        Map<String, YntCpaccountVO> mapc = null;
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(pk_corp);
+        YntCpaccountVO[] cvos1 = (YntCpaccountVO[]) singleObjectBO.queryByCondition(YntCpaccountVO.class,
+                " nvl(dr,0)=0 and pk_corp = ? ", sp);
+        mapc = ReportUtil.conVertMap(cvos1);
+        return mapc;
+    }
+
+    private Map<String, FseJyeVO> getFsyeVo(String pk_corp, String ishajz, String ishasye, String period) {
+        QueryParamVO vo = new QueryParamVO();
+        vo.setSfzxm(DZFBoolean.TRUE);
+        vo.setPk_corp(pk_corp);
+        vo.setQjq(period.substring(0, 4) + "-01");
+        vo.setQjz(period);
+        vo.setIshasjz(new DZFBoolean(ishajz));
+        vo.setIshassh(DZFBoolean.TRUE);
+        if ("Y".equals(ishasye)) {
+            vo.setCjq(1);
+            vo.setCjz(6);
+        }
+        FseJyeVO[] fvos = gl_rep_fsyebserv.getFsJyeVOs(vo, 1);
+        Map<String, FseJyeVO> map = new HashMap<String, FseJyeVO>();
+        if (fvos != null && fvos.length > 0) {
+            int len = fvos == null ? 0 : fvos.length;
+            for (int i = 0; i < len; i++) {
+                if(!StringUtil.isEmpty(fvos[i].getPk_km())
+                        && fvos[i].getPk_km().length()>24 && map.containsKey(fvos[i].getKmbm())){//说明存在辅助核算
+                    //处理存在辅助核算的
+                    map.put(fvos[i].getPk_km(), fvos[i]);
+                }else{
+                    map.put(fvos[i].getKmbm(), fvos[i]);
+                }
+            }
+        }
+        return map;
+    }
 
     private void exportTax(HttpServletResponse response, Document doc, String taxfilename) {
         OutputStream toClient = null;

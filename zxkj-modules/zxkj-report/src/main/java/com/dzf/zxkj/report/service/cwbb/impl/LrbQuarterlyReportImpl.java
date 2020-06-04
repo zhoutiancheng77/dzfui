@@ -115,7 +115,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 				}
 				if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 					// 2007会计准则
-					lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp );
+					lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp ,vo.getVersionno() );
 				} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 					// 2013会计准则
 					lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);
@@ -127,7 +127,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 			}else{
 				if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 					// 2007会计准则
-					lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp );
+					lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
 				} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()){
 					// 2013会计准则()
 					lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);
@@ -388,10 +388,12 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 	 * @throws BusinessException
 	 */
 	private LrbquarterlyVO[] getLRB2007VOs(LrbquarterlyVO[] lrbquartervos, Map<String, FseJyeVO> map,
-			Map<String, YntCpaccountVO> mp, String qjz,int year,String pk_corp )
+			Map<String, YntCpaccountVO> mp, String qjz,int year,String pk_corp,String versionno )
 			throws DZFWarpException {
 		//从利润表取表项
-		LrbVO[] lrbvos = gl_rep_lrbserv.getLrbVos(new QueryParamVO(), pk_corp, new HashMap<String,YntCpaccountVO>(), null, "");
+		QueryParamVO paramvo = new QueryParamVO();
+		paramvo.setVersionno(versionno);
+		LrbVO[] lrbvos = gl_rep_lrbserv.getLrbVos(paramvo, pk_corp, new HashMap<String,YntCpaccountVO>(), null, "");
 		lrbquartervos =	createLrbQueryVos(lrbquartervos,lrbvos,map,mp,qjz,year,pk_corp) ;
 		return lrbquartervos;
 	}
@@ -577,7 +579,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 			Integer corpschema = zxkjPlatformService.getAccountSchema(pk_corp);
 			if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 				// 2007会计准则
-				lrbvos =  getLRB2007VOs(lrbvos,map, mp, str,-1,pk_corp );
+				lrbvos =  getLRB2007VOs(lrbvos,map, mp, str,-1,pk_corp ,"");
 				mapyearmny.put(str.substring(0, 7), lrbvos[16].getByje()==null?DZFDouble.ZERO_DBL:lrbvos[16].getByje());
 			} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 				// 2013会计准则
@@ -655,7 +657,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 						}
 						if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 							// 2007会计准则
-							lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp );
+							lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
 						} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 							// 2013会计准则
 							lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);
@@ -668,7 +670,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 						//没发生的时候
 						if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 							// 2007会计准则
-							lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp );
+							lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
 						} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()){
 							// 2013会计准则
 							lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);

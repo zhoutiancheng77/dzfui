@@ -64,7 +64,7 @@ public interface ILrbReport {
      * @return
      * @throws DZFWarpException
      */
-    LrbVO[] getLrbDataForCwBs(String qj, String corpIds, String qjlx) throws DZFWarpException;
+    LrbVO[] getLrbDataForCwBs(String qj, String corpIds, String qjlx,String corpType, String areaType) throws DZFWarpException;
 
     /**
      * 通过发生额余额表生成利润表数据

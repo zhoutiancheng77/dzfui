@@ -19,6 +19,7 @@ import com.dzf.zxkj.platform.model.report.LrbVO;
 import com.dzf.zxkj.platform.model.report.LrbquarterlyVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
+import com.dzf.zxkj.report.excel.rptexp.enums.ExportTemplateEnum;
 import com.dzf.zxkj.report.service.cwbb.ILrbQuarterlyReport;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.service.cwbb.IRptSetService;
@@ -126,7 +127,7 @@ public class LrbReportImpl implements ILrbReport {
 		/** 2007会计准则(一般) */
 		if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 			String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
-			if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+			if ("财会【2019】6号".equals(zxzc) || "【2019】6号".equals(vo.getVersionno())) { // 财会【2019】6号
 				OtherSystemForLrb lrb_qykj = new OtherSystemForLrb();
 				lrbvos = lrb_qykj.getCompanyVos(map, mp, vo.getQjz(), pk_corp, xmmcid,singleObjectBO,"00000100AA10000000000BMF","【2019】6号");
 			}else {
@@ -1603,8 +1604,25 @@ public class LrbReportImpl implements ILrbReport {
 		return vo;
 	}
 
+	/**
+	 * 设置报税版本
+	 * 主要解决，报税查询的大账房数据，是新版本的数据，不走参数设置
+	 * @param corpType
+	 * @param areaType
+	 * @param paramVO
+	 */
+	private void setLrbCwBsParamvo(String corpType, String areaType, QueryParamVO paramVO) {
+		if ("00000100AA10000000000BMF".equals(corpType)) {
+			if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)
+					|| ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)
+					|| ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)) {
+				paramVO.setVersionno("【2019】6号");
+			}
+		}
+	}
+
 	@Override
-	public LrbVO[] getLrbDataForCwBs(String qj, String corpIds, String qjlx) throws DZFWarpException {
+	public LrbVO[] getLrbDataForCwBs(String qj, String corpIds, String qjlx,String corpType, String areaType) throws DZFWarpException {
 		CorpVO cpvo = zxkjPlatformService.queryCorpByPk(corpIds);
 		QueryParamVO paramVO = new QueryParamVO();
 		LrbVO[] lrbvos  =null;
@@ -1616,6 +1634,7 @@ public class LrbReportImpl implements ILrbReport {
 		paramVO.setBegindate1(DateUtils.getPeriodStartDate(qj.substring(0, 7)));
 		paramVO.setIshasjz(DZFBoolean.FALSE);
 		paramVO.setPk_corp(corpIds);
+		setLrbCwBsParamvo(corpType,areaType,paramVO);
 		if("0".equals(qjlx)){//月份
 //			ILrbReport gl_rep_lrbserv = (ILrbReport) SpringUtils.getBean("gl_rep_lrbserv");
 //			lrbvos = gl_rep_lrbserv.getLRBVOs(paramVO);
