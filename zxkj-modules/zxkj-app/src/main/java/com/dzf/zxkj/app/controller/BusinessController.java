@@ -1,15 +1,11 @@
 package com.dzf.zxkj.app.controller;
 
 import com.dzf.admin.dzfapp.model.filetrans.*;
-import com.dzf.admin.dzfapp.model.result.AppResult;
-import com.dzf.admin.dzfapp.service.econtract.IDzfAppEcontractService;
 import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
 import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
 import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
-import com.dzf.zxkj.app.model.resp.bean.BusinessResonseBeanVO;
-import com.dzf.zxkj.app.model.resp.bean.ReportResBean;
-import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
+import com.dzf.zxkj.app.model.resp.bean.*;
 import com.dzf.zxkj.app.model.sys.*;
 import com.dzf.zxkj.app.pub.constant.IBusiConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
@@ -19,8 +15,8 @@ import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
 import com.dzf.zxkj.app.service.app.act.IQryReport1Service;
 import com.dzf.zxkj.app.service.bill.IAppInvoiceService;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
-import com.dzf.zxkj.app.service.ticket.impl.AppBwTicketImpl;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
+import com.dzf.zxkj.app.utils.AppkeyUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -39,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
@@ -63,10 +60,12 @@ public class BusinessController {
 
 
     @RequestMapping("/doBusiAction")
-    public ReturnData<BusinessResonseBeanVO> doBusiAction(BusiReqBeanVo userbean,ApproveSetVo approveset) {
+    public ReturnData<BusinessResonseBeanVO> doBusiAction(@RequestParam Map<String,Object> param) {
+        BusiReqBeanVo userbean = new BusiReqBeanVo();ApproveSetVo approveset = new ApproveSetVo();
+        changeParamvo(param,userbean,approveset);
         BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
-        UserVO uservo = userPubService.queryUserVOId(userbean.getAccount_id());
-        userbean.setAccount_id(uservo.getCuserid());
+//        UserVO uservo = userPubService.queryUserVOId(userbean.getAccount_id());
+//        userbean.setAccount_id(uservo.getCuserid());
         Integer operate = Integer.parseInt(userbean.getOperate());
         switch (operate) {
 //            case IBusiConstant.SEVENTY_THREE:
@@ -152,6 +151,18 @@ public class BusinessController {
         }
         return ReturnData.ok().data(bean);
     }
+
+    private void changeParamvo(Map<String,Object> param ,BusiReqBeanVo busireqvo,ApproveSetVo approveset){
+        AppkeyUtil.setMulAppValue(param,busireqvo,new Class[]{BusiReqBeanVo.class, UserBeanVO.class, RequestBaseBeanVO.class} );
+        AppkeyUtil.setAppValue(param,approveset );
+        UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
+        busireqvo.setAccount_id(uservo.getCuserid());
+        busireqvo.setUserid(uservo.getCuserid());
+        return ;
+    }
+
+
+
 
     private BusinessResonseBeanVO doIndexMsg(BusiReqBeanVo userbean) {
         BusinessResonseBeanVO bean = new BusinessResonseBeanVO();
