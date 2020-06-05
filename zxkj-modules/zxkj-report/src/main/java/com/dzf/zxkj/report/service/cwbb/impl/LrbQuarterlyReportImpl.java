@@ -197,7 +197,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 				if (kms[0].indexOf("=") >= 0) {
 					totalLrb(lrbquartervos, lrbquartervos[i] , kms,year,rq);
 				} else {
-					lrbquartervos[i] = getLRBVOCal(map, mp, rq,year, lrbquartervos[i], kms);
+					lrbquartervos[i] = getLRBVOCal(map, mp, rq,year, lrbquartervos[i],corptype, kms);
 				}
 			}
 		}
@@ -323,7 +323,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 	 * @return
 	 */
 	private LrbquarterlyVO getLRBVOCal(Map<String, FseJyeVO> map,
-			Map<String, YntCpaccountVO> mp, String rq,int year, LrbquarterlyVO vo, String... kms) {
+			Map<String, YntCpaccountVO> mp, String rq,int year, LrbquarterlyVO vo, String corptype,String... kms) {
 
 		DZFDouble ufd = null;
 		int direction = 0;
@@ -345,6 +345,33 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 			ls = getData(map, tvalue);
 			for (FseJyeVO fvo : ls) {
 				int rqyear =Integer.parseInt(rq.substring(0,4));
+				if ("00000100AA10000000000BMF".equals(corptype)) { // 代码单独处理
+					if (vo.getXm().indexOf("其中：利息费用")>=0) {
+						if (rqyear==year-1) {
+							ufd = VoUtils.getDZFDouble(vo.getByje());
+							vo.setQnljje(ufd.add(VoUtils.getDZFDouble(fvo.getJftotal()).multiply(multify)));//借-贷
+						}
+						if(rqyear==year){
+							ufd = getDZFDouble(vo.getBnljje());
+							vo.setBnljje(ufd.add(VoUtils.getDZFDouble(fvo.getEndfsjf()).multiply(multify)));//借-贷
+							sumdouble = SafeCompute.add(sumdouble,fvo.getJftotal().multiply(multify));
+						}
+						vo = setQuarterMny(rq,year,vo,sumdouble);
+						continue;
+					} else if (vo.getXm().indexOf("利息收入")>=0) {
+						if (rqyear==year-1) {
+							ufd = VoUtils.getDZFDouble(vo.getByje());
+							vo.setQnljje(ufd.add(VoUtils.getDZFDouble(fvo.getDftotal()).multiply(multify)));//借-贷
+						}
+						if(rqyear==year){
+							ufd = getDZFDouble(vo.getBnljje());
+							vo.setBnljje(ufd.add(VoUtils.getDZFDouble(fvo.getEndfsdf()).multiply(multify)));//借-贷
+							sumdouble = SafeCompute.add(sumdouble,fvo.getDftotal().multiply(multify));
+						}
+						vo = setQuarterMny(rq,year,vo,sumdouble);
+						continue;
+					}
+				}
 				if (direction == 0) {
 					if(rqyear==year-1){
 						ufd = getDZFDouble(i == 0 ? DZFDouble.ZERO_DBL:vo.getQnljje());//每次重新计算

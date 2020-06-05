@@ -63,12 +63,12 @@ public class OtherSystemForLrb {
 			lrbvo.setLevel(setvo.getIlevel());
 			String[] kms = getKms(setvo.getKm());
 			if (kms != null && kms.length > 0) {
-				lrbvo = calXmValue(map, mp, qjz, xmmcid, list, lrbvo, kms,"vconkms");
+				lrbvo = calXmValue(map, mp, qjz, xmmcid, list, lrbvo, kms,"vconkms",hy);
 			}
 			
 			String[] kms2 = getKms(setvo.getKm2());
 			if (kms2 != null && kms2.length > 0) {
-				lrbvo = calXmValue(map, mp, qjz, xmmcid, list, lrbvo, kms2,"vconkms2");
+				lrbvo = calXmValue(map, mp, qjz, xmmcid, list, lrbvo, kms2,"vconkms2",hy);
 			}
 			
 			
@@ -79,11 +79,11 @@ public class OtherSystemForLrb {
 	}
 
 	private LrbVO calXmValue(Map<String, FseJyeVO> map, Map<String, YntCpaccountVO> mp, String qjz, String xmmcid,
-			List<LrbVO> list, LrbVO lrbvo, String[] kms,String conkmsname) {
+			List<LrbVO> list, LrbVO lrbvo, String[] kms,String conkmsname,String hy) {
 		if (kms[0].indexOf("=") >= 0) {
 			totalLrb(list, lrbvo, kms);
 		}else {
-			lrbvo = getLRBVO(map, mp, qjz, xmmcid, lrbvo, kms);
+			lrbvo = getLRBVO(map, mp, qjz, xmmcid, lrbvo,hy, kms);
 			StringBuffer conkms = new StringBuffer();
 			for(String str:kms){
 				if(str.startsWith("-")){
@@ -147,7 +147,7 @@ public class OtherSystemForLrb {
 	}
 
 	private LrbVO getLRBVO(Map<String, FseJyeVO> map, Map<String, YntCpaccountVO> mp, String rq, String xmmcid,
-			LrbVO vo, String... kms) {
+			LrbVO vo, String corptype,String... kms) {
 
 		DZFDouble ufd = null;
 		int direction = 0;
@@ -169,6 +169,25 @@ public class OtherSystemForLrb {
 			direction = km.getDirection();
 			ls = getData(map, km_temp, mp, xmmcid);
 			for (FseJyeVO fvo : ls) {
+				if ("00000100AA10000000000BMF".equals(corptype)) { // 代码单独处理
+					if (vo.getXm().indexOf("其中：利息费用")>=0) {
+						if (rq.substring(0, 7).equals(fvo.getEndrq().substring(0, 7))) {
+							ufd = VoUtils.getDZFDouble(vo.getByje());
+							vo.setByje(ufd.add(VoUtils.getDZFDouble(fvo.getEndfsjf()).multiply(multify)));
+						}
+						ufd = VoUtils.getDZFDouble(vo.getBnljje());
+						vo.setBnljje(SafeCompute.add(ufd, fvo.getJftotal()));
+						continue;
+					} else if (vo.getXm().indexOf("利息收入")>=0) {
+						if (rq.substring(0, 7).equals(fvo.getEndrq().substring(0, 7))) {
+							ufd = VoUtils.getDZFDouble(vo.getByje());
+							vo.setByje(ufd.add(VoUtils.getDZFDouble(fvo.getEndfsdf()).multiply(multify)));
+						}
+						ufd = VoUtils.getDZFDouble(vo.getBnljje());
+						vo.setBnljje(SafeCompute.add(ufd, fvo.getDftotal()));
+						continue;
+					}
+				}
 				if (direction == 0) {
 					if (rq.substring(0, 7).equals(fvo.getEndrq().substring(0, 7))) {
 						ufd = VoUtils.getDZFDouble(vo.getByje());
