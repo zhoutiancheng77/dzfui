@@ -11,7 +11,6 @@ import com.dzf.zxkj.app.utils.CryptUtil;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.utils.StringUtil;
-import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,10 +29,6 @@ public class BusiInfmController {
 
     @RequestMapping("/downLoadImage")
     public void downLoadImage(ImageBeanVO imageBean, HttpServletResponse response)  {//图片下载
-
-        UserVO uservo = userPubService.queryUserVOId(imageBean.getAccount_id());
-        imageBean.setUsercode(uservo.getUser_code());
-        imageBean.setAccount_id(uservo.getCuserid());
         if(!StringUtil.isEmpty(imageBean.getFilepath())){
 //			if(imageBean.getFilepath().indexOf("ImageUpload")<0){
             imageBean.setFilepath(CryptUtil.getInstance().decryptAES(imageBean.getFilepath()));
