@@ -16,7 +16,6 @@
         <module>zxkj-modules</module>
         <module>zxkj-tools</module>
         <module>zxkj-platform-api</module>
-        <module>zxkj-platform-model</module>
         <module>zxkj-auth</module>
     </modules>
 
@@ -94,6 +93,11 @@
             <dependency>
                 <groupId>com.dzf</groupId>
                 <artifactId>zxkj-secret-decode-starter</artifactId>
+                <version>1.0.3-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.dzf</groupId>
+                <artifactId>zxkj-platform-model</artifactId>
                 <version>1.0.3-SNAPSHOT</version>
             </dependency>
         </dependencies>
