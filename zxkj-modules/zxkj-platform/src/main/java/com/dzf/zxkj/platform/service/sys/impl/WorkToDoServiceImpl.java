@@ -5,7 +5,6 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.common.lang.DZFDateTime;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.jzcl.QmGzBgVo;
 import com.dzf.zxkj.platform.model.sys.CorpRoleVO;
@@ -14,6 +13,7 @@ import com.dzf.zxkj.platform.model.sys.WorkToDoVo;
 import com.dzf.zxkj.platform.service.jzcl.IQmGzBgService;
 import com.dzf.zxkj.platform.service.sys.ICorpURoleService;
 import com.dzf.zxkj.platform.service.sys.IWorkToDoService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -150,7 +150,7 @@ public class WorkToDoServiceImpl implements IWorkToDoService {
             for (CorpRoleVO vo : vos) {
                 if (!uid.contains(vo.getCuserid())) {
                     uid.add(vo.getCuserid());
-                    vo.setUser_name(CodeUtils1.deCode(vo.getUser_name()));
+                    vo.setUser_name(CorpSecretUtil.deCode(vo.getUser_name()));
                     uvos.add(vo);
                 }
             }

@@ -4,7 +4,6 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.common.utils.AssetUtil;
 import com.dzf.zxkj.platform.model.bdset.BdTradeAssetTemplateVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -18,6 +17,7 @@ import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.zcgl.IAssetTemplet;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -127,7 +127,7 @@ public class AssetTempletImpl implements IAssetTemplet {
 				.getCatename();
 		CorpVO cvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);
 		String errorPrefix = String.format(
-				"公司%s的固定资产折旧模板(资产属性为[%s], 资产类别为[%s])中", new Object[] { SecretCodeUtils.deCode(cvo.getUnitname()),
+				"公司%s的固定资产折旧模板(资产属性为[%s], 资产类别为[%s])中", new Object[] { CorpSecretUtil.deCode(cvo.getUnitname()),
 						assetproperty, assetcategory });
 
 		int debitcount = 0;

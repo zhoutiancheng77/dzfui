@@ -12,7 +12,6 @@ import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.IInvoiceApplyConstant;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.utils.Base64CodeUtils;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -27,6 +26,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.zncs.CommonXml;
 import com.dzf.zxkj.platform.util.zncs.PiaoTongUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -419,7 +419,7 @@ public class InvoiceApplyServiceImpl implements IInvoiceApplyService {
     @Override
     public List<InvoiceApplyVO> queryInviceByCode(String unitname, String vsoccrecode) throws DZFWarpException {
         //解密
-        unitname = CodeUtils1.enCode(unitname);
+        unitname = CorpSecretUtil.enCode(unitname);
         StringBuffer sf = new StringBuffer();
         sf.append(" select * ");
         sf.append("   from ynt_invoice_apply y ");

@@ -12,7 +12,6 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -28,6 +27,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.report.service.IZxkjReportService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -96,7 +96,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
                 if (!StringUtil.isEmpty(vo.getCname())) {
                     qryvo.setCname(vo.getCname());
                 } else {
-                    qryvo.setCname(CodeUtils1.deCode(vo.getUnitname()));
+                    qryvo.setCname(CorpSecretUtil.deCode(vo.getUnitname()));
                 }
                 for (BatchPrintSetVo setvo2 : taskvos) {
                     if (!StringUtil.isEmpty(setvo2.getVprintperiod())

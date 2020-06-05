@@ -56,8 +56,8 @@ import com.dzf.zxkj.platform.service.zcgl.IAssetCard;
 import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.util.KmbmUpgrade;
 import com.dzf.zxkj.platform.util.ReportUtil;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.report.service.IZxkjReportService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.apache.dubbo.config.annotation.Reference;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -73,8 +73,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 期末结转业务逻辑类
@@ -2063,7 +2061,7 @@ public class QmclServiceImpl implements IQmclService {
 			qmcl.setCbjz5(qmcl.getCbjz5() == null ? DZFBoolean.FALSE : qmcl.getCbjz5());
 			qmcl.setCbjz6(qmcl.getCbjz6() == null ? DZFBoolean.FALSE : qmcl.getCbjz6());
 			if (cpvo != null) {
-				qmcl.setCorpname(SecretCodeUtils.deCode(cpvo.getUnitname()));
+				qmcl.setCorpname(CorpSecretUtil.deCode(cpvo.getUnitname()));
 			}
 
 		}
@@ -2149,7 +2147,7 @@ public class QmclServiceImpl implements IQmclService {
 	private String deCodename(String corpName) {
 		String realName = "";
 		try {
-			realName = SecretCodeUtils.deCode(corpName);
+			realName = CorpSecretUtil.deCode(corpName);
 		} catch (Exception e) {
 			throw new WiseRunException(e);
 		}

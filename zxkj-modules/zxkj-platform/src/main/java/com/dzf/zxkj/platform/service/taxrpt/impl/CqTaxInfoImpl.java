@@ -15,7 +15,6 @@ import com.dzf.zxkj.common.constant.PeriodType;
 import com.dzf.zxkj.common.constant.TaxRptConst;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.tree.BDTreeCreator;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -37,6 +36,7 @@ import com.dzf.zxkj.platform.util.taxrpt.TaxReportPath;
 import com.dzf.zxkj.platform.util.taxrpt.cqtc.CQXMLUtil;
 import com.dzf.zxkj.platform.util.taxrpt.cqtc.deal.DESHelper;
 import com.dzf.zxkj.platform.util.taxrpt.shandong.deal.XMLUtils;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -426,7 +426,7 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 		StringBuffer resMessage = new StringBuffer();
 		CqtcRequestVO cqtcvo = new CqtcRequestVO();
 		for (CorpVO corpvo : corp_list) {
-			String corp_name = CodeUtils1.deCode(corpvo.getUnitname());
+			String corp_name = CorpSecretUtil.deCode(corpvo.getUnitname());
 			try {
 				String xml = CQXMLUtil.createQcXML(corpvo.getVsoccrecode());
 				String result = doPost(xml, "utf-8");
@@ -722,7 +722,7 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 				"industry", "phone1", "destablishdate", "taxlevytype" };
 		CQTaxInfoVO taxInfo = new CQTaxInfoVO();
 		taxInfo.setPrimaryKey(corpVo.getPrimaryKey());
-		taxInfo.setUnitname(CodeUtils1.enCode(vo.getTaxname())); // 纳税人名称
+		taxInfo.setUnitname(CorpSecretUtil.enCode(vo.getTaxname())); // 纳税人名称
 		taxInfo.setVsoccrecode(vo.getTaxno()); // 纳税人识别号
 		taxInfo.setRegion(vo.getDjxh());						  
 		taxInfo.setPostaddr(vo.getZcdz()); // 注册地址
@@ -739,7 +739,7 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 			taxInfo.setDestablishdate(new DZFDate(vo.getKysj())); // 开业设立时间
 		}
 		if (!StringUtil.isEmpty(vo.getFr())) {
-			taxInfo.setLegalbodycode(CodeUtils1.enCode(vo.getFr())); // 法人
+			taxInfo.setLegalbodycode(CorpSecretUtil.enCode(vo.getFr())); // 法人
 		}
 		if (!StringUtil.isEmpty(vo.getHy())) {
 			taxInfo.setIndustry(getTradePk(vo.getHy())); // 行业名称

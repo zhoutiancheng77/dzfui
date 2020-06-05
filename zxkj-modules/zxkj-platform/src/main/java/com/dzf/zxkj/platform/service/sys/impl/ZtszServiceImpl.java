@@ -12,7 +12,6 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -26,6 +25,7 @@ import com.dzf.zxkj.platform.service.sys.IZtszService;
 import com.dzf.zxkj.platform.service.tax.ICorpTaxService;
 import com.dzf.zxkj.platform.util.BeanUtils;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -95,7 +95,7 @@ public class ZtszServiceImpl implements IZtszService {
 		if(oldList == null || oldList.size() == 0)
 			return;
 		CorpTaxVo oldvo = oldList.get(0);
-		oldvo.setUnitname(CodeUtils1.enCode(oldvo.getUnitname()));
+		oldvo.setUnitname(CorpSecretUtil.enCode(oldvo.getUnitname()));
 		String[][] arrs = {
 				{"unitname", "公司名称"},
 				{"vsoccrecode", "纳税人识别号"},
@@ -183,7 +183,7 @@ public class ZtszServiceImpl implements IZtszService {
 			if ("legalbodycode".equals(column) || "vcorporatephone".equals(column) || "unitname".equals(column)) {
 				String value = (String) corptaxvo.getAttributeValue(column);
 //				if (!StringUtil.isEmpty(value)) {
-//					value = CodeUtils1.enCode(value);
+//					value = CorpSecretUtil.enCode(value);
 //				}
 				cpvo.setAttributeValue(column, value);
 			}else if("isxrq".equals(column)){//Integer 类型有问题，单独处理

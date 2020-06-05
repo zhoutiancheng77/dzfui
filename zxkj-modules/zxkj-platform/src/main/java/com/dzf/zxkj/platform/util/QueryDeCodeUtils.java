@@ -2,7 +2,7 @@ package com.dzf.zxkj.platform.util;
 
 
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -46,10 +46,10 @@ public class QueryDeCodeUtils {
 				HashMap<String, String> mapvalue = new HashMap<String,String>();
 				for(String key:columndecs){
 					if(mode == 0){
-						 keyname = SecretCodeUtils.enCode(key);
+						 keyname = CorpSecretUtil.enCode(key);
 						mapvalue.put(key, keyname);
 					}else{
-						 keyname = SecretCodeUtils.deCode(key);
+						 keyname = CorpSecretUtil.deCode(key);
 						mapvalue.put(key, keyname);
 					}
 				}
@@ -93,10 +93,10 @@ public class QueryDeCodeUtils {
 				HashMap<String, String> mapvalue = new HashMap<String,String>();
 				for(String key:columndecs){
 					if(mode == 0){
-						 keyname = SecretCodeUtils.enCode(key);
+						 keyname = CorpSecretUtil.enCode(key);
 						mapvalue.put(key, keyname);
 					}else{
-						 keyname = SecretCodeUtils.deCode(key);
+						 keyname = CorpSecretUtil.deCode(key);
 						mapvalue.put(key, keyname);
 					}
 				}
@@ -174,10 +174,10 @@ public class QueryDeCodeUtils {
                 HashMap<String, String> mapvalue = new HashMap<String,String>();
                 for(String key:columndecs){
                     if(mode == 0){
-                        keyname = SecretCodeUtils.enCode(key);
+                        keyname = CorpSecretUtil.enCode(key);
                         mapvalue.put(key, keyname);
                     }else{
-                        keyname = SecretCodeUtils.deCode(key);
+                        keyname = CorpSecretUtil.deCode(key);
                         mapvalue.put(key, keyname);
                     }
                 }

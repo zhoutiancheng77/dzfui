@@ -6,7 +6,6 @@ import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.image.ImageCommonPath;
@@ -17,6 +16,7 @@ import com.dzf.zxkj.platform.service.pzgl.ICorpInfoService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.ICustServService;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -101,8 +101,8 @@ public class CorpInfoController extends BaseController {
         try {
               CorpVO[] corpvo = corpInfoSer.queryCorpInfo(id);
               for(CorpVO vo:corpvo){
-                  vo.setPhone1(CodeUtils1.deCode(vo.getPhone1()));
-                  vo.setUnitname(CodeUtils1.deCode(vo.getUnitname()));
+                  vo.setPhone1(CorpSecretUtil.deCode(vo.getPhone1()));
+                  vo.setUnitname(CorpSecretUtil.deCode(vo.getUnitname()));
                }
                grid.setRows(Arrays.asList(corpvo));
                grid.setMsg("查询成功!");

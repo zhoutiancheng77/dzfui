@@ -8,13 +8,13 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDateTime;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.model.bdset.ExrateVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.bdset.IHLService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -105,7 +105,7 @@ public class HLController extends BaseController {
                 for (ExrateVO exrateVO : vos) {
                     if (exrateVO.getCreatorname() != null)
                         try {
-                            exrateVO.setCreatorname(CodeUtils1.deCode(exrateVO.getCreatorname()));
+                            exrateVO.setCreatorname(CorpSecretUtil.deCode(exrateVO.getCreatorname()));
                         } catch (Exception e) {
                         }
                 }
