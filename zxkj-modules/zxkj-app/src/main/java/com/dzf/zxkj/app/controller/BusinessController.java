@@ -1,6 +1,7 @@
 package com.dzf.zxkj.app.controller;
 
 import com.dzf.admin.dzfapp.model.filetrans.*;
+import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
 import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
@@ -325,6 +326,8 @@ public class BusinessController {
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corp(userbean.getFathercorpid());
             pramvo.setPk_corpk(userbean.getPk_corp());
+            pramvo.setQrid(userbean.getQrid());
+            pramvo.setQrytype(userbean.getQrytype());
             List<FiletransBVO> bvos = (List<FiletransBVO>)iDzfAppFiletransService.queryFileList(pramvo).getData();
             if(bvos == null || bvos.size() == 0){
                 throw new BusinessException("暂无数据!");
@@ -405,15 +408,15 @@ public class BusinessController {
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setFileids(userbean.getFileids());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            QueryBeanVO querybeanvo = (QueryBeanVO)iDzfAppFiletransService.saveHandin(pramvo).getData();
+            AppResult querybeanvo = iDzfAppFiletransService.saveHandin(pramvo);
 
-            if(querybeanvo == null || StringUtil.isEmpty(querybeanvo.getQrid())){
+            if(querybeanvo == null || StringUtil.isEmpty((String)querybeanvo.getData())){
                 throw new BusinessException("获取信息失败!");
             }
 
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("操作成功!");
-            bean.setQrid(querybeanvo.getQrid());
+            bean.setQrid((String)querybeanvo.getData());
         } catch (Exception e) {
             log.error( "操作失败!", log);
         }
