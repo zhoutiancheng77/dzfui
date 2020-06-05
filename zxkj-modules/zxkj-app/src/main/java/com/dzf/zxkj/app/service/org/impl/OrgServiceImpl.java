@@ -58,8 +58,7 @@ public class OrgServiceImpl implements IOrgService {
             bean.setResmsg("经纬度不能为空!") ;
             return bean;
         }
-        SingleObjectBO sbo=new SingleObjectBO(DataSourceFactory.getDataSource(null, userBean.getPk_corp()));
-        CorpVO cpvo =(CorpVO) sbo.queryByPrimaryKey(CorpVO.class, userBean.getPk_corp());
+        CorpVO cpvo =(CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, userBean.getPk_corp());
 
         if(!AppCheckValidUtils.isEmptyCorp(userBean.getPk_corp())){
             throw new BusinessException("已经正式签约不能更改代账机构!");
@@ -74,7 +73,7 @@ public class OrgServiceImpl implements IOrgService {
         String city = mapclient.getMapAddressCity(address);
         //根据城市获取code
         if(!StringUtil.isEmpty(city)){//城市不能为空
-            serviceOrgVOLs = queryServiceOrg(sbo, longitude, latitude, city);
+            serviceOrgVOLs = queryServiceOrg(singleObjectBO, longitude, latitude, city);
         }
         bean.setRescode(IConstant.DEFAULT);
         if(serviceOrgVOLs!=null && serviceOrgVOLs.size()>0){

@@ -64,9 +64,10 @@ public class LoginController {
         userBean.setPk_tempcorp(tcorp);
         userBean.setUsercode(StringUtil.isEmpty(ucode)?uservo.getUser_code():ucode);
         userBean.setLatitude(lade!=null?lade:0);
-        userBean.setLongitude(lade!=null?lade:0);
+        userBean.setLongitude(lode!=null?lode:0);
         userBean.setCorpaddr(caddr);
         userBean.setPhone(ph);
+        userBean.setAccount(uservo.getUser_code());//209
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         Integer versionno = userBean.getVersionno();
         if(versionno == null || versionno.intValue() ==0){

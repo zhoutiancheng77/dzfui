@@ -2,10 +2,12 @@ package com.dzf.zxkj.app.service.corp.impl;
 
 import com.dzf.zxkj.app.model.app.user.AppUserVO;
 import com.dzf.zxkj.app.model.resp.bean.LoginResponseBeanVO;
+import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.service.corp.IAppCorp320Service;
 import com.dzf.zxkj.app.service.corp.IAppCorpPhoto;
+import com.dzf.zxkj.app.service.corp.IAppCorpService;
 import com.dzf.zxkj.app.service.pub.IAppPubservice;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
 import com.dzf.zxkj.app.utils.CryptUtil;
@@ -19,6 +21,7 @@ import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.image.ImageCommonPath;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -41,6 +44,10 @@ public class AppCorp320ServiceImpl extends AppCorpService implements IAppCorp320
 
 	@Autowired
 	private IAppPubservice apppubservice ;
+
+	@Autowired
+	@Qualifier("corpservice")
+	private IAppCorpService iAppCorpService;
 	
 	@Autowired
 	private IAppCorpPhoto corpPhotoservice;
@@ -73,6 +80,10 @@ public class AppCorp320ServiceImpl extends AppCorpService implements IAppCorp320
 				// 处理公司信息
 				handlerCorpMsg(uservo, bean);
 				getCorpPhoto(userBean, bean);//获取公司信息
+				ResponseBaseBeanVO rbbvo = iAppCorpService.qrykpmsg(userBean.getPk_corp(), userBean.getPk_tempcorp(), userBean.getAccount_id(),userBean.getAccount());
+				bean.setKhh(rbbvo.getKhh());
+				bean.setKhzh(rbbvo.getKhzh());
+				bean.setCorpaddr(rbbvo.getCorpaddr());
 				bean.setRescode(IConstant.DEFAULT);
 				bean.setResmsg("获取信息成功!");
 			}else{
