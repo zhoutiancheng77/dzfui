@@ -16,7 +16,6 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-common</artifactId>
-            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
