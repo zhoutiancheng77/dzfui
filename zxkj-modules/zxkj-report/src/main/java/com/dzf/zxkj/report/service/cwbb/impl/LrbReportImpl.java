@@ -1616,7 +1616,10 @@ public class LrbReportImpl implements ILrbReport {
 			if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)
 					|| ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)
 					|| ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)
-					|| ExportTemplateEnum.SHANGHAI.getAreaType().equals(areaType)) {
+					|| ExportTemplateEnum.SHANGHAI.getAreaType().equals(areaType)
+					|| ExportTemplateEnum.QINGDAO.getAreaType().equals(areaType)
+					|| ExportTemplateEnum.ZHEJIANG.getAreaType().equals(areaType)
+					|| ExportTemplateEnum.JIANGXI.getAreaType().equals(areaType)) {
 				paramVO.setVersionno("【2019】6号");
 			}
 		}
