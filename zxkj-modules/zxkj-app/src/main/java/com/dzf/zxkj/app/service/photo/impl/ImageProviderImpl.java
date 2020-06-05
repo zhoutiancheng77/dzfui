@@ -77,7 +77,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.druid.support.json.JSONUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 
 @Slf4j
@@ -157,7 +156,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 //	}
 //
 
-	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, MultipartFile file, String filenames, InputStream file_in) throws DZFWarpException{
+	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, File file, String filenames, InputStream file_in) throws DZFWarpException{
 		ImageQueryBean[] beans = null;
 
 		if(StringUtil.isEmptyWithTrim(uBean.getPk_corp())){
@@ -177,7 +176,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 //			return uploadCorpeateInfo(uBean, files, filenames);//这个证照取消，则不处理
 		} else{
 
-			if((file == null||file.getSize()<=0) && !ISysConstants.SYS_ADMIN.equals(uBean.getSourcesys()) ){
+			if((file == null||file.length()<=0) && !ISysConstants.SYS_ADMIN.equals(uBean.getSourcesys()) ){
 				throw new BusinessException("传入的fileItem参数不能为空！");
 			}
 
@@ -425,11 +424,11 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 
 	/**
 	 * 保存压缩文件
-	 * @param fileItem
+	 * @param f
 	 * @param filename
 	 * @throws DZFWarpException
 	 */
-	public File SaveZipFile(MultipartFile f,InputStream file_in,String filename,String sys_source,
+	public File SaveZipFile(File f,InputStream file_in,String filename,String sys_source,
 			String cert,String account,String logo,String permit) throws DZFWarpException{
 		InputStream in = null;
 		OutputStream out = null;
@@ -459,7 +458,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 			if(!StringUtil.isEmpty(sys_source) && ISysConstants.SYS_ADMIN.equals(sys_source)){//管理端传递流
 				in = file_in;
 			}else{
-				in = f.getInputStream();
+				in = new FileInputStream(f);
 			}
 			out = new FileOutputStream(imgzipFile);
 
@@ -501,7 +500,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 	/**
 	 * 解压缩文件
 	 * @param zipfile
-	 * @param pk_corp
+	 * @param pk_corp1
 	 * @param isCompress
 	 * @return
 	 * @throws DZFWarpException
@@ -880,12 +879,12 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 	 * 重传图片
 	 * @param uBean
 	 * @param imgbeanvos
-	 * @param files
-	 * @param filenames
+	 * @param file
+	 * @param filename
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file, InputStream file_in) throws DZFWarpException{
+	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, File file,String filename, InputStream file_in) throws DZFWarpException{
 		ImageQueryBean[] beans = null;
 		int count = 0;
 		if(imgbeanvos == null || imgbeanvos.length == 0){
@@ -936,65 +935,64 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 		}
 
 		try{
-			ZipInputStream zs = new ZipInputStream(file.getInputStream());
-//			ZipFile zip = new ZipFile(file);
-//			Enumeration enumeration = zip.entries();
+			ZipFile zip = new ZipFile(file);
+			Enumeration enumeration = zip.entries();
 			List<ZipEntry> list  = new ArrayList<ZipEntry>();
-			ZipEntry ze = null;
-			while((ze = zs.getNextEntry()) != null){
-//				entrye = (ZipEntry) enumeration.nextElement();
-				list.add(ze);
+			ZipEntry entrye = null;
+			while(enumeration.hasMoreElements()){
+				entrye = (ZipEntry) enumeration.nextElement();
+				list.add(entrye);
 			}
 			ImageSort sort = new ImageSort();//排序
-    		Collections.sort(list, sort);
-    		java.util.Arrays.sort(imgbeanvos, new Comparator<ImageBeanVO>() {
+			Collections.sort(list, sort);
+			java.util.Arrays.sort(imgbeanvos, new Comparator<ImageBeanVO>() {
 				@Override
 				public int compare(ImageBeanVO arg0, ImageBeanVO arg1) {
 					int i = arg1.getFilepath().compareTo(arg0.getFilepath());
 					return 0;
 				}
 			});
-    		ZipEntry entryy = null;
-    		String entryname = null;
-    		String imgname = null;
-    		String filesuff = null;
-    		String entrysuff= null;
-    		for(int k = 0; k < list.size(); k++){
-    			entryy = list.get(k);
-    			entryname = entryy.getName();
-    			imgname = Common.imageBasePath + imgbeanvos[0].getFilepath();
-    			filesuff = imgname.substring(imgname.lastIndexOf(".") + 1).trim().toLowerCase();
-    			entrysuff= entryname.substring(entryname.lastIndexOf(".") + 1).trim().toLowerCase();
-    			if(!filesuff.equals(entrysuff)){
-    				throw new BusinessException("本次上传图片类型与之前不一致，请检查！");
-    			}
-    		}
-    		ZipEntry entry = null;
-    		String imagename = null;
-    		File imagefile = null;
-//    		BufferedInputStream in = null;
-    		FileOutputStream fileout = null;
-    		BufferedOutputStream out = null;
-    		for(int j = 0; j < list.size(); j++){
-    			entry = list.get(j);
-    			imagename = Common.imageBasePath + imgbeanvos[0].getFilepath();
-    			imagefile = new File(imagename);
+			ZipEntry entryy = null;
+			String entryname = null;
+			String imgname = null;
+			String filesuff = null;
+			String entrysuff= null;
+			for(int k = 0; k < list.size(); k++){
+				entryy = list.get(k);
+				entryname = entryy.getName();
+				imgname = Common.imageBasePath + imgbeanvos[0].getFilepath();
+				filesuff = imgname.substring(imgname.lastIndexOf(".") + 1).trim().toLowerCase();
+				entrysuff= entryname.substring(entryname.lastIndexOf(".") + 1).trim().toLowerCase();
+				if(!filesuff.equals(entrysuff)){
+					throw new BusinessException("本次上传图片类型与之前不一致，请检查！");
+				}
+			}
+			ZipEntry entry = null;
+			String imagename = null;
+			File imagefile = null;
+			BufferedInputStream in = null;
+			FileOutputStream fileout = null;
+			BufferedOutputStream out = null;
+			for(int j = 0; j < list.size(); j++){
+				entry = list.get(j);
+				imagename = Common.imageBasePath + imgbeanvos[0].getFilepath();
+				imagefile = new File(imagename);
 
-//    			in = new BufferedInputStream(zip.getInputStream(entry));
-    			fileout = new FileOutputStream(imagefile);
+				in = new BufferedInputStream(zip.getInputStream(entry));
+				fileout = new FileOutputStream(imagefile);
 				out = new BufferedOutputStream(fileout);
 
 				try {
 					byte[] buffer = new byte[1024];
 					int coun = 0;
-					while((coun = zs.read(buffer, 0, buffer.length)) > 0 ){
+					while((coun = in.read(buffer, 0, buffer.length)) > 0 ){
 						out.write(buffer, 0, coun);
 					}
 					out.flush();
 				} finally {
 					try{
-//						if(in != null)
-//							in.close();
+						if(in != null)
+							in.close();
 						if(out != null)
 							out.close();
 						if(fileout != null)
@@ -1003,45 +1001,44 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 						log.error(e.getMessage(), e);
 					}
 				}
-    		}
-    		zs.close();
+			}
+			zip.close();
 
-    		String wherepart = " pk_image_group = ? and nvl(dr,0) = 0 " ;
-    		SQLParameter sp = new SQLParameter();
-    		sp.addParam(pkgrp);
-    		List<ImageGroupVO> ivo = (List<ImageGroupVO>) singleObjectBO.executeQuery(wherepart, sp, new Class[]{ImageGroupVO.class,ImageLibraryVO.class});
-    		ImageGroupVO imggrpVO = ivo.get(0);
+			String wherepart = " pk_image_group = ? and nvl(dr,0) = 0 " ;
+			SQLParameter sp = new SQLParameter();
+			sp.addParam(pkgrp);
+			List<ImageGroupVO> ivo = (List<ImageGroupVO>) singleObjectBO.executeQuery(wherepart, sp, new Class[]{ImageGroupVO.class,ImageLibraryVO.class});
+			ImageGroupVO imggrpVO = ivo.get(0);
 
 
-    		ImageLibraryVO[] imglibVOs = (ImageLibraryVO[]) imggrpVO.getChildren();
-    		Integer dr = null;
-    		int imagecount = 0;
-    		for(int k = 0; k < imglibVOs.length; k++){
-    			dr = imglibVOs[k].getDr();
-    			if(dr != null && dr == 1){
-    				continue;
-    			}
-    			if(libvalueList.contains(imglibVOs[k].getPk_image_library())){
-    				imglibVOs[k].setAttributeValue("isback", DZFBoolean.FALSE);//自由态
-    				imagecount++;
-    			}else if(imglibVOs[k].getIsback() != null
-    					&& imglibVOs[k].getIsback().booleanValue() == DZFBoolean.TRUE.booleanValue()){
-    				imglibVOs[k].setAttributeValue("dr", 1);//自由态
-    			}
+			ImageLibraryVO[] imglibVOs = (ImageLibraryVO[]) imggrpVO.getChildren();
+			Integer dr = null;
+			int imagecount = 0;
+			for(int k = 0; k < imglibVOs.length; k++){
+				dr = imglibVOs[k].getDr();
+				if(dr != null && dr == 1){
+					continue;
+				}
+				if(libvalueList.contains(imglibVOs[k].getPk_image_library())){
+					imglibVOs[k].setAttributeValue("isback", DZFBoolean.FALSE);//自由态
+					imagecount++;
+				}else if(imglibVOs[k].getIsback() != null
+						&& imglibVOs[k].getIsback().booleanValue() == DZFBoolean.TRUE.booleanValue()){
+					imglibVOs[k].setAttributeValue("dr", 1);//自由态
+				}
 
-    		}
+			}
 
-    		imggrpVO.setImagecounts(imagecount);
-    		imggrpVO.setIsskiped(DZFBoolean.FALSE);
-    		imggrpVO.setIsuer(DZFBoolean.FALSE);//设置为未使用
-    		imggrpVO.setIstate(PhotoState.state0);//自由态
-    		singleObjectBO.update(imggrpVO);
+			imggrpVO.setImagecounts(imagecount);
+			imggrpVO.setIsskiped(DZFBoolean.FALSE);
+			imggrpVO.setIsuer(DZFBoolean.FALSE);//设置为未使用
+			imggrpVO.setIstate(PhotoState.state0);//自由态
+			singleObjectBO.update(imggrpVO);
 
-    		//消息
+			//消息
 			iZxkjRemoteAppService.deleteMsg(imggrpVO);
 
 			count = singleObjectBO.updateAry(imglibVOs);
-
 		}catch(Exception e){
 			log.error(e.getMessage(), e);
 			if(e instanceof BusinessException){

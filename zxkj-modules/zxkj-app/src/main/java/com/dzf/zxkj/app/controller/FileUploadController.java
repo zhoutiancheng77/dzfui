@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.*;
 @Slf4j
 @RestController
@@ -58,12 +59,17 @@ public class FileUploadController {
     private IUserPubService userPubService;
 
     @RequestMapping("/doUpLoad")
-    public ReturnData<ResponseBaseBeanVO> doUpLoad(UserBeanVO uBean, MultipartFile ynt) {
+    public ReturnData<ResponseBaseBeanVO> doUpLoad(UserBeanVO uBean, String cname, String method, String corp, String tcorp,
+                                                   File ynt,String filename) {
 
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
-
+        uBean.setAccount(StringUtil.isEmpty(uBean.getAccount())?uservo.getUser_code():uBean.getAccount());
+        uBean.setCorpname(cname);
+        uBean.setPaymethod(method);
+        uBean.setPk_corp(corp);
+        uBean.setPk_tempcorp(tcorp);
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
         try {
             validateForUpload(uBean);
@@ -91,7 +97,7 @@ public class FileUploadController {
                 IImageProviderPhoto ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
 
                 ImageQueryBean[] resultBeans = ip.saveUploadImages(uBean, ynt,
-                        ynt.getOriginalFilename(), null);
+                        filename, null);
 
                 if (resultBeans != null && resultBeans.length > 0) {
                     respBean.setRescode(IConstant.DEFAULT);
@@ -122,7 +128,7 @@ public class FileUploadController {
      */
     @RequestMapping("/doReImageUpload")
     public ReturnData<ResponseBaseBeanVO> doReImageUpload(UserBeanVO uBean, String imgmsg,
-                                                          MultipartFile file) {
+                                                          File file,String filename) {
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
@@ -156,7 +162,7 @@ public class FileUploadController {
             }
 
 
-            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,null);
+            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,filename,null);
 
             // 上传日志
             if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {
@@ -195,11 +201,12 @@ public class FileUploadController {
     }
 
     @RequestMapping("/doImageRecord")
-    public ReturnData<ResponseBaseBeanVO> doImageRecord(ImageReqVO uBean) {
+    public ReturnData<ResponseBaseBeanVO> doImageRecord(ImageReqVO uBean,String corp,String tcorp) {
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
-
+        uBean.setPk_corp(corp);
+        uBean.setPk_tempcorp(tcorp);
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
         try {
             validatePower(respBean, uBean);
@@ -232,6 +239,9 @@ public class FileUploadController {
 
         } catch (Exception e) {
             log.error( "\"获取用户上传记录失败!\"",log );
+            if(e.getMessage().indexOf("暂无记录")>=0){
+                respBean.setResmsg(e.getMessage());
+            }
         }
         return ReturnData.ok().data(respBean);
     }

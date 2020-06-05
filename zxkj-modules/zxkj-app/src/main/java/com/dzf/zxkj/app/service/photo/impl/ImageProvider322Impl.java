@@ -89,7 +89,7 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 //	private IUserService userServiceImpl;
 
 	@Override
-	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, MultipartFile file, String filenames, InputStream file_in) throws DZFWarpException {
+	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, File file, String filenames, InputStream file_in) throws DZFWarpException {
 		return null;
 	}
 
@@ -102,7 +102,7 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file, InputStream file_in)
+	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, File file,String filename, InputStream file_in)
 			throws DZFWarpException {
 
 		if(StringUtil.isEmpty(uBean.getGroupkey())){
@@ -134,7 +134,7 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 
 
 			//先删除再重新的新增
-			File imgzipFile = poimp_imagepro.SaveZipFile(file,file_in, uploadlot+File.separator+file.getOriginalFilename(),uBean.getSourcesys(),uBean.getCert(),uBean.getAccount(),"","");
+			File imgzipFile = poimp_imagepro.SaveZipFile(file,file_in, uploadlot+File.separator+filename,uBean.getSourcesys(),uBean.getCert(),uBean.getAccount(),"","");
 			// 解压缩文件
 			HashMap<String, String> groupSettle = new HashMap<String, String>();
 			Map<String, String> groupLibMap = new HashMap<String, String>();

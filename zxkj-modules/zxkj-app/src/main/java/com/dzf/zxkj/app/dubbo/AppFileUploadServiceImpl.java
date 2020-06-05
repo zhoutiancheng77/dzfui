@@ -39,6 +39,8 @@ import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
 import java.util.*;
 
 
@@ -56,7 +58,7 @@ public class AppFileUploadServiceImpl implements IAppFileUploadService {
     private IUserPubService userPubService;
 
 
-    public ReturnData<ResponseBaseBeanVO> doUpLoad(UserBeanVO uBean,  MultipartFile ynt) {
+    public ReturnData<ResponseBaseBeanVO> doUpLoad(UserBeanVO uBean, File ynt, String filename) {
 
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
@@ -89,7 +91,7 @@ public class AppFileUploadServiceImpl implements IAppFileUploadService {
                 IImageProviderPhoto ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
 
                 ImageQueryBean[] resultBeans = ip.saveUploadImages(uBean, ynt,
-                        ynt.getOriginalFilename(), null);
+                        filename, null);
 
                 if (resultBeans != null && resultBeans.length > 0) {
                     respBean.setRescode(IConstant.DEFAULT);
@@ -120,7 +122,7 @@ public class AppFileUploadServiceImpl implements IAppFileUploadService {
      */
 
     public ReturnData<ResponseBaseBeanVO> doReImageUpload(UserBeanVO uBean, String imgmsg,
-                                                          MultipartFile file) {
+                                                          File file,String filename) {
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
@@ -154,7 +156,7 @@ public class AppFileUploadServiceImpl implements IAppFileUploadService {
             }
 
 
-            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,null);
+            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,filename,null);
 
             // 上传日志
             if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {
