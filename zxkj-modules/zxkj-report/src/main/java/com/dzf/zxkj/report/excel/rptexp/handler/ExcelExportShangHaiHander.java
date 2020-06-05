@@ -24,16 +24,16 @@ public class ExcelExportShangHaiHander extends ExcelExportHander implements More
 
     @Override
     public Workbook createWorkBookZcfzKj2007(Map<String, ZcFzBVO> vOMap, Map<String, String> taxaxVoMap) throws Exception{
-        Resource resource = ResourceUtil.get(ExportTemplateEnum.SHANGHAI, ResourceUtil.ResourceEnum.KJ2007ZCFZ);
+        Resource resource = ResourceUtil.get(ExportTemplateEnum.SHANGHAI, ResourceUtil.ResourceEnum.KJ2007ZCFZ,"20196");
         Workbook workbook = WorkbookFactory.create(resource.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
-        handleZcfzbSheet(sheet, taxaxVoMap, vOMap, 3, new Integer[]{0, 1,2,3,4,5},new String[]{"qmye1","ncye1","qmye2","ncye2"});
+        handleZcfzbSheet(sheet, taxaxVoMap, vOMap, 3, new Integer[]{0,2,3,4,6,7},new String[]{"qmye1","ncye1","qmye2","ncye2"});
         return workbook;
     }
 
     @Override
     public Workbook createWorkBookLrbKj2007(Map<String, LrbVO> vOMap, Map<String, String> taxaxVoMap) throws Exception{
-        Resource resource = ResourceUtil.get(ExportTemplateEnum.SHANGHAI, ResourceUtil.ResourceEnum.KJ2007LR);
+        Resource resource = ResourceUtil.get(ExportTemplateEnum.SHANGHAI, ResourceUtil.ResourceEnum.KJ2007LR,"20196");
         Workbook workbook = WorkbookFactory.create(resource.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
         handleLrbSheet(sheet, taxaxVoMap, vOMap, 3, new Integer[]{0,1,2}, new String[]{"bnljje","lastyear_bnljje"});

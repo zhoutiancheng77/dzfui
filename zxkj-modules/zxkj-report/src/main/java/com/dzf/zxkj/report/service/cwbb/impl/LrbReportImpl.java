@@ -1615,7 +1615,8 @@ public class LrbReportImpl implements ILrbReport {
 		if ("00000100AA10000000000BMF".equals(corpType)) {
 			if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)
 					|| ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)
-					|| ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)) {
+					|| ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)
+					|| ExportTemplateEnum.SHANGHAI.getAreaType().equals(areaType)) {
 				paramVO.setVersionno("【2019】6号");
 			}
 		}

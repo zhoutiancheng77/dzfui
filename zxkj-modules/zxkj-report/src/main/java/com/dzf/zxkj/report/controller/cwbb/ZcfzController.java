@@ -381,7 +381,8 @@ public class ZcfzController extends ReportBaseController {
         if ("00000100AA10000000000BMF".equals(corpType)) {
             if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)
                     || ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)
-                    || ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)) { // 07 北京 福建 贵州
+                    || ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)
+                    || ExportTemplateEnum.SHANGHAI.getAreaType().equals(areaType)) { // 07 北京 福建 贵州
                 QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
                 String ishajz = "N";
                 if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
