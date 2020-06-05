@@ -5,7 +5,6 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IParameterConstants;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.Common;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -18,6 +17,7 @@ import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.NumberToCN;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
@@ -223,7 +223,7 @@ public class CrkPrintUtil {
             firstvo = crkmxlist.get(0);
         }
         Integer lx = 0;//0入口 1出库
-        headmap.put("gs", CodeUtils1.deCode(cpvo.getUnitname()));//XXX有限公司
+        headmap.put("gs", CorpSecretUtil.deCode(cpvo.getUnitname()));//XXX有限公司
         if (!StringUtil.isEmpty(vicbillcode) && vicbillcode.indexOf("_in") >= 0) {
             headmap.put("title", "入  库  单");//入  库  单
             lx = 0;

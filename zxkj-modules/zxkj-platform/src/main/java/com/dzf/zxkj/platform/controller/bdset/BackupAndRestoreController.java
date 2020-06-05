@@ -7,7 +7,6 @@ import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -19,6 +18,7 @@ import com.dzf.zxkj.platform.service.bdset.IDataBackUp;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -387,7 +387,7 @@ public class BackupAndRestoreController extends BaseController {
 						String currentYear = new DZFDate().toString().substring(0, 4);
 						for (CorpVO corpVO : list) {
 							try {
-								corpVO.setUnitname(CodeUtils1.deCode(corpVO.getUnitname()));
+								corpVO.setUnitname(CorpSecretUtil.deCode(corpVO.getUnitname()));
 
 								pyfirstcomb = PinyinUtil.getFirstSpell(corpVO.getUnitname())
 										+ PinyinUtil.getPinYin(corpVO.getUnitname());

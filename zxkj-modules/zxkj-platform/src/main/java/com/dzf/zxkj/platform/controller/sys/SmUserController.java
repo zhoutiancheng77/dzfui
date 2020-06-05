@@ -9,7 +9,6 @@ import com.dzf.zxkj.common.entity.Page;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.IGlobalConstants;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
@@ -21,6 +20,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.ISysFunnodeService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.PinyinUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -133,7 +133,7 @@ public class SmUserController extends BaseController {
                 String currentYear = new DZFDate().toString().substring(0, 4);
                 for (CorpVO corpVO : list) {
                     try {
-                        corpVO.setUnitname(CodeUtils1.deCode(corpVO.getUnitname()));
+                        corpVO.setUnitname(CorpSecretUtil.deCode(corpVO.getUnitname()));
 
                         pyfirstcomb = PinyinUtil.getFirstSpell(corpVO.getUnitname())
                                 + PinyinUtil.getPinYin(corpVO.getUnitname());

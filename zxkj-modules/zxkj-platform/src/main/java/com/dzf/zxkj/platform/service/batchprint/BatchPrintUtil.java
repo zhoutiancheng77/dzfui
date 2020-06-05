@@ -1,16 +1,5 @@
 package com.dzf.zxkj.platform.service.batchprint;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import java.util.TreeMap;
-
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
@@ -34,29 +23,17 @@ import com.dzf.zxkj.platform.model.voucher.VoucherPrintTemplate;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Chunk;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.ColumnText;
-import com.itextpdf.text.pdf.PdfAction;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfName;
-import com.itextpdf.text.pdf.PdfOutline;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfPage;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.dzf.zxkj.secret.CorpSecretUtil;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.draw.DottedLineSeparator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.*;
+import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
 
 
 class HeaderColumnsInfo {
@@ -201,7 +178,7 @@ public class BatchPrintUtil {
 		param.setLeft(new DZFDouble(16));
 		param.setTop(new DZFDouble(16));
 		VoucherPrintTemplate template = getTemplate(param);
-		String corpNames = CodeUtils1.deCode(corpvo.getUnitname());
+		String corpNames = CorpSecretUtil.deCode(corpvo.getUnitname());
 		String pagenum = "2";//默认打印一页
 
 		// 打印页面总数
@@ -632,7 +609,7 @@ public class BatchPrintUtil {
 			throws DocumentException, IOException {
 		//打印表头信息(待定)
 		Map<String, String> tmap = new LinkedHashMap<String, String>();
-		tmap.put("公司", CodeUtils1.deCode(corp.getUnitname()));
+		tmap.put("公司", CorpSecretUtil.deCode(corp.getUnitname()));
 		tmap.put("期间", qj);
 		tmap.put("单位", "元");
 		
@@ -1085,7 +1062,7 @@ public class BatchPrintUtil {
 		UserVO userVo = userServiceImpl.queryUserJmVOByID(userid);// UserCache.getInstance().get(userid, corp.getPk_corp());
 		String faren = null;
 		try {
-			faren = CodeUtils1.deCode(corp.getLegalbodycode());
+			faren = CorpSecretUtil.deCode(corp.getLegalbodycode());
 		} catch (Exception e) {
 		}
 		if (titlename.equals("资 产 负 债 表") || titlename.equals("现 金 流 量 表") || titlename.equals("利 润 表")

@@ -15,7 +15,10 @@ import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.AgeReportQueryVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.common.utils.*;
+import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.DzfUtil;
+import com.dzf.zxkj.common.utils.SafeCompute;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -42,6 +45,7 @@ import com.dzf.zxkj.platform.service.zcgl.IZczzdzReportService;
 import com.dzf.zxkj.platform.service.zncs.IBillcategory;
 import com.dzf.zxkj.platform.util.VoUtils;
 import com.dzf.zxkj.report.service.IZxkjReportService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -2271,7 +2275,7 @@ public class QmGzBgServiceImpl implements IQmGzBgService {
 		Map<String ,Object> map = new HashMap<>();
 		map.put("source","gzbg");
 		map.put("corpIds",cpvo.getPk_corp());
-		map.put("gsname",CodeUtils1.deCode(cpvo.getUnitname()));
+		map.put("gsname", CorpSecretUtil.deCode(cpvo.getUnitname()));
 		return map;
 	}
 

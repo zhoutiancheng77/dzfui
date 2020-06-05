@@ -224,6 +224,7 @@ public class MultiColumnController extends ReportBaseController {
                 "多栏账查询:"+vo.getBegindate1().toString().substring(0, 7)
                         +"-"+ vo.getEnddate().toString().substring(0, 7), ISysConstants.SYS_2);
 
+
         return ReturnData.ok().data(grid);
     }
 

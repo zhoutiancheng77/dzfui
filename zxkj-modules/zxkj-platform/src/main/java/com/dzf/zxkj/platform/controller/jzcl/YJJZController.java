@@ -12,7 +12,6 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.platform.exception.ExBusinessException;
@@ -31,6 +30,7 @@ import com.dzf.zxkj.platform.service.jzcl.IYJJZService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,7 +96,7 @@ public class YJJZController extends BaseController {
                     QmclVO qmvo = maps.get(key);
                     v.setPk_qmcl(qmvo.getPk_qmcl());
                     v.setIsjz(new DZFBoolean(setJZZT(mapjz, v.getPk_corp(), userid, qmvo)));
-                    v.setCorpname(CodeUtils1.deCode(v.getCorpname()));
+                    v.setCorpname(CorpSecretUtil.deCode(v.getCorpname()));
                 }
             }
             grid.setRows(list);
@@ -463,7 +463,7 @@ public class YJJZController extends BaseController {
         String unitname = "";
         if(corp == null){
             corp = corpService.queryByPk(qmvo.getPk_corp());
-            unitname = CodeUtils1.deCode(corp.getUnitname());
+            unitname = CorpSecretUtil.deCode(corp.getUnitname());
         }else{
             unitname = corp.getUnitname();
         }

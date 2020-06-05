@@ -2,12 +2,12 @@ package com.dzf.zxkj.platform.service.sys.impl;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.constant.IDzfServiceConst;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.CustServVO;
 import com.dzf.zxkj.platform.service.sys.ICorpQryService;
 import com.dzf.zxkj.platform.service.sys.ICustServService;
 import com.dzf.zxkj.platform.service.sys.IVersionMngService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +28,7 @@ public class CustServServiceImpl implements ICustServService {
             csvo.setIschannel(cvo.getIschannel());
             csvo.setIsfactory(cvo.getIsfactory());
             csvo.setChanneltype(cvo.getChanneltype());
-            csvo.setUnitname(CodeUtils1.deCode(cvo.getUnitname()));
+            csvo.setUnitname(CorpSecretUtil.deCode(cvo.getUnitname()));
         }
         String version = sys_funnodeversionserv.queryKjgsBigVersion(pk_corp);
 

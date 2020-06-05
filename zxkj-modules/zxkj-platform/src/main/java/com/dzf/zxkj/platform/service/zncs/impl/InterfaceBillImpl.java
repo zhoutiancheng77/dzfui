@@ -15,7 +15,6 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
@@ -43,9 +42,9 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.*;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -546,8 +545,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		billinfovo.setImgsourid(librayrvo[0].getCrelationid());
 		billinfovo.setImgname(librayrvo[0].getImgname());
 		billinfovo.setCorpId(librayrvo[0].getPk_custcorp());
-		// CodeUtils1.deCode(hvo.getCn_user()
-		vo.setCorpName(CodeUtils1.deCode(corpService.queryByPk(librayrvo[0].getPk_custcorp()).getUnitname()));
+		// CorpSecretUtil.deCode(hvo.getCn_user()
+		vo.setCorpName(CorpSecretUtil.deCode(corpService.queryByPk(librayrvo[0].getPk_custcorp()).getUnitname()));
 		vo.setCorpCode(corpService.queryByPk(librayrvo[0].getPk_custcorp()).getUnitcode());
 		
 		if (ibillcategory.checkHaveIctrade(new OcrInvoiceVO[]{vo}).equals(DZFBoolean.TRUE)) {
@@ -608,7 +607,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			billinfovo.setImgname(librarys.get(0).getImgname());
 			billinfovo.setCorpId(librarys.get(0).getPk_custcorp());
 			vo.setCorpName(
-					CodeUtils1.deCode(corpService.queryByPk(librarys.get(0).getPk_custcorp()).getUnitname()));
+					CorpSecretUtil.deCode(corpService.queryByPk(librarys.get(0).getPk_custcorp()).getUnitname()));
 			vo.setCorpCode(corpService.queryByPk(librarys.get(0).getPk_custcorp()).getUnitcode());
 			returnList.add(billinfovo);
 		}
@@ -2681,7 +2680,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		DutyPayVO dpvo ;
 		for (DutyPayVO dvo:dutilist) {
 			dpvo  =(DutyPayVO)dvo.clone();
-			dpvo.setCorpname(SecretCodeUtils.deCode(dvo.getCorpname()));
+			dpvo.setCorpname(CorpSecretUtil.deCode(dvo.getCorpname()));
 			String key = dvo.getInvname()+"_"+dvo.getPk_corp()+"_"+dvo.getPeriod();
 			if(dutymap.get(key)==null){
 				dlist = new ArrayList<DutyPayVO>();
@@ -2703,7 +2702,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			set.add(key);
 			dpvo = new DutyPayVO();
 			dpvo.setItemmny(new Double(0));
-			dpvo.setCorpname(SecretCodeUtils.deCode(dvo.getCorpname()));
+			dpvo.setCorpname(CorpSecretUtil.deCode(dvo.getCorpname()));
 			dpvo.setInvname(dvo.getInvname());
 			dpvo.setPeriod(dvo.getPeriod());
 			dpvo.setIzdf(dvo.getIzdf());
@@ -2760,7 +2759,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				}else{
 					conditionbuff.append(" or unitname = ? ");
 				}
-				sp.addParam(SecretCodeUtils.enCode(unitname));
+				sp.addParam(CorpSecretUtil.enCode(unitname));
 			}
 			conditionbuff.append(" ) and nvl(dr,0) = 0");
 		} catch (Exception e) {

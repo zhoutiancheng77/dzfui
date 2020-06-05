@@ -35,6 +35,7 @@ import com.dzf.zxkj.platform.service.taxrpt.bo.RptBillFactory;
 import com.dzf.zxkj.platform.service.zncs.image.IBalanceService;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.taxrpt.TaxReportPath;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -130,14 +131,14 @@ public class FastTaxServiceImpl implements IFastTaxService {
 				}
 
 				try {
-					corpVO.setUnitname(CodeUtils1.deCode(corpVO.getUnitname()));
-					corpVO.setVcorporatephone(CodeUtils1.deCode(corpVO.getVcorporatephone()));// 法人电话
+					corpVO.setUnitname(CorpSecretUtil.deCode(corpVO.getUnitname()));
+					corpVO.setVcorporatephone(CorpSecretUtil.deCode(corpVO.getVcorporatephone()));// 法人电话
 
-					corpVO.setPhone1(CodeUtils1.deCode(corpVO.getPhone1()));// 联系人电话
+					corpVO.setPhone1(CorpSecretUtil.deCode(corpVO.getPhone1()));// 联系人电话
 
-					// corpVO.setKeyname(CodeUtils1.deCode(corpVO.getKeyname()));//纳税人名称
+					// corpVO.setKeyname(CorpSecretUtil.deCode(corpVO.getKeyname()));//纳税人名称
 					if (corpVO.getLegalbodycode() != null) {
-						corpVO.setLegalbodycode(CodeUtils1.deCode(corpVO.getLegalbodycode()));
+						corpVO.setLegalbodycode(CorpSecretUtil.deCode(corpVO.getLegalbodycode()));
 					}
 					listRet.add(corpVO);
 				} catch (Exception e) {

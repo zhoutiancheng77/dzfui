@@ -7,7 +7,6 @@ import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.image.OcrInvoiceDetailVO;
@@ -20,6 +19,7 @@ import com.dzf.zxkj.platform.service.fct.IFctpubService;
 import com.dzf.zxkj.platform.service.zncs.IZncsService;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +60,7 @@ public class ZncsServiceImpl implements IZncsService {
 			List<CorpVO> corpList = (List<CorpVO>) singleObjectBO.executeQuery(sb.toString(), sp, new BeanListProcessor(CorpVO.class));
 			if (corpList != null && corpList.size() > 0) {
 				for (int i = 0; i < corpList.size(); i++) {
-					corpList.get(i).setUnitname(CodeUtils1.deCode(corpList.get(i).getUnitname()));
+					corpList.get(i).setUnitname(CorpSecretUtil.deCode(corpList.get(i).getUnitname()));
 				}
 			}
 			return corpList;

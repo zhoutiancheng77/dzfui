@@ -57,6 +57,7 @@ import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.ICaiFangTongConstant;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -4699,7 +4700,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	private CorpVO getCorpVO(String pk_corp) {
 		CorpVO corpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);
 
-		corpvo.setUnitname(CodeUtils1.deCode(corpvo.getUnitname()));
+		corpvo.setUnitname(CorpSecretUtil.deCode(corpvo.getUnitname()));
 
 		return corpvo;
 	}

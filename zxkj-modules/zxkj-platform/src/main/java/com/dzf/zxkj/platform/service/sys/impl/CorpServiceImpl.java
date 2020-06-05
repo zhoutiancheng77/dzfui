@@ -8,7 +8,7 @@ import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +26,10 @@ public class CorpServiceImpl implements ICorpService {
         CorpVO cvo = (CorpVO) singleObjectBO.queryVOByID(pk_corp, CorpVO.class);
         if (cvo != null) {
             try {
-                cvo.setUnitname(SecretCodeUtils.deCode(cvo.getUnitname()));
-                cvo.setUnitshortname(SecretCodeUtils.deCode(cvo.getUnitshortname()));
-                cvo.setPhone1(SecretCodeUtils.deCode(cvo.getPhone1()));
-                cvo.setPhone2(SecretCodeUtils.deCode(cvo.getPhone2()));
+                cvo.setUnitname(CorpSecretUtil.deCode(cvo.getUnitname()));
+                cvo.setUnitshortname(CorpSecretUtil.deCode(cvo.getUnitshortname()));
+                cvo.setPhone1(CorpSecretUtil.deCode(cvo.getPhone1()));
+                cvo.setPhone2(CorpSecretUtil.deCode(cvo.getPhone2()));
             } catch (Exception e) {
                 log.error("解密失败！", e);
             }
@@ -44,10 +44,10 @@ public class CorpServiceImpl implements ICorpService {
         if (cvos != null && cvos.length > 0) {
             try {
                 for (CorpVO cvo : cvos) {
-                    cvo.setUnitname(SecretCodeUtils.deCode(cvo.getUnitname()));
-                    cvo.setUnitshortname(SecretCodeUtils.deCode(cvo.getUnitshortname()));
-                    cvo.setPhone1(SecretCodeUtils.deCode(cvo.getPhone1()));
-                    cvo.setPhone2(SecretCodeUtils.deCode(cvo.getPhone2()));
+                    cvo.setUnitname(CorpSecretUtil.deCode(cvo.getUnitname()));
+                    cvo.setUnitshortname(CorpSecretUtil.deCode(cvo.getUnitshortname()));
+                    cvo.setPhone1(CorpSecretUtil.deCode(cvo.getPhone1()));
+                    cvo.setPhone2(CorpSecretUtil.deCode(cvo.getPhone2()));
                 }
             } catch (Exception e) {
                 log.error("解密失败！", e);

@@ -57,6 +57,7 @@ import com.dzf.zxkj.platform.service.report.IYntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.util.ReportUtil;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Rectangle;
@@ -273,7 +274,7 @@ public class VoucherController extends BaseController {
             decodeUser = cache.get(user);
         } else {
             try {
-                decodeUser = CodeUtils1.deCode(user);
+                decodeUser = CorpSecretUtil.deCode(user);
                 cache.put(user, decodeUser);
             } catch (Exception e) {
                 log.error("解密失败！", e);
@@ -348,13 +349,13 @@ public class VoucherController extends BaseController {
             }
             try {
                 if (tzpzH.getZd_user() != null)
-                    tzpzH.setZd_user(CodeUtils1.deCode(tzpzH.getZd_user()));
+                    tzpzH.setZd_user(CorpSecretUtil.deCode(tzpzH.getZd_user()));
                 if (tzpzH.getSh_user() != null)
-                    tzpzH.setSh_user(CodeUtils1.deCode(tzpzH.getSh_user()));
+                    tzpzH.setSh_user(CorpSecretUtil.deCode(tzpzH.getSh_user()));
                 if (tzpzH.getJz_user() != null)
-                    tzpzH.setJz_user(CodeUtils1.deCode(tzpzH.getJz_user()));
+                    tzpzH.setJz_user(CorpSecretUtil.deCode(tzpzH.getJz_user()));
                 if (tzpzH.getCn_user() != null) {
-                    tzpzH.setCn_user(CodeUtils1.deCode(tzpzH.getCn_user()));
+                    tzpzH.setCn_user(CorpSecretUtil.deCode(tzpzH.getCn_user()));
                 }
                 if ("HP80".equals(tzpzH.getSourcebilltype())
                         && StringUtils.isEmpty(tzpzH.getZd_user())) {
@@ -1239,7 +1240,7 @@ public class VoucherController extends BaseController {
         if (users != null && users.size() > 0) {
             for (UserVO userVO : users) {
                 try {
-                    userVO.setUser_name(CodeUtils1.deCode(userVO.getUser_name()));
+                    userVO.setUser_name(CorpSecretUtil.deCode(userVO.getUser_name()));
                 } catch (Exception e) {
                 }
             }

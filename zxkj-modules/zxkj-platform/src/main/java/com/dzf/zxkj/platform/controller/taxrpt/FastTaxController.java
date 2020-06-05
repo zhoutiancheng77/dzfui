@@ -15,7 +15,6 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
@@ -40,6 +39,7 @@ import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.service.taxrpt.IFastTaxService;
 import com.dzf.zxkj.platform.util.ExcelReport;
 import com.dzf.zxkj.platform.util.SystemUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -1440,7 +1440,7 @@ public class FastTaxController  extends BaseController {
     private String deCodename(String corpName) {
         String realName = "";
         try {
-            realName = CodeUtils1.deCode(corpName);
+            realName = CorpSecretUtil.deCode(corpName);
         } catch (Exception e) {
             throw new WiseRunException(e);
         }

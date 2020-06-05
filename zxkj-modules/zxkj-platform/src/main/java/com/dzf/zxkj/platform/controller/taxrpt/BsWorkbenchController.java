@@ -17,7 +17,6 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.excel.util.ExportExcel;
@@ -31,6 +30,7 @@ import com.dzf.zxkj.platform.service.taxrpt.IbsWorkbenchService;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.platform.util.SystemUtil;
 import com.dzf.zxkj.platform.vo.WorkBenchExportVo;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,7 +154,7 @@ public class BsWorkbenchController extends BaseController {
                 }
                 chargedeptname = corpvo.getChargedeptname();
             }
-            String unitname = CodeUtils1.deCode(corpvo.getUnitname());
+            String unitname = CorpSecretUtil.deCode(corpvo.getUnitname());
             for (int i = 0; i < 12; i++) {
                 month = i + 1;
                 period = year + "-" + (month < 10 ? "0" + month : month);

@@ -1,34 +1,5 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -90,6 +61,7 @@ import com.dzf.zxkj.platform.service.zncs.image.IImageToVoucherService;
 import com.dzf.zxkj.platform.util.zncs.ICaiFangTongConstant;
 import com.dzf.zxkj.platform.util.zncs.PjTypeEnum;
 import com.dzf.zxkj.platform.util.zncs.TaxItemUtil;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -107,6 +79,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 
 @Service("gl_vatsalinvact")
@@ -4086,7 +4068,7 @@ public class VATSaleInvoiceServiceImpl implements IVATSaleInvoiceService {
 	private CorpVO getCorpVO(String pk_corp) {
 		CorpVO corpvo = (CorpVO) singleObjectBO.queryByPrimaryKey(CorpVO.class, pk_corp);
 
-		corpvo.setUnitname(CodeUtils1.deCode(corpvo.getUnitname()));
+		corpvo.setUnitname(CorpSecretUtil.deCode(corpvo.getUnitname()));
 
 		return corpvo;
 	}

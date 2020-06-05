@@ -23,7 +23,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IRoleMngService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
 import com.dzf.zxkj.platform.util.FunnodetreeCreate;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -150,7 +150,7 @@ public class UserServiceImpl implements IUserService {
         EmployeeVO evo = new EmployeeVO();
         evo.setPk_corp(uvo.getPk_corp());
         evo.setVemcode(uvo.getUser_code());
-        evo.setVemname(SecretCodeUtils.deCode(uvo.getUser_name()));
+        evo.setVemname(CorpSecretUtil.deCode(uvo.getUser_name()));
         evo.setPk_department(uvo.getPk_department());
         evo.setDeptname("公司");
         evo.setPhone(uvo.getPhone());
@@ -245,7 +245,7 @@ public class UserServiceImpl implements IUserService {
 	    evo.setPk_employee(vo.getPk_employee());
 	    evo.setPk_corp(vo.getPk_corp());
 	    evo.setVemcode(vo.getUser_code());
-	    evo.setVemname(SecretCodeUtils.deCode(vo.getUser_name()));
+	    evo.setVemname(CorpSecretUtil.deCode(vo.getUser_name()));
 	    evo.setDindate(vo.getAble_time());
 	    singleObjectBO.update(evo, new String[]{"vemcode","vemname","dindate"});
 	}
@@ -564,7 +564,7 @@ public class UserServiceImpl implements IUserService {
 	@Override
 	public UserVO queryUserById(String id) throws DZFWarpException {
         UserVO user = (UserVO)singleObjectBO.queryVOByID(id, UserVO.class);
-        user.setUser_name(SecretCodeUtils.deCode(user.getUser_name()));
+        user.setUser_name(CorpSecretUtil.deCode(user.getUser_name()));
 		return user;
 	}
 	public CorpVO[] getValidateCorpByUserId(String dsName,
@@ -1296,7 +1296,7 @@ public class UserServiceImpl implements IUserService {
                 } catch (BusinessException e) {
                     evo = new ImpErrorVO();
                     evo.setVcode(uvo.getUser_code());
-                    evo.setVname(SecretCodeUtils.deCode(uvo.getUser_name()));
+                    evo.setVname(CorpSecretUtil.deCode(uvo.getUser_name()));
                     evo.setDeptname(uvo.getDeptname());
                     evo.setCoperatorid(loginUserid);
                     evo.setDoperatedate(new DZFDate());
@@ -1309,7 +1309,7 @@ public class UserServiceImpl implements IUserService {
                 } catch (Exception e) {
                     evo = new ImpErrorVO();
                     evo.setVcode(uvo.getUser_code());
-                    evo.setVname(SecretCodeUtils.deCode(uvo.getUser_name()));
+                    evo.setVname(CorpSecretUtil.deCode(uvo.getUser_name()));
                     evo.setDeptname(uvo.getDeptname());
                     evo.setCoperatorid(loginUserid);
                     evo.setDoperatedate(new DZFDate());
@@ -1438,7 +1438,7 @@ public class UserServiceImpl implements IUserService {
 		UserVO uservo = (UserVO)singleObjectBO.queryByPrimaryKey(UserVO.class, userid);
 		if(uservo != null){
 			uservo.setUser_password(null);
-			uservo.setUser_name(SecretCodeUtils.deCode(uservo.getUser_name()));
+			uservo.setUser_name(CorpSecretUtil.deCode(uservo.getUser_name()));
 		}else{
 			uservo = new UserVO();
 		}
@@ -1462,7 +1462,7 @@ public class UserServiceImpl implements IUserService {
         if(vos != null && vos.length > 0){
             for(UserVO uvo : vos){
                 uvo.setUser_password(null);
-                uvo.setUser_name(SecretCodeUtils.deCode(uvo.getUser_name()));
+                uvo.setUser_name(CorpSecretUtil.deCode(uvo.getUser_name()));
                 map.put(uvo.getCuserid(), uvo);
             }
         }

@@ -48,6 +48,7 @@ import com.dzf.zxkj.platform.service.zcgl.IKpglService;
 import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -7465,7 +7466,7 @@ public class ZncsVoucherImpl implements IZncsVoucher {
 			billinfovo.setImgsourid(librayrvo.getCrelationid());
 			billinfovo.setImgname(librayrvo.getImgname());
 			billinfovo.setCorpId(librayrvo.getPk_corp());
-			vo.setCorpName(CodeUtils1.deCode(corpService.queryByPk(librayrvo.getPk_corp()).getUnitname()));
+			vo.setCorpName(CorpSecretUtil.deCode(corpService.queryByPk(librayrvo.getPk_corp()).getUnitname()));
 			vo.setCorpCode(corpService.queryByPk(librayrvo.getPk_corp()).getUnitcode());
 			returnList.add(billinfovo);
 		}

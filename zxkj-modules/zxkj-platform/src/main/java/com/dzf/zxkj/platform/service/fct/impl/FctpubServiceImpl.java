@@ -1,8 +1,5 @@
 package com.dzf.zxkj.platform.service.fct.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -12,7 +9,6 @@ import com.dzf.zxkj.common.constant.FactoryConst;
 import com.dzf.zxkj.common.constant.IRoleConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -20,8 +16,12 @@ import com.dzf.zxkj.platform.model.zncs.BusiapplyBVO;
 import com.dzf.zxkj.platform.model.zncs.BusiapplyHVO;
 import com.dzf.zxkj.platform.service.fct.IFctpubService;
 import com.dzf.zxkj.platform.service.sys.IUserService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("pubFctService")
 public class FctpubServiceImpl implements IFctpubService {
@@ -215,7 +215,7 @@ public class FctpubServiceImpl implements IFctpubService {
 				sb.append(" and bc.innercode like '%" + queryParam[6] + "%'");
 			}
 			if (queryParam[7] != null && !queryParam[7].equals("")) {
-				sb.append(" and instr(bc.unitname,'" + CodeUtils1.enCode(queryParam[7]) + "') > 0");
+				sb.append(" and instr(bc.unitname,'" + CorpSecretUtil.enCode(queryParam[7]) + "') > 0");
 			}
 			sb.append("   ) ");
 			

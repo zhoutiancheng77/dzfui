@@ -34,7 +34,7 @@ import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.util.CryptCodeUtil;
 import com.dzf.zxkj.platform.util.PinyinUtil;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
-import com.dzf.zxkj.platform.util.SecretCodeUtils;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -632,7 +632,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		    corpVO.setDrdsj(null);
 		    corpVO.setIsxrq(null);
 		}
-		String unitname = SecretCodeUtils.deCode(corpVO.getUnitname());
+		String unitname = CorpSecretUtil.deCode(corpVO.getUnitname());
         corpVO.setRcunitname(CryptCodeUtil.enCode(unitname));
 		singleObjectBO.update(corpVO, getUpdateFields());
 
@@ -675,11 +675,11 @@ public class BDCorpServiceImpl implements IBDCorpService {
 	private void updateNcompany(CorpVO corpVO){
 	    String sql = " update fat_ncompany set vnname = ? ,vbankname=?,vbankcode=?,vaddr=?,phone=? where pk_corp = ?";
 	    SQLParameter params = new SQLParameter();
-	    params.addParam(CryptCodeUtil.enCode(SecretCodeUtils.deCode(corpVO.getUnitname())));
+	    params.addParam(CryptCodeUtil.enCode(CorpSecretUtil.deCode(corpVO.getUnitname())));
 	    params.addParam(corpVO.getVbankname());
 	    params.addParam(CryptCodeUtil.enCode(corpVO.getVbankcode()));
 	    params.addParam(corpVO.getPostaddr());
-	    params.addParam(CryptCodeUtil.enCode(SecretCodeUtils.deCode(corpVO.getVcorporatephone())));
+	    params.addParam(CryptCodeUtil.enCode(CorpSecretUtil.deCode(corpVO.getVcorporatephone())));
 	    params.addParam(corpVO.getPk_corp());
 	    singleObjectBO.executeUpdate(sql, params);
 	}
@@ -827,7 +827,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 			throw new BusinessException("老板手机号不能为空,保存失败!");
 		}
 		try {
-            boolean mobile2 = DZFValidator.isMobile(SecretCodeUtils.deCode(corpVO.getPhone2()));
+            boolean mobile2 = DZFValidator.isMobile(CorpSecretUtil.deCode(corpVO.getPhone2()));
             if (!mobile2) {
                 throw new BusinessException("老板手机号格式非法,保存失败!");
             }
@@ -835,7 +835,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
             throw new BusinessException("老板手机号格式非法,保存失败!");
         }
 		try {
-			boolean mobile1 = DZFValidator.isMobile(SecretCodeUtils.deCode(corpVO.getPhone1()));
+			boolean mobile1 = DZFValidator.isMobile(CorpSecretUtil.deCode(corpVO.getPhone1()));
 			if (!mobile1) {
 				throw new BusinessException("联系人手机号格式非法，保存失败!");
 			}
@@ -889,7 +889,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 			throw new BusinessException("验证码电话不能为空,保存失败!");
 		}
 		try {
-			boolean mobile1 = DZFValidator.isMobile(SecretCodeUtils.deCode(corpVO.getPhone1()));
+			boolean mobile1 = DZFValidator.isMobile(CorpSecretUtil.deCode(corpVO.getPhone1()));
 			if (!mobile1) {
 				throw new BusinessException("联系人电话手机号格式非法,保存失败!");
 			}
@@ -897,7 +897,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 			throw new BusinessException("联系人电话手机号格式非法,保存失败!");
 		}
 		try {
-			boolean mobile2 = DZFValidator.isMobile(SecretCodeUtils.deCode(corpVO.getPhone2()));
+			boolean mobile2 = DZFValidator.isMobile(CorpSecretUtil.deCode(corpVO.getPhone2()));
 			if (!mobile2) {
 				throw new BusinessException("验证码电话手机号格式非法,保存失败!");
 			}

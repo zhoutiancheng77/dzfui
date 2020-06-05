@@ -29,6 +29,7 @@ import com.dzf.zxkj.platform.model.tax.TaxReportInitVO;
 import com.dzf.zxkj.platform.service.bdset.IDataBackUp;
 import com.dzf.zxkj.platform.service.secret.ISecretKeyService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -441,9 +442,9 @@ public class DataBackUpImpl implements IDataBackUp {
             String basePath = Common.imageBasePath.replaceAll("\\\\", "/") + cpvo.getUnitcode() + "/backup/";
             Date date = new Date();
             DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-            String unitname = CodeUtils1.deCode(cpvo.getUnitshortname());
+            String unitname = CorpSecretUtil.deCode(cpvo.getUnitshortname());
             if (StringUtil.isEmpty(unitname)) {
-                unitname = CodeUtils1.deCode(cpvo.getUnitname());
+                unitname = CorpSecretUtil.deCode(cpvo.getUnitname());
             }
 //			String fileName = cpvo.getUnitcode() + "_" + dateFormat.format(date);
             String fileName = unitname + "_" + dateFormat.format(date);
@@ -937,8 +938,8 @@ public class DataBackUpImpl implements IDataBackUp {
         if (rs != null && rs.length > 0) {
             corp = rs[0];
             try {
-                corp.setUnitname(CodeUtils1.deCode(corp.getUnitname()));
-                corp.setUnitshortname(CodeUtils1.deCode(corp.getUnitshortname()));
+                corp.setUnitname(CorpSecretUtil.deCode(corp.getUnitname()));
+                corp.setUnitshortname(CorpSecretUtil.deCode(corp.getUnitshortname()));
             } catch (Exception e) {
                 log.error("错误", e);
             }
