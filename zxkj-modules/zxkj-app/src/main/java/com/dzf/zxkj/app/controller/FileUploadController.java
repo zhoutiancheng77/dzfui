@@ -60,7 +60,7 @@ public class FileUploadController {
 
     @RequestMapping("/doUpLoad")
     public ReturnData<ResponseBaseBeanVO> doUpLoad(UserBeanVO uBean, String cname, String method, String corp, String tcorp,
-                                                   File ynt,String filename) {
+                                                   MultipartFile ynt) {
 
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
@@ -97,7 +97,7 @@ public class FileUploadController {
                 IImageProviderPhoto ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
 
                 ImageQueryBean[] resultBeans = ip.saveUploadImages(uBean, ynt,
-                        filename, null);
+                        ynt.getOriginalFilename(), null);
 
                 if (resultBeans != null && resultBeans.length > 0) {
                     respBean.setRescode(IConstant.DEFAULT);
@@ -119,7 +119,7 @@ public class FileUploadController {
         } catch (Exception e) {
             log.error(e.getMessage(),e);
         }
-        return ReturnData.ok().data(respBean);
+        return ReturnData.ok().data(null);
     }
 
     /**
@@ -128,7 +128,7 @@ public class FileUploadController {
      */
     @RequestMapping("/doReImageUpload")
     public ReturnData<ResponseBaseBeanVO> doReImageUpload(UserBeanVO uBean, String imgmsg,
-                                                          File file,String filename) {
+                                                          MultipartFile file) {
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
@@ -162,7 +162,7 @@ public class FileUploadController {
             }
 
 
-            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,filename,null);
+            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,file.getOriginalFilename(),null);
 
             // 上传日志
             if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {

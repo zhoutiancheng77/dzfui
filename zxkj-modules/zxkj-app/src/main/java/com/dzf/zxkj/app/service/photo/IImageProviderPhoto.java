@@ -25,11 +25,11 @@ import java.util.Map;
 public interface IImageProviderPhoto {
 
 
-	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, File file, String filenames, InputStream file_in) throws DZFWarpException;
+	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, MultipartFile file, String filenames, InputStream file_in) throws DZFWarpException;
 
 
 	//图片重传
-	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, File file,String filename, InputStream file_in) throws DZFWarpException;
+	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file,String filename, InputStream file_in) throws DZFWarpException;
 
 	public ImageUploadRecordVO[] queryImages(ImageBeanVO beanvo)throws DZFWarpException;
 

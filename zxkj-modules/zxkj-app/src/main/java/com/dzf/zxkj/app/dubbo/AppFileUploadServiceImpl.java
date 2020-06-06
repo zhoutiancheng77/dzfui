@@ -60,59 +60,59 @@ public class AppFileUploadServiceImpl implements IAppFileUploadService {
 
     public ReturnData<ResponseBaseBeanVO> doUpLoad(UserBeanVO uBean, File ynt, String filename) {
 
-        UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
-        uBean.setUsercode(uservo.getUser_code());
-        uBean.setAccount_id(uservo.getCuserid());
-
+//        UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
+//        uBean.setUsercode(uservo.getUser_code());
+//        uBean.setAccount_id(uservo.getCuserid());
+//
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
-        try {
-            validateForUpload(uBean);
-            CommonServ.initUser(uBean);
-            /**
-             * 启动日志线程
-             */
-            uBean.setJson(uBean.getCorpname());// 文件路径
-            uBean.setOptype("3-文件上传" + uBean.getSystype() + "-" + uBean.getOperate());
-            ILog lo = (ILog) SpringUtils.getBean("applog");
-            lo.savelog(uBean);
-
-            // 区分业务合作
-            // 上传日志（业务合作）
-            if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {
-                IAppUserService iaus = (IAppUserService) SpringUtils.getBean("userservice");
-                iaus.saveprocesscollabtevalt(uBean);
-                respBean.setRescode(IConstant.DEFAULT);
-                respBean.setResmsg("提交成功");
-            } else {//图片上传
-                if (uBean.getCorpname() == null) {
-                    uBean.setCorpname(uBean.getAccount());
-                }
-
-                IImageProviderPhoto ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
-
-                ImageQueryBean[] resultBeans = ip.saveUploadImages(uBean, ynt,
-                        filename, null);
-
-                if (resultBeans != null && resultBeans.length > 0) {
-                    respBean.setRescode(IConstant.DEFAULT);
-                    respBean.setResmsg("上传成功");
-                } else {
-                    respBean.setRescode(IConstant.FIRDES);
-                    respBean.setResmsg("上传图片失败，没有生成任何图片记录");
-                }
-
-                // 是否匹配模板生成凭证(发送会计端，是否制单)
-                genImgMsgToKj(uBean, resultBeans);
-
-                // 赋值图片张数
-                putImgeNumber(respBean, uBean);
-            }
-            // 删除临时文件
-//			delTempFile();
-
-        } catch (Exception e) {
-            log.error(e.getMessage(),e);
-        }
+//        try {
+//            validateForUpload(uBean);
+//            CommonServ.initUser(uBean);
+//            /**
+//             * 启动日志线程
+//             */
+//            uBean.setJson(uBean.getCorpname());// 文件路径
+//            uBean.setOptype("3-文件上传" + uBean.getSystype() + "-" + uBean.getOperate());
+//            ILog lo = (ILog) SpringUtils.getBean("applog");
+//            lo.savelog(uBean);
+//
+//            // 区分业务合作
+//            // 上传日志（业务合作）
+//            if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {
+//                IAppUserService iaus = (IAppUserService) SpringUtils.getBean("userservice");
+//                iaus.saveprocesscollabtevalt(uBean);
+//                respBean.setRescode(IConstant.DEFAULT);
+//                respBean.setResmsg("提交成功");
+//            } else {//图片上传
+//                if (uBean.getCorpname() == null) {
+//                    uBean.setCorpname(uBean.getAccount());
+//                }
+//
+//                IImageProviderPhoto ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
+//
+//                ImageQueryBean[] resultBeans = ip.saveUploadImages(uBean, ynt,
+//                        filename, null);
+//
+//                if (resultBeans != null && resultBeans.length > 0) {
+//                    respBean.setRescode(IConstant.DEFAULT);
+//                    respBean.setResmsg("上传成功");
+//                } else {
+//                    respBean.setRescode(IConstant.FIRDES);
+//                    respBean.setResmsg("上传图片失败，没有生成任何图片记录");
+//                }
+//
+//                // 是否匹配模板生成凭证(发送会计端，是否制单)
+//                genImgMsgToKj(uBean, resultBeans);
+//
+//                // 赋值图片张数
+//                putImgeNumber(respBean, uBean);
+//            }
+//            // 删除临时文件
+////			delTempFile();
+//
+//        } catch (Exception e) {
+//            log.error(e.getMessage(),e);
+//        }
         return ReturnData.ok().data(respBean);
     }
 
@@ -123,74 +123,74 @@ public class AppFileUploadServiceImpl implements IAppFileUploadService {
 
     public ReturnData<ResponseBaseBeanVO> doReImageUpload(UserBeanVO uBean, String imgmsg,
                                                           File file,String filename) {
-        UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
-        uBean.setUsercode(uservo.getUser_code());
-        uBean.setAccount_id(uservo.getCuserid());
+//        UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
+//        uBean.setUsercode(uservo.getUser_code());
+//        uBean.setAccount_id(uservo.getCuserid());
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
-        try {
-            // 重传的对象数据
-            Map bodymapping = FieldMapping.getFieldMapping(new ImageBeanVO());
-
-            ImageBeanVO[] imgbeanvos = JsonUtils.deserialize(imgmsg,ImageBeanVO[].class);
-            // 重传校验
-            validateForUpload(uBean);
-
-            // 启动日志线程
-            uBean.setJson(uBean.getCorpname());// 文件路径
-            uBean.setOptype("3-文件上传" + uBean.getSystype() + "-" + uBean.getOperate());
-            ILog lo = (ILog) SpringUtils.getBean("applog");
-            lo.savelog(uBean);
-
-            if (uBean.getCorpname() == null) {
-                uBean.setCorpname(uBean.getAccount());
-            }
-
-            IImageProviderPhoto ip = null;
-
-            Integer versionno = uBean.getVersionno();
-
-            if (versionno.intValue() < IVersionConstant.VERSIONNO322) {
-                ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
-            } else {
-                ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro322");
-            }
-
-
-            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,filename,null);
-
-            // 上传日志
-            if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {
-                IAppUserService iaus = (IAppUserService) SpringUtils.getBean("userservice");
-                iaus.saveprocesscollabtevalt(uBean);
-            }
-
-            if (sussCount < 1) {
-                throw new BusinessException("重传图片失败，没有生成任何图片记录");
-            }
-            if (sussCount >= 1) {// 更新一条信息
-                respBean.setRescode(IConstant.DEFAULT);
-                if (versionno.intValue() < IVersionConstant.VERSIONNO322) {// 重新获取图片信息
-                    respBean.setResmsg("上传成功");
-                } else {
-                    ImageBeanVO beanvo = new ImageBeanVO();
-
-                    BeanUtils.copyNotNullProperties(uBean, beanvo);
-
-                    beanvo.setImageparams(beanvo.getGroupkey());
-
-                    ImgGroupRsBean[] rsbean = ip.queryImages(beanvo);
-
-                    if (rsbean != null && rsbean.length > 0) {
-                        respBean.setResmsg(rsbean[0]);
-                    } else {
-                        respBean.setRescode(IConstant.DEFAULT);
-                        respBean.setResmsg("获取信息失败:请重新请求数据!");
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("上传失败!",e );
-        }
+//        try {
+//            // 重传的对象数据
+//            Map bodymapping = FieldMapping.getFieldMapping(new ImageBeanVO());
+//
+//            ImageBeanVO[] imgbeanvos = JsonUtils.deserialize(imgmsg,ImageBeanVO[].class);
+//            // 重传校验
+//            validateForUpload(uBean);
+//
+//            // 启动日志线程
+//            uBean.setJson(uBean.getCorpname());// 文件路径
+//            uBean.setOptype("3-文件上传" + uBean.getSystype() + "-" + uBean.getOperate());
+//            ILog lo = (ILog) SpringUtils.getBean("applog");
+//            lo.savelog(uBean);
+//
+//            if (uBean.getCorpname() == null) {
+//                uBean.setCorpname(uBean.getAccount());
+//            }
+//
+//            IImageProviderPhoto ip = null;
+//
+//            Integer versionno = uBean.getVersionno();
+//
+//            if (versionno.intValue() < IVersionConstant.VERSIONNO322) {
+//                ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
+//            } else {
+//                ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro322");
+//            }
+//
+//
+//            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,filename,null);
+//
+//            // 上传日志
+//            if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {
+//                IAppUserService iaus = (IAppUserService) SpringUtils.getBean("userservice");
+//                iaus.saveprocesscollabtevalt(uBean);
+//            }
+//
+//            if (sussCount < 1) {
+//                throw new BusinessException("重传图片失败，没有生成任何图片记录");
+//            }
+//            if (sussCount >= 1) {// 更新一条信息
+//                respBean.setRescode(IConstant.DEFAULT);
+//                if (versionno.intValue() < IVersionConstant.VERSIONNO322) {// 重新获取图片信息
+//                    respBean.setResmsg("上传成功");
+//                } else {
+//                    ImageBeanVO beanvo = new ImageBeanVO();
+//
+//                    BeanUtils.copyNotNullProperties(uBean, beanvo);
+//
+//                    beanvo.setImageparams(beanvo.getGroupkey());
+//
+//                    ImgGroupRsBean[] rsbean = ip.queryImages(beanvo);
+//
+//                    if (rsbean != null && rsbean.length > 0) {
+//                        respBean.setResmsg(rsbean[0]);
+//                    } else {
+//                        respBean.setRescode(IConstant.DEFAULT);
+//                        respBean.setResmsg("获取信息失败:请重新请求数据!");
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            log.error("上传失败!",e );
+//        }
         return  ReturnData.ok().data(respBean);
     }
 

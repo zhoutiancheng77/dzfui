@@ -89,7 +89,7 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 //	private IUserService userServiceImpl;
 
 	@Override
-	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, File file, String filenames, InputStream file_in) throws DZFWarpException {
+	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, MultipartFile file, String filenames, InputStream file_in) throws DZFWarpException {
 		return null;
 	}
 
@@ -102,7 +102,7 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, File file,String filename, InputStream file_in)
+	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file,String filename, InputStream file_in)
 			throws DZFWarpException {
 
 		if(StringUtil.isEmpty(uBean.getGroupkey())){

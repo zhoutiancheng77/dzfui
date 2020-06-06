@@ -77,6 +77,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.druid.support.json.JSONUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Slf4j
@@ -156,7 +157,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 //	}
 //
 
-	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, File file, String filenames, InputStream file_in) throws DZFWarpException{
+	public ImageQueryBean[] saveUploadImages(UserBeanVO uBean, MultipartFile file, String filenames, InputStream file_in) throws DZFWarpException{
 		ImageQueryBean[] beans = null;
 
 		if(StringUtil.isEmptyWithTrim(uBean.getPk_corp())){
@@ -176,7 +177,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 //			return uploadCorpeateInfo(uBean, files, filenames);//这个证照取消，则不处理
 		} else{
 
-			if((file == null||file.length()<=0) && !ISysConstants.SYS_ADMIN.equals(uBean.getSourcesys()) ){
+			if((file == null||file.getSize()<=0) && !ISysConstants.SYS_ADMIN.equals(uBean.getSourcesys()) ){
 				throw new BusinessException("传入的fileItem参数不能为空！");
 			}
 
@@ -428,7 +429,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 	 * @param filename
 	 * @throws DZFWarpException
 	 */
-	public File SaveZipFile(File f,InputStream file_in,String filename,String sys_source,
+	public File SaveZipFile(MultipartFile f,InputStream file_in,String filename,String sys_source,
 			String cert,String account,String logo,String permit) throws DZFWarpException{
 		InputStream in = null;
 		OutputStream out = null;
@@ -458,7 +459,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 			if(!StringUtil.isEmpty(sys_source) && ISysConstants.SYS_ADMIN.equals(sys_source)){//管理端传递流
 				in = file_in;
 			}else{
-				in = new FileInputStream(f);
+				in = f.getInputStream();
 			}
 			out = new FileOutputStream(imgzipFile);
 
@@ -884,7 +885,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, File file,String filename, InputStream file_in) throws DZFWarpException{
+	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file,String filename, InputStream file_in) throws DZFWarpException{
 		ImageQueryBean[] beans = null;
 		int count = 0;
 		if(imgbeanvos == null || imgbeanvos.length == 0){
@@ -935,13 +936,14 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 		}
 
 		try{
-			ZipFile zip = new ZipFile(file);
-			Enumeration enumeration = zip.entries();
+			ZipInputStream zs = new ZipInputStream(file.getInputStream());
+//			ZipFile zip = new ZipFile(file);
+//			Enumeration enumeration = zip.entries();
 			List<ZipEntry> list  = new ArrayList<ZipEntry>();
-			ZipEntry entrye = null;
-			while(enumeration.hasMoreElements()){
-				entrye = (ZipEntry) enumeration.nextElement();
-				list.add(entrye);
+			ZipEntry ze = null;
+			while((ze = zs.getNextEntry()) != null){
+//				entrye = (ZipEntry) enumeration.nextElement();
+				list.add(ze);
 			}
 			ImageSort sort = new ImageSort();//排序
 			Collections.sort(list, sort);
@@ -970,7 +972,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 			ZipEntry entry = null;
 			String imagename = null;
 			File imagefile = null;
-			BufferedInputStream in = null;
+//    		BufferedInputStream in = null;
 			FileOutputStream fileout = null;
 			BufferedOutputStream out = null;
 			for(int j = 0; j < list.size(); j++){
@@ -978,21 +980,21 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 				imagename = Common.imageBasePath + imgbeanvos[0].getFilepath();
 				imagefile = new File(imagename);
 
-				in = new BufferedInputStream(zip.getInputStream(entry));
+//    			in = new BufferedInputStream(zip.getInputStream(entry));
 				fileout = new FileOutputStream(imagefile);
 				out = new BufferedOutputStream(fileout);
 
 				try {
 					byte[] buffer = new byte[1024];
 					int coun = 0;
-					while((coun = in.read(buffer, 0, buffer.length)) > 0 ){
+					while((coun = zs.read(buffer, 0, buffer.length)) > 0 ){
 						out.write(buffer, 0, coun);
 					}
 					out.flush();
 				} finally {
 					try{
-						if(in != null)
-							in.close();
+//						if(in != null)
+//							in.close();
 						if(out != null)
 							out.close();
 						if(fileout != null)
@@ -1002,7 +1004,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 					}
 				}
 			}
-			zip.close();
+			zs.close();
 
 			String wherepart = " pk_image_group = ? and nvl(dr,0) = 0 " ;
 			SQLParameter sp = new SQLParameter();
