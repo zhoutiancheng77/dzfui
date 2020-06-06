@@ -376,6 +376,7 @@ public class BusinessController {
     private void doSaveFiletrans(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
 
         try {
+            AppResult result = null;
             AppFiletransQryVO pramvo = new AppFiletransQryVO();
             pramvo.setPk_corp(userbean.getFathercorpid());
             pramvo.setPk_corpk(userbean.getPk_corp());
@@ -388,16 +389,20 @@ public class BusinessController {
                 pramvo.setNum(userbean.getNum());
                 pramvo.setVendperiod(userbean.getVendperiod());
                 pramvo.setVmemo(userbean.getMemo());
-                iDzfAppFiletransService.saveFiletrans(pramvo);
+                result =  iDzfAppFiletransService.saveFiletrans(pramvo);
             }else{
-                iDzfAppFiletransService.saveFiles(pramvo );
+                result =  iDzfAppFiletransService.saveFiles(pramvo );
+            }
+            if(result.getCode() != 200){
+                bean.setRescode(IConstant.FIRDES);
+                bean.setResmsg(result.getMsg());
+            }else{
+                bean.setRescode(IConstant.DEFAULT);
+                bean.setResmsg("操作成功!");
             }
 
-            bean.setRescode(IConstant.DEFAULT);
-            bean.setResmsg("操作成功!");
         } catch (Exception e) {
             log.error( "操作失败!", log);
-            throw e;
         }
     }
     private void doSaveHandin(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
