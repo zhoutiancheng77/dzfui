@@ -335,6 +335,8 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(bvos);
         } catch (Exception e) {
+            bean.setRescode(IConstant.FIRDES);
+            bean.setResmsg(e.getMessage());
             log.error(e.getMessage(), log);
         }
 
