@@ -1,13 +1,16 @@
 package com.dzf.zxkj.app.controller;
 
-import com.dzf.admin.dzfapp.model.filetrans.*;
+import com.dzf.admin.dzfapp.model.filetrans.AppFiletransQryVO;
 import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
+import com.dzf.admin.model.app.transfer.filetrans.RetAppFiletransBVO;
 import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
 import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
 import com.dzf.zxkj.app.model.resp.bean.*;
-import com.dzf.zxkj.app.model.sys.*;
+import com.dzf.zxkj.app.model.sys.DataFileDocVO;
+import com.dzf.zxkj.app.model.sys.FiletransVO;
+import com.dzf.zxkj.app.model.sys.ProblemVo;
 import com.dzf.zxkj.app.pub.constant.IBusiConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
@@ -328,7 +331,7 @@ public class BusinessController {
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setQrid(userbean.getQrid());
             pramvo.setQrytype(userbean.getQrytype());
-            List<FiletransBVO> bvos = (List<FiletransBVO>)iDzfAppFiletransService.queryFileList(pramvo).getData();
+            List<RetAppFiletransBVO> bvos = (List<RetAppFiletransBVO>)iDzfAppFiletransService.queryFileList(pramvo).getData();
             if(bvos == null || bvos.size() == 0){
                 throw new BusinessException("暂无数据!");
             }
