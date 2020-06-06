@@ -3277,7 +3277,7 @@ public class VATSaleInvoice2Controller extends BaseController {
 
         //加锁
         lock=redissonDistributedLock.tryGetDistributedFairLock("xiaoxiang2pz"+corps[0]);
-        if(lock){//处理
+        if(!lock){//处理
 //                json.setSuccess(false);
 //                json.setMsg("正在处理中，请稍候刷新界面");
 //                return ReturnData.error().data(json);
@@ -3285,7 +3285,7 @@ public class VATSaleInvoice2Controller extends BaseController {
         }
         lock = redissonDistributedLock.tryGetDistributedFairLock("xiaoxiangcreatepz"+corps[0]);
 
-        if(lock){//处理
+        if(!lock){//处理
 //                json.setSuccess(false);
 //                json.setMsg("正在处理中，请稍候刷新界面");
 //                return ReturnData.error().data(json);
