@@ -4,6 +4,8 @@ import com.dzf.admin.dzfapp.model.filetrans.AppFiletransQryVO;
 import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
 import com.dzf.admin.model.app.transfer.filetrans.RetAppFiletransBVO;
+import com.dzf.admin.model.app.transfer.filetrans.RetAppQunGroup;
+import com.dzf.admin.model.app.transfer.filetrans.RetDataFileDocVO;
 import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
 import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
@@ -366,7 +368,7 @@ public class BusinessController {
             AppFiletransQryVO pramvo = new AppFiletransQryVO();
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            List<DataFileDocVO> docvos = (List<DataFileDocVO>)iDzfAppFiletransService.queryFiledoc(pramvo).getData();
+            List<RetDataFileDocVO> docvos = (List<RetDataFileDocVO>)iDzfAppFiletransService.queryFiledoc(pramvo).getData();
             if(docvos == null || docvos.size() == 0){
                 throw new BusinessException("暂无记录!");
             }
@@ -485,7 +487,7 @@ public class BusinessController {
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            AppResult groups = (AppResult)iDzfAppFiletransService.queryCatcher(pramvo,null);
+            AppResult<RetAppQunGroup> groups = (AppResult<RetAppQunGroup>)iDzfAppFiletransService.queryCatcher(pramvo,null);
 
             if (groups.getData() == null)  {
                 throw new BusinessException("暂无数据!");
