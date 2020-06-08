@@ -246,7 +246,8 @@ public class AuxiliaryBalanceReportController extends BaseController {
 
             toClient = new BufferedOutputStream(response.getOutputStream());
             response.setContentType("application/vnd.ms-excel;charset=gb2312");
-            byte[] length = ex.exportExcel("辅助余额表", cnFields, enFields, list, queryparamvo.getCorpname(), queryparamvo.getPeriod(), toClient, zxkjPlatformService);
+            String period = DateUtils.getPeriod(queryparamvo.getBegindate1())+"-"+DateUtils.getPeriod(queryparamvo.getEnddate());
+            byte[] length = ex.exportExcel("辅助余额表", cnFields, enFields, list, queryparamvo.getCorpname(), period, toClient, zxkjPlatformService);
 
             toClient.flush();
             response.getOutputStream().flush();

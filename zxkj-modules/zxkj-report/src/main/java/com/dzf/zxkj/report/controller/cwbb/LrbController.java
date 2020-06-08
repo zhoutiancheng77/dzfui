@@ -272,7 +272,11 @@ public class LrbController extends ReportBaseController {
             }
         } else {
             lrbvos.add(listVo);
-            titlename.add("利润表");
+            if (lrb instanceof  LrbCenterExcelField) {
+                titlename.add("分部利润表");
+            }else {
+                titlename.add("利润表");
+            }
             periods.add(qj);
         }
 
