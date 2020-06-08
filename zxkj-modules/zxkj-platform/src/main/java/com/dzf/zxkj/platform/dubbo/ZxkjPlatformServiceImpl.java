@@ -1,12 +1,12 @@
 package com.dzf.zxkj.platform.dubbo;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.service.ISecurityService;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
 import com.dzf.zxkj.platform.controller.voucher.VoucherPrintController;
@@ -26,7 +26,6 @@ import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.*;
-import com.dzf.zxkj.base.service.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryReportService;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.icbill.ISaleoutService;
@@ -492,11 +491,6 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
             return null;
         }
     }
-    @Override
-    public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData){
-        securityserv.checkSecurityData(vos,corps,cuserid,isCheckData);
-    }
-
     @Override
     public SalaryReportVO[] queryGzb(String pk_corp, String beginPeriod, String endPeriod, String billtype) {
         try {
