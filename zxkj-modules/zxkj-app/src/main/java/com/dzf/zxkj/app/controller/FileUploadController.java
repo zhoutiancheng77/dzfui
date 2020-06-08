@@ -127,11 +127,13 @@ public class FileUploadController {
      *
      */
     @RequestMapping("/doReImageUpload")
-    public ReturnData<ResponseBaseBeanVO> doReImageUpload(UserBeanVO uBean, String imgmsg,
-                                                          MultipartFile file) {
+    public ReturnData<ResponseBaseBeanVO> doReImageUpload(UserBeanVO uBean, String imgmsg,String cname,String method,
+                                                          MultipartFile ynt) {
         UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
+        uBean.setCorpname(cname);
+        uBean.setPaymethod(method);
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
         try {
             // 重传的对象数据
@@ -160,7 +162,7 @@ public class FileUploadController {
             }
 
 
-            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, file,file.getOriginalFilename(),null);
+            int sussCount = ip.saveReuploadImage(uBean, imgbeanvos, ynt,ynt.getOriginalFilename(),null);
 
             // 上传日志
             if (uBean.getBusitype() != null && uBean.getBusitype().intValue() == 0) {
