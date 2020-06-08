@@ -79,8 +79,8 @@ public class FileUploadController {
              */
             uBean.setJson(uBean.getCorpname());// 文件路径
             uBean.setOptype("3-文件上传" + uBean.getSystype() + "-" + uBean.getOperate());
-            ILog lo = (ILog) SpringUtils.getBean("applog");
-            lo.savelog(uBean);
+//            ILog lo = (ILog) SpringUtils.getBean("applog");
+//            lo.savelog(uBean);
 
             // 区分业务合作
             // 上传日志（业务合作）
@@ -135,8 +135,6 @@ public class FileUploadController {
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
         try {
             // 重传的对象数据
-            Map bodymapping = FieldMapping.getFieldMapping(new ImageBeanVO());
-
             ImageBeanVO[] imgbeanvos = JsonUtils.deserialize(imgmsg,ImageBeanVO[].class);
             // 重传校验
             validateForUpload(uBean);
