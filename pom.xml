@@ -14,7 +14,6 @@
     <modules>
         <module>zxkj-gateway</module>
         <module>zxkj-modules</module>
-        <module>zxkj-tools</module>
         <module>zxkj-auth</module>
     </modules>
 
