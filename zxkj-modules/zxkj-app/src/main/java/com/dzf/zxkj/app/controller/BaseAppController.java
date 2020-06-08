@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 大账房app基础
  * 
  */
+
 public class BaseAppController  {
     @Autowired
     private IUserPubService userPubService;
