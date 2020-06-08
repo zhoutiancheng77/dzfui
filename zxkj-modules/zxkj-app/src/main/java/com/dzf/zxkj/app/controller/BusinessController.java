@@ -1,13 +1,18 @@
 package com.dzf.zxkj.app.controller;
 
-import com.dzf.admin.dzfapp.model.filetrans.*;
+import com.dzf.admin.dzfapp.model.filetrans.AppFiletransQryVO;
 import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
+import com.dzf.admin.model.app.transfer.filetrans.RetAppFiletransBVO;
+import com.dzf.admin.model.app.transfer.filetrans.RetAppQunGroup;
+import com.dzf.admin.model.app.transfer.filetrans.RetDataFileDocVO;
 import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
 import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
 import com.dzf.zxkj.app.model.resp.bean.*;
-import com.dzf.zxkj.app.model.sys.*;
+import com.dzf.zxkj.app.model.sys.DataFileDocVO;
+import com.dzf.zxkj.app.model.sys.FiletransVO;
+import com.dzf.zxkj.app.model.sys.ProblemVo;
 import com.dzf.zxkj.app.pub.constant.IBusiConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
@@ -328,13 +333,15 @@ public class BusinessController {
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setQrid(userbean.getQrid());
             pramvo.setQrytype(userbean.getQrytype());
-            List<FiletransBVO> bvos = (List<FiletransBVO>)iDzfAppFiletransService.queryFileList(pramvo).getData();
+            List<RetAppFiletransBVO> bvos = (List<RetAppFiletransBVO>)iDzfAppFiletransService.queryFileList(pramvo).getData();
             if(bvos == null || bvos.size() == 0){
                 throw new BusinessException("暂无数据!");
             }
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(bvos);
         } catch (Exception e) {
+            bean.setRescode(IConstant.FIRDES);
+            bean.setResmsg(e.getMessage());
             log.error(e.getMessage(), log);
         }
 
@@ -361,7 +368,7 @@ public class BusinessController {
             AppFiletransQryVO pramvo = new AppFiletransQryVO();
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            List<DataFileDocVO> docvos = (List<DataFileDocVO>)iDzfAppFiletransService.queryFiledoc(pramvo).getData();
+            List<RetDataFileDocVO> docvos = (List<RetDataFileDocVO>)iDzfAppFiletransService.queryFiledoc(pramvo).getData();
             if(docvos == null || docvos.size() == 0){
                 throw new BusinessException("暂无记录!");
             }
@@ -374,6 +381,7 @@ public class BusinessController {
     private void doSaveFiletrans(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
 
         try {
+            AppResult result = null;
             AppFiletransQryVO pramvo = new AppFiletransQryVO();
             pramvo.setPk_corp(userbean.getFathercorpid());
             pramvo.setPk_corpk(userbean.getPk_corp());
@@ -386,13 +394,18 @@ public class BusinessController {
                 pramvo.setNum(userbean.getNum());
                 pramvo.setVendperiod(userbean.getVendperiod());
                 pramvo.setVmemo(userbean.getMemo());
-                iDzfAppFiletransService.saveFiletrans(pramvo);
+                result =  iDzfAppFiletransService.saveFiletrans(pramvo);
             }else{
-                iDzfAppFiletransService.saveFiles(pramvo );
+                result =  iDzfAppFiletransService.saveFiles(pramvo );
+            }
+            if(result.getCode() != 200){
+                bean.setRescode(IConstant.FIRDES);
+                bean.setResmsg(result.getMsg());
+            }else{
+                bean.setRescode(IConstant.DEFAULT);
+                bean.setResmsg("操作成功!");
             }
 
-            bean.setRescode(IConstant.DEFAULT);
-            bean.setResmsg("操作成功!");
         } catch (Exception e) {
             log.error( "操作失败!", log);
         }
@@ -432,10 +445,12 @@ public class BusinessController {
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setQrid(userbean.getQrid());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            FileHandinVO filehandinvo = (FileHandinVO)iDzfAppFiletransService.queryHandin(pramvo).getData();
-
+            AppResult filehandinvo = (AppResult)iDzfAppFiletransService.queryHandin(pramvo);
+            if(filehandinvo.getCode() != 200){
+                throw new BusinessException(filehandinvo.getMsg());
+            }
             bean.setRescode(IConstant.DEFAULT);
-            bean.setResmsg(filehandinvo);
+            bean.setResmsg(filehandinvo.getData());
         } catch (Exception e) {
             log.error("获取信息失败!", log);
         }
@@ -472,15 +487,15 @@ public class BusinessController {
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            AppQunGroup[] groups = (AppQunGroup[])iDzfAppFiletransService.queryCatcher(pramvo,null).getData();
+            AppResult<RetAppQunGroup> groups = (AppResult<RetAppQunGroup>)iDzfAppFiletransService.queryCatcher(pramvo,null);
 
-            if (groups == null || groups.length == 0) {
+            if (groups.getData() == null)  {
                 throw new BusinessException("暂无数据!");
             }
 
             bean.setRescode(IConstant.DEFAULT);
 
-            bean.setResmsg(groups);
+            bean.setResmsg(groups.getData());
 
         } catch (Exception e) {
             log.error( "获取信息失败!", log);
@@ -540,15 +555,15 @@ public class BusinessController {
             pramvo.setPk_corp(userbean.getFathercorpid());
             pramvo.setPk_jjid(userbean.getPk_jjid());
             pramvo.setPk_msgid(userbean.getPk_msgid());
-            AppFiletransHVO appfilethvo = (AppFiletransHVO)iDzfAppFiletransService.queryAppFiletrans(pramvo).getData();
+            AppResult appfilethvo = iDzfAppFiletransService.queryAppFiletrans(pramvo);
 
-            if(appfilethvo == null){
+            if(appfilethvo == null || appfilethvo.getData() == null){
                 throw new BusinessException("获取信息失败!");
             }
 
             bean.setRescode(IConstant.DEFAULT);
 
-            bean.setResmsg(appfilethvo);
+            bean.setResmsg(appfilethvo.getData());
 
         } catch (Exception e) {
             log.error("获取信息失败!", log);

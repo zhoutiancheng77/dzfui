@@ -220,6 +220,8 @@ public class UserController {
                 bean1 = corpservice.updateuserAddCorp(userBean);
             }
         } catch (Exception e) {
+            bean1.setRescode("-100");
+            bean1.setResmsg(e.getMessage());
             log.error("创建公司失败，公司可能已存在，请联系客服!", log);
         }
         return bean1;

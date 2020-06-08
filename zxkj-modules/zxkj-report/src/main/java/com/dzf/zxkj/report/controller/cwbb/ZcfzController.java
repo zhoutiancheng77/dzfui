@@ -1,10 +1,7 @@
 package com.dzf.zxkj.report.controller.cwbb;
 
-import com.alibaba.fastjson.JSON;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.utils.FieldMapping;
-import com.dzf.zxkj.base.utils.JSONConvtoJAVA;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.LogRecordEnum;
@@ -20,7 +17,6 @@ import com.dzf.zxkj.excel.util.Excelexport2003;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
 import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.pdf.PrintReporUtil;
-import com.dzf.zxkj.platform.model.bdset.PzmbbVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
@@ -339,12 +335,12 @@ public class ZcfzController extends ReportBaseController {
         StringBuffer wherepart = new StringBuffer();
         wherepart.append("nvl(dr,0)=0 and area_type = ? and corptype = ?  ");
         if ("00000100AA10000000000BMF".equals(corpType)) {
-            if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)) { // 07 北京
+            if (isVersionNo6(areaType)){
                 sp.addParam("【2019】6号");
                 wherepart.append(" and versionno= ? ");
-            } else if(ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)) {// 福建
-                sp.addParam("【2019】6号");
-                wherepart.append(" and versionno= ? ");
+//            } else if(ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)) {// 福建
+//                sp.addParam("【2019】6号");
+//                wherepart.append(" and versionno= ? ");
             }
         }
         wherepart.append("order by ordernum");
@@ -358,18 +354,30 @@ public class ZcfzController extends ReportBaseController {
         StringBuffer wherepart = new StringBuffer();
         wherepart.append("nvl(dr,0)=0 and area_type = ? and corptype = ?  ");
         if ("00000100AA10000000000BMF".equals(corpType)) {
-            if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)) { // 07 北京
+            if (isVersionNo6(areaType)){
                 sp.addParam("【2019】6号");
                 wherepart.append(" and versionno= ? ");
-            } else if(ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)) {// 福建
-                sp.addParam("【2019】6号");
-                wherepart.append(" and versionno= ? ");
+//            } else if(ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)) {// 福建
+//                sp.addParam("【2019】6号");
+//                wherepart.append(" and versionno= ? ");
             }
         }
         wherepart.append("order by ordernum");
         return (LrbTaxVo[]) singleObjectBO.queryByCondition(LrbTaxVo.class, wherepart.toString(), sp);
     }
 
+    private boolean isVersionNo6 (String areaType){
+        if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)
+                || ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)
+                || ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)
+                || ExportTemplateEnum.SHANGHAI.getAreaType().equals(areaType)
+                || ExportTemplateEnum.QINGDAO.getAreaType().equals(areaType)
+                || ExportTemplateEnum.ZHEJIANG.getAreaType().equals(areaType)
+                || ExportTemplateEnum.JIANGXI.getAreaType().equals(areaType)) { // 07 北京 福建 贵州 上海  青岛 浙江 江西 { // 07 北京
+            return true;
+        }
+        return false;
+    }
     private LrbVO[] getRptLrbVos(String qj, String corpIds, String qjlx,String corpType, String areaType) {
 
         return gl_rep_lrbserv.getLrbDataForCwBs(qj, corpIds, qjlx,corpType, areaType);
@@ -379,10 +387,7 @@ public class ZcfzController extends ReportBaseController {
     ,ReportExcelExportVO excelExportVO) {
 
         if ("00000100AA10000000000BMF".equals(corpType)) {
-            if (ExportTemplateEnum.BEIJING.getAreaType().equals(areaType)
-                    || ExportTemplateEnum.FUJIAN.getAreaType().equals(areaType)
-                    || ExportTemplateEnum.GUIZHOU.getAreaType().equals(areaType)
-                    || ExportTemplateEnum.SHANGHAI.getAreaType().equals(areaType)) { // 07 北京 福建 贵州
+            if (isVersionNo6(areaType)){
                 QueryParamVO queryParamvo = getQueryParamVO(queryvo, corpVO);
                 String ishajz = "N";
                 if (queryParamvo.getIshasjz() != null && queryParamvo.getIshasjz().booleanValue()) {
