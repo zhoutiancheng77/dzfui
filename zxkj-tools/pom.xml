@@ -15,7 +15,6 @@
     <name>zxkj-tools</name>
     <modules>
         <module>zxkj-persistent-framework-starter</module>
-        <module>zxkj-jackson-serialize</module>
         <module>zxkj-operate-log-starter</module>
         <module>zxkj-excel-export-tool</module>
         <module>zxkj-fastdfs-starter</module>
