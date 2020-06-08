@@ -57,9 +57,10 @@ public class KcdrBillController extends  BaseAppController{
             BeanUtils.copyNotNullProperties(basevo, beanres);
             beanres.setRescode(IConstant.DEFAULT);
         } catch (Exception e) {
-            beanres.setResmsg(e.getMessage());
-            beanres.setRescode(IConstant.FIRDES);
-            log.error("获取开票信息失败!", e);
+//            beanres.setResmsg(e.getMessage());
+//            beanres.setRescode(IConstant.FIRDES);
+//            log.error("获取开票信息失败!", e);
+            printErrorJson(beanres,e,log,"获取开票信息失败!");
         }
         return (BillResonseBeanVO) beanres;
     }
@@ -79,9 +80,10 @@ public class KcdrBillController extends  BaseAppController{
             beanvo.setResmsg("保存开票信息成功!");
 
         } catch (Exception e) {
-            beanvo.setResmsg(e.getMessage());
-            beanvo.setRescode(IConstant.FIRDES);
-            log.error("保存开票信息失败!", e);
+//            beanvo.setResmsg(e.getMessage());
+//            beanvo.setRescode(IConstant.FIRDES);
+//            log.error("保存开票信息失败!", e);
+            printErrorJson(beanvo,e,log,"保存开票信息失败!");
         }
 
         return beanvo;

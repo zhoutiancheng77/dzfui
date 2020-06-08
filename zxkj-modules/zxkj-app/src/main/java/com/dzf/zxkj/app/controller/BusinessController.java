@@ -200,7 +200,7 @@ public class BusinessController extends  BaseAppController{
                 bean.setRescode(IConstant.DEFAULT);
             } catch (Exception e) {
                 printErrorJson(bean,e,log,"首页信息获取失败");
-                log.error( "首页信息获取失败", log);
+               // log.error( "首页信息获取失败", log);
             }
         }
         return bean;
@@ -470,7 +470,7 @@ public class BusinessController extends  BaseAppController{
 //            bean.setResmsg(e.getMessage());
 //            bean.setRescode(IConstant.FIRDES);
 //            log.error("获取信息失败!", log);
-            printErrorJson(bean,e,log,"操作失败!");
+            printErrorJson(bean,e,log,"获取信息失败!");
         }
     }
     private void doSaveHandinConf(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
