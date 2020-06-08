@@ -30,9 +30,8 @@ public class ElectronicSealController extends  BaseAppController{
             return  new AppResult(-100,null,e.getMessage());
         }
     }
-
-    @RequestMapping("/updateSealStatus")
-    public AppResult updateSealStatus(@RequestParam Map<String,Object> param) {
+    @RequestMapping("/updateConfirm")
+    public AppResult updateConfirm(@RequestParam Map<String,Object> param) {
         try {
             return dzfAppSealService.confirmSealStatus(changeParamvo(param));
         } catch (Exception e) {
