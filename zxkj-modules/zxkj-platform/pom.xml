@@ -31,7 +31,7 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-persistent-framework-starter</artifactId>
-            <version>1.0</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.dzf</groupId>
@@ -188,11 +188,6 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-excel-export-tool</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.dzf</groupId>
-            <artifactId>zxkj-operate-log-starter</artifactId>
             <version>1.0</version>
         </dependency>
         <!--分词器-->

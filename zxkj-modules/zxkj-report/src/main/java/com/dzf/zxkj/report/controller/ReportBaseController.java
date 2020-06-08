@@ -1,6 +1,6 @@
 package com.dzf.zxkj.report.controller;
 
-import com.dzf.zxkj.base.controller.PrintAndExcelExportController;
+import com.dzf.zxkj.controller.PrintAndExcelExportController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.query.QueryParamVO;

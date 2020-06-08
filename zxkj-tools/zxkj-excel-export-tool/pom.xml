@@ -39,6 +39,11 @@
             <artifactId>zxkj-platform-main-api</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>zxkj-persistent-framework-starter</artifactId>
+            <version>1.0.3-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
