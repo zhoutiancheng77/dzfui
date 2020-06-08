@@ -287,11 +287,12 @@ public class OtherSystemForZcfzImpl {
 			ls=getData(map, kmtemp,newrule);
 			appkms.append(kmtemp+",");
 			if(ls==null)continue;
-			if ("　存货".equals(vo.getZc()) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07工程结算
+			if ( !StringUtil.isEmpty(vo.getZc()) && vo.getZc().replace("　","").equals("存货") && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07工程结算
 				cefrom0102 = getCeFrom0102(map, "5401", "5402");
 				continue;
 			}
-			if ("　预收款项".equals(vo.getFzhsyzqy()) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
+			if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
+			&& vo.getFzhsyzqy().replace("　","").equals("预收款项")) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
 				// 工程结算
 				cefrom0102 = getCeFrom0102(map, "5401", "5402");
 				continue;
@@ -339,7 +340,7 @@ public class OtherSystemForZcfzImpl {
 			}
 			// 07 13 写在了一块了
 			if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
-				if ("　存货".equals(vo.getZc())) {
+				if (!StringUtil.isEmpty(vo.getZc()) && vo.getZc().replace("　","").equals("存货") ) {
 					// 获取工程施工，工程结算差额
 					if (cefrom0102[0].doubleValue() > 0) {
 						vo.setNcye1(SafeCompute.add(vo.getNcye1(), cefrom0102[0]));
@@ -348,7 +349,9 @@ public class OtherSystemForZcfzImpl {
 						vo.setQmye1(SafeCompute.add(vo.getQmye1(), cefrom0102[1]));
 					}
 				}
-				if ("　预收款项".equals(vo.getFzhsyzqy()) || "　预收账款".equals(vo.getFzhsyzqy())) {
+				if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
+						&& (vo.getFzhsyzqy().replace("　","").equals("预收款项")
+				         || vo.getFzhsyzqy().replace("　","").equals("预收账款")))) {
 					// 获取工程施工，工程结算差额
 					if (cefrom0102[0].doubleValue() < 0) {
 						vo.setNcye2(SafeCompute.add(vo.getNcye2(), cefrom0102[0].multiply(-1)));
@@ -389,7 +392,8 @@ public class OtherSystemForZcfzImpl {
 				appkms.append(kms[i] + ",");
 			}
 			if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
-				if ("　预收款项".equals(vo.getFzhsyzqy()) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
+				if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
+						&& vo.getFzhsyzqy().replace("　","").equals("预收款项")) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
 					// 工程结算
 					cefrom0102 = getCeFrom0102(map, "5401", "5402");
 					continue;
@@ -449,7 +453,9 @@ public class OtherSystemForZcfzImpl {
 			}
 		}
 		if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
-			if ("　预收款项".equals(vo.getFzhsyzqy()) || "　预收账款".equals(vo.getFzhsyzqy())) {
+			if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
+					&& (vo.getFzhsyzqy().replace("　","").equals("预收款项")
+					|| vo.getFzhsyzqy().replace("　","").equals("预收账款")))) {
 				// 获取工程施工，工程结算差额
 				if (cefrom0102[0].doubleValue() < 0) {
 					vo.setNcye2(SafeCompute.add(vo.getNcye2(), cefrom0102[0].multiply(-1)));
