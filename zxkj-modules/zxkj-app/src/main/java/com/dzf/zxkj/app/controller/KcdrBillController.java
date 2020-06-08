@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/app/dzfbillhandlesvlt")
-public class KcdrBillController {
+public class KcdrBillController extends  BaseAppController{
 
     @Autowired
     private IUserPubService userPubService;

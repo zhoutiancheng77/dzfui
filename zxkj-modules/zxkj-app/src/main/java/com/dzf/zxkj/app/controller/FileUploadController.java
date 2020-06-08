@@ -48,7 +48,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/app/uploadServlet")
-public class FileUploadController {
+public class FileUploadController extends  BaseAppController{
 
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IZxkjRemoteAppService iZxkjRemoteAppService;
@@ -117,9 +117,10 @@ public class FileUploadController {
 //			delTempFile();
 
         } catch (Exception e) {
-            respBean.setResmsg(e.getMessage());
-            respBean.setRescode(IConstant.FIRDES);
-            log.error(e.getMessage(),e);
+//            respBean.setResmsg(e.getMessage());
+//            respBean.setRescode(IConstant.FIRDES);
+//            log.error(e.getMessage(),e);
+            printErrorJson(respBean,e,log,"上传失败!");
         }
         return ReturnData.ok().data(null);
     }
@@ -197,9 +198,10 @@ public class FileUploadController {
                 }
             }
         } catch (Exception e) {
-            respBean.setResmsg(e.getMessage());
-            respBean.setRescode(IConstant.FIRDES);
-            log.error("上传失败!",e );
+//            respBean.setResmsg(e.getMessage());
+//            respBean.setRescode(IConstant.FIRDES);
+//            log.error("上传失败!",e );
+            printErrorJson(respBean, e, log, "上传失败!");
         }
         return  ReturnData.ok().data(respBean);
     }
@@ -242,11 +244,12 @@ public class FileUploadController {
             }
 
         } catch (Exception e) {
-            log.error( "\"获取用户上传记录失败!\"",log );
-            if(e.getMessage().indexOf("暂无记录")>=0){
-                respBean.setResmsg(e.getMessage());
-                respBean.setRescode(IConstant.FIRDES);
-            }
+//            log.error( "\"获取用户上传记录失败!\"",log );
+//            if(e.getMessage().indexOf("暂无记录")>=0){
+//                respBean.setResmsg(e.getMessage());
+//                respBean.setRescode(IConstant.FIRDES);
+//            }
+            printErrorJson(respBean, e, log, "获取用户上传记录失败!");
         }
         return ReturnData.ok().data(respBean);
     }
@@ -282,9 +285,10 @@ public class FileUploadController {
                 respBean.setResmsg(iqbean[0]);
             }
         } catch (Exception e) {
-            respBean.setResmsg(e.getMessage());
-            respBean.setRescode(IConstant.FIRDES);
-            log.error("查询上传图片历史失败", log);
+//            respBean.setResmsg(e.getMessage());
+//            respBean.setRescode(IConstant.FIRDES);
+//            log.error("查询上传图片历史失败", log);
+            printErrorJson(respBean, e, log, "查询上传图片历史失败");
         }
         return ReturnData.ok().data(respBean);
     }

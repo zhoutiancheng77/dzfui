@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/dzfapp/econtract")
-public class ElectronicContractController {
+public class ElectronicContractController extends  BaseAppController{
 
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppEcontractService iDzfAppEcontractService;

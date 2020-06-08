@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @RestController
 @RequestMapping("/app/busiServlet")
-public class BusiInfmController {
+public class BusiInfmController extends  BaseAppController{
 
     @Autowired
     private IUserPubService userPubService;
@@ -55,10 +55,8 @@ public class BusiInfmController {
             beanvo.setRescode(IConstant.DEFAULT);
             beanvo.setResmsg(orcvos);
         } catch (Exception e) {
-            log.error("查询识别历史失败!", log);
-            beanvo.setResmsg(e.getMessage());
-            beanvo.setRescode(IConstant.FIRDES);
-
+            //log.error("查询识别历史失败!", log);
+            printErrorJson(beanvo,e,log,"查询识别历史失败!");
         }
         return  ReturnData.ok().data(beanvo);
     }
@@ -84,9 +82,8 @@ public class BusiInfmController {
             beanvo.setRescode(IConstant.DEFAULT);
             beanvo.setResmsg(orcvo);
         } catch (Exception e) {
-            log.error("查询识别详情失败!", log);
-            beanvo.setResmsg(e.getMessage());
-            beanvo.setRescode(IConstant.FIRDES);
+            //log.error("查询识别详情失败!", log);
+            printErrorJson(beanvo,e,log,"查询识别详情失败!");
         }
         return ReturnData.ok().data(beanvo);
     }

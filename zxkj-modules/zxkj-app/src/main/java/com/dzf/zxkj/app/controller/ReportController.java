@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/app/reportsvlt")
-public class ReportController {
+public class ReportController extends  BaseAppController{
 
     @Qualifier("orgreportService")
     @Autowired
@@ -130,9 +130,10 @@ public class ReportController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(rptbean);
         } catch (Exception e) {
-            bean.setResmsg(e.getMessage());
-            bean.setRescode(IConstant.FIRDES);
-            log.error(e.getMessage(), e);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error(e.getMessage(), e);
+            printErrorJson(bean, e, log, "征期日历查询出错");
         }
         return bean;
     }
@@ -146,9 +147,10 @@ public class ReportController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(rptbean);
         } catch (Exception e) {
-            bean.setResmsg(e.getMessage());
-            bean.setRescode(IConstant.FIRDES);
-            log.error(e.getMessage(), e);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error(e.getMessage(), e);
+            printErrorJson(bean, e, log, "查询出错");
         }
         return bean;
     }
@@ -166,9 +168,10 @@ public class ReportController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(rptbean);
         } catch (Exception e) {
-            bean.setResmsg(e.getMessage());
-            bean.setRescode(IConstant.FIRDES);
-            log.error(e.getMessage(), e);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error(e.getMessage(), e);
+            printErrorJson(bean, e, log, "税负预警查询出错");
         }
         return bean;
     }
