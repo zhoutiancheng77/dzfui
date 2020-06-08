@@ -1,5 +1,7 @@
 package com.dzf.zxkj.app.service.app.act.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -66,6 +68,7 @@ import com.dzf.zxkj.report.service.IZxkjRemoteAppService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 
@@ -899,7 +902,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 	}
 
 	@Override
-	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException {
+	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException, IOException {
 
 		if(AppCheckValidUtils.isEmptyCorp(uvo.getPk_corp())){
 			throw new BusinessException("您公司不存在!");
@@ -957,7 +960,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 
 		return groupvo;
 	}
-	private String genImage(String unitcode, String unitname, ZzsTicketHVO hvo) {
+	private String genImage(String unitcode, String unitname, ZzsTicketHVO hvo) throws IOException {
 		String imgFileNm = UUID.randomUUID().toString() + ".png";
 		String path = unitcode + "/" + getCurDate() + "/" + imgFileNm;
 		String outpath = Common.imageBasePath + path;
@@ -978,14 +981,14 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 		return format.format(Calendar.getInstance().getTime());
 	}
 
-	private URL getXmlPath_new(ZzsTicketHVO hvo) {
+	private URL getXmlPath_new(ZzsTicketHVO hvo) throws IOException {
 		// 通过drcode 查询对应的信息
-		URL xmlpath = this.getClass().getClassLoader().getResource("app_model_dz.jpg");
+		URL xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_dz.jpg").getURL();
 		String[] strs = hvo.getDrcode().split(",");
 		if(strs[1].equals("01")){//专票
-			xmlpath = this.getClass().getClassLoader().getResource("app_model_zp.jpg");
+			xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_zp.jpg").getURL();
 		}else if(strs[1].equals("04")){//普票
-			xmlpath = this.getClass().getClassLoader().getResource("app_model_pp.jpg");
+			xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_pp.jpg").getURL();
 		}
 		return xmlpath;
 	}
