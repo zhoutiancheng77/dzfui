@@ -199,6 +199,8 @@ public class BusinessController {
                 bean.setIndexmsg(indexmsg);
                 bean.setRescode(IConstant.DEFAULT);
             } catch (Exception e) {
+                bean.setResmsg(e.getMessage());
+                bean.setRescode(IConstant.FIRDES);
                 log.error( "首页信息获取失败", log);
             }
         }
@@ -319,6 +321,8 @@ public class BusinessController {
                     break;
             }
         }  catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "操作失败!", log);
         }
 
@@ -359,6 +363,8 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("操作成功!");
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("操作失败!", log);
         }
     }
@@ -375,6 +381,8 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(docvos);
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("查询失败!", log);
         }
     }
@@ -407,6 +415,8 @@ public class BusinessController {
             }
 
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "操作失败!", log);
         }
     }
@@ -431,6 +441,8 @@ public class BusinessController {
             bean.setResmsg("操作成功!");
             bean.setQrid((String)querybeanvo.getData());
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "操作失败!", log);
         }
     }
@@ -452,6 +464,8 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(filehandinvo.getData());
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("获取信息失败!", log);
         }
     }
@@ -472,6 +486,8 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("操作成功!");
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "操作失败!", log);
         }
     }
@@ -498,6 +514,8 @@ public class BusinessController {
             bean.setResmsg(groups.getData());
 
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "获取信息失败!", log);
         }
     }
@@ -531,6 +549,8 @@ public class BusinessController {
             bean.setResmsg("操作成功!");
 
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("操作失败!", log);
         }
 
@@ -566,6 +586,8 @@ public class BusinessController {
             bean.setResmsg(appfilethvo.getData());
 
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("获取信息失败!", log);
         }
 
@@ -593,6 +615,8 @@ public class BusinessController {
             bean.setResmsg("操作成功!");
 
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("操作失败!", log );
         }
 
@@ -626,6 +650,8 @@ public class BusinessController {
             bean.setQrstatus(String.valueOf(qrstatus));
 
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "获取状态信息失败!", log);
         }
     }
@@ -653,6 +679,8 @@ public class BusinessController {
 
             bean = appbusihand.saveTickMsg(userbean);
         } catch (Exception e) {
+            bean.setRescode(IConstant.FIRDES);
+            bean.setResmsg(e.getMessage());
             log.error("获取票据信息失败!",log);
         }
         return bean;
@@ -675,6 +703,8 @@ public class BusinessController {
                 if(groupvo!=null){
                     singleObjectBO.deleteObject(groupvo);
                 }
+                bean.setResmsg(e.getMessage());
+                bean.setRescode(IConstant.FIRDES);
                 log.error("生成凭证失败!", log);
                 return beanvo;
             }
@@ -684,6 +714,8 @@ public class BusinessController {
             beanvo.setResmsg("操作成功!");
 
         } catch (Exception e) {
+            beanvo.setResmsg(e.getMessage());
+            beanvo.setRescode(IConstant.FIRDES);
             log.error("生成凭证失败!", log);
         }
 
@@ -696,6 +728,8 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(list);
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("获取数据失败", log);
         }
         return bean;
@@ -728,6 +762,8 @@ public class BusinessController {
                     break;
             }
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("审批操作失败!", log);
         }
 
@@ -744,6 +780,8 @@ public class BusinessController {
             IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
             bean =  approveser.updateReject(userbean);
         } catch (DZFWarpException e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "驳回失败!", log);
         }
 
@@ -768,6 +806,8 @@ public class BusinessController {
 //
 //			}
         } catch (DZFWarpException e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("审批失败!", log);
         }
 
@@ -781,6 +821,8 @@ public class BusinessController {
 
             bean =  approveser.saveApproveSet(approveset);
         } catch (DZFWarpException e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("保存审批流设置失败!", log);
         }
 
@@ -793,6 +835,8 @@ public class BusinessController {
             IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
             bean = approveser.queryApprovSet(userbean);
         } catch (DZFWarpException e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("查询审批流设置失败!", log);
         }
         return bean;

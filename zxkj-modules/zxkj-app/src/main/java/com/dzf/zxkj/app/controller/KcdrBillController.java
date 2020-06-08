@@ -57,6 +57,8 @@ public class KcdrBillController {
             BeanUtils.copyNotNullProperties(basevo, beanres);
             beanres.setRescode(IConstant.DEFAULT);
         } catch (Exception e) {
+            beanres.setResmsg(e.getMessage());
+            beanres.setRescode(IConstant.FIRDES);
             log.error("获取开票信息失败!", e);
         }
         return (BillResonseBeanVO) beanres;
@@ -77,6 +79,8 @@ public class KcdrBillController {
             beanvo.setResmsg("保存开票信息成功!");
 
         } catch (Exception e) {
+            beanvo.setResmsg(e.getMessage());
+            beanvo.setRescode(IConstant.FIRDES);
             log.error("保存开票信息失败!", e);
         }
 

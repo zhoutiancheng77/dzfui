@@ -111,6 +111,8 @@ public class LoginController {
             bean.setResmsg("授权成功");
         } catch (Exception e) {
             log.error("授权失败", log);
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
         }
         return bean;
     }
@@ -122,6 +124,8 @@ public class LoginController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("扫描成功");
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error("扫描失败", log);
         }
         return bean;
@@ -203,6 +207,8 @@ public class LoginController {
                 BeanUtils.copyNotNullProperties(basebean, bean);
             }
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error( "保存服务机构出错！", log);
         }
         return bean;

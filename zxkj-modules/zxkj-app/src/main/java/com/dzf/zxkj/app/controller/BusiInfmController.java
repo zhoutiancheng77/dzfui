@@ -56,9 +56,9 @@ public class BusiInfmController {
             beanvo.setResmsg(orcvos);
         } catch (Exception e) {
             log.error("查询识别历史失败!", log);
-            if(e.getMessage().contains("识别信息为空")) {
-                beanvo.setResmsg(e.getMessage());
-            }
+            beanvo.setResmsg(e.getMessage());
+            beanvo.setRescode(IConstant.FIRDES);
+
         }
         return  ReturnData.ok().data(beanvo);
     }
@@ -85,6 +85,8 @@ public class BusiInfmController {
             beanvo.setResmsg(orcvo);
         } catch (Exception e) {
             log.error("查询识别详情失败!", log);
+            beanvo.setResmsg(e.getMessage());
+            beanvo.setRescode(IConstant.FIRDES);
         }
         return ReturnData.ok().data(beanvo);
     }

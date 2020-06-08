@@ -130,6 +130,8 @@ public class ReportController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(rptbean);
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error(e.getMessage(), e);
         }
         return bean;
@@ -144,6 +146,8 @@ public class ReportController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(rptbean);
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error(e.getMessage(), e);
         }
         return bean;
@@ -162,6 +166,8 @@ public class ReportController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(rptbean);
         } catch (Exception e) {
+            bean.setResmsg(e.getMessage());
+            bean.setRescode(IConstant.FIRDES);
             log.error(e.getMessage(), e);
         }
         return bean;

@@ -117,6 +117,8 @@ public class FileUploadController {
 //			delTempFile();
 
         } catch (Exception e) {
+            respBean.setResmsg(e.getMessage());
+            respBean.setRescode(IConstant.FIRDES);
             log.error(e.getMessage(),e);
         }
         return ReturnData.ok().data(null);
@@ -195,6 +197,8 @@ public class FileUploadController {
                 }
             }
         } catch (Exception e) {
+            respBean.setResmsg(e.getMessage());
+            respBean.setRescode(IConstant.FIRDES);
             log.error("上传失败!",e );
         }
         return  ReturnData.ok().data(respBean);
@@ -241,6 +245,7 @@ public class FileUploadController {
             log.error( "\"获取用户上传记录失败!\"",log );
             if(e.getMessage().indexOf("暂无记录")>=0){
                 respBean.setResmsg(e.getMessage());
+                respBean.setRescode(IConstant.FIRDES);
             }
         }
         return ReturnData.ok().data(respBean);
@@ -277,6 +282,8 @@ public class FileUploadController {
                 respBean.setResmsg(iqbean[0]);
             }
         } catch (Exception e) {
+            respBean.setResmsg(e.getMessage());
+            respBean.setRescode(IConstant.FIRDES);
             log.error("查询上传图片历史失败", log);
         }
         return ReturnData.ok().data(respBean);
