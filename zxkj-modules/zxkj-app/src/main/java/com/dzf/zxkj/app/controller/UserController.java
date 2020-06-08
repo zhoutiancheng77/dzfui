@@ -7,7 +7,6 @@ import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
 import com.dzf.zxkj.app.service.corp.IAppCorpService;
 import com.dzf.zxkj.app.service.org.IOrgService;
-import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -24,15 +23,13 @@ public class UserController extends  BaseAppController{
 
 
     @Autowired
-    private IUserPubService userPubService;
-    @Autowired
     private IAppCorpService corpservice;
 
     @RequestMapping("/doAction")
     public ReturnData<ResponseBaseBeanVO> doAction(UserBeanVO userBean,String corp,String tcorp,String cname,String icmsg,String acode,String hcorp) {
 //        CommonServ common = new CommonServ();
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
-        UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
+        UserVO uservo = queryUserVOId(userBean.getAccount_id());
         userBean.setAccount_id(uservo.getCuserid());
         userBean.setPk_corp(corp);
         userBean.setPk_tempcorp(tcorp);

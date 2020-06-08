@@ -7,9 +7,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
 import com.dzf.zxkj.app.pub.constant.IConstant;
+import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
 /**
@@ -17,6 +20,12 @@ import org.slf4j.Logger;
  * 
  */
 public class BaseAppController  {
+    @Autowired
+    private IUserPubService userPubService;
+
+    public UserVO queryUserVOId(String account_id){
+        return userPubService.queryUserVOId(account_id);
+    }
 
 	public void printErrorJson(ResponseBaseBeanVO bean, Throwable e, Logger log, String errormsg) {
 		if(bean == null){ 

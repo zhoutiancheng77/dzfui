@@ -7,7 +7,6 @@ import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
 import com.dzf.zxkj.app.service.app.act.IQryReport1Service;
 import com.dzf.zxkj.app.service.app.act.IQryReportService;
-import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.service.user.IAppUserService;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
 import com.dzf.zxkj.app.utils.AppQueryUtil;
@@ -43,14 +42,12 @@ public class ReportController extends  BaseAppController{
     private IQryReportService org327reportService;
     @Autowired
     private IQryReport1Service qryReport1Service;
-    @Autowired
-    private IUserPubService userPubService;
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IZxkjRemoteAppService iZxkjRemoteAppService;
 
     @RequestMapping("/doReport")
     public ReturnData<ResponseBaseBeanVO> doReport(ReportBeanVO reportBean,String corp,String tcorp,String cname){
-        UserVO uservo = userPubService.queryUserVOId(reportBean.getAccount_id());
+        UserVO uservo = queryUserVOId(reportBean.getAccount_id());
         reportBean.setUsercode(uservo.getUser_code());
         reportBean.setAccount_id(uservo.getCuserid());
         reportBean.setAccount(uservo.getUser_code());

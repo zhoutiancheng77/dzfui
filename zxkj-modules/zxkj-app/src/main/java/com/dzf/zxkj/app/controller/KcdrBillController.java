@@ -22,14 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/app/dzfbillhandlesvlt")
 public class KcdrBillController extends  BaseAppController{
 
-    @Autowired
-    private IUserPubService userPubService;
 
     @RequestMapping("/doAction")
     public ReturnData<BillResonseBeanVO> doAction(BillCustomerBean userbean,String corp,String tcorp,String caddr) {
 
         BillResonseBeanVO beanvo = new  BillResonseBeanVO();
-        UserVO uservo = userPubService.queryUserVOId(userbean.getAccount_id());
+        UserVO uservo = queryUserVOId(userbean.getAccount_id());
         userbean.setAccount_id(uservo.getCuserid());
         userbean.setPk_corp(corp);
         userbean.setPk_tempcorp(tcorp);

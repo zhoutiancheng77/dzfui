@@ -58,8 +58,6 @@ public class BusinessController extends  BaseAppController{
     @Autowired
     private SingleObjectBO singleObjectBO;
     @Autowired
-    private IUserPubService userPubService;
-    @Autowired
     private IAppBusinessService appbusihand;
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppFiletransService iDzfAppFiletransService;
@@ -161,7 +159,7 @@ public class BusinessController extends  BaseAppController{
     private void changeParamvo(Map<String,Object> param ,BusiReqBeanVo busireqvo,ApproveSetVo approveset){
         AppkeyUtil.setMulAppValue(param,busireqvo,new Class[]{BusiReqBeanVo.class, UserBeanVO.class, RequestBaseBeanVO.class} );
         AppkeyUtil.setAppValue(param,approveset );
-        UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
+        UserVO uservo = queryUserVOId((String)param.get("account_id"));
         busireqvo.setAccount_id(uservo.getCuserid());
         busireqvo.setUserid(uservo.getCuserid());
         return ;

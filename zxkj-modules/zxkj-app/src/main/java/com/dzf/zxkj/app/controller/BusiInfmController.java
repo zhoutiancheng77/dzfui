@@ -23,8 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/app/busiServlet")
 public class BusiInfmController extends  BaseAppController{
 
-    @Autowired
-    private IUserPubService userPubService;
 
 
     @RequestMapping("/downLoadImage")

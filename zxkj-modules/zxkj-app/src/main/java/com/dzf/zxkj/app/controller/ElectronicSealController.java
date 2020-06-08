@@ -3,7 +3,6 @@ package com.dzf.zxkj.app.controller;
 import com.dzf.admin.dzfapp.model.econtract.AppSealVO;
 import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.econtract.IDzfAppSealService;
-import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.AppkeyUtil;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +21,6 @@ public class ElectronicSealController extends  BaseAppController{
 
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppSealService dzfAppSealService;
-    @Autowired
-    private IUserPubService userPubService;
     @RequestMapping("/haveSealStatus")
     public AppResult<Boolean> haveSealStatus(@RequestParam Map<String,Object> param) {
         try {
@@ -80,7 +77,7 @@ public class ElectronicSealController extends  BaseAppController{
     private AppSealVO changeParamvo(Map<String,Object> param){
         AppSealVO pamVO= new AppSealVO();
         AppkeyUtil.setAppValue(param,pamVO );
-        UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
+        UserVO uservo = queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
         return pamVO;
     }

@@ -11,7 +11,6 @@ import com.dzf.zxkj.app.service.login.IAppLoginCorpService;
 import com.dzf.zxkj.app.service.login.IAppLoginOrRegService;
 import com.dzf.zxkj.app.service.login.impl.AppLoginOrRegImpl;
 import com.dzf.zxkj.app.service.org.IOrgService;
-import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.BeanUtils;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -45,8 +44,6 @@ public class LoginController extends  BaseAppController{
 
     @Autowired
     private IAppCorp320Service corp320service;
-    @Autowired
-    private IUserPubService userPubService;
 
     /**
      * 查询科目明细数据
@@ -54,7 +51,7 @@ public class LoginController extends  BaseAppController{
     @RequestMapping("/doLogin")
     public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean,String uuid,String cname,String uname,String corp,String tcorp,String ucode,
                                                   Double lade,Double lode,String caddr,String ph) {
-        UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
+        UserVO uservo = queryUserVOId(userBean.getAccount_id());
         userBean.setAccount_id(uservo.getCuserid());
         userBean.setCorpname(cname);
         userBean.setUsername(uname);
