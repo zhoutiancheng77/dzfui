@@ -15,7 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan(basePackages= {"com.dzf.zxkj.platform","com.dzf.zxkj.operate.log","com.dzf.file"})
+@ComponentScan(basePackages= {"com.dzf.zxkj.platform"})
 @EnableMethodCache(basePackages = "com.dzf.zxkj.platform")
 @EnableCreateCacheAnnotation
 @EnableDzfRedis

@@ -15,6 +15,5 @@
     <name>zxkj-tools</name>
     <modules>
         <module>zxkj-excel-export-tool</module>
-        <module>zxkj-fastdfs-starter</module>
     </modules>
 </project>
