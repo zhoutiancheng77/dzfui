@@ -12,6 +12,7 @@ import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 /**
  * 人员管理
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 @Service("mguser")
 public class ManagingUsersImpl implements IManagingUsers {
 
+	@Autowired
 	private SingleObjectBO sbo;
 
 	

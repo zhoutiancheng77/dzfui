@@ -181,6 +181,8 @@ public class UserController {
 //                    break;
             }
         } catch (Exception e) {
+            bean.setRescode(IConstant.FIRDES);
+            bean.setResmsg(e.getMessage());
             log.error("失败!", log);
         }
         return bean;
@@ -192,6 +194,8 @@ public class UserController {
                 bean = iorg.updateconfirmSignOrg(userBean);
             }
         } catch (Exception e) {
+            bean.setRescode(IConstant.FIRDES);
+            bean.setResmsg(e.getMessage());
             log.error("确认签约出错！", log);
         }
         return bean;
@@ -220,7 +224,7 @@ public class UserController {
                 bean1 = corpservice.updateuserAddCorp(userBean);
             }
         } catch (Exception e) {
-            bean1.setRescode("-100");
+            bean1.setRescode(IConstant.FIRDES);
             bean1.setResmsg(e.getMessage());
             log.error("创建公司失败，公司可能已存在，请联系客服!", log);
         }
@@ -246,6 +250,8 @@ public class UserController {
             bean.setResmsg("激活公司成功!");
         } catch (Exception e) {
             log.error( "激活公司出错！", log);
+            bean.setRescode(IConstant.FIRDES);
+            bean.setResmsg(e.getMessage());
         }
         return bean;
     }
