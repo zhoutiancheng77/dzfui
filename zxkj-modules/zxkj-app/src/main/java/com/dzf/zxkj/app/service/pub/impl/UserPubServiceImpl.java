@@ -50,7 +50,8 @@ public class UserPubServiceImpl implements IUserPubService {
         if(list!=null&&list.size()>0){
             return  list.get(0);
         }else {
-            throw new BusinessException("您的用户不存在，请注册登录!");
+//            throw new BusinessException("您的用户不存在，请注册登录!");
+            return null;
         }
 
 
