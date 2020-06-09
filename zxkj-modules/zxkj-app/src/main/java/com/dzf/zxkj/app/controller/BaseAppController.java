@@ -23,12 +23,9 @@ public class BaseAppController  {
     @Autowired
     private IUserPubService userPubService;
 	@Reference(version = "1.0.1", protocol = "dubbo", timeout = 1000)
-	private IUserCenterService userCenterService;
+	private  IUserCenterService userCenterService;
 
-	public static void main(String[] args) {
-		BaseAppController dd = new BaseAppController();
 
-	}
     public UserVO queryUserVOId(String account_id){
 		UserVO userVO = userPubService.queryUserVOId(account_id);
 		//用户存在则查询出来不存在则新建
