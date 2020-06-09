@@ -1,10 +1,9 @@
 package com.dzf.zxkj.app.controller;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.dzf.auth.api.result.Result;
+import com.dzf.auth.api.service.IUserCenterService;
+import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
+import org.apache.dubbo.config.annotation.Reference;
 import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
@@ -23,9 +22,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class BaseAppController  {
     @Autowired
     private IUserPubService userPubService;
+	@Reference(version = "1.0.1", protocol = "dubbo", timeout = 1000)
+	private IUserCenterService userCenterService;
 
+	public static void main(String[] args) {
+		BaseAppController dd = new BaseAppController();
+
+	}
     public UserVO queryUserVOId(String account_id){
-        return userPubService.queryUserVOId(account_id);
+		UserVO userVO = userPubService.queryUserVOId(account_id);
+		//用户存在则查询出来不存在则新建
+		if(userVO!=null) return userVO;
+		//1:查出用户中心账户信息
+		Result<com.dzf.auth.api.model.user.UserVO>  result =userCenterService.getUserDetailById("zxkj", new Long(account_id));
+        //2:查出是否存在相同用户
+         userVO  = userPubService.queryUserVObyCode(result.getData().getLoginName());
+         if(userVO !=null){
+             userVO.setUnifiedid(account_id);
+             userPubService.updateUserUnifiedid(userVO);
+             return userVO;
+         }
+		com.dzf.auth.api.model.user.UserVO uvo = result.getData();
+         //3:新建用户
+		UserBeanVO beanVO = new UserBeanVO();
+		beanVO.setUsercode(uvo.getLoginName());
+		beanVO.setPhone(uvo.getMobile());
+		return userPubService.saveRegisterCorpSWtch(beanVO,account_id);
     }
 
 	public void printErrorJson(ResponseBaseBeanVO bean, Throwable e, Logger log, String errormsg) {
