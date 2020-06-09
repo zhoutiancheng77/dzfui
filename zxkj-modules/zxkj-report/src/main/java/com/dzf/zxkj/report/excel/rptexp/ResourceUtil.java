@@ -4,11 +4,13 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.report.config.ReportConfig;
 import com.dzf.zxkj.report.excel.rptexp.enums.ExportTemplateEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import java.io.File;
 
+@Slf4j
 public class ResourceUtil {
 
     private static String path;
@@ -58,6 +60,7 @@ public class ResourceUtil {
     public static Resource get(ExportTemplateEnum templateEnum, ResourceEnum resourceEnum,String versionno){
 //        String path = ReportConfigUtil.getProperty("report.template.local.path");
         File file = new File(path+File.separator+templateEnum.getAreaType()+File.separator+ resourceEnum.getValue() + versionno + "." + ("0".equals(templateEnum.getFileType()) ? "xls" : "xml") );
+        log.info("文件路径>>>>>>>>>>>>>>:"+path+File.separator+templateEnum.getAreaType()+File.separator+ resourceEnum.getValue() + versionno + "." + ("0".equals(templateEnum.getFileType()) ? "xls" : "xml") );
         if(file.exists()){
             return new FileSystemResource(file);
         }else{

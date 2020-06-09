@@ -208,10 +208,9 @@ public class ZcFzBReportImpl implements IZcFzBReport {
 		} else if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {// 2007会计准则 , 企业会计准则
 			zctotalname = "资产总计";
 			fztotalname = "负债合计";
-//			qytotalname = "所有者权益(或股东权益)合计";
 			String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
 			if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
-				qytotalname = "负债和所有者权益(或股东权益)总计";
+				qytotalname = "所有者权益（或股东权益)合计";
 			}else {
 				qytotalname = "所有者权益(或股东权益)合计";
 			}

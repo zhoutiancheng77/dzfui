@@ -159,32 +159,41 @@ public class OtherSystemForZcfzImpl {
 					return setvo.getFzkm_re();
 				}
 			}
-		} else {
-
+		} else if ("00000100000000Ig4yfE0006".equals(pk_trade_accountschema)) { // 农业合作社
 			if("Y".equals(hasyes[1])){//应收和预收
 				if(!StringUtil.isEmpty(setvo.getZcname())
-						&&	"  应收账款".equals(setvo.getZcname()) && lx == 0){
+						&& setvo.getZcname().trim().replace("　","").equals("应收款项") && lx == 0){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
-						&&	"  预收账款".equals(setvo.getFzname())  && lx == 1){
+						&&	setvo.getFzname().trim().replace("　","").equals("应付款项") && lx == 1){
+					return setvo.getFzkm_re();
+				}
+			}
+		} else {
+			if("Y".equals(hasyes[1])){//应收和预收
+				if(!StringUtil.isEmpty(setvo.getZcname())
+						&& setvo.getZcname().trim().replace("　","").equals("应收账款") && lx == 0){
+					return setvo.getZckm_re();
+				}else if(!StringUtil.isEmpty(setvo.getFzname())
+						&&	setvo.getFzname().trim().replace("　","").equals("预收账款") && lx == 1){
 					return setvo.getFzkm_re();
 				}
 			}
 			if("Y".equals(hasyes[2])){//应付预付
 				if(!StringUtil.isEmpty(setvo.getZcname())
-						&&	"  预付账款".equals(setvo.getZcname())  && lx == 0){
+						&&	setvo.getZcname().trim().replace("　","").equals("预付账款")  && lx == 0){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
-						&&	"  应付账款".equals(setvo.getFzname())  && lx == 1){
+						&&	setvo.getFzname().trim().replace("　","").equals("应付账款") && lx == 1){
 					return setvo.getFzkm_re();
 				}
 			}
 			if("Y".equals(hasyes[3])){//其他应收，其他应付
 				if(!StringUtil.isEmpty(setvo.getZcname())
-						&&	"  其他应收款".equals(setvo.getZcname())  && lx == 0 ){
+						&&	setvo.getZcname().trim().replace("　","").equals("其他应收款") && lx == 0 ){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
-						&&	"  其他应付款".equals(setvo.getFzname())  && lx == 1){
+						&&	setvo.getFzname().trim().replace("　","").equals("其他应付款") && lx == 1){
 					return setvo.getFzkm_re();
 				}
 			}
