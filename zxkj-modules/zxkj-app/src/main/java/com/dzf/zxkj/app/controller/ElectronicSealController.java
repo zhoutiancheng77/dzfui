@@ -25,7 +25,7 @@ public class ElectronicSealController extends  BaseAppController{
     @RequestMapping("/haveSealStatus")
     public AppResult<Boolean> haveSealStatus(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.haveSealStatus(changeParamvo(param));
+            return dzfAppSealService.haveSealStatus(changeParamvo(param,null,null));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
             return  new AppResult(-100,null,e.getMessage());
@@ -34,7 +34,7 @@ public class ElectronicSealController extends  BaseAppController{
     @RequestMapping("/updateConfirm")
     public AppResult updateConfirm(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.confirmSealStatus(changeParamvo(param));
+            return dzfAppSealService.confirmSealStatus(changeParamvo(param,null,null));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
             return  new AppResult(-100,null,e.getMessage());
@@ -45,7 +45,7 @@ public class ElectronicSealController extends  BaseAppController{
     @RequestMapping("/getCorpkSeals")
     public AppResult getCorpkSeals(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.getCorpkSeals(changeParamvo(param));
+            return dzfAppSealService.getCorpkSeals(changeParamvo(param,null,null));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
             return  new AppResult(-100,null,e.getMessage());
@@ -56,7 +56,11 @@ public class ElectronicSealController extends  BaseAppController{
     @RequestMapping("/savePersonSign")
     public AppResult savePersonSign(@RequestParam Map<String,Object> param, MultipartFile multipartFilebyte) {
         try {
-            return dzfAppSealService.confirmPersonSign(changeParamvo(param), multipartFilebyte);
+            byte[] fileByte = null;
+            if(multipartFilebyte!=null&&multipartFilebyte.getSize()>0){
+               fileByte = multipartFilebyte.getBytes();
+            }
+            return dzfAppSealService.confirmPersonSign(changeParamvo(param,fileByte,multipartFilebyte.getOriginalFilename()), null);
         } catch (Exception e) {
             log.error(e.getMessage(),e);
             return  new AppResult(-100,null,e.getMessage());
@@ -67,16 +71,18 @@ public class ElectronicSealController extends  BaseAppController{
     @RequestMapping("/getSealImg")
     public AppResult<byte[]> getSealImg(@RequestParam Map<String,Object> param) {
         try {
-            return dzfAppSealService.getSealImg(changeParamvo(param));
+            return dzfAppSealService.getSealImg(changeParamvo(param,null,null));
         } catch (Exception e) {
             log.error(e.getMessage(),e);
             return  new AppResult(-100,null,e.getMessage());
         }
         
     }
-    private AppSealVO changeParamvo(Map<String,Object> param){
+    private AppSealVO changeParamvo(Map<String,Object> param,byte[] fileByte,String fileName){
         AppSealVO pamVO= new AppSealVO();
         AppkeyUtil.setAppValue(param,pamVO );
+        pamVO.setMultipartFilebyte(fileByte);
+        pamVO.setFileName(fileName);
         UserVO uservo = queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
         return pamVO;
