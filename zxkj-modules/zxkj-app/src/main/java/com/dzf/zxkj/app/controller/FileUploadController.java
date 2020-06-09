@@ -12,7 +12,6 @@ import com.dzf.zxkj.app.service.app.act.ILog;
 import com.dzf.zxkj.app.service.message.IMessageSendService;
 import com.dzf.zxkj.app.service.photo.IImageProviderPhoto;
 import com.dzf.zxkj.app.service.pub.IAppPubservice;
-import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.service.user.IAppUserService;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
 import com.dzf.zxkj.app.utils.AppQueryUtil;
@@ -22,7 +21,6 @@ import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
-import com.dzf.zxkj.base.utils.FieldMapping;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -48,21 +46,19 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/app/uploadServlet")
-public class FileUploadController {
+public class FileUploadController extends  BaseAppController{
 
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IZxkjRemoteAppService iZxkjRemoteAppService;
 
     @Autowired
     private IAppPubservice apppubservice ;
-    @Autowired
-    private IUserPubService userPubService;
 
     @RequestMapping("/doUpLoad")
     public ReturnData<ResponseBaseBeanVO> doUpLoad(UserBeanVO uBean, String cname, String method, String corp, String tcorp,
                                                    MultipartFile ynt) {
 
-        UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
+        UserVO uservo = queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
         uBean.setAccount(StringUtil.isEmpty(uBean.getAccount())?uservo.getUser_code():uBean.getAccount());
@@ -117,7 +113,10 @@ public class FileUploadController {
 //			delTempFile();
 
         } catch (Exception e) {
-            log.error(e.getMessage(),e);
+//            respBean.setResmsg(e.getMessage());
+//            respBean.setRescode(IConstant.FIRDES);
+//            log.error(e.getMessage(),e);
+            printErrorJson(respBean,e,log,"上传失败!");
         }
         return ReturnData.ok().data(null);
     }
@@ -129,7 +128,7 @@ public class FileUploadController {
     @RequestMapping("/doReImageUpload")
     public ReturnData<ResponseBaseBeanVO> doReImageUpload(UserBeanVO uBean, String imgmsg,String cname,String method,
                                                           MultipartFile ynt) {
-        UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
+        UserVO uservo = queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
         uBean.setCorpname(cname);
@@ -195,14 +194,17 @@ public class FileUploadController {
                 }
             }
         } catch (Exception e) {
-            log.error("上传失败!",e );
+//            respBean.setResmsg(e.getMessage());
+//            respBean.setRescode(IConstant.FIRDES);
+//            log.error("上传失败!",e );
+            printErrorJson(respBean, e, log, "上传失败!");
         }
         return  ReturnData.ok().data(respBean);
     }
 
     @RequestMapping("/doImageRecord")
     public ReturnData<ResponseBaseBeanVO> doImageRecord(ImageReqVO uBean,String corp,String tcorp) {
-        UserVO uservo = userPubService.queryUserVOId(uBean.getAccount_id());
+        UserVO uservo = queryUserVOId(uBean.getAccount_id());
         uBean.setUsercode(uservo.getUser_code());
         uBean.setAccount_id(uservo.getCuserid());
         uBean.setPk_corp(corp);
@@ -238,17 +240,19 @@ public class FileUploadController {
             }
 
         } catch (Exception e) {
-            log.error( "\"获取用户上传记录失败!\"",log );
-            if(e.getMessage().indexOf("暂无记录")>=0){
-                respBean.setResmsg(e.getMessage());
-            }
+//            log.error( "\"获取用户上传记录失败!\"",log );
+//            if(e.getMessage().indexOf("暂无记录")>=0){
+//                respBean.setResmsg(e.getMessage());
+//                respBean.setRescode(IConstant.FIRDES);
+//            }
+            printErrorJson(respBean, e, log, "获取用户上传记录失败!");
         }
         return ReturnData.ok().data(respBean);
     }
 
     @RequestMapping("/doImageHis")
     public ReturnData<ResponseBaseBeanVO> doImageHis(ImageBeanVO beanvo,String corp) {
-        UserVO uservo = userPubService.queryUserVOId(beanvo.getAccount_id());
+        UserVO uservo = queryUserVOId(beanvo.getAccount_id());
         beanvo.setUsercode(uservo.getUser_code());
         beanvo.setAccount_id(uservo.getCuserid());
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
@@ -277,7 +281,10 @@ public class FileUploadController {
                 respBean.setResmsg(iqbean[0]);
             }
         } catch (Exception e) {
-            log.error("查询上传图片历史失败", log);
+//            respBean.setResmsg(e.getMessage());
+//            respBean.setRescode(IConstant.FIRDES);
+//            log.error("查询上传图片历史失败", log);
+            printErrorJson(respBean, e, log, "查询上传图片历史失败");
         }
         return ReturnData.ok().data(respBean);
     }

@@ -20,16 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/app/dzfbillhandlesvlt")
-public class KcdrBillController {
+public class KcdrBillController extends  BaseAppController{
 
-    @Autowired
-    private IUserPubService userPubService;
 
     @RequestMapping("/doAction")
     public ReturnData<BillResonseBeanVO> doAction(BillCustomerBean userbean,String corp,String tcorp,String caddr) {
 
         BillResonseBeanVO beanvo = new  BillResonseBeanVO();
-        UserVO uservo = userPubService.queryUserVOId(userbean.getAccount_id());
+        UserVO uservo = queryUserVOId(userbean.getAccount_id());
         userbean.setAccount_id(uservo.getCuserid());
         userbean.setPk_corp(corp);
         userbean.setPk_tempcorp(tcorp);
@@ -57,7 +55,10 @@ public class KcdrBillController {
             BeanUtils.copyNotNullProperties(basevo, beanres);
             beanres.setRescode(IConstant.DEFAULT);
         } catch (Exception e) {
-            log.error("获取开票信息失败!", e);
+//            beanres.setResmsg(e.getMessage());
+//            beanres.setRescode(IConstant.FIRDES);
+//            log.error("获取开票信息失败!", e);
+            printErrorJson(beanres,e,log,"获取开票信息失败!");
         }
         return (BillResonseBeanVO) beanres;
     }
@@ -77,7 +78,10 @@ public class KcdrBillController {
             beanvo.setResmsg("保存开票信息成功!");
 
         } catch (Exception e) {
-            log.error("保存开票信息失败!", e);
+//            beanvo.setResmsg(e.getMessage());
+//            beanvo.setRescode(IConstant.FIRDES);
+//            log.error("保存开票信息失败!", e);
+            printErrorJson(beanvo,e,log,"保存开票信息失败!");
         }
 
         return beanvo;

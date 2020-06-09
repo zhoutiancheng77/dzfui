@@ -18,12 +18,10 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/dzfapp/econtract")
-public class ElectronicContractController {
+public class ElectronicContractController extends  BaseAppController{
 
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppEcontractService iDzfAppEcontractService;
-    @Autowired
-    private IUserPubService userPubService;
     @RequestMapping("/updateSign")
     public AppResult updateSign(@RequestParam Map<String,Object> param) {
         try {
@@ -71,7 +69,7 @@ public class ElectronicContractController {
     private AppEContQryVO changeParamvo( Map<String,Object> param){
         AppEContQryVO pamVO= new AppEContQryVO();
         AppkeyUtil.setAppValue(param,pamVO );
-        UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
+        UserVO uservo = queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
         return pamVO;
     }
