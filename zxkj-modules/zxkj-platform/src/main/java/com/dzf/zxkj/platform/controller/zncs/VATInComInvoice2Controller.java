@@ -3081,6 +3081,8 @@ public class VATInComInvoice2Controller extends BaseController {
 //                json.setMsg("正在处理中，请稍候刷新界面");
 //                return ReturnData.error().data(json);
                 throw new BusinessException("正在处理中，请稍候刷新界面");
+            }else{
+                redissonDistributedLock.releaseDistributedFairLock("jinxiang2pz"+corps[0]);
             }
         lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcreatepz"+corps[0]);
 
@@ -3089,6 +3091,8 @@ public class VATInComInvoice2Controller extends BaseController {
 //                json.setMsg("正在处理中，请稍候刷新界面");
 //                return ReturnData.error().data(json);
             throw new BusinessException("正在处理中，请稍候刷新界面");
+        }else{ redissonDistributedLock.releaseDistributedFairLock("jinxiangcreatepz"+corps[0]);
+
         }
             super.checkSecurityData(vos, corps, cuserid);
     }
