@@ -39,7 +39,7 @@ public enum ExportTemplateEnum {
     //大连 28
     //宁波 29
     //江西 30
-    JIANGXI("30", "ExcelExportPubHandler", "0"),
+    JIANGXI("30", "ExcelExportJiangXiHandler", "0"),
     //黑龙江 31
     //青海 32
     //西藏 33
