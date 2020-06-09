@@ -87,7 +87,7 @@ public class UserPubServiceImpl implements IUserPubService {
         TempUserRegVO tempuservo = null;
         List<TempUserRegVO>  tempList = apppubservice.getTempList(userBean.getUsercode());
 
-        if(tempList == null && tempList.size()  == 0){
+        if(tempList == null || tempList.size()  == 0){
             // 开始用户注册
             tempuservo = new TempUserRegVO();
             //String password = apppubservice.decryptPwd(userBean.getSystype(), userBean.getPassword());
