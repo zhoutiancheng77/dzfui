@@ -297,12 +297,12 @@ public class OtherSystemForZcfzImpl {
 			appkms.append(kmtemp+",");
 			if(ls==null)continue;
 			if ( !StringUtil.isEmpty(vo.getZc()) && vo.getZc().replace("　","").equals("存货")
-					&& (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07工程结算
+					&& (kmtemp.equals("5401") || kmtemp.equals("5402"))) {// 07工程结算
 				cefrom0102 = getCeFrom0102(map, "5401", "5402");
 			}
 			if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
 			&& vo.getFzhsyzqy().replace("　","").equals("预收款项"))
-					&& (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
+					&& (kmtemp.equals("5401") || kmtemp.equals("5402"))) {// 07
 				// 工程结算
 				cefrom0102 = getCeFrom0102(map, "5401", "5402");
 			}
