@@ -63,10 +63,13 @@ public class GenTicketUtil {
 				String zip = desc.element("zipCode").getText();//
 				String encry = desc.element("encryptCode").getText();
 				// 生成content元素
-				Element contentele = iZxkjRemoteAppService.getContentElement(zip, encry, content);
-				if(contentele == null){
+				String strs = iZxkjRemoteAppService.getContentElement(zip, encry, content);
+				if(StringUtil.isEmpty(strs)){
 					throw new BusinessException("获取票据内容失败!");
 				}
+				Document document2 = DocumentHelper.parseText(strs);
+				Element contentele= document2.getRootElement();
+
 				// 获取发票类型
 				String fpzl = null;
 				if(contentele.element("FPZL") == null){
