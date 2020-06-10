@@ -74,7 +74,8 @@ public class AuthController {
         // 三个参数分别为宽、高、位数
         SpecCaptcha specCaptcha = new SpecCaptcha(110, 49, 4);
         //设置内置字体
-        specCaptcha.setFont(new Random().nextInt(10));//10以内随机数
+        int[] font = {0, 1, 2, 4, 5, 8, 9};
+        specCaptcha.setFont(font[new Random().nextInt(7)]);//6以内随机数
         // 设置字体
 //        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
         // 设置类型，纯数字、纯字母、字母数字混合

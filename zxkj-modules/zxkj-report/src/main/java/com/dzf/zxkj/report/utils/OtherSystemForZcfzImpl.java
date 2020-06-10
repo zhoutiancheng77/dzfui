@@ -284,7 +284,7 @@ public class OtherSystemForZcfzImpl {
 			appkms= new StringBuffer(StringUtil.isEmpty(vo.getFzconkms()) ? "" : vo.getFzconkms()+",");
 		}
 		// 获取工程施工，工程结算差额
-		DZFDouble[] cefrom0102 = new DZFDouble[] { DZFDouble.ZERO_DBL, DZFDouble.ZERO_DBL };// getCeFrom0102(map,"4401","4402");
+		DZFDouble[] cefrom0102 = null;// 工程施工和工程结算
 		String kmtemp = "";
 		for (int i = 0; i < len; i++) {
 			kmtemp = kms[i];
@@ -296,28 +296,38 @@ public class OtherSystemForZcfzImpl {
 			ls=getData(map, kmtemp,newrule);
 			appkms.append(kmtemp+",");
 			if(ls==null)continue;
-			if ( !StringUtil.isEmpty(vo.getZc()) && vo.getZc().replace("　","").equals("存货") && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07工程结算
+			if ( !StringUtil.isEmpty(vo.getZc()) && vo.getZc().replace("　","").equals("存货")
+					&& (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07工程结算
 				cefrom0102 = getCeFrom0102(map, "5401", "5402");
-				continue;
 			}
 			if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
-			&& vo.getFzhsyzqy().replace("　","").equals("预收款项")) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
+			&& vo.getFzhsyzqy().replace("　","").equals("预收款项"))
+					&& (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
 				// 工程结算
 				cefrom0102 = getCeFrom0102(map, "5401", "5402");
-				continue;
 			}
 			for (FseJyeVO fvo : ls) {
 				if(is1){
 					ufd=VoUtils.getDZFDouble(vo.getQmye1());
 					DZFDouble qmjf = VoUtils.getDZFDouble(fvo.getQmjf());
 					DZFDouble qmdf =  VoUtils.getDZFDouble(fvo.getQmdf());
-					ufd=ufd.add(qmjf.add(qmdf).multiply(multily));//
-					
+//					ufd=ufd.add(qmjf.add(qmdf).multiply(multily));//
+					// 存在工程施工和工程结算的，如果小于0 则不计算该科目
+					if (cefrom0102!=null && cefrom0102.length == 2 && cefrom0102[0].doubleValue() < 0) {
+						ufd=ufd;
+					} else{
+						ufd=ufd.add(qmjf.add(qmdf).multiply(multily));//
+					}
 					vo.setQmye1(ufd);
 					ufd=VoUtils.getDZFDouble(vo.getNcye1());
 					DZFDouble qcjf = VoUtils.getDZFDouble(fvo.getQcjf());
 					DZFDouble qcdf = VoUtils.getDZFDouble(fvo.getQcdf());
-					ufd=ufd.add(qcjf.add(qcdf).multiply(multily));
+					// 存在工程施工和工程结算的，如果小于0 则不计算该科目
+					if (cefrom0102!=null && cefrom0102.length == 2 && cefrom0102[1].doubleValue() < 0) {
+						ufd=ufd;
+					} else{
+						ufd=ufd.add(qcjf.add(qcdf).multiply(multily));
+					}
 					vo.setNcye1(ufd) ;
 					
 					//本月期初
@@ -330,15 +340,24 @@ public class OtherSystemForZcfzImpl {
 					ufd=VoUtils.getDZFDouble(vo.getQmye2());
 					DZFDouble qmjf = VoUtils.getDZFDouble(fvo.getQmjf());
 					DZFDouble qmdf = VoUtils.getDZFDouble(fvo.getQmdf());
-					ufd=ufd.add(qmjf.add(qmdf).multiply(multily));//默认 贷方减借方
+					// 存在工程施工和工程结算的，如果大于0 则不计算该科目
+					if (cefrom0102!=null && cefrom0102.length == 2 && cefrom0102[0].doubleValue() > 0) {
+						ufd=ufd;
+					} else{
+						ufd=ufd.add(qmjf.add(qmdf).multiply(multily));//默认 贷方减借方
+					}
 					vo.setQmye2(ufd);
-					
 					
 					//年初
 					ufd=VoUtils.getDZFDouble(vo.getNcye2());
 					DZFDouble qcjf =  VoUtils.getDZFDouble(fvo.getQcjf());
 					DZFDouble qcdf =  VoUtils.getDZFDouble(fvo.getQcdf());
-					ufd=ufd.add(qcjf.add(qcdf).multiply(multily));//默认 贷方减借方
+					// 存在工程施工和工程结算的，如果大于0 则不计算该科目
+					if (cefrom0102!=null && cefrom0102.length == 2 && cefrom0102[1].doubleValue() > 0) {
+						ufd=ufd;
+					}else{
+						ufd=ufd.add(qcjf.add(qcdf).multiply(multily));//默认 贷方减借方
+					}
 					vo.setNcye2(ufd) ;
 					
 					//本月期初
@@ -347,34 +366,11 @@ public class OtherSystemForZcfzImpl {
 					vo.setQcye2(ufd) ;
 				}
 			}
-			// 07 13 写在了一块了
-			if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
-				if (!StringUtil.isEmpty(vo.getZc()) && vo.getZc().replace("　","").equals("存货") ) {
-					// 获取工程施工，工程结算差额
-					if (cefrom0102[0].doubleValue() > 0) {
-						vo.setNcye1(SafeCompute.add(vo.getNcye1(), cefrom0102[0]));
-					}
-					if (cefrom0102[1].doubleValue() > 0) {
-						vo.setQmye1(SafeCompute.add(vo.getQmye1(), cefrom0102[1]));
-					}
-				}
-				if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
-						&& (vo.getFzhsyzqy().replace("　","").equals("预收款项")
-				         || vo.getFzhsyzqy().replace("　","").equals("预收账款")))) {
-					// 获取工程施工，工程结算差额
-					if (cefrom0102[0].doubleValue() < 0) {
-						vo.setNcye2(SafeCompute.add(vo.getNcye2(), cefrom0102[0].multiply(-1)));
-					}
-					if (cefrom0102[1].doubleValue() < 0) {
-						vo.setQmye2(SafeCompute.add(vo.getQmye2(), cefrom0102[1].multiply(-1)));
-					}
-				}
-			}
-			if(is1){
-				vo.setZcconkms(appkms.toString().substring(0,appkms.length()-1));
-			}else{
-				vo.setFzconkms(appkms.toString().substring(0,appkms.length()-1));
-			}
+		}
+		if(is1){
+			vo.setZcconkms(appkms.toString().substring(0,appkms.length()-1));
+		}else{
+			vo.setFzconkms(appkms.toString().substring(0,appkms.length()-1));
 		}
 		return vo;
 	}
@@ -392,9 +388,16 @@ public class OtherSystemForZcfzImpl {
 		} else {
 			appkms = new StringBuffer(vo.getFzconkms() == null ? "" : vo.getFzconkms() + ",");
 		}
-		DZFDouble[] cefrom0102 = new DZFDouble[] { DZFDouble.ZERO_DBL, DZFDouble.ZERO_DBL };
+		DZFDouble[] cefrom0102 = null;
+		String kmtemp = "";
 		for (int i = 0; i < len; i++) {
-			ls = getData1(map, kms[i], mapc,bthislevel,newrule);
+			kmtemp = kms[i];
+			Integer multily = 1;
+			if(kmtemp.startsWith("-")){
+				multily = -1;
+				kmtemp = kms[i].substring(1);
+			}
+			ls = getData1(map, kmtemp, mapc,bthislevel,newrule);
 			if(StringUtil.isEmpty(kms[i]) && kms[i].startsWith("-")){
 				appkms.append(kms[i].substring(1) + ",");
 			}else{
@@ -402,10 +405,10 @@ public class OtherSystemForZcfzImpl {
 			}
 			if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
 				if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
-						&& vo.getFzhsyzqy().replace("　","").equals("预收款项")) && (kms[i].equals("5401") || kms[i].equals("5402"))) {// 07
+						&& vo.getFzhsyzqy().replace("　","").equals("预收款项"))
+						&& (kmtemp.equals("5401") || kmtemp.equals("5402"))) {// 07
 					// 工程结算
 					cefrom0102 = getCeFrom0102(map, "5401", "5402");
-					continue;
 				}
 			}
 			if (ls == null)
@@ -418,9 +421,9 @@ public class OtherSystemForZcfzImpl {
 					DZFDouble qmdf = fvo.getKmbm().equals("1407") ? VoUtils.getDZFDouble(fvo.getQmdf()).multiply(-1)
 							: VoUtils.getDZFDouble(fvo.getQmdf());
 					if ("借".equals(fvo.getFx()) && qmjf.doubleValue() > 0) {
-						ufd = ufd.add(qmjf);
+						ufd = ufd.add(qmjf.multiply(multily));
 					} else if (qmdf.doubleValue() < 0) {
-						ufd = ufd.sub(qmdf);
+						ufd = ufd.sub(qmdf.multiply(multily));
 					}
 					vo.setQmye1(ufd);
 					ufd = VoUtils.getDZFDouble(vo.getNcye1());
@@ -429,9 +432,9 @@ public class OtherSystemForZcfzImpl {
 					DZFDouble qcdf = fvo.getKmbm().equals("1407") ? VoUtils.getDZFDouble(fvo.getQcdf()).multiply(-1)
 							: VoUtils.getDZFDouble(fvo.getQcdf());
 					if ("借".equals(fvo.getFx()) && qcjf.doubleValue() > 0) {
-						ufd = ufd.add(qcjf);
+						ufd = ufd.add(qcjf.multiply(multily));
 					} else if (qcdf.doubleValue() < 0) {
-						ufd = ufd.sub(qcdf);
+						ufd = ufd.sub(qcdf.multiply(multily));
 					}
 					vo.setNcye1(ufd);
 				} else {// 负债
@@ -440,10 +443,15 @@ public class OtherSystemForZcfzImpl {
 							: VoUtils.getDZFDouble(fvo.getQmjf());
 					DZFDouble qmdf = fvo.getKmbm().equals("1407") ? VoUtils.getDZFDouble(fvo.getQmdf()).multiply(-1)
 							: VoUtils.getDZFDouble(fvo.getQmdf());
-					if ("贷".equals(fvo.getFx()) && qmdf.doubleValue() > 0) {
-						ufd = ufd.add(qmdf);
-					} else if (qmjf.doubleValue() < 0) {
-						ufd = ufd.sub(qmjf);
+					// 存在工程施工和工程结算的，如果大于0 则不计算该科目
+					if (cefrom0102!=null && cefrom0102.length == 2 && cefrom0102[0].doubleValue() > 0) {
+						ufd = ufd;
+					}else {
+						if ("贷".equals(fvo.getFx()) && qmdf.doubleValue() > 0) {
+							ufd = ufd.add(qmdf.multiply(multily));
+						} else if (qmjf.doubleValue() < 0) {
+							ufd = ufd.sub(qmjf.multiply(multily));
+						}
 					}
 					vo.setQmye2(ufd);
 					//
@@ -452,25 +460,16 @@ public class OtherSystemForZcfzImpl {
 							: VoUtils.getDZFDouble(fvo.getQcjf());
 					DZFDouble qcdf = fvo.getKmbm().equals("1407") ? VoUtils.getDZFDouble(fvo.getQcdf()).multiply(-1)
 							: VoUtils.getDZFDouble(fvo.getQcdf());
-					if ("贷".equals(fvo.getFx()) && qcdf.doubleValue() > 0) {
-						ufd = ufd.add(qcdf);
-					} else if (qcjf.doubleValue() < 0) {
-						ufd = ufd.sub(qcjf);
+					if (cefrom0102!=null && cefrom0102.length == 2 && cefrom0102[1].doubleValue() > 0) {
+						ufd = ufd;
+					} else {
+						if ("贷".equals(fvo.getFx()) && qcdf.doubleValue() > 0) {
+							ufd = ufd.add(qcdf.multiply(multily));
+						} else if (qcjf.doubleValue() < 0) {
+							ufd = ufd.sub(qcjf.multiply(multily));
+						}
 					}
 					vo.setNcye2(ufd);
-				}
-			}
-		}
-		if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)) {
-			if ((!StringUtil.isEmpty(vo.getFzhsyzqy())
-					&& (vo.getFzhsyzqy().replace("　","").equals("预收款项")
-					|| vo.getFzhsyzqy().replace("　","").equals("预收账款")))) {
-				// 获取工程施工，工程结算差额
-				if (cefrom0102[0].doubleValue() < 0) {
-					vo.setNcye2(SafeCompute.add(vo.getNcye2(), cefrom0102[0].multiply(-1)));
-				}
-				if (cefrom0102[1].doubleValue() < 0) {
-					vo.setQmye2(SafeCompute.add(vo.getQmye2(), cefrom0102[1].multiply(-1)));
 				}
 			}
 		}
