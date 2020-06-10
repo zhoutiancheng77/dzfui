@@ -19,6 +19,7 @@ public class AppConfig {
     public String appkey;
     @Value("${app.sms.smsurl}")
     public String smsurl;
-
+    @Value("${app.appKey}")
+    public String appKey;
 
 }

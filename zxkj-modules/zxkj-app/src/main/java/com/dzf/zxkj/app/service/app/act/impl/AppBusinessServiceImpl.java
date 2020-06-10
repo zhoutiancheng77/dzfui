@@ -743,7 +743,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 				String zip = desc.element("zipCode").getText();//
 				String encry = desc.element("encryptCode").getText();
 				// 生成content元素
-				Element contentele = iZxkjRemoteAppService.getContentElement(zip, encry, content);
+				Element contentele = CommonXml.getContentElement(zip, encry, content);
 				if(contentele == null){
 					throw new BusinessException("获取票据内容失败!");
 				}
@@ -784,6 +784,10 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 		return headvo;
 
 	}
+
+
+
+
 
 	private SuperVO getAggTicketVOs(String fpzl, Element contentele) throws DZFWarpException {
 
