@@ -98,7 +98,8 @@ public class GenTicketUtil {
 				throw new BusinessException(e.getMessage());
 			}
 			throw new WiseRunException(e);
-		}  
+
+		}
 
 		return headvo;
 
