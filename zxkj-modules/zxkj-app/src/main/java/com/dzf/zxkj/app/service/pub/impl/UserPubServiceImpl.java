@@ -10,7 +10,6 @@ import com.dzf.zxkj.app.service.pub.IAppPubservice;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.AppQueryUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
-import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
@@ -19,6 +18,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.Common;
+import com.dzf.zxkj.common.utils.Encode;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
@@ -90,15 +90,15 @@ public class UserPubServiceImpl implements IUserPubService {
         if(tempList == null || tempList.size()  == 0){
             // 开始用户注册
             tempuservo = new TempUserRegVO();
-            //String password = apppubservice.decryptPwd(userBean.getSystype(), userBean.getPassword());
+            String password = apppubservice.decryptPwd(userBean.getSystype(), userBean.getPassword());
 
             tempuservo.setUser_code(userBean.getUsercode());
-            //tempuservo.setUser_password(password);
+            tempuservo.setUser_password(password);
             tempuservo.setUser_name(userBean.getUsername());
             tempuservo.setApp_user_qq(userBean.getPhone());
             tempuservo.setPhone(userBean.getPhone());
             tempuservo.setIstate(IConstant.TWO);
-          //  tempuservo.setUser_password(new Encode().encode(userBean.getPassword()));
+           tempuservo.setUser_password(new Encode().encode(userBean.getPassword()));
             SuperVO vo = singleObjectBO.saveObject(Common.tempidcreate, tempuservo);
             // 添加公司信息
             CorpVO[] cpvos = apppubservice.getNoLinkCorp(userBean.getPhone(),userBean.getSourcesys());
@@ -109,7 +109,7 @@ public class UserPubServiceImpl implements IUserPubService {
             // 查询demo公司
             CorpVO[] corpvo = AppQueryUtil.getInstance().getDemoCorpMsg();
             String usercode = userBean.getUsercode();
-            String username = userBean.getPhone();
+            String username = userBean.getUsername();
             String accountid = vo.getPrimaryKey();
             democorpser.sendDemoCorp(bean, usercode, username, accountid, userBean.getVdevicdmsg(), corpvo,userBean.getSourcesys(),"");
         }else{//临时公司存在的时候
@@ -144,7 +144,7 @@ public class UserPubServiceImpl implements IUserPubService {
         userVO.setUser_code(uservo.getUser_code());
         userVO.setUser_name(CodeUtils1.enCode(uservo.getUser_name()));
         userVO.setUser_note(userVO.getUser_code());
-        //userVO.setUser_password(uservo.getUser_password());
+        userVO.setUser_password(uservo.getUser_password());
         userVO.setCheckcode(uservo.getUser_code());
         userVO.setBappuser(DZFBoolean.TRUE);
         userVO.setIstate(2);
