@@ -1040,7 +1040,7 @@ public class BsWorkbenchController extends BaseController {
             byteData = baos.toByteArray();
         } catch (Exception e1) {
             log.error("错误",e1);
-            throw new BusinessException("读取纳税申报数据出错，该文件不存在！");
+            throw new BusinessException("读取备份数据出错，该文件不存在！");
         } finally {
             if (in != null) {
                 try {

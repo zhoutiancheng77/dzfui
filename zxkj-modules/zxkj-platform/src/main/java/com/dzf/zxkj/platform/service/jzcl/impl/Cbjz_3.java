@@ -131,8 +131,12 @@ public class Cbjz_3 {
 			if (StringUtil.isEmpty(setvo.getZgrkdfkm())) {
 				throw new BusinessException("暂估入账科目为空，请先到“库存入账设置”节点维护暂估入账科目!");
 			}
+
 			Map<String, YntCpaccountVO> ccountMap = accountService.queryMapByPk(corpVo.getPk_corp());
 			YntCpaccountVO cvo = ccountMap.get(setvo.getZgrkdfkm());
+			if(cvo == null)
+				throw new BusinessException("暂估入账科目为空，请先到“库存入账设置”节点维护暂估入账科目!");
+
 			if (cvo.getIsfzhs().charAt(1) == '1') {
 				if (StringUtil.isEmpty(setvo.getZgkhfz())) {
 					throw new BusinessException("暂估入库贷方科目启用供应商辅助,入账设置供应商辅助核算不存在,请设置后再试!");
