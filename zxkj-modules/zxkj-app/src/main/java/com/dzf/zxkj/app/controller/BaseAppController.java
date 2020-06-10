@@ -44,6 +44,7 @@ public class BaseAppController  {
 		UserBeanVO beanVO = new UserBeanVO();
 		beanVO.setUsercode(uvo.getLoginName());
 		beanVO.setPhone(uvo.getMobile());
+		beanVO.setUsername(uvo.getUserName());
 		return userPubService.saveRegisterCorpSWtch(beanVO,account_id);
     }
 
