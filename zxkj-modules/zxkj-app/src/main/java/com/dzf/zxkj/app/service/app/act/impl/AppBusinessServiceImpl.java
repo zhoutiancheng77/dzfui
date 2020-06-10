@@ -656,7 +656,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 			// 根据生成的value 解析xml
 			GenTicketUtil util = new GenTicketUtil();
 
-			vo = util.genTickMsgVO(value, drcode, account_id);
+			vo = util.genTickMsgVO(value, drcode, account_id,iZxkjRemoteAppService);
 
 			vo.setAttributeValue("drcode", drcode);
 

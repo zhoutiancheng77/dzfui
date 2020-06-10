@@ -40,10 +40,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class GenTicketUtil {
 
-	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
-	private IZxkjRemoteAppService iZxkjRemoteAppService;
 
-	public SuperVO genTickMsgVO(String xmlvalue, String drcode, String account_id) throws DZFWarpException {
+	public SuperVO genTickMsgVO(String xmlvalue, String drcode, String account_id,IZxkjRemoteAppService iZxkjRemoteAppService) throws DZFWarpException {
 		
 		if (StringUtil.isEmpty(xmlvalue))
 			return null;
