@@ -572,21 +572,16 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 				&& !StringUtil.isEmpty(corpvo.getVsoccrecode())
 				&& !StringUtil.isEmpty(taxvo.getVstatetaxpwd())
 				&& corpvo.getVsoccrecode().length() > 1
-				&& hasDeclareInterface(reportvo.getSb_zlbh())
-				&& (TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())
-						|| TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
-						|| TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())
-						|| TaxRptConst.SB_ZLBH10412.equals(reportvo.getSb_zlbh())
-						|| TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh())
-						|| TaxRptConst.SB_ZLBH39801.equals(reportvo.getSb_zlbh()))) {
+				&& hasDeclareInterface(reportvo.getSb_zlbh())) {
 			hmQCData = initTax(corpvo, taxvo,reportvo);
 		}
-		if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())
-				|| TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(reportvo.getSb_zlbh())
-				|| TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
-				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) {
-			getQcFromJsonFile(hmQCData, reportvo);
-		}
+//		// 从报税客户端爬虫方式获取的期初数据中提取（弃用）
+//		if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())
+//				|| TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(reportvo.getSb_zlbh())
+//				|| TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
+//				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) {
+//			getQcFromJsonFile(hmQCData, reportvo);
+//		}
 		return hmQCData;
 	}
 
@@ -1040,9 +1035,21 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 			baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_ND_CSH");
 			baseReq.getBody().setSign("sb39801InitService");
 		} else if (TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
-				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) {
+				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) { //附加税
 			baseReq.setServiceid("FW_DZSWJ_FJS_CSH");
 			baseReq.getBody().setSign("sb10516InitService");
+		} else if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())) { // 印花税
+			baseReq.setServiceid("FW_DZSWJ_YHS_CSH");
+			baseReq.getBody().setSign("sb10509InitService");
+		} else if (TaxRptConst.SB_ZLBH10601.equals(reportvo.getSb_zlbh())) { // 文化事业建设费
+			baseReq.setServiceid("FW_DZSWJ_WHSY_CSH");
+			baseReq.getBody().setSign("sb10601InitService");
+		} else if (TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（工会经费）
+			baseReq.setServiceid("FW_DZSWJ_GFJF_CSH");
+			baseReq.getBody().setSign("sb10520InitService");
+		} else if (TaxRptConst.SB_ZLBH30299.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（垃圾处理费）
+			baseReq.setServiceid("FW_DZSWJ_LJCLF_CSH");
+			baseReq.getBody().setSign("sb10514InitService");
 		}
 		String lsh = reportvo.getRegion_extend1();
 		baseReq.getBody().setYwbw(getInitParams(corpVO, reportvo));
@@ -1193,19 +1200,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 		params.put("skssqq", reportvo.getPeriodfrom());
 		params.put("skssqz", reportvo.getPeriodto());
 		params.put("sbzlid", getSbzlbh(reportvo.getSb_zlbh()));
-
-		String yzpzzlDm = null;
-		if (TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
-				|| TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())) {
-			yzpzzlDm = "BDA0610611";
-		} else if (TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())) {
-			yzpzzlDm = "BDA0610606";
-		} else if (TaxRptConst.SB_ZLBH10412.equals(reportvo.getSb_zlbh())) {
-			yzpzzlDm = "BDA0611033";
-		} else if (TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh())) {
-			yzpzzlDm = "BDA0611038";
-		}
-		params.put("yzpzzlDm", yzpzzlDm);
+		params.put("yzpzzlDm", getYzpzzlDm(reportvo.getSb_zlbh()));
 
 		String uuid = null;
 		if (StringUtil.isEmpty(reportvo.getRegion_extend1())) {
@@ -2045,22 +2040,64 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 	}
 
 	/**
-	 * 转换申报种类编号
+	 * 转换为税局的申报种类编号
 	 * @param sbzl_bh
 	 * @return
 	 */
 	private String getSbzlbh(String sbzl_bh) {
-		if (TaxRptConst.SB_ZLBH1010201.equals(sbzl_bh)) {
-			sbzl_bh = "10102";
-		} else if (TaxRptConst.SB_ZLBHC1.equals(sbzl_bh)) {
-			sbzl_bh = "29806";
-		} else if (TaxRptConst.SB_ZLBHC2.equals(sbzl_bh)) {
-			sbzl_bh = "29801";
-		} else if (TaxRptConst.SB_ZLBH50101.equals(sbzl_bh)
-				|| TaxRptConst.SB_ZLBH50102.equals(sbzl_bh)) {
-			sbzl_bh = "10516";
+		switch (sbzl_bh)
+		{
+			case TaxRptConst.SB_ZLBH1010201:
+				return "10102";
+			case TaxRptConst.SB_ZLBHC1:
+				return "29806";
+			case TaxRptConst.SB_ZLBHC2:
+				return "29801";
+			case TaxRptConst.SB_ZLBH50101:
+			case TaxRptConst.SB_ZLBH50102:
+				return "10516";
+			case TaxRptConst.SB_ZLBHD1:
+				return "10509";
+			case TaxRptConst.SB_ZLBH31399: //地方各项基金费（工会经费）
+				return "10520";
+			case TaxRptConst.SB_ZLBH30299: //地方各项基金费（垃圾处理费）
+				return "10514";
+			default: //包括10101、10102、10412、10413、10601等
+				return sbzl_bh;
 		}
-		return sbzl_bh;
+	}
+
+	/**
+	 * 得到税局的yzpzzlDm
+	 * @param sbzl_bh
+	 * @return
+	 */
+	private String getYzpzzlDm(String sbzl_bh) {
+		switch (sbzl_bh)
+		{
+			case TaxRptConst.SB_ZLBH10101:
+				return "BDA0610606";
+			case TaxRptConst.SB_ZLBH10102:
+			case TaxRptConst.SB_ZLBH1010201:
+				return "BDA0610611";
+			case TaxRptConst.SB_ZLBH10412:
+				return "BDA0611033";
+			case TaxRptConst.SB_ZLBH10413:
+				return "BDA0611038";
+			case TaxRptConst.SB_ZLBH50101:
+			case TaxRptConst.SB_ZLBH50102:
+				return "BDA0610678";
+			case TaxRptConst.SB_ZLBHD1:
+				return "BDA0610794";
+			case TaxRptConst.SB_ZLBH10601:
+				return "BDA0610334";
+			case "31399": //TaxRptConst.SB_ZLBH31399 //地方各项基金费（工会经费）
+				return "BDA0610100";
+			case "30299": //TaxRptConst.SB_ZLBH30299 //地方各项基金费（垃圾处理费）
+				return "BDA0610100";
+			default: //财报等没有yzpzzlDm
+				return "";
+		}
 	}
 
 	private void setTaxTypeListValue(TaxReportVO detailvo,String pk_corp, JSONObject json,Map<String,TaxTypeSBZLVO> zlmap) {
@@ -2699,7 +2736,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //				|| TaxRptConst.SB_ZLBH39801.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBH39806.equals(taxTypeCode)
 				|| TaxRptConst.SB_ZLBH50101.equals(taxTypeCode)
-				|| TaxRptConst.SB_ZLBH50102.equals(taxTypeCode)) {
+				|| TaxRptConst.SB_ZLBH50102.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBHD1.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH10601.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH31399.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBH30299.equals(taxTypeCode)) {
 			return true;
 		}
 		return false;
