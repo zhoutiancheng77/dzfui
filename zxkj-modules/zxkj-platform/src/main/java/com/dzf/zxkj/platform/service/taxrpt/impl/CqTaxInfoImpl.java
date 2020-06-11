@@ -68,7 +68,7 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 	@Autowired
 	private ITaxBalaceCcrService taxbalancesrv;
 	@Autowired
-	private static TaxCqtcConfig cqtcConfig;
+	private TaxCqtcConfig cqtcConfig;
 
 	@Override
 	public String processSendTaxReport(CQTaxReportVO taxInfo) throws DZFWarpException {
@@ -846,7 +846,7 @@ public class CqTaxInfoImpl implements ICqTaxInfoService {
 
 	}
 
-	private static String doPost(String xml, String charset) {
+	private String doPost(String xml, String charset) {
 //		String url = CqtcPropertyUtils.getProperties().getProperty("url");
 		String url = cqtcConfig.url;
 		HttpClient httpClient = null;
