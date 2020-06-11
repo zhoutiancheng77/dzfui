@@ -44,7 +44,7 @@ public class ExcelExportZheJiangHander extends ExcelExportHander implements More
         Resource resource = ResourceUtil.get(ExportTemplateEnum.ZHEJIANG, ResourceUtil.ResourceEnum.KJ2007XJLL);
         Workbook workbook = WorkbookFactory.create(resource.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
-        handleXjllSheet(sheet, taxaxVoMap, vOMap, 4, new Integer[] { 0, 2, 3 }, new String[] { "bqje", "sqje" });
+        handleXjllSheet(sheet, taxaxVoMap, vOMap, 4, new Integer[] { 0, 2, 3 }, new String[] { "sqje", "sqje_last" });
         return workbook;
     }
 

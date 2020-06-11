@@ -40,7 +40,7 @@ public class ExcelExportJiangXiHandler extends ExcelExportHander
 		// 利润表
 		sheet = workbook.getSheetAt(1);
 		handleLrbSheet(sheet, lrbTaxVoMap, lrbVOMap, 4, new Integer[] { 0, 2, 3 },
-				new String[] { "bnljje", "lastyear_bnljje" });
+				new String[] { "byje", "bnljje" });
 		return workbook;
 	}
 

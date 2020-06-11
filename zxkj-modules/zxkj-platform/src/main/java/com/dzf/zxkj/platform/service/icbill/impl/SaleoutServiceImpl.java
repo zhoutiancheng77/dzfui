@@ -2232,7 +2232,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 			}
 				String sourcetype = hvo.getSourcebilltype();
 				if (IBillTypeCode.HP75.equals(sourcetype)) {
-					throw new BusinessException("红字冲回单据,不允许操作!");
+//					throw new BusinessException("红字冲回单据,不允许操作!");
 				}
 		}
 	}
