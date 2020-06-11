@@ -734,7 +734,7 @@ public class BusinessController extends  BaseAppController{
 //            beanvo.setResmsg(e.getMessage());
 //            beanvo.setRescode(IConstant.FIRDES);
 //            log.error("生成凭证失败!", log);
-            printErrorJson(bean,e,log,"生成凭证失败!");
+            printErrorJson(beanvo,e,log,"生成凭证失败!");
         }
 
         return beanvo;
