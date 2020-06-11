@@ -24,8 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class CpaccountUtil {
 
-	@Autowired
-	private SingleObjectBO singleObjectBO;
 	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
 	private IZxkjRemoteAppService iZxkjRemoteAppService;
 
@@ -60,7 +58,7 @@ public class CpaccountUtil {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public Object[] getNextKmOrFzxm(String kmcode, String pk_corp, YntCpaccountVO[] cpavos, String gfmc, String xfmc)
+	public Object[] getNextKmOrFzxm(String kmcode, String pk_corp, YntCpaccountVO[] cpavos, String gfmc, String xfmc,IZxkjRemoteAppService iZxkjRemoteAppService,SingleObjectBO singleObjectBO)
 			throws DZFWarpException {
 
 		if (StringUtil.isEmpty(kmcode)) {
@@ -72,7 +70,7 @@ public class CpaccountUtil {
 
 		SQLParameter sp = new SQLParameter();
 
-		Object[] nextids = obtainKM(cpavos, kmcode, singleObjectBO, sp);
+		Object[] nextids = obtainKM(cpavos, kmcode, singleObjectBO, sp,iZxkjRemoteAppService);
 		if (nextids == null) {
 			throw new BusinessException("未查到相应科目(或辅助项目)!");
 		}
@@ -80,7 +78,7 @@ public class CpaccountUtil {
 	}
 
 
-	private Object[] obtainKM(YntCpaccountVO[] cpavos, String kmcode, SingleObjectBO singleObjectBO, SQLParameter sp) {
+	private Object[] obtainKM(YntCpaccountVO[] cpavos, String kmcode, SingleObjectBO singleObjectBO, SQLParameter sp,IZxkjRemoteAppService iZxkjRemoteAppService) {
 		for (YntCpaccountVO cpavo : cpavos) {
 			if (cpavo.getAccountcode().equals(kmcode)) {
 				if (cpavo.getIsleaf() != null && cpavo.getIsleaf().booleanValue()
@@ -105,7 +103,7 @@ public class CpaccountUtil {
 				} else {
 					String newrule = iZxkjRemoteAppService.queryAccountRule(cpavo.getPk_corp());
 					String kmnew = getNextCode(kmcode, newrule);
-					return obtainKM(cpavos, kmnew, singleObjectBO, sp);
+					return obtainKM(cpavos, kmnew, singleObjectBO, sp,iZxkjRemoteAppService);
 				}
 			}
 		}

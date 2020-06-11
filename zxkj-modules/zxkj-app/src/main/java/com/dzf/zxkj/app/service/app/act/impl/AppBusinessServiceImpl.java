@@ -96,7 +96,6 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 	private IAppApproveService appapprovehand;
 
 
-
 	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
 	private IZxkjRemoteAppService iZxkjRemoteAppService;
 
@@ -554,7 +553,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 //
 //			account = getAccountByCode(modelcode, accounts);
 
-			Object[] objs = CpaccountUtil.getInstance().getNextKmOrFzxm(model.getKmbm(), pk_corp, accounts, "", "");
+			Object[] objs = CpaccountUtil.getInstance().getNextKmOrFzxm(model.getKmbm(), pk_corp, accounts, "", "",iZxkjRemoteAppService,singleObjectBO);
 
 			account = (YntCpaccountVO)objs[0];
 
