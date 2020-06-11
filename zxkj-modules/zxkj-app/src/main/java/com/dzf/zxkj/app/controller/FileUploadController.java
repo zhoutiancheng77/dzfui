@@ -118,7 +118,7 @@ public class FileUploadController extends  BaseAppController{
 //            log.error(e.getMessage(),e);
             printErrorJson(respBean,e,log,"上传失败!");
         }
-        return ReturnData.ok().data(null);
+        return ReturnData.ok().data(respBean);
     }
 
     /**
