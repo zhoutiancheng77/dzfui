@@ -36,8 +36,9 @@ public class AppVerifyServiceImpl implements IAppVerifyService {
         SMSServiceNew smsServ = new SMSServiceNew(smsVO);
         SMSResVO headvo = smsServ.sendPostData();
         if(!headvo.isSuccess()){
-            throw new BusinessException("短信发送失败，请稍后重试");
+            //throw new BusinessException("短信发送失败，请稍后重试");
+            return headvo.getMsg();//"短信发送失败，请稍后重试";
         }
-        return "短信发送成功";
+        return null;//"短信发送成功"
     }
 }
