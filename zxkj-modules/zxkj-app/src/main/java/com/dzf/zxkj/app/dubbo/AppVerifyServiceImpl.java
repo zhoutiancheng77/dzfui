@@ -34,11 +34,16 @@ public class AppVerifyServiceImpl implements IAppVerifyService {
         //验证码:${verify}，（大账房绝对不会索取此验证码，切勿告知他人），请您10分钟内在页面中输入以完成验证。
         //【大帐房】 您正在进行短信验证码登录操作，验证码${verify}。(验证码不要告知他人，否则可能导致账号被盗，请勿泄露)
         SMSServiceNew smsServ = new SMSServiceNew(smsVO);
-        SMSResVO headvo = smsServ.sendPostData();
-        if(!headvo.isSuccess()){
-            //throw new BusinessException("短信发送失败，请稍后重试");
-            return headvo.getMsg();//"短信发送失败，请稍后重试";
+        try{
+            SMSResVO headvo = smsServ.sendPostData();
+            if(!headvo.isSuccess()){
+                //throw new BusinessException("短信发送失败，请稍后重试");
+                return headvo.getMsg();//"短信发送失败，请稍后重试";
+            }
+        }catch (Exception e){
+            return  e.getMessage();
         }
+
         return null;//"短信发送成功"
     }
 }
