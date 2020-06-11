@@ -45,7 +45,7 @@ public class ExcelExportQingDaoHander extends ExcelExportHander implements OneWo
                 new String[] { "qmye1", "ncye1", "qmye2", "ncye2" });
         // 利润表
         sheet = workbook.getSheetAt(2);
-        handleLrbSheet(sheet, lrbTaxVoMap, lrbVOMap, 6, new Integer[] { 1, 2, 3 },
+        handleLrbSheet(sheet, lrbTaxVoMap, lrbVOMap, 5, new Integer[] { 1, 2, 3 },
                 new String[] { "bnljje", "lastyear_bnljje" });
         // 现金流量表
         sheet = workbook.getSheetAt(3);
