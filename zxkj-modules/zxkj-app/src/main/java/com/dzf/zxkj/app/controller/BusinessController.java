@@ -6,6 +6,7 @@ import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
 import com.dzf.admin.model.app.transfer.filetrans.RetAppFiletransBVO;
 import com.dzf.admin.model.app.transfer.filetrans.RetAppQunGroup;
 import com.dzf.admin.model.app.transfer.filetrans.RetDataFileDocVO;
+import com.dzf.zxkj.app.model.app.corp.ScanCorpInfoVO;
 import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
 import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
@@ -16,6 +17,7 @@ import com.dzf.zxkj.app.model.sys.ProblemVo;
 import com.dzf.zxkj.app.pub.constant.IBusiConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
+import com.dzf.zxkj.app.service.IScanCorpInfo;
 import com.dzf.zxkj.app.service.app.act.IAppApproveService;
 import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
 import com.dzf.zxkj.app.service.app.act.IQryReport1Service;
@@ -23,6 +25,7 @@ import com.dzf.zxkj.app.service.bill.IAppInvoiceService;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
 import com.dzf.zxkj.app.utils.AppkeyUtil;
+import com.dzf.zxkj.app.utils.BaseTimerCache;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -62,6 +65,10 @@ public class BusinessController extends  BaseAppController{
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppFiletransService iDzfAppFiletransService;
 
+    @Autowired
+    private IScanCorpInfo scancorpSer;
+
+    public static BaseTimerCache<String, Object> busi_identify = new BaseTimerCache<String, Object>();
 
     @RequestMapping("/doBusiAction")
     public ReturnData<BusinessResonseBeanVO> doBusiAction(@RequestParam Map<String,Object> param) {
@@ -137,9 +144,9 @@ public class BusinessController extends  BaseAppController{
 //                bean = doTradeQry(userbean);
 //                break;
 //            //---------扫描营业执照----------
-//            case IBusiConstant.SCAN_YYZZ:
-//                bean = doScanYyzz(userbean);
-//                break;
+            case IBusiConstant.SCAN_YYZZ:
+                bean = doScanYyzz(userbean);
+                break;
             //-----获取首页信息(目前有 营业执照链接，征期信息)
             case IBusiConstant.INDEX_MSG:
                 bean = doIndexMsg(userbean);
@@ -856,6 +863,27 @@ public class BusinessController extends  BaseAppController{
 //            log.error("查询审批流设置失败!", log);
             printErrorJson(bean,e,log,"查询审批流设置失败!");
         }
+        return bean;
+    }
+
+
+    /**
+     * 扫描营业执照
+     * @param userbean
+     * @return
+     */
+    private BusinessResonseBeanVO doScanYyzz(BusiReqBeanVo userbean) {
+        BusinessResonseBeanVO  bean= new BusinessResonseBeanVO();
+        try {
+            ScanCorpInfoVO infovo = scancorpSer.scanPermit(userbean.getDrcode());
+            infovo.setInnercode(infovo.getVsoccrecode());
+            bean.setRescode(IConstant.DEFAULT);
+            bean.setResmsg(infovo.getUnitname());
+            busi_identify.put(infovo.getUnitname(), infovo);
+        } catch (Exception e) {
+            printErrorJson(bean, e, log, "信息不存在");
+        }
+
         return bean;
     }
 }

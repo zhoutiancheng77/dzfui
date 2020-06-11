@@ -241,12 +241,12 @@ public class CommonXml {
         return cipher;
     }
 	
-    public static Element getContentElement(String zip, String encry, String content) {
-		Element root = null;
+    public static String getContentElement(String zip, String encry, String content) {
+		String strs = null;
 		try {
 			byte[] bytes = Base64CodeUtils.decode(content);// 先base64解码
 //			String strs = new String(bytes);
-			String strs = null;
+			//String strs = null;
 			//解压缩
 			if (!CommonXml.unzip.equals(zip)){
 				bytes = decompress(bytes);
@@ -262,12 +262,12 @@ public class CommonXml {
 				
 			}
 			strs = new String(bytes,"UTF-8");
-			Document document = DocumentHelper.parseText(strs);
-			root = document.getRootElement();
+			//Document document = DocumentHelper.parseText(strs);
+			//root = document.getRootElement();
 		} catch (Exception e) {
 			log.error("错误",e);
 		}
-		return root;
+		return strs;
 	}
 	
 	/**

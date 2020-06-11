@@ -35,10 +35,12 @@ import com.dzf.zxkj.app.utils.*;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.ArrayProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
+import com.dzf.zxkj.base.utils.DZfcommonTools;
 import com.dzf.zxkj.common.constant.FieldConstant;
 import com.dzf.zxkj.common.constant.IBillTypeCode;
 import com.dzf.zxkj.common.constant.ISysConstants;
@@ -48,10 +50,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
-import com.dzf.zxkj.common.utils.Common;
-import com.dzf.zxkj.common.utils.IDefaultValue;
-import com.dzf.zxkj.common.utils.SafeCompute;
-import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.common.utils.*;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.image.DcModelBVO;
@@ -67,6 +66,10 @@ import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.report.service.IZxkjRemoteAppService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -656,7 +659,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 			// 根据生成的value 解析xml
 			GenTicketUtil util = new GenTicketUtil();
 
-			vo = util.genTickMsgVO(value, drcode, account_id);
+			vo = util.genTickMsgVO(value, drcode, account_id,iZxkjRemoteAppService);
 
 			vo.setAttributeValue("drcode", drcode);
 
@@ -716,6 +719,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 
 		return vo;
 	}
+
 	private String validateTickFromPt(String pk_corp, String admincorpid, String drcode, String account_id,
 			Integer limitcount) {
 		if(StringUtil.isEmpty(drcode)){
