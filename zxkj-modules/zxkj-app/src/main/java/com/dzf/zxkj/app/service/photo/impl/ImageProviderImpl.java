@@ -56,6 +56,7 @@ import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanProcessor;
+import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -2924,66 +2925,66 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 
 
 //
-//	/**
-//	 * 删除上传记录
-//	 */
-//	@Override
-//	public Integer deleteRecord(String sessionflag,String pk_corp) throws DZFWarpException {
-//
-//		StringBuffer groupsql  = new StringBuffer();
-//		SQLParameter sp = new SQLParameter();
-//
-//		groupsql.append("SELECT * FROM YNT_IMAGE_GROUP  ");
-//		groupsql.append("   where nvl(dr,0)=0 and  ");
-//		groupsql.append("    (sessionflag =? or pk_image_group = ? )");
-//		groupsql.append("   and pk_corp = ? ");
-//		sp.addParam(sessionflag);
-//		sp.addParam(sessionflag);
-//		sp.addParam(pk_corp);
-//
-//		List<ImageGroupVO> listgroup = 	(List<ImageGroupVO>) singleObjectBO.executeQuery(groupsql.toString(), sp, new BeanListProcessor(ImageGroupVO.class));
-//
-//		if(listgroup!=null && listgroup.size()>0){
-//			StringBuffer groupid = new StringBuffer();
-//			for(ImageGroupVO groupvo:listgroup){
-//				groupid.append("'"+groupvo.getPrimaryKey()+"',");
-//			}
-//			//凭证是否引用
-//			String pzsql = "select pk_image_group from ynt_tzpz_h h where nvl(dr,0)=0 and  h.pk_image_group in("+groupid.subSequence(0, groupid.length()-1)+")";
-//			List<String> grouplist = (List<String>) singleObjectBO.executeQuery(pzsql, new SQLParameter(), new ColumnListProcessor());
-//			StringBuffer imgpzsql = new StringBuffer();
-//			imgpzsql.append(" select b.pk_image_group from YNT_IMAGE_VOUCHER a ");
-//			imgpzsql.append("  INNER JOIN  YNT_IMAGE_LIBRARY b ON a.PK_IMAGE_LIBRARY = b.PK_IMAGE_LIBRARY ");
-//			imgpzsql.append(" where nvl(a.dr,0)=0 and nvl(b.dr,0)=0  and  b.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
-//			List<String> imggrouplist = (List<String>) singleObjectBO.executeQuery(imgpzsql.toString(), new SQLParameter(), new ColumnListProcessor());
-//
-//			//数据中心是否引用
-//			StringBuffer  metasql = new StringBuffer();
-//			metasql.append("select l.pk_image_group from ynt_image_meta m inner join ynt_image_library l on m.pk_image_library = l.pk_image_library " );
-//			metasql.append(" where  l.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
-//			metasql.append(" and nvl(l.dr,0)=0 and nvl(m.dr,0)=0");
-//			List<String> grouplist1 = (List<String>) singleObjectBO.executeQuery(metasql.toString(), new SQLParameter(), new ColumnListProcessor());
-//			//判断当前图像是不是被引用
-//			if(grouplist!=null &&  grouplist.size()>0){
-//				throw new BusinessException("凭证已引用不能删除!");
-//			}
-//
-//			if(imggrouplist!=null && imggrouplist.size()>0){
-//				throw new BusinessException("预凭证已引用不能删除!");
-//			}
-//			if(grouplist1!=null && grouplist1.size()>0){
-//				throw new BusinessException("数据中心已引用，不能删除!");
-//			}
-//
-//			for(int i=0;i<listgroup.size();i++){
-//				listgroup.get(i).setDr(1);
-//			}
-//			int res = singleObjectBO.updateAry(listgroup.toArray(new ImageGroupVO[0]));
-//
-//			return res;
-//		}
-//		return 0;
-//	}
+	/**
+	 * 删除上传记录
+	 */
+	@Override
+	public Integer deleteRecord(String sessionflag,String pk_corp) throws DZFWarpException {
+
+		StringBuffer groupsql  = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+
+		groupsql.append("SELECT * FROM YNT_IMAGE_GROUP  ");
+		groupsql.append("   where nvl(dr,0)=0 and  ");
+		groupsql.append("    (sessionflag =? or pk_image_group = ? )");
+		groupsql.append("   and pk_corp = ? ");
+		sp.addParam(sessionflag);
+		sp.addParam(sessionflag);
+		sp.addParam(pk_corp);
+
+		List<ImageGroupVO> listgroup = 	(List<ImageGroupVO>) singleObjectBO.executeQuery(groupsql.toString(), sp, new BeanListProcessor(ImageGroupVO.class));
+
+		if(listgroup!=null && listgroup.size()>0){
+			StringBuffer groupid = new StringBuffer();
+			for(ImageGroupVO groupvo:listgroup){
+				groupid.append("'"+groupvo.getPrimaryKey()+"',");
+			}
+			//凭证是否引用
+			String pzsql = "select pk_image_group from ynt_tzpz_h h where nvl(dr,0)=0 and  h.pk_image_group in("+groupid.subSequence(0, groupid.length()-1)+")";
+			List<String> grouplist = (List<String>) singleObjectBO.executeQuery(pzsql, new SQLParameter(), new ColumnListProcessor());
+			StringBuffer imgpzsql = new StringBuffer();
+			imgpzsql.append(" select b.pk_image_group from YNT_IMAGE_VOUCHER a ");
+			imgpzsql.append("  INNER JOIN  YNT_IMAGE_LIBRARY b ON a.PK_IMAGE_LIBRARY = b.PK_IMAGE_LIBRARY ");
+			imgpzsql.append(" where nvl(a.dr,0)=0 and nvl(b.dr,0)=0  and  b.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
+			List<String> imggrouplist = (List<String>) singleObjectBO.executeQuery(imgpzsql.toString(), new SQLParameter(), new ColumnListProcessor());
+
+			//数据中心是否引用
+			StringBuffer  metasql = new StringBuffer();
+			metasql.append("select l.pk_image_group from ynt_image_meta m inner join ynt_image_library l on m.pk_image_library = l.pk_image_library " );
+			metasql.append(" where  l.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
+			metasql.append(" and nvl(l.dr,0)=0 and nvl(m.dr,0)=0");
+			List<String> grouplist1 = (List<String>) singleObjectBO.executeQuery(metasql.toString(), new SQLParameter(), new ColumnListProcessor());
+			//判断当前图像是不是被引用
+			if(grouplist!=null &&  grouplist.size()>0){
+				throw new BusinessException("凭证已引用不能删除!");
+			}
+
+			if(imggrouplist!=null && imggrouplist.size()>0){
+				throw new BusinessException("预凭证已引用不能删除!");
+			}
+			if(grouplist1!=null && grouplist1.size()>0){
+				throw new BusinessException("数据中心已引用，不能删除!");
+			}
+
+			for(int i=0;i<listgroup.size();i++){
+				listgroup.get(i).setDr(1);
+			}
+			int res = singleObjectBO.updateAry(listgroup.toArray(new ImageGroupVO[0]));
+
+			return res;
+		}
+		return 0;
+	}
 //
 //	public IMageVoucherVO[] batchCreateHDVoucher(ImageHuadaoHVO[] imageVOs,String user, DZFDate date) throws DZFWarpException{
 //		IMageVoucherVO[] resultBillVOs = null;

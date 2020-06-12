@@ -688,7 +688,9 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 	public OcrInvoiceVOForApp querySbDetail(String sbid) throws DZFWarpException {
 		return null;
 	}
-
+	public Integer deleteRecord(String sessionflag, String pk_corp) throws DZFWarpException {
+		return null;
+	}
 
 //	 public static int GetNextNumber(Integer[] iNumList)
 //     {

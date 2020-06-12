@@ -246,13 +246,13 @@ public interface IImageProviderPhoto {
 //	 */
 //	public List<ImageGroupVO> queryImgGroupvo(ReportBeanVO uBean)throws DZFWarpException;
 //
-//	/**
-//	 * 删除上传记录
-//	 * @return
-//	 * @throws DZFWarpException
-//	 */
-//	public Integer deleteRecord(String sessionflag, String pk_corp) throws DZFWarpException;
-//
+	/**
+	 * 删除上传记录
+	 * @return
+	 * @throws DZFWarpException
+	 */
+	public Integer deleteRecord(String sessionflag, String pk_corp) throws DZFWarpException;
+
 //	/**
 //	 * 华道生成预凭证
 //	 * @param imageVOs

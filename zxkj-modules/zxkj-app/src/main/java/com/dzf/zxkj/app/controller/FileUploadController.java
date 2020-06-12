@@ -1,10 +1,7 @@
 package com.dzf.zxkj.app.controller;
 
 import com.dzf.zxkj.app.model.image.ImageUploadRecordVO;
-import com.dzf.zxkj.app.model.resp.bean.ImageBeanVO;
-import com.dzf.zxkj.app.model.resp.bean.ImageReqVO;
-import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
-import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
+import com.dzf.zxkj.app.model.resp.bean.*;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
 import com.dzf.zxkj.app.pub.constant.MarkConstant;
@@ -378,7 +375,34 @@ public class FileUploadController extends  BaseAppController{
     }
 
 
+    public  ReturnData<ResponseBaseBeanVO> deleteImageRecord( ReportBeanVO uBean) {
+        ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
+        try {
+          //  ReportBeanVO uBean = (ReportBeanVO) DzfTypeUtils.cast(getRequest(), new ReportBeanVO());
 
+            validatePower(respBean, uBean);
+
+           // String token = getRequest().getParameter("token");
+           // String userid = getRequest().getParameter("account_id");
+           // String corp = getRequest().getParameter("corp");
+           // String devicemsg = getRequest().getParameter("devicmsg");
+           // String systype  = getRequest().getParameter("systype");
+
+            if(AppCheckValidUtils.isEmptyCorp(uBean.getPk_corp())){
+                throw new BusinessException("公司尚未正式签约!");
+            }
+            IImageProviderPhoto ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
+            String sessinflag = uBean.getGroupsession();
+            int rcds = ip.deleteRecord(sessinflag, uBean.getPk_corp());// 获取用户上传记录
+            respBean.setRescode(IConstant.DEFAULT);
+            respBean.setResmsg("删除成功!");
+
+        } catch (Exception e) {
+            printErrorJson(respBean, e, log, "删除失败");
+        }
+        return ReturnData.ok().data(respBean);
+
+    }
 
     private void putImgeNumber(ResponseBaseBeanVO respBean, UserBeanVO uBean) {
         //查询当前上传的图片
