@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.platform.PlatformVO;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.service.INotifyService;
+import com.dzf.zxkj.auth.model.sys.UserModel;
+import com.dzf.zxkj.common.entity.CachedLoginUser;
+import com.dzf.zxkj.common.entity.Platform;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
-import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.mapper.UserMapper;
-import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.ISysService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,10 +46,18 @@ public class INotifyServiceImpl implements INotifyService {
                 UserModel userModel = queryUser(String.valueOf(uservo.getId()));
                 uservo.setPlatformUserId(userModel.getCuserid());
             }
-            LoginUser loginUser = authCache.getLoginUser(uservo.getPlatformUserId());
+            CachedLoginUser loginUser = authCache.getLoginUser(uservo.getPlatformUserId());
             if(loginUser != null && !StringUtils.isBlank(loginUser.getDzfAuthToken()) && loginUser.getDzfAuthToken().equals(token)){
                 Set<PlatformVO> list = uservo.getCanJumpPlatforms().stream().filter(k -> k.isShow() && !zxkjPlatformAuthConfig.getPlatformName().equals(k.getPlatformTag())).collect(Collectors.toSet());
-                loginUser.setPlatformVOSet(list);
+                loginUser.setPlatformVOSet(list.stream().map(v -> {
+                    Platform platform = new Platform();
+                    platform.setPlatformName(v.getPlatformName());
+                    platform.setPlatformTag(v.getPlatformTag());
+                    platform.setPlatformIndexPage(v.getPlatformIndexPage());
+                    platform.setPlatformDomain(v.getPlatformDomain());
+                    platform.setShow(v.isShow());
+                    return platform;
+                }).collect(Collectors.toSet()));
                 authCache.putLoginUser(loginUser.getUserid(), loginUser);
             }
         }

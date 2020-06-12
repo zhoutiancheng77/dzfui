@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.auth.service.impl;
 
+import com.dzf.zxkj.auth.model.sys.CorpModel;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
@@ -11,7 +12,6 @@ import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
 import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
-import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
 import com.dzf.zxkj.platform.auth.service.IChargeEnableService;
 import com.dzf.zxkj.platform.auth.service.ISysService;
 import com.dzf.zxkj.platform.auth.service.IVersionMngService;

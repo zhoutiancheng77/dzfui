@@ -72,7 +72,7 @@
         </dependency>
         <dependency>
             <groupId>com.dzf</groupId>
-            <artifactId>zxkj-platform-auth-api</artifactId>
+            <artifactId>zxkj-auth-jwt</artifactId>
             <version>1.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>

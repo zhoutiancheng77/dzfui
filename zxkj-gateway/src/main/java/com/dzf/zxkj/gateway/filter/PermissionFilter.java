@@ -1,15 +1,14 @@
 package com.dzf.zxkj.gateway.filter;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSONObject;
+import com.dzf.zxkj.auth.model.jwt.IJWTInfo;
+import com.dzf.zxkj.auth.utils.JWTUtil;
 import com.dzf.zxkj.common.constant.ISysConstant;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.enums.HttpStatusEnum;
+import com.dzf.zxkj.gateway.cache.PermissionCache;
 import com.dzf.zxkj.gateway.config.GatewayConfig;
-import com.dzf.zxkj.platform.auth.model.jwt.IJWTInfo;
-import com.dzf.zxkj.platform.auth.service.IAuthService;
-import com.dzf.zxkj.platform.auth.service.ISysService;
-import com.dzf.zxkj.platform.auth.utils.JWTUtil;
+import com.dzf.zxkj.gateway.utils.AuthUtil;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
@@ -23,7 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Set;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
 
@@ -31,11 +29,17 @@ import static org.springframework.cloud.netflix.zuul.filters.support.FilterConst
 @Slf4j
 public class PermissionFilter extends ZuulFilter {
 
-    @Reference(version = "1.0.0")
-    private ISysService sysService;
+//    @Reference(version = "1.0.0")
+//    private ISysService sysService;
 
-    @Reference(version = "1.0.0")
-    private IAuthService authService;
+//    @Reference(version = "1.0.0")
+//    private IAuthService authService;
+
+    @Autowired
+    private AuthUtil authUtil;
+
+    @Autowired
+    private PermissionCache permissionCache;
 
     @Autowired
     private GatewayConfig gatewayConfig;
@@ -105,16 +109,14 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
 
-
-
         //判断是否处于登录状态
-        if (StringUtils.isNotBlank(clientId) && authService.validateMultipleLogin(useridFormToken, clientId)) {
+        if (StringUtils.isNotBlank(clientId) && authUtil.validateMultipleLogin(useridFormToken, clientId)) {
             sendError(HttpStatus.PAYMENT_REQUIRED, HttpStatusEnum.MULTIPLE_LOGIN_ERROR, requestContext);
             return null;
         }
 
         //token过期时间校验
-        if (authService.validateTokenEx(useridFormToken, clientId)) {
+        if (authUtil.validateTokenEx(useridFormToken, clientId)) {
             sendError(HttpStatus.UNAUTHORIZED, HttpStatusEnum.EX_TOKEN_EXPIRED_CODE, requestContext);
             return null;
         }
@@ -123,7 +125,7 @@ public class PermissionFilter extends ZuulFilter {
             return null;
         }
 
-        // 加缓存之前去掉  gzhx
+        // 公司校验和权限校验  加缓存之前去掉  gzhx
         //用户与公司关联校验
 //        List<String> corps = authService.getPkCorpByUserId(useridFormToken);
 //        if (corps == null || corps.contains(currentCorp)) {
@@ -141,20 +143,17 @@ public class PermissionFilter extends ZuulFilter {
 //        }
 
         //权限校验
-        Set<String> allPermissions = authService.getAllPermission();
-        log.info("useridFormToken-----"+useridFormToken);
-        log.info("currentCorp-----"+currentCorp);
-        log.info("request.getRequestURL()-----"+request.getRequestURL());
-        Set<String> myPermisssions = authService.getPermisssionByUseridAndPkCorp(useridFormToken, currentCorp);
-
-        String path = request.getRequestURI();
-
-        String serverPath = path.replace("/api", "");
-
-        if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
-            sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
-            return null;
-        }
+//        Set<String> allPermissions = permissionCache.getAllPermission();
+//        Set<String> myPermisssions = permissionCache.getUserCorpPermission(useridFormToken, currentCorp);
+//
+//        String path = request.getRequestURI();
+//
+//        String serverPath = path.replace("/api", "");
+//
+//        if (allPermissions.contains(serverPath) && !myPermisssions.contains(serverPath)) {
+//            sendError(HttpStatus.FORBIDDEN, HttpStatusEnum.EX_USER_FORBIDDEN_CODE, requestContext);
+//            return null;
+//        }
 
         return null;
     }
