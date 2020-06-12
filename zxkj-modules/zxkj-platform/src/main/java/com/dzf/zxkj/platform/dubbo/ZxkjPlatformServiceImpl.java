@@ -623,5 +623,10 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
         }
     }
 
+    @Override
+    public byte[] execCrkPrintTask(BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO) {
+        return new byte[0];
+    }
+
 
 }
