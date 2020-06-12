@@ -51,7 +51,8 @@ public class RkPrint extends  AbstractPrint {
         // 老模式 启用库存
         PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, null);
         printReporUtil.setbSaveDfsSer(DZFBoolean.TRUE);
-        printReporUtil.setIscross(new DZFBoolean(printParamVO.getPageOrt()));
+//        printReporUtil.setIscross(new DZFBoolean(printParamVO.getPageOrt()));
+        printReporUtil.setIscross(DZFBoolean.FALSE);
         Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
         if (corpVO.getIbuildicstyle() == null || corpVO.getIbuildicstyle() != 1) {
             try {
