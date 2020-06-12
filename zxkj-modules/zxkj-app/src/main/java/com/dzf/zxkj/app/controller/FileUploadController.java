@@ -379,7 +379,10 @@ public class FileUploadController extends  BaseAppController{
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
         try {
           //  ReportBeanVO uBean = (ReportBeanVO) DzfTypeUtils.cast(getRequest(), new ReportBeanVO());
-
+            UserVO uservo = queryUserVOId(uBean.getAccount_id());
+            uBean.setUsercode(uservo.getUser_code());
+            uBean.setAccount_id(uservo.getCuserid());
+            uBean.setAccount(uservo.getUser_code());
             validatePower(respBean, uBean);
 
            // String token = getRequest().getParameter("token");
