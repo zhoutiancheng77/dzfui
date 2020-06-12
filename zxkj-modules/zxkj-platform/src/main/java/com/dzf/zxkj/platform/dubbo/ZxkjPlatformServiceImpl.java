@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.controller.glic.CrkPrintUtil;
 import com.dzf.zxkj.platform.controller.voucher.VoucherPrintController;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.*;
@@ -625,7 +626,14 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
 
     @Override
     public byte[] execCrkPrintTask(BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO) {
-        return new byte[0];
+        try {
+            CrkPrintUtil crkPrintUtil = new CrkPrintUtil();
+            byte[] bytes =  crkPrintUtil.batchPrintCrkContentToByte(setvo, userVO, corpVO);
+            return bytes;
+        }catch (Exception e) {
+            log.error(String.format("调用execCrkPrintTask异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
     }
 
 

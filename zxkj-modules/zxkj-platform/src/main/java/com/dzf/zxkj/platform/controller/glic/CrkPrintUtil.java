@@ -8,21 +8,31 @@ import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.Common;
 import com.dzf.zxkj.common.utils.SafeCompute;
 import com.dzf.zxkj.common.utils.StringUtil;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.glic.IcDetailVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherPrintParam;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
+import com.dzf.zxkj.platform.service.glic.ICrkMxService;
+import com.dzf.zxkj.platform.service.pzgl.IPzglService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.util.NumberToCN;
 import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,9 +43,55 @@ import java.util.Map.Entry;
  *
  * @author zhangj
  */
+@Slf4j
 public class CrkPrintUtil {
 
     private static final float PDF_PERCENT = 0.75f;
+
+
+    public byte[] batchPrintCrkContentToByte(BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO){
+        Rectangle pageSize = PageSize.A4;
+        float leftsize = 47f;
+        float rightsize = 15f;
+        float topsize = 36f;
+        Document document = new Document(pageSize, leftsize, rightsize, topsize, 4);
+        ByteArrayOutputStream buffer = null;
+//        FileOutputStream fileOutputStream = null;
+        try{
+            String printperiod =  setvo.getVprintperiod();
+            IPzglService gl_pzglserv = (IPzglService) SpringUtils.getBean("gl_pzglserv");
+            List<String> idlists =  gl_pzglserv.queryIds(printperiod.split("~")[0] , printperiod.split("~")[1], corpVO.getPk_corp());
+            ICrkMxService gl_rep_crkmxserv = (ICrkMxService) SpringUtils.getBean("gl_rep_crkmxserv");
+            SingleObjectBO singleObjectBO = (SingleObjectBO) SpringUtils.getBean("singleObjectBO");
+            Map<String, List<IcDetailVO>> crkmxlist = gl_rep_crkmxserv.queryCrkmxs(null,
+                    idlists.toArray(new String[0]), corpVO.getPk_corp(), "");
+            buffer = new ByteArrayOutputStream();
+//            fileOutputStream = new FileOutputStream(new File("d:/dddd.pdf"));
+            PdfWriter writer = PdfWriter.getInstance(document, buffer);
+            document.open();
+            PdfContentByte canvas = writer.getDirectContent();
+            CrkPrintUtil printutil = new CrkPrintUtil();
+            // 赋值首字符的值
+            batchPrintCrkContent(leftsize, topsize, document, canvas, crkmxlist, corpVO);
+            document.close();
+            byte[] bytes =  buffer.toByteArray();
+            return bytes;
+        }  catch (Exception e) {
+            log.error("打印出入库明细", e);
+        }finally {
+//            if (document !=null) {
+//                document.close();
+//            }
+            try {
+                if (buffer != null) {
+                    buffer.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+       return null;
+
+    }
 
     /**
      * 批量打印出入库明细
