@@ -374,7 +374,7 @@ public class FileUploadController extends  BaseAppController{
         }
     }
 
-
+    @RequestMapping("/deleteImageRecord")
     public  ReturnData<ResponseBaseBeanVO> deleteImageRecord( ReportBeanVO uBean) {
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
         try {
