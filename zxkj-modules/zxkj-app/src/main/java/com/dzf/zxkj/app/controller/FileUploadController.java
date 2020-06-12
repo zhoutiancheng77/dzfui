@@ -384,16 +384,15 @@ public class FileUploadController extends  BaseAppController{
             uBean.setAccount_id(uservo.getCuserid());
             uBean.setAccount(uservo.getUser_code());
             validatePower(respBean, uBean);
-
            // String token = getRequest().getParameter("token");
            // String userid = getRequest().getParameter("account_id");
            // String corp = getRequest().getParameter("corp");
            // String devicemsg = getRequest().getParameter("devicmsg");
            // String systype  = getRequest().getParameter("systype");
 
-            if(AppCheckValidUtils.isEmptyCorp(uBean.getPk_corp())){
-                throw new BusinessException("公司尚未正式签约!");
-            }
+//            if(AppCheckValidUtils.isEmptyCorp(uBean.getPk_corp())){
+//                throw new BusinessException("公司尚未正式签约!");
+//            }
             IImageProviderPhoto ip = (IImageProviderPhoto) SpringUtils.getBean("poimp_imagepro");
             String sessinflag = uBean.getGroupsession();
             int rcds = ip.deleteRecord(sessinflag, uBean.getPk_corp());// 获取用户上传记录
