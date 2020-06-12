@@ -375,7 +375,7 @@ public class FileUploadController extends  BaseAppController{
     }
 
     @RequestMapping("/deleteImageRecord")
-    public  ReturnData<ResponseBaseBeanVO> deleteImageRecord( ReportBeanVO uBean) {
+    public  ReturnData<ResponseBaseBeanVO> deleteImageRecord( ReportBeanVO uBean,String corp,String tcorp) {
         ResponseBaseBeanVO respBean = new ResponseBaseBeanVO();
         try {
           //  ReportBeanVO uBean = (ReportBeanVO) DzfTypeUtils.cast(getRequest(), new ReportBeanVO());
@@ -383,6 +383,8 @@ public class FileUploadController extends  BaseAppController{
             uBean.setUsercode(uservo.getUser_code());
             uBean.setAccount_id(uservo.getCuserid());
             uBean.setAccount(uservo.getUser_code());
+            uBean.setPk_corp(corp);
+            uBean.setPk_tempcorp(tcorp);
             validatePower(respBean, uBean);
            // String token = getRequest().getParameter("token");
            // String userid = getRequest().getParameter("account_id");
