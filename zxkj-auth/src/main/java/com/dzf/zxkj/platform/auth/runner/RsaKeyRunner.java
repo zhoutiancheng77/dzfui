@@ -37,17 +37,18 @@ public class RsaKeyRunner implements CommandLineRunner {
         //启动获取秘钥
         Map<String, byte[]> keyMap;
         CacheGetResult<Map<String, byte[]>> result = rsaKeyCache.GET("rsaKey");
-        if(result.isSuccess()){
+        if (result.isSuccess()) {
             keyMap = rsaKeyCache.get("rsaKey");
-        }else{
+        } else {
             keyMap = RsaKeyUtil.getInstance().generateKey(rsaKeyConfig.getUserSecret());
             rsaKeyCache.put("rsaKey", keyMap);
         }
+        rsaKeyCache.put("rsaKey", keyMap);
         rsaKeyConfig.setUserPriKey(keyMap.get("pri"));
         rsaKeyConfig.setUserPubKey(keyMap.get("pub"));
         log.info("成功获取秘钥");
         //获取所有权限
-        Set<String> permissions =  authService.getAllPermission();
+        Set<String> permissions = authService.getAllPermission();
         permissionCache.putAllPermission(permissions);
         log.info("成功加载权限");
     }
