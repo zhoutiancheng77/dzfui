@@ -1,19 +1,19 @@
 package com.dzf.zxkj.platform.auth.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.dzf.auth.api.model.platform.PlatformVO;
+import com.dzf.zxkj.auth.model.sys.CorpModel;
+import com.dzf.zxkj.auth.model.sys.UserModel;
 import com.dzf.zxkj.common.constant.IcCostStyle;
+import com.dzf.zxkj.common.entity.CachedLoginUser;
 import com.dzf.zxkj.common.entity.Grid;
+import com.dzf.zxkj.common.entity.Platform;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
-import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.entity.YntParameterSet;
 import com.dzf.zxkj.platform.auth.mapper.YntParameterSetMapper;
-import com.dzf.zxkj.platform.auth.model.sys.CorpModel;
-import com.dzf.zxkj.platform.auth.model.sys.UserModel;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
 import com.dzf.zxkj.platform.auth.service.ISysService;
 import com.dzf.zxkj.platform.auth.service.IVersionMngService;
@@ -66,13 +66,13 @@ public class SystemController {
     public void jumpToOther(HttpServletRequest request,
                             HttpServletResponse response,
                             @PathVariable(value = "platform") String platformTag, @PathVariable(value = "userid") String userid) {
-        LoginUser vo = authCache.getLoginUser(userid);
+        CachedLoginUser vo = authCache.getLoginUser(userid);
 
-        Optional<PlatformVO> platformOptional = vo.getPlatformVOSet()
+        Optional<Platform> platformOptional = vo.getPlatformVOSet()
                 .stream()
                 .filter(e -> e.getPlatformTag().equals(platformTag))
                 .findFirst();
-        PlatformVO platform = platformOptional.get();
+        Platform platform = platformOptional.get();
         StringBuilder sb = new StringBuilder(platform.getPlatformDomain())
                 .append(platform.getPlatformIndexPage())
                 .append("?token=")

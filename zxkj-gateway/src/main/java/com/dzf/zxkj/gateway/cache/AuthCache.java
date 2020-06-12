@@ -1,4 +1,4 @@
-package com.dzf.zxkj.platform.auth.cache;
+package com.dzf.zxkj.gateway.cache;
 
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.anno.CacheType;
@@ -21,30 +21,31 @@ public class AuthCache {
     @CreateCache(name = AuthConstant.AUTH_ONLINE, cacheType = CacheType.REMOTE, expire = 8, timeUnit = TimeUnit.HOURS)
     private Cache<String, String> platformUserOnlineCache;
 
-    public CachedLoginUser getLoginUser(String userid) {
+    public CachedLoginUser getLoginUser(String userid){
         return platformUserCache.get(userid);
     }
 
-    public void putLoginUser(String userid, CachedLoginUser loginUser) {
+    public void putLoginUser(String userid, CachedLoginUser loginUser){
         platformUserCache.put(userid, loginUser);
     }
 
-    public void putLoginUnique(String userid, String clientId) {
+    public void putLoginUnique(String userid, String clientId){
         platformUserOnlineCache.put(userid, clientId);
     }
 
-    public boolean checkIsMulti(String userid, String clientId) {
+    public boolean checkIsMulti(String userid, String clientId){
         String client = platformUserOnlineCache.get(userid);
-        return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid)) && !platformUserOnlineCache.get(userid).equals(clientId);
+        return StringUtils.isNoneBlank(client) && !client.equals(clientId);
     }
 
-    public boolean checkIsOnLine(String userid) {
+    public boolean checkIsOnLine(String userid){
         return StringUtils.isNoneBlank(platformUserOnlineCache.get(userid));
     }
 
-    public void logout(String userid, String client) {
+    public void logout(String userid, String client){
+
         String clt = platformUserOnlineCache.get(userid);
-        if (clt != null && clt.equalsIgnoreCase(client)) {
+        if(clt != null && clt.equalsIgnoreCase(client)){
             platformUserOnlineCache.remove(userid);
             platformUserCache.remove(userid);
         }

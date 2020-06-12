@@ -13,6 +13,9 @@ spring:
           - data-id: zxkj-data-source.yaml
             group: dzf-zxkj
             refresh: false
+          - data-id: zxkj-auth-cache.yaml
+            group: dzf-zxkj
+            refresh: false
     zookeeper:
       enabled: false
       consul:

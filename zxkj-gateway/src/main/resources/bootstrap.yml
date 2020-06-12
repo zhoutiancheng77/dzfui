@@ -9,6 +9,10 @@ spring:
         file-extension: yaml
         group: dzf-zxkj
         prefix: ${spring.application.name}
+        ext-config:
+          - data-id: zxkj-auth-cache.yaml
+            group: dzf-zxkj
+            refresh: false
     zookeeper:
       enabled: false
       consul:
