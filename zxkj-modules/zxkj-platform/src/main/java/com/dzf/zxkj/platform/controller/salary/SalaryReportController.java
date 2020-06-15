@@ -641,9 +641,13 @@ public class SalaryReportController  extends BaseController {
         } catch (FileNotFoundException e2) {
             throw new Exception("文件未找到");
         } catch (IOException e2) {
-            throw new Exception("文件格式不正确，请选择导入文件");
-        } catch (Exception e2) {
             throw e2;
+        } catch (Exception e2) {
+            if(e2 instanceof BusinessException ){
+                throw  (BusinessException)e2;
+            }else{
+                throw new BusinessException("导入出错");
+            }
         } finally {
             if (is != null) {
                 try {

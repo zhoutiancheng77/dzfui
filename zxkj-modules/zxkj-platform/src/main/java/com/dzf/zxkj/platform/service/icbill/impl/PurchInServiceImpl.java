@@ -2323,14 +2323,16 @@ public class PurchInServiceImpl implements IPurchInService {
 			}
 			return msg.toString();
 			// }
-		} catch (
-
-		FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			throw new BusinessException("导入文件未找到");
 		} catch (IOException e) {
 			throw new BusinessException("导入文件格式错误");
 		} catch (Exception e) {
-			throw new BusinessException("导入文件格式错误");
+			if(e instanceof BusinessException ){
+				throw  (BusinessException)e;
+			}else{
+				throw new BusinessException("导入出错");
+			}
 		} finally {
 			if (is != null) {
 				try {
