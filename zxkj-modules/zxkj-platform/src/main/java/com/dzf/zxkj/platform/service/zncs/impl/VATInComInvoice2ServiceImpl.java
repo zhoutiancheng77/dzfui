@@ -747,8 +747,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	@Override
 	public void createPZ(VATInComInvoiceVO2 vo, String pk_corp, String userid,String period,
 						 VatInvoiceSetVO setvo, DZFBoolean lwflag, boolean accway, boolean isT,ZncsParamVO zncsParamVO) throws DZFWarpException {
-		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
-		CorpVO corpvo = zncsParamVO.getCorpvo();//corpService.queryByPk(pk_corp);
+
 		//YntCpaccountVO[] accounts = AccountCache.getInstance().get(null, pk_corp);
 
 		List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
@@ -766,9 +765,20 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		OcrImageLibraryVO lib = changeOcrInvoiceVO(vo, pk_corp, ifptype, fp_style);
 		OcrInvoiceDetailVO[] detailvos = changeOcrInvoiceDetailVO(vo, pk_corp);
 		List<TzpzBVO> tblist = new ArrayList<TzpzBVO>();*/
-		YntCpaccountVO[] accounts =zncsParamVO.getAccVOs(); //accountService.queryByPk(pk_corp);
+
+//		YntCpaccountVO[] accounts =zncsParamVO.getAccVOs(); //accountService.queryByPk(pk_corp);
+		YntCpaccountVO[] accounts = accountService.queryByPk(pk_corp);
+		CorpVO corpvo = corpService.queryByPk(pk_corp);
+
 		//生成入库单
 		IntradeHVO ichvo = createIH(vo, accounts, corpvo, userid);
+
+		zncsParamVO.setCorpvo(corpvo);
+		zncsParamVO.setAccVOs(accounts);
+		zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
+
+		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
+
 
 		Map<String,YntCpaccountVO> accountMap = zncsParamVO.getAccountMap();//accountService.queryMapByPk(corpvo.getPk_corp());
 		YntCpaccountVO[] accVOs=zncsParamVO.getAccVOs();//accountService.queryByPk(corpvo.getPk_corp());
