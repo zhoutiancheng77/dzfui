@@ -33,7 +33,7 @@ public class LoginUserUtil {
         }
 
 
-        return new CachedLoginUser();
+        return cachedLoginUser;
     }
 
 }
