@@ -128,7 +128,7 @@ public class OrgServiceImpl implements IOrgService {
         accountsql.append(" select pk_corp,orgcode,orgname,orgshortname,def10 as longitude,def11 as latitude,addr,tel, asin(sqrt(power(sin(("+latitude+"-y1)/2),2) + cos(y1)*cos("+latitude+")*power(sin(("+longitude+"-x1)/2),2)))*"+ Common.EARTH_RADIUS+"*2 distance,memo ");
         accountsql.append(" from ( select pk_corp,unitcode orgcode,unitname orgname, unitshortname orgshortname,def10,def11,def10*3.141592653589793/180 x1,def11*3.141592653589793/180 y1,postaddr addr,phone1 tel,briefintro memo from bd_account     ");
         accountsql.append("   where nvl(dr,0)=0 and nvl(isseal,'N')='N'   ");
-        accountsql.append(" and innercode not in ("+unShowGs()+")");
+        accountsql.append(" and def10 is not null and def11 is not null and innercode not in ("+unShowGs()+")");
         accountsql.append(" and ( nvl(ischannel,'N') ='Y' ");
         accountsql.append(" or exists (select 1 from wz_salesorder so where nvl(so.dr,0)=0 and so.pk_corpkjgs = bd_account.pk_corp and nvl(so.contractmny,0) <=10 ) ) ");
         accountsql.append(" and (vprovince = ?   or vcity = ? )  )  order by distance ");

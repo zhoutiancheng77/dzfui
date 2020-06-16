@@ -610,6 +610,9 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 		}else{
 			wherepart.append(" and  (coperatorid = '"+uBean.getAccount_id()+"' or vapprovetor = '"+uBean.getAccount_id()+"')");
 		}
+		if (corpids == null || corpids.length == 0) {
+			throw new BusinessException("您公司没签约，查询数据为空");
+		}
 		List<ImageGroupVO> groups = imageqry_pub.queryImgGroupvo(corpids, null,
 				startdate, enddate, uBean.getGroupkey(),wherepart.toString());
 
