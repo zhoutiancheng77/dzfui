@@ -134,28 +134,28 @@ public class OtherSystemForZcfzImpl {
 		if ("00000100AA10000000000BMF".equals(pk_trade_accountschema)){
 			if("Y".equals(hasyes[1])){//应收和预收
 				if(!StringUtil.isEmpty(setvo.getZcname())
-						&&	"  应收账款".equals(setvo.getZcname()) && lx == 0){
+						&& setvo.getZcname().trim().replace("　","").equals( "应收账款") && lx == 0){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
-						&&	"　预收款项".equals(setvo.getFzname())  && lx == 1){
+						&&	"预收款项".equals(setvo.getFzname().trim().replace("　",""))  && lx == 1){
 					return setvo.getFzkm_re();
 				}
 			}
 			if("Y".equals(hasyes[2])){//应付预付
 				if(!StringUtil.isEmpty(setvo.getZcname())
-						&&	"　预付款项".equals(setvo.getZcname())  && lx == 0){
+						&&	"预付款项".equals(setvo.getZcname().trim().replace("　",""))  && lx == 0){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
-						&&	"  应付账款".equals(setvo.getFzname())  && lx == 1){
+						&&	"应付账款".equals(setvo.getFzname().trim().replace("　",""))  && lx == 1){
 					return setvo.getFzkm_re();
 				}
 			}
 			if("Y".equals(hasyes[3])){//其他应收，其他应付
 				if(!StringUtil.isEmpty(setvo.getZcname())
-						&&	"其他应收款".equals(setvo.getZcname())  && lx == 0 ){
+						&&	"其他应收款".equals(setvo.getZcname().trim().replace("　",""))  && lx == 0 ){
 					return setvo.getZckm_re();
 				}else if(!StringUtil.isEmpty(setvo.getFzname())
-						&&	"　其他应付款".equals(setvo.getFzname())  && lx == 1){
+						&&	"其他应付款".equals(setvo.getFzname().trim().replace("　",""))  && lx == 1){
 					return setvo.getFzkm_re();
 				}
 			}
