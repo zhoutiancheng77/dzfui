@@ -101,7 +101,7 @@ public class OtherSystemForZcfzImpl {
 				}else{
 					for(String str:getfzkms){
 						if ("Y".equals(hasyes[4]) && "00000100AA10000000000BMF".equals(hy)
-								&& "　应交税费".equals(setvo.getFzname())) {
+								&& "应交税费".equals(setvo.getFzname().trim().replace("　",""))) {
 							//应交税费重分类取数
 							zcfzbvo = getZcFzBVO_YJSF_CFL(map, mapc, newrule, zcfzbvo,hy);
 						} else {
