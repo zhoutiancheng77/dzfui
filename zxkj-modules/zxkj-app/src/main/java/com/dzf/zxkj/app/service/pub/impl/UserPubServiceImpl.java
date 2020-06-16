@@ -145,7 +145,7 @@ public class UserPubServiceImpl implements IUserPubService {
         userVO.setUser_name(CodeUtils1.enCode(uservo.getUser_name()));
         userVO.setUser_note(userVO.getUser_code());
         userVO.setUser_password(uservo.getUser_password());
-        userVO.setCheckcode(uservo.getUser_code());
+        //userVO.setCheckcode(uservo.getUser_code());
         userVO.setBappuser(DZFBoolean.TRUE);
         userVO.setIstate(2);
         userVO.setPk_creatcorp(Common.tempidcreate);
