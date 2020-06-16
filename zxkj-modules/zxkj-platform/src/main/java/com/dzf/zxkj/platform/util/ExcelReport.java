@@ -517,7 +517,10 @@ public class ExcelReport<T> {
 						if (user != null) {
 							HSSFCell cell4ss = row_names.createCell(((headers.length - 1) / 2) + 2);
 							cell4ss.setCellStyle(style4);
-							cell4ss.setCellValue("制表人："+user.getUser_name());
+							if(!StringUtil.isEmpty(user.getUser_name()))
+								cell4ss.setCellValue("制表人："+user.getUser_name());
+							else
+								cell4ss.setCellValue("制表人：");
 							sheet.addMergedRegion(new CellRangeAddress(3, 3, ((headers.length - 1) / 2) + 2, (headers.length - 1)));
 						}
 					}
