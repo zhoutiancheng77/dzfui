@@ -8,13 +8,13 @@ import com.dzf.zxkj.base.framework.processor.ResultSetProcessor;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
-import com.dzf.zxkj.common.utils.CodeUtils1;
 import com.dzf.zxkj.common.utils.IDefaultValue;
 import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.config.QmjzByDzfConfig;
 import com.dzf.zxkj.platform.model.monitor.MonitorExportStaticVO;
 import com.dzf.zxkj.platform.util.SendEmailService;
+import com.dzf.zxkj.secret.CorpSecretUtil;
 import com.dzf.zxkj.xxljob.service.IAutoExportStatisticService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +106,7 @@ public class ZxkjAutoExportStatisticServiceImpl implements IAutoExportStatisticS
         for(MonitorExportStaticVO cp : cps){
             sf.append("<tr><td align='left'>").append(date.toString())
                     .append("</td><td align='left'>").append(cp.getInnercode())
-                    .append("</td><td align='left'>").append(CodeUtils1.deCode(cp.getUnitname()))
+                    .append("</td><td align='left'>").append(CorpSecretUtil.deCode(cp.getUnitname()))
                     .append("</td><td align='right'>").append(cp.getNnum())
                     .append("</td></tr>");
 
