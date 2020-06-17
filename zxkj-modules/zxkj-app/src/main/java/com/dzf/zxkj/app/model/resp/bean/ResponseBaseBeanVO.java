@@ -97,9 +97,64 @@ public class ResponseBaseBeanVO extends SuperVO {
 	
 	//图片提示
 	private String img_pj_tips;//图片提示 (0提示 1不提示)
-	
-	
-	
+
+
+
+	private String lxr;//--新app新增--联系人
+	private String email;//--新app新增--联系人邮箱
+	private String lphone;//--新app新增--联系人手机号
+	private String addr;//--新app新增--地址
+	private String bankname;//--新app新增--开户银行
+	private String bankcode;//--新app新增--银行账号
+
+	public String getLxr() {
+		return lxr;
+	}
+
+	public void setLxr(String lxr) {
+		this.lxr = lxr;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getLphone() {
+		return lphone;
+	}
+
+	public void setLphone(String lphone) {
+		this.lphone = lphone;
+	}
+
+	public String getAddr() {
+		return addr;
+	}
+
+	public void setAddr(String addr) {
+		this.addr = addr;
+	}
+
+	public String getBankname() {
+		return bankname;
+	}
+
+	public void setBankname(String bankname) {
+		this.bankname = bankname;
+	}
+
+	public String getBankcode() {
+		return bankcode;
+	}
+
+	public void setBankcode(String bankcode) {
+		this.bankcode = bankcode;
+	}
+
 	public String getFcode() {
 		return fcode;
 	}
