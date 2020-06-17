@@ -1,14 +1,15 @@
 package com.dzf.zxkj.platform.dubbo;
 
 import com.dzf.zxkj.base.exception.DZFWarpException;
+import com.dzf.zxkj.base.service.ISecurityService;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.IVoucherConstants;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
-import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.query.QueryPageVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.controller.glic.CrkPrintUtil;
 import com.dzf.zxkj.platform.controller.voucher.VoucherPrintController;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
 import com.dzf.zxkj.platform.model.bdset.*;
@@ -24,10 +25,8 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
-import com.dzf.zxkj.platform.model.zcgl.ZcMxZVO;
 import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.bdset.*;
-import com.dzf.zxkj.platform.service.common.ISecurityService;
 import com.dzf.zxkj.platform.service.gzgl.ISalaryReportService;
 import com.dzf.zxkj.platform.service.icbill.IPurchInService;
 import com.dzf.zxkj.platform.service.icbill.ISaleoutService;
@@ -44,7 +43,6 @@ import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.tax.ICorpTaxService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
 import com.dzf.zxkj.platform.service.zcgl.IZczjmxReport;
-import com.dzf.zxkj.platform.util.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -495,11 +493,6 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
         }
     }
     @Override
-    public void checkSecurityData(SuperVO[] vos,String[] corps, String cuserid, boolean isCheckData){
-        securityserv.checkSecurityData(vos,corps,cuserid,isCheckData);
-    }
-
-    @Override
     public SalaryReportVO[] queryGzb(String pk_corp, String beginPeriod, String endPeriod, String billtype) {
         try {
             return gl_gzbserv.query(pk_corp, beginPeriod,endPeriod, billtype);
@@ -627,6 +620,18 @@ public class ZxkjPlatformServiceImpl implements IZxkjPlatformService {
             return voucherPrintController.printVoucherFromTask(setvo,userVO,corpVO);
         } catch (Exception e) {
             log.error(String.format("调用execPzCoverTask异常,异常信息:%s", e.getMessage()), e);
+            return null;
+        }
+    }
+
+    @Override
+    public byte[] execCrkPrintTask(BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO) {
+        try {
+            CrkPrintUtil crkPrintUtil = new CrkPrintUtil();
+            byte[] bytes =  crkPrintUtil.batchPrintCrkContentToByte(setvo, userVO, corpVO);
+            return bytes;
+        }catch (Exception e) {
+            log.error(String.format("调用execCrkPrintTask异常,异常信息:%s", e.getMessage()), e);
             return null;
         }
     }

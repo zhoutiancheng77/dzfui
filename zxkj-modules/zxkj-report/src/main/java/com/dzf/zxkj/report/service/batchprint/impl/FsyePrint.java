@@ -55,7 +55,7 @@ public class FsyePrint extends AbstractPrint {
             FseJyeVO[] bodyvos = gl_rep_fsyebserv.getFsJyeVOs(queryparamvo,1);
             List<FseJyeVO> fsjyevoList = new ArrayList<FseJyeVO>();
             if (bodyvos != null && bodyvos.length > 0) {
-                Set<String> conkmids = fsYeController.filterDatas(isshowfs, isxswyewfs, isxswyewfs_bn, bodyvos, queryparamvo);
+                Set<String> conkmids = fsYeController.filterDatas(DZFBoolean.TRUE, DZFBoolean.TRUE, isxswyewfs_bn, bodyvos, queryparamvo);
                 for (FseJyeVO fsjye : bodyvos) {// 级次
                     String kmid = fsjye.getPk_km().substring(0, 24);
                     if (conkmids.contains(kmid)) {

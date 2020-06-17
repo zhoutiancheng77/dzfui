@@ -290,8 +290,8 @@ public class ZxkjRemoteAppServiceImpl implements IZxkjRemoteAppService {
     }
 
     @Override
-    public Element getContentElement(String zip, String encry, String content) {
+    public String getContentElement(String zip, String encry, String content) {
 
-        return CommonXml.getContentElement(zip,encry,content);
+        return  CommonXml.getContentElement(zip,encry,content);
     }
 }

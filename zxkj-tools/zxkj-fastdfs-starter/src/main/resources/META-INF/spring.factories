@@ -1,2 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.dzf.file.ZxkjFastDFSAutoConfiguration

@@ -6,6 +6,7 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.utils.SpringUtils;
+import com.dzf.zxkj.common.constant.IcCostStyle;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDateTime;
@@ -187,11 +188,16 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                         } else if ("gzb".equals(code)) {
                             print = new GzbPrint(zxkjPlatformService,printParamVO,queryparamvo);
                         } else if ("crk".equals(code)) {
-                            print = new CkPrint(zxkjPlatformService,printParamVO,queryparamvo);
-                            // 先出库
-                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
-                                    mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
-                            print = new RkPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                            if ((IcCostStyle.IC_INVTENTORY.equals(corpVO.getBbuildic()))) { // 总账核算模式
+                                print = new CrkPrint(zxkjPlatformService,printParamVO,queryparamvo);
+                            } else if (IcCostStyle.IC_ON.equals(corpVO.getBbuildic()))  { // 库存模式
+                                print = new CkPrint(zxkjPlatformService,printParamVO,queryparamvo);
+                                // 先出库
+                                in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
+                                        mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
+                                print = new RkPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                            }
+
                         } else if ("zjmx".equals(code)) {
                             print = new ZjmxPrint(zxkjPlatformService, printParamVO, queryparamvo);
                         } else if ("mxzfp".equals(code)) {
@@ -299,7 +305,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
             bOut = new ByteArrayOutputStream();
             mergePdf.setDestinationStream(bOut);
             //合并pdf
-            mergePdf.mergeDocuments(null);
+            mergePdf.mergeDocuments();
             return ((ByteArrayOutputStream) bOut).toByteArray();
         }catch (Exception e) {
             log.error(e.getMessage(),e);
@@ -320,7 +326,7 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                                   PDFMergerUtility mergePdfPz, String code, AbstractPrint print,StringBuffer pagezx,
                                   StringBuffer pagehx, StringBuffer pagepz) {
         String[] pzpages = new String[]{"pzfp","voucher"};// 凭证分组
-        String[] zxpages = new String[]{"zcfz","lrb"};// 纵向打印分组
+        String[] zxpages = new String[]{"zcfz","lrb","crk"};// 纵向打印分组
         String[] hxpages = new String[]{"fsye","gzb"};// 横向分组
         byte[] byts = print.print(setvo,corpVO,userVO);
         if (byts!=null && byts.length > 0) {

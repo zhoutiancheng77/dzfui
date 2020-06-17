@@ -5,6 +5,8 @@ import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.econtract.IDzfAppEcontractService;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.AppkeyUtil;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
@@ -18,12 +20,10 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/dzfapp/econtract")
-public class ElectronicContractController {
+public class ElectronicContractController extends  BaseAppController{
 
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppEcontractService iDzfAppEcontractService;
-    @Autowired
-    private IUserPubService userPubService;
     @RequestMapping("/updateSign")
     public AppResult updateSign(@RequestParam Map<String,Object> param) {
         try {
@@ -71,8 +71,11 @@ public class ElectronicContractController {
     private AppEContQryVO changeParamvo( Map<String,Object> param){
         AppEContQryVO pamVO= new AppEContQryVO();
         AppkeyUtil.setAppValue(param,pamVO );
-        UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
+        UserVO uservo = queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
+        if(StringUtil.isEmpty(pamVO.getPk_corp())){
+            throw new BusinessException("当前公司无此权限");
+        }
         return pamVO;
     }
 }

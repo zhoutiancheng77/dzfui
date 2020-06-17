@@ -488,7 +488,7 @@ public class FsYeController  extends ReportBaseController {
         List<FseJyeVO[]> fslist = new ArrayList<FseJyeVO[]>();
         if ("0".equals(excelExportVO.getExcelsel())) {// 当前期间
             allsheetname = new String[] { getCNName(vo.getBegindate1().getMonth()) };
-            periods = new String[] { DateUtils.getPeriod(vo.getBegindate1()) };
+            periods = new String[] { qj };
 //            FseJyeVO[] fsejyevos = gl_rep_fsyebserv.getFsJyeVOs(vo,1);
             FseJyeVO[] fsejyevos = (FseJyeVO[])JsonUtils.deserialize(excelExportVO.getList(), FseJyeVO[].class);
 //            fsejyevos = getTotalRow(fsejyevos,false);

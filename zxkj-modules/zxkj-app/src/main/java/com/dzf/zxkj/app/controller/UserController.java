@@ -7,7 +7,6 @@ import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
 import com.dzf.zxkj.app.service.corp.IAppCorpService;
 import com.dzf.zxkj.app.service.org.IOrgService;
-import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -20,11 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequestMapping("/app/usersvlt")
-public class UserController {
+public class UserController extends  BaseAppController{
 
 
-    @Autowired
-    private IUserPubService userPubService;
     @Autowired
     private IAppCorpService corpservice;
 
@@ -32,7 +29,7 @@ public class UserController {
     public ReturnData<ResponseBaseBeanVO> doAction(UserBeanVO userBean,String corp,String tcorp,String cname,String icmsg,String acode,String hcorp) {
 //        CommonServ common = new CommonServ();
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
-        UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
+        UserVO uservo = queryUserVOId(userBean.getAccount_id());
         userBean.setAccount_id(uservo.getCuserid());
         userBean.setPk_corp(corp);
         userBean.setPk_tempcorp(tcorp);
@@ -181,7 +178,10 @@ public class UserController {
 //                    break;
             }
         } catch (Exception e) {
-            log.error("失败!", log);
+//            bean.setRescode(IConstant.FIRDES);
+//            bean.setResmsg(e.getMessage());
+//            log.error("失败!", log);
+            printErrorJson(bean, e, log, "失败!");
         }
         return bean;
     }
@@ -192,7 +192,10 @@ public class UserController {
                 bean = iorg.updateconfirmSignOrg(userBean);
             }
         } catch (Exception e) {
-            log.error("确认签约出错！", log);
+//            bean.setRescode(IConstant.FIRDES);
+//            bean.setResmsg(e.getMessage());
+//            log.error("确认签约出错！", log);
+            printErrorJson(bean, e, log, "确认签约出错！");
         }
         return bean;
     }
@@ -220,7 +223,10 @@ public class UserController {
                 bean1 = corpservice.updateuserAddCorp(userBean);
             }
         } catch (Exception e) {
-            log.error("创建公司失败，公司可能已存在，请联系客服!", log);
+//            bean1.setRescode(IConstant.FIRDES);
+//            bean1.setResmsg(e.getMessage());
+//            log.error("创建公司失败，公司可能已存在，请联系客服!", log);
+            printErrorJson(bean1, e, log, "创建公司失败，公司可能已存在，请联系客服!");
         }
         return bean1;
     }
@@ -243,7 +249,10 @@ public class UserController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("激活公司成功!");
         } catch (Exception e) {
-            log.error( "激活公司出错！", log);
+//            log.error( "激活公司出错！", log);
+//            bean.setRescode(IConstant.FIRDES);
+//            bean.setResmsg(e.getMessage());
+            printErrorJson(bean, e, log, "激活公司出错！");
         }
         return bean;
     }

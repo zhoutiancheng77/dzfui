@@ -20,7 +20,6 @@ import com.dzf.zxkj.platform.dao.ParameterSetDao;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.sys.YntParameterSet;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
-import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,9 +35,6 @@ public class ParameterSetServiceImpl implements IParameterSetService {
 
     @Autowired
     private SingleObjectBO singleObjectBO;
-
-    @Autowired
-    private ICorpService corpService;
 
     @Autowired
     private ParameterSetDao parameterSetDao;

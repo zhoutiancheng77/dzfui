@@ -56,6 +56,7 @@ import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.base.framework.processor.BeanProcessor;
+import com.dzf.zxkj.base.framework.processor.ColumnListProcessor;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.lang.DZFBoolean;
@@ -425,7 +426,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 
 	/**
 	 * 保存压缩文件
-	 * @param fileItem
+	 * @param f
 	 * @param filename
 	 * @throws DZFWarpException
 	 */
@@ -501,7 +502,7 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 	/**
 	 * 解压缩文件
 	 * @param zipfile
-	 * @param pk_corp
+	 * @param pk_corp1
 	 * @param isCompress
 	 * @return
 	 * @throws DZFWarpException
@@ -880,12 +881,12 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 	 * 重传图片
 	 * @param uBean
 	 * @param imgbeanvos
-	 * @param files
-	 * @param filenames
+	 * @param file
+	 * @param filename
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file, InputStream file_in) throws DZFWarpException{
+	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file,String filename, InputStream file_in) throws DZFWarpException{
 		ImageQueryBean[] beans = null;
 		int count = 0;
 		if(imgbeanvos == null || imgbeanvos.length == 0){
@@ -946,42 +947,42 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 				list.add(ze);
 			}
 			ImageSort sort = new ImageSort();//排序
-    		Collections.sort(list, sort);
-    		java.util.Arrays.sort(imgbeanvos, new Comparator<ImageBeanVO>() {
+			Collections.sort(list, sort);
+			java.util.Arrays.sort(imgbeanvos, new Comparator<ImageBeanVO>() {
 				@Override
 				public int compare(ImageBeanVO arg0, ImageBeanVO arg1) {
 					int i = arg1.getFilepath().compareTo(arg0.getFilepath());
 					return 0;
 				}
 			});
-    		ZipEntry entryy = null;
-    		String entryname = null;
-    		String imgname = null;
-    		String filesuff = null;
-    		String entrysuff= null;
-    		for(int k = 0; k < list.size(); k++){
-    			entryy = list.get(k);
-    			entryname = entryy.getName();
-    			imgname = Common.imageBasePath + imgbeanvos[0].getFilepath();
-    			filesuff = imgname.substring(imgname.lastIndexOf(".") + 1).trim().toLowerCase();
-    			entrysuff= entryname.substring(entryname.lastIndexOf(".") + 1).trim().toLowerCase();
-    			if(!filesuff.equals(entrysuff)){
-    				throw new BusinessException("本次上传图片类型与之前不一致，请检查！");
-    			}
-    		}
-    		ZipEntry entry = null;
-    		String imagename = null;
-    		File imagefile = null;
+			ZipEntry entryy = null;
+			String entryname = null;
+			String imgname = null;
+			String filesuff = null;
+			String entrysuff= null;
+			for(int k = 0; k < list.size(); k++){
+				entryy = list.get(k);
+				entryname = entryy.getName();
+				imgname = Common.imageBasePath + imgbeanvos[0].getFilepath();
+				filesuff = imgname.substring(imgname.lastIndexOf(".") + 1).trim().toLowerCase();
+				entrysuff= entryname.substring(entryname.lastIndexOf(".") + 1).trim().toLowerCase();
+				if(!filesuff.equals(entrysuff)){
+					throw new BusinessException("本次上传图片类型与之前不一致，请检查！");
+				}
+			}
+			ZipEntry entry = null;
+			String imagename = null;
+			File imagefile = null;
 //    		BufferedInputStream in = null;
-    		FileOutputStream fileout = null;
-    		BufferedOutputStream out = null;
-    		for(int j = 0; j < list.size(); j++){
-    			entry = list.get(j);
-    			imagename = Common.imageBasePath + imgbeanvos[0].getFilepath();
-    			imagefile = new File(imagename);
+			FileOutputStream fileout = null;
+			BufferedOutputStream out = null;
+			for(int j = 0; j < list.size(); j++){
+				entry = list.get(j);
+				imagename = Common.imageBasePath + imgbeanvos[0].getFilepath();
+				imagefile = new File(imagename);
 
 //    			in = new BufferedInputStream(zip.getInputStream(entry));
-    			fileout = new FileOutputStream(imagefile);
+				fileout = new FileOutputStream(imagefile);
 				out = new BufferedOutputStream(fileout);
 
 				try {
@@ -1003,45 +1004,44 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 						log.error(e.getMessage(), e);
 					}
 				}
-    		}
-    		zs.close();
+			}
+			zs.close();
 
-    		String wherepart = " pk_image_group = ? and nvl(dr,0) = 0 " ;
-    		SQLParameter sp = new SQLParameter();
-    		sp.addParam(pkgrp);
-    		List<ImageGroupVO> ivo = (List<ImageGroupVO>) singleObjectBO.executeQuery(wherepart, sp, new Class[]{ImageGroupVO.class,ImageLibraryVO.class});
-    		ImageGroupVO imggrpVO = ivo.get(0);
+			String wherepart = " pk_image_group = ? and nvl(dr,0) = 0 " ;
+			SQLParameter sp = new SQLParameter();
+			sp.addParam(pkgrp);
+			List<ImageGroupVO> ivo = (List<ImageGroupVO>) singleObjectBO.executeQuery(wherepart, sp, new Class[]{ImageGroupVO.class,ImageLibraryVO.class});
+			ImageGroupVO imggrpVO = ivo.get(0);
 
 
-    		ImageLibraryVO[] imglibVOs = (ImageLibraryVO[]) imggrpVO.getChildren();
-    		Integer dr = null;
-    		int imagecount = 0;
-    		for(int k = 0; k < imglibVOs.length; k++){
-    			dr = imglibVOs[k].getDr();
-    			if(dr != null && dr == 1){
-    				continue;
-    			}
-    			if(libvalueList.contains(imglibVOs[k].getPk_image_library())){
-    				imglibVOs[k].setAttributeValue("isback", DZFBoolean.FALSE);//自由态
-    				imagecount++;
-    			}else if(imglibVOs[k].getIsback() != null
-    					&& imglibVOs[k].getIsback().booleanValue() == DZFBoolean.TRUE.booleanValue()){
-    				imglibVOs[k].setAttributeValue("dr", 1);//自由态
-    			}
+			ImageLibraryVO[] imglibVOs = (ImageLibraryVO[]) imggrpVO.getChildren();
+			Integer dr = null;
+			int imagecount = 0;
+			for(int k = 0; k < imglibVOs.length; k++){
+				dr = imglibVOs[k].getDr();
+				if(dr != null && dr == 1){
+					continue;
+				}
+				if(libvalueList.contains(imglibVOs[k].getPk_image_library())){
+					imglibVOs[k].setAttributeValue("isback", DZFBoolean.FALSE);//自由态
+					imagecount++;
+				}else if(imglibVOs[k].getIsback() != null
+						&& imglibVOs[k].getIsback().booleanValue() == DZFBoolean.TRUE.booleanValue()){
+					imglibVOs[k].setAttributeValue("dr", 1);//自由态
+				}
 
-    		}
+			}
 
-    		imggrpVO.setImagecounts(imagecount);
-    		imggrpVO.setIsskiped(DZFBoolean.FALSE);
-    		imggrpVO.setIsuer(DZFBoolean.FALSE);//设置为未使用
-    		imggrpVO.setIstate(PhotoState.state0);//自由态
-    		singleObjectBO.update(imggrpVO);
+			imggrpVO.setImagecounts(imagecount);
+			imggrpVO.setIsskiped(DZFBoolean.FALSE);
+			imggrpVO.setIsuer(DZFBoolean.FALSE);//设置为未使用
+			imggrpVO.setIstate(PhotoState.state0);//自由态
+			singleObjectBO.update(imggrpVO);
 
-    		//消息
+			//消息
 			iZxkjRemoteAppService.deleteMsg(imggrpVO);
 
 			count = singleObjectBO.updateAry(imglibVOs);
-
 		}catch(Exception e){
 			log.error(e.getMessage(), e);
 			if(e instanceof BusinessException){
@@ -2925,66 +2925,66 @@ public class ImageProviderImpl implements IImageProviderPhoto {
 
 
 //
-//	/**
-//	 * 删除上传记录
-//	 */
-//	@Override
-//	public Integer deleteRecord(String sessionflag,String pk_corp) throws DZFWarpException {
-//
-//		StringBuffer groupsql  = new StringBuffer();
-//		SQLParameter sp = new SQLParameter();
-//
-//		groupsql.append("SELECT * FROM YNT_IMAGE_GROUP  ");
-//		groupsql.append("   where nvl(dr,0)=0 and  ");
-//		groupsql.append("    (sessionflag =? or pk_image_group = ? )");
-//		groupsql.append("   and pk_corp = ? ");
-//		sp.addParam(sessionflag);
-//		sp.addParam(sessionflag);
-//		sp.addParam(pk_corp);
-//
-//		List<ImageGroupVO> listgroup = 	(List<ImageGroupVO>) singleObjectBO.executeQuery(groupsql.toString(), sp, new BeanListProcessor(ImageGroupVO.class));
-//
-//		if(listgroup!=null && listgroup.size()>0){
-//			StringBuffer groupid = new StringBuffer();
-//			for(ImageGroupVO groupvo:listgroup){
-//				groupid.append("'"+groupvo.getPrimaryKey()+"',");
-//			}
-//			//凭证是否引用
-//			String pzsql = "select pk_image_group from ynt_tzpz_h h where nvl(dr,0)=0 and  h.pk_image_group in("+groupid.subSequence(0, groupid.length()-1)+")";
-//			List<String> grouplist = (List<String>) singleObjectBO.executeQuery(pzsql, new SQLParameter(), new ColumnListProcessor());
-//			StringBuffer imgpzsql = new StringBuffer();
-//			imgpzsql.append(" select b.pk_image_group from YNT_IMAGE_VOUCHER a ");
-//			imgpzsql.append("  INNER JOIN  YNT_IMAGE_LIBRARY b ON a.PK_IMAGE_LIBRARY = b.PK_IMAGE_LIBRARY ");
-//			imgpzsql.append(" where nvl(a.dr,0)=0 and nvl(b.dr,0)=0  and  b.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
-//			List<String> imggrouplist = (List<String>) singleObjectBO.executeQuery(imgpzsql.toString(), new SQLParameter(), new ColumnListProcessor());
-//
-//			//数据中心是否引用
-//			StringBuffer  metasql = new StringBuffer();
-//			metasql.append("select l.pk_image_group from ynt_image_meta m inner join ynt_image_library l on m.pk_image_library = l.pk_image_library " );
-//			metasql.append(" where  l.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
-//			metasql.append(" and nvl(l.dr,0)=0 and nvl(m.dr,0)=0");
-//			List<String> grouplist1 = (List<String>) singleObjectBO.executeQuery(metasql.toString(), new SQLParameter(), new ColumnListProcessor());
-//			//判断当前图像是不是被引用
-//			if(grouplist!=null &&  grouplist.size()>0){
-//				throw new BusinessException("凭证已引用不能删除!");
-//			}
-//
-//			if(imggrouplist!=null && imggrouplist.size()>0){
-//				throw new BusinessException("预凭证已引用不能删除!");
-//			}
-//			if(grouplist1!=null && grouplist1.size()>0){
-//				throw new BusinessException("数据中心已引用，不能删除!");
-//			}
-//
-//			for(int i=0;i<listgroup.size();i++){
-//				listgroup.get(i).setDr(1);
-//			}
-//			int res = singleObjectBO.updateAry(listgroup.toArray(new ImageGroupVO[0]));
-//
-//			return res;
-//		}
-//		return 0;
-//	}
+	/**
+	 * 删除上传记录
+	 */
+	@Override
+	public Integer deleteRecord(String sessionflag,String pk_corp) throws DZFWarpException {
+
+		StringBuffer groupsql  = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+
+		groupsql.append("SELECT * FROM YNT_IMAGE_GROUP  ");
+		groupsql.append("   where nvl(dr,0)=0 and  ");
+		groupsql.append("    (sessionflag =? or pk_image_group = ? )");
+		groupsql.append("   and pk_corp = ? ");
+		sp.addParam(sessionflag);
+		sp.addParam(sessionflag);
+		sp.addParam(pk_corp);
+
+		List<ImageGroupVO> listgroup = 	(List<ImageGroupVO>) singleObjectBO.executeQuery(groupsql.toString(), sp, new BeanListProcessor(ImageGroupVO.class));
+
+		if(listgroup!=null && listgroup.size()>0){
+			StringBuffer groupid = new StringBuffer();
+			for(ImageGroupVO groupvo:listgroup){
+				groupid.append("'"+groupvo.getPrimaryKey()+"',");
+			}
+			//凭证是否引用
+			String pzsql = "select pk_image_group from ynt_tzpz_h h where nvl(dr,0)=0 and  h.pk_image_group in("+groupid.subSequence(0, groupid.length()-1)+")";
+			List<String> grouplist = (List<String>) singleObjectBO.executeQuery(pzsql, new SQLParameter(), new ColumnListProcessor());
+			StringBuffer imgpzsql = new StringBuffer();
+			imgpzsql.append(" select b.pk_image_group from YNT_IMAGE_VOUCHER a ");
+			imgpzsql.append("  INNER JOIN  YNT_IMAGE_LIBRARY b ON a.PK_IMAGE_LIBRARY = b.PK_IMAGE_LIBRARY ");
+			imgpzsql.append(" where nvl(a.dr,0)=0 and nvl(b.dr,0)=0  and  b.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
+			List<String> imggrouplist = (List<String>) singleObjectBO.executeQuery(imgpzsql.toString(), new SQLParameter(), new ColumnListProcessor());
+
+			//数据中心是否引用
+			StringBuffer  metasql = new StringBuffer();
+			metasql.append("select l.pk_image_group from ynt_image_meta m inner join ynt_image_library l on m.pk_image_library = l.pk_image_library " );
+			metasql.append(" where  l.pk_image_group  in("+groupid.subSequence(0, groupid.length()-1)+")");
+			metasql.append(" and nvl(l.dr,0)=0 and nvl(m.dr,0)=0");
+			List<String> grouplist1 = (List<String>) singleObjectBO.executeQuery(metasql.toString(), new SQLParameter(), new ColumnListProcessor());
+			//判断当前图像是不是被引用
+			if(grouplist!=null &&  grouplist.size()>0){
+				throw new BusinessException("凭证已引用不能删除!");
+			}
+
+			if(imggrouplist!=null && imggrouplist.size()>0){
+				throw new BusinessException("预凭证已引用不能删除!");
+			}
+			if(grouplist1!=null && grouplist1.size()>0){
+				throw new BusinessException("数据中心已引用，不能删除!");
+			}
+
+			for(int i=0;i<listgroup.size();i++){
+				listgroup.get(i).setDr(1);
+			}
+			int res = singleObjectBO.updateAry(listgroup.toArray(new ImageGroupVO[0]));
+
+			return res;
+		}
+		return 0;
+	}
 //
 //	public IMageVoucherVO[] batchCreateHDVoucher(ImageHuadaoHVO[] imageVOs,String user, DZFDate date) throws DZFWarpException{
 //		IMageVoucherVO[] resultBillVOs = null;

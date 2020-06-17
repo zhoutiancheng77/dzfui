@@ -1,6 +1,6 @@
 package com.dzf.zxkj.platform.controller.jzcl;
 
-import com.dzf.zxkj.base.controller.PrintAndExcelExportController;
+import com.dzf.zxkj.controller.PrintAndExcelExportController;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;

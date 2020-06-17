@@ -970,6 +970,12 @@ public class VoucherController extends BaseController {
             throw new BusinessException("请选择凭证");
         }
         String[] idsArray = ids.split(",");
+
+        List<TzpzHVO> hvos = gl_tzpzserv.queryVoucherByIds(Arrays.asList(idsArray), false, false, false);
+        if (hvos == null) {
+            throw new BusinessException("凭证信息为空!");
+        }
+
         DZFDate loginDate = new DZFDate(SystemUtil.getLoginDate());
         String userid = SystemUtil.getLoginUserId();
         Set<String> corpSet = userService.querypowercorpSet(userid);
@@ -979,17 +985,17 @@ public class VoucherController extends BaseController {
         StringBuilder auditPz = new StringBuilder();
         StringBuilder jzPz = new StringBuilder();
         StringBuilder msg = new StringBuilder();
-
-        List<TzpzHVO> hvos = gl_tzpzserv.queryVoucherByIds(Arrays.asList(idsArray), false, false, false);
-        if (hvos == null) {
-            throw new BusinessException("凭证信息为空!");
-        }
+        // 失败原因
+        String reason = null;
 
         List<TzpzHVO> updateList = new ArrayList<>();
         for (TzpzHVO hvo : hvos) {
             if (hvo.getVbillstatus() != IVoucherConstants.AUDITED) {
                 auditPz.append(hvo.getPzh()).append("，");
                 fail++;
+                if (reason == null) {
+                    reason = "未审核，不能记账";
+                }
                 continue;
             }
             DZFDate jzdate = loginDate;
@@ -999,16 +1005,25 @@ public class VoucherController extends BaseController {
                 } else {
                     datePz.append(hvo.getPzh()).append("，");
                     fail++;
+                    if (reason == null) {
+                        reason = "记账日期不能早于制单日期";
+                    }
                     continue;
                 }
             }
             if (hvo.getIshasjz() != null && hvo.getIshasjz().booleanValue()) {
                 jzPz.append(hvo.getPzh()).append("，");
                 fail++;
+                if (reason == null) {
+                    reason = "不能重复记账";
+                }
                 continue;
             }
             if (!corpSet.contains(hvo.getPk_corp())) {
                 fail++;
+                if (reason == null) {
+                    reason = "无权操作";
+                }
                 continue;
             }
             hvo.setDjzdate(jzdate);
@@ -1020,7 +1035,10 @@ public class VoucherController extends BaseController {
         }
         if (fail > 0) {
             json.setStatus(2);
-            msg.append("成功：" + updateList.size() + "，失败：" + fail);
+            msg.append("成功：").append(updateList.size()).append( "，失败：").append(fail);
+            if (reason != null) {
+                msg.append("，原因：").append(reason);
+            }
         } else {
             json.setStatus(0);
             msg.append("记账成功" + updateList.size() + "条");

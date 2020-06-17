@@ -1,20 +1,22 @@
 package com.dzf.zxkj.gateway.runner;
 
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.zxkj.gateway.config.GatewayConfig;
-import com.dzf.zxkj.platform.auth.service.IAuthService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 @Slf4j
 public class AuthRunner implements CommandLineRunner {
 
-    @Reference(version = "1.0.0")
-    private IAuthService authService;
+    @CreateCache(name = "zxkj:platform:rsaKey", cacheType = CacheType.REMOTE)
+    private Cache<String, Map<String, byte[]>> rsaKeyCache;
 
     @Autowired
     private GatewayConfig gatewayConfig;
@@ -24,12 +26,12 @@ public class AuthRunner implements CommandLineRunner {
         try {
             refreshPubKey();
         } catch (Exception e) {
-            log.error("初始化加载pubKey失败,1分钟后自动重试!",e);
+            log.error("初始化加载pubKey失败", e);
         }
     }
-    @Scheduled(cron = "0 0/1 * * * ?")
-    public void refreshPubKey(){
-        byte[] pubKey = authService.getPubKey();
+    public void refreshPubKey() {
+        Map<String, byte[]> keyMap = rsaKeyCache.get("rsaKey");
+        byte[] pubKey = keyMap.get("pub");
         gatewayConfig.setUserPubKey(pubKey);
     }
 }

@@ -55,7 +55,17 @@ public class BusiReqBeanVo extends UserBeanVO {
 	
 	//---------行业
 	private String hymc;// 名称
-	
+
+	@JsonProperty("qrytype")
+	private Integer qrytype;
+
+	public Integer getQrytype() {
+		return qrytype;
+	}
+
+	public void setQrytype(Integer qrytype) {
+		this.qrytype = qrytype;
+	}
 
 	public String getDrcode() {
 		return drcode;

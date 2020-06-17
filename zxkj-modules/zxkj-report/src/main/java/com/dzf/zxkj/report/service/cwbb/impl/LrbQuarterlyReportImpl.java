@@ -115,25 +115,35 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 				}
 				if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 					// 2007会计准则
-					lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp ,vo.getVersionno() );
+					String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+					if ("财会【2019】6号".equals(zxzc) || "【2019】6号".equals(vo.getVersionno())) { // 财会【2019】6号
+						lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100AA10000000000BMF","【2019】6号");
+					}else {
+						lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp ,vo.getVersionno() );
+					}
 				} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 					// 2013会计准则
 					lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);
 				} else if(corpschema == DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){
-					lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp);
+					lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100000000Ig4yfE0005","");
 				}else{
 					throw new BusinessException("该制度暂不支持利润表,敬请期待!");
 				}
 			}else{
 				if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 					// 2007会计准则
-					lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
+					String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+					if ("财会【2019】6号".equals(zxzc) || "【2019】6号".equals(vo.getVersionno())) { // 财会【2019】6号
+						lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100AA10000000000BMF","【2019】6号");
+					}else {
+						lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
+					}
 				} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()){
 					// 2013会计准则()
 					lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);
 				} else if(corpschema == DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){
 					//企业会计制度
-					lrbquartervos = getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp);
+					lrbquartervos = getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100000000Ig4yfE0005","");
 				}else{
 					throw new BusinessException("该制度暂不支持利润表,敬请期待!");
 				}
@@ -150,12 +160,19 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 
 
 	private LrbquarterlyVO[] getCompanyAccountVos(LrbquarterlyVO[] lrbquartervos,Map<String, FseJyeVO> map,
-			Map<String, YntCpaccountVO> mp, String rq,int year,String pk_corp) {
-		
+			Map<String, YntCpaccountVO> mp, String rq,int year,String pk_corp,String corptype,String versionno) {
+
 		SQLParameter sp = new SQLParameter();
-		sp.addParam("00000100000000Ig4yfE0005");
+		sp.addParam(corptype);
+		StringBuffer wherepart = new StringBuffer();
+		wherepart.append("nvl(dr,0)=0 and pk_trade_accountschema = ? ");
+		if (!StringUtil.isEmpty(versionno)) {
+			wherepart.append(" and versionno = ? ");
+			sp.addParam(versionno);
+		}
 		LrbRptSetVo[] setvos = (LrbRptSetVo[]) singleObjectBO.queryByCondition(LrbRptSetVo.class,
-				"nvl(dr,0)=0 and pk_trade_accountschema = ? ", sp);
+				wherepart.toString(), sp);
+
 
 		if (setvos == null || setvos.length == 0) {
 			throw new BusinessException("该制度暂不支持,敬请期待");
@@ -180,7 +197,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 				if (kms[0].indexOf("=") >= 0) {
 					totalLrb(lrbquartervos, lrbquartervos[i] , kms,year,rq);
 				} else {
-					lrbquartervos[i] = getLRBVOCal(map, mp, rq,year, lrbquartervos[i], kms);
+					lrbquartervos[i] = getLRBVOCal(map, mp, rq,year, lrbquartervos[i],corptype, kms);
 				}
 			}
 		}
@@ -306,7 +323,7 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 	 * @return
 	 */
 	private LrbquarterlyVO getLRBVOCal(Map<String, FseJyeVO> map,
-			Map<String, YntCpaccountVO> mp, String rq,int year, LrbquarterlyVO vo, String... kms) {
+			Map<String, YntCpaccountVO> mp, String rq,int year, LrbquarterlyVO vo, String corptype,String... kms) {
 
 		DZFDouble ufd = null;
 		int direction = 0;
@@ -328,6 +345,33 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 			ls = getData(map, tvalue);
 			for (FseJyeVO fvo : ls) {
 				int rqyear =Integer.parseInt(rq.substring(0,4));
+				if ("00000100AA10000000000BMF".equals(corptype)) { // 代码单独处理
+					if (vo.getXm().indexOf("其中：利息费用")>=0) {
+						if (rqyear==year-1) {
+							ufd = VoUtils.getDZFDouble(vo.getByje());
+							vo.setQnljje(ufd.add(VoUtils.getDZFDouble(fvo.getJftotal()).multiply(multify)));//借-贷
+						}
+						if(rqyear==year){
+							ufd = getDZFDouble(vo.getBnljje());
+							vo.setBnljje(ufd.add(VoUtils.getDZFDouble(fvo.getEndfsjf()).multiply(multify)));//借-贷
+							sumdouble = SafeCompute.add(sumdouble,fvo.getJftotal().multiply(multify));
+						}
+						vo = setQuarterMny(rq,year,vo,sumdouble);
+						continue;
+					} else if (vo.getXm().indexOf("利息收入")>=0) {
+						if (rqyear==year-1) {
+							ufd = VoUtils.getDZFDouble(vo.getByje());
+							vo.setQnljje(ufd.add(VoUtils.getDZFDouble(fvo.getDftotal()).multiply(multify)));//借-贷
+						}
+						if(rqyear==year){
+							ufd = getDZFDouble(vo.getBnljje());
+							vo.setBnljje(ufd.add(VoUtils.getDZFDouble(fvo.getEndfsdf()).multiply(multify)));//借-贷
+							sumdouble = SafeCompute.add(sumdouble,fvo.getDftotal().multiply(multify));
+						}
+						vo = setQuarterMny(rq,year,vo,sumdouble);
+						continue;
+					}
+				}
 				if (direction == 0) {
 					if(rqyear==year-1){
 						ufd = getDZFDouble(i == 0 ? DZFDouble.ZERO_DBL:vo.getQnljje());//每次重新计算
@@ -579,7 +623,12 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 			Integer corpschema = zxkjPlatformService.getAccountSchema(pk_corp);
 			if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 				// 2007会计准则
-				lrbvos =  getLRB2007VOs(lrbvos,map, mp, str,-1,pk_corp ,"");
+				String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+				if ("财会【2019】6号".equals(zxzc)) { // 财会【2019】6号
+					lrbvos =  getCompanyAccountVos(lrbvos,map, mp, str,-1,pk_corp,"00000100AA10000000000BMF","【2019】6号");
+				}else {
+					lrbvos =  getLRB2007VOs(lrbvos,map, mp, str,-1,pk_corp ,"");
+				}
 				mapyearmny.put(str.substring(0, 7), lrbvos[16].getByje()==null?DZFDouble.ZERO_DBL:lrbvos[16].getByje());
 			} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 				// 2013会计准则
@@ -657,12 +706,17 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 						}
 						if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 							// 2007会计准则
-							lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
+							String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+							if ("财会【2019】6号".equals(zxzc) || "【2019】6号".equals(vo.getVersionno())) { // 财会【2019】6号
+								lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100AA10000000000BMF","【2019】6号");
+							}else {
+								lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
+							}
 						} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()) {
 							// 2013会计准则
 							lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);
 						}  else if(corpschema == DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){
-							lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp);
+							lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100000000Ig4yfE0005","");
 						}else{
 							throw new BusinessException("该制度暂不支持利润表,敬请期待!");
 						}
@@ -670,12 +724,17 @@ public class LrbQuarterlyReportImpl implements ILrbQuarterlyReport {
 						//没发生的时候
 						if (corpschema == DzfUtil.SEVENSCHEMA.intValue()) {
 							// 2007会计准则
-							lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
+							String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
+							if ("财会【2019】6号".equals(zxzc) || "【2019】6号".equals(vo.getVersionno())) { // 财会【2019】6号
+								lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100AA10000000000BMF","【2019】6号");
+							}else {
+								lrbquartervos =  getLRB2007VOs(lrbquartervos,map, mp, key,year, pk_corp  ,vo.getVersionno());
+							}
 						} else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()){
 							// 2013会计准则
 							lrbquartervos =  getLRB2013VOs(lrbquartervos,map, mp, key,year,pk_corp);
 						} else if(corpschema == DzfUtil.COMPANYACCOUNTSYSTEM.intValue()){
-							lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp);
+							lrbquartervos =  getCompanyAccountVos(lrbquartervos,map, mp, key,year,pk_corp,"00000100000000Ig4yfE0005","");
 						}else{
 							throw new BusinessException("该制度暂不支持利润表,敬请期待!");
 						}

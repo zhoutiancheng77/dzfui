@@ -11,6 +11,7 @@ import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.platform.model.image.ImageGroupVO;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public interface IAppBusinessService {
 	 * @param uvo
 	 * @throws DZFWarpException
 	 */
-	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException;
+	public ImageGroupVO saveImgFromTicket(UserBeanVO uvo) throws DZFWarpException, IOException;
 
 	/**
 	 * 生成凭证+图片

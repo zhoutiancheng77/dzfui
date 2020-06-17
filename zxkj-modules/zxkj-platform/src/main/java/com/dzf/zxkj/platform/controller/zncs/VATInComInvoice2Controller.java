@@ -3075,21 +3075,25 @@ public class VATInComInvoice2Controller extends BaseController {
 
 
             //加锁
-            lock=redissonDistributedLock.tryGetDistributedFairLock("jinxiang2pz"+corps[0]);
-            if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候刷新界面");
-//                return ReturnData.error().data(json);
-                throw new BusinessException("正在处理中，请稍候刷新界面");
-            }
-        lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcreatepz"+corps[0]);
-
-        if(!lock){//处理
-//                json.setSuccess(false);
-//                json.setMsg("正在处理中，请稍候刷新界面");
-//                return ReturnData.error().data(json);
-            throw new BusinessException("正在处理中，请稍候刷新界面");
-        }
+//            lock=redissonDistributedLock.tryGetDistributedFairLock("jinxiang2pz"+corps[0]);
+//            if(!lock){//处理
+////                json.setSuccess(false);
+////                json.setMsg("正在处理中，请稍候刷新界面");
+////                return ReturnData.error().data(json);
+//                throw new BusinessException("正在处理中，请稍候刷新界面");
+//            }else{
+//                redissonDistributedLock.releaseDistributedFairLock("jinxiang2pz"+corps[0]);
+//            }
+//        lock = redissonDistributedLock.tryGetDistributedFairLock("jinxiangcreatepz"+corps[0]);
+//
+//        if(!lock){//处理
+////                json.setSuccess(false);
+////                json.setMsg("正在处理中，请稍候刷新界面");
+////                return ReturnData.error().data(json);
+//            throw new BusinessException("正在处理中，请稍候刷新界面");
+//        }else{ redissonDistributedLock.releaseDistributedFairLock("jinxiangcreatepz"+corps[0]);
+//
+//        }
             super.checkSecurityData(vos, corps, cuserid);
     }
 }

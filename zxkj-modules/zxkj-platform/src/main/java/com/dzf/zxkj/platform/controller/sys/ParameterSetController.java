@@ -97,6 +97,12 @@ public class ParameterSetController extends BaseController {
                             continue;
                         }
                     }
+
+                    if ("dzf025".equals(param.getParameterbm())) {
+                        if (!"00000100AA10000000000BMF".equals(cpvo.getCorptype())) {
+                            continue;
+                        }
+                    }
                     //
                     if(paramlevel != null && paramlevel >= teLe){//取大于等于
                         result.add(param);

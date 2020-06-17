@@ -1169,6 +1169,18 @@ public class AppCorpServiceImpl implements IAppCorpService {
             grdh = account;
         }
 
+        SQLParameter sp = new SQLParameter();
+        StringBuffer loginsql = new StringBuffer();
+        if (!AppCheckValidUtils.isEmptyCorp(pk_corp)) {// 签约公司信息
+            getLoginCorpSQL(sp, pk_corp, loginsql);
+        } else if (!StringUtil.isEmpty(pk_temp_corp)) {// 没签约公司信息
+            getLoginTempCorpSQL(sp, pk_temp_corp, loginsql);
+        }
+        ArrayList<AppUserVO> alres = (ArrayList<AppUserVO>) singleObjectBO.executeQuery(loginsql.toString(), sp, new BeanListProcessor(AppUserVO.class));
+        if(alres!=null&&alres.size()>0){
+            bean.setLegalbodycode(CodeUtils1.deCode(alres.get(0).getLegalbodycode()));//个人姓名
+            bean.setVsoccrecode(alres.get(0).getVsoccrecode());//注册码
+        }
         bean.setSh(StringUtil.isEmpty(sh) ? "" : sh);
         bean.setKhh(StringUtil.isEmpty(khh) ? "" : khh);
         bean.setKhzh(StringUtil.isEmpty(khzh) ? "" : khzh);
@@ -1178,11 +1190,58 @@ public class AppCorpServiceImpl implements IAppCorpService {
         bean.setGrdh(grdh);//个人电话
         bean.setGryx(gryx);//个人邮箱
 
+
         boolean isman = apppubservice.isManageUserInCorp(pk_corp, pk_temp_corp, account_id);
         // 赋值
         bean.setUsergrade(isman ? IConstant.DEFAULT : IConstant.FIRDES);// 是否是管理员
 
         return bean;
+    }
+
+    /**
+     * 获取登录没签约的公司
+     *
+     * @param userBean
+     * @param sp
+     * @param pk_corp
+     * @param loginsql
+     */
+    private void getLoginCorpSQL(SQLParameter sp, String pk_corp, StringBuffer loginsql) {
+        // 新用户
+        loginsql.append("   select  c.postaddr  as  app_corpadd ,c.pk_corp , ");
+        loginsql.append("    c.vsoccrecode, c.legalbodycode,ynt_bd_trade.tradename as  industry,   "); // 公司信息
+        loginsql.append("    c.chargedeptname,c.vprovince,c.vcity,c.varea ");
+        loginsql.append("   from  bd_corp c   ");
+        loginsql.append("   left join  ynt_bd_trade on ynt_bd_trade.pk_trade= c.industry ");
+        loginsql.append("   where 1=1  ");
+        sp.clearParams();
+        if (!StringUtil.isEmpty(pk_corp)) {
+            loginsql.append("   and c.pk_corp = ? ");
+            sp.addParam(pk_corp);
+        }
+    }
+
+    /**
+     * 获取已经签约的公司信息
+     *
+     * @param userBean
+     * @param sp
+     * @param pk_corp
+     * @param loginsql
+     */
+    private void getLoginTempCorpSQL(SQLParameter sp, String pk_tempcorp, StringBuffer loginsql) {
+        // 新用户
+        loginsql.append("   select   temp.vsoccrecode,temp.legalbodycode,ynt_bd_trade.tradename as  industry,");
+        loginsql.append("   temp.pk_temp_corp as pk_tempcorp,  ");
+        loginsql.append("   temp.chargedeptname,temp.vprovince,temp.vcity,temp.varea ");
+        loginsql.append("   from  app_temp_corp temp    ");
+        loginsql.append("   left join  ynt_bd_trade on ynt_bd_trade.pk_trade= temp.industry ");
+        loginsql.append("   where 1=1  ");
+        sp.clearParams();
+        if (!StringUtil.isEmpty(pk_tempcorp)) {
+            loginsql.append("   and temp.pk_temp_corp = ? ");
+            sp.addParam(pk_tempcorp);
+        }
     }
 
     @Override

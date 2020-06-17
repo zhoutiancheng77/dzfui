@@ -11,9 +11,7 @@ import com.dzf.zxkj.app.service.login.IAppLoginCorpService;
 import com.dzf.zxkj.app.service.login.IAppLoginOrRegService;
 import com.dzf.zxkj.app.service.login.impl.AppLoginOrRegImpl;
 import com.dzf.zxkj.app.service.org.IOrgService;
-import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.BeanUtils;
-import com.dzf.zxkj.app.utils.SourceSysEnum;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.utils.SpringUtils;
@@ -24,7 +22,6 @@ import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,7 +33,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/app/login")
 @Slf4j
-public class LoginController {
+public class LoginController extends  BaseAppController{
 
     @Autowired
     private IAppLoginCorpService user320service;
@@ -47,8 +44,6 @@ public class LoginController {
 
     @Autowired
     private IAppCorp320Service corp320service;
-    @Autowired
-    private IUserPubService userPubService;
 
     /**
      * 查询科目明细数据
@@ -56,7 +51,7 @@ public class LoginController {
     @RequestMapping("/doLogin")
     public ReturnData<ResponseBaseBeanVO> doLogin(UserBeanVO userBean,String uuid,String cname,String uname,String corp,String tcorp,String ucode,
                                                   Double lade,Double lode,String caddr,String ph) {
-        UserVO uservo = userPubService.queryUserVOId(userBean.getAccount_id());
+        UserVO uservo = queryUserVOId(userBean.getAccount_id());
         userBean.setAccount_id(uservo.getCuserid());
         userBean.setCorpname(cname);
         userBean.setUsername(uname);
@@ -64,9 +59,10 @@ public class LoginController {
         userBean.setPk_tempcorp(tcorp);
         userBean.setUsercode(StringUtil.isEmpty(ucode)?uservo.getUser_code():ucode);
         userBean.setLatitude(lade!=null?lade:0);
-        userBean.setLongitude(lade!=null?lade:0);
+        userBean.setLongitude(lode!=null?lode:0);
         userBean.setCorpaddr(caddr);
         userBean.setPhone(ph);
+        userBean.setAccount(uservo.getUser_code());//209
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         Integer versionno = userBean.getVersionno();
         if(versionno == null || versionno.intValue() ==0){
@@ -109,7 +105,10 @@ public class LoginController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("授权成功");
         } catch (Exception e) {
-            log.error("授权失败", log);
+//            log.error("授权失败", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+            printErrorJson(bean,e,log,"授权失败");
         }
         return bean;
     }
@@ -121,7 +120,10 @@ public class LoginController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("扫描成功");
         } catch (Exception e) {
-            log.error("扫描失败", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("扫描失败", log);
+            printErrorJson(bean,e,log,"扫描失败!");
         }
         return bean;
     }
@@ -133,7 +135,7 @@ public class LoginController {
             AppLoginOrRegImpl.log_identify.put(userBean.getAccount()+"@"+IConstant.TWO_ZERO_THREE, DZFBoolean.TRUE);
             return bean;//
         } catch (Exception e) {
-            printErrorLog(bean, e, "获取公司信息出错！");
+            printErrorJson(bean, e, log, "获取公司信息出错！");
         }
         return bean;
     }
@@ -149,27 +151,27 @@ public class LoginController {
                 return user320service.loginFromTel(userBean,bean);
             }
         } catch (Exception e) {
-            printErrorLog(bean, e, "登录出错!");
+            printErrorJson(bean, e, log, "登录出错!");
         }
         return bean;
     }
 
-    public void printErrorLog(ResponseBaseBeanVO bean, Throwable e, String errormsg) {
-        if(bean == null){
-            bean = new ResponseBaseBeanVO();
-        }
-        log.error(e.getMessage(),e);
-        bean.setRescode(IConstant.FIRDES);
-        if (e instanceof BusinessException) {
-            bean.setResmsg(e.getMessage());
-        } else {
-            if (StringUtil.isEmpty(errormsg)) {
-                bean.setResmsg("处理失败!");
-            } else {
-                bean.setResmsg(errormsg);
-            }
-        }
-    }
+//    public void printErrorLog(ResponseBaseBeanVO bean, Throwable e, String errormsg) {
+//        if(bean == null){
+//            bean = new ResponseBaseBeanVO();
+//        }
+//        log.error(e.getMessage(),e);
+//        bean.setRescode(IConstant.FIRDES);
+//        if (e instanceof BusinessException) {
+//            bean.setResmsg(e.getMessage());
+//        } else {
+//            if (StringUtil.isEmpty(errormsg)) {
+//                bean.setResmsg("处理失败!");
+//            } else {
+//                bean.setResmsg(errormsg);
+//            }
+//        }
+//    }
     private ResponseBaseBeanVO doOrgAction(Integer operate, UserBeanVO userBean) throws BusinessException {
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         IOrgService iorg = (IOrgService) SpringUtils.getBean("orgservice");
@@ -202,7 +204,10 @@ public class LoginController {
                 BeanUtils.copyNotNullProperties(basebean, bean);
             }
         } catch (Exception e) {
-            log.error( "保存服务机构出错！", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error( "保存服务机构出错！", log);
+            printErrorJson(bean,e,log,"保存服务机构出错！");
         }
         return bean;
     }

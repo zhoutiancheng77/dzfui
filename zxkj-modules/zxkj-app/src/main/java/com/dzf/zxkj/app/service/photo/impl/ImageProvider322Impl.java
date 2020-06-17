@@ -102,7 +102,7 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 	 * @return
 	 * @throws DZFWarpException
 	 */
-	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file, InputStream file_in)
+	public int saveReuploadImage(UserBeanVO uBean, ImageBeanVO[] imgbeanvos, MultipartFile file,String filename, InputStream file_in)
 			throws DZFWarpException {
 
 		if(StringUtil.isEmpty(uBean.getGroupkey())){
@@ -134,7 +134,7 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 
 
 			//先删除再重新的新增
-			File imgzipFile = poimp_imagepro.SaveZipFile(file,file_in, uploadlot+File.separator+file.getOriginalFilename(),uBean.getSourcesys(),uBean.getCert(),uBean.getAccount(),"","");
+			File imgzipFile = poimp_imagepro.SaveZipFile(file,file_in, uploadlot+File.separator+filename,uBean.getSourcesys(),uBean.getCert(),uBean.getAccount(),"","");
 			// 解压缩文件
 			HashMap<String, String> groupSettle = new HashMap<String, String>();
 			Map<String, String> groupLibMap = new HashMap<String, String>();
@@ -610,6 +610,9 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 		}else{
 			wherepart.append(" and  (coperatorid = '"+uBean.getAccount_id()+"' or vapprovetor = '"+uBean.getAccount_id()+"')");
 		}
+		if (corpids == null || corpids.length == 0) {
+			throw new BusinessException("您公司没签约，查询数据为空");
+		}
 		List<ImageGroupVO> groups = imageqry_pub.queryImgGroupvo(corpids, null,
 				startdate, enddate, uBean.getGroupkey(),wherepart.toString());
 
@@ -688,7 +691,9 @@ public class ImageProvider322Impl implements IImageProviderPhoto {
 	public OcrInvoiceVOForApp querySbDetail(String sbid) throws DZFWarpException {
 		return null;
 	}
-
+	public Integer deleteRecord(String sessionflag, String pk_corp) throws DZFWarpException {
+		return null;
+	}
 
 //	 public static int GetNextNumber(Integer[] iNumList)
 //     {

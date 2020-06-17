@@ -40,10 +40,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class GenTicketUtil {
 
-	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
-	private IZxkjRemoteAppService iZxkjRemoteAppService;
 
-	public SuperVO genTickMsgVO(String xmlvalue, String drcode, String account_id) throws DZFWarpException {
+	public SuperVO genTickMsgVO(String xmlvalue, String drcode, String account_id,IZxkjRemoteAppService iZxkjRemoteAppService) throws DZFWarpException {
 		
 		if (StringUtil.isEmpty(xmlvalue))
 			return null;
@@ -65,10 +63,13 @@ public class GenTicketUtil {
 				String zip = desc.element("zipCode").getText();//
 				String encry = desc.element("encryptCode").getText();
 				// 生成content元素
-				Element contentele = iZxkjRemoteAppService.getContentElement(zip, encry, content);
-				if(contentele == null){
+				String strs = iZxkjRemoteAppService.getContentElement(zip, encry, content);
+				if(StringUtil.isEmpty(strs)){
 					throw new BusinessException("获取票据内容失败!");
 				}
+				Document document2 = DocumentHelper.parseText(strs);
+				Element contentele= document2.getRootElement();
+
 				// 获取发票类型
 				String fpzl = null;
 				if(contentele.element("FPZL") == null){
@@ -100,7 +101,8 @@ public class GenTicketUtil {
 				throw new BusinessException(e.getMessage());
 			}
 			throw new WiseRunException(e);
-		}  
+
+		}
 
 		return headvo;
 

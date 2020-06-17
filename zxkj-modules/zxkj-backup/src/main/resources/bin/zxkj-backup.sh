@@ -12,7 +12,7 @@ function start()
 		echo "Maybe $fullName is running, please check it..."
 	else
 		echo "The $fullName is starting..."
-		nohup java -jar ./$fullName -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -Xms512M -Xmx4G > /dev/null 2>&1 &
+		nohup java -Djava.security.egd=file:///dev/urandom -jar ./$fullName -XX:+UseG1GC -XX:+HeapDumpOnOutOfMemoryError -Xms512M -Xmx4G > /dev/null 2>&1 &
     fi
 }
 

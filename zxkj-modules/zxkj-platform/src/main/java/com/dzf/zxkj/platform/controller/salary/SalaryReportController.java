@@ -480,8 +480,8 @@ public class SalaryReportController  extends BaseController {
             Map<String, String> tmap = new HashMap<String, String>();// 声明一个map用来存title参数
             tmap.put("公司", cvo.getUnitname());
             tmap.put("期间", bodyvos[0].getQj());
-            String hiddenphone = pmap.get("hiddenphone");
-            String zbr = pmap.get("zbr");
+            String hiddenphone = map.get("hiddenphone");
+            String zbr = map.get("zbr");
             if (!StringUtil.isEmpty(zbr) && new DZFBoolean(zbr).booleanValue()) {
                 tmap.put("制表人", SystemUtil.getLoginUserVo().getUser_name());
             }
@@ -641,9 +641,13 @@ public class SalaryReportController  extends BaseController {
         } catch (FileNotFoundException e2) {
             throw new Exception("文件未找到");
         } catch (IOException e2) {
-            throw new Exception("文件格式不正确，请选择导入文件");
-        } catch (Exception e2) {
             throw e2;
+        } catch (Exception e2) {
+            if(e2 instanceof BusinessException ){
+                throw  (BusinessException)e2;
+            }else{
+                throw new BusinessException("导入出错");
+            }
         } finally {
             if (is != null) {
                 try {

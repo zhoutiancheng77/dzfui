@@ -1,15 +1,23 @@
 package com.dzf.zxkj.app.controller;
 
-import com.dzf.admin.dzfapp.model.filetrans.*;
+import com.dzf.admin.dzfapp.model.filetrans.AppFiletransQryVO;
+import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.filetrans.IDzfAppFiletransService;
+import com.dzf.admin.model.app.transfer.filetrans.RetAppFiletransBVO;
+import com.dzf.admin.model.app.transfer.filetrans.RetAppQunGroup;
+import com.dzf.admin.model.app.transfer.filetrans.RetDataFileDocVO;
+import com.dzf.zxkj.app.model.app.corp.ScanCorpInfoVO;
 import com.dzf.zxkj.app.model.approve.ApproveSetVo;
 import com.dzf.zxkj.app.model.report.ZqVo;
 import com.dzf.zxkj.app.model.req.BusiReqBeanVo;
 import com.dzf.zxkj.app.model.resp.bean.*;
-import com.dzf.zxkj.app.model.sys.*;
+import com.dzf.zxkj.app.model.sys.DataFileDocVO;
+import com.dzf.zxkj.app.model.sys.FiletransVO;
+import com.dzf.zxkj.app.model.sys.ProblemVo;
 import com.dzf.zxkj.app.pub.constant.IBusiConstant;
 import com.dzf.zxkj.app.pub.constant.IConstant;
 import com.dzf.zxkj.app.pub.constant.IVersionConstant;
+import com.dzf.zxkj.app.service.IScanCorpInfo;
 import com.dzf.zxkj.app.service.app.act.IAppApproveService;
 import com.dzf.zxkj.app.service.app.act.IAppBusinessService;
 import com.dzf.zxkj.app.service.app.act.IQryReport1Service;
@@ -17,6 +25,7 @@ import com.dzf.zxkj.app.service.bill.IAppInvoiceService;
 import com.dzf.zxkj.app.service.pub.IUserPubService;
 import com.dzf.zxkj.app.utils.AppCheckValidUtils;
 import com.dzf.zxkj.app.utils.AppkeyUtil;
+import com.dzf.zxkj.app.utils.BaseTimerCache;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -43,7 +52,7 @@ import java.util.*;
 @Slf4j
 @RestController
 @RequestMapping("/app/busihandlesvlt")
-public class BusinessController {
+public class BusinessController extends  BaseAppController{
 
     @Autowired
     private IQryReport1Service orgreport1;
@@ -52,12 +61,14 @@ public class BusinessController {
     @Autowired
     private SingleObjectBO singleObjectBO;
     @Autowired
-    private IUserPubService userPubService;
-    @Autowired
     private IAppBusinessService appbusihand;
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IDzfAppFiletransService iDzfAppFiletransService;
 
+    @Autowired
+    private IScanCorpInfo scancorpSer;
+
+    public static BaseTimerCache<String, Object> busi_identify = new BaseTimerCache<String, Object>();
 
     @RequestMapping("/doBusiAction")
     public ReturnData<BusinessResonseBeanVO> doBusiAction(@RequestParam Map<String,Object> param) {
@@ -133,9 +144,9 @@ public class BusinessController {
 //                bean = doTradeQry(userbean);
 //                break;
 //            //---------扫描营业执照----------
-//            case IBusiConstant.SCAN_YYZZ:
-//                bean = doScanYyzz(userbean);
-//                break;
+            case IBusiConstant.SCAN_YYZZ:
+                bean = doScanYyzz(userbean);
+                break;
             //-----获取首页信息(目前有 营业执照链接，征期信息)
             case IBusiConstant.INDEX_MSG:
                 bean = doIndexMsg(userbean);
@@ -155,7 +166,7 @@ public class BusinessController {
     private void changeParamvo(Map<String,Object> param ,BusiReqBeanVo busireqvo,ApproveSetVo approveset){
         AppkeyUtil.setMulAppValue(param,busireqvo,new Class[]{BusiReqBeanVo.class, UserBeanVO.class, RequestBaseBeanVO.class} );
         AppkeyUtil.setAppValue(param,approveset );
-        UserVO uservo = userPubService.queryUserVOId((String)param.get("account_id"));
+        UserVO uservo = queryUserVOId((String)param.get("account_id"));
         busireqvo.setAccount_id(uservo.getCuserid());
         busireqvo.setUserid(uservo.getCuserid());
         return ;
@@ -193,7 +204,8 @@ public class BusinessController {
                 bean.setIndexmsg(indexmsg);
                 bean.setRescode(IConstant.DEFAULT);
             } catch (Exception e) {
-                log.error( "首页信息获取失败", log);
+                printErrorJson(bean,e,log,"首页信息获取失败");
+               // log.error( "首页信息获取失败", log);
             }
         }
         return bean;
@@ -313,7 +325,8 @@ public class BusinessController {
                     break;
             }
         }  catch (Exception e) {
-            log.error( "操作失败!", log);
+            printErrorJson(bean,e,log,"操作失败!");
+            //log.error( "操作失败!", log);
         }
 
         return bean;
@@ -325,14 +338,19 @@ public class BusinessController {
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corp(userbean.getFathercorpid());
             pramvo.setPk_corpk(userbean.getPk_corp());
-            List<FiletransBVO> bvos = (List<FiletransBVO>)iDzfAppFiletransService.queryFileList(pramvo).getData();
+            pramvo.setQrid(userbean.getQrid());
+            pramvo.setQrytype(userbean.getQrytype());
+            List<RetAppFiletransBVO> bvos = (List<RetAppFiletransBVO>)iDzfAppFiletransService.queryFileList(pramvo).getData();
             if(bvos == null || bvos.size() == 0){
                 throw new BusinessException("暂无数据!");
             }
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(bvos);
         } catch (Exception e) {
-            log.error(e.getMessage(), log);
+            printErrorJson(bean,e,log,"操作失败!");
+//            bean.setRescode(IConstant.FIRDES);
+//            bean.setResmsg(e.getMessage());
+//            log.error(e.getMessage(), log);
         }
 
     }
@@ -349,7 +367,10 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("操作成功!");
         } catch (Exception e) {
-            log.error("操作失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("操作失败!", log);
+            printErrorJson(bean,e,log,"操作失败!");
         }
     }
     private void doQueryFiledoc(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
@@ -358,19 +379,23 @@ public class BusinessController {
             AppFiletransQryVO pramvo = new AppFiletransQryVO();
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            List<DataFileDocVO> docvos = (List<DataFileDocVO>)iDzfAppFiletransService.queryFiledoc(pramvo).getData();
+            List<RetDataFileDocVO> docvos = (List<RetDataFileDocVO>)iDzfAppFiletransService.queryFiledoc(pramvo).getData();
             if(docvos == null || docvos.size() == 0){
                 throw new BusinessException("暂无记录!");
             }
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(docvos);
         } catch (Exception e) {
-            log.error("查询失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("查询失败!", log);
+            printErrorJson(bean,e,log,"查询失败!");
         }
     }
     private void doSaveFiletrans(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
 
         try {
+            AppResult result = null;
             AppFiletransQryVO pramvo = new AppFiletransQryVO();
             pramvo.setPk_corp(userbean.getFathercorpid());
             pramvo.setPk_corpk(userbean.getPk_corp());
@@ -383,15 +408,23 @@ public class BusinessController {
                 pramvo.setNum(userbean.getNum());
                 pramvo.setVendperiod(userbean.getVendperiod());
                 pramvo.setVmemo(userbean.getMemo());
-                iDzfAppFiletransService.saveFiletrans(pramvo);
+                result =  iDzfAppFiletransService.saveFiletrans(pramvo);
             }else{
-                iDzfAppFiletransService.saveFiles(pramvo );
+                result =  iDzfAppFiletransService.saveFiles(pramvo );
+            }
+            if(result.getCode() != 200){
+                bean.setRescode(IConstant.FIRDES);
+                bean.setResmsg(result.getMsg());
+            }else{
+                bean.setRescode(IConstant.DEFAULT);
+                bean.setResmsg("操作成功!");
             }
 
-            bean.setRescode(IConstant.DEFAULT);
-            bean.setResmsg("操作成功!");
         } catch (Exception e) {
-            log.error( "操作失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+          //  log.error( "操作失败!", log);
+            printErrorJson(bean,e,log,"操作失败!");
         }
     }
     private void doSaveHandin(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
@@ -405,17 +438,20 @@ public class BusinessController {
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setFileids(userbean.getFileids());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            QueryBeanVO querybeanvo = (QueryBeanVO)iDzfAppFiletransService.saveHandin(pramvo).getData();
+            AppResult querybeanvo = iDzfAppFiletransService.saveHandin(pramvo);
 
-            if(querybeanvo == null || StringUtil.isEmpty(querybeanvo.getQrid())){
+            if(querybeanvo == null || StringUtil.isEmpty((String)querybeanvo.getData())){
                 throw new BusinessException("获取信息失败!");
             }
 
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("操作成功!");
-            bean.setQrid(querybeanvo.getQrid());
+            bean.setQrid((String)querybeanvo.getData());
         } catch (Exception e) {
-            log.error( "操作失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error( "操作失败!", log);
+            printErrorJson(bean,e,log,"操作失败!");
         }
     }
     private void doQueryHandin(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
@@ -429,12 +465,17 @@ public class BusinessController {
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setQrid(userbean.getQrid());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            FileHandinVO filehandinvo = (FileHandinVO)iDzfAppFiletransService.queryHandin(pramvo).getData();
-
+            AppResult filehandinvo = (AppResult)iDzfAppFiletransService.queryHandin(pramvo);
+            if(filehandinvo.getCode() != 200){
+                throw new BusinessException(filehandinvo.getMsg());
+            }
             bean.setRescode(IConstant.DEFAULT);
-            bean.setResmsg(filehandinvo);
+            bean.setResmsg(filehandinvo.getData());
         } catch (Exception e) {
-            log.error("获取信息失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("获取信息失败!", log);
+            printErrorJson(bean,e,log,"获取信息失败!");
         }
     }
     private void doSaveHandinConf(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
@@ -454,7 +495,10 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg("操作成功!");
         } catch (Exception e) {
-            log.error( "操作失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error( "操作失败!", log);
+            printErrorJson(bean,e,log,"操作失败!");
         }
     }
     /**
@@ -469,18 +513,21 @@ public class BusinessController {
             pramvo.setCuserid(userbean.getAccount_id());
             pramvo.setPk_corpk(userbean.getPk_corp());
             pramvo.setPk_corp(userbean.getFathercorpid());
-            AppQunGroup[] groups = (AppQunGroup[])iDzfAppFiletransService.queryCatcher(pramvo,null).getData();
+            AppResult<RetAppQunGroup> groups = (AppResult<RetAppQunGroup>)iDzfAppFiletransService.queryCatcher(pramvo,null);
 
-            if (groups == null || groups.length == 0) {
+            if (groups.getData() == null)  {
                 throw new BusinessException("暂无数据!");
             }
 
             bean.setRescode(IConstant.DEFAULT);
 
-            bean.setResmsg(groups);
+            bean.setResmsg(groups.getData());
 
         } catch (Exception e) {
-            log.error( "获取信息失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error( "获取信息失败!", log);
+            printErrorJson(bean,e,log,"获取信息失败!");
         }
     }
     /**
@@ -513,7 +560,10 @@ public class BusinessController {
             bean.setResmsg("操作成功!");
 
         } catch (Exception e) {
-            log.error("操作失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("操作失败!", log);
+            printErrorJson(bean,e,log,"操作失败!");
         }
 
     }
@@ -537,18 +587,21 @@ public class BusinessController {
             pramvo.setPk_corp(userbean.getFathercorpid());
             pramvo.setPk_jjid(userbean.getPk_jjid());
             pramvo.setPk_msgid(userbean.getPk_msgid());
-            AppFiletransHVO appfilethvo = (AppFiletransHVO)iDzfAppFiletransService.queryAppFiletrans(pramvo).getData();
+            AppResult appfilethvo = iDzfAppFiletransService.queryAppFiletrans(pramvo);
 
-            if(appfilethvo == null){
+            if(appfilethvo == null || appfilethvo.getData() == null){
                 throw new BusinessException("获取信息失败!");
             }
 
             bean.setRescode(IConstant.DEFAULT);
 
-            bean.setResmsg(appfilethvo);
+            bean.setResmsg(appfilethvo.getData());
 
         } catch (Exception e) {
-            log.error("获取信息失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("获取信息失败!", log);
+            printErrorJson(bean,e,log,"获取信息失败!");
         }
 
     }
@@ -575,7 +628,10 @@ public class BusinessController {
             bean.setResmsg("操作成功!");
 
         } catch (Exception e) {
-            log.error("操作失败!", log );
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("操作失败!", log );
+            printErrorJson(bean,e,log,"操作失败!");
         }
 
     }
@@ -608,7 +664,10 @@ public class BusinessController {
             bean.setQrstatus(String.valueOf(qrstatus));
 
         } catch (Exception e) {
-            log.error( "获取状态信息失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error( "获取状态信息失败!", log);
+            printErrorJson(bean,e,log,"获取状态信息失败!");
         }
     }
     private void doQueryZllx(BusiReqBeanVo userbean, BusinessResonseBeanVO bean) {
@@ -635,7 +694,10 @@ public class BusinessController {
 
             bean = appbusihand.saveTickMsg(userbean);
         } catch (Exception e) {
-            log.error("获取票据信息失败!",log);
+//            bean.setRescode(IConstant.FIRDES);
+//            bean.setResmsg(e.getMessage());
+//            log.error("获取票据信息失败!",log);
+            printErrorJson(bean,e,log,"获取票据信息失败!");
         }
         return bean;
     }
@@ -657,7 +719,10 @@ public class BusinessController {
                 if(groupvo!=null){
                     singleObjectBO.deleteObject(groupvo);
                 }
-                log.error("生成凭证失败!", log);
+//                bean.setResmsg(e.getMessage());
+//                bean.setRescode(IConstant.FIRDES);
+//                log.error("生成凭证失败!", log);
+                printErrorJson(beanvo,e,log,"生成凭证失败!");
                 return beanvo;
             }
 
@@ -666,7 +731,10 @@ public class BusinessController {
             beanvo.setResmsg("操作成功!");
 
         } catch (Exception e) {
-            log.error("生成凭证失败!", log);
+//            beanvo.setResmsg(e.getMessage());
+//            beanvo.setRescode(IConstant.FIRDES);
+//            log.error("生成凭证失败!", log);
+            printErrorJson(beanvo,e,log,"生成凭证失败!");
         }
 
         return beanvo;
@@ -678,7 +746,10 @@ public class BusinessController {
             bean.setRescode(IConstant.DEFAULT);
             bean.setResmsg(list);
         } catch (Exception e) {
-            log.error("获取数据失败", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("获取数据失败", log);
+            printErrorJson(bean,e,log,"获取数据失败!");
         }
         return bean;
     }
@@ -710,7 +781,10 @@ public class BusinessController {
                     break;
             }
         } catch (Exception e) {
-            log.error("审批操作失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("审批操作失败!", log);
+            printErrorJson(bean,e,log,"审批操作失败!");
         }
 
         return bean;
@@ -726,7 +800,10 @@ public class BusinessController {
             IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
             bean =  approveser.updateReject(userbean);
         } catch (DZFWarpException e) {
-            log.error( "驳回失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error( "驳回失败!", log);
+            printErrorJson(bean,e,log,"驳回失败!");
         }
 
         return bean;
@@ -750,7 +827,10 @@ public class BusinessController {
 //
 //			}
         } catch (DZFWarpException e) {
-            log.error("审批失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("审批失败!", log);
+            printErrorJson(bean,e,log,"审批失败!");
         }
 
         return bean;
@@ -763,7 +843,10 @@ public class BusinessController {
 
             bean =  approveser.saveApproveSet(approveset);
         } catch (DZFWarpException e) {
-            log.error("保存审批流设置失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("保存审批流设置失败!", log);
+            printErrorJson(bean,e,log,"保存审批流设置失败!");
         }
 
         return bean;
@@ -775,8 +858,32 @@ public class BusinessController {
             IAppApproveService approveser = (IAppApproveService) SpringUtils.getBean("appapprovehand");
             bean = approveser.queryApprovSet(userbean);
         } catch (DZFWarpException e) {
-            log.error("查询审批流设置失败!", log);
+//            bean.setResmsg(e.getMessage());
+//            bean.setRescode(IConstant.FIRDES);
+//            log.error("查询审批流设置失败!", log);
+            printErrorJson(bean,e,log,"查询审批流设置失败!");
         }
+        return bean;
+    }
+
+
+    /**
+     * 扫描营业执照
+     * @param userbean
+     * @return
+     */
+    private BusinessResonseBeanVO doScanYyzz(BusiReqBeanVo userbean) {
+        BusinessResonseBeanVO  bean= new BusinessResonseBeanVO();
+        try {
+            ScanCorpInfoVO infovo = scancorpSer.scanPermit(userbean.getDrcode());
+            infovo.setInnercode(infovo.getVsoccrecode());
+            bean.setRescode(IConstant.DEFAULT);
+            bean.setResmsg(infovo.getUnitname());
+            busi_identify.put(infovo.getUnitname(), infovo);
+        } catch (Exception e) {
+            printErrorJson(bean, e, log, "信息不存在");
+        }
+
         return bean;
     }
 }

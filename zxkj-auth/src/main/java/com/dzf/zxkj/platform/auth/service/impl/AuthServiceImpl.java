@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.dzf.auth.api.model.user.UserVO;
 import com.dzf.auth.api.result.Result;
 import com.dzf.auth.api.service.ILoginService;
+import com.dzf.zxkj.common.entity.CachedLoginUser;
 import com.dzf.zxkj.platform.auth.cache.AuthCache;
 import com.dzf.zxkj.platform.auth.config.RsaKeyConfig;
 import com.dzf.zxkj.platform.auth.config.ZxkjPlatformAuthConfig;
 import com.dzf.zxkj.platform.auth.entity.FunNode;
-import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.entity.UserCorpRelation;
 import com.dzf.zxkj.platform.auth.mapper.FunNodeMapper;
 import com.dzf.zxkj.platform.auth.mapper.UserCorpRelationMapper;
@@ -16,8 +16,8 @@ import com.dzf.zxkj.platform.auth.service.IAuthService;
 import com.dzf.zxkj.platform.auth.service.IVersionMngService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.config.annotation.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Service(version = "1.0.0", timeout = 2 * 60 * 1000)
 @Slf4j
 @SuppressWarnings("all")
+@Service
 public class AuthServiceImpl implements IAuthService {
 
     @Autowired
@@ -86,7 +86,7 @@ public class AuthServiceImpl implements IAuthService {
     @Override
     public boolean validateTokenEx(String userid, String clientId) {
         //过期返回true 结合redis实现
-        LoginUser loginUser = authCache.getLoginUser(userid);
+        CachedLoginUser loginUser = authCache.getLoginUser(userid);
         if (loginUser == null) {
             return true;
         }

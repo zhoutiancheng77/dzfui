@@ -452,6 +452,13 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
             checkTwoLevelForMF(parentVO);
         }
 
+
+        if(("00000100AA10000000000BMD".equals(parentVO.getPk_corp_accountschema())
+                || "00000100AA10000000000BMF".equals(parentVO.getPk_corp_accountschema()))){
+            //企业会计准则、小企业会计准则
+            checkFourLevelForCB(parentVO);
+        }
+
         //模板校验(有模板录入的则对应的科目不允许新增下级)
         IVoucherTemplate vouchertempser = (IVoucherTemplate) SpringUtils.getBean("vouchertempser");
         //汇兑模板
@@ -463,6 +470,15 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
                     throw new BusinessException("汇兑科目，不允许增加下级");
                 }
             }
+        }
+    }
+
+    private void checkFourLevelForCB(YntCpaccountVO parentVO)throws BusinessException{
+        if(parentVO.getAccountlevel() == 3 && parentVO.getAccountkind() == 4 &&
+                ("直接材料".equals(parentVO.getAccountname().trim())
+                        || "直接人工".equals(parentVO.getAccountname().trim())
+                        || "制造费用".equals(parentVO.getAccountname().trim()))){
+            throw new BusinessException("【直接材料、直接人工、制造费用】科目，不允许增加下级科目！");
         }
     }
 

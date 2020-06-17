@@ -17,7 +17,7 @@ import java.util.Map;
 @org.apache.dubbo.config.annotation.Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
 public class AppVerifyServiceImpl implements IAppVerifyService {
     @Override
-    public String sendPhoneVerverify(String phone,String verify){
+    public String sendPhoneVerverify(String phone,String verify,String tempcode){
         Map<String, String> params = new HashMap<String, String>();
         params.put("verify", String.valueOf(verify));
         SMSBVO smsVO = new SMSBVO();
@@ -28,15 +28,22 @@ public class AppVerifyServiceImpl implements IAppVerifyService {
 //        }
         smsVO.setParams(params);
         smsVO.setPhone(new String[] { phone});
-        smsVO.setTemplatecode(ISmsConst.TEMPLATECODE_4101);//ISmsConst.TEMPLATECODE_4101
+       // smsVO.setTemplatecode(ISmsConst.TEMPLATECODE_4101);//ISmsConst.TEMPLATECODE_4101
+        smsVO.setTemplatecode(tempcode);
 
         //验证码:${verify}，（大账房绝对不会索取此验证码，切勿告知他人），请您10分钟内在页面中输入以完成验证。
         //【大帐房】 您正在进行短信验证码登录操作，验证码${verify}。(验证码不要告知他人，否则可能导致账号被盗，请勿泄露)
         SMSServiceNew smsServ = new SMSServiceNew(smsVO);
-        SMSResVO headvo = smsServ.sendPostData();
-        if(!headvo.isSuccess()){
-            throw new BusinessException("短信发送失败，请稍后重试");
+        try{
+            SMSResVO headvo = smsServ.sendPostData();
+            if(!headvo.isSuccess()){
+                //throw new BusinessException("短信发送失败，请稍后重试");
+                return headvo.getMsg();//"短信发送失败，请稍后重试";
+            }
+        }catch (Exception e){
+            return  e.getMessage();
         }
-        return "短信发送成功";
+
+        return null;//"短信发送成功"
     }
 }

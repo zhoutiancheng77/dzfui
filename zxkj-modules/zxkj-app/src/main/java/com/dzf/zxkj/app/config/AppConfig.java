@@ -20,5 +20,4 @@ public class AppConfig {
     @Value("${app.sms.smsurl}")
     public String smsurl;
 
-
 }

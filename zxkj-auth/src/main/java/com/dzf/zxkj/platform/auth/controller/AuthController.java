@@ -5,6 +5,7 @@ import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.CreateCache;
 import com.dzf.auth.api.service.IPasswordService;
 import com.dzf.zxkj.common.constant.ISysConstants;
+import com.dzf.zxkj.common.entity.CachedLoginUser;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -19,6 +20,7 @@ import com.dzf.zxkj.platform.auth.entity.LoginUser;
 import com.dzf.zxkj.platform.auth.entity.UpdateUserVo;
 import com.dzf.zxkj.platform.auth.mapper.LoginLogMapper;
 import com.dzf.zxkj.platform.auth.service.ILoginService;
+import com.dzf.zxkj.platform.auth.util.LoginUserUtil;
 import com.dzf.zxkj.platform.auth.util.RSAUtils;
 import com.dzf.zxkj.platform.auth.util.SystemUtil;
 import com.wf.captcha.SpecCaptcha;
@@ -74,7 +76,8 @@ public class AuthController {
         // 三个参数分别为宽、高、位数
         SpecCaptcha specCaptcha = new SpecCaptcha(110, 49, 4);
         //设置内置字体
-        specCaptcha.setFont(new Random().nextInt(10));//10以内随机数
+        int[] font = {0, 1, 2, 5, 8};
+        specCaptcha.setFont(font[new Random().nextInt(5)]);//5以内随机数
         // 设置字体
 //        specCaptcha.setFont(new Font("Verdana", Font.PLAIN, 32));  // 有默认字体，可以不用设置
         // 设置类型，纯数字、纯字母、字母数字混合
@@ -160,7 +163,7 @@ public class AuthController {
         }
 
         authCache.putLoginUnique(loginUser.getUserid(), clientid);
-        authCache.putLoginUser(loginUser.getUserid(), loginUser);
+        authCache.putLoginUser(loginUser.getUserid(), LoginUserUtil.transform(loginUser));
         loginUser.setPassword("");
         loginLogVo.setMemo("登陸成功");
         loginLogVo.setPk_user(loginUser.getUserid());
@@ -187,7 +190,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ReturnData logout() {
         try {
-            LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
+            CachedLoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
             authCache.logout(SystemUtil.getLoginUserId(), SystemUtil.getClientId());
             userService.logout(zxkjPlatformAuthConfig.getPlatformName(), loginUser.getDzfAuthToken());
         } catch (Exception e) {
@@ -207,7 +210,7 @@ public class AuthController {
             }
             grid.setSuccess(true);
             authCache.putLoginUnique(loginUser.getUserid(), SystemUtil.getClientId());
-            authCache.putLoginUser(loginUser.getUserid(), loginUser);
+            authCache.putLoginUser(loginUser.getUserid(), LoginUserUtil.transform(loginUser));
             loginUser.setPassword("");
             grid.setRows(loginUser);
         } catch (Exception e) {
@@ -218,7 +221,7 @@ public class AuthController {
 
     @GetMapping("selectSys")
     public ReturnData<LoginUser> selectSys() {
-        LoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
+        CachedLoginUser loginUser = authCache.getLoginUser(SystemUtil.getLoginUserId());
         return ReturnData.ok().data(loginUser);
     }
 

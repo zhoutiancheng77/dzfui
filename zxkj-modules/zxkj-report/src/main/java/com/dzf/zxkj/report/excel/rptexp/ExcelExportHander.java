@@ -1,18 +1,19 @@
 package com.dzf.zxkj.report.excel.rptexp;
 
+import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.model.SuperVO;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.report.*;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
-import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -436,8 +437,8 @@ public abstract class ExcelExportHander {
             if (row == null) {
                 continue;
             }
-            String zcname = trim(row.getCell(nums[0]) != null ? row.getCell(nums[0]).getStringCellValue() : "");
-            String fzname = trim(row.getCell(nums[3]) != null ? row.getCell(nums[3]).getStringCellValue() : "");
+            String zcname = trim(getExcelCellValue(row.getCell(nums[0])));
+            String fzname = trim(getExcelCellValue(row.getCell(nums[3])));
             if (!StringUtil.isEmpty(zcname) && zcfzTaxVoMap.containsKey(zcname) && zcfzTaxVoMap.get(zcname) != null) {
                 String hc_ref = zcfzTaxVoMap.get(zcname);
                 if (zcFzBVOMap.containsKey(hc_ref)) {
@@ -476,7 +477,7 @@ public abstract class ExcelExportHander {
             if (row == null) {
                 continue;
             }
-            String xmm = trim(row.getCell(nums[0]) != null ? row.getCell(nums[0]).getStringCellValue() : "");
+            String xmm = trim(getExcelCellValue(row.getCell(nums[0])));
             if (!StringUtil.isEmpty(xmm) && lrbTaxVoMap.containsKey(xmm)) {
                 String hc_ref = lrbTaxVoMap.get(xmm);
                 if (lrbVOMap.containsKey(hc_ref)) {
@@ -502,7 +503,7 @@ public abstract class ExcelExportHander {
             if (row == null) {
                 continue;
             }
-            String xmm = trim(row.getCell(nums[0]) != null ? row.getCell(nums[0]).getStringCellValue() : "");
+            String xmm = trim(getExcelCellValue(row.getCell(nums[0])));
 
             if ("补充资料".equals(xmm)) {
                 break;
@@ -545,7 +546,7 @@ public abstract class ExcelExportHander {
 
             //利润表和现金流量表一行只有一个项目，只需要查看nums[0]一列；资产负债表每行有两个项目，需检查nums[0]、nums[3]两列
             for (int i = 0; i < count; i++) {
-                String xmm = trim(row.getCell(nums[i * 3]) != null ? row.getCell(nums[i * 3]).getStringCellValue() : ""); //getNumericCellValue
+                String xmm = trim(getExcelCellValue(row.getCell(nums[i * 3]))); //getNumericCellValue
                 if (!StringUtil.isEmpty(xmm) && rptTaxVoMap.containsKey(xmm)) {
                     String hc_ref = rptTaxVoMap.get(xmm);
                     if (rptVOMap.containsKey(hc_ref)) {
@@ -587,5 +588,59 @@ public abstract class ExcelExportHander {
         colno--;
 
         sheet.getRow(rowno).getCell(colno).setCellValue(value != null ? value.toString() : "");
+    }
+
+    private String getExcelCellValue(Cell cell) {
+        String ret = "";
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");// 格式化日期字符串
+            if (cell == null) {
+                ret = null;
+            } else if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING) {
+                ret = cell.getRichStringCellValue().getString();
+            } else if (cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC) {
+                ret = "" + Double.valueOf(cell.getNumericCellValue()).doubleValue();
+                // 小数不可用这样格式，只为了凭证编码格式
+                java.text.DecimalFormat formatter = new java.text.DecimalFormat("#############.##");
+                formatter.setRoundingMode(RoundingMode.HALF_UP);
+                if ("General".equals(cell.getCellStyle().getDataFormatString())) {
+                    ret = formatter.format(cell.getNumericCellValue());
+                } else if (cell.getCellStyle().getDataFormatString().indexOf(".") >= 0) {
+                    ret = formatter.format(BigDecimal.valueOf(cell.getNumericCellValue()));
+                } else {
+                    ret = sdf.format(HSSFDateUtil.getJavaDate(cell.getNumericCellValue()));
+                }
+            } else if (cell.getCellType() == XSSFCell.CELL_TYPE_FORMULA) {
+                String value1 = null;
+                try {
+                    java.text.DecimalFormat formatter = new java.text.DecimalFormat("#############.##");
+                    value1 = formatter.format(cell.getNumericCellValue());
+                    ret = value1;
+                } catch (Exception e) {
+                }
+                if (StringUtil.isEmpty(value1) || "0.00".equals(ret)) {
+                    try {
+                        FormulaEvaluator evaluator = cell.getSheet().getWorkbook().getCreationHelper()
+                                .createFormulaEvaluator();
+                        CellValue cellValue = evaluator.evaluate(cell);
+                        ret = String.valueOf(cellValue.getNumberValue());
+                    } catch (StackOverflowError se) {
+                        throw new StackOverflowError("表格中第 " + (cell.getRow().getRowNum() + 1) + " 行第"
+                                + (cell.getColumnIndex() + 1) + " 列的公式 " + cell.getCellFormula() + "不正常，请检查");
+                    } catch (Exception e) {
+                    }
+                }
+            } else if (cell.getCellType() == XSSFCell.CELL_TYPE_ERROR) {
+                ret = "" + cell.getErrorCellValue();
+            } else if (cell.getCellType() == XSSFCell.CELL_TYPE_BOOLEAN) {
+                ret = "" + cell.getBooleanCellValue();
+            } else if (cell.getCellType() == XSSFCell.CELL_TYPE_BLANK) {
+                ret = null;
+            }
+        } catch (StackOverflowError sofe) {
+            throw new BusinessException(sofe.getMessage());
+        } catch (Exception ex) {
+        }
+        return ret;
     }
 }

@@ -1,6 +1,5 @@
 package com.dzf.zxkj.platform.service.sys.impl;
 
-import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.platform.dao.YntCpaccountDao;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
@@ -8,14 +7,13 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class AccountServiceImpl implements IAccountService {
-
-    @Autowired
-    private SingleObjectBO singleObjectBO = null;
 
     @Autowired
     private YntCpaccountDao yntCpaccountDao;

@@ -23,9 +23,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.11.2</version>
+        </dependency>
+        <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-report-api</artifactId>
-            <version>1.0.8</version>
+            <version>1.0.9</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -34,11 +39,17 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-jackson-serialize</artifactId>
-            <version>1.0</version>
+            <version>1.0.3-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dzf</groupId>
+            <artifactId>dzf-auth-api</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-common</artifactId>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.dzf</groupId>
@@ -60,7 +71,7 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-persistent-framework-starter</artifactId>
-            <version>1.0</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.belerweb</groupId>
@@ -105,6 +116,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
+                    <include>img/*</include>
                     <include>logback-spring.xml</include>
                     <include>bootstrap.yml</include>
                 </includes>
