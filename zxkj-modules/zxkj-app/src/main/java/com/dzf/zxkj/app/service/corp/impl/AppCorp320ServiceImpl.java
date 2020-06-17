@@ -163,7 +163,8 @@ public class AppCorp320ServiceImpl extends AppCorpService implements IAppCorp320
 		// 新用户
 		loginsql.append("   select  c.postaddr  as  app_corpadd ,c.pk_corp , ");
 		loginsql.append("    c.vsoccrecode, c.legalbodycode,ynt_bd_trade.tradename as  industry,   "); // 公司信息
-		loginsql.append("    c.chargedeptname,c.vprovince,c.vcity,c.varea "); 
+		loginsql.append("    c.chargedeptname,c.vprovince,c.vcity,c.varea, ");
+		loginsql.append("	  c.linkman2 as lxr,c.email1 email ,c.phone1 phone,c.postaddr addr,c.vbankname bankname,c.vbankcode bankcode");
 		loginsql.append("   from  bd_corp c   ");
 		loginsql.append("   left join  ynt_bd_trade on ynt_bd_trade.pk_trade= c.industry ");
 		loginsql.append("   where 1=1  ");

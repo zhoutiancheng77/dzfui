@@ -62,7 +62,64 @@ public class AppUserVO extends UserVO {
 	private DZFDate sealeddate;//代账公司封存日期
 	private String innercode;//公司编码
 	private String fcode;//会计公司编码
-	
+
+	private String lxr;//--新app新增--联系人
+	private String email;//--新app新增--联系人邮箱
+	private String phone;//--新app新增--联系人手机号
+	private String addr;//--新app新增--地址
+	private String bankname;//--新app新增--开户银行
+	private String bankcode;//--新app新增--银行账号
+
+	public String getLxr() {
+		return lxr;
+	}
+
+	public void setLxr(String lxr) {
+		this.lxr = lxr;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@Override
+	public String getPhone() {
+		return phone;
+	}
+
+	@Override
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getAddr() {
+		return addr;
+	}
+
+	public void setAddr(String addr) {
+		this.addr = addr;
+	}
+
+	public String getBankname() {
+		return bankname;
+	}
+
+	public void setBankname(String bankname) {
+		this.bankname = bankname;
+	}
+
+	public String getBankcode() {
+		return bankcode;
+	}
+
+	public void setBankcode(String bankcode) {
+		this.bankcode = bankcode;
+	}
+
 	public String getFcode() {
 		return fcode;
 	}
