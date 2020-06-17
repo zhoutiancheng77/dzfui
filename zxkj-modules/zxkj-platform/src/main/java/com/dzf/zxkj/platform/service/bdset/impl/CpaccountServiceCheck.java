@@ -457,6 +457,10 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
                 || "00000100AA10000000000BMF".equals(parentVO.getPk_corp_accountschema()))){
             //企业会计准则、小企业会计准则
             checkFourLevelForCB(parentVO);
+            if ("1901".equals(parentVO.getAccountcode())) {
+                throw new BusinessException("1901 科目若需增加二级科目，" +
+                        "请到【标准科目】节点升级系统已预置的二级科目。原因：二级科目会影响资产负债表取数");
+            }
         }
 
         //模板校验(有模板录入的则对应的科目不允许新增下级)
