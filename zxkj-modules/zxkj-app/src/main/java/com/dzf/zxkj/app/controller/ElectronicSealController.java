@@ -88,7 +88,7 @@ public class ElectronicSealController extends  BaseAppController{
         UserVO uservo = queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
         if(StringUtil.isEmpty(pamVO.getPk_corp())){
-            throw new BusinessException("当前用户无此权限");
+            throw new BusinessException("当前公司无此权限");
         }
         return pamVO;
     }
