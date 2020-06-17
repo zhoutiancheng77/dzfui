@@ -108,7 +108,7 @@ public class AuthServiceImpl implements IAuthService {
     public boolean validateMultipleLogin(String userid, String clientid) {
         boolean r = false;
         try {
-            r = authCache.checkIsOnLine(userid) && authCache.checkIsMulti(userid, clientid) ;
+            r = authCache.checkIsMulti(userid, clientid) ;
         } catch (Exception e) {
             log.error(String.format("authCache方法：checkIsMulti异常: %s, 参数{userid：%s, clientid：%s}]", e.getMessage(), userid, clientid), e);
         }
