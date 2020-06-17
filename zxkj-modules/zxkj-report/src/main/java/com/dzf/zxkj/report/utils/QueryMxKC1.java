@@ -182,25 +182,62 @@ public class QueryMxKC1 {
             NumMnyDetailVO[] vos = list.toArray(new NumMnyDetailVO[0]);
             for (NumMnyDetailVO vo : vos) {
 
-                if (subjectShow.intValue() == 0) {//显示本级
-                    String[] tempkms = vo.getKmmc().split("/");
-                    if (tempkms.length == 1) {
-                        vo.setKmmc(vo.getKmmc());
-                    }
-                    if (tempkms.length > 1) {
-                        vo.setKmmc(tempkms[tempkms.length - 1]);
-                    }
-                } else if (subjectShow.intValue() == 1) {//显示一级+本级
-                    String[] tempkms = vo.getKmmc().split("/");
-                    if (tempkms.length > 1) {
-                        vo.setKmmc(tempkms[0] + "_" + tempkms[tempkms.length - 1]);
-                    }
-                } else {//逐级显示
-                    vo.setKmmc(vo.getKmmc().replaceAll("/", "_"));
-                }
+                vo.setKmmc(getKmmcBySetting(subjectShow, vo, cpamap));
+//                if (subjectShow.intValue() == 0) {//显示本级
+//                    String[] tempkms = vo.getKmmc().split("/");
+//                    if (tempkms.length == 1) {
+//                        vo.setKmmc(vo.getKmmc());
+//                    }
+//                    if (tempkms.length > 1) {
+//                        vo.setKmmc(tempkms[tempkms.length - 1]);
+//                    }
+//                } else if (subjectShow.intValue() == 1) {//显示一级+本级
+//                    String[] tempkms = vo.getKmmc().split("/");
+//                    if (tempkms.length > 1) {
+//                        vo.setKmmc(tempkms[0] + "_" + tempkms[tempkms.length - 1]);
+//                    }
+//                } else {//逐级显示
+//                    vo.setKmmc(vo.getKmmc().replaceAll("/", "_"));
+//                }
             }
         }
         return list;
+    }
+
+    private String getKmmcBySetting(Integer subjectShow,
+                                    NumMnyDetailVO vo, HashMap<String, YntCpaccountVO> cpamap){
+        String kmmc = vo.getKmmc();
+        String pk_subject = vo.getPk_subject();
+        if(!StringUtil.isEmpty(pk_subject)){
+            YntCpaccountVO cpavo = cpamap.get(pk_subject);
+            if(cpavo != null && !StringUtil.isEmpty(kmmc)){
+                String[] arr = kmmc.split("_");
+                if(arr != null && arr.length > 1){
+
+                    kmmc = null;
+
+                    if (subjectShow.intValue() == 0) {
+                        // 显示本级
+                        kmmc = cpavo.getAccountname();
+                    } else if (subjectShow.intValue() == 1) {
+                        // 显示一级+本级
+                        String[] tempkms = cpavo.getFullname().split("/");
+                        if (tempkms.length > 1) {
+                            kmmc = tempkms[0] + "_" + tempkms[tempkms.length - 1];
+                        }else if(tempkms.length == 1){
+                            kmmc = tempkms[0];
+                        }
+                    } else {
+                        // 逐级显示
+                        kmmc = cpavo.getFullname().replaceAll("/", "_");
+                    }
+                    for(int i = 1; i < arr.length; i++){
+                        kmmc += "_" + arr[i];
+                    }
+                }
+            }
+        }
+        return kmmc;
     }
 
     private void buildOthers(List<NumMnyDetailVO> list, NumMnyDetailVO cvo, List<NumMnyDetailVO> fzhslist,
@@ -351,6 +388,12 @@ public class QueryMxKC1 {
                     } else if (df != null && df.doubleValue() > 0) {
                         num = SafeCompute.sub(num, num1);
                         mny = SafeCompute.sub(mny, df);
+                    } else if(num1 != null && num1.doubleValue() != 0){
+                        if("1".equals(vo.getDir())){
+                            num = SafeCompute.sub(num, num1);
+                        }else{
+                            num = SafeCompute.add(num, num1);
+                        }
                     }
 //					}else{
 //						
@@ -617,6 +660,7 @@ public class QueryMxKC1 {
         sf.append(" tb.jfmny jfmny, ");
         sf.append(" tb.dfmny dfmny, ");
         sf.append(" tb.nprice as npzprice, ");
+        sf.append(" ct.direction dir, ");
         sf.append(" ct.measurename jldw ,");
         sf.append(" ct.accountlevel accountlevel, ");
 
@@ -674,6 +718,12 @@ public class QueryMxKC1 {
                     v.setNnum(v.getNnumber());
                     v.setNmny(v.getJfmny());
                     v.setNprice(v.getNpzprice());
+                } else if(v.getNnumber() != null && v.getNnumber().doubleValue() != 0){
+                    if("1".equals(v.getDir())){
+                        v.setNdnum(v.getNnumber());
+                    }else{
+                        v.setNnum(v.getNnumber());
+                    }
                 }
             }
         }
@@ -1623,6 +1673,12 @@ public class QueryMxKC1 {
                 } else if (df != null && df.doubleValue() > 0) {
                     bc = SafeCompute.sub(bc, num);
                     ac = SafeCompute.sub(ac, df);
+                } else if(num.doubleValue() != 0){
+                    if("1".equals(v.getDir())){
+                        bc = SafeCompute.sub(bc, num);
+                    }else{
+                        bc = SafeCompute.add(bc, num);
+                    }
                 }
             }
         }
