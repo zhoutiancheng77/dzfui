@@ -4,6 +4,8 @@ import com.dzf.admin.dzfapp.model.econtract.AppSealVO;
 import com.dzf.admin.dzfapp.model.result.AppResult;
 import com.dzf.admin.dzfapp.service.econtract.IDzfAppSealService;
 import com.dzf.zxkj.app.utils.AppkeyUtil;
+import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
@@ -85,6 +87,9 @@ public class ElectronicSealController extends  BaseAppController{
         pamVO.setFileName(fileName);
         UserVO uservo = queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
+        if(StringUtil.isEmpty(pamVO.getPk_corp())){
+            throw new BusinessException("当前用户无此权限");
+        }
         return pamVO;
     }
 }
