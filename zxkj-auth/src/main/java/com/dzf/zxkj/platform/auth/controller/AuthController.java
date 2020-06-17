@@ -100,6 +100,7 @@ public class AuthController {
             loginLogVo.setLogindate(new Timestamp(Calendar.getInstance().getTimeInMillis()));
             loginLogVo.setLoginsession(SystemUtil.getClientId());
             loginLogVo.setLoginstatus(0);
+            loginLogVo.setSys_version("1.0.0");
             loginLogVo.setProject_name(project);
             loginLogVo.setLoginip(IpUtil.getIpAddr(request));
         } catch (Exception e) {
