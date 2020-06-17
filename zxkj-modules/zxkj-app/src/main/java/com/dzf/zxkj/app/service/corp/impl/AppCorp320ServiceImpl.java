@@ -84,6 +84,14 @@ public class AppCorp320ServiceImpl extends AppCorpService implements IAppCorp320
 				bean.setKhh(rbbvo.getKhh());
 				bean.setKhzh(rbbvo.getKhzh());
 				bean.setCorpaddr(rbbvo.getCorpaddr());
+
+				bean.setLxr(uservo.getLxr());//email--lphone--addr--bankname--bankcode
+				bean.setEmail(uservo.getEmail());
+				bean.setLphone(CodeUtils1.deCode(uservo.getPhone()));
+				bean.setAddr(uservo.getAddr());
+				bean.setBankname(uservo.getBankname());
+				bean.setBankcode(uservo.getBankcode());
+
 				bean.setRescode(IConstant.DEFAULT);
 				bean.setResmsg("获取信息成功!");
 			}else{
