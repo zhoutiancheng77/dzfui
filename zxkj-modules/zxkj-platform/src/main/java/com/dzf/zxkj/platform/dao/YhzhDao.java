@@ -1,13 +1,17 @@
 package com.dzf.zxkj.platform.dao;
 
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.framework.processor.BeanListProcessor;
 import com.dzf.zxkj.platform.model.bdset.BankAccountVO;
+import com.dzf.zxkj.redis.ZxkjRedisCachePrefix;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 public class YhzhDao {
@@ -15,7 +19,7 @@ public class YhzhDao {
     @Autowired
     private SingleObjectBO singleObjectBO;
 
-//    @Cached(name = RedisCacheConstant.YHZH_NAME, expire = 7, key = "#pk_corp", cacheType = CacheType.REMOTE, timeUnit = TimeUnit.DAYS)
+    @Cached(name = ZxkjRedisCachePrefix.BANK_ACCOUNT, expire = 3, key = "#pk_corp", cacheType = CacheType.REMOTE, timeUnit = TimeUnit.DAYS)
     public List<BankAccountVO> queryByPkCorp(String pk_corp) {
         StringBuffer sf = new StringBuffer();
         SQLParameter sp = new SQLParameter();
