@@ -34,6 +34,10 @@ public class AuthCache {
 
     public void putLoginUnique(String userid, String clientId) {
 
+        if(StringUtils.isBlank(clientId)){
+            return;
+        }
+
         List<String> clients = platformUserOnlineCache.get(userid);
 
         if (clients == null) {
