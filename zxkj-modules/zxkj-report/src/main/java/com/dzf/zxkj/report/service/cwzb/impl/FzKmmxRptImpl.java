@@ -758,6 +758,7 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
             }
         });
 
+        String fxtemp = "";
         /** 循环数据，同时赋值 */
         DZFDouble sumvalue = DZFDouble.ZERO_DBL;
         DZFDouble ybsumvalue = DZFDouble.ZERO_DBL;//原币
@@ -917,18 +918,33 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
             }else{
                 tempvo.setFx("贷");
             }
+            if (!StringUtil.isEmpty(key) && key.split("~").length>1) {
+                YntCpaccountVO accountvo = kmmap.get(key.split("~")[1]);
+                if (accountvo != null) {
+                    fxtemp = (accountvo.getDirection() == 0 ? "借" : "贷");
+                    // 之前默认是借-贷，现在改成走科目方向
+                    if (fxtemp.equalsIgnoreCase("贷")){
+                        tempvo.setYe(tempvo.getYe().multiply(-1));
+                    }
+                    tempvo.setFx(fxtemp);
+                }
+            }
             listemp2.add(tempvo);
         }
 
         String qcrq = "";
         for(FzKmmxVO mxvo:listemp2){
-            if(mxvo.getYe().doubleValue()<0){
-                mxvo.setYe(mxvo.getYe().multiply(-1));
+            // 只有不挂科目的辅助项目才乘以-1
+            if (key.length() == 24){
+                if(mxvo.getYe().doubleValue()<0){
+                    mxvo.setYe(mxvo.getYe().multiply(-1));
+                }
+
+                if(mxvo.getYbye().doubleValue()<0){
+                    mxvo.setYbye(mxvo.getYbye().multiply(-1));
+                }
             }
 
-            if(mxvo.getYbye().doubleValue()<0){
-                mxvo.setYbye(mxvo.getYbye().multiply(-1));
-            }
             if(ishowfs!=null && !ishowfs.booleanValue() && !("期初余额".equals(mxvo.getZy()) && ReportUtil.bSysZy(mxvo))){
                 Object[] objs = bwshowfsmap.get(mxvo.getRq().substring(0, 7));
                 DZFBoolean obj1 = (DZFBoolean) objs[0];
