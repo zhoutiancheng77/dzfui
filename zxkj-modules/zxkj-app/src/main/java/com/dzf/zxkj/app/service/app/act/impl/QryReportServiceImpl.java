@@ -51,7 +51,6 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
     private IRemoteReportService iRemoteReportService;
     @Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
     private IZxkjRemoteAppService iZxkjRemoteAppService;
-	
 	@Autowired
 	private SingleObjectBO singleObjectBO;
 	/**
@@ -166,7 +165,7 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 						Map<Float, ZcfzbBeanVO> map1 = new HashMap<Float, ZcfzbBeanVO>();
 						SuperVO[] zvos = null;
 						List<ZcfzbBeanVO> vec = new ArrayList<ZcfzbBeanVO>();
-						float[][][] nr = doZCFZ(vos, corpschema, map1);
+						float[][][] nr = doZCFZ(vos, corpschema, map1,pk_corp);
 						ZcfzbBeanVO zvo = null;
 						float index = -1;
 						List ls = null;
@@ -805,7 +804,7 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 		return retBeanLs;
 	}
 
-	private float[][][] doZCFZ(ZcFzBVO[] vos, Integer corpschema, Map<Float, ZcfzbBeanVO> map) throws NumberFormatException,
+	private float[][][] doZCFZ(ZcFzBVO[] vos, Integer corpschema, Map<Float, ZcfzbBeanVO> map,String pk_corp) throws NumberFormatException,
 		DZFWarpException {
 		float nhc1=0;
 		float nhc2=0;
@@ -815,6 +814,7 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 		ZcfzbBeanVO zcfzb2 = null;
 		float[][][] nr=null;
 		String str=null;
+        String zxzc = iZxkjRemoteAppService.queryParamterValueByCode(pk_corp, "dzf025");
 		if (vos != null && vos.length > 0) {
 			// 资产类
 			for (ZcFzBVO vo : vos) {
@@ -838,15 +838,27 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 				zcfzb2.setNcmny(vo.getNcye2());
 				nhc2 = StringUtil.isEmptyWithTrim(vo.getHc2()) ? -1 : Float.parseFloat(vo.getHc2());
 				if(corpschema == DzfUtil.SEVENSCHEMA.intValue()){
-					if (nhc1 < 1 && nhc2 < 1 ) {
-						nhc1 = 0.5f;
-						nhc2 = 33.5f;
-					}else if(nhc1 == -1 && nhc2 == 48){
-						nhc1 = 14.5f;
-					} else if(nhc1 == 15 && nhc2 == -1){
-						nhc2 = 48.5f;
-					}  else if (nhc1 == 28 && nhc2 == -1) {
-						nhc2 = 60.5f;
+                    if ("财会【2019】6号".equals(zxzc)) {
+                        if (nhc1 < 1 && nhc2 < 1 ) {
+                            nhc1 = 0.5f;
+                            nhc2 = 30.5f;
+                        }else if(nhc1 == -1 && nhc2 == 42){
+                            nhc1 = 12.5f;
+                        } else if(nhc1 == 13 && nhc2 == -1){
+                            nhc2 = 42.5f;
+                        }
+                    }
+					else {
+                            if (nhc1 < 1 && nhc2 < 1 ) {
+                            nhc1 = 0.5f;
+                            nhc2 = 33.5f;
+                        }else if(nhc1 == -1 && nhc2 == 48){
+                            nhc1 = 14.5f;
+                        } else if(nhc1 == 15 && nhc2 == -1){
+                            nhc2 = 48.5f;
+                        }  else if (nhc1 == 28 && nhc2 == -1) {
+                            nhc2 = 60.5f;
+                        }
 					}
 				}else if (corpschema == DzfUtil.THIRTEENSCHEMA.intValue()){//13
 					if (nhc1 < 1 && nhc2 < 1) {
@@ -899,21 +911,22 @@ public class QryReportServiceImpl extends QryReportAbstract implements IQryRepor
 			}
 
 			if(corpschema == DzfUtil.SEVENSCHEMA.intValue()){
-				nr=new float[][][]{
-					{{0.5f},{1,2,3,4,5,6,7,8,9,10,11,12,13}},
-//					{{14},{}},
-					{{14.5f},{15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31}},
-//					{{32},{}},
-//					{{33},{}},
-					{{33.5f},{34,35,36,37,38,39,40,41,42,43,44,45,46,47}},
-//					{{48},{}},
-					{{48.5f},{49,50,51,52,53,54,55,56,57,58}},
-//					{{59},{}},
-//					{{60},{}},
-					{{60.5f},{61,62,63,64,65,66,67,68,69}},
-//					{{70},{}},
-//					{{71},{}},
-				};
+                if ("财会【2019】6号".equals(zxzc)) {
+                    nr=new float[][][]{
+                            {{0.5f},{1,2,3,4,5,6,7,8,9,10,11,12}},
+                            {{12.5f},{13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30}},
+                            {{30.5f},{31,32,33,34,35,36,37,38,39,40,41,42}},
+                            {{42.5f},{43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65}},
+                    };
+                }else{
+                    nr=new float[][][]{
+                            {{0.5f},{1,2,3,4,5,6,7,8,9,10,11,12,13}},
+                            {{14.5f},{15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31}},
+                            {{33.5f},{34,35,36,37,38,39,40,41,42,43,44,45,46,47}},
+                            {{48.5f},{49,50,51,52,53,54,55,56,57,58}},
+                            {{60.5f},{61,62,63,64,65,66,67,68,69}},
+                    };
+                }
 			}else if(corpschema == DzfUtil.THIRTEENSCHEMA.intValue()){//13
 				nr=new float[][][]{
 						{{0.5f},{1,2,3,4,5,6,7,8,9,14}},
