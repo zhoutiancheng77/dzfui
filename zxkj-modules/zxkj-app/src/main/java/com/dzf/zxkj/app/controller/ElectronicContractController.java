@@ -73,7 +73,7 @@ public class ElectronicContractController extends  BaseAppController{
         AppkeyUtil.setAppValue(param,pamVO );
         UserVO uservo = queryUserVOId((String)param.get("account_id"));
         pamVO.setCuserid(uservo.getCuserid());
-        if(StringUtil.isEmpty(pamVO.getPk_corp())){
+        if(StringUtil.isEmpty(pamVO.getPk_corp()) || pamVO.getPk_corp().equals("appuse")  ){
             throw new BusinessException("当前公司无此权限");
         }
         return pamVO;
