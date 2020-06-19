@@ -29,6 +29,7 @@ public class ResponseBaseBeanVO extends SuperVO {
 	private String rescode;//返回值
 	private Integer resnumber;//返回数字
 	private Object resmsg;
+	private String errtailmsg;
 	private String confirmsg;// 确认消息
 	private String confirm;//同意不同意
 	private Object kfmsg;// 客服信息
@@ -106,6 +107,14 @@ public class ResponseBaseBeanVO extends SuperVO {
 	private String addr;//--新app新增--地址
 	private String bankname;//--新app新增--开户银行
 	private String bankcode;//--新app新增--银行账号
+
+	public String getErrtailmsg() {
+		return errtailmsg;
+	}
+
+	public void setErrtailmsg(String errtailmsg) {
+		this.errtailmsg = errtailmsg;
+	}
 
 	public String getLxr() {
 		return lxr;

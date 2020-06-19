@@ -7331,17 +7331,17 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 					relvo.setName(invenvo.getName());
 					relvo.setPk_subj(invenvo.getPk_accsubj());
 					relvo.setSubjname(invenvo.getSubjname());
+				}else{
+					BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, bvo.getPk_billcategory());
+					if(categoryvo!=null&&!StringUtil.isEmpty(categoryvo.getCategorycode())&&categoryvo.getCategorycode().startsWith("1111")){
+						relvo.setPk_subj(intorylist.get(0).getPk_subject());//pk_subject
+						relvo.setSubjname(intorylist.get(0).getKmname());//kmname
+					}
+					if(StringUtil.isEmpty(relvo.getPk_subj())){
+						relvo.setPk_subj(intorylist.get(1).getPk_subject());//pk_subject
+						relvo.setSubjname(intorylist.get(1).getKmname());//kmname
+					}
 				}
-				BillCategoryVO categoryvo = (BillCategoryVO)singleObjectBO.queryByPrimaryKey(BillCategoryVO.class, bvo.getPk_billcategory());
-				if(categoryvo!=null&&!StringUtil.isEmpty(categoryvo.getCategorycode())&&categoryvo.getCategorycode().startsWith("1111")){
-					relvo.setPk_subj(intorylist.get(0).getPk_subject());//pk_subject
-					relvo.setSubjname(intorylist.get(0).getKmname());//kmname
-				}
-				if(StringUtil.isEmpty(relvo.getPk_subj())){
-					relvo.setPk_subj(intorylist.get(1).getPk_subject());//pk_subject
-					relvo.setSubjname(intorylist.get(1).getKmname());//kmname
-				}
-
 
 				if(relvo.getHsl()==null){
 					relvo.setHsl(DZFDouble.ONE_DBL);

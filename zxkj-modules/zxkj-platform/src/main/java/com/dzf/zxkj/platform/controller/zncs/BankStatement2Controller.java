@@ -372,9 +372,11 @@ public class BankStatement2Controller extends BaseController {
                     gl_yhdzdserv2.delete(vo, pk_corp);
                     strb.append("<font color='#2ab30f'><p>银行对账单[" + vo.getTradingdate() + "],删除成功!</p></font>");
                 } catch (Exception e) {
-                    log.error( "删除失败!",json, log, e);
+                    log.error( "删除失败!", e);
                     errorCount++;
-                    strb.append("<font color='red'><p>银行对账单[" + vo.getTradingdate() + "]," + json.getMsg() + "</p></font>");
+
+                    strb.append("<font color='red'><p>银行对账单[" + vo.getTradingdate() + "],"
+                            + (e instanceof BusinessException ? e.getMessage() : "删除失败!" ) + "</p></font>");
                 }
             }
 

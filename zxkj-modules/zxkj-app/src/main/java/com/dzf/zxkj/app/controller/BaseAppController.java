@@ -55,6 +55,7 @@ public class BaseAppController  {
 		}
 		log.error(errormsg, log);
 		bean.setRescode(IConstant.FIRDES);
+		bean.setErrtailmsg(e.getMessage());
 		if (e instanceof BusinessException) {
 			bean.setResmsg(e.getMessage());
 		} else {
