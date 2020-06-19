@@ -53,7 +53,7 @@ public class BaseAppController  {
 		if(bean == null){ 
 			bean = new ResponseBaseBeanVO();
 		}
-		log.error(errormsg, log);
+		log.error(errormsg, e);
 		bean.setRescode(IConstant.FIRDES);
 		bean.setErrtailmsg(e.getMessage());
 		if (e instanceof BusinessException) {
