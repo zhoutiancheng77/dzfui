@@ -648,7 +648,7 @@ public class AppLoginOrRegImpl implements IAppLoginOrRegService {
 		String strUUID = loginQRVO.getUuid();
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(strUUID);
-		String sql="select * from ynt_login_qrcode where nvl(dr,0) = 0 and uuid = ?";
+		String sql="select * from ynt_login_qrcode where nvl(dr,0) = 0 and trim(uuid) = ?";
 		List<LoginQRVO> list = (ArrayList<LoginQRVO>)singleObjectBO.executeQuery(sql, sp, new BeanListProcessor(LoginQRVO.class));
 
 		if (list== null || list.size()<=0) {
