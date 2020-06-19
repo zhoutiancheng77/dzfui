@@ -60,19 +60,22 @@ public class ZcfzPrint extends  AbstractPrint {
             tmap.put("单位", "元");
             QueryParamVO paramvo = new QueryParamVO();
             paramvo.setPk_corp(corpVO.getPk_corp());
-            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
-            if (listVos != null && listVos.size() > 0) {
-                Optional<CorpTaxVo> optional = listVos.stream().filter(v -> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
-                optional.ifPresent(corpTaxVo -> {
-                    if (!StringUtil.isEmpty(corpTaxVo.getLegalbodycode())) {
-                        pmap.put("单位负责人", corpTaxVo.getLegalbodycode());
-                    }
-                    if (!StringUtil.isEmpty(corpTaxVo.getLinkman1())) {
-                        pmap.put("财务负责人", corpTaxVo.getLinkman1());
-                    }
-                    pmap.put("制表人", userVO.getUser_name());
-                });
-            }
+//            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
+//            if (listVos != null && listVos.size() > 0) {
+//                Optional<CorpTaxVo> optional = listVos.stream().filter(v -> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
+//                optional.ifPresent(corpTaxVo -> {
+//                    if (!StringUtil.isEmpty(corpTaxVo.getLegalbodycode())) {
+//                        pmap.put("单位负责人", corpTaxVo.getLegalbodycode());
+//                    }
+//                    if (!StringUtil.isEmpty(corpTaxVo.getLinkman1())) {
+//                        pmap.put("财务负责人", corpTaxVo.getLinkman1());
+//                    }
+//                    pmap.put("制表人", userVO.getUser_name());
+//                });
+//            }
+            pmap.put("单位负责人", "");
+            pmap.put("财务负责人", "");
+            pmap.put("制表人", "");
 
             printReporUtil.setLineheight(-1f);//设置行高
             printReporUtil.setFirstlineheight(20f);
