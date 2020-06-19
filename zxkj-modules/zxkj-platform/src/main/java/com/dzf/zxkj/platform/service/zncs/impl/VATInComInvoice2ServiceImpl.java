@@ -2210,7 +2210,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			CaiFangTongHVO hvo;
 			List<CaiFangTongHVO> hList = new ArrayList<CaiFangTongHVO>();
 			for(VATInComInvoiceVO2 vo : list){
-				if(!vo.getFplx().contains("通行费")){
+				if(StringUtil.isEmpty(vo.getFplx()) || !vo.getFplx().contains("通行费")){
 					try {
 						hvo = new CaiFangTongHVO();
 						hvo.setKprq(vo.getKprj().toString());
@@ -2729,7 +2729,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 		if(IBillManageConstants.ZENGZHIAHUI_AUTO == sourceType){
 			for (VATInComInvoiceVO2 vo : blist) {
-				if(vo.getFplx().contains("通行费")){
+				if(!StringUtil.isEmpty(vo.getFplx()) && vo.getFplx().contains("通行费")){
 					List<VATInComInvoiceBVO2> bvolist = new ArrayList<VATInComInvoiceBVO2>();
 					VATInComInvoiceBVO2 bvo = new VATInComInvoiceBVO2();
 					bvo.setBspmc(vo.getSpmc());
@@ -3245,7 +3245,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 		// 通行费发票 设置税率  默认商品货物名称   发票状态
 		DZFDouble sl = vo.getSpsl();
-		if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO && vo.getFplx().contains("通行费")) {
+		if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO && !StringUtil.isEmpty(vo.getFplx()) && vo.getFplx().contains("通行费")) {
 			vo.setSpsl(new DZFDouble(3));
 			vo.setSpmc("通行费");
 			if(vo.getKplx()!=null&&vo.getKplx().contains("正常")){
