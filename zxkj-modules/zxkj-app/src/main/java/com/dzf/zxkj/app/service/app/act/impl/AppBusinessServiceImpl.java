@@ -974,7 +974,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 
 		newGenImg(hvo, fonttexts);
 
-		GenTickImageUtil.drawTextInImg(xmlpath.getFile(), outpath, fonttexts.toArray(new FontText[0]));
+		GenTickImageUtil.drawTextInImg(xmlpath.getFile(), outpath, fonttexts.toArray(new FontText[0]),log);
 
 		return path;
 	}

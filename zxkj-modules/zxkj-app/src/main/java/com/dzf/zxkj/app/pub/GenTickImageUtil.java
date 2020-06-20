@@ -1,10 +1,12 @@
 package com.dzf.zxkj.app.pub;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.Image;
+import com.dzf.zxkj.app.model.ticket.FontText;
+import com.dzf.zxkj.base.exception.WiseRunException;
+import com.dzf.zxkj.common.utils.StringUtil;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,11 +14,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import com.dzf.zxkj.app.model.ticket.FontText;
-import com.dzf.zxkj.base.exception.WiseRunException;
-import com.dzf.zxkj.common.utils.StringUtil;
 
 /**
  * 生成发票图片
@@ -40,15 +37,16 @@ public class GenTickImageUtil {
 		fonttexts.add(new FontText("6700", 656, 390,20));
 		fonttexts.add(new FontText("神舟公司", 300, 570));
 
-		drawTextInImg(filePath, outPath, fonttexts.toArray(new FontText[0]));
+		drawTextInImg(filePath, outPath, fonttexts.toArray(new FontText[0]),null);
 	}
 
-	public static void drawTextInImg(String filePath, String outPath, FontText[] texts) {
+	public static void drawTextInImg(String filePath, String outPath, FontText[] texts, org.slf4j.Logger log) {
 		
 		ImageIcon imgIcon = new ImageIcon(filePath);
 		Image img = imgIcon.getImage();
 		int width = img.getWidth(null);
 		int height = img.getHeight(null);
+		log.error(filePath+"----width:"+width+"---height:"+height,filePath);
 		BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
 		Graphics2D g = bimage.createGraphics();
