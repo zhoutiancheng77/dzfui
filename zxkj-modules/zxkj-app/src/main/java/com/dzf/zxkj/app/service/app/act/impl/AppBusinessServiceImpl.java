@@ -99,6 +99,7 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 	@Reference(version = "1.0.0", protocol = "dubbo", timeout = Integer.MAX_VALUE, retries = 0)
 	private IZxkjRemoteAppService iZxkjRemoteAppService;
 
+	private static String modelpath = File.separator+"ImageUpload"+File.separator+"AppModel"+File.separator;
 //	@Autowired
 //	private YntBoPubUtil yntBoPubUtil;
 //
@@ -968,13 +969,13 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 		String path = unitcode + "/" + getCurDate() + "/" + imgFileNm;
 		String outpath = Common.imageBasePath + path;
 
-		URL xmlpath = getXmlPath_new(hvo);
+		String xmlpath = getXmlPath_new(hvo);
 
 		List<FontText> fonttexts = new ArrayList<FontText>();
 
 		newGenImg(hvo, fonttexts);
 
-		GenTickImageUtil.drawTextInImg(xmlpath.getFile(), outpath, fonttexts.toArray(new FontText[0]),log);
+		GenTickImageUtil.drawTextInImg(xmlpath, outpath, fonttexts.toArray(new FontText[0]),log);
 
 		return path;
 	}
@@ -984,16 +985,21 @@ public class AppBusinessServiceImpl implements IAppBusinessService {
 		return format.format(Calendar.getInstance().getTime());
 	}
 
-	private URL getXmlPath_new(ZzsTicketHVO hvo) throws IOException {
+	private String getXmlPath_new(ZzsTicketHVO hvo) throws IOException {
 		// 通过drcode 查询对应的信息
-		URL xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_dz.jpg").getURL();
+        String pic = "app_model_dz.jpg";
+		//URL xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_dz.jpg").getURL();
+        pic  = "app_model_dz.jpg";
 		String[] strs = hvo.getDrcode().split(",");
 		if(strs[1].equals("01")){//专票
-			xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_zp.jpg").getURL();
+			//xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_zp.jpg").getURL();
+            pic = "app_model_zp.jpg";
 		}else if(strs[1].equals("04")){//普票
-			xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_pp.jpg").getURL();
+			//xmlpath = new ClassPathResource("img"+ File.separator+ "app_model_pp.jpg").getURL();
+            pic ="app_model_pp.jpg";
 		}
-		return xmlpath;
+		String path =modelpath+pic;
+		return path;
 	}
 	private void newGenImg(ZzsTicketHVO hvo, List<FontText> fonttexts) {
 
