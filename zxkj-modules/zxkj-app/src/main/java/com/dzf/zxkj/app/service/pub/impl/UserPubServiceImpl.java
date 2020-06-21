@@ -79,10 +79,22 @@ public class UserPubServiceImpl implements IUserPubService {
         return uservo;
     }
 
+    @Override
+    public TempUserRegVO queryTempUser(String pk_user) {
+        String sql = " select * from app_temp_user where nvl(dr,0)=0 and pk_user = ? ";
+        SQLParameter sp = new SQLParameter();
+        sp.addParam(pk_user);
+        List<TempUserRegVO> list = (ArrayList<TempUserRegVO>)singleObjectBO.executeQuery(sql,sp,new BeanListProcessor(TempUserRegVO.class));
+        if(list!=null&&list.size()>0){
+            return  list.get(0);
+        }else {
+            return null;
+        }
+    }
 
 
     @Override
-    public UserVO saveRegisterCorpSWtch(UserBeanVO userBean,String unifiedid)  {
+    public UserVO saveRegisterCorpSWtch(UserBeanVO userBean,String unifiedid,UserVO olduserVO)  {
         LoginResponseBeanVO bean = new LoginResponseBeanVO();
         TempUserRegVO tempuservo = null;
         List<TempUserRegVO>  tempList = apppubservice.getTempList(userBean.getUsercode());
@@ -116,13 +128,13 @@ public class UserPubServiceImpl implements IUserPubService {
             tempuservo = tempList.get(0);
         }
 
-        return create(tempuservo,null,unifiedid);
+        return create(tempuservo,null,unifiedid,olduserVO);
     }
 
 
-    private UserVO create(TempUserRegVO uservo,TempCorpVO corpVO,String unifiedid) throws DZFWarpException {
+    private UserVO create(TempUserRegVO uservo,TempCorpVO corpVO,String unifiedid, UserVO olduserVO) throws DZFWarpException {
             String pk_user = null;
-            UserVO userVO = createUserVO( uservo,corpVO,unifiedid);
+            UserVO userVO = olduserVO == null ?createUserVO( uservo,corpVO,unifiedid) : olduserVO;
             pk_user = userVO.getPrimaryKey();
 
             uservo.setPk_user(pk_user);

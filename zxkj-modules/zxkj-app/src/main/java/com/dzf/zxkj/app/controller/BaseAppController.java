@@ -2,6 +2,7 @@ package com.dzf.zxkj.app.controller;
 
 import com.dzf.auth.api.result.Result;
 import com.dzf.auth.api.service.IUserCenterService;
+import com.dzf.zxkj.app.model.app.user.TempUserRegVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
 import org.apache.dubbo.config.annotation.Reference;
 import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
@@ -29,14 +30,21 @@ public class BaseAppController  {
     public UserVO queryUserVOId(String account_id){
 		UserVO userVO = userPubService.queryUserVOId(account_id);
 		//用户存在则查询出来不存在则新建
-		if(userVO!=null) return userVO;
+		if(userVO!=null){
+			TempUserRegVO temvo = userPubService.queryTempUser(userVO.getCuserid());
+			if(temvo !=null){
+				return userVO;
+			}
+		}
+
 		//1:查出用户中心账户信息
 		Result<com.dzf.auth.api.model.user.UserVO>  result =userCenterService.getUserDetailById("zxkj", new Long(account_id));
         //2:查出是否存在相同用户
          userVO  = userPubService.queryUserVObyCode(result.getData().getLoginName());
          if(userVO !=null){
              userVO.setUnifiedid(account_id);
-             userPubService.updateUserUnifiedid(userVO);
+			 userVO = userPubService.updateUserUnifiedid(userVO);
+
              return userVO;
          }
 		com.dzf.auth.api.model.user.UserVO uvo = result.getData();
@@ -46,7 +54,7 @@ public class BaseAppController  {
 		beanVO.setPhone(uvo.getMobile());
 		beanVO.setUsername(uvo.getUserName());
         beanVO.setPassword("qwe123!@#");
-		return userPubService.saveRegisterCorpSWtch(beanVO,account_id);
+		return userPubService.saveRegisterCorpSWtch(beanVO,account_id,userVO);
     }
 
 	public void printErrorJson(ResponseBaseBeanVO bean, Throwable e, Logger log, String errormsg) {
