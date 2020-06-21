@@ -28,24 +28,26 @@ public class BaseAppController  {
 
 
     public UserVO queryUserVOId(String account_id){
-		UserVO userVO = userPubService.queryUserVOId(account_id);
+		UserVO olduserVO = userPubService.queryUserVOId(account_id);
+		TempUserRegVO temvo =null;//app用户
 		//用户存在则查询出来不存在则新建
-		if(userVO!=null){
-			TempUserRegVO temvo = userPubService.queryTempUser(userVO.getCuserid());
+		if(olduserVO!=null){
+			 temvo = userPubService.queryTempUser(olduserVO.getCuserid());
 			if(temvo !=null){
-				return userVO;
+				return olduserVO;
 			}
 		}
 
 		//1:查出用户中心账户信息
 		Result<com.dzf.auth.api.model.user.UserVO>  result =userCenterService.getUserDetailById("zxkj", new Long(account_id));
         //2:查出是否存在相同用户
-         userVO  = userPubService.queryUserVObyCode(result.getData().getLoginName());
-         if(userVO !=null){
+		UserVO userVO   = userPubService.queryUserVObyCode(result.getData().getLoginName());
+         if(userVO !=null && olduserVO !=null){
              userVO.setUnifiedid(account_id);
 			 userVO = userPubService.updateUserUnifiedid(userVO);
 
-             return userVO;
+           //  return userVO;
+			 olduserVO = userVO;
          }
 		com.dzf.auth.api.model.user.UserVO uvo = result.getData();
          //3:新建用户
@@ -54,7 +56,7 @@ public class BaseAppController  {
 		beanVO.setPhone(uvo.getMobile());
 		beanVO.setUsername(uvo.getUserName());
         beanVO.setPassword("qwe123!@#");
-		return userPubService.saveRegisterCorpSWtch(beanVO,account_id,userVO);
+		return userPubService.saveRegisterCorpSWtch(beanVO,account_id,olduserVO);
     }
 
 	public void printErrorJson(ResponseBaseBeanVO bean, Throwable e, Logger log, String errormsg) {

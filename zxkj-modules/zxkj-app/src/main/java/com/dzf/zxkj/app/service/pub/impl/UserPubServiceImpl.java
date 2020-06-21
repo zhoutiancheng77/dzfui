@@ -132,13 +132,13 @@ public class UserPubServiceImpl implements IUserPubService {
     }
 
 
-    private UserVO create(TempUserRegVO uservo,TempCorpVO corpVO,String unifiedid, UserVO olduserVO) throws DZFWarpException {
+    private UserVO create(TempUserRegVO tempUserRegVO,TempCorpVO corpVO,String unifiedid, UserVO olduserVO) throws DZFWarpException {
             String pk_user = null;
-            UserVO userVO = olduserVO == null ?createUserVO( uservo,corpVO,unifiedid) : olduserVO;
+            UserVO userVO = olduserVO == null ?createUserVO( tempUserRegVO,corpVO,unifiedid) : olduserVO;
             pk_user = userVO.getPrimaryKey();
 
-            uservo.setPk_user(pk_user);
-            singleObjectBO.update(uservo);
+            tempUserRegVO.setPk_user(pk_user);
+            singleObjectBO.update(tempUserRegVO);
             return userVO;
     }
 
