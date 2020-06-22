@@ -48,7 +48,12 @@ public class FsyePrint extends AbstractPrint {
             printReporUtil.setbSaveDfsSer(DZFBoolean.TRUE);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             /** 是否横向 */
-            printReporUtil.setIscross(DZFBoolean.TRUE);
+            if ("batchprint".equalsIgnoreCase(setVo.getSourcetype())){//批量打印
+                printReporUtil.setIscross(DZFBoolean.FALSE);
+            } else {
+                printReporUtil.setIscross(DZFBoolean.TRUE);
+            }
+
             DZFBoolean isshowfs = queryparamvo.getIshowfs();
             DZFBoolean isxswyewfs = queryparamvo.getXswyewfs();
             DZFBoolean isxswyewfs_bn = DZFBoolean.FALSE;

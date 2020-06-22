@@ -375,6 +375,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
             } else {
                 taskvo = SetCovertTask.convertTaskFormPldy(setVo,cpid,period,userid,vprintdate,bsysdate);
             }
+            taskvo.setSourcetype(sourcetype);
             taskvo.setIfilestatue(PrintStatusEnum.PROCESSING.getCode());
             singleObjectBO.saveObject(cpid, taskvo);
         }

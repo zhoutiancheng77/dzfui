@@ -117,12 +117,128 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         @Override
         public String call() throws Exception {
             try {
-               print(setvo);
+               if ("batchprint".equalsIgnoreCase(setvo.getSourcetype())){ // 批量打印
+                   printPldy(setvo);
+               } else  {
+                   print(setvo);
+               }
             } catch (Exception e) {
             } finally {
             }
             return "end";
         }
+    }
+
+    public void printPldy(BatchPrintSetVo setvo) throws DZFWarpException {
+        //byte[] 字节生成pdf文件
+        FastDfsUtil util = (FastDfsUtil) SpringUtils.getBean("connectionPool");
+        CorpVO corpVO = zxkjPlatformService.queryCorpByPk(setvo.getPk_corp());
+        UserVO userVO = (UserVO) singleObjectBO.queryByPrimaryKey(UserVO.class, setvo.getVoperateid());
+        // 打印参数设定
+        PrintParamVO printParamVO = getPrintParamVO(setvo,corpVO,"");
+        // 查询参数设定
+        KmReoprtQueryParamVO queryparamvo = getKmReoprtQueryParamVO(setvo, corpVO);
+        InputStream in = null;
+        try {
+            List<String> periodlist = new ArrayList<>();
+            int cyclecount = 1;
+            periodlist.add(setvo.getVprintperiod());
+            Map<String, InnerClass[]> groupmap = new LinkedHashMap<>();
+            SimpleDateFormat f=new SimpleDateFormat("yyyy年MM月dd日HH点mm分ss秒");
+            SimpleDateFormat f1=new SimpleDateFormat("yyyy年MM月");
+            String str_time = f.format(new Date());
+            String filename =corpVO.getUnitname()+"("+str_time+")";
+            // 想着走Action 打印方法
+            String printcode = setvo.getVprintcode();
+            // 合并数据
+            PDFMergerUtility mergePdf = new PDFMergerUtility(); // 纵向
+            StringBuffer filenamezx = new StringBuffer();
+            PDFMergerUtility mergePdfHx = new PDFMergerUtility();// 横向
+            StringBuffer filenamehx = new StringBuffer();
+            PDFMergerUtility mergePdfPz = new PDFMergerUtility(); // 凭证
+            StringBuffer filenamepz = new StringBuffer();
+            byte[] resbytes = null;
+            byte[] resbytesHx = null;
+            byte[] resbytesPz = null;
+            if (!StringUtil.isEmpty(printcode)) {
+                String[] printcodes = printcode.split(",");
+                // 涉及异常的处理，目前先不处理，生成的文件，放在文件服务器中
+                for (String code: printcodes) {
+                    // 代码来源是每个action对应的Print方法
+                    AbstractPrint print = null;
+                    if ("kmmx".equals(code)) { // 科目明细账
+                        print = new KmmxPrint(zxkjPlatformService,gl_rep_kmmxjserv,printParamVO,queryparamvo);
+                    } else if ("kmzz".equals(code)) {
+                        print= new KmzzPrint(zxkjPlatformService,gl_rep_kmzjserv,printParamVO,queryparamvo);
+                    } else if ("xjrj".equals(code)) {
+                        print = new XjrjPrint(gl_rep_xjyhrjzserv,zxkjPlatformService,printParamVO,queryparamvo);
+                    } else if ("fsye".equals(code)) {
+                        print = new FsyePrint(gl_rep_fsyebserv,zxkjPlatformService,printParamVO,queryparamvo);
+                    } else if ("zcfz".equals(code)) {
+                        print = new ZcfzPrint(zxkjPlatformService,printParamVO,queryparamvo,gl_rep_zcfzserv);
+                    } else if ("lrb".equals(code)) {
+                        print = new LrbPrint(gl_rep_lrbserv,zxkjPlatformService,printParamVO,queryparamvo);
+                    } else if ("gzb".equals(code)) {
+                        print = new GzbPrint(zxkjPlatformService,printParamVO,queryparamvo);
+                    } else if ("crk".equals(code)) {
+                        if ((IcCostStyle.IC_INVTENTORY.equals(corpVO.getBbuildic()))) { // 总账核算模式
+                            print = new CrkPrint(zxkjPlatformService,printParamVO,queryparamvo);
+                        } else if (IcCostStyle.IC_ON.equals(corpVO.getBbuildic()))  { // 库存模式
+                            print = new CkPrint(zxkjPlatformService,printParamVO,queryparamvo);
+                            // 先出库
+                            in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
+                                    mergePdf, mergePdfHx, mergePdfPz, code,
+                                    print, filenamezx, filenamehx, filenamepz);
+                            print = new RkPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                        }
+
+                    } else if ("zjmx".equals(code)) {
+                        print = new ZjmxPrint(zxkjPlatformService, printParamVO, queryparamvo);
+                    } else if ("mxzfp".equals(code)) {
+                        print = new MxzfpPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                    } else if ("pzfp".equals(code)) {
+                        print = new PzFpPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                    } else if ("voucher".equals(code)) {
+                        print = new VoucherPrint(zxkjPlatformService,printParamVO, queryparamvo);
+                    }
+                    // 合并数据
+                    if (print != null) {
+                        in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
+                                mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
+                    }
+                    log.info(code+"执行完毕!");
+                }
+                resbytes = getPdfByte(mergePdf);
+            }
+            if (resbytes.length > 0) {
+                setvo.setVfilename(filename+".pdf");
+                setvo.setVmemo("文件已生成!");
+                String id = util.upload(resbytes, filename+".pdf", new HashMap<String,String>());
+                setvo.setVfilepath(id);
+            } else {
+                setvo.setVmemo("无数据");
+            }
+            setvo.setIfilestatue(PrintStatusEnum.GENERATE.getCode());
+            setvo.setDgendatetime(new DZFDateTime());
+        } catch (Exception e) {
+            setvo.setIfilestatue(PrintStatusEnum.GENFAIL.getCode());
+            if (e instanceof BusinessException) {
+                setvo.setVmemo(e.getMessage());
+            } else {
+                log.error("错误", e);
+                setvo.setVmemo("生成失败!");
+            }
+            log.error(e.getMessage(),e);
+        } finally {
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                log.error(e.getMessage(),e);
+            }
+        }
+        singleObjectBO.update(setvo);
     }
 
     public void print(BatchPrintSetVo setvo) throws DZFWarpException {
@@ -194,7 +310,8 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
                                 print = new CkPrint(zxkjPlatformService,printParamVO,queryparamvo);
                                 // 先出库
                                 in = mergeByte(setvo, userVO, in, corpVO, printParamVO,
-                                        mergePdf, mergePdfHx, mergePdfPz, code, print, filenamezx, filenamehx, filenamepz);
+                                        mergePdf, mergePdfHx, mergePdfPz, code,
+                                        print, filenamezx, filenamehx, filenamepz);
                                 print = new RkPrint(zxkjPlatformService,printParamVO, queryparamvo);
                             }
 
@@ -328,6 +445,10 @@ public class BatchPrintSerImpl implements IBatchPrintSer {
         String[] pzpages = new String[]{"pzfp","voucher"};// 凭证分组
         String[] zxpages = new String[]{"zcfz","lrb","crk"};// 纵向打印分组
         String[] hxpages = new String[]{"fsye","gzb"};// 横向分组
+        if ("batchprint".equalsIgnoreCase(setvo.getSourcetype())){
+            hxpages = new String[]{}; // 批量打印变成空
+            pzpages = new String[]{}; // 凭证空
+        }
         byte[] byts = print.print(setvo,corpVO,userVO);
         if (byts!=null && byts.length > 0) {
             in = new ByteArrayInputStream(byts);
