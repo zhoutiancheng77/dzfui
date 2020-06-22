@@ -149,9 +149,9 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 	}
 
 	private String checkBeforeSave(InventoryAliasVO[] vos, String pk_corp) {
-
 		if (vos == null || vos.length == 0)
 			return null;
+
 
 		HashSet<String> nameZjbmSet = new HashSet<String>();
 		InventoryAliasVO[] qbvos = query(pk_corp);
@@ -174,7 +174,15 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 				}
 			}
 		}
-
+		AuxiliaryAccountBVO[] invenvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
+		if (invenvos != null && invenvos.length > 0) {
+			for (AuxiliaryAccountBVO bvo : invenvos) {
+				String namezjbm = getNameInfoKey(bvo);
+				if (!StringUtil.isEmpty(namezjbm)) {
+					nameZjbmSet.add(namezjbm);
+				}
+			}
+		}
 		for (InventoryAliasVO nbvo : vos) {
 			check(message, nbvo, nameZjbmSet);
 		}
