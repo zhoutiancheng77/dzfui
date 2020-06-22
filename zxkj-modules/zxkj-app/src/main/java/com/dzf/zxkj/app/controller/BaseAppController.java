@@ -42,7 +42,7 @@ public class BaseAppController  {
 		Result<com.dzf.auth.api.model.user.UserVO>  result =userCenterService.getUserDetailById("zxkj", new Long(account_id));
         //2:查出是否存在相同用户
 		UserVO userVO   = userPubService.queryUserVObyCode(result.getData().getLoginName());
-         if(userVO !=null && olduserVO !=null){
+         if(userVO !=null && olduserVO ==null){
              userVO.setUnifiedid(account_id);
 			 userVO = userPubService.updateUserUnifiedid(userVO);
 
