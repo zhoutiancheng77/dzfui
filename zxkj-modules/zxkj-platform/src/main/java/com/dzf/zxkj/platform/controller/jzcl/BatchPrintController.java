@@ -6,8 +6,11 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.common.model.SuperVO;
+import com.dzf.zxkj.common.query.PrintParamVO;
 import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.jackson.annotation.MultiRequestBody;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintFileSetVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetQryVo;
 import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
@@ -77,9 +80,14 @@ public class BatchPrintController extends BaseController {
     public ReturnData<Grid> saveFileTask(@RequestBody Map<String, String> pmap1) {
         Grid grid = new Grid();
         try {
+            BatchPrintSetVo setVo = new BatchPrintSetVo();
+            if (!StringUtil.isEmpty(pmap1.get("setstr"))) {
+                setVo = JsonUtils.deserialize(pmap1.get("setstr"), BatchPrintSetVo.class);
+            }
             // 查询设置
             newbatchprintser.saveTask(pmap1.get("corpids"),getLoginUserId(),pmap1.get("type"),
-                    pmap1.get("period"), pmap1.get("vprintdate"), pmap1.get("bsysdate"));
+                    pmap1.get("period"), pmap1.get("vprintdate"), pmap1.get("bsysdate"),
+                    pmap1.get("sourcetype"), setVo);
             grid.setSuccess(true);
             grid.setMsg("保存成功！");
         } catch (Exception e) {
@@ -216,7 +224,7 @@ public class BatchPrintController extends BaseController {
         Grid grid = new Grid();
         try {
             // 执行任务
-//             newbatchprintser.execTask(getLoginUserId());
+             newbatchprintser.execTask(getLoginUserId());
             grid.setSuccess(true);
             grid.setMsg("任务执行成功！");
         } catch (Exception e) {

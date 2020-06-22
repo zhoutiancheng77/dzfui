@@ -333,7 +333,8 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
     }
 
     @Override
-    public void saveTask(String corpidstr, String userid,String type,String period, String vprintdate,String bsysdate) throws DZFWarpException {
+    public void saveTask(String corpidstr, String userid,String type,String period, String vprintdate,String bsysdate
+            ,String sourcetype, BatchPrintSetVo setVo) throws DZFWarpException {
 
         if (StringUtil.isEmpty(corpidstr)) {
             throw new BusinessException("公司不存在");
@@ -341,31 +342,39 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
 
         String[] corpids = corpidstr.split(",");
 
-        if (StringUtil.isEmpty(userid)) {
-            throw new BusinessException("用户不存在");
-        }
-
-        // 查询用户关联的设置
-        BatchPrintFileSetVo[] setvos =  gl_batchfilesetser.queryFileSet(userid);
 
         BatchPrintFileSetVo ressetvo = null;
 
-        if (setvos != null && setvos.length > 0) {
-            for (BatchPrintFileSetVo setvo: setvos) {
-                if (type.equals(setvo.getSetselect())) {
-                    ressetvo = setvo;
+        if ("elefile".equals(sourcetype)) { // 电子归档
+            // 电子归档，通过用户获取设置信息
+            if (StringUtil.isEmpty(userid)) {
+                throw new BusinessException("用户不存在");
+            }
+
+            // 查询用户关联的设置
+            BatchPrintFileSetVo[] setvos =  gl_batchfilesetser.queryFileSet(userid);
+
+            if (setvos != null && setvos.length > 0) {
+                for (BatchPrintFileSetVo setvo: setvos) {
+                    if (type.equals(setvo.getSetselect())) {
+                        ressetvo = setvo;
+                    }
                 }
             }
+            if (ressetvo == null) {
+                ressetvo = DefaultBatchPrintSetFactory.getSetvo(type);
+            }
+            if (ressetvo == null) {
+                throw new BusinessException("暂无设置信息");
+            }
         }
-        if (ressetvo == null) {
-            ressetvo = DefaultBatchPrintSetFactory.getSetvo(type);
-        }
-        if (ressetvo == null) {
-            throw new BusinessException("暂无设置信息");
-        }
-
         for (String cpid: corpids) {
-            BatchPrintSetVo taskvo = SetCovertTask.convertTask(ressetvo,cpid,period,userid,vprintdate,bsysdate);
+            BatchPrintSetVo taskvo = null;
+            if ("elefile".equals(sourcetype)) {
+                taskvo  = SetCovertTask.convertTask(ressetvo,cpid,period,userid,vprintdate,bsysdate);
+            } else {
+                taskvo = SetCovertTask.convertTaskFormPldy(setVo,cpid,period,userid,vprintdate,bsysdate);
+            }
             taskvo.setIfilestatue(PrintStatusEnum.PROCESSING.getCode());
             singleObjectBO.saveObject(cpid, taskvo);
         }
