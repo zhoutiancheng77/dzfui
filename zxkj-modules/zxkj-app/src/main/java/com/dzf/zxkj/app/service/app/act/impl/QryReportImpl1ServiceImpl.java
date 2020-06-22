@@ -384,9 +384,15 @@ public class QryReportImpl1ServiceImpl implements IQryReport1Service {
 						appfzmxvo.setYe(Common.format(qmye));
 						appfzmxvo.setBqfsjf(Common.format(fzyevo.getBqfsjf()));
 						appfzmxvo.setBqfsdf(Common.format(fzyevo.getBqfsdf()));
+						appfzmxvo.setFx(fzyevo.getAccDirection()== 1 ? "贷":"借"); //0借1贷
 						mxlist.add(appfzmxvo);
 						yevo.setMxvos(mxlist.toArray(new AppFzmxVo[0]));
-						yetotal = SafeCompute.add(yetotal, qmye);
+						if(fzyevo.getAccDirection() == 1){
+							yetotal = SafeCompute.add(yetotal, qmye);
+						}else{
+							yetotal = SafeCompute.sub(yetotal, qmye);
+						}
+
 					}
 				}
 			}
