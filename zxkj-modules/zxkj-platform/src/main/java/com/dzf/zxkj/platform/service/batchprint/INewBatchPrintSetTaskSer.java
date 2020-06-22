@@ -18,7 +18,7 @@ public interface INewBatchPrintSetTaskSer {
      * @return
      * @throws DZFWarpException
      */
-    public List<BatchPrintSetQryVo> queryPrintVOs(String pk_corp , String cuserid, String period)  throws DZFWarpException;
+    public List<BatchPrintSetQryVo> queryPrintVOs(String pk_corp , String cuserid, String period,String sourcesys)  throws DZFWarpException;
 
     /**
      * 查询任务(根据用户id)
@@ -26,7 +26,7 @@ public interface INewBatchPrintSetTaskSer {
      * @return
      * @throws DZFWarpException
      */
-    public List<BatchPrintSetVo> queryTask(String userid,String period) throws DZFWarpException;
+    public List<BatchPrintSetVo> queryTask(String userid,String period,String sourcesys) throws DZFWarpException;
 
     /**
      * 执行任务

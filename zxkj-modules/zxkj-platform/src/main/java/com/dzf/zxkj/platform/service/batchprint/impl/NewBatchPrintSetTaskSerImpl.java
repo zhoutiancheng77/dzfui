@@ -58,7 +58,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
     private IUserService userServiceImpl;
 
     @Override
-    public List<BatchPrintSetQryVo> queryPrintVOs(String pk_corp, String cuserid,String period) throws DZFWarpException {
+    public List<BatchPrintSetQryVo> queryPrintVOs(String pk_corp, String cuserid,String period,String sourcesys) throws DZFWarpException {
         // 校验
         validateSaveFileSet(pk_corp, cuserid, period);
 
@@ -85,7 +85,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         List<BatchPrintSetVo> taskvoslist = (List<BatchPrintSetVo>) singleObjectBO.executeQuery(tasksql.toString(), sp, new BeanListProcessor(BatchPrintSetVo.class));
 
         // 当前用户设置的任务
-        List<BatchPrintSetVo> taskvos = queryTask(cuserid,"");
+        List<BatchPrintSetVo> taskvos = queryTask(cuserid,"",sourcesys);
 
         if (taskvoslist!=null && taskvoslist.size() > 0) {
             List<BatchPrintSetQryVo> reslist  = new ArrayList<BatchPrintSetQryVo>();
@@ -383,7 +383,7 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
     }
 
     @Override
-    public List<BatchPrintSetVo> queryTask(String userid,String period) throws DZFWarpException {
+    public List<BatchPrintSetVo> queryTask(String userid,String period,String sourcesys) throws DZFWarpException {
 
         if (StringUtil.isEmpty(userid)) {
             throw new BusinessException("查询参数为空");
@@ -405,6 +405,10 @@ public class NewBatchPrintSetTaskSerImpl implements INewBatchPrintSetTaskSer {
         if (!StringUtil.isEmpty(period)) {
             qry.append(" and a.vprintperiod like ? ");
             sp.addParam("%" + period + "%");
+        }
+        if (!StringUtil.isEmpty(sourcesys)) {
+            qry.append(" and a.sourcetype = ? ");
+            sp.addParam(sourcesys);
         }
         qry.append(" order by a.doperadatetime desc , bd_corp.innercode ");
 

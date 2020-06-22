@@ -99,11 +99,13 @@ public class BatchPrintController extends BaseController {
     }
 
     @PostMapping("/queryTaskByPeriod")
-    public ReturnData<Grid> queryTaskByPeriod(@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
+    public ReturnData<Grid> queryTaskByPeriod(@MultiRequestBody("queryparam") QueryParamVO queryParamvo
+    ,@RequestParam Map<String, String> pmap1) {
         Grid grid = new Grid();
         try {
             // 查询设置
-            List<BatchPrintSetQryVo> list =  newbatchprintser.queryPrintVOs(queryParamvo.getPk_corp(),getLoginUserId(),queryParamvo.getQjq());
+            List<BatchPrintSetQryVo> list =  newbatchprintser.queryPrintVOs(queryParamvo.getPk_corp(),
+                    getLoginUserId(),queryParamvo.getQjq(), pmap1.get("sourcetype"));
             if (list == null) {
                 throw new BusinessException("查询数据为空");
             }
@@ -238,11 +240,11 @@ public class BatchPrintController extends BaseController {
 
 
     @PostMapping("/queryTask")
-    public ReturnData<Grid> queryTask(@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
+    public ReturnData<Grid> queryTask(@RequestParam Map<String, String> pmap1,@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
         Grid grid = new Grid();
         try {
             // 查询归档任务
-            List<BatchPrintSetVo> list2 =  newbatchprintser.queryTask(getLoginUserId(),"");
+            List<BatchPrintSetVo> list2 =  newbatchprintser.queryTask(getLoginUserId(),"",pmap1.get("sourcetype"));
             if (list2 == null) {
                 throw new BusinessException("查询数据为空");
             }
