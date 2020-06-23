@@ -235,7 +235,7 @@ public class TaxDeclarationController  extends BaseController {
                     "所属期间为" + period + "的税表" + sbname + "删除成功", ISysConstants.SYS_2);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            rsjson.setSuccess(true);
+            rsjson.setSuccess(false);
             rsjson.setMsg(e instanceof BusinessException ? e.getMessage() : "删除失败!");
             rsjson.setStatus(-100);
 
