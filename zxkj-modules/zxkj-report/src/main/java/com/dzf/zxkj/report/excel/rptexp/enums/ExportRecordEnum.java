@@ -34,7 +34,8 @@ public enum ExportRecordEnum {
     NINGBO("29", "宁波"),
     JIANGXI("30", "江西"),
     HEILONGJIANG("31", "黑龙江"),
-    QINGHAI("32", "青海");
+    QINGHAI("32", "青海"),
+    NINGXIA("34", "宁夏");
 
     private String areaType;
     private String areaName;

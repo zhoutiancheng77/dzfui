@@ -43,6 +43,7 @@ public enum ExportTemplateEnum {
     //黑龙江 31
     //青海 32
     //西藏 33
+    NINGXIA("34", "ExcelExportNingXiaHandler", "0"),
     PUB("pub", "ExcelExportPubHandler", "0"), //通用Handler
     STANDARD("standard", "ExcelExportStandardHander", "0");
 
