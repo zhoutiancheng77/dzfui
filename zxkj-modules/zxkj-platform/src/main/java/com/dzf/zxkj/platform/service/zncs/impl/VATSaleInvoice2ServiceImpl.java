@@ -3075,10 +3075,10 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				{ 6, "车辆类型", "bspmc" }, { 7, "厂牌型号", "invspec" },
 				{ 21, "不含税价", "bprice" }, {21, "不含税价", "bhjje" }, { 19, "增值税税率", "bspsl" }, { 20, "增值税税额", "bspse" } };
 		Object[][] obj0 = new Object[][] { // 通用导入
-				{ 1, "发票代码", "fp_dm" }, { 2, "发票号码", "fp_hm" }, { 3, "开票日期", "kprj" }, { 4, "开票项目", "spmc" },
-				{5,"规格型号","invspec"},{6,"计量单位","measurename"},
-				{ 7, "数量", "bnum" }, {8, "金额", "hjje" }, { 9, "税额", "spse" }, {10, "业务类型", "busitypetempname" },
-				{ 11, "客户名称", "khmc" } };
+				{1,"发票类型","invmodel"},{ 2, "发票代码", "fp_dm" }, { 3, "发票号码", "fp_hm" }, { 4, "开票日期", "kprj" }, { 5, "开票项目", "spmc" },
+				{6,"规格型号","invspec"},{7,"计量单位","measurename"},
+				{ 8, "数量", "bnum" }, {9, "金额", "hjje" }, { 10, "税额", "spse" }, {11, "业务类型", "busitypetempname" },
+				{ 12, "客户名称", "khmc" } };
 
 		STYLE.put(BAIWANG_EXCEL, obj1);
 		STYLE.put(BAIWANG_another_EXCEL, obj11);
@@ -3498,7 +3498,11 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		//sourceType只有导入excel文件时此字段才有值
 		if(sourceType!=null){
 			if(sourceType==TONGYONG_EXCEL){
-				iszhuan = isZhuan(corpService.queryByPk(pk_corp));
+				if(!StringUtils.isEmpty(vo.getInvmodel())&&vo.getInvmodel().equals("增值税普通发票")){
+					iszhuan = DZFBoolean.FALSE;
+				}else{
+					iszhuan = DZFBoolean.TRUE;
+				}
 				vo.setIszhuan(iszhuan);
 			}else if(sourceType==BAIWANG_EXCEL||sourceType==BAIWANG_another_EXCEL||sourceType==HANG_TIAN_EXCEL || sourceType==BAIWANG_NEW_EXCEL  || sourceType==BAIWANG_NEW_another_EXCEL || sourceType == XINLONG_EXCEL){
 				if(iszhuan!=null){
