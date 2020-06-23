@@ -1656,8 +1656,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				alvo.setHsl(gvo.getHsl());
 
 				if (!map.containsKey(key)) {
-					//singleObjectBO.insertVO(pk_corp, alvo);
-					aliaslist.add(alvo);
+					singleObjectBO.insertVO(pk_corp, alvo);
+					//aliaslist.add(alvo);
 				} else {
 					InventoryAliasVO ivo = map.get(key);
 					ivo.setPk_inventory(gvo.getPk_inventory());
@@ -1668,10 +1668,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			}
 
 		}
-		if(aliaslist!=null &&aliaslist.size()>0){
-			checkBeforesave(pk_corp,aliaslist);
-			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
-		}
+//			checkBeforesave(pk_corp,aliaslist);
+//			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
+//		}
 	}
 
 	private MeasureVO getMeasureVO(String measurename, String pk_corp, String cuserid) {// VATSaleInvoiceVO
