@@ -5857,6 +5857,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 	}
 
+
+
 	private void dealFzGoodsRela(String pk_corp, String userid, String[] pks,
 								 Map<String, List<VatGoosInventoryRelationVO>> newRelMap) {
 		AuxiliaryAccountBVO[] vos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
@@ -5932,7 +5934,83 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 
 	}
+	private List<InventoryVO> queryInventoryVO(String pk_corp) {
+		StringBuffer sb = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+		sb.append("pk_corp=? and nvl(dr,0)=0");
+		sp.addParam(pk_corp);
+		List<InventoryVO> listVo = (List<InventoryVO>) singleObjectBO.retrieveByClause(InventoryVO.class, sb.toString(),
+				sp);
+		return listVo;
+	}
+	private String getNameInfoKey(InventoryVO invo) {
+		StringBuffer strb = new StringBuffer();
+		strb.append(appendIsNull(invo.getPk_subject()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getName())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvspec())));
+		if(!StringUtil.isEmpty(invo.getPk_measure())){
+            MeasureVO measureVO = (MeasureVO)singleObjectBO.queryByPrimaryKey(MeasureVO.class,invo.getPk_measure());
+            if(measureVO != null){
+                strb.append(measureVO.getName());
+            }else{
+                strb.append(appendIsNull(invo.getPk_measure()));
+            }
+        }else{
+            strb.append(appendIsNull(invo.getPk_measure()));
+        }
 
+
+		return strb.toString();
+	}
+	private String getNameInfoKey(InventoryAliasVO invo) {
+		StringBuffer strb = new StringBuffer();
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getAliasname())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
+		return strb.toString();
+	}
+	private String checkBeforesave(String pk_corp,List<InventoryAliasVO> aliaslist){
+
+		if(aliaslist==null || aliaslist.size() ==0) return null;
+		List<InventoryVO> listAll = queryInventoryVO(pk_corp);
+		HashSet<String> nameInfoSet = new HashSet<String>();
+		if (listAll != null && listAll.size() != 0) {
+			for (InventoryVO vo : listAll) {
+					nameInfoSet.add(getNameInfoKey(vo));
+			}
+		}
+        Set<String> error_msg = new HashSet<>();
+        StringBuffer msg = new StringBuffer();
+        for (int i = 0 ;i<aliaslist.size() ;i++ ){
+            InventoryAliasVO invo = aliaslist.get(i);
+            String nameInfoKey = getNameInfoKey(invo);
+            if (nameInfoSet.contains(nameInfoKey)) {
+                msg.setLength(0);
+                if (!StringUtil.isEmpty(invo.getName())) {
+                    msg.append("存货名称[" + invo.getName() + "]、");
+                }
+                if (!StringUtil.isEmpty(invo.getSpec())) {
+                    msg.append("规格(型号)[" + invo.getSpec() + "]、");
+                } else {
+                    msg.append("规格(型号)、");
+                }
+
+                error_msg.add(msg.toString() + "计量单位和 科目 至少要有一项不同!");
+            } else {
+                nameInfoSet.add(nameInfoKey);
+            }
+        }
+		if (!error_msg.isEmpty()) {
+			StringBuffer sb = new StringBuffer();
+			Iterator it = error_msg.iterator();
+			while (it.hasNext()) {
+				sb.append(it.next());
+				sb.append("<br/>");
+			}
+			throw new BusinessException(sb.toString());
+		}
+		return null;
+	}
 	private void dealInvenGoodsRela(String pk_corp, String userid, String[] pks,
 									Map<String, List<VatGoosInventoryRelationVO>> newRelMap) {
 
@@ -5944,7 +6022,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		List<VatGoosInventoryRelationVO> relList;
 		List<VatGoosInventoryRelationVO> newRelList = new ArrayList<VatGoosInventoryRelationVO>();
 		List<InventoryVO> invenList = new ArrayList<InventoryVO>();
-
+		List<InventoryAliasVO> aliaslist = new ArrayList<InventoryAliasVO>();
 		for (Map.Entry<String, List<VatGoosInventoryRelationVO>> entry : newRelMap.entrySet()) {
 			key = entry.getKey();
 			relList = entry.getValue();
@@ -5965,68 +6043,18 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					ivo.setHsl(vo.getHsl());
 					singleObjectBO.update(ivo);
 				}else{
-					singleObjectBO.insertVO(pk_corp, alvo);
+					aliaslist.add(alvo);
+					//singleObjectBO.insertVO(pk_corp, alvo);
 				}
 
 			}
 
-//				if (invenvo == null) {
-//					continue;
-//				}
-//
-//				demo = invenvo.getMemo();
-//				if (StringUtil.isEmpty(demo)) {
-//					demo = "";
-//				}
-//
-//				relList = entry.getValue();
-//
-//				for (VatGoosInventoryRelationVO relvo : relList) {
-//					spec = relvo.getSpmc();
-//					if (!StringUtil.isEmpty(spec)) {
-//						if (!demo.contains(spec)) {
-//							flag = true;
-//
-//							if (StringUtil.isEmpty(demo)) {
-//								demo = spec;
-//							} else {
-//								demo += "," + spec;
-//							}
-//						}
-//
-//						newRelList.add(relvo);
-//					}
-//				}
-//
-//				if (flag) {
-//					invenvo.setMemo(demo);
-//					invenList.add(invenvo);
-//				}
-//
-//			}
-
-//			if (invenList.size() > 0) {
-//				singleObjectBO.updateAry(invenList.toArray(new InventoryVO[0]), new String[] { "memo" });
-//			}
-//			List<InventoryAliasVO> aliaslist = new ArrayList<InventoryAliasVO>();
-//			if (newRelList.size() > 0) {
-//				for (VatGoosInventoryRelationVO vo : newRelList) {
-//					InventoryAliasVO alvo = new InventoryAliasVO();
-//					alvo.setAliasname(vo.getSpmc());
-//					alvo.setSpec(vo.getInvspec());
-//					alvo.setPk_corp(pk_corp);
-//					alvo.setPk_inventory(vo.getPk_inventory());
-//					alvo.setPk_alias(vo.getPk_goodsinvenrela());
-//					
-//					
-//					vo.setCoperatorid(userid);
-//					vo.setDoperatedate(new DZFDate());
-//					vo.setPk_corp(pk_corp);
-//
-//				}
-//
-//				singleObjectBO.insertVOArr(pk_corp, newRelList.toArray(new VatGoosInventoryRelationVO[0]));
 		}
+		if(aliaslist!=null &&aliaslist.size()>0){
+			checkBeforesave(pk_corp,aliaslist);
+			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
+		}
+
 
 		//	}
 

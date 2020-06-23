@@ -1623,6 +1623,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		String sql = "Select * From ynt_icalias y Where y.pk_corp = ? and nvl(dr,0) = 0 order by ts desc";
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(pk_corp);
+		List<InventoryAliasVO> aliaslist = new ArrayList<InventoryAliasVO>();
 		List<InventoryAliasVO> list = (List<InventoryAliasVO>) singleObjectBO.executeQuery(sql, sp,
 				new BeanListProcessor(InventoryAliasVO.class));
 		Map<String, InventoryAliasVO> map = new HashMap<String, InventoryAliasVO>();
@@ -1653,9 +1654,10 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				alvo.setUnit(gvo.getUnit());
 				alvo.setCalcmode(gvo.getCalcmode());
 				alvo.setHsl(gvo.getHsl());
-				
+
 				if (!map.containsKey(key)) {
-					singleObjectBO.insertVO(pk_corp, alvo);
+					//singleObjectBO.insertVO(pk_corp, alvo);
+					aliaslist.add(alvo);
 				} else {
 					InventoryAliasVO ivo = map.get(key);
 					ivo.setPk_inventory(gvo.getPk_inventory());
@@ -1665,6 +1667,10 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				}
 			}
 
+		}
+		if(aliaslist!=null &&aliaslist.size()>0){
+			checkBeforesave(pk_corp,aliaslist);
+			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
 		}
 	}
 
@@ -2220,7 +2226,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			sf.append(""+getPromptName(msgmap.get(key))+"科目，");
 			sf.append(key+"。");
 		}
-		
+
 		
 		sbf.append(str);
 		sbf.append(sf);
@@ -2786,6 +2792,94 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			list.add(datas[i]);
 		}
 		return list.toArray(new DutyPayVO[0]);
+	}
+
+
+	private List<InventoryVO> queryInventoryVO(String pk_corp) {
+		StringBuffer sb = new StringBuffer();
+		SQLParameter sp = new SQLParameter();
+		sb.append("pk_corp=? and nvl(dr,0)=0");
+		sp.addParam(pk_corp);
+		List<InventoryVO> listVo = (List<InventoryVO>) singleObjectBO.retrieveByClause(InventoryVO.class, sb.toString(),
+				sp);
+		return listVo;
+	}
+	private String getNameInfoKey(InventoryVO invo) {
+		StringBuffer strb = new StringBuffer();
+		strb.append(appendIsNull(invo.getPk_subject()));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getName())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getInvspec())));
+		if(!StringUtil.isEmpty(invo.getPk_measure())){
+			MeasureVO measureVO = (MeasureVO)singleObjectBO.queryByPrimaryKey(MeasureVO.class,invo.getPk_measure());
+			if(measureVO != null){
+				strb.append(measureVO.getName());
+			}else{
+				strb.append(appendIsNull(invo.getPk_measure()));
+			}
+		}else{
+			strb.append(appendIsNull(invo.getPk_measure()));
+		}
+
+
+		return strb.toString();
+	}
+	private String getNameInfoKey(InventoryAliasVO invo) {
+		StringBuffer strb = new StringBuffer();
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getAliasname())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getSpec())));
+		strb.append(appendIsNull(StringUtil.replaceBlank(invo.getUnit())));
+		return strb.toString();
+	}
+	private String checkBeforesave(String pk_corp,List<InventoryAliasVO> aliaslist){
+
+		if(aliaslist==null || aliaslist.size() ==0) return null;
+		List<InventoryVO> listAll = queryInventoryVO(pk_corp);
+		HashSet<String> nameInfoSet = new HashSet<String>();
+		if (listAll != null && listAll.size() != 0) {
+			for (InventoryVO vo : listAll) {
+				nameInfoSet.add(getNameInfoKey(vo));
+			}
+		}
+		Set<String> error_msg = new HashSet<>();
+		StringBuffer msg = new StringBuffer();
+		for (int i = 0 ;i<aliaslist.size() ;i++ ){
+			InventoryAliasVO invo = aliaslist.get(i);
+			String nameInfoKey = getNameInfoKey(invo);
+			if (nameInfoSet.contains(nameInfoKey)) {
+				msg.setLength(0);
+				if (!StringUtil.isEmpty(invo.getName())) {
+					msg.append("存货名称[" + invo.getName() + "]、");
+				}
+				if (!StringUtil.isEmpty(invo.getSpec())) {
+					msg.append("规格(型号)[" + invo.getSpec() + "]、");
+				} else {
+					msg.append("规格(型号)、");
+				}
+
+				error_msg.add(msg.toString() + "计量单位和 科目 至少要有一项不同!");
+			} else {
+				nameInfoSet.add(nameInfoKey);
+			}
+		}
+		if (!error_msg.isEmpty()) {
+			StringBuffer sb = new StringBuffer();
+			Iterator it = error_msg.iterator();
+			while (it.hasNext()) {
+				sb.append(it.next());
+				sb.append("<br/>");
+			}
+			throw new BusinessException(sb.toString());
+		}
+		return null;
+	}
+	private String appendIsNull(String info) {
+		StringBuffer strb = new StringBuffer();
+		if (StringUtil.isEmpty(info)) {
+			strb.append("null");
+		} else {
+			strb.append(info);
+		}
+		return strb.toString();
 	}
 //	private String marchCorp(CorpVO corpvo[], String corpName){
 //		for (CorpVO corpVO:corpvo) {
