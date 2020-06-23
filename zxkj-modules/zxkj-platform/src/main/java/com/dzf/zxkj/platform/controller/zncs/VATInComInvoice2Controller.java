@@ -1361,6 +1361,7 @@ public class VATInComInvoice2Controller extends BaseController {
         int len = arr == null ? 0 : arr.size();
         Map<String, Object> map = null;
         Object obj = null;
+        Object iszhuan = null;
         for(int i = 0; i < len; i++){
             map = (Map<String, Object>) arr.get(i);
             map.put("serialno", i+1);//设置序号
@@ -1372,6 +1373,14 @@ public class VATInComInvoice2Controller extends BaseController {
             }else{
                 map.remove("srzjg");
             }
+            iszhuan = map.get("iszh");
+            if(iszhuan != null
+                    && ((iszhuan instanceof String && "是".equals(iszhuan))
+                    || (iszhuan instanceof String && "Y".equals(iszhuan)))){//通过转换
+                map.put("iszh", "增值税专用发票");
+            }else{
+                map.put("iszh", "增值税普通发票");
+            }
         }
     }
 
@@ -1382,20 +1391,21 @@ public class VATInComInvoice2Controller extends BaseController {
     private Map<Integer, String> getExpFieldMap(){
         Map<Integer, String> map = new HashMap<Integer, String>();
         map.put(0, "serialno");
-        map.put(1, "fpdm");
-        map.put(2, "fphm");
-        map.put(3, "skprj");
-        map.put(4, "inqj");
-        map.put(5, "sspmc");
-        map.put(6, "invspec");
-        map.put(7, "measurename");
-        map.put(8, "bnum");
-        map.put(9, "shjje");
-        map.put(10, "se");
-        map.put(11, "busitempname");
-        map.put(12, "sxhfmc");
-        map.put(13, "srzjg");
-        map.put(14, "srzrj");
+        map.put(1,"iszh");
+        map.put(2, "fpdm");
+        map.put(3, "fphm");
+        map.put(4, "skprj");
+        map.put(5, "inqj");
+        map.put(6, "sspmc");
+        map.put(7, "invspec");
+        map.put(8, "measurename");
+        map.put(9, "bnum");
+        map.put(10, "shjje");
+        map.put(11, "se");
+        map.put(12, "busitempname");
+        map.put(13, "sxhfmc");
+        map.put(14, "srzjg");
+        map.put(15, "srzrj");
 
         return map;
     }

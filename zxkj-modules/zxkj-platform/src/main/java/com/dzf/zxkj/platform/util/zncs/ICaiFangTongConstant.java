@@ -45,6 +45,7 @@ public class ICaiFangTongConstant {
 	public static final String FPLX_3 = "3";//空白废票
 	public static final String FPLX_4 = "4";//正废  更名为填开作废
 	public static final String FPLX_5 = "5";//负废
+	public static final String FPLX_6 = "6";//已红冲发票
 	
 	//财房通vo来源整理
 	public static final int LYLX_XX = 1;//财房通  销项

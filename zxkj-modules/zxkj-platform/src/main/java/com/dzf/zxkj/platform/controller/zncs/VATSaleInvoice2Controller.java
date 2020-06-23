@@ -1709,22 +1709,21 @@ public class VATSaleInvoice2Controller extends BaseController {
         String pk_corp = SystemUtil.getLoginCorpId();
         int len = arr == null ? 0 : arr.size();
         Map<String, Object> map = null;
-        Object obj = null;
+        Object iszhuan = null;
 //		Map<String, YntCpaccountVO> yntMap = AccountCache.getInstance().getMap(null, pk_corp);
 //		YntCpaccountVO cpavo = null;
         for(int i = 0; i < len; i++){
             map = (Map<String, Object>) arr.get(i);
             map.put("serialno", i+1);//设置序号
 
-//			obj = map.get("accid");
-//			if(obj != null){
-//				cpavo = yntMap.get(obj);
-//				if(cpavo != null){
-//					map.put("kmbm", cpavo.getAccountcode());
-//					map.put("kmmc", cpavo.getAccountname());
-//				}
-//			}
-
+            iszhuan = map.get("iszh");
+            if(iszhuan != null
+                    && ((iszhuan instanceof String && "是".equals(iszhuan))
+                    || (iszhuan instanceof String && "Y".equals(iszhuan)))){//通过转换
+                map.put("iszh", "增值税专用发票");
+            }else{
+                map.put("iszh", "增值税普通发票");
+            }
         }
     }
     /**
@@ -1734,17 +1733,18 @@ public class VATSaleInvoice2Controller extends BaseController {
     private Map<Integer, String> getExpFieldMap(){
         Map<Integer, String> map = new HashMap<Integer, String>();
         map.put(0, "serialno");
-        map.put(1, "fpdm");
-        map.put(2, "fphm");
-        map.put(3, "skprj");
-        map.put(4, "sspmc");
-        map.put(5, "invspec");
-        map.put(6, "measurename");
-        map.put(7, "bnum");
-        map.put(8, "shjje");
-        map.put(9, "se");
-        map.put(10, "busitempname");
-        map.put(11, "skhmc");
+        map.put(1,"iszh");
+        map.put(2, "fpdm");
+        map.put(3, "fphm");
+        map.put(4, "skprj");
+        map.put(5, "sspmc");
+        map.put(6, "invspec");
+        map.put(7, "measurename");
+        map.put(8, "bnum");
+        map.put(9, "shjje");
+        map.put(10, "se");
+        map.put(11, "busitempname");
+        map.put(12, "skhmc");
         //map.put(8, "kmbm");
         //map.put(9, "kmmc");
 

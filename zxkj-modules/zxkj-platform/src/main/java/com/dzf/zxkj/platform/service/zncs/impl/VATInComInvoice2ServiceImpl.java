@@ -2210,7 +2210,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			CaiFangTongHVO hvo;
 			List<CaiFangTongHVO> hList = new ArrayList<CaiFangTongHVO>();
 			for(VATInComInvoiceVO2 vo : list){
-				if(!vo.getFplx().contains("通行费")){
+				if(StringUtil.isEmpty(vo.getFplx()) || !vo.getFplx().contains("通行费")){
 					try {
 						hvo = new CaiFangTongHVO();
 						hvo.setKprq(vo.getKprj().toString());
@@ -2729,7 +2729,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 		if(IBillManageConstants.ZENGZHIAHUI_AUTO == sourceType){
 			for (VATInComInvoiceVO2 vo : blist) {
-				if(vo.getFplx().contains("通行费")){
+				if(!StringUtil.isEmpty(vo.getFplx()) && vo.getFplx().contains("通行费")){
 					List<VATInComInvoiceBVO2> bvolist = new ArrayList<VATInComInvoiceBVO2>();
 					VATInComInvoiceBVO2 bvo = new VATInComInvoiceBVO2();
 					bvo.setBspmc(vo.getSpmc());
@@ -2990,13 +2990,13 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");// 格式化日期字符串
 		java.text.DecimalFormat formatter = new java.text.DecimalFormat("#########.##");
 		if (sourceType == IBillManageConstants.AUTO ) {// 8
-			if(j == 12){
+			if(j == 13){
 				if (PASSRULT_DEFAULT.equals(sTmp.trim())) {
 					sTmp = String.valueOf(IBillManageConstants.RSPASS);
 				} else {
 					sTmp = String.valueOf(IBillManageConstants.RSNOPASS);
 				}
-			}else if(j == 3){// 入账期间
+			}else if(j == 4){// 入账期间
 				sTmp = sTmp.replace("-", "");
 				if (sTmp.length() >= 6) {
 					String year = sTmp.substring(0, 4);
@@ -3005,12 +3005,12 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				} else {
 					sTmp = "";
 				}
-			}else if(j==8||j==9){//金额  税额
+			}else if(j==9||j==10){//金额  税额
 				if(isNumber(sTmp)){
 					sTmp = formatter.format(new DZFDouble(sTmp));
 				}
 
-			}else if((j==2||j==13)&&cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC){//开票日期   认证日期
+			}else if((j==3||j==14)&&cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC){//开票日期   认证日期
 				sTmp = sdf.format(HSSFDateUtil.getJavaDate(Double.parseDouble(sTmp)));
 			}
 
@@ -3219,7 +3219,13 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				period = paramvo.getInperiod();
 			}
 		}
-		if (sourceType == IBillManageConstants.AUTO || sourceType == IBillManageConstants.ZHONGXING_AUTO) {
+		if(sourceType == IBillManageConstants.AUTO ){
+			if(!StringUtils.isEmpty(vo.getFplx()) && vo.getFplx().equals("增值税专用发票")){
+				iszhuan = DZFBoolean.TRUE;
+			}else{
+				iszhuan = DZFBoolean.FALSE;
+			}
+		}else if (sourceType == IBillManageConstants.ZHONGXING_AUTO) {
 			iszhuan = DZFBoolean.TRUE;
 		}else if (sourceType == IBillManageConstants.CAISHUI_AUTO && !StringUtil.isEmpty(vo.getFpzl())) {
 			if (vo.getFpzl().endsWith(VAT_SPECIAL_ZHUAN)) {
@@ -3245,7 +3251,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 		// 通行费发票 设置税率  默认商品货物名称   发票状态
 		DZFDouble sl = vo.getSpsl();
-		if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO && vo.getFplx().contains("通行费")) {
+		if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO && !StringUtil.isEmpty(vo.getFplx()) && vo.getFplx().contains("通行费")) {
 			vo.setSpsl(new DZFDouble(3));
 			vo.setSpmc("通行费");
 			if(vo.getKplx()!=null&&vo.getKplx().contains("正常")){
@@ -3314,11 +3320,11 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	public Map<Integer, Object[][]> getStyleMap() {
 		Map<Integer, Object[][]> STYLE = new LinkedHashMap<Integer, Object[][]>();
-		Object[][] obj0 = new Object[][] { { 1, "发票代码", "fp_dm" }, { 2, "发票号码", "fp_hm" }, { 3, "开票日期", "kprj" },
-				{ 4, "入账期间", "inperiod" }, // 入账期间
-				{ 5, "开票项目", "spmc" }, { 6, "规格型号", "invspec" }, { 7, "计量单位", "measurename" }, { 8, "数量", "bnum" },
-				{ 9, "金额", "hjje" }, { 10, "税额", "spse" }, { 11, "业务类型", "busitypetempname" }, { 12, "销货方名称", "xhfmc" },
-				{ 13, "认证结果", "rzjg" }, { 14, "认证日期", "rzrj" } };
+		Object[][] obj0 = new Object[][] { {1,"发票类型","fplx"},{ 2, "发票代码", "fp_dm" }, {3, "发票号码", "fp_hm" }, { 4, "开票日期", "kprj" },
+				{ 5, "入账期间", "inperiod" }, // 入账期间
+				{ 6, "开票项目", "spmc" }, { 7, "规格型号", "invspec" }, { 8, "计量单位", "measurename" }, {9, "数量", "bnum" },
+				{ 10, "金额", "hjje" }, { 11, "税额", "spse" }, { 12, "业务类型", "busitypetempname" }, { 13, "销货方名称", "xhfmc" },
+				{ 14, "认证结果", "rzjg" }, { 15, "认证日期", "rzrj" } };
 		//老版本通用模板
 		Object[][] obj11 = new Object[][] { { 1, "发票代码", "fp_dm" }, { 2, "发票号码", "fp_hm" }, { 3, "开票日期", "kprj" },
 				{ 4, "入账期间", "inperiod" }, // 入账期间
@@ -3366,6 +3372,14 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		//来源增值税平台
 		Object[][] obj5 = getImpConfigObj();
 
+		Object[][] obj12 = new Object[][] { // 海关缴款书第一页签
+				{ 1, "缴款书号码", "fp_dm" }, { 1, "缴款书号码", "fp_hm" }, { 2, "填发日期", "kprj" }, { 3, "缴款单位一名称", "ghfmc" },
+				{ 4, "缴款单位一税号", "ghfsbh" },{9,"收入机关","xhfmc"}};
+		Object[][] obj122 = new Object[][] { // 海关缴款书第二页签
+				{ 1, "缴款书号码", "tempvalue" }, { 3, "货物名称", "bspmc" }, { 4, "完税价格", "bhjje" }, { 5, "数量", "bnum" },
+				{ 6, "单位", "measurename" },{7,"税率","bspsl"},{8,"税款金额","bspse"}};
+
+
 		STYLE.put(IBillManageConstants.AUTO, obj0);
 		STYLE.put(IBillManageConstants.CAISHUI_AUTO, obj2);
 		STYLE.put(IBillManageConstants.ZHONGXING_AUTO, obj3);
@@ -3375,6 +3389,9 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		if(obj5 != null){
 			STYLE.put(IBillManageConstants.ZENGZHIAHUI_AUTO, obj5);
 		}
+		STYLE.put(IBillManageConstants.HAIGUANJIAOKUANSHU1, obj12);
+		STYLE.put(IBillManageConstants.HAIGUANJIAOKUANSHU2, obj122);
+
 
 		return STYLE;
 	}
@@ -3403,7 +3420,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	public Map<Integer, Integer> getStyleCellCount() {
 		Map<Integer, Integer> countMap = new HashMap<Integer, Integer>();
-		countMap.put(IBillManageConstants.AUTO, 15);
+		countMap.put(IBillManageConstants.AUTO, 16);
 		countMap.put(IBillManageConstants.CAISHUI_AUTO, 60);
 		countMap.put(IBillManageConstants.ZHONGXING_AUTO, 20);
 //		countMap.put(IBillManageConstants.PIAOTONGSM_AUTO, 50);
