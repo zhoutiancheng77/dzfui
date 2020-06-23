@@ -99,10 +99,10 @@ public class BatchPrintController extends BaseController {
     }
 
     @PostMapping("/queryTaskByPeriod")
-    public ReturnData<Grid> queryTaskByPeriod(@MultiRequestBody("queryparam") QueryParamVO queryParamvo
-    ,@RequestParam Map<String, String> pmap1) {
+    public ReturnData<Grid> queryTaskByPeriod(@RequestBody Map<String, String> pmap1) {
         Grid grid = new Grid();
         try {
+            QueryParamVO queryParamvo = JsonUtils.deserialize(pmap1.get("queryparam"), QueryParamVO.class);
             // 查询设置
             List<BatchPrintSetQryVo> list =  newbatchprintser.queryPrintVOs(queryParamvo.getPk_corp(),
                     getLoginUserId(),queryParamvo.getQjq(), pmap1.get("sourcetype"));
@@ -179,6 +179,47 @@ public class BatchPrintController extends BaseController {
             }
         }
     }
+    @PostMapping("print")
+    public void print( @RequestParam Map<String, String> pmap1,@MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO,
+                           HttpServletResponse response){
+        ServletOutputStream out = null;
+        Grid json = new Grid();
+        try {
+            Object[] objs = newbatchprintser.downLoadFile(pmap1.get("cid"),pmap1.get("id"));
+
+            if(objs == null ||  objs.length ==0){
+                throw new BusinessException("暂无数据!");
+            }
+
+            byte[] bytes = (byte[]) objs[0];
+
+            if(bytes == null ||  bytes.length ==0 ){
+                throw new BusinessException("暂无数据!");
+            }
+
+            response.addCookie(new Cookie("downsuccess", "1"));
+            response.setContentType("application/pdf");
+            String contentDisposition = "inline;filename=" + URLEncoder.encode((String)objs[1], "UTF-8")
+                    + ";filename*=UTF-8''" + URLEncoder.encode((String)objs[1], "UTF-8");
+            response.addHeader("Content-Disposition", contentDisposition);
+            out = response.getOutputStream();
+            out.write((byte[])objs[0]);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            json.setMsg(e.getMessage());
+            json.setSuccess(false);
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    log.error(e.getMessage(),e);
+                }
+            }
+        }
+    }
+
     @PostMapping("batchdown")
     public void batchdown( @RequestParam Map<String, String> pmap1,@MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO,
                            HttpServletResponse response){
@@ -240,9 +281,10 @@ public class BatchPrintController extends BaseController {
 
 
     @PostMapping("/queryTask")
-    public ReturnData<Grid> queryTask(@RequestParam Map<String, String> pmap1,@MultiRequestBody("queryparam") QueryParamVO queryParamvo) {
+    public ReturnData<Grid> queryTask(@RequestBody Map<String, String> pmap1) {
         Grid grid = new Grid();
         try {
+            QueryParamVO queryParamvo = JsonUtils.deserialize(pmap1.get("queryparam"), QueryParamVO.class);
             // 查询归档任务
             List<BatchPrintSetVo> list2 =  newbatchprintser.queryTask(getLoginUserId(),"",pmap1.get("sourcetype"));
             if (list2 == null) {
