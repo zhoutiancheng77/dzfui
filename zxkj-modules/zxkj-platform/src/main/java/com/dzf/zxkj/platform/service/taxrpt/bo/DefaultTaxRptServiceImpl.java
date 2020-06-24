@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.taxrpt.bo;
 
+import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -64,6 +65,8 @@ public class DefaultTaxRptServiceImpl implements ITaxRptService {
 	protected IBDCorpTaxService sys_corp_tax_serv;
 	@Autowired
 	private IAccountService accountService;
+	@Autowired
+	private RedissonDistributedLock redissonDistributedLock;
 	
 	@Override
 	public List<TaxReportVO> getTypeList(CorpVO corpvo, CorpTaxVo corptaxvo, String period,
@@ -73,9 +76,15 @@ public class DefaultTaxRptServiceImpl implements ITaxRptService {
 		//取当前期间，以这里的为准，不以参数为准
 //		period = DateUtils.getPeriod(new DZFDate());
 		DZFDate operdate =  new DZFDate(operatedate);
-		String requestid = UUID.randomUUID().toString();
+//		String requestid = UUID.randomUUID().toString();
+		boolean lock = false;
 		try{
 //			LockUtil.getInstance().tryLockKey(corpvo.getPk_corp(), "typelist",requestid, 30);//锁定30秒，前提必须启用redis.否则这里报错
+			lock = redissonDistributedLock.tryGetDistributedFairLock("typelist" + corpvo.getPk_corp());
+			if(!lock){
+				throw new BusinessException("其他用户正在操作此数据，请稍后再试.....");
+			}
+
 			String pk_corp = corpvo.getPk_corp();
 			//获取上一期间
 			period = DateUtils.getPreviousPeriod(period);
@@ -105,6 +114,9 @@ public class DefaultTaxRptServiceImpl implements ITaxRptService {
 			}
 		}finally{
 //			LockUtil.getInstance().unLock_Key(corpvo.getPk_corp(), "typelist",requestid);
+			if(lock){
+				redissonDistributedLock.releaseDistributedFairLock("typelist" + corpvo.getPk_corp());
+			}
 		}
 		return list1;
 	}

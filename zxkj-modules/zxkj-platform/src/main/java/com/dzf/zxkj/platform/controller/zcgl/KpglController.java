@@ -912,11 +912,12 @@ public class KpglController extends BaseController {
                     }
                 }
                 if (!allEmpty(excelvo)) {
-                    if (excelvo.getZccode() != null && excelvo.getZccode().trim().length() > 0) {
-                        clist.add(excelvo);
-                    } else {
-                        tipsmsg.append("资产编码不存在<br/>");
-                    }
+                    clist.add(excelvo);
+//                    if (excelvo.getZccode() != null && excelvo.getZccode().trim().length() > 0) {
+//                        clist.add(excelvo);
+//                    } else {
+////                        tipsmsg.append("资产编码不存在<br/>");
+//                    }
                 }
             }
             if (tipsmsg.toString().length() > 0) {

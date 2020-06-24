@@ -103,6 +103,8 @@ public class ZgVoucher {
 			if(tempvo == null){
 				throw new BusinessException("查找商品科目出错!");
 			}
+			if(zgvo.getNnumber() == null)
+				zgvo.setNnumber(DZFDouble.ZERO_DBL);
 			tzpzvo = new TzpzBVO() ;
 			tzpzvo.setPk_inventory(zgvo.getPk_invtory());
 			tzpzvo.setNnumber(zgvo.getNnumber());
@@ -410,7 +412,15 @@ public class ZgVoucher {
 				tzpzvo.setPk_tzpz_b(null);
 				tzpzvo.setPk_tzpz_h(null);
 				list.add(tzpzvo);
-			}
+			}else{
+                tzpzvo.setDfmny(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getDfmny()), new DZFDouble(-1)));
+                tzpzvo.setJfmny(null);
+                tzpzvo.setNnumber(SafeCompute.multiply(VoUtils.getDZFDouble(tzpzvo.getNnumber()), new DZFDouble(-1)));
+                tzpzvo.setZy("冲销"+vo.getPeriod()+"月暂估");
+                tzpzvo.setPk_tzpz_b(null);
+                tzpzvo.setPk_tzpz_h(null);
+                list.add(tzpzvo);
+            }
 		}
 		headvo.setChildren(list.toArray(new TzpzBVO[list.size()]));
 		return headvo;

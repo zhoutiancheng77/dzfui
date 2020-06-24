@@ -798,6 +798,12 @@ public class KpglServiceImpl implements IKpglService {
                             + "长度超过15位<br>");
                     continue;
                 }
+
+                if(StringUtils.isBlank(selectedVOs[i].getAssetname())){
+                    tips.append("第"+(i+2)+"行，资产名称不能为空<br>");
+                    continue;
+                }
+
                 String assetcode = String.format("%06d", maxCode + (i + 1));
                 if (selectedVOs[i].getZjtype() == 1) {//工作量法
                     selectedVOs[i].setUselimit(null);//预计使用年限为空
@@ -815,8 +821,8 @@ public class KpglServiceImpl implements IKpglService {
                 String[] assetcates = assetcate.split("_");
                 BdAssetCategoryVO vo = map.get(assetcates[0]);
                 if (vo == null) {
-                    tips.append("资产编码:" + selectedVOs[i].getZccode()
-                            + "对应的资产类别" + assetcates[0] + "不存在，导入失败!<br>");
+                    tips.append("第"+(i+2)+"行，资产名称:[" + selectedVOs[i].getAssetname()
+                            + "]对应的资产类别" + assetcates[0] + "不存在，导入失败!<br>");
                     continue;
                 }
                 // 1.7 导入资产卡片校验科目末级  201908需求
@@ -827,8 +833,8 @@ public class KpglServiceImpl implements IKpglService {
                 }
 
                 if (selectedVOs[i].getZjtype() == null) {
-                    tips.append("资产编码:" + selectedVOs[i].getZccode()
-                            + "对应的折旧方式不存在，导入失败!<br>");
+                    tips.append("第"+(i+2)+"行，资产名称:[" + selectedVOs[i].getAssetname()
+                            + "]对应的折旧方式不存在，导入失败!<br>");
                     continue;
                 }
 
@@ -888,7 +894,7 @@ public class KpglServiceImpl implements IKpglService {
                         new AssetcardVO[]{selectedVOs[i]});// 每次只是保存一个
                 resassetvos.add(selectedVOs[i]);
             } catch (BusinessException e) {
-                tips.append("资产编码:" + selectedVOs[i].getZccode() + "对应的："
+                tips.append("第"+(i+2)+"行，资产名称:[" + selectedVOs[i].getAssetname() + "]对应的："
                         + e.getMessage() + "<br>");
             }
         }

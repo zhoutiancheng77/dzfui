@@ -215,7 +215,7 @@ public class XqyZcfzBReportService {
 		
 		ZcFzBVO vo14 = new ZcFzBVO() ;
 		//QM("2701",月,,,年,,)	QC("2701",全年,,,年,,)
-//		vo14=getZCFZBVO(map,vo14,true,"1901");
+		vo14=getZCFZBVO(map,vo14,true,"190101");
 		if("Y".equals(hasyes[4])){
 			vo14=getZCFZBVO1(map, vo14	,true, mapc,true, getYSJFKmList(queryAccountRule).toArray(new String[0]));
 		}
@@ -403,6 +403,8 @@ public class XqyZcfzBReportService {
 		ZcFzBVO vo28 = new ZcFzBVO() ;
 		vo28=getZCFZBVO(map,vo28,false,"3103","3104");
 		vo28=getZCFZBVO(map,vo28,true,"1901");
+		vo28.setQmye1(SafeCompute.sub(vo28.getQmye1(),vo14.getQmye1()));
+		vo28.setNcye1(SafeCompute.sub(vo28.getNcye1(),vo14.getNcye1()));
 		vo28.setZc("　其他非流动资产") ;
 		vo28.setFzhsyzqy("　未分配利润") ;
 		vo28.setHc1("28") ;

@@ -457,6 +457,10 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
                 || "00000100AA10000000000BMF".equals(parentVO.getPk_corp_accountschema()))){
             //企业会计准则、小企业会计准则
             checkFourLevelForCB(parentVO);
+            if ("1901".equals(parentVO.getAccountcode())) {
+                throw new BusinessException("1901 科目若需增加二级科目，" +
+                        "请到【标准科目】节点升级系统已预置的二级科目。原因：二级科目会影响资产负债表取数");
+            }
         }
 
         //模板校验(有模板录入的则对应的科目不允许新增下级)
@@ -548,9 +552,10 @@ public class CpaccountServiceCheck extends CpaccountServiceBaseCheck {
                             || "长期待摊费用".equals(parentVO.getAccountname().trim())
                             || "应付职工薪酬".equals(parentVO.getAccountname().trim())
                             || "生产成本".equals(parentVO.getAccountname().trim())
+                            || "待处理财产损溢".equals(parentVO.getAccountname().trim())
                             //|| "利润分配".equals(parentVO.getAccountname().trim())
                     )) {
-                throw new BusinessException("【固定资产、累计折旧、无形资产、长期待摊费用、应付职工薪酬、生产成本】科目，不允许增加二级科目！");
+                throw new BusinessException("【固定资产、累计折旧、无形资产、长期待摊费用、应付职工薪酬、生产成本、待处理财产损溢】科目，不允许增加二级科目！");
             }
         }
     }

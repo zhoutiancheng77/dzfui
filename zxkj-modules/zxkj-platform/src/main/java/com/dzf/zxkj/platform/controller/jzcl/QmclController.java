@@ -2043,6 +2043,8 @@ public class QmclController extends BaseController {
         DZFDouble f_f_rengong = DZFDouble.ZERO_DBL;
         DZFDouble f_f_zzfy = DZFDouble.ZERO_DBL;
         for (int i = 0; i < len; i++) {
+            if(bodyvos[i] == null)
+                continue;
             if (i == 0) {
                 if (bodyvos[i].getNcailiao_fs() != null)
                     z_f_cailiao = numberToZero(bodyvos[i].getNcailiao_fs());
@@ -2166,6 +2168,8 @@ public class QmclController extends BaseController {
 
         for (int i = 1; i < bodyvos.length; i++) {
             // if (bodyvos[i].getWgbl() != null)
+            if(bodyvos[i] == null)
+                continue;
             bili = bodyvos[i].getWgbl();// 取每一行完工比例进行计算
             if (i < bodyvos.length - 1) {
 
@@ -2249,12 +2253,15 @@ public class QmclController extends BaseController {
                 nzhizao_nwg_total = addDZFDouble(nzhizao_nwg_total, bodyvos[i].getNzhizao_nwg());
             }
         }
-        bodyvos[0].setNcailiao_wg(ncailiao_wg_total);
-        bodyvos[0].setNrengong_wg(nrengong_wg_total);
-        bodyvos[0].setNzhizao_wg(nzhizao_wg_total);
-        bodyvos[0].setNcailiao_nwg(ncailiao_nwg_total);
-        bodyvos[0].setNrengong_nwg(nrengong_nwg_total);
-        bodyvos[0].setNzhizao_nwg(nzhizao_nwg_total);
+        if(bodyvos[0] != null){
+            bodyvos[0].setNcailiao_wg(ncailiao_wg_total);
+            bodyvos[0].setNrengong_wg(nrengong_wg_total);
+            bodyvos[0].setNzhizao_wg(nzhizao_wg_total);
+            bodyvos[0].setNcailiao_nwg(ncailiao_nwg_total);
+            bodyvos[0].setNrengong_nwg(nrengong_nwg_total);
+            bodyvos[0].setNzhizao_nwg(nzhizao_nwg_total);
+        }
+
     }
 
     // 期初、发生按比例计算 按照行完工比例计算

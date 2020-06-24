@@ -2065,6 +2065,8 @@ public class NumberForward {
 		List<String>  list = new ArrayList<>();
 		DZFDouble ye = DZFDouble.ZERO_DBL;
 		for (CostForwardInfo info : list1) {
+			if(info == null)
+				continue;
 			if (info.getKmid() == null || info.getKmbm().equals("")) {
 				TzpzBVO dfbodyVO = null;
 				for (YntCpaccountVO kmvo : dfkmvos) {
