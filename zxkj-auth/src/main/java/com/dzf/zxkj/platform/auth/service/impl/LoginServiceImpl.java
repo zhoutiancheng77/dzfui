@@ -61,29 +61,29 @@ public class LoginServiceImpl implements ILoginService {
         if (StringUtils.isAnyBlank(username, password)) {
             return null;
         }
-//        try {
-//            UserVO userVO = getRemoteLoginUser(username, password);
-//            if (userVO != null) {
-//                if (StringUtils.isBlank(userVO.getPlatformUserId())) {
-//                    UserModel userModel = queryUser(String.valueOf(userVO.getId()));
-//                    userVO.setPlatformUserId(userModel.getCuserid());
-//                }
-//                //查询是否是加盟商
-//                DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
-//                LoginUser loginUser = transfer(userVO);
-//                loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
-//                if(!loginUser.getIsChannel()){
-//                    //非加盟商判断是否是重庆地区
-//                    String bankAccountArea = corpMapper.queryAreaByUserName(username);
-//                    loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
-//                }
-//                return loginUser;
-//            }
-//        } catch (Exception e) {
-//            log.error("用户中心异常", e);
-//        }
+        try {
+            UserVO userVO = getRemoteLoginUser(username, password);
+            if (userVO != null) {
+                if (StringUtils.isBlank(userVO.getPlatformUserId())) {
+                    UserModel userModel = queryUser(String.valueOf(userVO.getId()));
+                    userVO.setPlatformUserId(userModel.getCuserid());
+                }
+                //查询是否是加盟商
+                DZFBoolean isChannel = corpMapper.queryIsChannelByUserName(username);
+                LoginUser loginUser = transfer(userVO);
+                loginUser.setIsChannel(isChannel == null ? false : isChannel.booleanValue());
+                if(!loginUser.getIsChannel()){
+                    //非加盟商判断是否是重庆地区
+                    String bankAccountArea = corpMapper.queryAreaByUserName(username);
+                    loginUser.setIsBnakAccount(StringUtils.isNoneBlank(bankAccountArea)&& zxkjPlatformAuthConfig.getBankAcountArea().equals(bankAccountArea));
+                }
+                return loginUser;
+            }
+        } catch (Exception e) {
+            log.error("用户中心异常", e);
+        }
 
-        return getLocalLoginUser(username,password);
+        return null;
     }
 
     //获取用户中心用户信息
