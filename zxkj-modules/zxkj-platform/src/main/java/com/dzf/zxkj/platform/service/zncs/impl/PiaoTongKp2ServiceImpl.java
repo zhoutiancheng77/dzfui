@@ -353,8 +353,8 @@ public class PiaoTongKp2ServiceImpl implements IPiaoTongKp2Service {
 			return hvos;
 
 		String taxpayerNum = corpvo.getVsoccrecode();
-//		String unitname = corpvo.getUnitname();
-		String unitname = "北京票通信息技术有限公司";
+		String unitname = corpvo.getUnitname();
+
 
 		DZFDate kprq = paramvo.getKprj();
 		String period = DateUtils.getPeriod(kprq);
