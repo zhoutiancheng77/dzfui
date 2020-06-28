@@ -1,11 +1,6 @@
 package com.dzf.zxkj.platform.service.zncs.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -80,7 +75,8 @@ public class PiaoTongKp2ServiceImpl implements IPiaoTongKp2Service {
                     sp.addParam(hvo.getYfphm());
                     singleObjectBO.executeUpdate(sql, sp);
 
-                hongchongMap.put(hvo.getYfphm(), hvo.getYfpdm());
+
+                hongchongMap.put(hvo.getYfphm()+","+hvo.getYfpdm(), hvo.getYfpdm());
                 }
 		}
 
@@ -232,7 +228,7 @@ public class PiaoTongKp2ServiceImpl implements IPiaoTongKp2Service {
 		svo.setXhfyhzh(transNullValue(hvo.getXsf_yh()) + transNullValue(hvo.getXsf_yhzh()));
 		svo.setFp_dm(hvo.getFpdm());
 		svo.setFp_hm(hvo.getFphm());
-
+		svo.setDemo(hvo.getBz());
 		svo.setKprj(new DZFDateTime(hvo.getKprq()).getDate());
 		svo.setJshj(new DZFDouble(hvo.getKphjje()));
 		svo.setHjje(new DZFDouble(hvo.getHjbhsje()));
@@ -260,7 +256,12 @@ public class PiaoTongKp2ServiceImpl implements IPiaoTongKp2Service {
 		svo.setSourcebilltype(ICaiFangTongConstant.LYDJLX);
 		svo.setKplx(hvo.getKplx());
 		if(hongchongMap.size()>0){
-			if(!StringUtils.isEmpty(hvo.getFphm())&&!StringUtils.isEmpty(hvo.getFpdm())&&hongchongMap.containsKey(hvo.getFphm())&&hongchongMap.containsValue(hvo.getFpdm())){
+			StringBuffer sb = new StringBuffer();
+			sb.append(hvo.getFphm());
+			sb.append(",");
+			sb.append(hvo.getFpdm());
+			if(!StringUtils.isEmpty(hvo.getFphm())&&!StringUtils.isEmpty(hvo.getFpdm())
+					&&hongchongMap.containsKey(sb.toString())){
 				svo.setKplx(ICaiFangTongConstant.FPLX_6);
 			}
 		}
