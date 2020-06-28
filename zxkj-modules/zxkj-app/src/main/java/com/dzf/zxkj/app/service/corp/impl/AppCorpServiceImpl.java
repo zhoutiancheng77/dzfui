@@ -549,7 +549,7 @@ public class AppCorpServiceImpl implements IAppCorpService {
             tempcorpvo.setUsername(userBean.getUsername());
             tempcorpvo.setPk_corp(Common.tempidcreate);
             tempcorpvo.setCustnature(2);//默认法人
-            tempcorpvo.setTel(userBean.getAccount());
+            tempcorpvo.setTel(userBean.getPhone());
             tempcorpvo.setPk_svorg(pk_svorg);//默认代账机构信息
             tempcorpvo.setPk_temp_corp(userObjKey);
             sbo.insertVOWithPK(tempcorpvo);
