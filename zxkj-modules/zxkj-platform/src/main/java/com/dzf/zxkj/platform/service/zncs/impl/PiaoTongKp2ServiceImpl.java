@@ -10,6 +10,7 @@ import java.util.Map;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
+import com.dzf.zxkj.base.framework.processor.BeanProcessor;
 import com.dzf.zxkj.common.constant.FieldConstant;
 import com.dzf.zxkj.common.constant.IBillManageConstants;
 import com.dzf.zxkj.common.lang.*;
@@ -70,12 +71,17 @@ public class PiaoTongKp2ServiceImpl implements IPiaoTongKp2Service {
 		//修改被红冲发票状态 202006
 		Map<String, String> hongchongMap = new LinkedHashMap<String, String>();
 		for(CaiFangTongHVO hvo : hvos){
-			if(!StringUtils.isEmpty(hvo.getBz())
-					&&hvo.getBz().contains("对应正数发票代码:")&&hvo.getBz().contains("号码:")){
-				String[] hmArray = hvo.getBz().split(":");
-				String[] dmArray = hmArray[1].split("号码");
-				hongchongMap.put(hmArray[2].trim(),dmArray[0].trim());
-			}
+			if(!StringUtils.isEmpty(hvo.getYfpdm()) && !StringUtils.isEmpty(hvo.getYfphm())){
+                    //修改已红冲发票状态
+                    String sql = "update ynt_vatsaleinvoice set kplx = ? where nvl(dr,0) = 0 and fp_dm = ? and fp_hm = ?";
+                    SQLParameter sp=new SQLParameter();
+                    sp.addParam(ICaiFangTongConstant.FPLX_6);
+                    sp.addParam(hvo.getYfpdm());
+                    sp.addParam(hvo.getYfphm());
+                    singleObjectBO.executeUpdate(sql, sp);
+
+                hongchongMap.put(hvo.getYfphm(), hvo.getYfpdm());
+                }
 		}
 
 		for(CaiFangTongHVO hvo : hvos){
