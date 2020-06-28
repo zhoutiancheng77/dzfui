@@ -676,19 +676,31 @@ public class FzhsYebReportImpl implements IFzhsYebReport {
 
 		/** E: 调整余额的方向和余额、处理余额分借贷两栏显示、辅助项目和科目合并为一列显示 */
 		/** 汇总上级后，再统一处理余额方向 */
+		Map<String, Integer> fzxmFxMap = new HashMap<String, Integer>();
 		for (FzYebVO fzyeVo : sortMap.values()) {
 			Object fzxCode = fzyeVo.getAttributeValue(fzhsx + "Code");
 			Object fzxName = fzyeVo.getAttributeValue(fzhsx + "Name");
+			String fzxmid = (String) fzyeVo.getAttributeValue(fzhsx);// id
 			fzyeVo.setFzhsxCode(
 					fzyeVo.getAccLevel() == 0 ? fzxCode != null ? fzxCode.toString() : "" : fzyeVo.getAccCode());
 			fzyeVo.setFzhsxName(
 					fzyeVo.getAccLevel() == 0 ? fzxName != null ? fzxName.toString() : "" : fzyeVo.getAccName());
+			Integer accfx = 0;
 			/** 期初余额 */
 			/** 余额为负时，放入贷方，金额取相反数或绝对值 */
 			if (!StringUtil.isEmpty(fzyeVo.getPk_acc())) { // 科目余额走科目本身的方向
 				if (kmmap.containsKey(fzyeVo.getPk_acc())
 				&& kmmap.get(fzyeVo.getPk_acc())!=null){
-					if (kmmap.get(fzyeVo.getPk_acc()).getDirection() == 0){ // 借
+					accfx = kmmap.get(fzyeVo.getPk_acc()).getDirection();
+					if (fzxmFxMap.containsKey(fzxmid)) {
+						if  (fzxmFxMap.get(fzxmid).intValue() != accfx.intValue()) {
+							fzxmFxMap.put(fzxmid,-1);// 根据金额加减
+						}
+					} else {
+						fzxmFxMap.put(fzxmid,accfx);
+					}
+
+					if (accfx== 0){ // 借
 						fzyeVo.setQcyejf(fzyeVo.getQcye());
 						fzyeVo.setQcyedf(DZFDouble.ZERO_DBL);
 
@@ -719,37 +731,81 @@ public class FzhsYebReportImpl implements IFzhsYebReport {
 					}
 				}
 			} else {
-				if (fzyeVo.getQcye().compareTo(DZFDouble.ZERO_DBL) < 0) {
-					fzyeVo.setQcyedf(fzyeVo.getQcye().abs());
-					fzyeVo.setQcyejf(DZFDouble.ZERO_DBL);
+				// 辅助项目在下面
+			}
+		}
 
-					/** 原币赋值 */
-					fzyeVo.setYbqcyedf(fzyeVo.getYbqcye().abs());
-					fzyeVo.setYbqcyejf(DZFDouble.ZERO_DBL);
-				} else { /** 为正时，放入借方 */
-					fzyeVo.setQcyejf(fzyeVo.getQcye());
-					fzyeVo.setQcyedf(DZFDouble.ZERO_DBL);
+		// 辅助项目方向
+		String fzxmid = "";
+		for (FzYebVO fzyeVo : sortMap.values()) {
+			 fzxmid = (String) fzyeVo.getAttributeValue(fzhsx);// id
+			/** 余额为负时，放入贷方，金额取相反数或绝对值 */
+			if (StringUtil.isEmpty(fzyeVo.getPk_acc())) { // 科目余额走科目本身的方向{
+				// 需要查询下级科目级别的方向
+				// 获取辅助项目的方向，如果下面科目都是同一方向，则辅助项目方向 = 科目方向
+				if (fzxmFxMap.containsKey(fzxmid) && fzxmFxMap.get(fzxmid).intValue() != -1) {
+					if (fzxmFxMap.get(fzxmid).intValue() == 0) {
+						fzyeVo.setQcyejf(fzyeVo.getQcye());
+						fzyeVo.setQcyedf(DZFDouble.ZERO_DBL);
 
-					/** 原币赋值 */
-					fzyeVo.setYbqcyejf(fzyeVo.getYbqcye());
-					fzyeVo.setYbqcyedf(DZFDouble.ZERO_DBL);
-				}
-				/** 期末余额 */
-				/** 余额为负时，放入贷方，金额取相反数或绝对值 */
-				if (fzyeVo.getQmye().compareTo(DZFDouble.ZERO_DBL) < 0) {
-					fzyeVo.setQmyedf(fzyeVo.getQmye().abs());
-					fzyeVo.setQmyejf(DZFDouble.ZERO_DBL);
+						/** 原币赋值 */
+						fzyeVo.setYbqcyejf(fzyeVo.getYbqcye());
+						fzyeVo.setYbqcyedf(DZFDouble.ZERO_DBL);
 
-					/** 原币赋值 */
-					fzyeVo.setYbqmyedf(fzyeVo.getYbqmye().abs());
-					fzyeVo.setYbqmyejf(DZFDouble.ZERO_DBL);
-				} else { /** 为正时，放入借方 */
-					fzyeVo.setQmyejf(fzyeVo.getQmye());
-					fzyeVo.setQmyedf(DZFDouble.ZERO_DBL);
+						fzyeVo.setQmyejf(fzyeVo.getQmye());
+						fzyeVo.setQmyedf(DZFDouble.ZERO_DBL);
 
-					/** 原币赋值 */
-					fzyeVo.setYbqmyejf(fzyeVo.getYbqmye());
-					fzyeVo.setYbqmyedf(DZFDouble.ZERO_DBL);
+						/** 原币赋值 */
+						fzyeVo.setYbqmyejf(fzyeVo.getYbqmye());
+						fzyeVo.setYbqmyedf(DZFDouble.ZERO_DBL);
+					} else {
+						fzyeVo.setQcyedf(fzyeVo.getQcye().multiply(-1));
+						fzyeVo.setQcyejf(DZFDouble.ZERO_DBL);
+
+						/** 原币赋值 */
+						fzyeVo.setYbqcyedf(fzyeVo.getYbqcye().multiply(-1));
+						fzyeVo.setYbqcyejf(DZFDouble.ZERO_DBL);
+
+						fzyeVo.setQmyedf(fzyeVo.getQmye().multiply(-1));
+						fzyeVo.setQmyejf(DZFDouble.ZERO_DBL);
+
+						/** 原币赋值 */
+						fzyeVo.setYbqmyedf(fzyeVo.getYbqmye().multiply(-1));
+						fzyeVo.setYbqmyejf(DZFDouble.ZERO_DBL);
+					}
+				} else {
+					if (fzyeVo.getQcye().compareTo(DZFDouble.ZERO_DBL) < 0) {
+						fzyeVo.setQcyedf(fzyeVo.getQcye().abs());
+						fzyeVo.setQcyejf(DZFDouble.ZERO_DBL);
+
+						/** 原币赋值 */
+						fzyeVo.setYbqcyedf(fzyeVo.getYbqcye().abs());
+						fzyeVo.setYbqcyejf(DZFDouble.ZERO_DBL);
+					} else { /** 为正时，放入借方 */
+						fzyeVo.setQcyejf(fzyeVo.getQcye());
+						fzyeVo.setQcyedf(DZFDouble.ZERO_DBL);
+
+						/** 原币赋值 */
+						fzyeVo.setYbqcyejf(fzyeVo.getYbqcye());
+						fzyeVo.setYbqcyedf(DZFDouble.ZERO_DBL);
+					}
+					/** 期末余额 */
+					/** 余额为负时，放入贷方，金额取相反数或绝对值 */
+					if (fzyeVo.getQmye().compareTo(DZFDouble.ZERO_DBL) < 0) {
+						fzyeVo.setQmyedf(fzyeVo.getQmye().abs());
+						fzyeVo.setQmyejf(DZFDouble.ZERO_DBL);
+
+						/** 原币赋值 */
+						fzyeVo.setYbqmyedf(fzyeVo.getYbqmye().abs());
+						fzyeVo.setYbqmyejf(DZFDouble.ZERO_DBL);
+					} else { /** 为正时，放入借方 */
+						fzyeVo.setQmyejf(fzyeVo.getQmye());
+						fzyeVo.setQmyedf(DZFDouble.ZERO_DBL);
+
+						/** 原币赋值 */
+						fzyeVo.setYbqmyejf(fzyeVo.getYbqmye());
+						fzyeVo.setYbqmyedf(DZFDouble.ZERO_DBL);
+					}
 				}
 			}
 		}
