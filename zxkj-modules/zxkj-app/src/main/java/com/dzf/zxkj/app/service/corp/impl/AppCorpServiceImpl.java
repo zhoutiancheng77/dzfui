@@ -69,8 +69,6 @@ public class AppCorpServiceImpl implements IAppCorpService {
     @Autowired
     AppConfig appConfig;
 
-    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 1000)
-    private IUserCenterService userCenterService;
 
 
     @Override
@@ -556,8 +554,7 @@ public class AppCorpServiceImpl implements IAppCorpService {
             tempcorpvo.setUsername(userBean.getUsername());
             tempcorpvo.setPk_corp(Common.tempidcreate);
             tempcorpvo.setCustnature(2);//默认法人
-            Result<com.dzf.auth.api.model.user.UserVO> result =userCenterService.getUserDetailById("zxkj", new Long(userBean.getAccount_id()));
-            tempcorpvo.setTel( result.getData().getMobile());//userBean.getPhone()
+            tempcorpvo.setTel( userBean.getPhone());//userBean.getPhone()
             tempcorpvo.setPk_svorg(pk_svorg);//默认代账机构信息
             tempcorpvo.setPk_temp_corp(userObjKey);
             sbo.insertVOWithPK(tempcorpvo);

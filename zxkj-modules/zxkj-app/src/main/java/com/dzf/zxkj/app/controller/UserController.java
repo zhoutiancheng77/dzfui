@@ -1,5 +1,7 @@
 package com.dzf.zxkj.app.controller;
 
+import com.dzf.auth.api.result.Result;
+import com.dzf.auth.api.service.IUserCenterService;
 import com.dzf.zxkj.app.model.resp.bean.RegisterRespBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.ResponseBaseBeanVO;
 import com.dzf.zxkj.app.model.resp.bean.UserBeanVO;
@@ -12,6 +14,7 @@ import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,10 +27,12 @@ public class UserController extends  BaseAppController{
 
     @Autowired
     private IAppCorpService corpservice;
-
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 1000)
+    private IUserCenterService userCenterService;
     @RequestMapping("/doAction")
     public ReturnData<ResponseBaseBeanVO> doAction(UserBeanVO userBean,String corp,String tcorp,String cname,String icmsg,String acode,String hcorp) {
 //        CommonServ common = new CommonServ();
+        String account_id= userBean.getAccount_id();
         ResponseBaseBeanVO bean = new ResponseBaseBeanVO();
         UserVO uservo = queryUserVOId(userBean.getAccount_id());
         userBean.setAccount_id(uservo.getCuserid());
@@ -114,7 +119,7 @@ public class UserController extends  BaseAppController{
 //                break;
             case IConstant.TWO_ZERO_FIVE:// 用户添加公司
             case IConstant.TWO_ONE_FIVE://财税通用户添加公司
-                bean =  userAddcorp(userBean);
+                bean =  userAddcorp(userBean,account_id);
                 break;
 //            case IConstant.TWO_ZERO_FIVE_ONE:// 确定提交
 //                bean = corpservice.updateuserAndCorpRelation(userBean);
@@ -200,7 +205,10 @@ public class UserController extends  BaseAppController{
         return bean;
     }
 
-    private ResponseBaseBeanVO userAddcorp(UserBeanVO userBean ){
+    private ResponseBaseBeanVO userAddcorp(UserBeanVO userBean,String account_id ){
+        //1:查出用户中心账户信息
+        Result<com.dzf.auth.api.model.user.UserVO> result =userCenterService.getUserDetailById("zxkj", new Long(account_id));
+        userBean.setPhone(result.getData().getMobile());
         int versionno = userBean.getVersionno().intValue();
 
         ResponseBaseBeanVO bean1 = new RegisterRespBeanVO();
