@@ -18,7 +18,7 @@ public enum ExportTemplateEnum {
     HENAN("8", "ExcelExportHenanHander", "0"),
     GUANGXI("9", "ExcelExportGuangXiHander", "0"),
     HAINAN("10", "ExcelExportHaiNanHander", "0"),
-    SHANDONG("11", "ExcelExportStandardHander", "0"),
+    SHANDONG("11", "ExcelExportShanDongHander", "0"),
     CHONGQING("12", "ExcelExportStandardHander", "0"),
     FUJIAN("13", "ExcelExportFuJianHander", "0"),
     HUNAN("14", "ExcelExportHuNanHander", "0"),

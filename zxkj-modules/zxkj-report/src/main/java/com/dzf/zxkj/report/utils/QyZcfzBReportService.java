@@ -518,6 +518,7 @@ public class QyZcfzBReportService {
 		vo29 = getZCFZBVO(map, vo29, true, "1623", "1901");
 		vo29.setQmye1(SafeCompute.sub(vo29.getQmye1(),vo29temp.getQmye1()));
 		vo29.setNcye1(SafeCompute.sub(vo29.getNcye1(),vo29temp.getNcye1()));
+		vo29.setZcconkms(vo29.getZcconkms()+",190101");
 		vo29.setZc("　其他非流动资产");
 		// vo29=getZCFZBVO(map,vo29,false,"4103","4104");
 		// vo29.setFzhsyzqy(" 未分配利润") ;

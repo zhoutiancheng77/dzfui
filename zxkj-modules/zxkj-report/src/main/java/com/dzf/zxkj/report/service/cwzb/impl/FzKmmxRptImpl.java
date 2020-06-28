@@ -625,11 +625,52 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
         }
         /** 对每个map进行日期的排序 */
         if(resmap.size()>0){
+            // 辅助项目包含的科目方向
+            Map<String, Integer> fzxmKmFxmap = new HashMap<String, Integer>();
             for(String key:resmap.keySet()){
                 List<FzKmmxVO> listtemp = resmap.get(key);
                 List<FzKmmxVO> listemp2 = calXmMx(qcmapvos, periods, kmmap, key, listtemp,xswyewfs,ishowfs);
+                if (key.length() > 24) {
+                    YntCpaccountVO accountvo = kmmap.get(key.split("~")[1]);
+                    if (accountvo != null) {
+                        if (fzxmKmFxmap.containsKey(key.split("~")[0])) {
+                            if (fzxmKmFxmap.get(key.split("~")[0]).intValue() != accountvo.getDirection().intValue()) {
+                                fzxmKmFxmap.put(key.split("~")[0], -1);
+                            }
+                        } else {
+                            fzxmKmFxmap.put(key.split("~")[0], accountvo.getDirection());
+                        }
+                    }
+                }
                 resmap.put(key, listemp2);
             }
+            // 辅助项目方向判断
+            for(String key:resmap.keySet()){
+                if (key.length() == 24){
+                    List<FzKmmxVO> listvos = resmap.get(key);
+                    for (FzKmmxVO mxvo: listvos) {
+                        // 根据科目方向判断
+                        if (fzxmKmFxmap.containsKey(key) && fzxmKmFxmap.get(key).intValue() !=-1) {
+                            if (mxvo.getYe().doubleValue() != 0) {
+                                if (fzxmKmFxmap.get(key).intValue() == 1) { // 贷方
+                                    mxvo.setYe(mxvo.getYe().multiply(-1));
+                                    mxvo.setFx("贷");
+                                } else {
+                                    mxvo.setFx("借");
+                                }
+                            }
+                        } else {
+                            if(mxvo.getYe().doubleValue() < 0){
+                                mxvo.setYe(mxvo.getYe().multiply(-1));
+                            }
+                            if(mxvo.getYbye().doubleValue() < 0){
+                                mxvo.setYbye(mxvo.getYbye().multiply(-1));
+                            }
+                        }
+                    }
+                }
+            }
+
             FzKmmxVO fzxmvo = null;
             /** 重新循环赋值 */
             for(String key:resmap.keySet()){
@@ -934,17 +975,6 @@ public class FzKmmxRptImpl implements IFzKmmxReport {
 
         String qcrq = "";
         for(FzKmmxVO mxvo:listemp2){
-            // 只有不挂科目的辅助项目才乘以-1
-            if (key.length() == 24){
-                if(mxvo.getYe().doubleValue()<0){
-                    mxvo.setYe(mxvo.getYe().multiply(-1));
-                }
-
-                if(mxvo.getYbye().doubleValue()<0){
-                    mxvo.setYbye(mxvo.getYbye().multiply(-1));
-                }
-            }
-
             if(ishowfs!=null && !ishowfs.booleanValue() && !("期初余额".equals(mxvo.getZy()) && ReportUtil.bSysZy(mxvo))){
                 Object[] objs = bwshowfsmap.get(mxvo.getRq().substring(0, 7));
                 DZFBoolean obj1 = (DZFBoolean) objs[0];
