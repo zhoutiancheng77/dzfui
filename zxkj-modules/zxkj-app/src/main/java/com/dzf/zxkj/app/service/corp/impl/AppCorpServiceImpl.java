@@ -1,5 +1,7 @@
 package com.dzf.zxkj.app.service.corp.impl;
 
+import com.dzf.auth.api.result.Result;
+import com.dzf.auth.api.service.IUserCenterService;
 import com.dzf.zxkj.app.config.AppConfig;
 import com.dzf.zxkj.app.model.app.corp.ScanCorpInfoVO;
 import com.dzf.zxkj.app.model.app.corp.TempCorpVO;
@@ -34,6 +36,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.Reference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,6 +68,10 @@ public class AppCorpServiceImpl implements IAppCorpService {
 
     @Autowired
     AppConfig appConfig;
+
+    @Reference(version = "1.0.1", protocol = "dubbo", timeout = 1000)
+    private IUserCenterService userCenterService;
+
 
     @Override
     public ResponseBaseBeanVO updateuserAndCorpRelation(UserBeanVO userBean) throws DZFWarpException {
@@ -549,7 +556,8 @@ public class AppCorpServiceImpl implements IAppCorpService {
             tempcorpvo.setUsername(userBean.getUsername());
             tempcorpvo.setPk_corp(Common.tempidcreate);
             tempcorpvo.setCustnature(2);//默认法人
-            tempcorpvo.setTel(userBean.getPhone());
+            Result<com.dzf.auth.api.model.user.UserVO> result =userCenterService.getUserDetailById("zxkj", new Long(userBean.getAccount_id()));
+            tempcorpvo.setTel( result.getData().getMobile());//userBean.getPhone()
             tempcorpvo.setPk_svorg(pk_svorg);//默认代账机构信息
             tempcorpvo.setPk_temp_corp(userObjKey);
             sbo.insertVOWithPK(tempcorpvo);
