@@ -1,5 +1,6 @@
 package com.dzf.zxkj.platform.service.taxrpt.spreadjs;
 
+import com.alibaba.fastjson.JSONObject;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.exception.WiseRunException;
 import com.dzf.zxkj.common.constant.IParameterConstants;
@@ -44,25 +45,25 @@ import java.util.regex.Pattern;
 public class SpreadTool {
 
 	private ITaxBalaceCcrService taxbalance;
-	
+
 	private Map<String, ZcFzBVO[]> zcfzMaps;
-	
+
 	private Map<String, LrbVO[]> lrbMaps;
-	
+
 	private Map<String, LrbquarterlyVO[]> lrbquarters;
-	
+
 	private Map<String, XjllbVO[]> xjllMaps;
 
 	private Map<String, XjllquarterlyVo[]> xjllQuarterMaps;
-	
+
 	private Map<String, CorpTaxVo> cptaxmap;
-	
+
 	private Map<String, List> listmap;
-	
+
 	private Map<String, List<DZFDouble>> mnyoutmap = new HashMap<String, List<DZFDouble>>();
 
 	private Integer datasource = null;//数据来源
-	
+
 	public SpreadTool(ITaxBalaceCcrService parataxbalance) {
 		// TODO Auto-generated constructor stub
 		taxbalance = parataxbalance;
@@ -74,40 +75,40 @@ public class SpreadTool {
 	 * @param mapJson
 	 * @return
 	 */
-	public List<String> getReportNameList(Map mapJson) 
+	public List<String> getReportNameList(Map mapJson)
 	{
 		List<String> listRptName = new ArrayList<String>();
-	
+
 		LinkedHashMap hmsheets = (LinkedHashMap)mapJson.get("sheets");
 		Iterator iter = hmsheets.entrySet().iterator();
-		
+
 		Map<String, String> hmSheetValue = null;
-		Map.Entry entry = null; 
-		
+		Map.Entry entry = null;
+
 		while (iter.hasNext())
 		{
 			hmSheetValue = new HashMap<String, String>();
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			listRptName.add(((String)entry.getKey()).trim()); 
+			listRptName.add(((String)entry.getKey()).trim());
 		}
 		return listRptName;
 	}
 	private ObjectMapper getObjectMapper()
 	{
 		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>()  
-        {  
-   
-            @Override  
-            public void serialize(  
-                    Object value,  
-                    JsonGenerator jg,  
-                    SerializerProvider sp) throws IOException, JsonProcessingException  
-            {  
-                jg.writeString("");  
-            }  
-        });  
+		objectMapper.getSerializerProvider().setNullValueSerializer(new JsonSerializer<Object>()
+        {
+
+            @Override
+            public void serialize(
+                    Object value,
+                    JsonGenerator jg,
+                    SerializerProvider sp) throws IOException, JsonProcessingException
+            {
+                jg.writeString("");
+            }
+        });
 		objectMapper.setSerializationInclusion(Include.ALWAYS);
 		objectMapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
 		objectMapper.configure(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED, false);
@@ -126,7 +127,7 @@ public class SpreadTool {
 			Map obj = (Map)getObjectMapper().readValue(strJson, HashMap.class);
 			LinkedHashMap hmsheets = (LinkedHashMap)obj.get("sheets");
 			Iterator iter = hmsheets.entrySet().iterator();
-			
+
 			Map<String, String> hmSheetValue = null;
 			Map.Entry entry = null;
 			//报表名称
@@ -134,13 +135,13 @@ public class SpreadTool {
 			LinkedHashMap hmsheet = null;
 			LinkedHashMap hmdata = null;
 			LinkedHashMap hmdataTable = null;
-			
+
 			//namestyle
 			ArrayList<LinkedHashMap> listnamedStyles = null;
 			Map<String, LinkedHashMap> hmStyles = null;
-			
+
 			Iterator iterrow = null;
-			
+
 			String row = null;
 			//列集合
 			LinkedHashMap cols = null;
@@ -148,25 +149,25 @@ public class SpreadTool {
 
 			String column = null;
 			LinkedHashMap cell = null;
-					
+
 			boolean isNumber = false;
-						
+
 			Object objStyle = null;
-		
+
 			Object objValue = null;
-			
+
 			LinkedHashMap hmstyle = null;
-			
+
 			while (iter.hasNext())
 			{
 				hmSheetValue = new HashMap<String, String>();
-				entry = (Map.Entry)iter.next(); 
+				entry = (Map.Entry)iter.next();
 				//报表名称
-				sheetname = (String)entry.getKey(); 
-				hmsheet = (LinkedHashMap)entry.getValue(); 
+				sheetname = (String)entry.getKey();
+				hmsheet = (LinkedHashMap)entry.getValue();
 				hmdata = (LinkedHashMap)hmsheet.get("data");
 				hmdataTable =(LinkedHashMap)hmdata.get("dataTable");
-				
+
 				//namestyle
 				listnamedStyles = (ArrayList<LinkedHashMap>)hmsheet.get("namedStyles");
 				hmStyles = new HashMap<String, LinkedHashMap>();
@@ -174,7 +175,7 @@ public class SpreadTool {
 				{
 					hmStyles.put(hmstyle1.get("name").toString(), hmstyle1);
 				}
-				
+
 				iterrow = hmdataTable.keySet().iterator();
 				//遍历行
 				while (iterrow.hasNext())
@@ -194,7 +195,7 @@ public class SpreadTool {
 							if (cell.containsKey("style"))
 							{
 								objStyle = cell.get("style");
-								
+
 								if (objStyle instanceof String)
 								{
 									hmstyle = hmStyles.get(objStyle);
@@ -221,7 +222,7 @@ public class SpreadTool {
 								hmSheetValue.put(row + "_" + column, (objValue == null ? null : objValue.toString()));
 							}
 						}
-						
+
 					}
 				}
 				hmValue.put(sheetname, hmSheetValue);
@@ -235,13 +236,13 @@ public class SpreadTool {
 	}
 	private String getNumberValue(Object objValue)
 	{
-		
+
 		String strReturn = (objValue == null || objValue.toString().trim().length() == 0 ? "0" : objValue.toString().replaceAll(",", ""));
-		
+
 		if("-".equals(strReturn)){//DZFDouble的数值负号与“-”冲突
 			return strReturn;
 		}
-		
+
 		try {
 			strReturn = new DZFDouble(strReturn).setScale(2, DZFDouble.ROUND_HALF_UP).toString();
 		}
@@ -276,27 +277,27 @@ public class SpreadTool {
 		PdfStamper ps = null;
 		try {
 			reader = new PdfReader(pdfFilePath);
-			
+
 
 			fos = new FileOutputStream(pdffileOut);
-					
-		
+
+
 			ps = new PdfStamper(reader, fos);
 
 			AcroFields acrofields = ps.getAcroFields();
-			
+
 			BaseFont bf = BaseFont.createFont("/com/dzf/service/spreadjs/simsun.ttc,1",BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
 
-			
-			acrofields.addSubstitutionFont(bf);
-			
 
-			
+			acrofields.addSubstitutionFont(bf);
+
+
+
 			Map pdfkeymap = acrofields.getFields();
-			
+
 			String fieldname = null;
-			String key = null; 
-				
+			String key = null;
+
 			for (TaxRptTempletPosVO vo : posvos)
 			{
 				fieldname = vo.getItemkey().trim();
@@ -315,10 +316,10 @@ public class SpreadTool {
 			}
 			//填写表头公共信息
 			fillPublicInfo(corpvo, taxvo,reportvo, acrofields);
-			
-			ps.setFormFlattening(true); // 这句不能少  
+
+			ps.setFormFlattening(true); // 这句不能少
 			fos.flush();
-			
+
 		}
 		catch (Exception e)
 		{
@@ -326,8 +327,8 @@ public class SpreadTool {
 		}
 		finally {
 
-			
-			if (ps != null) 
+
+			if (ps != null)
 			{
 				try {
 					ps.close();
@@ -339,7 +340,7 @@ public class SpreadTool {
 			}
 
 			if (reader != null) reader.close();
-			
+
 			if (fos != null)
 			{
 				try {
@@ -355,7 +356,7 @@ public class SpreadTool {
 	}
 
 	/**
-	 * 
+	 *
 	 * @Param corpvo
 	 * @Param reportvo
 	 * @param acrofields
@@ -369,57 +370,57 @@ public class SpreadTool {
 			if (pdfKeyFieldMap.containsKey("qsrq_y"))
 			{
 				acrofields.setField("qsrq_y", reportvo.getPeriodfrom().substring(0, 4));
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("qsrq_m"))
 			{
 				acrofields.setField("qsrq_m", reportvo.getPeriodfrom().substring(5, 7));
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("qsrq_d"))
 			{
 				acrofields.setField("qsrq_d", reportvo.getPeriodfrom().substring(8, 10));
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("jzrq_y"))
 			{
 				acrofields.setField("jzrq_y", reportvo.getPeriodto().substring(0, 4));
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("jzrq_m"))
 			{
 				acrofields.setField("jzrq_m", reportvo.getPeriodto().substring(5, 7));
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("jzrq_d"))
 			{
 				acrofields.setField("jzrq_d", reportvo.getPeriodto().substring(8, 10));
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("nsrsbh"))	//纳税人识别号
 			{
 				acrofields.setField("nsrsbh", taxvo.getTaxcode());
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("nsrmc"))	//纳税人名称
 			{
 				acrofields.setField("nsrmc", corpvo.getUnitname());
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("tbrq_y"))	//填报日期:年
 			{
 				acrofields.setField("tbrq_y", "" + reportvo.getDoperatedate().getYear());
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("tbrq_m"))	//填报日期:月
 			{
 				acrofields.setField("tbrq_m", "" + (reportvo.getDoperatedate().getMonth() < 10 ? "0" : "") + reportvo.getDoperatedate().getMonth());
-	
+
 			}
 			if (pdfKeyFieldMap.containsKey("tbrq_d"))	//填报日期:日
 			{
 				acrofields.setField("tbrq_d", "" + (reportvo.getDoperatedate().getDay() < 10 ? "0" : "") + reportvo.getDoperatedate().getDay());
-	
+
 			}
 		}
 		catch (Exception e)
@@ -428,16 +429,16 @@ public class SpreadTool {
 		}
 
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param fieldname
 	 * @return 0: String 1:int 2:double
 	 */
 	private int getFieldType(String fieldname)
 	{
 		int iType = 2;
-		if (fieldname.equals("nsrsbh") 
+		if (fieldname.equals("nsrsbh")
 				|| fieldname.equals("nsrmc")
 				|| fieldname.equals("qsrq_y")
 				|| fieldname.equals("qsrq_m")
@@ -500,7 +501,7 @@ public class SpreadTool {
 				|| fieldname.startsWith("sb_ybnsr_scqyckhwzsmxcb_dlckzmd")
 				|| fieldname.startsWith("sb_ybnsr_scqyckhwzsmxcb_spmc")
 				|| fieldname.startsWith("sb_ybnsr_scqyckhwzsmxcb_jldw")
-				
+
 				//101010018.pdf
 				|| fieldname.startsWith("sb_ybnsr_gjyszmsmxsj_sb_xh")
 				|| fieldname.startsWith("sb_ybnsr_gjyszmsmxsj_ysfwdm")
@@ -509,7 +510,7 @@ public class SpreadTool {
 				//101010019.pdf
 				|| fieldname.startsWith("sb_ybnsr_jfsjfwzmsmxsj_sb_xh")
 				|| fieldname.startsWith("sb_ybnsr_jfsjfwzmsmxsj_jldw")
-				
+
 				//10101021.pdf
 				|| fieldname.startsWith("sb_ybnsr_jmsmx_jsxm_jmxz_dl_dm")
 				|| fieldname.startsWith("sb_ybnsr_jmsmx_jsxm_jmxz_xl_dm")
@@ -517,7 +518,7 @@ public class SpreadTool {
 				|| fieldname.startsWith("sb_ybnsr_jmsmx_msxm_jmxz_xl_dm")
 				//101010024.pdf
 				|| fieldname.startsWith("sb_ybnsr_ygzsffxcsmxb_ysxmdmjmc")
-				
+
 				//小规模表10102004.pdf
 				|| fieldname.startsWith("sb_xgm_jmsmx_jsxm_jmxz_dm")
 				|| fieldname.startsWith("sb_xgm_jmsmx_jsxm_jmxz_xl_dm")
@@ -531,7 +532,7 @@ public class SpreadTool {
 				|| fieldname.startsWith("sb_xgm_ysfwkcxm_fphm")
 				|| fieldname.startsWith("sb_xgm_ysfwkcxm_fwxmmc")
 
-				
+
 				)
 		{
 			iType = 0;
@@ -598,7 +599,7 @@ public class SpreadTool {
 				|| fieldname.equals("qtjj_xssl")
 				|| fieldname.equals("mtc_xssl")
 
-				
+
 				)
 		{
 			iType = 1;
@@ -615,28 +616,28 @@ public class SpreadTool {
 	public void fillReportVOFValue(HashMap<String, Object> hmReportValue, TaxRptTempletPosVO[] posvos, Map<String, String> hmValue) throws DZFWarpException
 	{
 		try {
-			
+
 			String attributename = null;
-			
+
 			int iType = 0;
-			
+
 			String rowclokey = null;
 
 			Object objValue = null;
-				
+
 			for (TaxRptTempletPosVO vo : posvos)
 			{
 				attributename = vo.getItemkey();
-				
+
 				iType = getFieldType(attributename);	// 0: String 1:int 2:double
-				
+
 				rowclokey = "" + vo.getRptrow() + "_" + vo.getRptcol();
 				if (hmValue.containsKey(rowclokey))
 				{
 					objValue = hmValue.get(rowclokey);
 					if ("——".equals(objValue) == false)
 					{
-						
+
 						hmReportValue.put(attributename, (objValue == null ? (iType == 0 ? "" : (iType == 1 ? "0" : "0.00")) : objValue));
 					}
 
@@ -645,10 +646,10 @@ public class SpreadTool {
 				{
 					//没填值的表格暂时不取数
 //					hmReportValue.put(attributename, (iType == 0 ? "" : (iType == 1 ? "0" : "0.00")));
-					
+
 				}
 			}
-			
+
 		}
 		catch (Exception e)
 		{
@@ -662,19 +663,19 @@ public class SpreadTool {
 		Iterator iter = hmsheets.entrySet().iterator();
 		int activeSheetIndex = 0;
 		boolean isFound_activeSheetIndex = false;
-		
+
 		Map<String, String> hmSheetValue = null;
 		Map.Entry entry = null;
 		//报表名称
 		String sheetname = null;
-		
+
 		//遍历报表
 		while (iter.hasNext())
 		{
 			hmSheetValue = new HashMap<String, String>();
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
 			if (sheetname.equals(reportName.trim()))
 			{
@@ -697,30 +698,30 @@ public class SpreadTool {
 	public String adjustBeforeSave(String strJson, CorpVO corpvo, TaxReportVO reportvo) throws DZFWarpException
 	{
 //		if (1==1) return strJson;
-		
+
 		LinkedHashMap mapJson = null;
-		try 
+		try
 		{
 			mapJson = (LinkedHashMap)getObjectMapper().readValue(strJson, LinkedHashMap.class);
-			
+
 			LinkedHashMap hmsheets = (LinkedHashMap)mapJson.get("sheets");
 			Iterator iter = hmsheets.entrySet().iterator();
-			
+
 			Map.Entry entry = null;
 			//报表名称
-			String sheetname = null; 
-			
-			
+			String sheetname = null;
+
+
 			LinkedHashMap hmsheet = null;
 			LinkedHashMap hmdata = null;
 			LinkedHashMap hmdataTable = null;
-			
+
 			//namestyle
 			ArrayList<LinkedHashMap> listnamedStyles = null;
 			Map<String, LinkedHashMap> hmStyles = null;
-			
+
 			Iterator iterrow = null;
-			
+
 			String row = null;
 			//列集合
 			LinkedHashMap cols = null;
@@ -730,26 +731,26 @@ public class SpreadTool {
 			LinkedHashMap cell = null;
 
 			boolean isNumber = false;
-			
+
 			Object objStyle = null;
 			LinkedHashMap hmstyle = null;
-					
+
 			Object objValue = null;
-			
+
 			while (iter.hasNext())
 			{
-				entry = (Map.Entry)iter.next(); 
+				entry = (Map.Entry)iter.next();
 				//报表名称
-				sheetname = ((String)entry.getKey()).trim(); 
+				sheetname = ((String)entry.getKey()).trim();
 				//更新表头公共信息
 //				if (corpvo.getVprovince() == null || corpvo.getVprovince() != 2)
 //				{
 //					fillSpreadReportHeadPublic(mapJson, sheetname, corpvo, reportvo);
 //				}
-				hmsheet = (LinkedHashMap)entry.getValue(); 
+				hmsheet = (LinkedHashMap)entry.getValue();
 				hmdata = (LinkedHashMap)hmsheet.get("data");
 				hmdataTable =(LinkedHashMap)hmdata.get("dataTable");
-				
+
 				//namestyle
 				listnamedStyles = (ArrayList<LinkedHashMap>)hmsheet.get("namedStyles");
 				hmStyles = new HashMap<String, LinkedHashMap>();
@@ -757,8 +758,8 @@ public class SpreadTool {
 				{
 					hmStyles.put(hmstyle1.get("name").toString(), hmstyle1);
 				}
-				
-				
+
+
 				iterrow = hmdataTable.keySet().iterator();
 				//遍历行
 				while (iterrow.hasNext())
@@ -795,7 +796,7 @@ public class SpreadTool {
 									}
 								}
 							}
-							
+
 							if (isNumber )
 							{
 								objValue = cell.get("value");
@@ -804,12 +805,12 @@ public class SpreadTool {
 									cell.put("value", getNumberValue(objValue));
 								}
 							}
-							
+
 						}
-						
+
 					}
 				}
-	
+
 			}
 			return getObjectMapper().writeValueAsString(mapJson);
 		}
@@ -834,31 +835,31 @@ public class SpreadTool {
 
 		Map.Entry entry = null;
 		//报表名称
-		String sheetname = null; 
+		String sheetname = null;
 
 		LinkedHashMap hmsheet = null;
 		LinkedHashMap hmdata = null;
 		LinkedHashMap hmdataTable = null;
-		
+
 		LinkedHashMap hmColumns = null;
 		LinkedHashMap cell = null;
-		
+
 		while (iter.hasNext())
 		{
 
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
 			if (sheetname.trim().equals(reportname.trim()) == false)
 			{
 				continue;
 			}
-			
-			hmsheet = (LinkedHashMap)entry.getValue(); 
+
+			hmsheet = (LinkedHashMap)entry.getValue();
 			hmdata = (LinkedHashMap)hmsheet.get("data");
 			hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			if (hmdataTable.containsKey("" + iRow))
 			{
 				hmColumns = (LinkedHashMap)hmdataTable.get("" + iRow);
@@ -876,7 +877,7 @@ public class SpreadTool {
 							cell.remove("value");
 						}
 					}
-					
+
 				}
 			}
 		}
@@ -895,33 +896,33 @@ public class SpreadTool {
 		@SuppressWarnings("rawtypes")
 		Iterator iter = hmsheets.entrySet().iterator();
 
-		Map.Entry entry = null; 
+		Map.Entry entry = null;
 		//报表名称
-		String sheetname = null; 
+		String sheetname = null;
 
-		LinkedHashMap hmsheet = null; 
+		LinkedHashMap hmsheet = null;
 		LinkedHashMap hmdata = null;
 		LinkedHashMap hmdataTable = null;
-		
+
 		LinkedHashMap hmColumns = null;
 		LinkedHashMap cell = null;
-				
+
 		while (iter.hasNext())
 		{
 
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
 			if (sheetname.trim().equals(reportname.trim()) == false)
 			{
 				continue;
 			}
-			
-			hmsheet = (LinkedHashMap)entry.getValue(); 
+
+			hmsheet = (LinkedHashMap)entry.getValue();
 			hmdata = (LinkedHashMap)hmsheet.get("data");
 			hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			if (hmdataTable.containsKey("" + iRow))
 			{
 				hmColumns = (LinkedHashMap)hmdataTable.get("" + iRow);
@@ -934,68 +935,68 @@ public class SpreadTool {
 			}
 		}
 	}
-	
+
 	//根据名称管理器名称获取 值
 	public Object[] getCellXYByName(Map mapJson, String name){
 		Object[] objReturn = null;
 		List<LinkedHashMap> names = (List<LinkedHashMap>) mapJson.get("names");
 		if(names == null || names.size() == 0)
 			return objReturn;
-		
+
 		String formula = null;
 		String key;
 		Map target = null;
 		for(LinkedHashMap nameMap : names){
 			key = (String) nameMap.get("name");
-			if(!StringUtil.isEmpty(key) 
+			if(!StringUtil.isEmpty(key)
 					&& key.contains(name)){
 				formula = (String) nameMap.get("formula");
 				target = nameMap;
 				break;
 			}
 		}
-		
+
 		if(StringUtil.isEmpty(formula) || formula.contains("#REF!"))
 			return objReturn;
-		
+
 		String[] splits = formula.split("!");
-		
+
 		if(splits == null || splits.length < 2)
 			return objReturn;
-		
+
 		String[] splits1 = splits[1].split("\\$|:");
-		
+
 		int x = fromNumSystem26(splits1[1]) - 1;
 		int y = Integer.parseInt(splits1[2]) - 1;
-		
+
 		if(target != null && !splits[0].startsWith("'")){
 			target.put("formula", "'" + splits[0] + "'!" + splits[1]);
 		}
-		
+
 		objReturn = new Object[]{x, y, splits[0]};
-		
+
 		return objReturn;
 	}
-	
+
 	private int fromNumSystem26(String str){
 		int n = 0;
-		
+
 		if(StringUtil.isEmptyWithTrim(str))
 			return n;
-		
+
 		for(int i = str.length() - 1, j = 1; i >= 0; i--, j *= 26){
 			char c = Character.toUpperCase(str.charAt(i));
-			
+
 			if(c < 'A' || c > 'Z')
 				return 0;
-			
+
 			n +=((int) c - 64) * j;
 		}
-		
+
 		return n;
 	}
-	
-	public Object getCellValue(Map mapJson, String reportname, int iRow, int iColumn)
+
+	public static Object getCellValue(Map mapJson, String reportname, int iRow, int iColumn)
 	{
 		Object objReturn = null;
 		LinkedHashMap hmsheets = (LinkedHashMap)mapJson.get("sheets");
@@ -1004,32 +1005,32 @@ public class SpreadTool {
 
 		Map.Entry entry = null;
 		//报表名称
-		String sheetname = null; 
+		String sheetname = null;
 
-		
+
 		LinkedHashMap hmsheet = null;
 		LinkedHashMap hmdata = null;
 		LinkedHashMap hmdataTable = null;
-		
+
 		LinkedHashMap hmColumns = null;
 		LinkedHashMap cell = null;
-				
+
 		while (iter.hasNext())
 		{
 
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
 			if (sheetname.trim().equals(reportname.trim()) == false)
 			{
 				continue;
 			}
-			
-			hmsheet = (LinkedHashMap)entry.getValue(); 
+
+			hmsheet = (LinkedHashMap)entry.getValue();
 			hmdata = (LinkedHashMap)hmsheet.get("data");
 			hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			if (hmdataTable.containsKey("" + iRow))
 			{
 				hmColumns = (LinkedHashMap)hmdataTable.get("" + iRow);
@@ -1037,11 +1038,11 @@ public class SpreadTool {
 				{
 					cell = (LinkedHashMap)hmColumns.get("" + iColumn);
 					objReturn = cell.get("value");
-					
+
 				}
 			}
 			break;
-			
+
 		}
 		return objReturn;
 	}
@@ -1054,32 +1055,32 @@ public class SpreadTool {
 
 		Map.Entry entry = null;
 		//报表名称
-		String sheetname = null; 
+		String sheetname = null;
 
-		LinkedHashMap hmsheet = null; 
+		LinkedHashMap hmsheet = null;
 		LinkedHashMap hmdata = null;
 		LinkedHashMap hmdataTable = null;
 
 		LinkedHashMap hmColumns = null;
 
 		LinkedHashMap cell = null;
-				
+
 		while (iter.hasNext())
 		{
 
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
 			if (sheetname.trim().equals(reportname.trim()) == false)
 			{
 				continue;
 			}
-			
-			hmsheet = (LinkedHashMap)entry.getValue(); 
+
+			hmsheet = (LinkedHashMap)entry.getValue();
 			hmdata = (LinkedHashMap)hmsheet.get("data");
 			hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			if (hmdataTable.containsKey("" + iRow))
 			{
 				hmColumns = (LinkedHashMap)hmdataTable.get("" + iRow);
@@ -1087,16 +1088,16 @@ public class SpreadTool {
 				{
 					cell = (LinkedHashMap)hmColumns.get("" + iColumn);
 					objReturn = cell.get("formula");
-					
+
 				}
 			}
 			break;
-			
+
 		}
 		return objReturn;
 	}
 	/**
-	 * 
+	 *
 	 * @param mapJson
 	 * @param voPosition   TaxRptTempletPosVO
 	 * @param reportname
@@ -1110,11 +1111,11 @@ public class SpreadTool {
 		}
 		int iRow = voPosition.getRptrow();
 		int iColumn = voPosition.getRptcol();
-		
+
 		return getCellValue(mapJson, reportname, iRow, iColumn);
-		
+
 	}
-	
+
 	/**
 	 * 生成spread报表，填充期初，大账房函数值，公共表头信息
 	 * @param readonly
@@ -1143,9 +1144,9 @@ public class SpreadTool {
 		while (iter.hasNext())
 		{
 			Map<String, String> hmSheetValue = new HashMap<String, String>();
-			Map.Entry entry = (Map.Entry)iter.next(); 
+			Map.Entry entry = (Map.Entry)iter.next();
 			//报表名称
-			String sheetname = ((String)entry.getKey()).trim(); 
+			String sheetname = ((String)entry.getKey()).trim();
 
 			if (listRptName.contains(sheetname) == false)
 			{
@@ -1155,15 +1156,15 @@ public class SpreadTool {
 
 			//赋表头默认值
 			setDefaultHeadValue(mapJson,sheetname,  reportvo,  corpvo,corptaxvo);
-			
+
 			fillReportByQcData(mapJson, sheetname, corpvo, corptaxvo, reportvo, hmQCData);
-			
+
 			hmReports.put(sheetname, (LinkedHashMap)entry.getValue());
-			
-			LinkedHashMap hmsheet = (LinkedHashMap)entry.getValue(); 
+
+			LinkedHashMap hmsheet = (LinkedHashMap)entry.getValue();
 			LinkedHashMap hmdata = (LinkedHashMap)hmsheet.get("data");
 			LinkedHashMap hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			//找蓝色格子#66FFFF
 			String sColorBlue = "#66FFFF";
 			ArrayList<LinkedHashMap> listnamedStyles = (ArrayList<LinkedHashMap>)hmsheet.get("namedStyles");
@@ -1184,7 +1185,7 @@ public class SpreadTool {
 			//缩放百分比
 			hmsheet.put("zoomFactor", 1.3);
 
-			
+
 
 			//行号
 			String row = null;
@@ -1194,21 +1195,21 @@ public class SpreadTool {
 
 			String column = null;
 			LinkedHashMap cell = null;
-				
+
 			//判断底色是否是浅蓝，浅蓝可编辑
 			Object objStyle = null;
-				
+
 			LinkedHashMap<String, Object> hmStyle = null;
 			Object objBackColor = null;
-					
+
 			LinkedHashMap thisstyle = null;
-			
+
 			Object objFormula = null;
-				
+
 			String strValue = null;
 			//公式缓存
 			Map mapValue = new HashMap<String, Object>();
-			
+
 			Iterator iterrow = hmdataTable.keySet().iterator();
 			//遍历行
 			while (iterrow.hasNext())
@@ -1223,12 +1224,12 @@ public class SpreadTool {
 				{
 					column = (String)itercolumn.next();
 					cell = (LinkedHashMap)cols.get(column);
-					
+
 					//判断底色是否是浅蓝，浅蓝可编辑
 					objStyle = cell.get("style");
 					if (objStyle != null)
 					{
-						if (objStyle instanceof LinkedHashMap) 
+						if (objStyle instanceof LinkedHashMap)
 						{
 							hmStyle = (LinkedHashMap<String, Object>)objStyle;
 							objBackColor = hmStyle.get("backColor");
@@ -1248,15 +1249,15 @@ public class SpreadTool {
 					}
 					if (cell.containsKey("formula"))
 					{
-						
-						
+
+
 						objFormula = cell.get("formula");
-					
+
 						if (objFormula == null || objFormula.toString().trim().length() == 0) continue;
-						
+
 						strValue = getFormulaValue(mapValue, objFormula, hmQCData, corpvo, reportvo, accountVO);
 						strValue = getFormularBetweenTable(listRptName, strValue);
-						
+
 						//重新赋值公式
 						//判断cell是浮点型，两位小数，则处理浮点
 						if (cell.containsKey("style"))
@@ -1285,12 +1286,12 @@ public class SpreadTool {
 							cell.remove("value");
 						}
 					}
-					
+
 				}
 			}
 //			if (corpvo.getVprovince() != null && corpvo.getVprovince() == 2)	//北京
 //			{
-//				
+//
 //			}
 //			else
 //			{
@@ -1307,14 +1308,14 @@ public class SpreadTool {
 			}
 		}
 
-		
+
 		mapJson.put("sheetCount", listRptName.size());
 		mapJson.put("activeSheetIndex", listRptName.indexOf(reportname));
 		mapJson.put("startSheetIndex", listRptName.indexOf(reportname));
 
 		return mapJson;
 	}
-	
+
 	/**
 	 * 财务报表增加表头默认值
 	 */
@@ -1344,13 +1345,13 @@ public class SpreadTool {
 			}
 		}
 	}
-	
+
 	public String getFormularBetweenTable(List<String> listRptName, String strValue){
 		String funcname = null;
 		String funcpara = null;
 		int iPosFrom = -1;
 		int iPosTo = -1;
-		
+
 		Pattern p = Pattern.compile(getTableNamePattern(listRptName));
 		Matcher m = p.matcher(strValue);
 		while(m.find()){
@@ -1358,7 +1359,7 @@ public class SpreadTool {
 			funcpara = m.group(2);
 			iPosFrom = m.start();
 			iPosTo = m.end();
-			
+
 			if(!funcname.contains("'")){
 				strValue = new StringBuffer().append((iPosFrom > 0 ? strValue.substring(0, iPosFrom) : ""))
 									.append("'")
@@ -1367,35 +1368,35 @@ public class SpreadTool {
 									.append(funcname.substring(funcname.length() - 1))
 									.append(funcpara)
 									.append((iPosTo < strValue.length() ? strValue.substring(iPosTo) : "")).toString();
-			
+
 				m = p.matcher(strValue);
 			}
-			
+
 		}
-		
+
 		List<String> tableList = getTableNameList(listRptName);
 		if(tableList != null && tableList.size() > 0){//是否是全集
 			p = Pattern.compile(getTableNamePattern(getTableNameList(listRptName)));
 			m = p.matcher(strValue);
-			
+
 			while(m.find()){
 				funcname = m.group(1);
 				funcpara = m.group(2);
 				iPosFrom = m.start();
 				iPosTo = m.end();
-				
+
 				strValue = (iPosFrom > 0 ? strValue.substring(0, iPosFrom) : "") + new DZFDouble().toString() + (iPosTo < strValue.length() ? strValue.substring(iPosTo) : "");
-				
+
 				m = p.matcher(strValue);
 			}
 		}
-		
+
 		return strValue;
 	}
-	
+
 	private String getTableNamePattern(List<String> list){
 		String tabpattern = "(";
-		
+
         for(String s : list){
         	s = s.replace("(", "\\(").replace(")", "\\)");
         	tabpattern += (tabpattern.length() > 1 ? "|" : "") + s + "!|'" + s + "'!";
@@ -1403,7 +1404,7 @@ public class SpreadTool {
         tabpattern += ")((\\$)?.(\\$)?[0-9]{1,})";
 		return tabpattern;
 	}
-	
+
 	private List<String> getTableNameList(List<String> listRptName){
 		String[] listAll = new String[]{
 				"A000000企业基础信息表",
@@ -1461,7 +1462,7 @@ public class SpreadTool {
 				"增值税减免税申报明细表",
 				"本期抵扣进项税额结构明细表",
 				"增值税纳税申报表附列资料（五）",
-				
+
 				"汇总纳税分支机构所得税分配表",
 				"不征税收入和税基类减免应纳税所得额明细表（附表1）",
 				"固定资产加速折旧(扣除)明细表（附表2）",
@@ -1471,7 +1472,7 @@ public class SpreadTool {
 		tableList.removeAll(listRptName);//删除存在的表
 		return tableList;
 	}
-	
+
 	public Map initOldReport(boolean readonly, Map mapJson, List<String> listRptName, String reportname, TaxReportVO reportvo, CorpVO corpvo) throws DZFWarpException
 	{
 		//滚动条和页签比例
@@ -1479,38 +1480,38 @@ public class SpreadTool {
 		LinkedHashMap hmsheets = (LinkedHashMap)mapJson.get("sheets");
 		Iterator iter = hmsheets.entrySet().iterator();
 
-		
-		
+
+
 		Map<String, String> hmSheetValue = null;
 		Map.Entry entry = null;
 		//报表名称
 		String sheetname = null;
 
-		
+
 		LinkedHashMap hmsheet = null;
 		LinkedHashMap hmdata = null;
 		LinkedHashMap hmdataTable = null;
-		
+
 		//找蓝色格子#66FFFF
 		String sColorBlue = "#66FFFF";
 		ArrayList<LinkedHashMap> listnamedStyles = null;
 		Map<String, LinkedHashMap> hmBuleName = null;
-		
+
 		Iterator iterrow = null;
-		
+
 		//行号
 		String row = null;
 		//列集合
 		LinkedHashMap cols = null;
 		Iterator itercolumn = null;
-			
+
 		String column = null;
 		LinkedHashMap cell = null;
-			
+
 		Object objFormula = null;
 
 		Object objStyle = null;
-			
+
 		LinkedHashMap<String, Object> hmStyle = null;
 		Object objBackColor = null;
 		LinkedHashMap thisstyle = null;
@@ -1518,18 +1519,18 @@ public class SpreadTool {
 		while (iter.hasNext())
 		{
 			hmSheetValue = new HashMap<String, String>();
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
-			
-			hmsheet = (LinkedHashMap)entry.getValue(); 
+
+			hmsheet = (LinkedHashMap)entry.getValue();
 			hmdata = (LinkedHashMap)hmsheet.get("data");
 			hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			//找蓝色格子#66FFFF
 			listnamedStyles = (ArrayList<LinkedHashMap>)hmsheet.get("namedStyles");
-			
+
 			Map<String, LinkedHashMap> hmStyles = new HashMap<String, LinkedHashMap>();
 			hmBuleName = new HashMap<String, LinkedHashMap>();
 			for (LinkedHashMap hmstyle : listnamedStyles)
@@ -1560,12 +1561,12 @@ public class SpreadTool {
 				{
 					column = (String)itercolumn.next();
 					cell = (LinkedHashMap)cols.get(column);
-					
+
 					//判断底色是否是浅蓝，浅蓝可编辑
 					objStyle = cell.get("style");
 					if (objStyle != null)
 					{
-						if (objStyle instanceof LinkedHashMap) 
+						if (objStyle instanceof LinkedHashMap)
 						{
 							hmStyle = (LinkedHashMap<String, Object>)objStyle;
 							objBackColor = hmStyle.get("backColor");
@@ -1586,10 +1587,10 @@ public class SpreadTool {
 					if (cell.containsKey("formula"))
 					{
 						objFormula = cell.get("formula");
-						
+
 						if (objFormula == null || objFormula.toString().trim().length() == 0) continue;
 						objFormula = getFormularBetweenTable(listRptName, (String)objFormula);
-						
+
 						//判断cell是浮点型，两位小数，则处理浮点
 						if (cell.containsKey("style"))
 						{
@@ -1611,10 +1612,10 @@ public class SpreadTool {
 								}
 							}
 						}
-						
+
 						cell.put("formula", objFormula);
 					}
-					
+
 				}
 			}
 		}
@@ -1630,52 +1631,52 @@ public class SpreadTool {
 		DZFDouble dReturn = null;
 		LinkedHashMap hmsheets = (LinkedHashMap)mapJson.get("sheets");
 		Iterator iter = hmsheets.entrySet().iterator();
-		
+
 		Map<String, String> hmSheetValue = null;
 		Map.Entry entry = null;
 		//报表名称
 		String sheetname = null;
 
-		
+
 		LinkedHashMap hmsheet = null;
 		LinkedHashMap hmdata = null;
 		LinkedHashMap hmdataTable = null;
-		
+
 		Iterator iterrow = null;
-		
+
 		//行号
 		String row = null;
 		//列集合
 		LinkedHashMap cols = null;
 		Iterator itercolumn = null;
-			
+
 		String column = null;
 		LinkedHashMap cell = null;
-		
+
 		Object sReturn = null;
-				
+
 		while (iter.hasNext())
 		{
 			hmSheetValue = new HashMap<String, String>();
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
 			if(StringUtil.isEmptyWithTrim(sheetname)
 					|| !sheetname.equals(reportname))
 				continue;
-			
-			hmsheet = (LinkedHashMap)entry.getValue(); 
+
+			hmsheet = (LinkedHashMap)entry.getValue();
 			hmdata = (LinkedHashMap)hmsheet.get("data");
 			hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			iterrow = hmdataTable.keySet().iterator();
 			//遍历行
 			while (iterrow.hasNext())
 			{
 				//行号
 				row = (String)iterrow.next();
-				
+
 				if(!row.equals(y))
 					continue;//如不是跳过
 				//列集合
@@ -1687,11 +1688,11 @@ public class SpreadTool {
 					column = (String)itercolumn.next();
 					if(!column.equals(x))
 						continue;
-					
+
 					cell = (LinkedHashMap)cols.get(column);
-					
+
 					sReturn = cell.get("value");
-					
+
 					if(sReturn != null){
 						dReturn = getDZFDouble(sReturn);
 //						if(sReturn instanceof Integer){
@@ -1700,7 +1701,7 @@ public class SpreadTool {
 //							dReturn =  new DZFDouble((String)sReturn);
 //						}
 					}
-					
+
 					break;
 				}
 			}
@@ -1708,7 +1709,7 @@ public class SpreadTool {
 
 		return dReturn;
 	}
-	
+
 	private DZFDouble getDZFDouble(Object value) {
 		if (value == null || value.toString().trim().equals("")) {
 			return DZFDouble.ZERO_DBL;
@@ -1720,7 +1721,7 @@ public class SpreadTool {
 			return new DZFDouble(value.toString().trim());
 		}
 	}
-	
+
 	public Map adjustEditCell(Map mapJson) throws DZFWarpException
 	{
 		//滚动条和页签比例
@@ -1728,10 +1729,10 @@ public class SpreadTool {
 		LinkedHashMap hmsheets = (LinkedHashMap)mapJson.get("sheets");
 		Iterator iter = hmsheets.entrySet().iterator();
 
-		
-		
-		
-		
+
+
+
+
 		Map<String, String> hmSheetValue = null;
 		Map.Entry entry = null;
 		//报表名称
@@ -1740,41 +1741,41 @@ public class SpreadTool {
 		LinkedHashMap hmsheet = null;
 		LinkedHashMap hmdata = null;
 		LinkedHashMap hmdataTable = null;
-		
+
 		//找蓝色格子#66FFFF
 		String sColorBlue = "#66FFFF";
 		ArrayList<LinkedHashMap> listnamedStyles = null;
 		Map<String, LinkedHashMap> hmBuleName = null;
-		
+
 		Iterator iterrow = null;
-		
+
 		//行号
 		String row = null;
 		//列集合
 		LinkedHashMap cols = null;
 		Iterator itercolumn = null;
-		
+
 		String column = null;
 		LinkedHashMap cell = null;
-				
+
 		Object objStyle = null;
-				
+
 		LinkedHashMap<String, Object> hmStyle = null;
 		Object objBackColor = null;
-						
+
 		LinkedHashMap thisstyle = null;
-							
+
 		while (iter.hasNext())
 		{
 			hmSheetValue = new HashMap<String, String>();
-			entry = (Map.Entry)iter.next(); 
+			entry = (Map.Entry)iter.next();
 			//报表名称
-			sheetname = ((String)entry.getKey()).trim(); 
+			sheetname = ((String)entry.getKey()).trim();
 
-			hmsheet = (LinkedHashMap)entry.getValue(); 
+			hmsheet = (LinkedHashMap)entry.getValue();
 			hmdata = (LinkedHashMap)hmsheet.get("data");
 			hmdataTable = (LinkedHashMap)hmdata.get("dataTable");
-			
+
 			//找蓝色格子#66FFFF
 			listnamedStyles = (ArrayList<LinkedHashMap>)hmsheet.get("namedStyles");
 			hmBuleName = new HashMap<String, LinkedHashMap>();
@@ -1804,12 +1805,12 @@ public class SpreadTool {
 				{
 					column = (String)itercolumn.next();
 					cell = (LinkedHashMap)cols.get(column);
-					
+
 					//判断底色是否是浅蓝，浅蓝可编辑
 					objStyle = cell.get("style");
 					if (objStyle != null)
 					{
-						if (objStyle instanceof LinkedHashMap) 
+						if (objStyle instanceof LinkedHashMap)
 						{
 							hmStyle = (LinkedHashMap<String, Object>)objStyle;
 							objBackColor = hmStyle.get("backColor");
@@ -1852,41 +1853,41 @@ public class SpreadTool {
 		String funcpara = null;
 		int iPosFrom = -1;
 		int iPosTo = -1;
-		
+
 		Matcher m2 = null;
-		
+
 		//递归执行内部
 		int iPosFrom2 = -1;
 		int iPosTo2 = -1;
 		String ret = null;
 
-		String qckey = null;	
+		String qckey = null;
 		String qcvalue = null;
 		//取期初数据, 取期末数据, 取发生数据, 取净发生数据, 取累计发生数据， 取发生数据2, 取凭证张数
 		String[] formulas = new String[] {"glopenbal", "glclosebal", "glamtoccr", "glnetamtoccr", "glcumulamtoccr", "glamtoccr2"
 						, "trans","trans1", "glamtoccr3", "glamtoccr4", "revenue", "revenue2", "revenue3", "costs", "costs2", "costs3", "profitbeforetax"
 						, "profitbeforetax2", "profitbeforetax3", "tax", "datasources", "thsmtamt", "qdinc", "qdout"
-						, "ivnumber", "sbbqs", "yhzc", "zcfzb", "swbb","lrb", "jmbl", "taxnd", "glbalnc","sqldata", "accountplan", "switch" 
+						, "ivnumber", "sbbqs", "yhzc", "zcfzb", "swbb","lrb", "jmbl", "taxnd", "glbalnc","sqldata", "accountplan", "switch"
 						, "zcfzbqmye","zcfzbncye","lrbbyje","lrbbjje","lrbbnljje","lrbbqje","lrbsqje","xjllljje","xjllbyje","xjllbqje","xjllsqje"
 						,"xjllnbsnje","lrbnbsnje","cjssl","gslx","subjectamt","subjectamt2","national","beginning","genera", "gsxx", "getsbxx", "deficit",
 						"deduction","zcbmqmye","zcbmncye","lrbmbqje","lrbmsqje","xjbmbqje","xjbmsqje","lrbmljje","lrbmbyje","xjbmljje","xjbmbyje","lrbmsnje","xjbmsnje"
 		};
-		
+
 		String formulaStr = null;
 		Object dzfValue = null;
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
+
+
+
 		String strValue = objFormula.toString().trim().replaceAll("“", "\"").replaceAll("”", "\"");
 		String strValue_lc = strValue.toLowerCase();
-		
+
 		//正则
 		String regex = "(qc|glopenbal|glclosebal|glamtoccr|glnetamtoccr|glcumulamtoccr|glamtoccr2|trans|trans1|glamtoccr3|glamtoccr4|revenue|revenue2|revenue3|costs|costs2|costs3|profitbeforetax|profitbeforetax2|profitbeforetax3|tax|datasources|thsmtamt|qdinc|qdout|ivnumber|sbbqs|yhzc|zcfzb|swbb|lrb|jmbl|taxnd|glbalnc|sqldata|accountplan|switch"
 				+ "|zcfzbqmye|zcfzbncye|lrbbyje|lrbbjje|lrbbnljje|lrbbqje|lrbsqje|xjllljje|xjllbyje|xjllbqje"
@@ -1895,13 +1896,13 @@ public class SpreadTool {
 				+ "|lrbmljje|lrbmbyje|xjbmljje|xjbmbyje|lrbmsnje|xjbmsnje)\\(([^\\(\\)]*?)\\)";
 		Pattern p = Pattern.compile(regex);
 		Matcher m = p.matcher(strValue_lc);
-		
+
 		while(m.find()){
 			funcname = m.group(1);
 			funcpara = m.group(2);
 			iPosFrom = m.start();
-			iPosTo = m.end();	
-			
+			iPosTo = m.end();
+
 			m2 = p.matcher(funcpara);
 			if (m2.find())
 			{
@@ -1915,8 +1916,8 @@ public class SpreadTool {
 			}
 			else
 			{
-	
-	
+
+
 				if (funcname.trim().equals("qc"))
 				{
 					qckey = funcpara.trim();
@@ -1928,7 +1929,7 @@ public class SpreadTool {
 					if(qckey.startsWith("sb10412005vo.data1.fzjgqk")){
 						qcvalue = getFZjgqkbiaoinfo(qckey,hmQCData);
 					}
-					
+
 					if (hmQCData.containsKey(qckey))
 					{
 						qcvalue = hmQCData.get(qckey).toString();
@@ -1941,7 +1942,7 @@ public class SpreadTool {
 				{
 					//取期初数据, 取期末数据, 取发生数据, 取净发生数据, 取累计发生数据
 					//formulas = new String[] {"glopenbal", "glclosebal", "glamtoccr", "glnetamtoccr", "glcumulamtoccr"};
-			
+
 		lab:		for (int i = 0; i < formulas.length; i++)
 					{
 						if (formulas[i].equals(funcname) == false)
@@ -1949,7 +1950,7 @@ public class SpreadTool {
 							continue lab;
 						}
 						//替换大账房取数函数的运行结果
-		
+
 						formulaStr = strValue_lc.substring(iPosFrom, iPosTo);
 						if (mapValue != null)
 						{
@@ -1968,7 +1969,7 @@ public class SpreadTool {
 						{
 							dzfValue = calculateDZFFormula(formulaStr, corpvo, reportvo.getPeriodto(),reportvo,accountVO);
 						}
-						
+
 						strValue = (iPosFrom > 0 ? strValue.substring(0, iPosFrom) : "") + dzfValue.toString() + (iPosTo < strValue.length() ? strValue.substring(iPosTo) : "");
 						strValue_lc = (iPosFrom > 0 ? strValue_lc.substring(0, iPosFrom) : "") + dzfValue.toString() + (iPosTo < strValue_lc.length() ? strValue_lc.substring(iPosTo) : "");
 					}
@@ -1978,8 +1979,8 @@ public class SpreadTool {
 		}
 		return strValue;
 	}
-	
-	
+
+
 	/**
 	 * 取分支机构情况表
 	 */
@@ -2013,19 +2014,22 @@ public class SpreadTool {
 		}
 		return qcvalue;
 	}
-	
+
 	private void fillReportByQcData(Map mapJson,String sheetname, CorpVO corpvo, CorpTaxVo taxvo, TaxReportVO reportvo, HashMap<String, Object> hmQCData) {
 		if (taxvo.getTax_area() == 11 ) {//江苏
 			if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())
 					&& "印花税纳税申报表".equals(sheetname)) {
-				List<Map<String, Object>> qcMaps = (List<Map<String, Object>>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
-				if (qcMaps != null) {
+				Map<String, JSONObject> qcLines = (Map<String, JSONObject>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
+				if (qcLines != null) {
 					int row = 6;
-					for (Map<String, Object> map : qcMaps) {
-						setCellValue(mapJson, sheetname, row, 0, (String) map.get("zspmmc"));
-						setCellValue(mapJson, sheetname, row, 4, (String) map.get("hd_jsje"));
-						setCellValue(mapJson, sheetname, row, 5, (String) map.get("hd_bl"));
-						setCellValue(mapJson, sheetname, row, 6, (String) map.get("sl"));
+					JSONObject qcLine;
+					for(Map.Entry<String, JSONObject> entry : qcLines.entrySet()) {
+						qcLine = entry.getValue();
+						setCellValue(mapJson, sheetname, row, 0, (String) qcLine.get("zspmmc")); // 应税凭证名称
+						setCellValue(mapJson, sheetname, row, 4, (String) qcLine.get("hdde")); // 核定依据
+						setCellValue(mapJson, sheetname, row, 5, (String) qcLine.get("hdbl")); // 核定比例
+						setCellValue(mapJson, sheetname, row, 6, (String) qcLine.get("sl")); // 适用税率
+						//征收品目代码(zspmdm)、核定类型(hdlx)等隐藏字段在Excel中没有存，需在申报时从期初数据中现取
 						row++;
 					}
 				}
@@ -2062,7 +2066,7 @@ public class SpreadTool {
 						row++;
 					}
 				}
-			} 
+			}
 		}
 	}
 	/**
@@ -2094,16 +2098,16 @@ public class SpreadTool {
 				+ reportvo.getPeriodto().substring(5, 7) + "月"
 				+ reportvo.getPeriodto().substring(8, 10) + "日";
 		String nsrmcAndJedwyjf = "纳税人名称：（公章）  " + corp_nsrmc + "                  金额单位：元至角分";
-		
+
 		String nsrmcAndNsrsbh = "纳税人名称（盖章）：" + corp_nsrmc + "      纳税人识别号：" + corp_nsrsbh;
-		
+
 		String sksssjAndJedwyjf = "税款所属时间：" + reportvo.getPeriodfrom().substring(0, 4) + "年"
 				+ reportvo.getPeriodfrom().substring(5, 7)+"月"
 				+ reportvo.getPeriodfrom().substring(8, 10) + "日至"
 				+ reportvo.getPeriodto().substring(0, 4) + "年"
 				+ reportvo.getPeriodto().substring(5, 7) + "月"
 				+ reportvo.getPeriodto().substring(8, 10) + "日                                金额单位：元（列至角分）（共  页，第  页）";
-		
+
 		String sksssjAndTbrq = "税款所属期：" + reportvo.getPeriodfrom().substring(0, 4) + "年"
 				+ reportvo.getPeriodfrom().substring(5, 7)+"月"
 				+ reportvo.getPeriodfrom().substring(8, 10) + "日至"
@@ -2113,13 +2117,13 @@ public class SpreadTool {
 				+ reportvo.getDoperatedate().getYear() + "年"
 				+ reportvo.getDoperatedate().getMonth() + "月"
 				+ reportvo.getDoperatedate().getDay() + "日";
-		
+
 		String nsrmc = "纳税人名称：" + corp_nsrmc;
 		String nsrmcAndGZ = "纳税人名称（公章）：" + corp_nsrmc;
 		String nsrsbh = "纳税人识别号:" + corp_nsrsbh;
 		//申报种类编号
 		String sb_zlbh = reportvo.getSb_zlbh();
-		
+
 		if ("10101".equals(sb_zlbh))
 		{
 			//一般纳税人
@@ -2138,23 +2142,23 @@ public class SpreadTool {
 					|| "增值税纳税申报表附列资料（五）".equals(reportname))
 			{
 				setCellValue(mapJson, reportname, 2, 0, sksssj);
-	
+
 				setCellValue(mapJson, reportname, 3, 0, nsrmcAndJedwyjf);
 			}
 			else if ("固定资产（不含不动产）进项税额抵扣情况表".equals(reportname) ||
 					"应税服务减免项目清单表".equals(reportname) ||
-					
+
 					"本期抵扣进项税额结构明细表".equals(reportname) ||
 					"营改增税负分析测算明细表".equals(reportname))
 			{
 				setCellValue(mapJson, reportname, 1, 0, sksssj);
-	
+
 				setCellValue(mapJson, reportname, 2, 0, nsrmcAndJedwyjf);
 			}
 			else if ("代扣代缴税收通用缴款书抵扣清单".equals(reportname))
 			{
 				setCellValue(mapJson, reportname, 1, 0, nsrmcAndNsrsbh);
-	
+
 				setCellValue(mapJson, reportname, 2, 0, sksssjAndJedwyjf);
 			}
 			else if ("成品油购销存情况明细表".equals(reportname) ||
@@ -2164,11 +2168,11 @@ public class SpreadTool {
 					"国际运输征免税明细数据表".equals(reportname) ||
 					"增值税减免税申报明细表".equals(reportname) ||
 					"研发、设计服务征免税明细数据表".equals(reportname))
-					
+
 			{
 				setCellValue(mapJson, reportname, 1, 0, nsrmc);
 				setCellValue(mapJson, reportname, 2, 0, nsrsbh);
-	
+
 				setCellValue(mapJson, reportname, 3, 0, sksssj);
 			}
 			else if ("农产品核定扣除增值税进项税额计算表（汇总表）".equals(reportname) ||
@@ -2188,7 +2192,7 @@ public class SpreadTool {
 				setCellValue(mapJson, reportname, 3, 0, nsrsbh);
 				setCellValue(mapJson, reportname, 4, 0, tbrqAndJedwyjf);
 			}
-			
+
 		}
 		else if ("10102".equals(sb_zlbh))
 		{
@@ -2231,9 +2235,9 @@ public class SpreadTool {
 
 		//取期初数据, 取期末数据, 取发生数据, 取净发生数据, 取累计发生数据， 取发生数据2(多两个参数), 取凭证张数, 取季度发生数, 取季度发生数2(度两个参数), 按期间取取营业收入， 按季度取营业收入，按期间取营业成本， 按季度取营业成本， 按期间取利润总额， 按季度取利润总额, 是否设置带税率属性的科目, 清单取数
 		//"glopenbal", "glclosebal", "glamtoccr", "glnetamtoccr", "glcumulamtoccr", "glamtoccr2", "trans", "glamtoccr3","glamtoccr4", "revenue", "revenue2", "costs", "costs2", "profitbeforetax", "profitbeforetax2" , "tax", "datasources"
-		
+
 		// 取进项清单  取销项清单  取认证发票数量  取除此科目分录行本期发生        取表格数    取政策优惠      资产负债表取数      取其他年度税务报表     利润表               取减免比率	取申报年度		取年初            判断公司科目方案   取营业收入从年初到现在的累计数   取营业成本年初到现在的累计数  取利润总额年初到现在的累计数
-		// "qdinc",  "qdout",    "ivnumber", "thsmtamt",          "sbbqs",       "yhzc"      "zcfzb"         "swbb"          "lrb"    "jmbl"     "taxnd",       "glbalnc",  "accountplan",    "revenue3",    "costs3",   "profitbeforetax3"    
+		// "qdinc",  "qdout",    "ivnumber", "thsmtamt",          "sbbqs",       "yhzc"      "zcfzb"         "swbb"          "lrb"    "jmbl"     "taxnd",       "glbalnc",  "accountplan",    "revenue3",    "costs3",   "profitbeforetax3"
 
 		int iLeft = strFormula.indexOf("(");
 		int iRight = strFormula.length() - 1;
@@ -2250,24 +2254,24 @@ public class SpreadTool {
 		int iYear = date.getYear();
 		//期间
 		String period = null;
-		//是否包含未记账 
+		//是否包含未记账
 		DZFBoolean isHasJZ = null;
 		//方向
 		String sDirection = null;
 		//公司 pk_corp
 		String pk_corp = corpvo.getPrimaryKey();
-		
+
 		if (strFormula.startsWith("glopenbal(") ||
 				strFormula.startsWith("glclosebal(") ||
 				strFormula.startsWith("glamtoccr") ||	//包含2，3，4末尾的了
 				strFormula.startsWith("glnetamtoccr(") ||
 				strFormula.startsWith("glcumulamtoccr(") ||
 				strFormula.startsWith("beginning(") ||
-				strFormula.startsWith("trans(") || 
+				strFormula.startsWith("trans(") ||
 				strFormula.startsWith("trans1(") ||
 				strFormula.startsWith("glbalnc("))
 		{
-			
+
 			if (params[0].indexOf("+") > 0)
 			{
 				saAccsubj = params[0].split("\\+");
@@ -2277,7 +2281,7 @@ public class SpreadTool {
 				saAccsubj = new String[1];
 				saAccsubj[0] = params[0];
 			}
-	
+
 			if (params[1].indexOf("+") > 0)
 			{
 				int iPlus = Integer.parseInt(params[1].split("\\+")[1].trim());
@@ -2302,12 +2306,12 @@ public class SpreadTool {
 			}
 			//是否包含未记账 params[3]
 			isHasJZ = new DZFBoolean(params[3].trim());
-			
+
 			period = "" + iYear + "-" + (iPeriod < 10 ? "0": "") + iPeriod;
-		
+
 			//方向 params[4]
 			sDirection = params[4].trim();
-			
+
 			Map<String,List<QcYeVO>> beginMap = new HashMap<String,List<QcYeVO>>();
 			for (String accsubj : saAccsubj)
 			{
@@ -2336,7 +2340,7 @@ public class SpreadTool {
 					}else if(reportvo.getPeriodtype() == PeriodType.monthreport){//月度
 						dzfReturn = dzfReturn.add(taxbalance.getGlAmtoCcr(accsubj.trim(), period, period, sDirection, pk_corp, isHasJZ,accountVO));
 					}
-					
+
 				}
 				else if (strFormula.startsWith("glamtoccr4(")) //增加开票信息、税率参数，按季度取数
 				{
@@ -2349,7 +2353,7 @@ public class SpreadTool {
 					}else if(reportvo.getPeriodtype() == PeriodType.monthreport){//月度
 						dzfReturn = dzfReturn.add(taxbalance.getGlAmtoCcr2(accsubj.trim(), period, period, sDirection, pk_corp, isHasJZ, invoiceflag, dzfTaxRate,accountVO));
 					}
-					
+
 				}
 				else if (strFormula.startsWith("glamtoccr("))
 				{
@@ -2420,7 +2424,7 @@ public class SpreadTool {
 			period = "" + iYear + "-" + (iPeriod < 10 ? "0": "") + iPeriod;
 			//是否包含未记账 params[3]
 			isHasJZ = new DZFBoolean(params[3].trim());
-			
+
 			if (strFormula.startsWith("revenue2("))//带2的为季报的函数//zpm
 			{
 				if(reportvo.getPeriodtype() == PeriodType.jidureport){
@@ -2428,7 +2432,7 @@ public class SpreadTool {
 				}else if(reportvo.getPeriodtype() == PeriodType.monthreport){//月报
 					dzfReturn = dzfReturn.add(taxbalance.getRevenue(pk_corp, period, isHasJZ));
 				}
-				
+
 			}
 			else if (strFormula.startsWith("revenue("))
 			{
@@ -2449,7 +2453,7 @@ public class SpreadTool {
 				}else if(reportvo.getPeriodtype() == PeriodType.monthreport){//月报
 					dzfReturn = dzfReturn.add(taxbalance.getCosts(pk_corp, period, isHasJZ));
 				}
-				
+
 			}
 			else if (strFormula.startsWith("costs("))
 			{
@@ -2566,7 +2570,7 @@ public class SpreadTool {
 		else if  (strFormula.startsWith("switch("))
 		{
 			objReturn = taxbalance.getSwitch(params);
-			
+
 		}
 		else if  (strFormula.startsWith("jmbl("))
 		{
@@ -2584,7 +2588,7 @@ public class SpreadTool {
 //				||  strFormula.startsWith("qdoutamt2(")
 				||  strFormula.startsWith("ivnumber("))
 		{
-			
+
 			if (params[1].indexOf("+") > 0)
 			{
 				int iPlus = Integer.parseInt(params[1].split("\\+")[1].trim());
@@ -2608,7 +2612,7 @@ public class SpreadTool {
 				iPeriod -= iSub;
 			}
 			period = "" + iYear + "-" + (iPeriod < 10 ? "0": "") + iPeriod;
-			
+
 			String[] taxRateStr = null;
 			DZFDouble[] taxRate = null;
 
@@ -2616,7 +2620,7 @@ public class SpreadTool {
 				if(params[3].indexOf("+") > 0)
 				{
 					taxRateStr = params[3].split("\\+");
-					
+
 					taxRate = new DZFDouble[taxRateStr.length];
 					for(int i = 0; i < taxRateStr.length; i++){
 						taxRate[i] = new DZFDouble(taxRateStr[i]);
@@ -2626,13 +2630,13 @@ public class SpreadTool {
 				{
 					taxRateStr = new String[1];
 					taxRateStr[0] = params[3];
-					
+
 					taxRate = new DZFDouble[1];
 					taxRate[0] = new DZFDouble(params[3]);
 				}
 			}
-			
-			
+
+
 //			if(strFormula.startsWith("qdinamt("))
 //			{
 //				Integer tickFlag = params[0] == null ? null :Integer.parseInt(params[0]);//专普票标识
@@ -2650,16 +2654,16 @@ public class SpreadTool {
 				if(judgeSource(IParameterConstants.FROMSALT, pk_corp)){//判断是否清单取数
 					Integer tickFlag = params[0] == null ? null :Integer.parseInt(params[0]);//专普票标识
 					String iv = params[6];//认证未认证
-					dzfReturn = taxbalance.getQDInc(pk_corp, period, tickFlag, taxRateStr, 
+					dzfReturn = taxbalance.getQDInc(pk_corp, period, tickFlag, taxRateStr,
 							params[4], params[5], iv, reportvo.getPeriodtype(), mnyoutmap);
 				}
-				
+
 			}
 			else if (strFormula.startsWith("qdout("))
 			{
 				if(judgeSource(IParameterConstants.FROMSALT, pk_corp)){//判断是否清单取数
 					Integer tickFlag = params[0] == null ? null :Integer.parseInt(params[0]);//专普票标识
-					dzfReturn =  taxbalance.getQDOut(pk_corp, period, tickFlag, taxRateStr, 
+					dzfReturn =  taxbalance.getQDOut(pk_corp, period, tickFlag, taxRateStr,
 							params[4], params[5], reportvo.getPeriodtype(), mnyoutmap);
 				}
 			}
@@ -2668,10 +2672,10 @@ public class SpreadTool {
 				if(judgeSource(IParameterConstants.FROMSALT, pk_corp)){//判断是否清单取数
 					Integer tickFlag = params[0] == null ? null :Integer.parseInt(params[0]);//专普票标识
 					String ivflag = params[4];//认证标识
-					dzfReturn = taxbalance.getIVnumber(pk_corp, period, tickFlag, params[3], 
+					dzfReturn = taxbalance.getIVnumber(pk_corp, period, tickFlag, params[3],
 							ivflag, reportvo.getPeriodtype());
 				}
-				
+
 			}
 		}
 		else if (strFormula.startsWith("thsmtamt("))
@@ -2685,7 +2689,7 @@ public class SpreadTool {
 				saAccsubj = new String[1];
 				saAccsubj[0] = params[0];
 			}
-	
+
 			if (params[1].indexOf("+") > 0)
 			{
 				int iPlus = Integer.parseInt(params[1].split("\\+")[1].trim());
@@ -2708,28 +2712,28 @@ public class SpreadTool {
 				int iSub = Integer.parseInt(params[2].split("\\-")[1].trim());
 				iPeriod -= iSub;
 			}
-			
+
 			//方向 params[3]
 			sDirection = params[3].trim();
-			
+
 			//是否包含未记账 params[4]
 			isHasJZ = new DZFBoolean(params[4].trim());
-			
+
 			period = "" + iYear + "-" + (iPeriod < 10 ? "0": "") + iPeriod;
-		
+
 			String invoiceflag = params[5];
 			String taxrate = params[6];
 			DZFDouble dzfTaxRate = (taxrate == null ? null : new DZFDouble(taxrate));
-			
+
 			for(String accsubj : saAccsubj){
 				dzfReturn = dzfReturn.add(taxbalance.getThsmtAmt(accsubj.trim(), period, sDirection, pk_corp, isHasJZ, invoiceflag, dzfTaxRate,accountVO));
 			}
-			
+
 		}
 		else if  (strFormula.startsWith("sbbqs("))
 		{
 			String corpType = params[0];
-			
+
 			if (params[1].indexOf("+") > 0)
 			{
 				int iPlus = Integer.parseInt(params[1].split("\\+")[1].trim());
@@ -2752,12 +2756,12 @@ public class SpreadTool {
 				int iSub = Integer.parseInt(params[2].split("\\-")[1].trim());
 				iPeriod -= iSub;
 			}
-			
+
 			period = "" + iYear + "-" + (iPeriod < 10 ? "0": "") + iPeriod;
-			
+
 			String reportName = params[3];
 			String coordinate = params[4];
-			
+
 			dzfReturn = taxbalance.getQsbbqs(corpType, reportName, coordinate, pk_corp, period);
 		}
 		else if  (strFormula.startsWith("yhzc("))
@@ -2776,9 +2780,9 @@ public class SpreadTool {
 				projname = new String[1];
 				projname[0] = params[0];
 			}
-			
+
 			String descColname = params[1];
-			
+
 			if (params[2].indexOf("+") > 0)
 			{
 				int iPlus = Integer.parseInt(params[2].split("\\+")[1].trim());
@@ -2791,7 +2795,7 @@ public class SpreadTool {
 			}
 			//处理期间
 			int iPeriod = 12;
-			
+
 			period = "" + iYear + "-" + (iPeriod < 10 ? "0": "") + iPeriod;
 
 			dzfReturn = taxbalance.getZcfzb(projname, descColname, period, pk_corp);
@@ -2800,7 +2804,7 @@ public class SpreadTool {
 		{
 			String reportName = params[0];
 			String coordinate = params[1];
-			
+
 			if (params[2].indexOf("+") > 0)
 			{
 				int iPlus = Integer.parseInt(params[2].split("\\+")[1].trim());
@@ -2813,15 +2817,15 @@ public class SpreadTool {
 			}
 			//处理期间
 //			int iPeriod = 12;
-			
+
 //			period = "" + iYear + "-" + (iPeriod < 10 ? "0": "") + iPeriod;
-			
-			
+
+
 			dzfReturn = taxbalance.getSwbb(reportName, coordinate, pk_corp, String.valueOf(iYear));
 		}
 		else if  (strFormula.startsWith("lrb(")) //利润表查询
 		{
-			
+
 			//  处理报表项目名称
 			if (params[0].indexOf("+") > 0)
 			{
@@ -2833,7 +2837,7 @@ public class SpreadTool {
 				saAccsubj[0] = params[0];
 			}
 			//  本年累计
-			String nmnycol = params[1]; 
+			String nmnycol = params[1];
 			//处理期间
 			if (params[2].indexOf("+") > 0)
 			{
@@ -2852,16 +2856,16 @@ public class SpreadTool {
 			}
 		}
 		else if(strFormula.startsWith("sqldata(")){//上期留抵金额
-			
+
 			String reportName = params[0];
 			String coordinate = params[1];
-			
-			
+
+
 			String pperiod = DateUtils.getPreviousPeriod(DateUtils.getPeriod(date));
-			
-			
+
+
 			dzfReturn = taxbalance.getSqldata(reportName, coordinate, pk_corp, String.valueOf(pperiod));
-			
+
 		}
 		else if(strFormula.startsWith("zcfzbqmye(")){//资产负债表
 			String hc = params[0];//行次
@@ -3058,7 +3062,7 @@ public class SpreadTool {
 			String perioda = String.valueOf(date.getYear()-1)+"-12";//【取上一年】
 			String key = pk_corp+","+perioda;
 			LrbVO[] zfbvos = null;
-			if(lrbMaps!=null && lrbMaps.size() > 0 && 
+			if(lrbMaps!=null && lrbMaps.size() > 0 &&
 					lrbMaps.get(key)!=null && lrbMaps.get(key).length > 0){
 				zfbvos = lrbMaps.get(key);
 			}else{
@@ -3078,7 +3082,7 @@ public class SpreadTool {
 			String style = params[2];//金额、税额
 			//方向 params[3]
 			sDirection = params[3].trim();
-			
+
 			String[] taxcodes = null;
 			if(taxcode.indexOf("+") > 0){
 				taxcodes = taxcode.split("\\+");
@@ -3086,15 +3090,15 @@ public class SpreadTool {
 				taxcodes = new String[1];
 				taxcodes[0] = taxcode;
 			}
-			
+
 			String period2 = DateUtils.getPeriod(date);
 			if(strFormula.startsWith("subjectamt(")){
 				dzfReturn =  taxbalance.queryzzsFpValue(taxcodes,fpstyle,style,sDirection,period2,pk_corp);
 			}else if(strFormula.startsWith("subjectamt2(")){
 				dzfReturn =  taxbalance.queryzzsFpValue2(taxcodes,fpstyle,style,sDirection,period2,pk_corp);
 			}
-			
-		} 
+
+		}
 		/*************企业会计准则涉及的财报函数 begin***********/
 		else if(strFormula.startsWith("zcbmqmye(")){//资产负债表  按编码
 			String bm = params[0];//编码
@@ -3112,7 +3116,7 @@ public class SpreadTool {
 					period1 = DateUtils.getPreviousPeriod(period1);
 				}
 			}
-			
+
 			String key = pk_corp+","+period1;
 			ZcFzBVO[] zfbvos = null;
 			if(zcfzMaps!=null && zcfzMaps.size() > 0 && zcfzMaps.containsKey(key)){
@@ -3241,7 +3245,7 @@ public class SpreadTool {
 				}
 				dzfReturn =  taxbalance.getBmLrbJiduValue(vos, bm,period1);
 			}
-			
+
 		}
 		else if(strFormula.startsWith("xjbmljje(")){//现金流量累计金额 按编码
 			String bm = params[0];//行次
@@ -3285,7 +3289,7 @@ public class SpreadTool {
 			String perioda = String.valueOf(date.getYear()-1)+"-12";//【取上一年】
 			String key = pk_corp+","+perioda;
 			LrbVO[] zfbvos = null;
-			if(lrbMaps!=null && lrbMaps.size() > 0 && 
+			if(lrbMaps!=null && lrbMaps.size() > 0 &&
 					lrbMaps.get(key)!=null && lrbMaps.get(key).length > 0){
 				zfbvos = lrbMaps.get(key);
 			}else{
@@ -3326,15 +3330,15 @@ public class SpreadTool {
 		dzfReturn = dzfReturn == null ? DZFDouble.ZERO_DBL : dzfReturn;
 		return objReturn == null ? dzfReturn.setScale(2, DZFDouble.ROUND_HALF_UP) : objReturn;
 	}
-	
+
 	private boolean judgeSource(int from, String pk_corp){
     	if(datasource == null){
     		datasource = taxbalance.getDatasources(pk_corp);
     	}
-    	
+
     	return datasource == from;
     }
-	
+
 	public Map fillReportWithZero(Map mapJson, List<String> listRptName,
 			TaxReportVO reportvo, HashMap<String, Object> hmQCData, CorpVO corpvo,CorpTaxVo corptaxvo) {
 		boolean readonly = false;
@@ -3416,11 +3420,11 @@ public class SpreadTool {
 				while (itercolumn.hasNext()) {
 					column = (String) itercolumn.next();
 					cell = (LinkedHashMap) cols.get(column);
-					
+
 					objStyle = cell.get("style");
 					if (objStyle != null)
 					{
-						if (objStyle instanceof LinkedHashMap) 
+						if (objStyle instanceof LinkedHashMap)
 						{
 							hmStyle = (LinkedHashMap<String, Object>)objStyle;
 							objBackColor = hmStyle.get("backColor");
@@ -3438,7 +3442,7 @@ public class SpreadTool {
 							}
 						}
 					}
-					
+
 					if (cell.containsKey("formula")) {
 						objFormula = cell.get("formula");
 						if (objFormula == null
@@ -3459,7 +3463,7 @@ public class SpreadTool {
 							if(qckey.startsWith("sb10412005vo.data1.fzjgqk")){
 								qcvalue = getFZjgqkbiaoinfo(qckey,hmQCData);
 							}
-							
+
 							if (!hmQCData.containsKey(qckey))
 							{
 								continue;
