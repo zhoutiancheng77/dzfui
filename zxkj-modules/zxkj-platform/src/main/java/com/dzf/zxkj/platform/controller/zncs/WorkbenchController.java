@@ -291,10 +291,10 @@ public class WorkbenchController extends BaseController {
         try {
             String newperiod = period + "-01";
             DZFDate testdate = new DZFDate(newperiod);
-            if (testdate.compareTo(begindate) < 0)
-            {
-                throw new BusinessException("期间 '" + period + "' 在建账日期 '" + begindate.toString() + "' 之前！");
-            }
+//            if (testdate.compareTo(begindate) < 0)
+//            {
+//                throw new BusinessException("期间 '" + period + "' 在建账日期 '" + begindate.toString() + "' 之前！");
+//            }
         }
         catch (Exception ex)
         {
