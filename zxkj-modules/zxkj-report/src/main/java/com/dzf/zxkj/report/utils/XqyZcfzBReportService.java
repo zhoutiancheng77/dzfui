@@ -405,6 +405,7 @@ public class XqyZcfzBReportService {
 		vo28=getZCFZBVO(map,vo28,true,"1901");
 		vo28.setQmye1(SafeCompute.sub(vo28.getQmye1(),vo14.getQmye1()));
 		vo28.setNcye1(SafeCompute.sub(vo28.getNcye1(),vo14.getNcye1()));
+		vo28.setZcconkms(vo28.getZcconkms()+",190101");
 		vo28.setZc("　其他非流动资产") ;
 		vo28.setFzhsyzqy("　未分配利润") ;
 		vo28.setHc1("28") ;
