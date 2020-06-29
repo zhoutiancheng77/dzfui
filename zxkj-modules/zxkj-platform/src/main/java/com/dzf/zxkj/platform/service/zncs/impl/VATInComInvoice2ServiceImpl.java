@@ -773,9 +773,9 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		//生成入库单
 		IntradeHVO ichvo = createIH(vo, accounts, corpvo, userid);
 
-		zncsParamVO.setCorpvo(corpvo);
-		zncsParamVO.setAccVOs(accounts);
-		zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
+//		zncsParamVO.setCorpvo(corpvo);
+//		zncsParamVO.setAccVOs(accounts);
+//		zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
 
 		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
 
@@ -7855,14 +7855,15 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		//CorpVO corpvo =  corpService.queryByPk(pk_corp);
 		if(zncsParamVO.getCorpvo() == null){
 			zncsParamVO.setCorpvo(corpService.queryByPk(pk_corp));
+		}
 			zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
 			zncsParamVO.setAccVOs(accountService.queryByPk(pk_corp));
-		}
+
 		String key = pk_corp +vatvo.getPeriod();
-		if(zncsParamVO.getParamMap().get(key) == null){
+		//if(zncsParamVO.getParamMap().get(key) == null){
 			Map<String, Object> paramMap=zncsVoucher.initVoucherParam(zncsParamVO.getCorpvo(), vatvo.getInperiod(),false);
 			zncsParamVO.getParamMap().put(key,paramMap);
-		}
+		//}
 		return zncsParamVO;
 	}
 }
