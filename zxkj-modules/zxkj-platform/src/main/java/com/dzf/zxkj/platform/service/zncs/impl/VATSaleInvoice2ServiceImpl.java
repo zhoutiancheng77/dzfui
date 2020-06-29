@@ -3212,7 +3212,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 		try {
 			SAXReader reader = new SAXReader();
-			Document document = reader.read((File) file);
+			Document document = reader.read(file.getInputStream());
 			Element bookStore = document.getRootElement();
 			if (bookStore.element("YKFP")!=null)
 				return BAI_WANG_A;
