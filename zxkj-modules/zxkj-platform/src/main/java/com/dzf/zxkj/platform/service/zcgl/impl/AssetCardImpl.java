@@ -700,6 +700,9 @@ public class AssetCardImpl implements IAssetCard {
                     creditVO.setJfmny(assetdepVO.getOriginalvalue());
                     creditVO.setYbjfmny(assetdepVO.getOriginalvalue());
                     creditVO.setPk_corp(assetcardVO.getPk_corp());
+                    for (int i =1 ;i<=10;i++) {
+                        creditVO.setAttributeValue("fzhsx"+i,assetcardVO.getAttributeValue("zjfyfzhsx"+i));
+                    }
                     creditVO.setDr(0);
                     creditVO.setRowno(2 * rowno + 1);
                     creditVO.setVdirect(0);
