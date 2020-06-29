@@ -108,21 +108,11 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
         List<VATInComInvoiceVO2> ll = new ArrayList<VATInComInvoiceVO2>();
         ExecutorService fixedThreadPool = Executors.newFixedThreadPool(30);
         List<Future<List<VATInComInvoiceVO2>>> vc = new Vector<Future<List<VATInComInvoiceVO2>>>();
-		//修改被红冲发票状态 202006
-		Map<String, String> hongchongMap = new LinkedHashMap<String, String>();
-		for(CaiFangTongHVO hvo : cfthvos){
-			if(!StringUtils.isEmpty(hvo.getBz())
-					&&hvo.getBz().contains("对应正数发票代码:")&&hvo.getBz().contains("号码:")){
-				String[] hmArray = hvo.getBz().split(":");
-				String[] dmArray = hmArray[1].split("号码");
-				hongchongMap.put(hmArray[2].trim(),dmArray[0].trim());
-			}
-		}
 
         try {
             for(CaiFangTongHVO hvo : cfthvos){
 
-                Future<List<VATInComInvoiceVO2>> future = fixedThreadPool.submit(new QueryBvo(hvo,pk_corp,kprj,hongchongMap));
+                Future<List<VATInComInvoiceVO2>> future = fixedThreadPool.submit(new QueryBvo(hvo,pk_corp,kprj));
 
                 vc.add(future);
             }
@@ -171,12 +161,10 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 		private CaiFangTongHVO hvo;
 		private String pk_corp;
 		private DZFDate kprj;
-		private Map<String,String> hongchongMap;
-		public QueryBvo (CaiFangTongHVO hvo,String pk_corp,DZFDate kprj,Map<String,String> hongchongMap){
+		public QueryBvo (CaiFangTongHVO hvo,String pk_corp,DZFDate kprj){
 			this.hvo = hvo;
 			this.pk_corp = pk_corp;
 			this.kprj = kprj;
-			this.hongchongMap = hongchongMap;
 		}
 
 		@Override
@@ -221,7 +209,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 
 
 				singleObjectBO.saveObject(pk_corp, hvo);
-				incomvo = tranVATInComData(hvo, dr, hmap, bmap, null, null,kprj,hongchongMap);
+				incomvo = tranVATInComData(hvo, dr, hmap, bmap, null, null,kprj);
 				incomvo.setVersion(new DZFDouble(1.0));
 				ll.add(incomvo);
 
@@ -253,7 +241,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 
 
 				singleObjectBO.saveObject(pk_corp, hvo);
-				incomvo = tranVATInComData(hvo, dr, hmap, bmap, null, null,kprj,hongchongMap);
+				incomvo = tranVATInComData(hvo, dr, hmap, bmap, null, null,kprj);
 				incomvo.setVersion(new DZFDouble(1.0));
 				ll.add(incomvo);
 
@@ -320,7 +308,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 			Map<String, String> bmap,
 			Map<String, DcModelHVO> dcMap,
 			Map<String, DcModelHVO> dcMap1,
-			DZFDate kprj,Map<String,String> hongchongMap){
+			DZFDate kprj){
 		VATInComInvoiceVO2 incomvo = new VATInComInvoiceVO2();
 		List<VATInComInvoiceVO2> list = new ArrayList<VATInComInvoiceVO2>();
 		Object value = null;
@@ -339,7 +327,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 
 		}
 		
-		setDefaultHeadValue(incomvo, hvo, dr,kprj,hongchongMap);
+		setDefaultHeadValue(incomvo, hvo, dr,kprj);
 		
 		CaiFangTongBVO[] cftbvos = hvo.getChildren();
 		
@@ -469,7 +457,7 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 	
 	private void setDefaultHeadValue(VATInComInvoiceVO2 incomvo, 
 			CaiFangTongHVO hvo, 
-			int dr,DZFDate kprj,Map<String,String> hongchongMap){
+			int dr,DZFDate kprj){
 		//单据来源
 		incomvo.setSourcetype(IBillManageConstants.PIAOTONGJX);
 		incomvo.setSourcebilltype(ICaiFangTongConstant.LYDJLX_PT);
@@ -500,11 +488,6 @@ public class PiaoTongJinXiang2ServiceImpl implements IPiaoTongJinXiang2Service {
 		DZFDouble je = incomvo.getHjje();
 		kplx = getKplx(kplx, je);
 		incomvo.setKplx(kplx);
-		if(hongchongMap.size()>0){
-			if(!StringUtils.isEmpty(hvo.getFphm())&&!StringUtils.isEmpty(hvo.getFpdm())&&hongchongMap.containsKey(hvo.getFphm())&&hongchongMap.containsValue(hvo.getFpdm())){
-				incomvo.setKplx(ICaiFangTongConstant.FPLX_6);
-			}
-		}
 	}
 	
 //	private DZFDouble calSl(DZFDouble se, DZFDouble je){
