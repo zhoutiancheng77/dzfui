@@ -12,6 +12,7 @@ import com.dzf.zxkj.app.service.org.IOrgService;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.utils.SpringUtils;
 import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.Reference;
@@ -207,8 +208,10 @@ public class UserController extends  BaseAppController{
 
     private ResponseBaseBeanVO userAddcorp(UserBeanVO userBean,String account_id ){
         //1:查出用户中心账户信息
-        Result<com.dzf.auth.api.model.user.UserVO> result =userCenterService.getUserDetailById("zxkj", new Long(account_id));
-        userBean.setPhone(result.getData().getMobile());
+        if(!StringUtil.isEmpty(account_id)){
+            Result<com.dzf.auth.api.model.user.UserVO> result =userCenterService.getUserDetailById("zxkj", new Long(account_id));
+            userBean.setPhone(result.getData().getMobile());
+        }
         int versionno = userBean.getVersionno().intValue();
 
         ResponseBaseBeanVO bean1 = new RegisterRespBeanVO();
