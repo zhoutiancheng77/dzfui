@@ -1,6 +1,5 @@
 package com.dzf.zxkj.backup.controller;
 
-import com.dzf.cloud.redis.lock.RedissonDistributedLock;
 import com.dzf.zxkj.backup.service.ICorpService;
 import com.dzf.zxkj.backup.service.IDataBackUp;
 import com.dzf.zxkj.backup.vo.BackupQuery;
@@ -42,9 +41,6 @@ public class BackupAndRestoreController {
 
     @Autowired
     private ICorpService corpService;
-
-    @Autowired
-    private RedissonDistributedLock redissonDistributedLock;
 
 //    @Autowired
 //    private IOperatorLogService operatorLogService;
@@ -145,12 +141,11 @@ public class BackupAndRestoreController {
         @Override
         public String call() throws Exception {
             String end = "ok";
-//            String requestid = UUID.randomUUID().toString();
+            String requestid = UUID.randomUUID().toString();
             String finalid = "DATABACKZXKJID_" + cpvo.getPk_corp();
             //TODO
-            boolean lock = false;
+            boolean lock = true;
             try {
-                lock = redissonDistributedLock.tryGetDistributedFairLock(finalid);
                 if (lock) {
                     gl_databackup.updatedataBackUp(cpvo);
                 }
@@ -161,9 +156,7 @@ public class BackupAndRestoreController {
                     tips.append("公司名称:" + cpvo.getUnitname() + "备份失败!<br/>");
                 }
             } finally {
-                if(lock){
-                    redissonDistributedLock.releaseDistributedFairLock(finalid);
-                }
+
             }
             return end;
         }
