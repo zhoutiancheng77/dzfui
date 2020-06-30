@@ -975,7 +975,6 @@ public class KpglServiceImpl implements IKpglService {
                 tips2.append(
                         "资产名称:[" + selectedVOs[i].getAssetname()
                         + "]"
-//                        "资产编码:" + selectedVOs[i].getZccode()
                         + "对应的固定(无形)资产科目" + selectedVOs[i].getPk_zckm()
                         + "不存在!<br>");
                 selectedVOs[i].setPk_zckm(null);
@@ -1038,6 +1037,56 @@ public class KpglServiceImpl implements IKpglService {
             } else {
                 selectedVOs[i].setZjfykm(tempvo.getAccountname());
                 selectedVOs[i].setPk_zjfykm(tempvo.getPrimaryKey());
+                handFzhsForZjfyKm(selectedVOs, tips2, i, pk_corp, fzmap, zjfykms, tempvo);
+            }
+        }
+    }
+
+    private void handFzhsForZjfyKm(AssetcardVO[] selectedVOs, StringBuilder tips2, int i, String pk_corp,
+                          Map<String, AuxiliaryAccountBVO[]> fzmap, String[] zjfykms, YntCpaccountVO tempvo) {
+        //查找对应的辅助核算的数组
+        List<Integer> fzhsIndex = new ArrayList<>();
+        if (tempvo.getIsfzhs().contains("1")) {
+            for (int j = 0; j < 10; j++) {
+                String value = tempvo.getIsfzhs().substring(j, j + 1);
+                if ("1".equals(value)) {
+                    fzhsIndex.add(j + 1);
+                }
+            }
+        }
+
+        if (fzhsIndex.size() != (zjfykms.length - 1)) {
+            tips2.append("资产名称:[" + selectedVOs[i].getAssetname()
+                    + "]"+ "计提(摊销)费用科目中辅助核算值与科目设置的辅助核算对应错误!<br>");
+        }
+
+        if (fzhsIndex.size() > 0) {
+            boolean bmatch;
+            for (int k = 1; k < zjfykms.length; k++) {
+                bmatch = false;
+                //查找对应的辅助核算
+                Integer fzhslx = fzhsIndex.get(k - 1);
+                if (!fzmap.containsKey(fzhslx + "")) {
+                    AuxiliaryAccountBVO[] lbvos = gl_fzhsserv.queryAllBByLb(pk_corp, fzhslx + "");
+                    fzmap.put(fzhslx + "", lbvos);
+                }
+                AuxiliaryAccountBVO[] bvos = fzmap.get(fzhslx + "");
+                if (bvos == null || bvos.length == 0) {
+                    tips2.append("资产名称:[" + selectedVOs[i].getAssetname()
+                            + "]计提(摊销)费用科目对应的辅助项不存在!<br>");
+                } else {
+                    for (AuxiliaryAccountBVO vo : bvos) {
+                        if (vo.getCode().equals(zjfykms[k])) {
+                            selectedVOs[i].setAttributeValue("zjfyfzhsx" + fzhslx, vo.getPk_auacount_b());
+                            selectedVOs[i].setZjfykm(selectedVOs[i].getZjfykm() + "_" + vo.getName());
+                            bmatch = true;
+                        }
+                    }
+                }
+                if (!bmatch) {
+                    tips2.append("资产名称:[" + selectedVOs[i].getAssetname()
+                            + "]计提(摊销)费用科目对应的辅助项不存在!<br>");
+                }
             }
         }
     }
@@ -1075,7 +1124,7 @@ public class KpglServiceImpl implements IKpglService {
                 } else {
                     for (AuxiliaryAccountBVO vo : bvos) {
                         if (vo.getCode().equals(jskms[k])) {
-                            selectedVOs[i].setAttributeValue("jsfzhsx" + k, vo.getPk_auacount_b());
+                            selectedVOs[i].setAttributeValue("jsfzhsx" + fzhslx, vo.getPk_auacount_b());
                             selectedVOs[i].setJskm(selectedVOs[i].getJskm() + "_" + vo.getName());
                             bmatch = true;
                         }
