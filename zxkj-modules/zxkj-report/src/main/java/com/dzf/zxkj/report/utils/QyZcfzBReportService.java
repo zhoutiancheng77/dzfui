@@ -235,6 +235,7 @@ public class QyZcfzBReportService {
 		vo11temp=getZCFZBVO(map,vo11temp,true,"190101");
 		vo11.setQmye1(SafeCompute.add(vo11temp.getQmye1(), vo11.getQmye1()));
 		vo11.setNcye1(SafeCompute.add(vo11temp.getNcye1(),vo11.getNcye1()));
+		vo11.setZcconkms(StringUtil.isEmpty(vo11.getZcconkms()) ? vo11temp.getZcconkms(): vo11.getZcconkms() + ","+ vo11temp.getZcconkms());
 		vo11.setFzhsyzqy("　一年内到期的非流动负债");
 		vo11.setHc1("13");
 		vo11.setHc2("46");

@@ -19,7 +19,8 @@ public class FormulaTool {
     // 上下文
     public HashMap<String, Object> context;
 
-    // 取数sheet页（支持使用表达式从sheet取数，如R1C2）
+    public String sheetName; // 当前sheet页的名称
+    // 取数sheet页（支持使用R1C2之类的表达式从sheet取数）
     public LinkedHashMap sheet;
 
     // 明细行序号（mxxh）计数器
@@ -40,6 +41,7 @@ public class FormulaTool {
      */
     public void setDataSheet(LinkedHashMap sheet)
     {
+        this.sheetName = (String)sheet.get("name");
         this.sheet = sheet;
     }
 

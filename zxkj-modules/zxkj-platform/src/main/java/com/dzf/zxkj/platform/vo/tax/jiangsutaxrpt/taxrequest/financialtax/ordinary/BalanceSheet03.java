@@ -8,68 +8,209 @@ import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelPos;
         reportname = "资产负债表"
 )
 public class BalanceSheet03 {
+
+    //货币资金
+    @TaxExcelPos(
+            row = 5,
+            col = 0
+    )
+    private String xmmczc2;
     @TaxExcelPos(
             row = 5,
             col = 2
     )
-    //货币资金
-    private String xmmczc2;
     private DZFDouble qmyezc2;
+    @TaxExcelPos(
+            row = 5,
+            col = 3
+    )
     private DZFDouble snncyezc2;
 
     //以公允价值计量且其变动计入当期损益的金融资产
+    @TaxExcelPos(
+            row = 6,
+            col = 0
+    )
     private String xmmczc3;
+    @TaxExcelPos(
+            row = 6,
+            col = 2
+    )
     private DZFDouble qmyezc3;
+    @TaxExcelPos(
+            row = 6,
+            col = 3
+    )
     private DZFDouble snncyezc3;
 
     //衍生金融资产
+    @TaxExcelPos(
+            row = 7,
+            col = 0
+    )
     private String xmmczc4;
+    @TaxExcelPos(
+            row = 7,
+            col = 2
+    )
     private DZFDouble qmyezc4;
+    @TaxExcelPos(
+            row = 7,
+            col = 3
+    )
     private DZFDouble snncyezc4;
 
     //应收票据
+    @TaxExcelPos(
+            row = 8,
+            col = 0
+    )
     private String xmmczc5;
+    @TaxExcelPos(
+            row = 8,
+            col = 2
+    )
     private DZFDouble qmyezc5;
+    @TaxExcelPos(
+            row = 8,
+            col = 3
+    )
     private DZFDouble snncyezc5;
 
     //应收账款
+    @TaxExcelPos(
+            row = 9,
+            col = 0
+    )
     private String xmmczc6;
+    @TaxExcelPos(
+            row = 9,
+            col = 2
+    )
     private DZFDouble qmyezc6;
+    @TaxExcelPos(
+            row = 9,
+            col = 3
+    )
     private DZFDouble snncyezc6;
 
     //预付款项
+    @TaxExcelPos(
+            row = 10,
+            col = 0
+    )
     private String xmmczc7;
+    @TaxExcelPos(
+            row = 10,
+            col = 2
+    )
     private DZFDouble qmyezc7;
+    @TaxExcelPos(
+            row = 10,
+            col = 3
+    )
     private DZFDouble snncyezc7;
 
     //其他应收款
+    @TaxExcelPos(
+            row = 11,
+            col = 0
+    )
     private String xmmczc8;
+    @TaxExcelPos(
+            row = 11,
+            col = 2
+    )
     private DZFDouble qmyezc8;
+    @TaxExcelPos(
+            row = 11,
+            col = 3
+    )
     private DZFDouble snncyezc8;
 
     //存货
+    @TaxExcelPos(
+            row = 12,
+            col = 0
+    )
     private String xmmczc9;
+    @TaxExcelPos(
+            row = 12,
+            col = 2
+    )
     private DZFDouble qmyezc9;
+    @TaxExcelPos(
+            row = 12,
+            col = 3
+    )
     private DZFDouble snncyezc9;
 
     //持有待售资产
+    @TaxExcelPos(
+            row = 13,
+            col = 0
+    )
     private String xmmczc10;
+    @TaxExcelPos(
+            row = 13,
+            col = 2
+    )
     private DZFDouble qmyezc10;
+    @TaxExcelPos(
+            row = 13,
+            col = 3
+    )
     private DZFDouble snncyezc10;
 
     //一年内到期的非流动资产
+    @TaxExcelPos(
+            row = 14,
+            col = 0
+    )
     private String xmmczc11;
+    @TaxExcelPos(
+            row = 14,
+            col = 2
+    )
     private DZFDouble qmyezc11;
+    @TaxExcelPos(
+            row = 14,
+            col = 3
+    )
     private DZFDouble snncyezc11;
 
     //其他流动资产
+    @TaxExcelPos(
+            row = 15,
+            col = 0
+    )
     private String xmmczc12;
+    @TaxExcelPos(
+            row = 15,
+            col = 3
+    )
     private DZFDouble qmyezc12;
+    @TaxExcelPos(
+            row = 15,
+            col = 3
+    )
     private DZFDouble snncyezc12;
 
     //流动资产合计
+    @TaxExcelPos(
+            row = 16,
+            col = 0
+    )
     private String xmmczc13;
+    @TaxExcelPos(
+            row = 16,
+            col = 2
+    )
     private DZFDouble qmyezc13;
+    @TaxExcelPos(
+            row = 16,
+            col = 3
+    )
     private DZFDouble snncyezc13;
 
 
@@ -78,154 +219,514 @@ public class BalanceSheet03 {
     private DZFDouble snncyezc14;
 
     //可供出售金融资产
+    @TaxExcelPos(
+            row = 18,
+            col = 0
+    )
     private String xmmczc15;
+    @TaxExcelPos(
+            row = 18,
+            col = 2
+    )
     private DZFDouble qmyezc15;
+    @TaxExcelPos(
+            row = 18,
+            col = 3
+    )
     private DZFDouble snncyezc15;
 
     //持有至到期投资
+    @TaxExcelPos(
+            row = 19,
+            col = 0
+    )
     private String xmmczc16;
+    @TaxExcelPos(
+            row = 19,
+            col = 2
+    )
     private DZFDouble qmyezc16;
+    @TaxExcelPos(
+            row = 19,
+            col = 3
+    )
     private DZFDouble snncyezc16;
 
     //长期应收款
+    @TaxExcelPos(
+            row = 20,
+            col = 0
+    )
     private String xmmczc17;
+    @TaxExcelPos(
+            row = 20,
+            col = 2
+    )
     private DZFDouble qmyezc17;
+    @TaxExcelPos(
+            row = 20,
+            col = 3
+    )
     private DZFDouble snncyezc17;
 
     //长期股权投资
+    @TaxExcelPos(
+            row = 21,
+            col = 0
+    )
     private String xmmczc18;
+    @TaxExcelPos(
+            row = 21,
+            col = 2
+    )
     private DZFDouble qmyezc18;
+    @TaxExcelPos(
+            row = 21,
+            col = 3
+    )
     private DZFDouble snncyezc18;
 
     //投资性房地产
+    @TaxExcelPos(
+            row = 22,
+            col = 0
+    )
     private String xmmczc19;
+    @TaxExcelPos(
+            row = 22,
+            col = 2
+    )
     private DZFDouble qmyezc19;
+    @TaxExcelPos(
+            row = 22,
+            col = 3
+    )
     private DZFDouble snncyezc19;
 
     //固定资产
+    @TaxExcelPos(
+            row = 23,
+            col = 0
+    )
     private String xmmczc20;
+    @TaxExcelPos(
+            row = 23,
+            col = 2
+    )
     private DZFDouble qmyezc20;
+    @TaxExcelPos(
+            row = 23,
+            col = 3
+    )
     private DZFDouble snncyezc20;
 
     //在建工程
+    @TaxExcelPos(
+            row = 24,
+            col = 0
+    )
     private String xmmczc21;
+    @TaxExcelPos(
+            row = 24,
+            col = 2
+    )
     private DZFDouble qmyezc21;
+    @TaxExcelPos(
+            row = 24,
+            col = 3
+    )
     private DZFDouble snncyezc21;
 
     //生产性生物资产
+    @TaxExcelPos(
+            row = 25,
+            col = 0
+    )
     private String xmmczc22;
+    @TaxExcelPos(
+            row = 25,
+            col = 2
+    )
     private DZFDouble qmyezc22;
+    @TaxExcelPos(
+            row = 25,
+            col = 3
+    )
     private DZFDouble snncyezc22;
 
     //油气资产
+    @TaxExcelPos(
+            row = 26,
+            col = 0
+    )
     private String xmmczc23;
+    @TaxExcelPos(
+            row = 26,
+            col = 2
+    )
     private DZFDouble qmyezc23;
+    @TaxExcelPos(
+            row = 26,
+            col = 3
+    )
     private DZFDouble snncyezc23;
 
     //无形资产
+    @TaxExcelPos(
+            row = 27,
+            col = 0
+    )
     private String xmmczc24;
+    @TaxExcelPos(
+            row = 27,
+            col = 2
+    )
     private DZFDouble qmyezc24;
+    @TaxExcelPos(
+            row = 27,
+            col = 3
+    )
     private DZFDouble snncyezc24;
 
     //开发支出
+    @TaxExcelPos(
+            row = 28,
+            col = 0
+    )
     private String xmmczc25;
+    @TaxExcelPos(
+            row = 28,
+            col = 2
+    )
     private DZFDouble qmyezc25;
+    @TaxExcelPos(
+            row = 28,
+            col = 3
+    )
     private DZFDouble snncyezc25;
 
     //商誉
+    @TaxExcelPos(
+            row = 29,
+            col = 0
+    )
     private String xmmczc26;
+    @TaxExcelPos(
+            row = 29,
+            col = 2
+    )
     private DZFDouble qmyezc26;
+    @TaxExcelPos(
+            row = 29,
+            col = 3
+    )
     private DZFDouble snncyezc26;
 
     //长期待摊费用
+    @TaxExcelPos(
+            row = 30,
+            col = 0
+    )
     private String xmmczc27;
+    @TaxExcelPos(
+            row = 30,
+            col = 2
+    )
     private DZFDouble qmyezc27;
+    @TaxExcelPos(
+            row = 30,
+            col = 3
+    )
     private DZFDouble snncyezc27;
 
     //递延所得税资产
+    @TaxExcelPos(
+            row = 31,
+            col = 0
+    )
     private String xmmczc28;
+    @TaxExcelPos(
+            row = 31,
+            col = 2
+    )
     private DZFDouble qmyezc28;
+    @TaxExcelPos(
+            row = 31,
+            col = 3
+    )
     private DZFDouble snncyezc28;
 
     //其他非流动资产
+    @TaxExcelPos(
+            row = 32,
+            col = 0
+    )
     private String xmmczc29;
+    @TaxExcelPos(
+            row = 32,
+            col = 2
+    )
     private DZFDouble qmyezc29;
+    @TaxExcelPos(
+            row = 32,
+            col = 3
+    )
     private DZFDouble snncyezc29;
 
     //非流动资产合计
+    @TaxExcelPos(
+            row = 33,
+            col = 0
+    )
     private String xmmczc30;
+    @TaxExcelPos(
+            row = 33,
+            col = 2
+    )
     private DZFDouble qmyezc30;
+    @TaxExcelPos(
+            row = 33,
+            col = 3
+    )
     private DZFDouble snncyezc30;
 
     //资产合计
+    @TaxExcelPos(
+            row = 42,
+            col = 0
+    )
     private String xmmczc31;
+    @TaxExcelPos(
+            row = 42,
+            col = 2
+    )
     private DZFDouble qmyezc31;
+    @TaxExcelPos(
+            row = 42,
+            col = 3
+    )
     private DZFDouble snncyezc31;
 
 
     //短期借款
+    @TaxExcelPos(
+            row = 5,
+            col = 4
+    )
     private String xmmcqy2;
+    @TaxExcelPos(
+            row = 5,
+            col = 6
+    )
     private DZFDouble qmyeqy2;
+    @TaxExcelPos(
+            row = 5,
+            col = 7
+    )
     private DZFDouble snncyeqy2;
 
     //以公允价值计量且其变动计入当期损益的金融负债
+    @TaxExcelPos(
+            row = 6,
+            col = 4
+    )
     private String xmmcqy3;
+    @TaxExcelPos(
+            row = 6,
+            col = 6
+    )
     private DZFDouble qmyeqy3;
+    @TaxExcelPos(
+            row = 6,
+            col = 7
+    )
     private DZFDouble snncyeqy3;
 
     //衍生金融负债
+    @TaxExcelPos(
+            row = 7,
+            col = 4
+    )
     private String xmmcqy4;
+    @TaxExcelPos(
+            row = 7,
+            col = 6
+    )
     private DZFDouble qmyeqy4;
+    @TaxExcelPos(
+            row = 7,
+            col = 7
+    )
     private DZFDouble snncyeqy4;
 
     //应付票据
+    @TaxExcelPos(
+            row = 8,
+            col = 4
+    )
     private String xmmcqy5;
+    @TaxExcelPos(
+            row = 8,
+            col = 6
+    )
     private DZFDouble qmyeqy5;
+    @TaxExcelPos(
+            row = 8,
+            col = 7
+    )
     private DZFDouble snncyeqy5;
 
     //应付账款
+    @TaxExcelPos(
+            row = 9,
+            col = 4
+    )
     private String xmmcqy6;
+    @TaxExcelPos(
+            row = 9,
+            col = 6
+    )
     private DZFDouble qmyeqy6;
+    @TaxExcelPos(
+            row = 9,
+            col = 7
+    )
     private DZFDouble snncyeqy6;
 
     //预收款项
+    @TaxExcelPos(
+            row = 10,
+            col = 4
+    )
     private String xmmcqy7;
+    @TaxExcelPos(
+            row = 10,
+            col = 6
+    )
     private DZFDouble qmyeqy7;
+    @TaxExcelPos(
+            row = 10,
+            col = 7
+    )
     private DZFDouble snncyeqy7;
 
     //应付职工薪酬
+    @TaxExcelPos(
+            row = 11,
+            col = 4
+    )
     private String xmmcqy8;
+    @TaxExcelPos(
+            row = 11,
+            col = 6
+    )
     private DZFDouble qmyeqy8;
+    @TaxExcelPos(
+            row = 11,
+            col = 7
+    )
     private DZFDouble snncyeqy8;
 
     //应交税费
+    @TaxExcelPos(
+            row = 12,
+            col = 4
+    )
     private String xmmcqy9;
+    @TaxExcelPos(
+            row = 12,
+            col = 6
+    )
     private DZFDouble qmyeqy9;
+    @TaxExcelPos(
+            row = 12,
+            col = 7
+    )
     private DZFDouble snncyeqy9;
 
     //其他应付款
+    @TaxExcelPos(
+            row = 13,
+            col = 4
+    )
     private String xmmcqy10;
+    @TaxExcelPos(
+            row = 13,
+            col = 6
+    )
     private DZFDouble qmyeqy10;
+    @TaxExcelPos(
+            row = 13,
+            col = 7
+    )
     private DZFDouble snncyeqy10;
 
     //持有待售负债
+    @TaxExcelPos(
+            row = 14,
+            col = 4
+    )
     private String xmmcqy11;
+    @TaxExcelPos(
+            row = 14,
+            col = 6
+    )
     private DZFDouble qmyeqy11;
+    @TaxExcelPos(
+            row = 14,
+            col = 7
+    )
     private DZFDouble snncyeqy11;
 
     //一年内到期的非流动负债
+    @TaxExcelPos(
+            row = 15,
+            col = 4
+    )
     private String xmmcqy12;
+    @TaxExcelPos(
+            row = 15,
+            col = 6
+    )
     private DZFDouble qmyeqy12;
+    @TaxExcelPos(
+            row = 15,
+            col = 7
+    )
     private DZFDouble snncyeqy12;
 
     //其他流动负债
+    @TaxExcelPos(
+            row = 16,
+            col = 4
+    )
     private String xmmcqy13;
+    @TaxExcelPos(
+            row = 16,
+            col = 6
+    )
     private DZFDouble qmyeqy13;
+    @TaxExcelPos(
+            row = 16,
+            col = 7
+    )
     private DZFDouble snncyeqy13;
 
     //流动负债合计
+    @TaxExcelPos(
+            row = 17,
+            col = 4
+    )
     private String xmmcqy14;
+    @TaxExcelPos(
+            row = 17,
+            col = 6
+    )
     private DZFDouble qmyeqy14;
+    @TaxExcelPos(
+            row = 17,
+            col = 7
+    )
     private DZFDouble snncyeqy14;
 
     //
@@ -234,58 +735,190 @@ public class BalanceSheet03 {
     private DZFDouble snncyeqy15;
 
     //长期借款
+    @TaxExcelPos(
+            row = 19,
+            col = 4
+    )
     private String xmmcqy16;
+    @TaxExcelPos(
+            row = 19,
+            col = 6
+    )
     private DZFDouble qmyeqy16;
+    @TaxExcelPos(
+            row = 19,
+            col = 7
+    )
     private DZFDouble snncyeqy16;
 
     //应付债券
+    @TaxExcelPos(
+            row = 20,
+            col = 4
+    )
     private String xmmcqy17;
+    @TaxExcelPos(
+            row = 20,
+            col = 6
+    )
     private DZFDouble qmyeqy17;
+    @TaxExcelPos(
+            row = 20,
+            col = 7
+    )
     private DZFDouble snncyeqy17;
 
     //其中：优先股
+    @TaxExcelPos(
+            row = 21,
+            col = 4
+    )
     private String xmmcqy18;
+    @TaxExcelPos(
+            row = 21,
+            col = 6
+    )
     private DZFDouble qmyeqy18;
+    @TaxExcelPos(
+            row = 21,
+            col = 7
+    )
     private DZFDouble snncyeqy18;
 
     //永续债
+    @TaxExcelPos(
+            row = 22,
+            col = 4
+    )
     private String xmmcqy19;
+    @TaxExcelPos(
+            row = 22,
+            col = 6
+    )
     private DZFDouble qmyeqy19;
+    @TaxExcelPos(
+            row = 22,
+            col = 7
+    )
     private DZFDouble snncyeqy19;
 
     //长期应付款
+    @TaxExcelPos(
+            row = 23,
+            col = 4
+    )
     private String xmmcqy20;
+    @TaxExcelPos(
+            row = 23,
+            col = 6
+    )
     private DZFDouble qmyeqy20;
+    @TaxExcelPos(
+            row = 23,
+            col = 7
+    )
     private DZFDouble snncyeqy20;
 
     //预计负债
+    @TaxExcelPos(
+            row = 24,
+            col = 4
+    )
     private String xmmcqy21;
+    @TaxExcelPos(
+            row = 24,
+            col = 6
+    )
     private DZFDouble qmyeqy21;
+    @TaxExcelPos(
+            row = 24,
+            col = 7
+    )
     private DZFDouble snncyeqy21;
 
     //递延收益
+    @TaxExcelPos(
+            row = 25,
+            col = 4
+    )
     private String xmmcqy22;
+    @TaxExcelPos(
+            row = 25,
+            col = 6
+    )
     private DZFDouble qmyeqy22;
+    @TaxExcelPos(
+            row = 25,
+            col = 7
+    )
     private DZFDouble snncyeqy22;
 
     //递延所得税负债
+    @TaxExcelPos(
+            row = 26,
+            col = 4
+    )
     private String xmmcqy23;
+    @TaxExcelPos(
+            row = 26,
+            col = 6
+    )
     private DZFDouble qmyeqy23;
+    @TaxExcelPos(
+            row = 26,
+            col = 7
+    )
     private DZFDouble snncyeqy23;
 
     //其他非流动负债
+    @TaxExcelPos(
+            row = 27,
+            col = 4
+    )
     private String xmmcqy24;
+    @TaxExcelPos(
+            row = 27,
+            col = 6
+    )
     private DZFDouble qmyeqy24;
+    @TaxExcelPos(
+            row = 27,
+            col = 7
+    )
     private DZFDouble snncyeqy24;
 
     //非流动负债合计
+    @TaxExcelPos(
+            row = 28,
+            col = 4
+    )
     private String xmmcqy25;
+    @TaxExcelPos(
+            row = 28,
+            col = 6
+    )
     private DZFDouble qmyeqy25;
+    @TaxExcelPos(
+            row = 28,
+            col = 7
+    )
     private DZFDouble snncyeqy25;
 
     //负债合计
+    @TaxExcelPos(
+            row = 29,
+            col = 4
+    )
     private String xmmcqy26;
+    @TaxExcelPos(
+            row = 29,
+            col = 6
+    )
     private DZFDouble qmyeqy26;
+    @TaxExcelPos(
+            row = 29,
+            col = 7
+    )
     private DZFDouble snncyeqy26;
 
     //
@@ -294,63 +927,207 @@ public class BalanceSheet03 {
     private DZFDouble snncyeqy27;
 
     //实收资本(或股本)
+    @TaxExcelPos(
+            row = 31,
+            col = 4
+    )
     private String xmmcqy28;
+    @TaxExcelPos(
+            row = 31,
+            col = 6
+    )
     private DZFDouble qmyeqy28;
+    @TaxExcelPos(
+            row = 31,
+            col = 7
+    )
     private DZFDouble snncyeqy28;
 
     //其他权益工具
+    @TaxExcelPos(
+            row = 32,
+            col = 4
+    )
     private String xmmcqy29;
+    @TaxExcelPos(
+            row = 32,
+            col = 6
+    )
     private DZFDouble qmyeqy29;
+    @TaxExcelPos(
+            row = 32,
+            col = 7
+    )
     private DZFDouble snncyeqy29;
 
     //其中：优先股
+    @TaxExcelPos(
+            row = 33,
+            col = 4
+    )
     private String xmmcqy30;
+    @TaxExcelPos(
+            row = 33,
+            col = 6
+    )
     private DZFDouble qmyeqy30;
+    @TaxExcelPos(
+            row = 33,
+            col = 7
+    )
     private DZFDouble snncyeqy30;
 
     //永续债
+    @TaxExcelPos(
+            row = 34,
+            col = 4
+    )
     private String xmmcqy31;
+    @TaxExcelPos(
+            row = 34,
+            col = 6
+    )
     private DZFDouble qmyeqy31;
+    @TaxExcelPos(
+            row = 34,
+            col = 7
+    )
     private DZFDouble snncyeqy31;
 
     //资本公积
+    @TaxExcelPos(
+            row = 35,
+            col = 4
+    )
     private String xmmcqy32;
+    @TaxExcelPos(
+            row = 35,
+            col = 6
+    )
     private DZFDouble qmyeqy32;
+    @TaxExcelPos(
+            row = 35,
+            col = 7
+    )
     private DZFDouble snncyeqy32;
 
     //减：库存股
+    @TaxExcelPos(
+            row = 36,
+            col = 4
+    )
     private String xmmcqy33;
+    @TaxExcelPos(
+            row = 36,
+            col = 6
+    )
     private DZFDouble qmyeqy33;
+    @TaxExcelPos(
+            row = 36,
+            col = 7
+    )
     private DZFDouble snncyeqy33;
 
     //其他综合收益
+    @TaxExcelPos(
+            row = 37,
+            col = 4
+    )
     private String xmmcqy34;
+    @TaxExcelPos(
+            row = 37,
+            col = 6
+    )
     private DZFDouble qmyeqy34;
+    @TaxExcelPos(
+            row = 37,
+            col = 7
+    )
     private DZFDouble snncyeqy34;
 
     //专项储备
+    @TaxExcelPos(
+            row = 38,
+            col = 4
+    )
     private String xmmcqy35;
+    @TaxExcelPos(
+            row = 38,
+            col = 6
+    )
     private DZFDouble qmyeqy35;
+    @TaxExcelPos(
+            row = 38,
+            col = 7
+    )
     private DZFDouble snncyeqy35;
 
     //盈余公积
+    @TaxExcelPos(
+            row = 39,
+            col = 4
+    )
     private String xmmcqy36;
+    @TaxExcelPos(
+            row = 39,
+            col = 6
+    )
     private DZFDouble qmyeqy36;
+    @TaxExcelPos(
+            row = 39,
+            col = 7
+    )
     private DZFDouble snncyeqy36;
 
     //未分配利润
+    @TaxExcelPos(
+            row = 40,
+            col = 4
+    )
     private String xmmcqy37;
+    @TaxExcelPos(
+            row = 40,
+            col = 6
+    )
     private DZFDouble qmyeqy37;
+    @TaxExcelPos(
+            row = 40,
+            col = 7
+    )
     private DZFDouble snncyeqy37;
 
     //所有者权益(或股东权 益)合计
+    @TaxExcelPos(
+            row = 41,
+            col = 4
+    )
     private String xmmcqy38;
+    @TaxExcelPos(
+            row = 41,
+            col = 6
+    )
     private DZFDouble qmyeqy38;
+    @TaxExcelPos(
+            row = 41,
+            col = 7
+    )
     private DZFDouble snncyeqy38;
 
     //负债和所有者权益(或股东权益)总计
+    @TaxExcelPos(
+            row = 42,
+            col = 4
+    )
     private String xmmcqy39;
+    @TaxExcelPos(
+            row = 42,
+            col = 6
+    )
     private DZFDouble qmyeqy39;
+    @TaxExcelPos(
+            row = 42,
+            col = 7
+    )
     private DZFDouble snncyeqy39;
 
 

@@ -5,24 +5,30 @@ import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.TaxExcelPos;
 
 @TaxExcelPos(
         reportID = "C2002",
-        reportname = "利润表"
+        reportname = "利润表",
+        rowBegin = 4,
+        rowEnd = 41,
+        col = 0
 )
 public class ProfitStatement01 {
     @TaxExcelPos(
             col = 0
     )
     private String xmmc1;//项目名称
-    private String mxxh;//项目序号
     @TaxExcelPos(
-            col = 1
+            expression = "this.getXH()"
     )
-    private String hc1;//行次
+    private String mxxh;//项目序号
     @TaxExcelPos(
             col = 2
     )
-    private DZFDouble bqje;//本期金额
+    private String hc1;//行次
     @TaxExcelPos(
             col = 3
+    )
+    private DZFDouble bqje;//本期金额
+    @TaxExcelPos(
+            col = 4
     )
     private DZFDouble sqje;//上期金额
 
