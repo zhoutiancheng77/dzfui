@@ -1482,6 +1482,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             if (TaxRptConst.iSBZT_DM_ReportSuccess == Integer.valueOf(sbzt_dm)) {
                 String yzpzxh = data.getString("YZPZXH");
                 reportvo.setRegion_extend2(yzpzxh);
+                String lsh = data.getString("LSH");
+                reportvo.setRegion_extend3(lsh);//记录申报成功查回的流水号
                 BigDecimal tax = data.getBigDecimal("YBTSE");
                 reportvo.setTaxmny(new DZFDouble(tax));
             }
@@ -1518,7 +1520,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
     }
 
     private void updateSBZTJS(TaxReportVO reportvo) {
-        singleObjectBO.update(reportvo, new String[]{"sbzt_dm", "remark", "region_extend2", "taxmny"});
+        singleObjectBO.update(reportvo, new String[]{"sbzt_dm", "remark", "region_extend2", "region_extend3","taxmny"});
         String sql = "update ynt_taxreportdetail set sbzt_dm = ? where pk_corp = ? and  pk_taxreport = ? and nvl(dr, 0) = 0";
         SQLParameter sp = new SQLParameter();
         sp.addParam(reportvo.getSbzt_dm());
@@ -1550,7 +1552,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 || "39".equals(reportvo.getZsxm_dm())) {
             // 财报标志
             zflag = "cwbb";
-            yzpz = reportvo.getRegion_extend1();
+            if("C".equals(reportvo.getZsxm_dm())){
+                yzpz = reportvo.getRegion_extend3();
+            }else{
+                yzpz = reportvo.getRegion_extend1();
+            }
         }
 
         if (StringUtil.isEmpty(yzpz)) {
