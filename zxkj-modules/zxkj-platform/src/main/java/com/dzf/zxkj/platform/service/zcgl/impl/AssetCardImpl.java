@@ -687,8 +687,18 @@ public class AssetCardImpl implements IAssetCard {
                         }
                         String keytemp = dir + "_" + bbvo.getPk_accsubj();
 
-                        if (keytemp.equals((0 + "_" + assetcardVO
-                                .getPk_zjfykm()))) {
+                        StringBuffer fzkeytemp = new StringBuffer();
+
+                        for (int i =1 ;i<=10;i++) {
+                            if (bbvo.getAttributeValue("fzhsx"+i) != null
+                                    && !StringUtils.isEmpty((String)bbvo.getAttributeValue("fzhsx"+i))) {
+                                fzkeytemp.append(","+(String)bbvo.getAttributeValue("fzhsx"+i));
+                            }
+                        }
+
+                        keytemp = keytemp + fzkeytemp.toString();
+
+                        if (keytemp.equals((0 + "_" + zjfykm_key))) {
                             bbvo.setJfmny(SafeCompute.add(bbvo.getJfmny(),
                                     assetdepVO.getOriginalvalue()));
                             bbvo.setYbjfmny(SafeCompute.add(bbvo.getYbjfmny(),
@@ -868,6 +878,19 @@ public class AssetCardImpl implements IAssetCard {
         // //e.printStackTrace();
         // throw new BusinessException(e);
         // }
+        // 列表排序借上，贷下
+        if (tzpzBVoList!=null && tzpzBVoList.size() > 0) {
+            Collections.sort(tzpzBVoList, new Comparator<TzpzBVO>() {
+                @Override
+                public int compare(TzpzBVO o1, TzpzBVO o2) {
+                    return o1.getVdirect().compareTo(o2.getVdirect());
+                }
+            });
+            for (int i=0;i<tzpzBVoList.size();i++) {
+                tzpzBVoList.get(i).setRowno(i+1);
+            }
+        }
+
 
         return Jfmny;
     }
