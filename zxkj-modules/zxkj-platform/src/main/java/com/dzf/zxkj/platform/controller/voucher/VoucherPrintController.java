@@ -498,12 +498,12 @@ public class VoucherPrintController extends BaseController {
                     addtionalInfo.append("; ");
                 }
                 addtionalInfo.append("数量:")
-                        .append(filterZero(bvo.getNnumber().toString()));
+                        .append(bvo.getNnumber() == null ? "0" : filterZero(bvo.getNnumber().toString()));
                 if (bvo.getMeaname() != null) {
                     addtionalInfo.append(bvo.getMeaname());
                 }
                 addtionalInfo.append(",单价:")
-                        .append(filterZero(bvo.getNprice().toString()));
+                        .append(bvo.getNprice() == null ? "0" : filterZero(bvo.getNprice().toString()));
             }
             addtionalInfo.append(")");
         }
