@@ -38,7 +38,7 @@ public class ExcelExportGuangXiHander extends ExcelExportHander implements OneWo
         Resource resource = ResourceUtil.get(ExportTemplateEnum.GUANGXI, ResourceUtil.ResourceEnum.KJ2013XJLL);
         Workbook workbook = WorkbookFactory.create(resource.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
-        handleXjllSheet(sheet, taxaxVoMap, vOMap, 4, new Integer[]{0,3,5}, new String[]{"bqje","sqje"});
+        handleXjllSheet(sheet, taxaxVoMap, vOMap, 4, new Integer[]{0,3,5}, new String[]{"sqje","bqje"});
         return workbook;
     }
 
