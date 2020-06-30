@@ -6,7 +6,6 @@ import com.dzf.cloud.redis.EnableDzfRedis;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @Auther: dandelion
@@ -15,7 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan(basePackages= {"com.dzf.zxkj.platform"})
 @EnableMethodCache(basePackages = "com.dzf.zxkj.platform")
 @EnableCreateCacheAnnotation
 @EnableDzfRedis
