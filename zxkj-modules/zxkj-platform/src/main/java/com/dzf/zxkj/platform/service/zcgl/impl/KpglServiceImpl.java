@@ -972,7 +972,10 @@ public class KpglServiceImpl implements IKpglService {
                                 DZFConstant.ACCOUNTCODERULE, newrule));
             }
             if (tempvo == null) {
-                tips2.append("资产编码:" + selectedVOs[i].getZccode()
+                tips2.append(
+                        "资产名称:[" + selectedVOs[i].getAssetname()
+                        + "]"
+//                        "资产编码:" + selectedVOs[i].getZccode()
                         + "对应的固定(无形)资产科目" + selectedVOs[i].getPk_zckm()
                         + "不存在!<br>");
                 selectedVOs[i].setPk_zckm(null);
@@ -989,7 +992,9 @@ public class KpglServiceImpl implements IKpglService {
                 tempvo = cpamap.get(gl_accountcoderule.getNewRuleCode(jskms[0], DZFConstant.ACCOUNTCODERULE, newrule));
             }
             if (tempvo == null) {
-                tips2.append("资产编码:" + selectedVOs[i].getZccode() + "对应的结算科目"
+                tips2.append(
+                        "资产名称:[" + selectedVOs[i].getAssetname()
+                                + "]" + "对应的结算科目"
                         + selectedVOs[i].getPk_jskm() + "不存在!<br>");
                 selectedVOs[i].setPk_jskm(null);
             } else {
@@ -1007,8 +1012,8 @@ public class KpglServiceImpl implements IKpglService {
                                 DZFConstant.ACCOUNTCODERULE, newrule));
             }
             if (tempvo == null) {
-                tips2.append("资产编码:" + selectedVOs[i].getZccode()
-                        + "对应的计提(摊销)科目" + selectedVOs[i].getPk_jtzjkm()
+                tips2.append(  "资产名称:[" + selectedVOs[i].getAssetname()
+                        + "]" + "对应的计提(摊销)科目" + selectedVOs[i].getPk_jtzjkm()
                         + "不存在!<br>");
                 selectedVOs[i].setPk_jtzjkm(null);
             } else {
@@ -1017,14 +1022,16 @@ public class KpglServiceImpl implements IKpglService {
             }
         }
         if (!StringUtil.isEmpty(selectedVOs[i].getPk_zjfykm())) {
-            YntCpaccountVO tempvo = cpamap.get(selectedVOs[i].getPk_zjfykm());
+            String[] zjfykms = selectedVOs[i].getPk_zjfykm().split("_");
+            YntCpaccountVO tempvo = cpamap.get(zjfykms[0]);
             if (tempvo == null) {
                 tempvo = cpamap.get(gl_accountcoderule
-                        .getNewRuleCode(selectedVOs[i].getPk_zjfykm(),
+                        .getNewRuleCode(zjfykms[0],
                                 DZFConstant.ACCOUNTCODERULE, newrule));
             }
             if (tempvo == null) {
-                tips2.append("资产编码:" + selectedVOs[i].getZccode()
+                tips2.append("资产名称:[" + selectedVOs[i].getAssetname()
+                        + "]"
                         + "对应的计提(摊销)费用科目" + selectedVOs[i].getPk_zjfykm()
                         + "不存在!<br>");
                 selectedVOs[i].setPk_zjfykm(null);
