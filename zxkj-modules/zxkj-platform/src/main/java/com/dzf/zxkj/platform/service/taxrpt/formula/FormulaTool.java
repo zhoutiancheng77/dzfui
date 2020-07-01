@@ -75,7 +75,7 @@ public class FormulaTool {
      * @return
      */
     public Object evaluate(String expression) {
-        // region 旧代码
+        //region 旧代码
         /*
         // 1、数值常量和字符串常量的识别
 
@@ -110,7 +110,7 @@ public class FormulaTool {
             return value;
         }
         */
-        // endregion
+        //endregion
 
         // java正则表达式不支持平衡组。改用antlr来做表达式解析，以支持函数嵌套
         /*
