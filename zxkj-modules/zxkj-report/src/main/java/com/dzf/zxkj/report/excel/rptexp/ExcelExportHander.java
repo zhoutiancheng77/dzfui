@@ -338,15 +338,7 @@ public abstract class ExcelExportHander {
 
             if (this instanceof OneWorkBookKj2007Excel) {
                 OneWorkBookKj2007Excel oneWorkBookKj2007Excel = (OneWorkBookKj2007Excel) this;
-//                IZxkjPlatformService zxkjPlatformService = (IZxkjPlatformService) SpringUtils.getBean("zxkjPlatformService");
-//                String zxzc = zxkjPlatformService.queryParamterValueByCode(pk_corp, "dzf025");
-                Workbook workbook = null;
-//                if ("财会【2019】6号".equals(zxzc)) {
-//                    workbook = oneWorkBookKj2007Excel.createWorkBookKj2007(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap,
-//                            lrbVOMap, xjllbVOMap, zcFzBVOMap, "20196");
-//                } else {
-                    workbook = oneWorkBookKj2007Excel.createWorkBookKj2007(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap, lrbVOMap, xjllbVOMap, zcFzBVOMap);
-//                }
+                Workbook workbook  = oneWorkBookKj2007Excel.createWorkBookKj2007(lrbTaxVoMap, zcfzTaxVoMap, xjllTaxVoMap, lrbVOMap, xjllbVOMap, zcFzBVOMap);
                 String xlsname = areaType.equals("7") ? "CWBB_QYKJZZ_YBQY_V1.0" : "企业会计准则财务报表报送与信息采集";
                 workBookMap.put(xlsname, workbook);
             }
