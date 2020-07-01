@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class DubboReferenceConfig {
+
     @Reference(version = "1.0.0")
     private IZxkjReportService zxkjReportService;
 
