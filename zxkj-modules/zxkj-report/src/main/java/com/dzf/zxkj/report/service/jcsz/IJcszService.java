@@ -1,0 +1,125 @@
+package com.dzf.zxkj.report.service.jcsz;
+
+import com.dzf.zxkj.common.entity.ReturnData;
+import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.lang.DZFDouble;
+import com.dzf.zxkj.common.query.QueryPageVO;
+import com.dzf.zxkj.common.query.QueryParamVO;
+import com.dzf.zxkj.platform.model.batchprint.BatchPrintSetVo;
+import com.dzf.zxkj.platform.model.bdset.*;
+import com.dzf.zxkj.platform.model.gzgl.SalaryReportVO;
+import com.dzf.zxkj.platform.model.icset.*;
+import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherParamVO;
+import com.dzf.zxkj.platform.model.pzgl.VoucherPrintParam;
+import com.dzf.zxkj.platform.model.qcset.QcYeCurrency;
+import com.dzf.zxkj.platform.model.qcset.SsphRes;
+import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
+import com.dzf.zxkj.platform.model.sys.CorpVO;
+import com.dzf.zxkj.platform.model.sys.UserVO;
+import com.dzf.zxkj.platform.model.sys.YntParameterSet;
+import com.dzf.zxkj.platform.model.zcgl.AssetDepreciaTionVO;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+public interface IJcszService {
+    CorpVO queryCorpByPk(String pk_corp);
+
+    Integer getAccountSchema(String pk_corp);
+
+    IncomeWarningVO[] queryIncomeWarningVOs(String pk_corp);
+
+    IncomeWarningVO[] queryFseInfo(IncomeWarningVO[] ivos, String pk_corp, String enddate);
+
+    String queryAccountRule(String pk_corp);
+
+    String getCurrentCorpAccountSchema(String pk_corp);
+
+    YntCpaccountVO[] queryByPk(String pk_corp);
+
+    Map<String, YntCpaccountVO> queryMapByPk(String pk_corp);
+
+    String getNewRuleCode(String oldCode, String oldrule, String newrule);
+
+    SsphRes qcyeSsph(String pk_corp);
+
+    String[] getNewCodes(String[] oldcode, String oldrule, String newrule);
+
+    Map<String, AuxiliaryAccountBVO> queryAuxiliaryAccountBVOMap(String pk_corp);
+
+    DZFDouble getTaxValue(CorpVO cpvo, String rptname, String period, int[][] zbs);
+
+    AuxiliaryAccountHVO queryHByCode(String pk_corp, String fzlb);
+
+    AuxiliaryAccountHVO[] queryHByPkCorp(String pk_corp);
+
+    AuxiliaryAccountBVO[] queryBByFzlb(String pk_corp, String fzlb);
+
+    AuxiliaryAccountBVO[] queryAllB(String pk_corp);
+
+    BdCurrencyVO queryCurrencyVOByPk(String pk_currency);
+
+    QcYeCurrency[] queryCurrencyByPkCorp(String pk_corp);
+
+    List<InventoryVO> queryInventoryVOs(String pk_corp);
+
+    YntParameterSet queryParamterbyCode(String pk_corp, String code);
+
+    GxhszVO queryGxhszVOByPkCorp(String pk_corp);
+
+    Map<String, String> getNewCodeMap(String[] oldcode, String oldrule, String newrule);
+
+    CorpTaxVo queryCorpTaxVO(String pk_corp);
+
+    YntCpaccountVO queryById(String id);
+
+    Map<String, IcbalanceVO> queryLastBanlanceVOs_byMap1(String currentenddate, String pk_corp, String pk_invtory, boolean isafternonn);
+
+    String queryParamterValueByCode(String pk_corp, String paramcode);
+
+    ReturnData checkQjsy(TzpzHVO headVO);
+
+    TzpzHVO saveVoucher(CorpVO corpvo, TzpzHVO hvo);
+
+    String getNewVoucherNo(String pk_corp, DZFDate doperatedate);
+
+    List<XssrVO> queryXssrVO(String pk_corp);
+
+    UserVO queryUserById(String userId);
+
+    QueryPageVO processQueryVoucherPaged(VoucherParamVO paramvo);
+
+    DZFDouble getQuarterlySdsShui(String pk_corp, String period);
+
+    List<CorpTaxVo> queryTaxVoByParam(QueryParamVO paramvo, UserVO uservo);
+
+    SalaryReportVO[] queryGzb(String pk_corp, String beginPeriod, String endPeriod, String billtype);
+
+    List<IctradeinVO> queryTradeIn(QueryParamVO paramvo);
+
+    List<IntradeoutVO> queryTradeOut(QueryParamVO paramvo);
+
+    List<IntradeHVO> queryIntradeHVOOut(IntradeParamVO paramvo);
+
+    IntradeHVO queryIntradeHVOByID(String id, String pk_corp);
+
+    IntradeHVO queryIntradeHVOByIDIn(String pk_ictrade_h, String pk_corp);
+
+    List<IntradeHVO> queryIntradeHVOIn(IntradeParamVO paramvo);
+
+    AssetDepreciaTionVO[] getZczjMxVOs(QueryParamVO queryParamvo);
+
+    Set<String> querypowercorpSet(String userid);
+
+    BdCurrencyVO[] queryCurrency();
+
+    List<TzpzHVO> queryByIDs(String ids, VoucherPrintParam param);
+
+    byte[] execPzCoverTask(BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO);
+
+    byte[] execPzTask(BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO);
+
+    byte[] execCrkPrintTask(BatchPrintSetVo setvo, UserVO userVO, CorpVO corpVO);
+}
