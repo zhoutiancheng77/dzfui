@@ -204,7 +204,9 @@ public class NmnyMXController extends ReportBaseController {
 
                 if(paramvo.getIshowfs()!=null && !paramvo.getIshowfs().booleanValue()){
                     if(VoUtils.getDZFDouble(vo.getNmny()).doubleValue()==0
+                            && VoUtils.getDZFDouble(vo.getNnum()).doubleValue()==0
                             && VoUtils.getDZFDouble(vo.getNdmny()).doubleValue()==0
+                            && VoUtils.getDZFDouble(vo.getNdnum()).doubleValue()==0
                     ){
                         periodvalue.put(key+period,  DZFBoolean.TRUE);
                     }else{
@@ -215,8 +217,10 @@ public class NmnyMXController extends ReportBaseController {
                     }
                 }else if(paramvo.getXswyewfs()!=null && paramvo.getXswyewfs().booleanValue()){
                     if(VoUtils.getDZFDouble(vo.getNmny()).doubleValue()==0
+                            && VoUtils.getDZFDouble(vo.getNnum()).doubleValue()==0
                             && VoUtils.getDZFDouble(vo.getNdmny()).doubleValue()==0
-                            && VoUtils.getDZFDouble(vo.getNymny()).doubleValue() == 0){
+                            && VoUtils.getDZFDouble(vo.getNymny()).doubleValue() == 0
+                            && VoUtils.getDZFDouble(vo.getNdnum()).doubleValue()==0){
                         periodvalue.put(key+period,  DZFBoolean.TRUE);
                     }else{
                         periodvalue.put(key+period, DZFBoolean.FALSE);
