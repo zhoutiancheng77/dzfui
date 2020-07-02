@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.dubbo;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 @Slf4j
 @Service(version = "1.0.0", timeout = Integer.MAX_VALUE)
+@DS("slave")
 public class ZxkjReportServiceImpl implements IZxkjReportService {
 
     @Autowired
