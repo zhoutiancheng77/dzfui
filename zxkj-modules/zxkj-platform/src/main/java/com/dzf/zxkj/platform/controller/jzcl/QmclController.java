@@ -1613,6 +1613,8 @@ public class QmclController extends BaseController {
                 }
             }
         }
+        if(info == null || info.size() ==0)
+            return info;
         DZFDouble zsum = SafeCompute.add(info.get(0).getNzhizao_fs(), zzfy_zhuanchu);
         info.get(0).setNzhizao_fs(zsum);
         info.get(1).setNzhizao_fs(zsum);

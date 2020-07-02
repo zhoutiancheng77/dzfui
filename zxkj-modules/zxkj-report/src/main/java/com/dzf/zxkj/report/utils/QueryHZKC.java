@@ -565,7 +565,7 @@ public class QueryHZKC {
 		DZFBoolean ishasjz = paramVo.getIshasjz();
 		StringBuffer sf = new StringBuffer();
 		sf.append(" select period as opdate, b.pk_accsubj as pk_subject,b.vcode as kmbm, ");
-		sf.append(" b.kmmchie as kmmc, b.nnumber, b.jfmny, b.dfmny ");
+		sf.append(" b.kmmchie as kmmc, b.nnumber, b.jfmny, b.dfmny, c.direction dir ");
 		if (paramVo.getIsfzhs() != null && paramVo.getIsfzhs().booleanValue()) {
 			sf.append(" , b.fzhsx1, b.fzhsx2, b.fzhsx3, b.fzhsx4, b.fzhsx5, ");
 			sf.append(" case when b.fzhsx6 is null then b.pk_inventory end fzhsx6, ");
@@ -615,6 +615,12 @@ public class QueryHZKC {
 			} else if (v.getDfmny() != null && v.getDfmny().doubleValue() < 0) {
 				v.setBqdfnum(num);
 				v.setBqdfmny(v.getDfmny());
+			} else if (num != null && num.doubleValue() != 0) {
+				if("1".equals(v.getDir())) {
+					v.setBqdfnum(num);
+				}else {
+					v.setBqjfnum(num);
+				}
 			}
 		}
 	}

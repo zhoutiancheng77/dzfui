@@ -226,7 +226,7 @@ public class VoucherController extends BaseController {
                                     String measureName = getMeasureName(bvo);
                                     showZy.append(measureName == null ? "" : measureName);
                                     showZy.append(",单价:")
-                                            .append(bvo.getNprice() == null ? ""
+                                            .append(bvo.getNprice() == null ? "0"
                                                     : bvo.getNprice().toString().replaceAll("\\.0+$", ""));
                                 }
                                 showZy.append(")");

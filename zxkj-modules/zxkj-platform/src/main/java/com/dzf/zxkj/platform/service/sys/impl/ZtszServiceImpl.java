@@ -24,6 +24,7 @@ import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IZtszService;
 import com.dzf.zxkj.platform.service.tax.ICorpTaxService;
 import com.dzf.zxkj.platform.util.BeanUtils;
+import com.dzf.zxkj.platform.util.CryptCodeUtil;
 import com.dzf.zxkj.platform.util.QueryDeCodeUtils;
 import com.dzf.zxkj.secret.CorpSecretUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,7 +170,8 @@ public class ZtszServiceImpl implements IZtszService {
 	 */
 	private void writeBackCorp(CorpTaxVo corptaxvo) {
 		String[] upcolumns = new String[] { "vsoccrecode", "isxrq", "drdsj", "legalbodycode",
-				"vcorporatephone", "unitname", "unitshortname",  "industry", "chargedeptname", "icostforwardstyle"};
+				"vcorporatephone", "unitname", "unitshortname",  "industry", "chargedeptname",
+				"icostforwardstyle", "rcunitname"};
 		String pk_corp = corptaxvo.getPk_corp();
 		if (StringUtil.isEmpty(pk_corp)) {
 			throw new BusinessException("公司不能为空");
@@ -191,6 +193,9 @@ public class ZtszServiceImpl implements IZtszService {
 			}
 			else if("unitshortname".equals(column)){
 				cpvo.setUnitshortname(cpvo.getUnitname());//公司简称默认等于公司名称
+			}
+			else if("rcunitname".equals(column)){
+				cpvo.setRcunitname(CryptCodeUtil.enCode(CorpSecretUtil.deCode(cpvo.getUnitname())));
 			}
 			else {// 处理非加密的字段
 				cpvo.setAttributeValue(column, corptaxvo.getAttributeValue(column));

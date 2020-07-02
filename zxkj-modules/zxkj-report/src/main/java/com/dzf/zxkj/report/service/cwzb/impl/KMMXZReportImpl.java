@@ -862,10 +862,18 @@ public class KMMXZReportImpl implements IKMMXZReport {
         if(kms!=null && kms.length()>0){
             if (kms.indexOf(",") > 0) {
                 StringBuffer wherpart1 = new StringBuffer();
-                for (int i = 0; i < vo.getKmcodelist().size(); i++) {
-                    wherpart1.append(" a.accountcode like '" + vo.getKmcodelist().get(i) + "%' or");
+                if (vo.getKmcodelist()!=null && vo.getKmcodelist().size()>0) {
+                    for (int i = 0; i < vo.getKmcodelist().size(); i++) {
+                        wherpart1.append(" a.accountcode like '" + vo.getKmcodelist().get(i) + "%' or");
+                    }
+                    kmwhere.append( " and  (" + wherpart1.toString().substring(0, wherpart1.length() - 2) + ")" + " and nvl(a.dr,0)=0" );
+                } else {
+                    String[] kmsarray = kms.split(",");
+                    for (int i = 0; i < kmsarray.length; i++) {
+                        wherpart1.append(" a.accountcode like '" + kmsarray[i] + "%' or");
+                    }
+                    kmwhere.append( " and  (" + wherpart1.toString().substring(0, wherpart1.length() - 2) + ")" + " and nvl(a.dr,0)=0" );
                 }
-                kmwhere.append( " and  (" + wherpart1.toString().substring(0, wherpart1.length() - 2) + ")" + " and nvl(a.dr,0)=0" );
             } else  {/** 查询单个科目 */
                 StringBuffer wherpart1 = new StringBuffer();
                 wherpart1.append("  a.accountcode like '" + kms + "%' ");

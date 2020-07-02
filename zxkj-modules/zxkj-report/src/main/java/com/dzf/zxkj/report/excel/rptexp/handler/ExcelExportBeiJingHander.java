@@ -1,6 +1,7 @@
 package com.dzf.zxkj.report.excel.rptexp.handler;
 
 import com.dzf.zxkj.common.lang.DZFDate;
+import com.dzf.zxkj.common.utils.DateUtils;
 import com.dzf.zxkj.platform.model.report.LrbVO;
 import com.dzf.zxkj.platform.model.report.XjllbVO;
 import com.dzf.zxkj.platform.model.report.ZcFzBVO;
@@ -44,6 +45,7 @@ public class ExcelExportBeiJingHander extends ExcelExportHander implements OneWo
         String nsrmc = getNsrmc();
         DZFDate sDate = new DZFDate(getInnerBeginDate()); //税款所属期起
         DZFDate eDate = new DZFDate(getInnerEndDate()); //税款所属期止
+        eDate = DateUtils.getPeriodEndDate(DateUtils.getPeriod(eDate));// 最后一天
         //String bbrq = getEndDate("yyyy年MM月dd日"); //资产负债表日
 
         //北京、青岛、广东、陕西、大连、青海等使用通用表头格式

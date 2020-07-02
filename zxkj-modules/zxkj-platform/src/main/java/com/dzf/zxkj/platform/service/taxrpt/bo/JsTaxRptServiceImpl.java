@@ -385,7 +385,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url,
                 params);
 
-        String result = HttpUtil.parseRes(rmap.get("response"));
+        String result = HttpUtil.parseRes(rmap.get("response")); // 当税种环境不稳定时返回的result可能为空
         JSONObject rsJosn = (JSONObject) JSON.parse(result);
         return rsJosn;
     }
@@ -693,11 +693,34 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
     private String constructPostData(CorpVO corpVO, CorpTaxVo taxvo, TaxReportVO reportvo,
                                      Map objMapReport, SpreadTool spreadtool,
                                      String lsh) {
-
-        BaseRequestVO baseRequest = getBaseRequset(corpVO, taxvo);
         String sbzlbh = reportvo.getSb_zlbh();
+        BaseRequestVO baseRequest = getBaseRequset(corpVO, taxvo);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        // 填写一个税种（国税税种的多张表，或地税税种单张表的多个vo）
+
+        // 是否地税税种
+        boolean isdssz = TaxRptConst.SB_ZLBH50101.equals(sbzlbh) || TaxRptConst.SB_ZLBH50102.equals(sbzlbh)
+                || TaxRptConst.SB_ZLBHD1.equals(sbzlbh)
+                || TaxRptConst.SB_ZLBH31399.equals(sbzlbh) || TaxRptConst.SB_ZLBH30299.equals(sbzlbh);
+
+        // 准备简单脚本工具
+        FormulaTool formulatool = new FormulaTool();
+        // 添加上下文对象
+        formulatool.addObject("report", reportvo);
+        formulatool.addObject("corp", corpVO);
+        formulatool.addObject("corptax", taxvo);
+
+        // 准备qcLines
+        if (isdssz) {
+            // 每次申报时现取期初，将来可以考虑保存期初数据，申报时取
+            HashMap<String, Object> qcdata = getQcData(corpVO, reportvo, null);
+            formulatool.addObject("qcLines", qcdata.get(sbzlbh + "qc"));
+        }
+
+        // 设置提交请求的serviceid和sign
+        setSubmitServiceId(baseRequest, sbzlbh);
+
+        Map<String, Object> map = new HashMap<String, Object>(); // 业务报文
 
         Map<String, String> params = new HashMap<String, String>();
         params.put("nsrsbh", corpVO.getVsoccrecode());
@@ -706,80 +729,20 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         params.put("sbzlid", getSbzlbh(sbzlbh));
         // 是否异常转办--票表比对失败后是否强制保存 Y为强制保存 S票表比对错误时返回错误信息不申报
         params.put("sfyczb", "S");
-
         params.put("lsh", lsh);
-        boolean jsonString = false;
-        // 提交
-        if (TaxRptConst.SB_ZLBH10102.equals(sbzlbh)
-                || TaxRptConst.SB_ZLBH1010201.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_ZZSXGM_TJ");
-            baseRequest.getBody().setSign("sb10102Submit");
-        } else if (TaxRptConst.SB_ZLBH10101.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_ZZSYBNSR_TJ");
-            baseRequest.getBody().setSign("sb10101Submit");
-        } else if (TaxRptConst.SB_ZLBHC1.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_CWBB_XQY_YJ_TJ");
-            baseRequest.getBody().setSign("sb29806Submit");
-        } else if (TaxRptConst.SB_ZLBHC2.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_CWBB_YBQY_YJ_TJ");
-            baseRequest.getBody().setSign("sb29801Submit");
-        } else if (TaxRptConst.SB_ZLBH29805.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_CWBB_QY_YJ_TJ");
-            baseRequest.getBody().setSign("sb29805Submit");
-        } else if (TaxRptConst.SB_ZLBH10412.equals(sbzlbh)) {
-            jsonString = true;
-            baseRequest.setServiceid("FW_DZSWJ_QYSDSYJD_A_TJ");
-            baseRequest.getBody().setSign("sb10412Submit");
-        } else if (TaxRptConst.SB_ZLBH10413.equals(sbzlbh)) {
-            jsonString = true;
-            baseRequest.setServiceid("FW_DZSWJ_QYSDSYJD_B_TJ");
-            baseRequest.getBody().setSign("sb10413Submit");
-        } else if (TaxRptConst.SB_ZLBH39801.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_CWBB_YBQY_ND_TJ");
-            baseRequest.getBody().setSign("sb39801Submit");
-        } else if (TaxRptConst.SB_ZLBH39806.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_CWBB_XQY_ND_TJ");
-            baseRequest.getBody().setSign("sb39806Submit");
-        } else if (TaxRptConst.SB_ZLBH50101.equals(sbzlbh)
-                || TaxRptConst.SB_ZLBH50102.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_FJS_TJ");
-            baseRequest.getBody().setSign("sb10516Submit");
-        } else if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_YHS_TJ");
-            baseRequest.getBody().setSign("sb10509Submit");
-        } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_WHSY_TJ");
-            baseRequest.getBody().setSign("sb10601Submit");
-        } else if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_GFJF_TJ");
-            baseRequest.getBody().setSign("sb10520Submit");
-        } else if (TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) {
-            baseRequest.setServiceid("FW_DZSWJ_LJCLF_TJ");
-            baseRequest.getBody().setSign("sb10514Submit");
-        }
-
 
         map.put("params", params);
 //		Set<String> reports = getReportList(corpVO, reportvo);
         try {
+            // 创建申报请求业务报文主vo
             Class<?> vClass = getClassByTaxType(sbzlbh);
-            Object datas = vClass.newInstance();
+            Object datas = createSubmitVO(vClass, objMapReport, formulatool);
             map.put("datas", datas);
 
-            // 填写一个税种（国税税种的多张表，或地税税种的多个vo）
-
-            // 准备简单脚本工具
-            FormulaTool formulatool = new FormulaTool();
-            // 添加上下文对象
-            formulatool.addObject("report", reportvo);
-            formulatool.addObject("corp", corpVO);
-            formulatool.addObject("corptax", taxvo);
-
-            fillFields(datas, objMapReport, spreadtool, formulatool);
             // 必填表可以传“空”值表
             filterEmptyReport(reportvo, datas);
-            //TODO: nsrxx等改为用表达式取值
             if (datas instanceof SurtaxRequest) {
+                //TODO: 改为用表达式取纳税人信息
                 dealSurtaxRequest(datas, corpVO, reportvo, lsh);
             } else if (datas instanceof FinancialOrdinaryRequestNew) {
                 dealFinancialOrdinaryRequestNew(datas, corpVO, reportvo, lsh);
@@ -799,6 +762,63 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 //		return OFastJSON.toJSONString(baseRequest);
         return JsonUtils.serialize(baseRequest);
+    }
+
+    /**
+     * 设置提交请求的serviceid和sign
+     *
+     * @param baseReq
+     * @param sbzlbh
+     */
+    private void setSubmitServiceId(BaseRequestVO baseReq, String sbzlbh) {
+        //boolean jsonString = false;
+        if (TaxRptConst.SB_ZLBH10102.equals(sbzlbh)
+                || TaxRptConst.SB_ZLBH1010201.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_ZZSXGM_TJ");
+            baseReq.getBody().setSign("sb10102Submit");
+        } else if (TaxRptConst.SB_ZLBH10101.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_ZZSYBNSR_TJ");
+            baseReq.getBody().setSign("sb10101Submit");
+        } else if (TaxRptConst.SB_ZLBHC1.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_CWBB_XQY_YJ_TJ");
+            baseReq.getBody().setSign("sb29806Submit");
+        } else if (TaxRptConst.SB_ZLBHC2.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_YJ_TJ");
+            baseReq.getBody().setSign("sb29801Submit");
+        } else if (TaxRptConst.SB_ZLBH29805.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_CWBB_QY_YJ_TJ");
+            baseReq.getBody().setSign("sb29805Submit");
+        } else if (TaxRptConst.SB_ZLBH10412.equals(sbzlbh)) {
+            //jsonString = true;
+            baseReq.setServiceid("FW_DZSWJ_QYSDSYJD_A_TJ");
+            baseReq.getBody().setSign("sb10412Submit");
+        } else if (TaxRptConst.SB_ZLBH10413.equals(sbzlbh)) {
+            //jsonString = true;
+            baseReq.setServiceid("FW_DZSWJ_QYSDSYJD_B_TJ");
+            baseReq.getBody().setSign("sb10413Submit");
+        } else if (TaxRptConst.SB_ZLBH39801.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_ND_TJ");
+            baseReq.getBody().setSign("sb39801Submit");
+        } else if (TaxRptConst.SB_ZLBH39806.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_CWBB_XQY_ND_TJ");
+            baseReq.getBody().setSign("sb39806Submit");
+        } else if (TaxRptConst.SB_ZLBH50101.equals(sbzlbh)
+                || TaxRptConst.SB_ZLBH50102.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_FJS_TJ");
+            baseReq.getBody().setSign("sb10516Submit");
+        } else if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_YHS_TJ");
+            baseReq.getBody().setSign("sb10509Submit");
+        } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_WHSY_TJ");
+            baseReq.getBody().setSign("sb10601Submit");
+        } else if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_GFJF_TJ");
+            baseReq.getBody().setSign("sb10520Submit");
+        } else if (TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_LJCLF_TJ");
+            baseReq.getBody().setSign("sb10514Submit");
+        }
     }
 
     private void dealSurtaxRequest(Object datas, CorpVO corpVO, TaxReportVO reportvo, String lsh) {
@@ -886,7 +906,15 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         return cls;
     }
 
-
+    /*
+    /**
+     * 处理业务报文主vo
+     * @param datas
+     * @param objMapReport
+     * @param spreadtool
+     * @param formulatool
+     * @throws Exception
+     * /
     private void fillFields(Object datas, Map objMapReport,
                             SpreadTool spreadtool, FormulaTool formulatool) throws Exception {
         for (Field field : datas.getClass().getDeclaredFields()) {
@@ -900,74 +928,46 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             TaxExcelPos clsAnno = fieldType
                     .getAnnotation(TaxExcelPos.class);
 
-
             Object obj = null;
-            if (clsAnno != null && !"".equals(clsAnno.reportname())) {
-                String reportname = clsAnno.reportname();
-                LinkedHashMap hmsheets = (LinkedHashMap) objMapReport.get("sheets");
-                LinkedHashMap hmsheet = (LinkedHashMap) hmsheets.get(reportname.trim());
-                // 把取数的sheet页加入上下文
-                formulatool.setDataSheet(hmsheet);
-
-                // 准备qcLines
-                CorpVO corpvo = (CorpVO) formulatool.getObject("corp");
-                TaxReportVO reportvo = (TaxReportVO) formulatool.getObject("report");
-                String sbzlbh = reportvo.getSb_zlbh();
-                if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)
-                        || TaxRptConst.SB_ZLBH31399.equals(sbzlbh)
-                        || TaxRptConst.SB_ZLBH30299.equals(sbzlbh)
-                        || TaxRptConst.SB_ZLBH50101.equals(sbzlbh)
-                        || TaxRptConst.SB_ZLBH50102.equals(sbzlbh)) {
-                    HashMap<String, Object> qcdata = getQcData(corpvo, reportvo, null);
-                    formulatool.addObject("qcLines", qcdata.get(sbzlbh + "qc"));
+            if (clsAnno != null && !"".equals(clsAnno.reportname())) { // 有取数来源。其实对于YhsNsrxx、YhsSlxx这样的vo，并不需要从sheet上取数，也就不需要有reportname注解
+                String reportname = clsAnno.reportname().trim();
+                if (!reportname.equals(formulatool.sheetName)) { // vo对应的reportname（即取数sheet页）如果没有变，就不需重复设。地税税种一般就是一个表(sheet)，只设置一次就行
+                    LinkedHashMap hmsheets = (LinkedHashMap) objMapReport.get("sheets");
+                    LinkedHashMap hmsheet = (LinkedHashMap) hmsheets.get(reportname);
+                    // 把取数的sheet页加入上下文
+                    formulatool.setDataSheet(hmsheet);
+                    // 一个表中多个sheet 重置明细序号
+                    formulatool.mxxh = 0;
                 }
-                /*
-                // 把initTax()保存期初数据取出来
-                HashMap<String, Object>  hmQCData = new HashMap<String, Object> ();
-                TaxReportVO reportvo = (TaxReportVO)formulatool.getObject("report");
-                String sbzlbh = reportvo.getSb_zlbh();
-                if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)
-                    || TaxRptConst.SB_ZLBH31399.equals(sbzlbh)
-                    || TaxRptConst.SB_ZLBH30299.equals(sbzlbh)
-                    || TaxRptConst.SB_ZLBH50101.equals(sbzlbh)
-                    || TaxRptConst.SB_ZLBH50102.equals(sbzlbh)) {
-                  getQcFromJsonFile(hmQCData, reportvo);
-                  formulatool.addObject("qcLines", hmQCData.get(sbzlbh + "qc"));
-                }
-                */
-
                 if (isArray) {
-                    if (clsAnno != null) {
-                        List<Object> list = new ArrayList<Object>();
-                        if (clsAnno.rowBegin() > -1) {
-                            int rowBegin = clsAnno.rowBegin();
-                            int rowEnd = clsAnno.rowEnd();
-                            int col = clsAnno.col(); // 此列用于判断这一行是否有值
-                            for (int row = rowBegin; row <= rowEnd; row++) {
-                                // Object mainVal = spreadtool.getCellValue(objMapReport, reportname, row, col);
-                                Object mainVal = formulatool.getCellValue(row, col); // formulatool.evaluate(String.format("R%dC%d", row+1, col+1));
-                                if (mainVal == null || StringUtil.isEmpty(mainVal.toString())) { // 数据行：从起始行到rowEnd，或从起始行到后面第一个空行的上一行。被空行断开的后面的数据行暂不考虑。
-                                    break;
-                                }
-                                // 把excel取数的实际行号传入上下文（用于RXC1等表达式的计算）
-                                formulatool.addObject("currRow", row);
-                                Object rowObj = getObjectByType(fieldType,
-                                        reportname, objMapReport, spreadtool, formulatool,
-                                        row, null);
-                                if (rowObj != null) {
-                                    list.add(rowObj);
-                                }
+                    List<Object> list = new ArrayList<Object>();
+                    if (clsAnno.rowBegin() > -1) {
+                        int rowBegin = clsAnno.rowBegin();
+                        int rowEnd = clsAnno.rowEnd();
+                        int col = clsAnno.col(); // 此列用于判断这一行是否有值
+                        for (int row = rowBegin; row <= rowEnd; row++) {
+                            // Object mainVal = spreadtool.getCellValue(objMapReport, reportname, row, col);
+                            Object mainVal = formulatool.getCellValue(row, col); // formulatool.evaluate(String.format("R%dC%d", row+1, col+1));
+                            if (mainVal == null || StringUtil.isEmpty(mainVal.toString())) { // 数据行：从起始行到rowEnd，或从起始行到后面第一个空行的上一行。被空行断开的后面的数据行暂不考虑。
+                                break;
+                            }
+                            // 把excel取数的实际行号传入上下文（用于RXC1等表达式的计算）
+                            formulatool.addObject("currRow", row);
+                            Object rowObj = getObjectByType(fieldType,
+                                    reportname, objMapReport, spreadtool, formulatool,
+                                    row, null);
+                            if (rowObj != null) {
+                                list.add(rowObj);
                             }
                         }
-                        obj = list.toArray((Object[]) Array.newInstance(fieldType,
-                                0));
                     }
+                    obj = list.toArray((Object[]) Array.newInstance(fieldType,
+                            0));
                 } else {
                     obj = getObjectByType(fieldType, reportname, objMapReport,
                             spreadtool, formulatool, null, null);
                 }
-
-            } else {
+            } else { // 对于没有取数来源的，先创建空对象（该对象的下级属性仍可能会有取数来源：row、col或expression）
                 if (isArray) {
                     // 数组类型，没有注解，只有一个对象
                     obj = Array.newInstance(fieldType, 1);
@@ -986,117 +986,206 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                             + fname.substring(1), field.getType());
             setMtd.invoke(datas, obj);
         }
-    }
+    }*/
 
     /**
-     * 根据类从报表取数生成对象
+     * 按税种vo类型，创建申报报文请求的主vo
      *
      * @param fieldType
-     * @param reportname
      * @param objMapReport
-     * @param spreadtool
-     * @param row 为空则从字段注解取数
-     * @param col 为空则从字段注解取数
+     * @param formulatool
      * @return
      * @throws Exception
      */
-    private Object getObjectByType(Class<?> fieldType, String reportname,
-                                   Map objMapReport, SpreadTool spreadtool, FormulaTool formulatool, Integer row, Integer col)
-            throws Exception {
-        Object rowObj = fieldType.newInstance();
-        for (Field field : fieldType.getDeclaredFields()) {
-            String fname = field.getName();
-            TaxExcelPos fieldAnno = field.getAnnotation(TaxExcelPos.class);
-            // 没有注解
-//			if (fieldAnno == null) {
-//				continue;
-//			}
+    private Object createSubmitVO(Class<?> fieldType, Map objMapReport, FormulaTool formulatool) throws Exception {
+        return createField(fieldType, null, objMapReport, formulatool, null, null);
+    }
 
-            Object val = null;
+    /**
+     * 根据取数来源，计算字段值或创建对象
+     * 可以处理简单类型(终端字段)、对象或对象数组
+     *
+     * @param fieldType
+     * @param field 本参数仅在计算简单类型(终端字段)时使用，因为field上有取值时要用到的注解（row、col、expression）。当创建主请求vo头，以及创建数组中的单个元素时都不存在field，不需传。当创建一般的对象类型字段时，传不传field都行，传了也不用。
+     * @param objMapReport
+     * @param formulatool
+     * @param row
+     * @param col
+     * @return
+     * @throws Exception
+     */
+    private Object createField(Class<?> fieldType, Field field, Map objMapReport, FormulaTool formulatool, Integer row, Integer col)
+            throws Exception {
+        if (field != null)
+            fieldType = field.getType();
+        boolean isValueType = isPrimitive(fieldType) || fieldType == String.class || fieldType == DZFDouble.class || fieldType == DZFDate.class;
+        boolean isArray = fieldType.isArray();
+        if (isArray)
+            fieldType = fieldType.getComponentType();
+
+        TaxExcelPos clsAnno = fieldType.getAnnotation(TaxExcelPos.class); // 类注解
+        // 类的注解上有reportname的，设置sheet页
+        if (clsAnno != null && !"".equals(clsAnno.reportname())) { // 其实对于YhsNsrxx、YhsSlxx这样的vo，并不需要从sheet上取数，也就不需要有reportname注解
+            String reportname1 = clsAnno.reportname().trim();
+            if (!reportname1.equals(formulatool.sheetName)) { // vo对应的reportname（即取数sheet页）如果没有变，就不需重复设。地税一般就是单张表(sheet)，只设置一次就行
+                LinkedHashMap hmsheets = (LinkedHashMap) objMapReport.get("sheets");
+                LinkedHashMap hmsheet = (LinkedHashMap) hmsheets.get(reportname1);
+                // 把取数的sheet页加入上下文
+                formulatool.setDataSheet(hmsheet);
+            }
+        }
+
+        //String reportname = formulatool.sheetName;
+        Object obj;
+        if (isArray) { // 对象数组
+            List<Object> list = new ArrayList<>();
+            if (clsAnno != null && clsAnno.rowBegin() > -1) { // 循环从excel取数的数组
+                int rowBegin = clsAnno.rowBegin();
+                int rowEnd = clsAnno.rowEnd();
+                int col_t = clsAnno.col(); // 此列用于判断这一行是否有值
+                for (int r = rowBegin; r <= rowEnd; r++) {
+                    // Object mainVal = spreadtool.getCellValue(objMapReport, reportname, r, col0);
+                    Object mainVal = formulatool.getCellValue(r, col_t); // formulatool.evaluate(String.format("R%dC%d", r+1, col0+1));
+                    if (mainVal == null || StringUtil.isEmpty(mainVal.toString())) { // 数据行：从起始行到rowEnd，或从起始行到后面第一个空行的上一行。被空行断开的后面的数据行暂不考虑。
+                        break;
+                    }
+                    // 把excel取数的实际行号传入上下文（用于RXC1等表达式的计算）
+                    formulatool.addObject("currRow", r);
+                    // 创建一行明细行
+                    Object rowObj = createField(fieldType, null, objMapReport, formulatool, r, null); // 当创建数组中的1个元素时，不存在所谓field
+                    list.add(rowObj);
+                }
+            } else { // 不带rowBegin等循环注解的数组
+                // llh注：这种情况一般只需要返回一个空list，并不需要往list里添加对象。现在是添加一个元素。后续确认一下。
+                Object rowObj = createField(fieldType, null, objMapReport, formulatool, null, null);
+                list.add(rowObj);
+            }
+            obj = list.toArray((Object[])Array.newInstance(fieldType, 0));
+        } else if (!isValueType) { // 对象
+            // 创建空的对象
+            obj = fieldType.newInstance();
+
+            // 设置对象的字段（下级属性）
+            Object val;
+            for (Field subfield : fieldType.getDeclaredFields()) {
+                String fname = subfield.getName();
+                // 不用管有没有reportname注解、是不是从excel取数，统一使用getObjectByType创建字段值（例如YhsNsrxx、YhsSlxx等不需要excel，只是从上下文对象取数）
+                val = createField(null, subfield, objMapReport, formulatool, row, col);
+                Method setMtd = fieldType.getMethod("set"
+                                + fname.substring(0, 1).toUpperCase() + fname.substring(1),
+                        subfield.getType());
+                setMtd.invoke(obj, val);
+            }
+        } else { // 简单类型(终端字段)
+            // 根据取数来源计算字段值
+            obj = getFieldValue(field, formulatool, row, col);
+        }
+
+        return obj; //rowObj
+    }
+
+    /**
+     * 计算终端字段(简单“值”类型)值
+     *
+     * @param field
+     * @param formulatool
+     * @param row
+     * @param col
+     * @return
+     * @throws Exception
+     */
+    private Object getFieldValue(Field field, FormulaTool formulatool, Integer row, Integer col)
+            throws Exception {
+        Class<?> fieldType = field.getType();
+        Object val = null;
+        TaxExcelPos fieldAnno = field.getAnnotation(TaxExcelPos.class);
+        if (fieldAnno != null) {
+            if (!StringUtil.isEmpty(fieldAnno.expression())) { // 有expression注解的，走表达式计算
+                val = formulatool.evaluate(fieldAnno.expression());
+            } else if (fieldAnno.row() != -1 || fieldAnno.col() != -1) { // 有row、col注解的
+                val = formulatool.getCellValue(row == null ? fieldAnno.row() : row,
+                        col == null ? fieldAnno.col() : col);
+            }
+        } else { // 没有注解的值类型的属性，设为空值
+            val = fieldType.newInstance();
+        }
+
+        //region 格式化和类型转换（只有值类型才需要格式化）
+        String valStr = val != null ? val.toString() : ""; // 格式化时要用的string值
+        if (fieldType == String.class) {
             if (fieldAnno != null) {
-                if (fieldAnno.expression() != null) { // 有expression注解的，走表达式计算
-                    val = formulatool.evaluate(fieldAnno.expression());
-                } else { // 原逻辑
-                    val = spreadtool.getCellValue(objMapReport, reportname,
-                            row == null ? fieldAnno.row() : row,
-                            col == null ? fieldAnno.col() : col);
+                String[] strArray = valStr.split("\\||_|-");
+                int index = -1;
+                if (fieldAnno.splitIndex() > index) {
+                    index = fieldAnno.splitIndex();
+                } else if (fieldAnno.isCode()) {
+                    index = 0;
+                } else if (fieldAnno.isName()) {
+                    index = 1;
+                }
+                if (index > -1 && index < strArray.length) {
+                    valStr = strArray[index].trim();
                 }
             }
-            // string值
-            String valStr = val != null ? val.toString() : "";
 
-            // 格式化和类型转换
-            if (field.getType().isAssignableFrom(String.class)) {
-                if (fieldAnno != null) {
-                    String[] strArray = valStr.split("\\||_|-");
-                    int index = -1;
-                    if (fieldAnno.splitIndex() > index) {
-                        index = fieldAnno.splitIndex();
-                    } else if (fieldAnno.isCode()) {
-                        index = 0;
-                    } else if (fieldAnno.isName()) {
-                        index = 1;
-                    }
-                    if (index > -1 && index < strArray.length) {
-                        valStr = strArray[index].trim();
-                    }
-                }
-
-                if (!StringUtil.isEmpty(valStr)) {
-                    TaxExcelValueCast valueCast = field.getAnnotation(TaxExcelValueCast.class);
-                    if (valueCast != null) {
-                        String[] src = valueCast.src();
-                        String[] dest = valueCast.dest();
-                        for (int i = 0; i < src.length; i++) {
-                            if (src[i].equals(valStr)) {
-                                valStr = dest[i];
-                                break;
-                            }
+            if (!StringUtil.isEmpty(valStr)) {
+                TaxExcelValueCast valueCast = field.getAnnotation(TaxExcelValueCast.class);
+                if (valueCast != null) {
+                    String[] src = valueCast.src();
+                    String[] dest = valueCast.dest();
+                    for (int i = 0; i < src.length; i++) {
+                        if (src[i].equals(valStr)) {
+                            valStr = dest[i];
+                            break;
                         }
                     }
                 }
-
-                val = valStr;
-            } else if (field.getType().isAssignableFrom(DZFDouble.class)) {
-                if (valStr.trim().equals("——") || valStr.trim().equals("--")) {
-//					valStr = null;
-                    val = DZFDouble.ZERO_DBL;
-                } else if (valStr.indexOf("%") > -1) {
-                    valStr = valStr.substring(0, valStr.indexOf("%"));
-                    val = new DZFDouble(valStr).div(100);
-                } else {
-                    val = new DZFDouble(valStr);
-                }
-            } else if (field.getType().isAssignableFrom(Double.class)) {
-                if (valStr.trim().equals("——") || valStr.trim().equals("--")) {
-                    val = new Double("0");
-                } else if (valStr.indexOf("%") > -1) {
-                    valStr = valStr.substring(0, valStr.indexOf("%"));
-                    val = new Double(valStr) / 100;
-                } else {
-                    if (StringUtil.isEmpty(valStr)) {
-                        valStr = "0";
-                    }
-                    val = new Double(valStr);
-                }
-            } else if (field.getType().isAssignableFrom(DZFDate.class)) {
-                if (!StringUtil.isEmpty(valStr)) {
-                    val = new DZFDate(valStr);
-                } else {
-                    val = null;
-                }
             }
 
+            val = valStr;
+        } else if (fieldType == DZFDouble.class) {
+            if (valStr.trim().equals("——") || valStr.trim().equals("--")) {
+//					valStr = null;
+                val = DZFDouble.ZERO_DBL;
+            } else if (valStr.indexOf("%") > -1) {
+                valStr = valStr.substring(0, valStr.indexOf("%"));
+                val = new DZFDouble(valStr).div(100);
+            } else {
+                val = new DZFDouble(valStr);
+            }
+        } else if (fieldType == Double.class) { // fieldType.isAssignableFrom(Double.class) //用isAssignableFrom没什么意义，Double和double、Integer、int、Float之间并不兼容。而Object.class.isAssignableFrom(Double.class)倒为true了。
+            if (valStr.trim().equals("——") || valStr.trim().equals("--")) {
+                val = new Double("0");
+            } else if (valStr.indexOf("%") > -1) {
+                valStr = valStr.substring(0, valStr.indexOf("%"));
+                val = new Double(valStr) / 100;
+            } else {
+                if (StringUtil.isEmpty(valStr)) {
+                    valStr = "0";
+                }
+                val = new Double(valStr);
+            }
+        } else if (fieldType == DZFDate.class) {
+            if (!StringUtil.isEmpty(valStr)) {
+                val = new DZFDate(valStr);
+            } else {
+                val = null;
+            }
+        }
 //			if (fieldAnno.isTotal() && qcdata != null &&  qcdata.containsKey(fname)) {
 //				val = ((DZFDouble) val).add(qcdata.get(fname));
 //			}
-            Method setMtd = fieldType.getMethod("set"
-                            + fname.substring(0, 1).toUpperCase() + fname.substring(1),
-                    field.getType());
-            setMtd.invoke(rowObj, val);
-        }
+        //endregion
 
-        return rowObj;
+        return val;
+    }
+
+    private boolean isPrimitive(Class clz) {
+        try {
+            return ((Class<?>)clz.getField("TYPE").get(null)).isPrimitive();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -1107,47 +1196,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
      * @return
      */
     private HashMap<String, Object> initTax(CorpVO corpVO, CorpTaxVo taxvo, TaxReportVO reportvo) {
+        String sbzlbh = reportvo.getSb_zlbh();
         BaseRequestVO baseReq = getBaseRequset(corpVO, taxvo);
 
-        if (TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
-                || TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())) {
-            baseReq.setServiceid("FW_DZSWJ_ZZSXGM_CSH");
-            baseReq.getBody().setSign("sb10102InitService");
-        } else if (TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())) {
-            baseReq.setServiceid("FW_DZSWJ_ZZSYBNSR_CSH");
-            baseReq.getBody().setSign("sb10101InitService");
-        } else if (TaxRptConst.SB_ZLBH10412.equals(reportvo.getSb_zlbh())) {
-            baseReq.setServiceid("FW_DZSWJ_QYSDSYJD_A_CSH");
-            baseReq.getBody().setSign("sb10412InitService");
-        } else if (TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh())) {
-            baseReq.setServiceid("FW_DZSWJ_QYSDSYJD_B_CSH");
-            baseReq.getBody().setSign("sb10413InitService");
-        } else if (TaxRptConst.SB_ZLBH39801.equals(reportvo.getSb_zlbh())) {
-            baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_ND_CSH");
-            baseReq.getBody().setSign("sb39801InitService");
-        } else if (TaxRptConst.SB_ZLBHC1.equals(reportvo.getSb_zlbh())) { // 小企业会计准则
-            baseReq.setServiceid("FW_DZSWJ_CWBB_XQY_YJ_CSH");
-            baseReq.getBody().setSign("sb29806InitService");
-        } else if (TaxRptConst.SB_ZLBHC2.equals(reportvo.getSb_zlbh())) {// 企业会计准则
-            baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_YJ_CSH");
-            baseReq.getBody().setSign("sb29801InitService");
-        } else if (TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
-                || TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) { //附加税
-            baseReq.setServiceid("FW_DZSWJ_FJS_CSH");
-            baseReq.getBody().setSign("sb10516InitService");
-        } else if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())) { // 印花税
-            baseReq.setServiceid("FW_DZSWJ_YHS_CSH");
-            baseReq.getBody().setSign("sb10509InitService");
-        } else if (TaxRptConst.SB_ZLBH10601.equals(reportvo.getSb_zlbh())) { // 文化事业建设费
-            baseReq.setServiceid("FW_DZSWJ_WHSY_CSH");
-            baseReq.getBody().setSign("sb10601InitService");
-        } else if (TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（工会经费）
-            baseReq.setServiceid("FW_DZSWJ_GFJF_CSH");
-            baseReq.getBody().setSign("sb10520InitService");
-        } else if (TaxRptConst.SB_ZLBH30299.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（垃圾处理费）
-            baseReq.setServiceid("FW_DZSWJ_LJCLF_CSH");
-            baseReq.getBody().setSign("sb10514InitService");
-        }
+        // 设置初始化税种的serviceid和sign
+        setInitTaxServiceId(baseReq, sbzlbh);
 
         String lsh = reportvo.getRegion_extend1();
         baseReq.getBody().setYwbw(getInitParams(corpVO, reportvo));
@@ -1182,6 +1235,48 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         }
 
         return initData;
+    }
+
+    private void setInitTaxServiceId(BaseRequestVO baseReq, String sbzlbh) {
+        if (TaxRptConst.SB_ZLBH10102.equals(sbzlbh)
+                || TaxRptConst.SB_ZLBH1010201.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_ZZSXGM_CSH");
+            baseReq.getBody().setSign("sb10102InitService");
+        } else if (TaxRptConst.SB_ZLBH10101.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_ZZSYBNSR_CSH");
+            baseReq.getBody().setSign("sb10101InitService");
+        } else if (TaxRptConst.SB_ZLBH10412.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_QYSDSYJD_A_CSH");
+            baseReq.getBody().setSign("sb10412InitService");
+        } else if (TaxRptConst.SB_ZLBH10413.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_QYSDSYJD_B_CSH");
+            baseReq.getBody().setSign("sb10413InitService");
+        } else if (TaxRptConst.SB_ZLBH39801.equals(sbzlbh)) {
+            baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_ND_CSH");
+            baseReq.getBody().setSign("sb39801InitService");
+        } else if (TaxRptConst.SB_ZLBHC1.equals(sbzlbh)) { // 小企业会计准则
+            baseReq.setServiceid("FW_DZSWJ_CWBB_XQY_YJ_CSH");
+            baseReq.getBody().setSign("sb29806InitService");
+        } else if (TaxRptConst.SB_ZLBHC2.equals(sbzlbh)) {// 企业会计准则
+            baseReq.setServiceid("FW_DZSWJ_CWBB_YBQY_YJ_CSH");
+            baseReq.getBody().setSign("sb29801InitService");
+        } else if (TaxRptConst.SB_ZLBH50101.equals(sbzlbh)
+                || TaxRptConst.SB_ZLBH50102.equals(sbzlbh)) { //附加税
+            baseReq.setServiceid("FW_DZSWJ_FJS_CSH");
+            baseReq.getBody().setSign("sb10516InitService");
+        } else if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)) { // 印花税
+            baseReq.setServiceid("FW_DZSWJ_YHS_CSH");
+            baseReq.getBody().setSign("sb10509InitService");
+        } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) { // 文化事业建设费
+            baseReq.setServiceid("FW_DZSWJ_WHSY_CSH");
+            baseReq.getBody().setSign("sb10601InitService");
+        } else if (TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(sbzlbh)) { // 地方各项基金费（工会经费）
+            baseReq.setServiceid("FW_DZSWJ_GFJF_CSH");
+            baseReq.getBody().setSign("sb10520InitService");
+        } else if (TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) { // 地方各项基金费（垃圾处理费）
+            baseReq.setServiceid("FW_DZSWJ_LJCLF_CSH");
+            baseReq.getBody().setSign("sb10514InitService");
+        }
     }
 
     /**
@@ -1252,7 +1347,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                         JSONObject smzm = smzmMap.get(zspmdm);
                         // String sl1 = sbxx.getString("sl1"); //"3.0E-4"
                         String sl = smzm.get("sl").toString(); //0.0003
-                        // 报文中的 货物运输合同(按运输费用万分之五贴花) 需要改成 货物运输合同_按运输费用万分之五贴花 吗？ // .replace("(", "_").replace(")", "")
+                        // zspmmc.replace("(", "_").replace(")", "") // 报文中的 货物运输合同(按运输费用万分之五贴花) 需要改成 货物运输合同_按运输费用万分之五贴花 吗？
                         // String zspmmc = sbxx.getString("zspmMc"); // sbxx上没有zspmMc名称
                         String zspmmc = smzm.getString("zspmmc").split("\\|")[1]; //"101110101|购销合同"、101110106|货物运输合同(按运输费用万分之五贴花)
                         if (!qcLines.containsKey(zspmmc)) {
@@ -1264,7 +1359,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                             if (hdzsMap.containsKey(zspmdm)) {
                                 JSONObject hdzs = hdzsMap.get(zspmdm);
                                 qcLine.put("hdlx", hdzs.get("hdlx2"));
-                                qcLine.put("hdde", hdzs.get("hdde")); // 测试期初数据中，hdxxlist中没有hdde（有hdlx(2)、hdbl）
+                                qcLine.put("hdde", hdzs.get("hdde")); // 测试期初数据中，hdxxlist中没有hdde（有hdlx(=2)和hdbl）
                                 qcLine.put("hdbl", hdzs.get("hdbl"));
                             }
                             qcLines.put(zspmmc, qcLine);
@@ -1462,12 +1557,14 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 params);
 
         String result = HttpUtil.parseRes(rmap.get("response"));
+        if (StringUtil.isEmpty(result)) { // 当税种环境不稳定时返回的result可能为空，这种情况直接退出，暂不更新状态
+            return;
+        }
         JSONObject rsJosn = (JSONObject) JSON.parse(result);
         String status = rsJosn.getString("RESULT");
         String msg = rsJosn.getString("MSG");
 
-        // 当返回"无可查询信息，请检查参数是否正确"时，是否可以把申报成功改为未申报？
-
+        // 当返回"9999-无可查询信息，请检查参数是否正确"时，认为是未申报。其他错误，则写日志退出，不更新申报状态
         if (!"0000".equals(status) && !"无可查询信息，请检查参数是否正确".equals(msg)) {
             log.error("更新申报状态失败:" + rsJosn);
 //				throw new BusinessException((String) rsJosn.get("MSG"));
@@ -1484,6 +1581,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             if (TaxRptConst.iSBZT_DM_ReportSuccess == Integer.valueOf(sbzt_dm)) {
                 String yzpzxh = data.getString("YZPZXH");
                 reportvo.setRegion_extend2(yzpzxh);
+                String lsh = data.getString("LSH");
+                reportvo.setRegion_extend3(lsh);//记录申报成功查回的流水号
                 BigDecimal tax = data.getBigDecimal("YBTSE");
                 reportvo.setTaxmny(new DZFDouble(tax));
             }
@@ -1520,7 +1619,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
     }
 
     private void updateSBZTJS(TaxReportVO reportvo) {
-        singleObjectBO.update(reportvo, new String[]{"sbzt_dm", "remark", "region_extend2", "taxmny"});
+        singleObjectBO.update(reportvo, new String[]{"sbzt_dm", "remark", "region_extend2", "region_extend3","taxmny"});
         String sql = "update ynt_taxreportdetail set sbzt_dm = ? where pk_corp = ? and  pk_taxreport = ? and nvl(dr, 0) = 0";
         SQLParameter sp = new SQLParameter();
         sp.addParam(reportvo.getSbzt_dm());
@@ -1552,7 +1651,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 || "39".equals(reportvo.getZsxm_dm())) {
             // 财报标志
             zflag = "cwbb";
-            yzpz = reportvo.getRegion_extend1();
+            if("C".equals(reportvo.getZsxm_dm())){
+                yzpz = reportvo.getRegion_extend3();
+            }else{
+                yzpz = reportvo.getRegion_extend1();
+            }
         }
 
         if (StringUtil.isEmpty(yzpz)) {
@@ -2926,7 +3029,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 || TaxRptConst.SB_ZLBH10102.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBH1010201.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBHC1.equals(taxTypeCode)
-//				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
+				|| TaxRptConst.SB_ZLBHC2.equals(taxTypeCode)
 //				|| TaxRptConst.SB_ZLBH29805.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBH10412.equals(taxTypeCode)
                 || TaxRptConst.SB_ZLBH10413.equals(taxTypeCode)
@@ -2954,8 +3057,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         } else if ("true".equals(taxJstcConfig.service_switch)) {
             if (list != null && list.size() > 0) {
                 String period = DateUtils.getPeriod(new DZFDate());
-                JSONObject rsJosn = getInventoryJson(period, corpvo, taxvo);
-                String status = rsJosn.getString("RESULT");
+                JSONObject rsJson = getInventoryJson(period, corpvo, taxvo);
+                if (rsJson == null) { // 当税种环境不稳定时返回的result可能为空，这种情况退出暂不校验
+                    return null;
+                }
+                String status = rsJson.getString("RESULT");
                 if ("0000".equals(status)) {
 //					JSONArray data = (JSONArray) rsJosn.get("DATA");
 //					for (Object object : data) {
@@ -2966,7 +3072,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 //						}
 //					}
                 } else {
-                    msg = rsJosn.getString("MSG");
+                    msg = rsJson.getString("MSG");
+                    if ("true".equals(taxJstcConfig.dev_mode) && msg.equals("该纳税人没有应申报数据")) { // 税局测试接口时，经常查不到应申报数据，提示一下
+                        msg += "（税局测试环境经常是这样的，请忽略）";
+                    }
                 }
             }
         }

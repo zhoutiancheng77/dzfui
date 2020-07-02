@@ -9,17 +9,16 @@ spring:
         namespace: @dzf.mvn.nacos.config.namespace@
         file-extension: yaml
         group: dzf-zxkj
+        refresh:
+          enabled: false
         prefix: ${spring.application.name}
         ext-config:
           - data-id: zxkj-fast-dfs.yaml
             group: dzf-zxkj
-            refresh: true
           - data-id: zxkj-data-source.yaml
             group: dzf-zxkj
-            refresh: false
           - data-id: zxkj-secret-key.yaml
             group: dzf-zxkj
-            refresh: false
     zookeeper:
       enabled: false
       consul:

@@ -48,7 +48,7 @@ public enum ExportRecordEnum {
     public static String getRecordMessage(String areaType, String qj, String qjlx) {
         ExportRecordEnum recordEnum = null;
         for (ExportRecordEnum e : ExportRecordEnum.values()) {
-            if (e.areaType.equals("0")) {
+            if (e.areaType.equals(areaType)) {
                 recordEnum = e;
                 break;
             }

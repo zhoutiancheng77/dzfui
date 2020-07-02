@@ -596,7 +596,7 @@ public class QueryHZdic {
 		DZFBoolean ishasjz = paramVo.getIshasjz();
 		StringBuffer sf = new StringBuffer();
 		sf.append(" select period as opdate, b.pk_accsubj as pk_subject,b.vcode as kmbm, ");
-		sf.append(" b.kmmchie as kmmc, b.nnumber, b.jfmny, b.dfmny ");
+		sf.append(" b.kmmchie as kmmc, b.nnumber, b.jfmny, b.dfmny, t.direction dir ");
 		if (paramVo.getIsfzhs() != null && paramVo.getIsfzhs().booleanValue()) {
 			sf.append(" , b.fzhsx1, b.fzhsx2, b.fzhsx3, b.fzhsx4, b.fzhsx5, b.fzhsx6, b.fzhsx7, b.fzhsx8, b.fzhsx9, b.fzhsx10 ");
 		}
@@ -647,6 +647,12 @@ public class QueryHZdic {
 //				v.setBqjfnum(num);
 				v.setBqdfnum(num);
 				v.setBqdfmny(v.getDfmny());
+			} else if (num != null && num.doubleValue() != 0) {
+				if("1".equals(v.getDir())) {
+					v.setBqdfnum(num);
+				}else {
+					v.setBqjfnum(num);
+				}
 			}
 		}
 	}
