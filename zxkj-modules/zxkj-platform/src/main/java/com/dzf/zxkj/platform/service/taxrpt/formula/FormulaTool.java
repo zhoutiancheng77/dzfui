@@ -225,19 +225,19 @@ public class FormulaTool {
     }
 
     // 字符串拆分
-    public static String splitString(String srcString, int num)
+    public static String splitString(String srcString, Integer num)
     {
-        return splitString(srcString, "\\|", num);
+        return splitString(srcString, "\\||-", num);
     }
 
     /**
-     * 字符串拆分，如 编码|名称
+     * 字符串拆分，拆“编码|名称”等
      * @param srcString
      * @param separator 分隔符
      * @param num
      * @return
      */
-    public static String splitString(String srcString, String separator, int num)
+    public static String splitString(String srcString, String separator, Integer num)
     {
         String[] values = srcString.split(separator);
         if (num < 0 || num > values.length)
@@ -250,4 +250,6 @@ public class FormulaTool {
     public static String deCode(String code) {
         return CorpSecretUtil.deCode(code);
     }
+
+    //public static String iif(boolean condition, String truepart, String falsepart)
 }
