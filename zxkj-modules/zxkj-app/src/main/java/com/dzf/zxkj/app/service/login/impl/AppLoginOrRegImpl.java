@@ -532,7 +532,7 @@ public class AppLoginOrRegImpl implements IAppLoginOrRegService {
 			//3：如果只有一家公司则自动登录
 			if (bean.getRescode().equals(IConstant.DEFAULT)) {
 				if (bean.getSubcorpvos() != null && bean.getSubcorpvos().length == 1
-						&& !userBean.getSystype().equals(ISysSourceConstant.SYSTYPE_IOS)
+						&& !ISysSourceConstant.SYSTYPE_IOS.equals(userBean.getSystype() )
 						&& !IConstant.DEFAULT.equals(bean.getIsys())) {//只有一家公司时自动登录
 					userBean.setPk_corp(bean.getSubcorpvos()[0].getPk_corp());
 					userBean.setCorpname(bean.getSubcorpvos()[0].getCorpname());
