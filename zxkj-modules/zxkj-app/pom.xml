@@ -30,6 +30,7 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-report-api</artifactId>
+            <version>1.0.9</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
@@ -74,6 +75,7 @@
         <dependency>
             <groupId>com.dzf</groupId>
             <artifactId>zxkj-app-api</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
