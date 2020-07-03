@@ -24,6 +24,7 @@ import com.dzf.zxkj.report.controller.ReportBaseController;
 import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.XjllQuarterlyExcelField;
 import com.dzf.zxkj.report.service.cwbb.IXjllbQuarterlyReport;
+import com.dzf.zxkj.report.service.pub.IReportPubService;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Font;
@@ -47,6 +48,9 @@ public class XjllbQuarterlyController extends ReportBaseController {
 
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
+
+    @Autowired
+    private IReportPubService gl_rep_pubser;
     @PostMapping("/queryAction")
     public ReturnData<Grid> queryAction(@MultiRequestBody QueryParamVO queryvo, @MultiRequestBody CorpVO corpVO) {
         Grid grid = new Grid();
@@ -147,7 +151,7 @@ public class XjllbQuarterlyController extends ReportBaseController {
             tmap.put("单位",  "元");
             QueryParamVO paramvo = new QueryParamVO();
             paramvo.setPk_corp(corpVO.getPk_corp());
-            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
+            List<CorpTaxVo> listVos = gl_rep_pubser.queryTaxVoByParam(queryparamvo.getPk_corp());
             if(listVos != null && listVos.size() > 0){
                 Optional<CorpTaxVo> optional = listVos.stream().filter(v-> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
                 optional.ifPresent(corpTaxVo ->{

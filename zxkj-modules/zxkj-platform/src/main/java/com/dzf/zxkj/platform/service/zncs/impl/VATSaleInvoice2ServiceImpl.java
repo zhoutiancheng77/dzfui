@@ -2977,7 +2977,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			log.error("错误",ex);
 			ret = null;
 		}
-		return OcrUtil.filterCorpName(ret);
+		return OcrUtil.filterString(ret);
 	}
 
 	private String[][] getBStyleMap() {

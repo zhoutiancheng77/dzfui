@@ -36,6 +36,7 @@ import com.dzf.zxkj.report.service.cwbb.ILrbReport;
 import com.dzf.zxkj.report.service.cwbb.IXjllbReport;
 import com.dzf.zxkj.report.service.cwbb.IZcFzBReport;
 import com.dzf.zxkj.report.service.cwzb.IFsYeReport;
+import com.dzf.zxkj.report.service.pub.IReportPubService;
 import com.dzf.zxkj.report.utils.OtherSystemForZcfzImpl;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
@@ -82,6 +83,9 @@ public class ZcfzController extends ReportBaseController {
 
     @Autowired
     private IFsYeReport gl_rep_fsyebserv ;
+
+    @Autowired
+    private IReportPubService gl_rep_pubser;
     /**
      * 查询
      */
@@ -681,11 +685,11 @@ public class ZcfzController extends ReportBaseController {
     @PostMapping("print")
     public void printAction(@RequestParam Map<String, String> pmap1, @MultiRequestBody UserVO userVO, @MultiRequestBody CorpVO corpVO, HttpServletResponse response) {
         try {
-
             PrintParamVO printParamVO = JsonUtils.deserialize(JsonUtils.serialize(pmap1), PrintParamVO.class);
             QueryParamVO queryparamvo = JsonUtils.deserialize(JsonUtils.serialize(pmap1), QueryParamVO.class);
             // 校验
             checkSecurityData(null, new String[]{queryparamvo.getPk_corp()}, null);
+            List<CorpTaxVo> listVos = gl_rep_pubser.queryTaxVoByParam(queryparamvo.getPk_corp());
             PrintReporUtil printReporUtil = new PrintReporUtil(zxkjPlatformService, corpVO, userVO, response);
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String type = printParamVO.getType();
@@ -697,7 +701,7 @@ public class ZcfzController extends ReportBaseController {
             tmap.put("单位", "元");
             QueryParamVO paramvo = new QueryParamVO();
             paramvo.setPk_corp(corpVO.getPk_corp());
-            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
+
             if (listVos != null && listVos.size() > 0) {
                 Optional<CorpTaxVo> optional = listVos.stream().filter(v -> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
                 optional.ifPresent(corpTaxVo -> {
