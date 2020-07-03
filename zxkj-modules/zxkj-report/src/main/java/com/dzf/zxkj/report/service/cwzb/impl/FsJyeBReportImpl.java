@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.service.cwzb.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -44,6 +45,7 @@ import java.util.stream.Collectors;
  */
 @Service("gl_rep_fsyebserv")
 @SuppressWarnings("all")
+@DS("master")
 public class FsJyeBReportImpl implements IFsYeReport {
 
 	@Autowired

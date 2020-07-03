@@ -83,7 +83,7 @@ public class LoginServiceImpl implements ILoginService {
             log.error("用户中心异常", e);
         }
 
-        return null;
+        return getLocalLoginUser(username, password);
     }
 
     //获取用户中心用户信息
