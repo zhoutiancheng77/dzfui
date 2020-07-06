@@ -286,7 +286,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 
 		if (!StringUtil.isEmpty(paramvo.getFpdm())) {
-			sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
+			//sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
+			sb.append(" and y.khmc like ").append("'%").append(paramvo.getFpdm()).append("%'");
 		}
 
 		if (!StringUtil.isEmpty(sort)) {// sort != null && !"".equals(sort)
