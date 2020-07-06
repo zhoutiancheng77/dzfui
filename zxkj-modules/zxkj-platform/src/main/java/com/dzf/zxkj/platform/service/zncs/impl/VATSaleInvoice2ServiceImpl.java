@@ -2367,7 +2367,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			//处理第二页签数据  202007
 			if(FAPIAOXIAZAI1_EXCEL==sourceType){
 				Sheet sheet2 = impBook.getSheetAt(1);
-				Map<String,List<VATSaleInvoiceBVO2>> map =getDataBySheet2(sheet2, pk_corp,sourceType);
+				Map<String,List<VATSaleInvoiceBVO2>> map =getDataBySheet2(sheet2, pk_corp,FAPIAOXIAZAI2_EXCEL);
 				if(list.size() > 0 && map.size() > 0){
 					for (VATSaleInvoiceVO2 vo2:list) {
 						if(map.containsKey(vo2.getFp_hm()+vo2.getFp_dm())){
@@ -2379,7 +2379,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 
 								rowno++;
 							}
-							vo2.setSpsl(bvoList.get(0).getBspsl().multiply(100));//税率
+							vo2.setSpsl(bvoList.get(0).getBspsl());//税率
 							vo2.setSpmc(bvoList.get(0).getBspmc());//商品名称
 							vo2.setSourcetype(IBillManageConstants.ZENGZHIAHUI_AUTO); //来源
 							vo2.setChildren(bvoList.toArray(new VATSaleInvoiceBVO2[0]));
@@ -2506,7 +2506,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					} else if (sourceType != XINLONG_EXCEL && sTmp.startsWith("发票类别")) {
 						ISZHUAN = transPjlb(sTmp, ISZHUAN);
 						break;
-					}
+					}else if(sourceType == FAPIAOXIAZAI1_EXCEL )
+					    if(sTmp.contains("专用发票")){
+                            ISZHUAN = DZFBoolean.TRUE;
+                        }else if(sTmp.contains("普通发票")){
+                            ISZHUAN = DZFBoolean.FALSE;
+                        }
 
 				}
 
@@ -2623,6 +2628,16 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						excelvo.setSpsl(excelvo.getSpsl().multiply(new DZFDouble(100)));
 						excelvo.setBspsl(excelvo.getSpsl().multiply(new DZFDouble(100)));
 					}
+				}
+				//处理认证平台 下载发票的发票状态
+				if(FAPIAOXIAZAI1_EXCEL==sourceType && !StringUtils.isEmpty(excelvo.getKplx())){
+					if(excelvo.getKplx().equals("作废")){
+						excelvo.setKplx("4");
+					}else if(excelvo.getKplx().equals("负数")){
+						excelvo.setKplx("2");
+					}else{
+                        excelvo.setKplx("1");
+                    }
 				}
 
 				innermsg.setLength(0);
@@ -3075,7 +3090,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			log.error("错误",ex);
 			ret = null;
 		}
-		return OcrUtil.filterCorpName(ret);
+		return OcrUtil.filterString(ret);
 	}
 
 	private String[][] getBStyleMap() {
@@ -3619,7 +3634,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				}
 			}else if(sourceType==HANG_JDC_EXCEL||sourceType==BAIWANG_JDC_EXCEL){
 				vo.setIszhuan(DZFBoolean.TRUE);
-			}else{
+			}else if(sourceType==FAPIAOXIAZAI1_EXCEL){
+                vo.setIszhuan(iszhuan);
+            }else{
 				iszhuan = isZhuan(corpService.queryByPk(pk_corp));
 				vo.setIszhuan(iszhuan);
 			}

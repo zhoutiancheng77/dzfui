@@ -2221,7 +2221,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 							rowno++;
 						}
-						vo2.setSpsl(bvoList.get(0).getBspsl().multiply(100));//税率
+						vo2.setSpsl(bvoList.get(0).getBspsl());//税率
 						vo2.setSpmc(bvoList.get(0).getBspmc());//商品名称
 						vo2.setJshj(vo2.getHjje().add(vo2.getSpse()));//价税合计
 						vo2.setKplx(ICaiFangTongConstant.FPLX_1);//发票状态
@@ -2248,7 +2248,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 							rowno++;
 						}
-						vo2.setSpsl(bvoList.get(0).getBspsl().multiply(100));//税率
+						vo2.setSpsl(bvoList.get(0).getBspsl());//税率
 						vo2.setSpmc(bvoList.get(0).getBspmc());//商品名称
 
 						vo2.setSourcetype(IBillManageConstants.ZENGZHIAHUI_AUTO); //来源
@@ -2620,6 +2620,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 					if(IBillManageConstants.FAPIAOXIAZAI1==sourceType && sTmp!=null){
 						if(sTmp.contains("专用发票")){
 							paramvo.setIszhuan(DZFBoolean.TRUE);
+						}else if(sTmp.contains("普通发票")){
+							paramvo.setIszhuan(DZFBoolean.FALSE);
 						}
 					}
 					if (sTmp != null && cursorMap.containsKey(sTmp)) {
