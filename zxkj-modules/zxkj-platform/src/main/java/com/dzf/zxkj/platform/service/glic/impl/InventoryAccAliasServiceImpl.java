@@ -139,7 +139,8 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 		StringBuffer msg = new StringBuffer();
 		if (StringUtil.isEmpty(error)) {
 		} else {
-			msg.append("<font color = 'red'>" + error + "</font>");
+			//msg.append("<font color = 'red'>" + error + "</font>");
+            msg.append(error) ;
 		}
 		if (!StringUtil.isEmpty(msg.toString()))
 			throw new BusinessException(msg.toString());
@@ -208,7 +209,7 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 	}
 
 	private void dealMessage(StringBuffer message, String errinfo) {
-		message.append(errinfo + "<br>");
+		message.append(errinfo );
 	}
 
 	private String getNameInfoKey(InventoryAliasVO invo) {
