@@ -205,8 +205,11 @@ public class InvAccAliasServiceImpl implements IInvAccAliasService {
 		String nameInfoKey = getNameInfoKey(bvo);
 		if (!StringUtil.isEmpty(nameInfoKey)) {
 			if (nameSet.contains(nameInfoKey)) {
-				dealMessage(message, "别名[" + bvo.getAliasname() + "]、规格(型号)[" + bvo.getSpec() + "]、计量单位["
-						+ bvo.getUnit() + "]至少有一项不同！");
+				String aliasname = StringUtil.isEmpty(bvo.getAliasname())?"":bvo.getAliasname();
+				String spec = StringUtil.isEmpty(bvo.getSpec())?"":bvo.getSpec();
+				String unit = StringUtil.isEmpty(bvo.getUnit())?"":bvo.getUnit();
+				dealMessage(message, "别名[" + aliasname + "]、规格(型号)[" + spec+ "]、计量单位["
+						+ unit + "]至少有一项不同！");
 			} else {
 				nameSet.add(nameInfoKey);
 			}
