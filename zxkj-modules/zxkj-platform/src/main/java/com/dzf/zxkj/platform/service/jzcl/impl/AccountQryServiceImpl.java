@@ -726,18 +726,18 @@ public class AccountQryServiceImpl implements IAccountQryService {
 			
 			if(fs != null && fs.doubleValue() >= incomeWarningVO.getSrsx().doubleValue()){
 				if(StringUtil.isEmpty(xinxi)){
-					xinxi = incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上线";
+					xinxi = incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上限";
 				}else{
-					xinxi += "#" + incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上线";
+					xinxi += "#" + incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上限";
 				}
 				continue;
 			}
 			
 			if(fs != null && fs.doubleValue() > incomeWarningVO.getYjz().doubleValue()){
 				if(StringUtil.isEmpty(xinxi)){
-					xinxi = incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上线";
+					xinxi = incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上限";
 				}else{
-					xinxi += "#" + incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上线";
+					xinxi += "#" + incomeWarningVO.getXmmc()+"("+translate(incomeWarningVO.getPeriod_type())+")已达预警上限";
 				}
 				continue;
 			}
@@ -852,9 +852,9 @@ public class AccountQryServiceImpl implements IAccountQryService {
 
 			if(fs.doubleValue() >= incomeWarningVO.getSrsx().doubleValue()){
 				if(yjxxMap.containsKey(incomeWarningVO.getPk_corp())){
-					yjxxMap.put(pk_corp,yjxxMap.get(pk_corp) +"#"+ incomeWarningVO.getXmmc()+"("+translate(period_type)+")已达预警上线");
+					yjxxMap.put(pk_corp,yjxxMap.get(pk_corp) +"#"+ incomeWarningVO.getXmmc()+"("+translate(period_type)+")已达预警上限");
 				}else{
-					yjxxMap.put(incomeWarningVO.getPk_corp(),incomeWarningVO.getXmmc()+"("+translate(period_type)+")已达预警上线");
+					yjxxMap.put(incomeWarningVO.getPk_corp(),incomeWarningVO.getXmmc()+"("+translate(period_type)+")已达预警上限");
 				}
 				continue;
 			}
