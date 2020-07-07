@@ -828,7 +828,7 @@ public class SpreadTool {
 	 * @param iColumn
 	 * @param value
 	 */
-	public void setCellValue(Map mapJson, String reportname, int iRow, int iColumn, String value)
+	public void setCellValue(Map mapJson, String reportname, int iRow, int iColumn, Object value)
 	{
 		LinkedHashMap hmsheets = (LinkedHashMap)mapJson.get("sheets");
 		Iterator iter = hmsheets.entrySet().iterator();
@@ -2015,54 +2015,57 @@ public class SpreadTool {
 		return qcvalue;
 	}
 
+	// 江苏印花税、地方各项基金费等，按税局核定税目动态增行
 	private void fillReportByQcData(Map mapJson,String sheetname, CorpVO corpvo, CorpTaxVo taxvo, TaxReportVO reportvo, HashMap<String, Object> hmQCData) {
 		if (taxvo.getTax_area() == 11 ) {//江苏
-			if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())
-					&& "印花税纳税申报表".equals(sheetname)) {
-				Map<String, JSONObject> qcLines = (Map<String, JSONObject>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
+			if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())) { // 印花税纳税申报表
+				//Map<String, JSONObject> qcLines = (Map<String, JSONObject>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
+				Map<String, Object> qcLines = hmQCData;
 				if (qcLines != null) {
 					int row = 6;
-					JSONObject qcLine;
-					for(Map.Entry<String, JSONObject> entry : qcLines.entrySet()) {
-						qcLine = entry.getValue();
-						setCellValue(mapJson, sheetname, row, 0, (String) qcLine.get("zspmmc")); // 应税凭证名称
-						setCellValue(mapJson, sheetname, row, 4, (String) qcLine.get("hdde")); // 核定依据
-						setCellValue(mapJson, sheetname, row, 5, (String) qcLine.get("hdbl")); // 核定比例
-						setCellValue(mapJson, sheetname, row, 6, (String) qcLine.get("sl")); // 适用税率
+					Map<String, Object> qcLine;
+					for(Map.Entry<String, Object> entry : qcLines.entrySet()) {
+						Object obj = entry.getValue();
+						if (!(obj instanceof Map))
+							continue;
+						qcLine = (Map)obj;
+						setCellValue(mapJson, sheetname, row, 0, qcLine.get("zspmmc")); // 应税凭证名称
+						setCellValue(mapJson, sheetname, row, 4, qcLine.get("hdde")); // 核定依据
+						setCellValue(mapJson, sheetname, row, 5, qcLine.get("hdbl")); // 核定比例
+						setCellValue(mapJson, sheetname, row, 6, qcLine.get("sl")); // 适用税率
 						//征收品目代码(zspmdm)、核定类型(hdlx)等隐藏字段在Excel中没有存，需在申报时从期初数据中现取
 						row++;
 					}
 				}
-			} else if (TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(reportvo.getSb_zlbh())
-					&& "地方各项基金费（工会经费）申报表".equals(sheetname)) {
-				List<Map<String, Object>> qcMaps = (List<Map<String, Object>>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
-				if (qcMaps != null) {
-					int row = 7;
-					for (Map<String, Object> map : qcMaps) {
-						if (map.containsKey("zspmmc")) {
-							setCellValue(mapJson, sheetname, row, 0, (String) map.get("zspmmc"));
-						}
-						if (map.containsKey("zszmmc")) {
-							setCellValue(mapJson, sheetname, row, 1, (String) map.get("zszmmc"));
-						}
-						if (map.containsKey("jzl")) {
-							setCellValue(mapJson, sheetname, row, 5, (String) map.get("jzl"));
-						}
+			} else if (TaxRptConst.SB_ZLBH31399.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（工会经费）、地方各项基金费（工会经费）申报表
+				Map<String, Object> qcLines = hmQCData;
+				if (qcLines != null) {
+					int row = 6;
+					Map<String, Object> qcLine;
+					for(Map.Entry<String, Object> entry : qcLines.entrySet()) {
+						Object obj = entry.getValue();
+						if (!(obj instanceof Map))
+							continue;
+						qcLine = (Map)obj;
+						setCellValue(mapJson, sheetname, row, 0, qcLine.get("zspmmc"));
+						setCellValue(mapJson, sheetname, row, 1, qcLine.get("zszmmc"));
+						setCellValue(mapJson, sheetname, row, 2, qcLine.get("skssqq")); // 所属期起
+						setCellValue(mapJson, sheetname, row, 3, qcLine.get("skssqz")); // 所属期止
+						setCellValue(mapJson, sheetname, row, 5, qcLine.get("jzl"));
 						row++;
 					}
 				}
 			}
 		}else if (taxvo.getTax_area() == 16 ) {//山东
-			if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())
-					&& "印花税纳税申报表".equals(sheetname)) {
+			if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())) { // 印花税纳税申报表
 				List<Map<String, Object>> qcMaps = (List<Map<String, Object>>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
 				if (qcMaps != null) {
 					int row = 9;
 					for (Map<String, Object> map : qcMaps) {
-						setCellValue(mapJson, sheetname, row, 0, (String) map.get("zspmDm")+"|"+(String) map.get("zspmMc"));
-						setCellValue(mapJson, sheetname, row, 2, (String) map.get("hdyj"));
-						setCellValue(mapJson, sheetname, row, 3, (String) map.get("hdbl"));
-						setCellValue(mapJson, sheetname, row, 4, (String) map.get("sysl"));
+						setCellValue(mapJson, sheetname, row, 0, map.get("zspmDm")+"|"+(String) map.get("zspmMc"));
+						setCellValue(mapJson, sheetname, row, 2, map.get("hdyj"));
+						setCellValue(mapJson, sheetname, row, 3, map.get("hdbl"));
+						setCellValue(mapJson, sheetname, row, 4, map.get("sysl"));
 						row++;
 					}
 				}
