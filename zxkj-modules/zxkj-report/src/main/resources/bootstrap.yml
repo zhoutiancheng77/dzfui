@@ -15,7 +15,7 @@ spring:
         ext-config:
           - data-id: zxkj-fast-dfs.yaml
             group: dzf-zxkj
-          - data-id: zxkj-data-source.yaml
+          - data-id: zxkj-report-data-source.yaml
             group: dzf-zxkj
           - data-id: zxkj-secret-key.yaml
             group: dzf-zxkj
