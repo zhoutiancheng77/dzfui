@@ -53,10 +53,10 @@ public class IncomeTaxCalculator {
             String beginPeriod = taxInfo.getSxbegperiod();
             String endPeriod = taxInfo.getSxendperiod();
             if (beginPeriod == null && endPeriod == null) {
-                throw new BusinessException("核定征收生效期间为空，请到企业信息节点维护");
+                throw new BusinessException("核定征收生效期间为空，请到【账务处理-账套管理-账套设置】中维护");
             } else if (beginPeriod != null && period.compareTo(beginPeriod) < 0
                     || endPeriod != null && period.compareTo(endPeriod) > 0) {
-                throw new BusinessException("计提期间不在核定征收生效期间内，请到企业信息节点维护");
+                throw new BusinessException("计提期间不在核定征收生效期间内，请到【账务处理-账套管理-账套设置】中维护");
             }
         }
         DZFDouble[] lrbInfo = getInfoFromLrb(pk_corp, period, isQuarter, isFixed, true);
@@ -309,7 +309,7 @@ public class IncomeTaxCalculator {
         // 开始经营日期
         String beginPeriod = null;
         if (taxInfo.getBegprodate() == null) {
-            throw new BusinessException("开始生产经营日期为空，请到企业信息节点维护");
+            throw new BusinessException("开始生产经营日期为空，请到【账务处理-账套管理-账套设置】中维护");
         } else {
             beginPeriod = taxInfo.getBegprodate().toString();
         }

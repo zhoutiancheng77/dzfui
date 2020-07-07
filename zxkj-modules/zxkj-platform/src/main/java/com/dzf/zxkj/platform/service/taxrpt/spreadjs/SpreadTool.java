@@ -2037,7 +2037,7 @@ public class SpreadTool {
 						row++;
 					}
 				}
-			} else if (TaxRptConst.SB_ZLBH31399.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（工会经费）、地方各项基金费（工会经费）申报表
+			} else if (TaxRptConst.SB_ZLBH31399.equals(reportvo.getSb_zlbh()) || TaxRptConst.SB_ZLBH30299.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（工会经费）、地方各项基金费（垃圾处理费）申报表
 				Map<String, Object> qcLines = hmQCData;
 				if (qcLines != null) {
 					int row = 6;

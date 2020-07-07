@@ -160,6 +160,16 @@ public class FormulaTool {
     }
 
     /**
+     * 从申报运行时的qcData中，获取期初字段
+     * @param name
+     * @return
+     */
+    public Object QC(String name) {
+        Map qcdata = (Map)getObject("qcData");
+        return qcdata.get(name);
+    }
+
+    /**
      * 从当前sheet页中取出iRow行、iColumn列的单元格的值
      * @param iRow
      * @param iColumn
