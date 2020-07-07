@@ -1225,11 +1225,11 @@ public class VoucherController extends BaseController {
                         "删除凭证：" + DateUtils.getPeriod(data.getDoperatedate())
                                 + "，凭证号：记_" + data.getPzh());
             } catch (Exception e) {
-                log.error("凭证删除错误", e);
                 json.setSuccess(false);
                 if (e instanceof BusinessException) {
                     json.setMsg(e.getMessage());
                 } else {
+                    log.error("凭证删除错误", e);
                     json.setMsg("删除失败");
                 }
                 if (IVoucherConstants.EXE_RECONFM_CODE.equals(e.getMessage())) {
