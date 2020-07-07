@@ -2022,7 +2022,7 @@ public class SpreadTool {
 				//Map<String, JSONObject> qcLines = (Map<String, JSONObject>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
 				Map<String, Object> qcLines = hmQCData;
 				if (qcLines != null) {
-					int row = 6;
+					int row = 8;
 					Map<String, Object> qcLine;
 					for(Map.Entry<String, Object> entry : qcLines.entrySet()) {
 						Object obj = entry.getValue();
@@ -2030,9 +2030,9 @@ public class SpreadTool {
 							continue;
 						qcLine = (Map)obj;
 						setCellValue(mapJson, sheetname, row, 0, qcLine.get("zspmmc")); // 应税凭证名称
-						setCellValue(mapJson, sheetname, row, 4, qcLine.get("hdde")); // 核定依据
-						setCellValue(mapJson, sheetname, row, 5, qcLine.get("hdbl")); // 核定比例
-						setCellValue(mapJson, sheetname, row, 6, qcLine.get("sl")); // 适用税率
+						setCellValue(mapJson, sheetname, row, 2, qcLine.get("hdde")); // 核定依据
+						setCellValue(mapJson, sheetname, row, 3, qcLine.get("hdbl")); // 核定比例
+						setCellValue(mapJson, sheetname, row, 4, qcLine.get("sl")); // 适用税率
 						//征收品目代码(zspmdm)、核定类型(hdlx)等隐藏字段在Excel中没有存，需在申报时从期初数据中现取
 						row++;
 					}
