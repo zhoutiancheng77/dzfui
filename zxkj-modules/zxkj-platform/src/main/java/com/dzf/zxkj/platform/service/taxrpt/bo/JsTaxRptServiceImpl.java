@@ -599,10 +599,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                                 SpreadTool spreadtool, TaxReportVO reportvo, SingleObjectBO sbo)
             throws DZFWarpException {
         if (!"true".equals(taxJstcConfig.service_switch)) {
-            throw new BusinessException("申报接口未启用");
+            throw new BusinessException("作废接口未启用");
         }
         if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
-            throw new BusinessException("暂不支持上报当前税种");
+            throw new BusinessException("暂不支持作废当前税种");
         }
         CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpVO.getPk_corp());
         String nsrsbh = corpVO.getVsoccrecode();
@@ -1774,12 +1774,21 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             throws DZFWarpException {
 
         if (!"true".equals(taxJstcConfig.service_switch)) {
-            return;
+            throw new BusinessException("申报接口未启用");
+        }
+        if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
+            throw new BusinessException("暂不支持上报当前税种");
         }
         CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
-        if (StringUtil.isEmpty(corpvo.getVsoccrecode())
-                || StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
-            return;
+        String nsrsbh = corpvo.getVsoccrecode();
+        String vstatetaxpwd = taxvo.getVstatetaxpwd();
+
+        if (StringUtil.isEmpty(nsrsbh)) {
+            throw new BusinessException("纳税人识别号不能为空");
+        }
+
+        if (StringUtil.isEmpty(vstatetaxpwd)) {
+            throw new BusinessException("纳税密码不能为空");
         }
 
         if (Integer.valueOf(reportvo.getSbzt_dm()) != TaxRptConst.iSBZT_DM_ReportSuccess) {
@@ -2849,6 +2858,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
     // 收费
     private void doCharge(CorpVO corpVO, TaxReportVO reportvo, String userId) {
+
+        if (corpVO.getIschannel() != null && corpVO.getIschannel().booleanValue()) {
+            return;
+        }
+
         IVersionMngService verionMng = (IVersionMngService) SpringUtils
                 .getBean("sys_funnodeversionserv");
         // 是否收费
