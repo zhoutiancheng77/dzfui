@@ -1468,6 +1468,7 @@ public ReturnData<Json>  exportBill(HttpServletResponse response,String urls){
             for (String url:urlsArray) {
                String pk_library = url.trim().substring(27,51);
                 ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(SystemUtil.getLoginCorpId(),pk_library);
+                String nameSuffix = imglibvo.getImgname().substring(imglibvo.getImgname().lastIndexOf("."));
                 String imgPathName = null;
                 String type = null;
                 if(imglibvo != null && imglibvo.getImgpath()!=null){
@@ -1478,6 +1479,9 @@ public ReturnData<Json>  exportBill(HttpServletResponse response,String urls){
                     }else{
                         type="vchImg";
                     }
+                if (".pdf".equalsIgnoreCase(nameSuffix)) {
+                    imgPathName = imglibvo.getPdfpath();
+                }
                 File dir =  getImageFolder(type, SystemUtil.getLoginCorpVo(), imgPathName, imgPathName);
                 String lujing = dir.getAbsolutePath();
                 File file  = new File(lujing);

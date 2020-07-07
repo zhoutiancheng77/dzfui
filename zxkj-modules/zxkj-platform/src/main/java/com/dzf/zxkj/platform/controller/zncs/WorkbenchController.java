@@ -601,6 +601,7 @@ public class WorkbenchController extends BaseController {
             for (int i = 0;imageVos!=null&& i < imageVos.length; i++) {
                 String type = null;
                 String imgPathName = imageVos[i].getImgpath();
+                String nameSuffix = imageVos[i].getImgname().substring(imageVos[i].getImgname().lastIndexOf("."));
                 if(imgPathName.startsWith("ImageOcr")){
                     type="ImageOcr";
                 }else{
@@ -608,7 +609,12 @@ public class WorkbenchController extends BaseController {
 //					imgPathName = imgPathName.substring(index + 1);
                     type="vchImg";
                 }
-                File file =  ImageViewController.getImageFolder(type, corpVO2, imgPathName, imageVos[i].getImgname());
+                File file = null;
+                if (".pdf".equalsIgnoreCase(nameSuffix)) {
+                    imgPathName = imageVos[i].getPdfpath();
+                }
+                file =  ImageViewController.getImageFolder(type, corpVO2, imgPathName, imageVos[i].getImgname());
+
 
                 if(file.exists()) list.add(file);
             }
