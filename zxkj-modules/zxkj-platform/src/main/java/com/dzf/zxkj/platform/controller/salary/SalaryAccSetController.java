@@ -76,7 +76,7 @@ public class SalaryAccSetController extends BaseController {
     public ReturnData<Json> saveGroup(@MultiRequestBody CorpVO corpVO) {
 
         Json json = new Json();
-        SalaryAccSetVO vo = gl_gzkmszserv.saveGroupVO(corpVO.getPk_corp());
+        SalaryAccSetVO vo = gl_gzkmszserv.saveGroupVO(corpVO.getPk_corp(),false);
         json.setRows(vo);
         json.setMsg("获取入账科目成功");
         json.setSuccess(true);

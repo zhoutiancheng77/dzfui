@@ -15,6 +15,7 @@ import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.service.bdset.IAuxiliaryAccountService;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
+import com.dzf.zxkj.platform.util.AccountUtil;
 import com.dzf.zxkj.platform.util.Kmschema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,17 +90,7 @@ public class InventoryAccSetServiceImpl implements IInventoryAccSetService {
 			if(kmvo==null ){
 				throw new BusinessException("暂估入库贷方科目不存在！");
 			}
-			if(!StringUtil.isEmpty(vo1.getZgkhfz())){
-				if(StringUtil.isEmpty(kmvo.getIsfzhs())
-						|| !"1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
-					vo1.setZgkhfz(null);
-				}
-			}else{
-				if(!StringUtil.isEmpty(kmvo.getIsfzhs())
-						&& "1".equals(String.valueOf(kmvo.getIsfzhs().charAt(1)))){//供应商辅助
-					throw new BusinessException("暂估入库贷方科目已经启用供应商辅助，请设置供应商辅助！如果界面没有设置供应商辅助选项，请重新打开该节点进行操作");
-				}
-			}
+			vo1.setZgkhfz(AccountUtil.getZgkhfz(vo1.getZgkhfz(),kmvo));
 		}
 		//自动清空存货大类信息
 		if(vo1.getChcbjzfs()  != InventoryConstant.IC_CHDLHS){

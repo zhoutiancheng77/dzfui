@@ -62,7 +62,7 @@ public class InvAccSetController extends BaseController {
 	public ReturnData saveGroup() {
 		Json json = new Json();
         try {
-            InvAccSetVO vo = ic_chkmszserv.saveGroupVO(SystemUtil.getLoginCorpVo());
+            InvAccSetVO vo = ic_chkmszserv.saveGroupVO(SystemUtil.getLoginCorpVo(),false);
             json.setRows(vo);
             json.setMsg("获取入账科目成功");
             json.setSuccess(true);

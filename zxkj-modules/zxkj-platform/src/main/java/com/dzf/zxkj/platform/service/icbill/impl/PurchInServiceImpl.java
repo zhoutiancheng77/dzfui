@@ -449,6 +449,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		DZFDouble ntotaltaxmny = DZFDouble.ZERO_DBL;// 价税合计
 
 		// Map<String, DZFDouble> numMap = new HashMap<String, DZFDouble>();
+		int rowno = 0;
 		for (SuperVO child : vo.getChildren()) {
 			IctradeinVO invo = (IctradeinVO) child;
 			invo.setPk_corp(pk_corp);
@@ -461,7 +462,10 @@ public class PurchInServiceImpl implements IPurchInService {
 			invo.setDr(0);
 			invo.setPk_billmaker(vo.getCreator());
 			invo.setPk_currency(vo.getPk_currency());
-
+			if (invo.getRowno() == null) {
+				invo.setRowno(rowno + 1);
+			}
+            rowno++;
 			if (vo.getCbusitype() == null || !IcConst.WGTYPE.equals(vo.getCbusitype())) {
 				invo.setPk_voucher(null);
 				invo.setPk_voucher_b(null);
@@ -547,6 +551,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		return ret;
 	}
 
+    @Override
     public IntradeHVO saveAndGl(IntradeHVO headvo) throws DZFWarpException{
         IntradeHVO hvo = save(headvo,false);
         CorpVO corpvo = corpService.queryByPk(headvo.getPk_corp());
@@ -1839,7 +1844,7 @@ public class PurchInServiceImpl implements IPurchInService {
 		if (listBVO == null || listBVO.size() == 0) {
 			return null;
 		}
-        listBVO.sort(Comparator.comparing(IctradeinVO::getInvcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+        listBVO.sort(Comparator.comparing(IctradeinVO::getRowno,Comparator.nullsFirst(Comparator.naturalOrder())));
 		return listBVO.toArray(new IctradeinVO[listBVO.size()]);
 	}
 

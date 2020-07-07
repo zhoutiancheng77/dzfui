@@ -1688,6 +1688,10 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		} else {// 工资发放
 			// list = saveToVoucherGzff(pk_corp, qj, setvo, bxtotal, gjjtotal,
 			// grsdstotal, yfgztotal);
+			// 是否下月发放
+            if(setvo.getIsnext() != null && setvo.getIsnext().booleanValue()){
+                qj  = DateUtils.getNextPeriod(qj);
+            }
 			list = saveToVoucherGzff1(pk_corp, qj, setvo);
 		}
 
@@ -2234,7 +2238,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		if (vo != null) {
 			salaryTemp = vo;
 		} else {
-			salaryTemp = gl_gzkmszserv.queryGroupVO(pk_corp);
+			salaryTemp = gl_gzkmszserv.queryGroupVO(pk_corp,false);
 		}
 		if (salaryTemp == null)
 			throw new BusinessException("工资科目设置为空！");

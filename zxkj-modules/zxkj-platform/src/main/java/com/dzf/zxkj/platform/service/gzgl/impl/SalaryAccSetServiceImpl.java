@@ -5,7 +5,6 @@ import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
 import com.dzf.zxkj.base.framework.SQLParameter;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.utils.IDefaultValue;
@@ -24,6 +23,7 @@ import com.dzf.zxkj.platform.service.gzgl.ISalaryAccSetService;
 import com.dzf.zxkj.platform.service.report.impl.YntBoPubUtil;
 import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
+import com.dzf.zxkj.platform.util.AccountUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +33,6 @@ import java.util.*;
 @Service("gl_gzkmszserv")
 public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 
-	@Autowired
-	private YntBoPubUtil yntBoPubUtil;
 	@Autowired
 	private SingleObjectBO singleObjectBO;
 	@Autowired
@@ -52,6 +50,15 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 				params);
 		if (pvos != null && pvos.length > 0) {
 			SalaryAccSetVO gvo = pvos[0];
+           if(gvo.getJtqybf() == null){
+               gvo.setJtqybf(DZFBoolean.FALSE);
+           }
+          if(gvo.getShowmore() == null){
+              gvo.setShowmore(DZFBoolean.FALSE);
+          }
+          if(gvo.getIsnext() == null){
+              gvo.setIsnext(DZFBoolean.FALSE);
+          }
 			return gvo;
 		} else {
 			// 设置默认并保存 暂不处理
@@ -81,8 +88,9 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 			SalarySetTableVO tablevo = JsonUtils.deserialize(JsonUtils.serialize(o), SalarySetTableVO.class);
 			if (set.contains(tablevo.getKmsz())) {
 				String value = map.get(tablevo.getKmsz());
-				if(!StringUtil.isEmpty(value))
-					throw new BusinessException("科目设置项[" + value.split("-")[0] + "]重复设置!");
+				if(!StringUtil.isEmpty(value)){
+                    throw new BusinessException("科目设置项[" + value.split("-")[0] + "]重复设置!");
+                }
 			} else {
 				set.add(tablevo.getKmsz());
 			}
@@ -97,20 +105,25 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 		vo1.setJtqybf(vo.getJtqybf());
 		vo1.setPk_corp(vo.getPk_corp());
 		vo1.setShowmore(vo.getShowmore());
+        vo1.setIsnext(vo.getIsnext());
 		String[] fields = SalaryAccSetVO.getFileds();
 		return saveVoByColumn(pk_corp, vo1, fields);
 	}
 
-	public SalaryAccSetVO saveGroupVO(String pk_corp) throws DZFWarpException {
-		SalaryAccSetVO vo1 = queryGroupVO(pk_corp);
-		if (vo1 == null)
-			throw new BusinessException("没有预置工资科目");
+    @Override
+	public SalaryAccSetVO saveGroupVO(String pk_corp, boolean isbulid) throws DZFWarpException {
+		SalaryAccSetVO vo1 = queryGroupVO(pk_corp,isbulid);
+		if (vo1 == null){
+            throw new BusinessException("没有预置工资科目");
+        }
 		vo1.setJtqybf(DZFBoolean.FALSE);
 		vo1.setShowmore(DZFBoolean.FALSE);
+        vo1.setIsnext(DZFBoolean.FALSE);
 		String[] fields = SalaryAccSetVO.getFileds();
 		return saveVoByColumn(pk_corp, vo1, fields);
 	}
 
+    @Override
 	public SalaryAccSetVO saveVoByColumn(String pk_corp, SalaryAccSetVO vo1, String[] strs) throws DZFWarpException {
 
 		SalaryAccSetVO vo = query(pk_corp);
@@ -126,125 +139,51 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 	}
 
 	@Override
-	public SalaryAccSetVO queryGroupVO(String pk_corp) throws DZFWarpException {
-		SalaryAccSetVO salaryTemp = null;
+	public SalaryAccSetVO queryGroupVO(String pk_corp, boolean isbulid) throws DZFWarpException {
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		String corpType = corpVO.getCorptype();
 		SQLParameter sp = new SQLParameter();
 		sp.addParam(IDefaultValue.DefaultGroup);
 		sp.addParam(corpType);
 		YntCpaccountVO[] accvos =accService.queryByPk(pk_corp);
-		Map<String, YntCpaccountVO> map = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(accvos),
-				new String[] { "pk_corp_account" });
+
 		List<SalaryModelHVO> group_models = (List<SalaryModelHVO>) singleObjectBO.executeQuery(
 				"pk_corp = ? and pk_trade_accountschema = ? and nvl(dr,0) = 0", sp,
 				new Class[] { SalaryModelHVO.class, SalaryModelBVO.class });
-		if (group_models != null && group_models.size() > 0) {
-			salaryTemp = new SalaryAccSetVO();
-			for (SalaryModelHVO salaryModelHVO : group_models) {
-				List<SalaryModelBVO> bvos = Arrays.asList(salaryModelHVO.getChildren());
-				for (SalaryModelBVO salaryModelBVO : bvos) {
-					String corp_account = yntBoPubUtil.getCorpAccountPkByTradeAccountPkWithMsg(
-							salaryModelBVO.getPk_accsubj(), pk_corp, "请到数据维护-标准科目节点，升级会计科目。");
-					corp_account = getFisrtNextLeafAccount(map, corp_account, accvos);
-					salaryModelBVO.setPk_accsubj(corp_account);
-				}
-				if (salaryModelHVO.getTemp_type() == 0) {
-					for (SalaryModelBVO salaryModelBVO : bvos) {
-						switch (salaryModelBVO.getZy()) {
-						case "工资费用科目":
-							salaryTemp.setJtgz_gzfykm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "应付工资科目":
-							salaryTemp.setJtgz_yfgzkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "应付社保科目":
-							salaryTemp.setJtgz_yfsbkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "社保费用科目":
-							salaryTemp.setJtgz_sbfykm(salaryModelBVO.getPk_accsubj());
-							break;
-						}
-					}
+        if (group_models == null ||  group_models.size() == 0) {
+            return null;
+        }
 
-				} else {
-					for (SalaryModelBVO salaryModelBVO : bvos) {
-						switch (salaryModelBVO.getZy()) {
-						case "应付工资科目":
-							salaryTemp.setFfgz_yfgzkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "公积金个人部分":
-							salaryTemp.setFfgz_gjjgrbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "应缴个税科目":
-							salaryTemp.setFfgz_grsds(salaryModelBVO.getPk_accsubj());
-							break;
-						case "工资发放科目":
-							salaryTemp.setFfgz_xjlkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "个人养老保险":
-							salaryTemp.setFfgz_sbgrbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "个人医疗保险":
-							salaryTemp.setFfgz_yilbxbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "个人失业保险":
-							salaryTemp.setFfgz_sybxbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "工伤保险科目":
-							salaryTemp.setFfgz_gsbxkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "生育保险科目":
-							salaryTemp.setFfgz_shybxkm(salaryModelBVO.getPk_accsubj());
-							break;
-						default:
-							break;
-						}
-					}
-				}
-			}
-		}
+        Map<String, YntCpaccountVO> map = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(accvos),
+                new String[] { "pk_corp_account" });
+        Set<String> set = new HashSet<>();
+        SalaryAccSetVO	salaryTemp = new SalaryAccSetVO();
+        for (SalaryModelHVO salaryModelHVO : group_models) {
+            List<SalaryModelBVO> bvos = Arrays.asList(salaryModelHVO.getChildren());
+            for (SalaryModelBVO salaryModelBVO : bvos) {
+                set.add(salaryModelBVO.getPk_accsubj());
+            }
+        }
+        Map<String, String> pkmap = AccountUtil.getCorpAccountPkByTradeAccountPkWithMsg(set, pk_corp, accvos,"请到数据维护-标准科目节点，升级会计科目。",isbulid);
+        for (SalaryModelHVO salaryModelHVO : group_models) {
+            List<SalaryModelBVO> bvos = Arrays.asList(salaryModelHVO.getChildren());
+            for (SalaryModelBVO salaryModelBVO : bvos) {
+                set.add(salaryModelBVO.getPk_accsubj());
+            }
+        }
+
+        Map<String,String> colmap = new HashMap<>();
+        String corp_account = null;
+        for (SalaryModelHVO salaryModelHVO : group_models) {
+            List<SalaryModelBVO> bvos = Arrays.asList(salaryModelHVO.getChildren());
+            for (SalaryModelBVO salaryModelBVO : bvos) {
+                corp_account = pkmap.get(salaryModelBVO.getPk_accsubj());
+                corp_account = AccountUtil.getFisrtNextLeafAccount(map, corp_account, accvos);
+                colmap.put(salaryModelBVO.getZy()+salaryModelHVO.getTemp_type(),corp_account);
+            }
+        }
+        SalaryAccSetVO.setDefaultValue(colmap, salaryTemp);
 		return salaryTemp;
-
-	}
-
-	private String getFisrtNextLeafAccount(Map<String, YntCpaccountVO> map, String corp_account,
-			YntCpaccountVO[] accvos) {
-		YntCpaccountVO accvo = null;
-		if (map != null && map.size() > 0) {
-			accvo = map.get(corp_account);
-			if (accvo != null) {
-				if (accvo.getIsleaf() != null && accvo.getIsleaf().booleanValue()) {
-
-				} else {
-					// 获取最末级科目
-					accvo = getFisrtNextLeafAccount(accvo.getAccountcode(), accvos);
-					if (accvo != null) {
-						corp_account = accvo.getPk_corp_account();
-					}
-				}
-			}
-		}
-		return corp_account;
-	}
-
-	// 查询第一分支的最末级科目
-	private YntCpaccountVO getFisrtNextLeafAccount(String accountcode, YntCpaccountVO[] accvos) {
-
-		List<YntCpaccountVO> list = new ArrayList<YntCpaccountVO>();// 存储下级科目
-		for (YntCpaccountVO accvo : accvos) {
-			if (accvo.getIsleaf().booleanValue() && accvo.getAccountcode() != null
-					&& accvo.getAccountcode().startsWith(accountcode)) {
-				list.add(accvo);
-			}
-		}
-
-		if (list == null || list.size() == 0) {
-			return null;
-		}
-		YntCpaccountVO[] accountvo = list.toArray(new YntCpaccountVO[list.size()]);
-		VOUtil.ascSort(accountvo, new String[] { "accountcode" });
-		return accountvo[0];
 	}
 
 	@Override
@@ -261,15 +200,16 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 		setvo.setPk_corp(setvo1.getPk_corp());
 		setvo.setJtqybf(setvo1.getJtqybf());
 		setvo.setShowmore(setvo1.getShowmore());
+		setvo.setIsnext(setvo1.getIsnext());
 		setvo.setPk_salaryaccset(setvo1.getPk_salaryaccset());
 		return setvo;
 	}
 
 	private SalarySetTableVO[] filterData(SalarySetTableVO[] tableData3) {
 		List<SalarySetTableVO> list = new ArrayList<>();
-		if (tableData3 == null || tableData3.length == 0)
-			return new SalarySetTableVO[0];
-
+		if (tableData3 == null || tableData3.length == 0){
+            return new SalarySetTableVO[0];
+        }
 		int i = 1;
 		for (SalarySetTableVO table : tableData3) {
 			table.setXh(Integer.toString(i));
@@ -282,7 +222,6 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 					continue;
 				}
 			}
-
 			i++;
 		}
 		return list.toArray(new SalarySetTableVO[list.size()]);
@@ -333,8 +272,9 @@ public class SalaryAccSetServiceImpl implements ISalaryAccSetService {
 		SalaryKmDeptVO[] pvos = (SalaryKmDeptVO[]) singleObjectBO.queryByCondition(SalaryKmDeptVO.class, condition,
 				params);
 
-		if (pvos == null || pvos.length == 0)
-			return new SalaryKmDeptVO[0];
+		if (pvos == null || pvos.length == 0){
+            return new SalaryKmDeptVO[0];
+        }
 		Map map = accService.queryMapByPk(pk_corp);
 		List<AuxiliaryAccountBVO> deptlist = gl_fzhsserv.queryPerson(AuxiliaryConstant.ITEM_DEPARTMENT, pk_corp, null);
 		Map<String, AuxiliaryAccountBVO> audeptmap = DZfcommonTools.hashlizeObjectByPk(deptlist,
