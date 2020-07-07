@@ -9,7 +9,6 @@ import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
@@ -23,7 +22,6 @@ import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.gzgl.*;
-import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -2115,7 +2113,18 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				// }
 				// 取入账设置中的费用科目
 				if (cvo == null) {
-					cvo = ccountMap.get(setvo.getJtgz_gzfykm());
+                    // 如果是劳务 走劳务费用科目
+                    if(ibody.getBilltype() != null || ibody.getBilltype().equals(SalaryTypeEnum.REMUNERATION.getValue())){
+                        if (StringUtil.isEmpty(setvo.getJtgz_gzfykm())) {
+                            throw new BusinessException("计提劳务费用科目设置为空，请检查！");
+                        }
+                        cvo = ccountMap.get(setvo.getJtgz_gzfykm());//劳务费用科目
+                    }else{
+                        if (StringUtil.isEmpty(setvo.getJtgz_gzfykm())) {
+                            throw new BusinessException("计提工资费用科目设置为空，请检查！");
+                        }
+                        cvo = ccountMap.get(setvo.getJtgz_gzfykm());//工资费用科目
+                    }
 				}
 
 				if (cvo == null) {

@@ -50,7 +50,7 @@ public class InvAccSetServiceImpl implements IInvAccSetService {
 			gvo = pvos[0];
 		} else {
 			YntCpaccountVO[] accvos = accountService.queryByPk(pk_corp);
-			gvo = getModelVO(pk_corp, accvos);
+			gvo = getModelVO(pk_corp, accvos,false);
 		}
 		if (gvo == null)
 			gvo = new InvAccSetVO();
@@ -63,7 +63,7 @@ public class InvAccSetServiceImpl implements IInvAccSetService {
 		return gvo;
 	}
 
-	private InvAccSetVO getModelVO(String pk_corp, YntCpaccountVO[] accvos) {
+	private InvAccSetVO getModelVO(String pk_corp, YntCpaccountVO[] accvos, boolean isbulid) {
 
 		CorpVO corpVO = corpService.queryByPk(pk_corp);
 		String corpType = corpVO.getCorptype();
@@ -85,7 +85,7 @@ public class InvAccSetServiceImpl implements IInvAccSetService {
 			set.add(vo.getPk_accsubj());
 		}
 
-		Map<String, String> pkmap = AccountUtil.getCorpAccountPkByTradeAccountPkWithMsg(set, pk_corp, accvos,"请到数据维护-标准科目节点，升级会计科目。");
+		Map<String, String> pkmap = AccountUtil.getCorpAccountPkByTradeAccountPkWithMsg(set, pk_corp, accvos,"请到数据维护-标准科目节点，升级会计科目。",isbulid);
 
         String corp_account = null;
 		Map<Integer,String> colmap = new HashMap<>();
@@ -161,7 +161,7 @@ public class InvAccSetServiceImpl implements IInvAccSetService {
 		// "chppjscgz"
 		YntCpaccountVO[] accvos = accountService.queryByPk(pk_corp);
 		InvAccSetVO vo = query(pk_corp);
-		InvAccSetVO gvo = getModelVO(pk_corp, accvos);
+		InvAccSetVO gvo = getModelVO(pk_corp, accvos, isbulid);
 		if (gvo != null) {
 			for (String name : names) {
 				vo.setAttributeValue(name, gvo.getAttributeValue(name));
