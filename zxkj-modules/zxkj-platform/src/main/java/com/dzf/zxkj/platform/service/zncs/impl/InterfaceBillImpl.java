@@ -1656,8 +1656,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				alvo.setHsl(gvo.getHsl());
 
 				if (!map.containsKey(key)) {
-					singleObjectBO.insertVO(pk_corp, alvo);
-					//aliaslist.add(alvo);
+					//singleObjectBO.insertVO(pk_corp, alvo);
+					aliaslist.add(alvo);
 				} else {
 					InventoryAliasVO ivo = map.get(key);
 					ivo.setPk_inventory(gvo.getPk_inventory());
@@ -1668,8 +1668,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			}
 
 		}
-//			checkBeforesave(pk_corp,aliaslist);
-//			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
+			checkBeforesave(pk_corp,aliaslist);
+			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
 //		}
 	}
 

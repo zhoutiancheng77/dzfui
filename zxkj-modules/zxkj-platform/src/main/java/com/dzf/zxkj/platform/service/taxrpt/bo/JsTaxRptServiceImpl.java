@@ -45,6 +45,8 @@ import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.ordinary.
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.ordinary.VATOrdinaryRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.small.VATSmallInit;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.vattax.small.VATSmallRequest;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.whjsf.WhjsfInit;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.whjsf.WhjsfRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.yhs.YhsRequest;
 import com.dzf.zxkj.platform.model.zncs.DZFBalanceBVO;
 import com.dzf.zxkj.platform.service.bdset.ICpaccountCodeRuleService;
@@ -277,8 +279,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
     // 江苏应申报清册接口
     private List<String> getDeclarableInventory(String yearmonth, CorpVO corpvo, CorpTaxVo taxvo) {
-        JSONObject rsJosn = getInventoryJson(yearmonth, corpvo, taxvo);
-        String status = rsJosn.getString("RESULT");
+        JSONObject rsJson = getInventoryJson(yearmonth, corpvo, taxvo);
+        String status = rsJson.getString("RESULT");
 
         List<String> list = new ArrayList<String>();
         if ("0000".equals(status)) {
@@ -288,7 +290,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     .hashlizeObjectByPk(zlist,
                             new String[]{"sbcode", "sbzq"});
 
-            JSONArray data = (JSONArray) rsJosn.get("DATA");
+            JSONArray data = (JSONArray) rsJson.get("DATA");
             Set<String> codes = new HashSet<String>();
             for (Object object : data) {
                 JSONObject json = (JSONObject) object;
@@ -314,8 +316,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 }
             }
         } else {
-            log.error("申报清册查询失败" + rsJosn.getString("MSG"));
-//			throw new BusinessException((String) rsJosn.get("MSG"));
+            log.error("申报清册查询失败" + rsJson.getString("MSG"));
+//			throw new BusinessException((String) rsJson.get("MSG"));
         }
         //增加地税
 //		addLocalTax(corpvo, yearmonth, list);
@@ -325,10 +327,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
     private List<String> getInventoryCodes(String yearmonth, CorpVO corpvo, CorpTaxVo taxvo) {
         List<String> codes = new ArrayList<String>();
-        JSONObject rsJosn = getInventoryJson(yearmonth, corpvo, taxvo);
-        String status = rsJosn.getString("RESULT");
+        JSONObject rsJson = getInventoryJson(yearmonth, corpvo, taxvo);
+        String status = rsJson.getString("RESULT");
         if ("0000".equals(status)) {
-            JSONArray data = (JSONArray) rsJosn.get("DATA");
+            JSONArray data = (JSONArray) rsJson.get("DATA");
             for (Object object : data) {
                 JSONObject json = (JSONObject) object;
                 String code = json.getString("SB_ZLBH");
@@ -349,7 +351,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 codes.add(code);
             }
         } else {
-            throw new BusinessException(rsJosn.getString("MSG"));
+            throw new BusinessException(rsJson.getString("MSG"));
         }
         return codes;
     }
@@ -386,8 +388,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 params);
 
         String result = HttpUtil.parseRes(rmap.get("response")); // 当税种环境不稳定时返回的result可能为空
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
-        return rsJosn;
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
+        return rsJson;
     }
 
 //	@Override
@@ -573,7 +575,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         HashMap<String, Object> hmQCData = new HashMap<String, Object>();
         CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
 
-        //调用初始化接口获取期初数据
+        //初始化税种，并获取期初数据
         if ("true".equals(taxJstcConfig.service_switch)
                 && !StringUtil.isEmpty(corpvo.getVsoccrecode())
                 && !StringUtil.isEmpty(taxvo.getVstatetaxpwd())
@@ -584,7 +586,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 //		// 从报税客户端爬虫方式获取的期初数据中提取（弃用）
 //		if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())
-//				|| TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(reportvo.getSb_zlbh())
+//				|| TaxRptConst.SB_ZLBH31399.equals(reportvo.getSb_zlbh())
 //				|| TaxRptConst.SB_ZLBH50101.equals(reportvo.getSb_zlbh())
 //				|| TaxRptConst.SB_ZLBH50102.equals(reportvo.getSb_zlbh())) {
 //			getQcFromJsonFile(hmQCData, reportvo);
@@ -638,6 +640,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         // 扣费
         doCharge(corpVO, reportvo, userid);
 //		Map<String, DZFDouble> qcdata = initTax(corpVO, reportvo);
+        // ToCheck: 申报时流水号可能已经不需要了。待验证
         String lsh = reportvo.getRegion_extend1();
         if (StringUtil.isEmpty(lsh)) {
             // 重复申报时流水号不变
@@ -656,10 +659,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
         String result = HttpUtil.parseRes(rmap.get("response"));
 
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
 
-        String status = rsJosn.getString("RESULT");
-        String msg = rsJosn.getString("MSG");
+        String status = rsJson.getString("RESULT");
+        String msg = rsJson.getString("MSG");
 
         if (!"0000".equals(status)) {
             throw new BusinessException(msg);
@@ -711,10 +714,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         formulatool.addObject("corptax", taxvo);
 
         // 准备qcLines
-        if (isdssz) {
+        if (isdssz || TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
             // 每次申报时现取期初，将来可以考虑保存期初数据，申报时取
             HashMap<String, Object> qcdata = getQcData(corpVO, reportvo, null);
-            formulatool.addObject("qcLines", qcdata.get(sbzlbh + "qc"));
+            formulatool.addObject("qcData", qcdata); // qcdata.get(sbzlbh + "qc")
         }
 
         // 设置提交请求的serviceid和sign
@@ -896,7 +899,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         } else if (TaxRptConst.SB_ZLBHD1.equals(type)) {
             cls = YhsRequest.class;
         } else if (TaxRptConst.SB_ZLBH10601.equals(type)) {
-            cls = null; //WhjsfRequest.class;
+            cls = WhjsfRequest.class;
         } else if (TaxRptConst.SB_ZLBH31399.equals(type)) {
             cls = null;
         } else if (TaxRptConst.SB_ZLBH30299.equals(type)) {
@@ -989,7 +992,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
     }*/
 
     /**
-     * 按税种vo类型，创建申报报文请求的主vo
+     * 按税种vo类型，创建申报请求报文的主vo
      *
      * @param fieldType
      * @param objMapReport
@@ -1046,8 +1049,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 for (int r = rowBegin; r <= rowEnd; r++) {
                     // Object mainVal = spreadtool.getCellValue(objMapReport, reportname, r, col0);
                     Object mainVal = formulatool.getCellValue(r, col_t); // formulatool.evaluate(String.format("R%dC%d", r+1, col0+1));
-                    if (mainVal == null || StringUtil.isEmpty(mainVal.toString())) { // 数据行：从起始行到rowEnd，或从起始行到后面第一个空行的上一行。被空行断开的后面的数据行暂不考虑。
-                        break;
+                    if (mainVal == null || StringUtil.isEmpty(mainVal.toString())) { // 空行的后面可能还有合计行，所以需要继续处理 // 数据行从起始行到后面第一个空行的上一行(或最后一行)
+                        continue; //break
                     }
                     // 把excel取数的实际行号传入上下文（用于RXC1等表达式的计算）
                     formulatool.addObject("currRow", r);
@@ -1113,7 +1116,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         //region 格式化和类型转换（只有值类型才需要格式化）
         String valStr = val != null ? val.toString() : ""; // 格式化时要用的string值
         if (fieldType == String.class) {
-            if (fieldAnno != null) {
+            if (fieldAnno != null) { // 拆“编码|名称”
                 String[] strArray = valStr.split("\\||_|-");
                 int index = -1;
                 if (fieldAnno.splitIndex() > index) {
@@ -1128,7 +1131,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 }
             }
 
-            if (!StringUtil.isEmpty(valStr)) {
+            if (!StringUtil.isEmpty(valStr)) { // 枚举值转换
                 TaxExcelValueCast valueCast = field.getAnnotation(TaxExcelValueCast.class);
                 if (valueCast != null) {
                     String[] src = valueCast.src();
@@ -1154,15 +1157,12 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 val = new DZFDouble(valStr);
             }
         } else if (fieldType == Double.class) { // fieldType.isAssignableFrom(Double.class) //用isAssignableFrom没什么意义，Double和double、Integer、int、Float之间并不兼容。而Object.class.isAssignableFrom(Double.class)倒为true了。
-            if (valStr.trim().equals("——") || valStr.trim().equals("--")) {
+            if (valStr.trim().equals("——") || valStr.trim().equals("--") || StringUtil.isEmpty(valStr)) {
                 val = new Double("0");
             } else if (valStr.indexOf("%") > -1) {
                 valStr = valStr.substring(0, valStr.indexOf("%"));
                 val = new Double(valStr) / 100;
             } else {
-                if (StringUtil.isEmpty(valStr)) {
-                    valStr = "0";
-                }
                 val = new Double(valStr);
             }
         } else if (fieldType == DZFDate.class) {
@@ -1199,11 +1199,35 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         String sbzlbh = reportvo.getSb_zlbh();
         BaseRequestVO baseReq = getBaseRequset(corpVO, taxvo);
 
+        JSONObject nsrjbxx = null;
+        if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) { // || TaxRptConst.SB_ZLBHD1.equals(sbzlbh)
+            // 每次获取期初的时候现取纳税人基本信息？待优化
+            nsrjbxx = getNsrxx(corpVO, taxvo, reportvo);
+        }
+
         // 设置初始化税种的serviceid和sign
         setInitTaxServiceId(baseReq, sbzlbh);
 
-        String lsh = reportvo.getRegion_extend1();
-        baseReq.getBody().setYwbw(getInitParams(corpVO, reportvo));
+        // String lsh = reportvo.getRegion_extend1(); // 按sbzlid、yzpzzlDm 等初始化，不需要传lsh
+
+        // 文化事业建设费初始化时，需要传ggyylybz（广告业娱乐业标志），可从“纳税人基本信息查询——税费种认定信息”中得到
+        String wh_zspmdm = ""; // 302170200-广告业、302170100-娱乐业
+        if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
+            JSONArray sfzxxList = (JSONArray) nsrjbxx.get("sfzrdxx"); // 税费种认定信息
+            if (sfzxxList != null) {
+                for (Object object : sfzxxList) {
+                    JSONObject sfzxx = (JSONObject) object;
+                    if (sfzxx.getString("ZSXM_DM").equals("30217")) { // 30217-文化事业建设费
+                        wh_zspmdm = sfzxx.getString("ZSPM_DM");
+                        break; // llh 当税费种认定信息中找到多个文化事业建设费的税目时，即纳税人同时存在广告业和娱乐业时，理论上应该让用户自行选择文化事业的类型进行申报（网页上会有选择框）
+                    }
+                }
+                if (wh_zspmdm != null) {
+                    nsrjbxx.put("wh_zspmdm", wh_zspmdm);
+                }
+            }
+        }
+        baseReq.getBody().setYwbw(getInitParams(corpVO, reportvo, wh_zspmdm));
 
         HashMap<String, String> params = new HashMap<String, String>();
 
@@ -1218,23 +1242,58 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
         String result = HttpUtil.parseRes(rmap.get("response"));
         log.info(corpVO.getVsoccrecode() + "-initData:" + result);
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
-        String status = rsJosn.getString("RESULT");
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
+        String status = rsJson.getString("RESULT");
         if (!"0000".equals(status)) {
-            throw new BusinessException((String) rsJosn.get("MSG"));
+            throw new BusinessException((String) rsJson.get("MSG"));
         }
 
         // 解析期初报文，得到期初数据initData
-        JSONObject data = (JSONObject) rsJosn.get("DATA");
-        HashMap<String, Object> initData = new HashMap<String, Object>();
-        parseInitData(initData, data, reportvo);
+        JSONObject data = (JSONObject) rsJson.get("DATA");
+        HashMap<String, Object> initData = new LinkedHashMap<>();
+        parseInitData(initData, data, reportvo, nsrjbxx);
 
-        // 记录流水号
+        // 税种初始化时并不会返回lsh，所以不需要在初始化时保存lsh
+        /*// 记录流水号
         if (StringUtil.isEmpty(lsh)) {
             singleObjectBO.update(reportvo, new String[]{"region_extend1"});
-        }
+        }*/
 
         return initData;
+    }
+
+    private JSONObject getNsrxx(CorpVO corpVO, CorpTaxVo taxvo, TaxReportVO reportvo) {
+        BaseRequestVO baseReq1 = getBaseRequset(corpVO, taxvo);
+        baseReq1.setServiceid("FW_DZSWJ_NSRXXCX");
+        baseReq1.getBody().setSign("queryNsrxxService"); //queryNsrQk
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("NSRSBH", corpVO.getVsoccrecode());
+        params.put("GDSLXBZ", "0"); // 国地税类型标识：0-国地税 1-国税 2-地税
+        params.put("NSRZTBZ", "1"); //纳税人状态：0-所有纳税人 1-正常纳税人
+        params.put("SSSQQ", reportvo.getPeriodfrom());
+        params.put("SSSQZ", reportvo.getPeriodto());
+
+        String ywbw = EncryptDecrypt.encode(JsonUtils.serialize(params), taxJstcConfig.app_secret);
+        baseReq1.getBody().setYwbw(ywbw);
+
+        String bw = JsonUtils.serialize(baseReq1);
+        String encode = ZipUtil.zipEncode(bw, true);
+
+        HashMap<String, String> requestParam = new HashMap<>();
+        requestParam.put("request", encode);
+        Map<String, String> rmap = HttpUtil.post(taxJstcConfig.url, requestParam);
+
+        String result = HttpUtil.parseRes(rmap.get("response"));
+        JSONObject nsrjbxx = (JSONObject) JSON.parse(result);
+        String status = nsrjbxx.getString("RESULT");
+        if (!"0000".equals(status)) {
+            log.error("查询纳税人基本信息失败" + nsrjbxx);
+            throw new BusinessException((String) nsrjbxx.get("MSG"));
+        }
+
+        //纳税人基本信息中可以取到行业代码、主管税务所科分局代码等
+        return nsrjbxx;
     }
 
     private void setInitTaxServiceId(BaseRequestVO baseReq, String sbzlbh) {
@@ -1270,7 +1329,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) { // 文化事业建设费
             baseReq.setServiceid("FW_DZSWJ_WHSY_CSH");
             baseReq.getBody().setSign("sb10601InitService");
-        } else if (TaxRptConst.SB_ZLBH_LOCAL_FUND_FEE.equals(sbzlbh)) { // 地方各项基金费（工会经费）
+        } else if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh)) { // 地方各项基金费（工会经费）
             baseReq.setServiceid("FW_DZSWJ_GFJF_CSH");
             baseReq.getBody().setSign("sb10520InitService");
         } else if (TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) { // 地方各项基金费（垃圾处理费）
@@ -1287,7 +1346,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
      * @return
      */
     private void parseInitData(Map<String, Object> initData, JSONObject data,
-                               TaxReportVO reportvo) {
+                               TaxReportVO reportvo, JSONObject nsrjbxx) {
         String sbzlbh = reportvo.getSb_zlbh();
 
         // 是否地税税种
@@ -1295,21 +1354,23 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 || TaxRptConst.SB_ZLBHD1.equals(sbzlbh)
                 || TaxRptConst.SB_ZLBH31399.equals(sbzlbh) || TaxRptConst.SB_ZLBH30299.equals(sbzlbh);
 
-        // 一、附加税、印花税、地方各项基金费——工会经费、垃圾处理费等地税简单税种，主要关注核定税目行（除了附加税固定是3行，其他税种的行数不确定）
-        if (isdssz) {
-            // 理论上下面这些信息都应该从期初上取：
-            // 附加税的核定税目列表（包括征收项目代码/名称、征收品目代码/名称，以及城建税的税率）；
-            // 印花税的核定税目列表（包括征收品目代码、税率。以及 是否按核定征收、核定征收的核定类型、核定定额、核定比例等）；
-            // 地方各项基金费的核定税目列表（江苏地方基金征收项目代码、基金费大类代码/名称、费种代码/名称、计征率）；
-            // 附加税、印花税的“是否适用小规模纳税人减征优惠”（及普惠减免性质代码、普惠减免税务事项和减征比例等）；
-            // 附加税的“本期是否适用试点建设培育产教融合型企业抵免政策”（及其上期留抵可抵免金额等）；
-            // 地方各项基金费的“本期是否适用按规定免征增值税的小规模纳税人”（江苏特有）；
-            // 附加税的《一般减免税务事项代码表》；（减免性质代码表需从期初数据jmxzlist中取，而且录入减免性质时，还需传税务事项代码等隐藏字段）
-            // 等。
+        /*
+         * 需要从期初中获取的信息：
+         * 附加税的核定税目列表（包括征收项目代码/名称、征收品目代码/名称，以及城建税的税率）；
+         * 印花税的核定税目列表（包括征收品目代码、税率。以及 是否按核定征收、核定征收的核定类型、核定定额、核定比例等）；
+         * 地方各项基金费的核定税目列表（江苏地方基金征收项目代码、基金费大类代码/名称、费种代码/名称、计征率）；
+         * 附加税、印花税的“是否适用小规模纳税人减征优惠”（及普惠减免性质代码、普惠减免税务事项和减征比例等）；
+         * 附加税的“本期是否适用试点建设培育产教融合型企业抵免政策”（及其上期留抵可抵免金额等）；
+         * 地方各项基金费的“本期是否适用按规定免征增值税的小规模纳税人”（江苏特有）；
+         * 附加税的《一般减免税务事项代码表》；（减免性质代码表需从期初数据jmxzlist中取，而且录入减免性质时，还需传税务事项代码等隐藏字段）
+         * 等。
 
-            // 目前已取的信息包括：附加税的产教融合的上期留抵可抵免金额，印花税、地方各项基金费的核定税目等。
-            // 后续考虑把附加税和印花税的普惠减免性质代码和税务事项代码、附加税的《一般减免税务事项代码表》等信息也取出来。
+         * 目前已取的信息包括：附加税的产教融合的上期留抵可抵免金额，印花税、地方各项基金费的核定税目等。
+         * 后续考虑把附加税和印花税的普惠减免性质代码和税务事项代码、附加税的《一般减免税务事项代码表》等信息也取出来。
+         */
 
+        // 一、附加税、印花税、地方各项基金费等税种，主要关注核定税目行（除了附加税固定是3行，其他税种的行数不确定）
+        if (isdssz || TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
             if (TaxRptConst.SB_ZLBH50101.equals(sbzlbh) || TaxRptConst.SB_ZLBH50102.equals(sbzlbh)) { // 附加税
                 // 暂不取附加税的核定税目（3行固定税目行，zsxmDm和zspmDm在代码中写死；城建税税率不从期初中取）
 
@@ -1320,8 +1381,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
 
             } else if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)) { // 印花税
-                // 按核定征收方式征收的税目
-                Map<String, JSONObject> hdzsMap = new HashMap<String, JSONObject>();
+                //期初数据的解析：select c left a on .. left b on .. where nsqxDm=..
+
+                // a.按核定征收方式征收的税目
+                Map<String, JSONObject> hdzsMap = new HashMap<>();
                 JSONArray hdxxlist = (JSONArray) data.get("hdxxlist");
                 if (hdxxlist != null) {
                     for (Object object : hdxxlist) {
@@ -1329,16 +1392,16 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                         hdzsMap.put(hdxx.getString("zspmDm"), hdxx);
                     }
                 }
-                // 征收品目的名称(如"购销合同")需从smzmlist中取。sbxxlist中只有代码-_-||
-                Map<String, JSONObject> smzmMap = new HashMap<String, JSONObject>();
+                // b.征收品目的名称(如"购销合同")需从smzmlist中取。sbxxlist中只有代码
+                Map<String, JSONObject> smzmMap = new HashMap<>();
                 for (Object object : (JSONArray) data.get("smzmlist")) { //不知道会不会空，先写着
                     JSONObject smzm = (JSONObject) object;
                     smzmMap.put(smzm.getString("zspm_dm"), smzm);
                 }
 
-                // 取印花税核定税目（预置的应税凭证）
-                Map<String, JSONObject> qcLines = new LinkedHashMap<>(); // 核定税目（预置的应税凭证）
-                //List<JSONObject> qcLines = new ArrayList<JSONObject>(); // 核定税目（预置的应税凭证）
+                // c.取印花税核定税目（预置的应税凭证）
+                //Map<String, Object> initData = new LinkedHashMap<>(); // 核定税目（预置的应税凭证）
+                //List<JSONObject> initData = new ArrayList<JSONObject>(); // 核定税目（预置的应税凭证）
                 JSONObject qcLine = null;
                 for (Object object : (JSONArray) data.get("sbxxlist")) { //不知道会不会空，先写着
                     JSONObject sbxx = (JSONObject) object;
@@ -1350,7 +1413,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                         // zspmmc.replace("(", "_").replace(")", "") // 报文中的 货物运输合同(按运输费用万分之五贴花) 需要改成 货物运输合同_按运输费用万分之五贴花 吗？
                         // String zspmmc = sbxx.getString("zspmMc"); // sbxx上没有zspmMc名称
                         String zspmmc = smzm.getString("zspmmc").split("\\|")[1]; //"101110101|购销合同"、101110106|货物运输合同(按运输费用万分之五贴花)
-                        if (!qcLines.containsKey(zspmmc)) {
+                        if (!initData.containsKey(zspmmc)) {
                             qcLine = new JSONObject();
                             qcLine.put("zspmdm", zspmdm);
                             qcLine.put("zspmmc", zspmmc); // 应税凭证(征收品目)名称
@@ -1362,16 +1425,85 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                                 qcLine.put("hdde", hdzs.get("hdde")); // 测试期初数据中，hdxxlist中没有hdde（有hdlx(=2)和hdbl）
                                 qcLine.put("hdbl", hdzs.get("hdbl"));
                             }
-                            qcLines.put(zspmmc, qcLine);
-                            //qcLines.add(qcLine);
+                            initData.put(zspmmc, qcLine);
+                            //initData.add(qcLine);
                         }
                     }
                 }
-                // D1qc在fillReportByQcData()填写默认报表时使用。申报时也要用，如果报表行上没有保存zspmdm、hdlx等隐藏字段的话。
-                initData.put(sbzlbh + "qc", qcLines);
+                // 期初数据在fillReportByQcData()填写默认报表时要用。申报时也要用，如果报表行上没有保存zspmdm、hdlx等隐藏字段的话。
+                // initData.put(sbzlbh + "qc", qcLines);
+
+                // d.小规模纳税人标志
+                // 小规模纳税人标志(xgmnsrbz)=Y时，是否小规模减征(bqsfsyxgmyhzc)默认为“是”，且可改（因为一般人转成的小规模有可能暂不允许选小规模减征）； 小规模纳税人标志=N时，是否小规模减征固定为“否”；
+                initData.put("sfxgmjz", data.getString("xgmnsrbz"));
             } else if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh) || TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) {
-                // 取地方各项基金费核定费种
-                // ...
+                // a.征收子目的名称(如"工会经费2%")需从ghjfallzmlist或ghjfallzmglblist中取。sbxxlist中只有代码
+                Map<String, JSONObject> zszmMap = new HashMap<>();
+                JSONObject zszmpmGlbxx = (JSONObject) data.get("zszmpmGlbxx");
+                for (Object object : (JSONArray) zszmpmGlbxx.get("ghjfallzmlist")) { //不知道会不会空，先写着
+                    JSONObject zszm = (JSONObject) object;
+                    zszmMap.put(zszm.getString("ZSZMDM"), zszm);
+                }
+
+                // c.取地方各项基金费核定费种
+                //Map<String, Object> initData = new LinkedHashMap<>(); // 核定税目（预置的应税凭证）
+                JSONObject qcLine = null;
+                String zsxmdm = data.getString("zsxm_dm"); // getSjzsxmDm(sbzlbh)
+                for (Object object : (JSONArray) data.get("sbxxlist")) { //不知道会不会空，先写着
+                    JSONObject sbxx = (JSONObject) object;
+                    if (sbxx.getString("zsxmDm").equals(zsxmdm)) { // 只取当前税种相关的税目（不知道为什么工会经费、垃圾处理费的期初中会有印花税、附加税等的税目）
+                        String zspmdm = sbxx.getString("zspmDm");
+                        String zszmdm = sbxx.getString("zszmDm");
+                        String jzl = sbxx.getString("sl"); //"0.0080"
+                        //string jzl = zszmglbMap.get(zszmdm).get("JZL"); //0.008
+                        JSONObject zszm = zszmMap.get(zszmdm);
+                        String zspmmc = zszm.getString("ZSPMMC");
+                        String zszmmc = zszm.getString("ZSZMMC");
+                        //按征收子目名称来缓存初始行信息
+                        if (!initData.containsKey(zszmmc)) {
+                            qcLine = new JSONObject();
+                            qcLine.put("zsxmdm", zsxmdm);
+                            qcLine.put("zspmdm", zspmdm);
+                            qcLine.put("zspmmc", zspmmc);
+                            qcLine.put("zszmdm", zszmdm);
+                            qcLine.put("zszmmc", zszmmc);
+                            qcLine.put("jzl", Double.valueOf(jzl));
+                            qcLine.put("skssqq", sbxx.getString("skssqq"));
+                            qcLine.put("skssqz", sbxx.getString("skssqz"));
+                            initData.put(zszmmc, qcLine);
+                        }
+                    }
+                }
+
+                // d.地方各项基金费必须要填开户银行和银行账号
+                JSONArray khyhlist = (JSONArray) data.get("khyhList");
+                //有些户的khyhList可能为空，为空时，申报时不用传银行账号
+                JSONObject khzhxx;
+                if (khyhlist.size() == 0) {
+                    khzhxx = new JSONObject();
+                    khzhxx.put("yhyywd_dm", "");
+                    khzhxx.put("yhyywdmc", "");
+                    khzhxx.put("yhzh", "");
+                } else {
+                    khzhxx = (JSONObject)khyhlist.get(0);
+                }
+                initData.put("khzhxx", khzhxx);
+
+                // d.小规模纳税人标志
+                // 小规模纳税人标志(xgmnsrbz)=Y时，是否小规模减征(bqsfsyxgmyhzc)默认为“是”，且可改（因为一般人转成的小规模有可能暂不允许选小规模减征）； 小规模纳税人标志=N时，是否小规模减征固定为“否”；
+                initData.put("sfxgmjz", data.getString("xgmnsrbz"));
+            } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) { //文化事业建设费
+                //广告业娱乐业标志或wh_zspmdm考虑保存到公司账套信息中
+
+                // 从纳税人基本信息中取文化事业建设费的征收品目代码（302170200、302170100）
+                //JSONObject qcsxx = (JSONObject) data.get("sbWhsyjsfqcsxxVO");
+                //String zspmdm = qcsxx.getString("zspmdm");
+                String zspmdm = nsrjbxx.getString("wh_zspmdm");
+                initData.put("zspmdm", zspmdm);
+
+//                // 从期初数据中取文化事业建设费的登记序号
+//                String djxh = data.getString("djxh");
+//                initData.put("djxh", djxh);
             }
         }
 
@@ -1388,6 +1520,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             intParse = new com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.incometax.b.IncomeTaxInit();
         } else if (TaxRptConst.SB_ZLBH39801.equals(sbzlbh)) {
             intParse = new FinancialOrdinaryInit();
+        } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
+            intParse = new WhjsfInit();
         } else {
             return;
         }
@@ -1399,6 +1533,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 dealJmxzList(initData, (JSONArray) vo);
                 continue;
             }
+
             if (vo instanceof JSONObject) {
                 //找到末级对象或数组
                 while (true) {
@@ -1412,8 +1547,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     }
                     break;
                 }
-                String indexName = intParse.getIndexField(voName);
                 if (vo instanceof JSONArray) {
+                    String indexName = intParse.getIndexField(voName);
                     JSONArray gridLb = (JSONArray) vo;
                     if ("rawType".equals(indexName)) {
                         Map<String, String> nameMap = intParse
@@ -1450,15 +1585,20 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     }
                 } else {
                     JSONObject qcVO = (JSONObject) vo;
-                    Map<String, String> nameMap = intParse.getNameMap(voName
-                            + "--" + (String) qcVO.get(indexName));
+                    Map<String, String> nameMap = intParse.getNameMap(voName); // + "--" + (String) qcVO.get(indexName)
                     if (nameMap != null) {
                         for (Entry<String, String> entry : nameMap.entrySet()) {
                             putInitMapValue(initData, entry.getKey(),
                                     (String) qcVO.get(entry.getValue()));
                         }
+                    } else { // 没有定义map的，vo下所有字段直接平铺（如文化事业建设费的qcsxxmap, qtxxmap中的字段）
+                        for(Map.Entry<String, Object> entry : qcVO.entrySet()) {
+                            initData.put(entry.getKey(), (String) entry.getValue());
+                        }
                     }
                 }
+            } else { // 简单类型，直接加入（如文化事业建设费的djxh等）
+                initData.put(voName, vo);
             }
         }
 
@@ -1474,7 +1614,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
     }
 
-    private String getInitParams(CorpVO corpVO, TaxReportVO reportvo) {
+    private String getInitParams(CorpVO corpVO, TaxReportVO reportvo, String wh_zspmdm) {
         Map<String, String> params = new HashMap<String, String>();
         params.put("nsrsbh", corpVO.getVsoccrecode());
         params.put("skssqq", reportvo.getPeriodfrom());
@@ -1492,9 +1632,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
         params.put("sbuuid", uuid);
 
-//		String ywbw = OFastJSON.toJSONString(params);
-        String ywbw = JsonUtils.serialize(params);
+        // 文化事业建设费需要传ggyylybz（广告业娱乐业标志），可从“纳税人基本信息查询——税费种认定信息”中得到
+        params.put("ggyylybz", wh_zspmdm.equals("302170100") ? "yly" : "ggy"); // "ggy"
 
+        String ywbw = JsonUtils.serialize(params);
         ywbw = EncryptDecrypt.encode(ywbw, taxJstcConfig.app_secret);
 
         return ywbw;
@@ -1560,24 +1701,24 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         if (StringUtil.isEmpty(result)) { // 当税种环境不稳定时返回的result可能为空，这种情况直接退出，暂不更新状态
             return;
         }
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
-        String status = rsJosn.getString("RESULT");
-        String msg = rsJosn.getString("MSG");
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
+        String status = rsJson.getString("RESULT");
+        String msg = rsJson.getString("MSG");
 
         // 当返回"9999-无可查询信息，请检查参数是否正确"时，认为是未申报。其他错误，则写日志退出，不更新申报状态
         if (!"0000".equals(status) && !"无可查询信息，请检查参数是否正确".equals(msg)) {
-            log.error("更新申报状态失败:" + rsJosn);
-//				throw new BusinessException((String) rsJosn.get("MSG"));
+            log.error("更新申报状态失败:" + rsJson);
+//				throw new BusinessException((String) rsJson.get("MSG"));
             return;
         }
 
         String sbzt_dm = "101";
         if ("0000".equals(status)) {
-            JSONArray dataArray = (JSONArray) rsJosn.get("DATA");
+            JSONArray dataArray = (JSONArray) rsJson.get("DATA");
             JSONObject data = (JSONObject) dataArray.get(0);
             sbzt_dm = data.getString("SBZT_DM");
 
-            //申报成功记录凭证序号
+            //申报成功记录凭证序号、流水号
             if (TaxRptConst.iSBZT_DM_ReportSuccess == Integer.valueOf(sbzt_dm)) {
                 String yzpzxh = data.getString("YZPZXH");
                 reportvo.setRegion_extend2(yzpzxh);
@@ -1688,13 +1829,13 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 params);
 
         String result = HttpUtil.parseRes(rmap.get("response"));
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
-        String status = rsJosn.getString("RESULT");
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
+        String status = rsJson.getString("RESULT");
 
         if (!"0000".equals(status)) {
             log.error("作废失败:" + result);
-            String msg = rsJosn.getString("MSG");
-            Object data = rsJosn.get("DATA");
+            String msg = rsJson.getString("MSG");
+            Object data = rsJson.get("DATA");
             if (data != null && data instanceof JSONObject) {
                 JSONObject dataJson = (JSONObject) data;
                 String ycxx = dataJson.getString("YCXX");
@@ -2106,17 +2247,17 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 params);
 
         String result = HttpUtil.parseRes(rmap.get("response"));
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
-        String status = rsJosn.getString("RESULT");
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
+        String status = rsJson.getString("RESULT");
 
         if ("0000".equals(status)) {
-            JSONArray data = (JSONArray) rsJosn.get("DATA");
+            JSONArray data = (JSONArray) rsJson.get("DATA");
             for (Object object : data) {
                 reports.add((String) object);
             }
         } else {
-            log.error(rsJosn.getString("MSG"));
-//			throw new BusinessException((String) rsJosn.get("MSG"));
+            log.error(rsJson.getString("MSG"));
+//			throw new BusinessException((String) rsJson.get("MSG"));
         }
         return reports;
     }
@@ -2177,11 +2318,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         if (StringUtil.isEmpty(result)) {
             return null;
         }
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
-        String status = rsJosn.getString("RESULT");
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
+        String status = rsJson.getString("RESULT");
         if ("0000".equals(status)) {
             String sb_zlbh = getSbzlbh(reportvo.getSb_zlbh());
-            JSONArray data = (JSONArray) rsJosn.get("DATA");
+            JSONArray data = (JSONArray) rsJson.get("DATA");
             for (Object object : data) {
                 JSONObject jsonObj = (JSONObject) object;
                 String code = jsonObj.getString("SB_ZLBH");
@@ -2190,7 +2331,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 }
             }
         } else {
-//			throw new BusinessException((String) rsJosn.get("MSG"));
+//			throw new BusinessException((String) rsJson.get("MSG"));
             return null;
         }
         return null;
@@ -2336,6 +2477,38 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
     public String getLocation(CorpVO corpvo) throws DZFWarpException {
         return "江苏";
+    }
+
+    /**
+     * 转换为税局的征收项目代码
+     *
+     * @param sbzl_bh
+     * @return
+     */
+    private String getSjzsxmDm(String sbzl_bh) {
+        /*
+10101: 增值税
+10104: 所得税（含汇算清缴）
+10109: 市区（增值税附征）
+30203: 增值税教育费附加
+30216: 增值税地方教育附加
+10111: 印花税
+39900: 地方各项基金费-工会经费
+30299: 地方各项基金费-垃圾处理费
+30218: 地方各项基金费-残保金
+59806: 财报
+69806: 财报年报
+        */
+        switch (sbzl_bh) {
+            case TaxRptConst.SB_ZLBH31399: //地方各项基金费（工会经费）
+                return "39900";
+            case TaxRptConst.SB_ZLBH30299: //地方各项基金费（垃圾处理费）
+                return "30299";
+//            case TaxRptConst.SB_ZLBH30218: //地方各项基金费（残保金）
+//                return "30218";
+            default:
+                return "";
+        }
     }
 
     /**
@@ -2994,15 +3167,15 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 requestParam);
 
         String result = HttpUtil.parseRes(rmap.get("response"));
-        JSONObject rsJosn = (JSONObject) JSON.parse(result);
-        String status = rsJosn.getString("RESULT");
+        JSONObject rsJson = (JSONObject) JSON.parse(result);
+        String status = rsJson.getString("RESULT");
 
         if (!"0000".equals(status)) {
-            log.error("查询完税凭证失败" + rsJosn);
-            throw new BusinessException((String) rsJosn.get("MSG"));
+            log.error("查询完税凭证失败" + rsJson);
+            throw new BusinessException((String) rsJson.get("MSG"));
         }
         TaxPaymentVO[] payments = null;
-        JSONArray dataArray = (JSONArray) rsJosn.get("DATA");
+        JSONArray dataArray = (JSONArray) rsJson.get("DATA");
         if (dataArray != null && dataArray.size() > 0) {
             String zsxmdm = reportvo.getZsxm_dm();
             Iterator<Object> it = dataArray.iterator();
@@ -3063,7 +3236,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 }
                 String status = rsJson.getString("RESULT");
                 if ("0000".equals(status)) {
-//					JSONArray data = (JSONArray) rsJosn.get("DATA");
+//					JSONArray data = (JSONArray) rsJson.get("DATA");
 //					for (Object object : data) {
 //						JSONObject json = (JSONObject) object;
 //						String code = json.getString("SB_ZLBH");

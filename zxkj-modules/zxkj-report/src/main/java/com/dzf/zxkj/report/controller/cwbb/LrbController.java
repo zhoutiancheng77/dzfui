@@ -27,6 +27,7 @@ import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.LrbCenterExcelField;
 import com.dzf.zxkj.report.excel.cwbb.LrbExcelField;
 import com.dzf.zxkj.report.service.cwbb.ILrbReport;
+import com.dzf.zxkj.report.service.pub.IReportPubService;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
@@ -52,6 +53,9 @@ public class LrbController extends ReportBaseController {
 
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
+
+    @Autowired
+    private IReportPubService gl_rep_pubser;
 
     /**
      * 查询科目明细数据
@@ -319,7 +323,7 @@ public class LrbController extends ReportBaseController {
             tmap.put("单位", "元");
             QueryParamVO paramvo = new QueryParamVO();
             paramvo.setPk_corp(corpVO.getPk_corp());
-            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
+            List<CorpTaxVo> listVos = gl_rep_pubser.queryTaxVoByParam(queryparamvo.getPk_corp());
             if (listVos != null && listVos.size() > 0) {
                 Optional<CorpTaxVo> optional = listVos.stream().filter(v -> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
                 optional.ifPresent(corpTaxVo -> {

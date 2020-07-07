@@ -286,7 +286,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		}
 
 		if (!StringUtil.isEmpty(paramvo.getFpdm())) {
-			sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
+			//sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
+			sb.append(" and y.khmc like ").append("'%").append(paramvo.getFpdm()).append("%'");
 		}
 
 		if (!StringUtil.isEmpty(sort)) {// sort != null && !"".equals(sort)
@@ -2977,7 +2978,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			log.error("错误",ex);
 			ret = null;
 		}
-		return OcrUtil.filterCorpName(ret);
+		return OcrUtil.filterString(ret);
 	}
 
 	private String[][] getBStyleMap() {
@@ -6047,17 +6048,17 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					ivo.setHsl(vo.getHsl());
 					singleObjectBO.update(ivo);
 				}else{
-					//aliaslist.add(alvo);
-					singleObjectBO.insertVO(pk_corp, alvo);
+					aliaslist.add(alvo);
+					//singleObjectBO.insertVO(pk_corp, alvo);
 				}
 
 			}
 
 		}
-//		if(aliaslist!=null &&aliaslist.size()>0){
-//			checkBeforesave(pk_corp,aliaslist);
-//			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
-//		}
+		if(aliaslist!=null &&aliaslist.size()>0){
+			checkBeforesave(pk_corp,aliaslist);
+			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
+		}
 
 
 		//	}

@@ -34,6 +34,7 @@ import com.dzf.zxkj.report.entity.ReportExcelExportVO;
 import com.dzf.zxkj.report.excel.cwbb.XjllMXbExcelField;
 import com.dzf.zxkj.report.excel.cwbb.XjllbExcelField;
 import com.dzf.zxkj.report.service.cwbb.IXjllbReport;
+import com.dzf.zxkj.report.service.pub.IReportPubService;
 import com.dzf.zxkj.report.utils.ReportUtil;
 import com.dzf.zxkj.report.utils.VoUtils;
 import com.itextpdf.text.BaseColor;
@@ -60,6 +61,9 @@ public class XjllController extends ReportBaseController {
 
     @Autowired
     private IZxkjPlatformService zxkjPlatformService;
+
+    @Autowired
+    private IReportPubService gl_rep_pubser;
 
     /**
      *
@@ -336,7 +340,7 @@ public class XjllController extends ReportBaseController {
             tmap.put("单位",  "元");
             QueryParamVO paramvo = new QueryParamVO();
             paramvo.setPk_corp(corpVO.getPk_corp());
-            List<CorpTaxVo> listVos = zxkjPlatformService.queryTaxVoByParam(paramvo, userVO);
+            List<CorpTaxVo> listVos = gl_rep_pubser.queryTaxVoByParam(queryparamvo.getPk_corp());
             if(listVos != null && listVos.size() > 0){
                 Optional<CorpTaxVo> optional = listVos.stream().filter(v-> corpVO.getPk_corp().equals(v.getPk_corp())).findFirst();
                 optional.ifPresent(corpTaxVo ->{

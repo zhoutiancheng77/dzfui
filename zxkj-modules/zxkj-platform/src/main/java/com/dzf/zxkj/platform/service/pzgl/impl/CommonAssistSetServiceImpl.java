@@ -58,7 +58,9 @@ public class CommonAssistSetServiceImpl implements ICommonAssistSetService {
                                 boolean hasAssistData) {
         CorpVO corpVO = corpService.queryByPk(pk_corp);
         Map<String, AuxiliaryAccountBVO> assistMap = gl_fzhsserv.queryMap(pk_corp);
-        boolean isic = IcCostStyle.IC_ON.equals(corpVO.getBbuildic());
+        // 总账推库存模式
+        boolean isic = IcCostStyle.IC_ON.equals(corpVO.getBbuildic()) &&
+                (corpVO.getIbuildicstyle() == null || corpVO.getIbuildicstyle() != 1);
         Iterator<CommonAssistVO> it = vos.iterator();
         List<AuxiliaryAccountBVO> assistData = null;
         top:
@@ -85,6 +87,7 @@ public class CommonAssistSetServiceImpl implements ICommonAssistSetService {
             char[] flags = isfzhs.toCharArray();
             for (int i = 0; i < flags.length; i++) {
                 char flag = flags[i];
+                // 总账推库存模式, 启用数量自动启用存货辅助
                 if (i == 5 && isic && "Y".equals(vo.getIsnum())) {
                     flag = '1';
                     flags[i] = flag;

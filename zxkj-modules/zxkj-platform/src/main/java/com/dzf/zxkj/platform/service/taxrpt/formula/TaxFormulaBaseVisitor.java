@@ -89,9 +89,12 @@ public class TaxFormulaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 					colno = Integer.parseInt(matcher.group(2)) - 1;
 				}
 				value = (T)formulatool.getCellValue(rowno, colno);
-				// 把单元格中的空格去掉
+
+				// llh 从单元格取值时，处理"--"、"——"，删除多余的空格等
 				if (value instanceof String) {
 					value = (T)((String)value).trim();
+					if (value.equals("——") || value.equals("--") || value.equals("----"))
+					    value = (T)"";
 				}
 				return value;
 			}
@@ -130,15 +133,23 @@ public class TaxFormulaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 				// 参数值value为null时，假设该参数的类型为String
 				paramTypes.add(value != null ? value.getClass() : String.class);
 			}
+
 			T value = null;
-			Method method = null;
-			try {
-				method = FormulaTool.class.getMethod(methodName, paramTypes.toArray(new Class<?>[0]));
-				if (method != null) {
-					value = (T)method.invoke(null, pvalueList.toArray(new Object[0]));
+			if (methodName.equalsIgnoreCase("iif")) { // 内置函数-IIf
+				if (pvalueList.size() != 3)
+					return (T)"IIF格式错误";
+				Boolean condValue = (Boolean)pvalueList.get(0);
+				value = condValue ? pvalueList.get(1) : pvalueList.get(2);
+			} else { // 其他的认为是FormulaTool中的静态方法
+				try {
+					Method method = FormulaTool.class.getMethod(methodName, paramTypes.toArray(new Class<?>[0]));
+					if (method != null) {
+						value = (T)method.invoke(null, pvalueList.toArray(new Object[0]));
+					}
+				} catch (Exception e) {
 				}
-			} catch (Exception e) {
 			}
+
 			return value;
 		}
 		if (ctx.getChildCount() == 3) { // 对象的属性或方法调用
@@ -175,6 +186,8 @@ public class TaxFormulaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 			Method method = null;
 			try {
 				if (leftobj instanceof Map && methodName.equals("get")) { // 泛型对象上的get方法，实际参数为Object类型
+					method = leftobj.getClass().getMethod(methodName, Object.class);
+				} else if (methodName.equals("equals")) { // 对象上的equals方法的参数类型是Object
 					method = leftobj.getClass().getMethod(methodName, Object.class);
 				} else {
 					method = leftobj.getClass().getMethod(methodName, paramTypes.toArray(new Class<?>[0]));
@@ -235,7 +248,10 @@ public class TaxFormulaBaseVisitor<T> extends AbstractParseTreeVisitor<T> implem
 		int n = ctx.getChildCount();
 		// 拼接参数值列表
 		for(int i = 0; i < n; ++i) {
-			T value = visit(ctx.getChild(i));
+			ParseTree p = ctx.getChild(i);
+			if (!(p instanceof TaxFormulaParser.ParamContext))
+				continue;
+			T value = visit(p); //param
 			//value可能为null，null得不到类型，后面反射取method信息时需注意
 			valueList.add(value);
 		}
