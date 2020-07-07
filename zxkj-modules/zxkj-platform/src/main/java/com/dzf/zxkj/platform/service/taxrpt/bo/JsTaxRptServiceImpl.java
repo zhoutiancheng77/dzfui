@@ -1599,7 +1599,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                         }
                     } else { // 没有定义map的，vo下所有字段直接平铺（如文化事业建设费的qcsxxmap, qtxxmap中的字段）
                         for(Map.Entry<String, Object> entry : qcVO.entrySet()) {
-                            initData.put(entry.getKey(), (String) entry.getValue());
+                            initData.put(entry.getKey(), entry.getValue());
                         }
                     }
                 }
