@@ -247,7 +247,7 @@ public class CwgyInfoReportImpl implements ICwgyInfoReport {
 			list.add(info);
 			CwgyInfoVO info1 = new CwgyInfoVO();
 			info1.setXmfl("预警设置");
-			info1.setXm("预警上线");
+			info1.setXm("预警上限");
 			info1.setHs(Integer.toString(num));
 			info1.setColspan(4);
 			info1.setCol(++col);
