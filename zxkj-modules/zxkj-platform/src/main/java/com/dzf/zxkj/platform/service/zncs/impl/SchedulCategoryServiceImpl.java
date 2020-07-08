@@ -1276,7 +1276,9 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 
 		}
 		//开票日期晚于当前账期
-		if(!StringUtil.isEmpty(ocrInvoiceVO.getPeriod())&&!StringUtil.isEmpty(ocrInvoiceVO.getDinvoicedate())){
+		// 取消税收完税证明  202007
+		if(!StringUtil.isEmpty(ocrInvoiceVO.getPeriod())&&!StringUtil.isEmpty(ocrInvoiceVO.getDinvoicedate())&&
+		!StringUtil.isEmpty(ocrInvoiceVO.getInvoicetype())&&!ocrInvoiceVO.getInvoicetype().equals("b税收完税证明")){
 			//检查日期是否合法，转换试验
 //			DZFDate trueDate = null;
 			try {
