@@ -33,6 +33,7 @@ import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -467,7 +468,10 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 			{
 				if (firstBillTitle == null)
 				{
-					if (StringUtil.isEmpty(invoiceVO.getVsalephoneaddr()) == false)
+					if(!StringUtils.isEmpty(invoiceVO.getInvoicetype())&&invoiceVO.getInvoicetype().equals("b税收完税证明")){
+						firstBillTitle = invoiceVO.getVfirsrinvname();
+					}
+					if (firstBillTitle == null && StringUtil.isEmpty(invoiceVO.getVsalephoneaddr()) == false)
 					{
 						try {
 							String[] sa = new String[] {
