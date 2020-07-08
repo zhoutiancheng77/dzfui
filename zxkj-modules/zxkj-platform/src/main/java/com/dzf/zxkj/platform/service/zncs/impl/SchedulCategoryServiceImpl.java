@@ -33,6 +33,7 @@ import com.dzf.zxkj.platform.service.zncs.*;
 import com.dzf.zxkj.platform.util.zncs.OcrUtil;
 import com.dzf.zxkj.platform.util.zncs.ZncsConst;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -467,7 +468,13 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 			{
 				if (firstBillTitle == null)
 				{
-					if (StringUtil.isEmpty(invoiceVO.getVsalephoneaddr()) == false)
+					if(!StringUtils.isEmpty(invoiceVO.getInvoicetype())&&invoiceVO.getInvoicetype().equals("b税收完税证明")&&
+							invoiceVO.getChildren() != null){
+						OcrInvoiceDetailVO[] bvos = (OcrInvoiceDetailVO[])invoiceVO.getChildren();
+
+						firstBillTitle = bvos[0].getInvname();
+					}
+					if (firstBillTitle == null && StringUtil.isEmpty(invoiceVO.getVsalephoneaddr()) == false)
 					{
 						try {
 							String[] sa = new String[] {
@@ -1276,7 +1283,9 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 
 		}
 		//开票日期晚于当前账期
-		if(!StringUtil.isEmpty(ocrInvoiceVO.getPeriod())&&!StringUtil.isEmpty(ocrInvoiceVO.getDinvoicedate())){
+		// 取消税收完税证明  202007
+		if(!StringUtil.isEmpty(ocrInvoiceVO.getPeriod())&&!StringUtil.isEmpty(ocrInvoiceVO.getDinvoicedate())&&
+		!StringUtil.isEmpty(ocrInvoiceVO.getInvoicetype())&&!ocrInvoiceVO.getInvoicetype().equals("b税收完税证明")){
 			//检查日期是否合法，转换试验
 //			DZFDate trueDate = null;
 			try {
