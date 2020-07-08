@@ -468,8 +468,11 @@ public class SchedulCategoryServiceImpl implements ISchedulCategoryService {
 			{
 				if (firstBillTitle == null)
 				{
-					if(!StringUtils.isEmpty(invoiceVO.getInvoicetype())&&invoiceVO.getInvoicetype().equals("b税收完税证明")){
-						firstBillTitle = invoiceVO.getVfirsrinvname();
+					if(!StringUtils.isEmpty(invoiceVO.getInvoicetype())&&invoiceVO.getInvoicetype().equals("b税收完税证明")&&
+							invoiceVO.getChildren() != null){
+						OcrInvoiceDetailVO[] bvos = (OcrInvoiceDetailVO[])invoiceVO.getChildren();
+
+						firstBillTitle = bvos[0].getInvname();
 					}
 					if (firstBillTitle == null && StringUtil.isEmpty(invoiceVO.getVsalephoneaddr()) == false)
 					{
