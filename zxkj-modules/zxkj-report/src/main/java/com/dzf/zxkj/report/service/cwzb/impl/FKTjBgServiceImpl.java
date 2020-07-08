@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.service.cwzb.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
 import com.dzf.zxkj.base.exception.DZFWarpException;
@@ -760,6 +761,7 @@ public class FKTjBgServiceImpl implements IFkTjBgService {
 	}
 
 	@Override
+	@DS("slave_1")
 	public void save(FkTjSetVo vo) throws DZFWarpException {
 		// 赋值行业
 		CorpVO cpvo = zxkjPlatformService.queryCorpByPk(vo.getPk_corp());

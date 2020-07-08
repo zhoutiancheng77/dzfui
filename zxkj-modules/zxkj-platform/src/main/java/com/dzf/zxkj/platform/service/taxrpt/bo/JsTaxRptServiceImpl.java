@@ -32,6 +32,8 @@ import com.dzf.zxkj.platform.model.tax.*;
 import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10101_jiangsu;
 import com.dzf.zxkj.platform.model.tax.chk.TaxRptChk10102_jiangsu;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.*;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.dfjjf.ghjf.GhjfRequest;
+import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.dfjjf.ljclf.LjclfRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.annual.ordinary.FinancialOrdinaryInit;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.enterprise.FinancialEnterpriseRequest;
 import com.dzf.zxkj.platform.model.tax.jiangsutaxrpt.taxrequest.financialtax.ordinary.FinancialOrdinaryRequest;
@@ -599,10 +601,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                                 SpreadTool spreadtool, TaxReportVO reportvo, SingleObjectBO sbo)
             throws DZFWarpException {
         if (!"true".equals(taxJstcConfig.service_switch)) {
-            throw new BusinessException("申报接口未启用");
+            throw new BusinessException("作废接口未启用");
         }
         if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
-            throw new BusinessException("暂不支持上报当前税种");
+            throw new BusinessException("暂不支持作废当前税种");
         }
         CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpVO.getPk_corp());
         String nsrsbh = corpVO.getVsoccrecode();
@@ -717,7 +719,8 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         if (isdssz || TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
             // 每次申报时现取期初，将来可以考虑保存期初数据，申报时取
             HashMap<String, Object> qcdata = getQcData(corpVO, reportvo, null);
-            formulatool.addObject("qcData", qcdata); // qcdata.get(sbzlbh + "qc")
+            formulatool.addObject("qcData", qcdata);
+            //formulatool.addObject("khzhxx", qcdata.get("khzhxx")); // 地方各项基金费的银行账号信息直接平铺放到qcData中
         }
 
         // 设置提交请求的serviceid和sign
@@ -901,9 +904,9 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
         } else if (TaxRptConst.SB_ZLBH10601.equals(type)) {
             cls = WhjsfRequest.class;
         } else if (TaxRptConst.SB_ZLBH31399.equals(type)) {
-            cls = null;
+            cls = GhjfRequest.class;
         } else if (TaxRptConst.SB_ZLBH30299.equals(type)) {
-            cls = null;
+            cls = LjclfRequest.class;
         }
 
         return cls;
@@ -1435,7 +1438,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
                 // d.小规模纳税人标志
                 // 小规模纳税人标志(xgmnsrbz)=Y时，是否小规模减征(bqsfsyxgmyhzc)默认为“是”，且可改（因为一般人转成的小规模有可能暂不允许选小规模减征）； 小规模纳税人标志=N时，是否小规模减征固定为“否”；
-                initData.put("sfxgmjz", data.getString("xgmnsrbz"));
+                initData.put("sfxgmjz", data.getString("xgmnsrbz")); //Y、N
             } else if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh) || TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) {
                 // a.征收子目的名称(如"工会经费2%")需从ghjfallzmlist或ghjfallzmglblist中取。sbxxlist中只有代码
                 Map<String, JSONObject> zszmMap = new HashMap<>();
@@ -1476,22 +1479,25 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 }
 
                 // d.地方各项基金费必须要填开户银行和银行账号
+                //有些户的khyhList可能为空。银行账号为空的公司，申报时银行账号可不传
                 JSONArray khyhlist = (JSONArray) data.get("khyhList");
-                //有些户的khyhList可能为空，为空时，申报时不用传银行账号
-                JSONObject khzhxx;
+                //把银行账号信息平铺后直接放到qcData中，方便使用
                 if (khyhlist.size() == 0) {
-                    khzhxx = new JSONObject();
-                    khzhxx.put("yhyywd_dm", "");
-                    khzhxx.put("yhyywdmc", "");
-                    khzhxx.put("yhzh", "");
+                    initData.put("khyhdm", "");
+                    initData.put("khyhmc", "");
+                    initData.put("yhzh", "");
                 } else {
-                    khzhxx = (JSONObject)khyhlist.get(0);
+                    JSONObject khzhxx = (JSONObject)khyhlist.get(0);
+                    initData.put("khyhdm", khzhxx.getString("yhyywd_dm"));
+                    initData.put("khyhmc", khzhxx.getString("yhyywdmc"));
+                    initData.put("yhzh", khzhxx.getString("yhzh"));
                 }
-                initData.put("khzhxx", khzhxx);
+                //initData.put("khzhxx", khzhxx);
 
                 // d.小规模纳税人标志
                 // 小规模纳税人标志(xgmnsrbz)=Y时，是否小规模减征(bqsfsyxgmyhzc)默认为“是”，且可改（因为一般人转成的小规模有可能暂不允许选小规模减征）； 小规模纳税人标志=N时，是否小规模减征固定为“否”；
-                initData.put("sfxgmjz", data.getString("xgmnsrbz"));
+                String xgmnsrbz = data.getString("xgmnsrbz"); //0、1
+                initData.put("sfxgmjz", xgmnsrbz != null && xgmnsrbz.equals("1")? "Y" : "N");
             } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) { //文化事业建设费
                 //广告业娱乐业标志或wh_zspmdm考虑保存到公司账套信息中
 
@@ -1593,7 +1599,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                         }
                     } else { // 没有定义map的，vo下所有字段直接平铺（如文化事业建设费的qcsxxmap, qtxxmap中的字段）
                         for(Map.Entry<String, Object> entry : qcVO.entrySet()) {
-                            initData.put(entry.getKey(), (String) entry.getValue());
+                            initData.put(entry.getKey(), entry.getValue());
                         }
                     }
                 }
@@ -1774,12 +1780,21 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             throws DZFWarpException {
 
         if (!"true".equals(taxJstcConfig.service_switch)) {
-            return;
+            throw new BusinessException("申报接口未启用");
+        }
+        if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
+            throw new BusinessException("暂不支持上报当前税种");
         }
         CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
-        if (StringUtil.isEmpty(corpvo.getVsoccrecode())
-                || StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
-            return;
+        String nsrsbh = corpvo.getVsoccrecode();
+        String vstatetaxpwd = taxvo.getVstatetaxpwd();
+
+        if (StringUtil.isEmpty(nsrsbh)) {
+            throw new BusinessException("纳税人识别号不能为空");
+        }
+
+        if (StringUtil.isEmpty(vstatetaxpwd)) {
+            throw new BusinessException("纳税密码不能为空");
         }
 
         if (Integer.valueOf(reportvo.getSbzt_dm()) != TaxRptConst.iSBZT_DM_ReportSuccess) {
@@ -2849,6 +2864,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
     // 收费
     private void doCharge(CorpVO corpVO, TaxReportVO reportvo, String userId) {
+
+        if (corpVO.getIschannel() != null && corpVO.getIschannel().booleanValue()) {
+            return;
+        }
+
         IVersionMngService verionMng = (IVersionMngService) SpringUtils
                 .getBean("sys_funnodeversionserv");
         // 是否收费

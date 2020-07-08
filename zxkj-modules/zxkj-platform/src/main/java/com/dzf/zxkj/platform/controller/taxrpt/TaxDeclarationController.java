@@ -314,11 +314,15 @@ public class TaxDeclarationController  extends BaseController {
     @PostMapping("/onDeclareCancel")
     public ReturnData<Json> onDeclareCancel(@RequestBody Map<String, String> param) {
         Json json = new Json();
-        String pk_taxreport = param.get("pk_taxreport");
-        String ts = param.get("ts");
-        taxDeclarationService.processDeclareCancel(pk_taxreport, SystemUtil.getLoginUserVo(), ts);
-        json.setSuccess(true);
-        json.setMsg("申报作废成功!");
+        try {
+            String pk_taxreport = param.get("pk_taxreport");
+            String ts = param.get("ts");
+            taxDeclarationService.processDeclareCancel(pk_taxreport, SystemUtil.getLoginUserVo(), ts);
+            json.setSuccess(true);
+            json.setMsg("申报作废成功!");
+        } catch (Exception e) {
+            printErrorLog(json, e ,"申报作废异常");
+        }
         return ReturnData.ok().data(json);
     }
 

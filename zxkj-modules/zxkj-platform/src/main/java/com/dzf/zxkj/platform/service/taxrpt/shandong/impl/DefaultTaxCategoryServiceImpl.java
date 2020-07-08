@@ -454,6 +454,12 @@ public class DefaultTaxCategoryServiceImpl implements ITaxCategoryService {
 
 	// 收费
 	private void doCharge(CorpVO corpVO, TaxReportVO reportvo, UserVO userVO) {
+
+		// 如果是加盟商 不走扣费
+		if (corpVO.getIschannel() != null && corpVO.getIschannel().booleanValue()) {
+			return;
+		}
+
 		IVersionMngService verionMng = (IVersionMngService) SpringUtils.getBean("sys_funnodeversionserv");
 		// 是否收费
 		DZFBoolean isCharge = verionMng.isChargeByProduct(reportvo.getPk_corp(), IDzfServiceConst.DzfServiceProduct_03);
