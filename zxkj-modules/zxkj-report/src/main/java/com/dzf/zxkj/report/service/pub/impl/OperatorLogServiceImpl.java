@@ -11,6 +11,7 @@ import com.dzf.zxkj.common.base.LogQueryParamVO;
 import com.dzf.zxkj.common.base.LogRecordVo;
 import com.dzf.zxkj.common.lang.DZFDateTime;
 import com.dzf.zxkj.common.utils.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -23,15 +24,10 @@ import java.util.List;
  * @author zhangj
  *
  */
-@DS("slave_1")
 @Service
 public class OperatorLogServiceImpl implements IOperatorLogService {
 
-
-	public OperatorLogServiceImpl(SingleObjectBO singleObjectBO) {
-		this.singleObjectBO = singleObjectBO;
-	}
-
+	@Autowired
 	private SingleObjectBO singleObjectBO;
 	
 	@Override
@@ -87,6 +83,7 @@ public class OperatorLogServiceImpl implements IOperatorLogService {
 	}
 	
 	@Override
+	@DS("slave_1")
 	public void saveLog(String pk_corp, String username, String ip, Integer type, String msg,Integer ident,String userid) throws DZFWarpException {
 		LogRecordVo logvo = new LogRecordVo();
 		
