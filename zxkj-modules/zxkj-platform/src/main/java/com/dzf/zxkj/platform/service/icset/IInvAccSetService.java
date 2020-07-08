@@ -10,5 +10,5 @@ public interface IInvAccSetService {
 
 	InvAccSetVO save(InvAccSetVO vo1) throws DZFWarpException;
 	
-	InvAccSetVO saveGroupVO(CorpVO cpvo) throws DZFWarpException;
+	InvAccSetVO saveGroupVO(CorpVO cpvo, boolean isbulid) throws DZFWarpException;
 }

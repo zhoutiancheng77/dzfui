@@ -13,9 +13,9 @@ public interface ISalaryAccSetService {
 
 	SalaryAccSetVO save(SalaryAccSetVO vo1) throws DZFWarpException;
 
-	SalaryAccSetVO queryGroupVO(String pk_corp) throws DZFWarpException;
+	SalaryAccSetVO queryGroupVO(String pk_corp, boolean isbuild) throws DZFWarpException;
 
-	SalaryAccSetVO saveGroupVO(String pk_corp) throws DZFWarpException;
+	SalaryAccSetVO saveGroupVO(String pk_corp, boolean isbuild) throws DZFWarpException;
 
 	SalaryAccSetVO saveVoByColumn(String pk_corp, SalaryAccSetVO vo1, String[] strs) throws DZFWarpException;
 	

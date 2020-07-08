@@ -30,6 +30,8 @@ import com.dzf.zxkj.platform.model.sys.*;
 import com.dzf.zxkj.platform.model.tax.CorpTaxInfoVO;
 import com.dzf.zxkj.platform.service.common.IReferenceCheck;
 import com.dzf.zxkj.platform.service.glic.IInventoryAccSetService;
+import com.dzf.zxkj.platform.service.gzgl.ISalaryAccSetService;
+import com.dzf.zxkj.platform.service.icset.IInvAccSetService;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.util.CryptCodeUtil;
 import com.dzf.zxkj.platform.util.PinyinUtil;
@@ -83,8 +85,12 @@ public class BDCorpServiceImpl implements IBDCorpService {
     IInventoryAccSetService  accSetService;
 
     @Autowired
-    private IInventoryAccSetService gl_ic_invtorysetserv;
-	@SuppressWarnings("unchecked")
+    IInvAccSetService ic_chkmszserv;
+
+    @Autowired
+    ISalaryAccSetService gl_gzkmszserv;
+
+    @Override
 	public CorpVO[] queryCorp(QueryParamVO queryvo, UserVO uservo) throws DZFWarpException {
 		// 根据查询条件查询公司的信息
 		// StringBuffer corpsql = new StringBuffer();
@@ -933,6 +939,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 	 * @throws BusinessException
 	 * @throws UifException
 	 */
+	@Override
 	public void saveCorpAccount(CorpVO corpVO) throws BusinessException {
 		if (corpVO.getCorptype() == null) {
 			throw new BusinessException("没有会计科目方案，不允许建账");
@@ -1154,7 +1161,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		if(corpvo.getHoldflag() != null && corpvo.getHoldflag().booleanValue()){
 		    updateHflagSer(corpvo);
 		}
-		addVoucherTemplate(corpvo);
+        gl_gzkmszserv.saveGroupVO(corpvo.getPk_corp(),true);
 	}
 	
 	/**
@@ -1177,9 +1184,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		corpvo.setBbuildic(IcCostStyle.IC_ON);
 		corpvo.setIbuildicstyle(1);//存货单据生成总账凭证
 		singleObjectBO.update(corpvo, new String[] { "bbuildic", "icbegindate", "ibuildicstyle" });
-		
-		saveModelTOInvAccSetVO(corpvo.getPk_corp());
-		
+        ic_chkmszserv.saveGroupVO(corpvo, true);
 		updateIcData(corpvo);
 	}
 	
@@ -1353,144 +1358,6 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		return maxNum;
 	}
 
-	private void saveModelTOInvAccSetVO(String pk_corp) {
-
-        CorpVO corpVO = corpService.queryByPk(pk_corp);
-        String corpType = corpVO.getCorptype();
-        SQLParameter sp = new SQLParameter();
-        sp.addParam(IDefaultValue.DefaultGroup);
-        sp.addParam(corpType);
-        InvAccModelVO[] vos = (InvAccModelVO[]) singleObjectBO.queryByCondition(InvAccModelVO.class,
-                " pk_corp = ? and pk_trade_accountschema = ? and nvl(dr,0) = 0", sp);
-
-        if (vos == null || vos.length == 0)
-            return ;
-
-        InvAccSetVO setvo = new InvAccSetVO();
-        setvo.setPk_corp(pk_corp);
-        setvo.setDr(0);
-        for (InvAccModelVO vo : vos) {
-            String corp_account = getCorpAccountPkByTradeAccountPk(vo.getPk_accsubj(), pk_corp);
-            switch (vo.getIcolumntype().intValue()) {
-            case 0:
-                setvo.setCg_yjjxskm(corp_account);
-                break;
-            case 1:
-                setvo.setCg_yfzkkm(corp_account);
-                break;
-            case 2:
-                setvo.setCg_xjfkkm(corp_account);
-                break;
-            case 3:
-                setvo.setXs_xjskkm(corp_account);
-                break;
-            case 4:
-                setvo.setXs_yszkkm(corp_account);
-                break;
-            case 5:
-                setvo.setXs_yysrkm(corp_account);
-                break;
-            case 6:
-                setvo.setXs_yjxxskm(corp_account);
-                break;
-            case 7:
-                setvo.setLl_clcbkm(corp_account);
-                break;
-            case 8:
-                setvo.setLl_yclkm(corp_account);
-                break;
-            case 9:
-                setvo.setVdef1(corp_account);
-                break;
-            case 10:
-                setvo.setVdef2(corp_account);
-                break;
-            case 11:
-                setvo.setVdef3(corp_account);
-                break;
-            case 12:
-                setvo.setVdef4(corp_account);
-                break;
-            case 13:
-                setvo.setVdef5(corp_account);
-                break;
-            case 14:
-                setvo.setVdef6(corp_account);
-                break;
-            case 15:
-                setvo.setZgrkdfkm(corp_account);
-                break;
-            case 16:
-                setvo.setXs_clsrkm(corp_account);
-                break;
-            default:
-                break;
-            }
-        }
-        sp.clearParams();
-        sp.addParam(pk_corp);
-        InvAccSetVO[] sets = (InvAccSetVO[]) singleObjectBO.queryByCondition(InvAccSetVO.class,
-                " pk_corp = ? and nvl(dr,0) = 0", sp);
-        
-        if(sets == null || sets.length==0){
-            singleObjectBO.insertVOArr(pk_corp, new InvAccSetVO[]{setvo});
-        }else{
-            setvo.setPk_invaccset(sets[0].getPk_invaccset());
-            singleObjectBO.update(setvo);
-        }
-        
-    }
-	
-	public String getCorpAccountPkByTradeAccountPk(String pk_trade_account,
-			String pk_corp) throws DZFWarpException {
-		BdTradeAccountVO jfkmVO = (BdTradeAccountVO) singleObjectBO.queryVOByID(pk_trade_account, BdTradeAccountVO.class);
-		if (jfkmVO == null) {
-			return null;
-		}
-		SQLParameter sp=new SQLParameter();
-		String newrule = queryAccountRule(pk_corp);
-		String olerule = DZFConstant.ACCOUNTCODERULE;
-		String newaccount = getNewRuleCode(jfkmVO.getAccountcode(), olerule, newrule);
-		sp.addParam(newaccount);
-		sp.addParam(pk_corp);
-		
-		String condition = "  isleaf='Y' and  accountcode=? and pk_corp=? and nvl(dr,0)=0 ";
-		YntCpaccountVO[] gsjfkmVOs = (YntCpaccountVO[]) singleObjectBO
-				.queryByCondition(YntCpaccountVO.class,condition,sp);
-		if (gsjfkmVOs == null || gsjfkmVOs.length < 1) {
-			YntCpaccountVO vo =	queryAccount(pk_corp, newaccount);
-			if(vo == null)
-				return null;
-			return vo.getPk_corp_account();
-		}
-
-		return gsjfkmVOs[0].getPrimaryKey();
-
-	}
-	
-//  查询第一分支的最末级科目
-	private YntCpaccountVO queryAccount(String pk_corp, String code) throws BusinessException {
-
-		StringBuffer strb = new StringBuffer();
-
-		strb.append(" SELECT * FROM  ynt_cpaccount t ");
-		strb.append("  where t.accountcode like ? ");
-		strb.append("  and pk_corp = ? and  nvl(isleaf,'N')='Y'  ");
-
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(code+"%");
-		sp.addParam(pk_corp);
-
-		List<YntCpaccountVO> list = (List<YntCpaccountVO>) singleObjectBO.executeQuery(strb.toString(), sp,
-				new BeanListProcessor(YntCpaccountVO.class));
-		if(list == null || list.size()==0){
-			return null;
-		}
-		YntCpaccountVO[] accountvo = list.toArray(new YntCpaccountVO[list.size()]);
-		VOUtil.ascSort(accountvo, new String[] { "accountcode" });
-		return accountvo[0];
-	}
-	
 	/**
 	 * 查询对应的科目编码规则
 	 */
@@ -1853,7 +1720,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+    @Override
 	public CorpVO[] queryCorpRef(QueryParamVO queryvo, UserVO uservo) throws DZFWarpException {
 		// 根据查询条件查询公司的信息
 		// StringBuffer corpsql = new StringBuffer();
@@ -3039,85 +2906,6 @@ public class BDCorpServiceImpl implements IBDCorpService {
 	public void updateAccountType(CorpVO corpVO) throws DZFWarpException {
 		singleObjectBO.update(corpVO, new String[]{"corptype"});
 	}
-	private void addVoucherTemplate (CorpVO corpvo) {
-		SQLParameter sp = new SQLParameter();
-		sp.addParam(IDefaultValue.DefaultGroup);
-		sp.addParam(corpvo.getCorptype());
-		List<SalaryModelHVO> group_models = (List<SalaryModelHVO>) singleObjectBO.executeQuery(
-				"pk_corp = ? and pk_trade_accountschema = ? and nvl(dr,0) = 0",
-						sp, new Class[]{SalaryModelHVO.class, SalaryModelBVO.class});
-		if (group_models != null && group_models.size() > 0) {
-			SalaryAccSetVO salaryTemp = new SalaryAccSetVO();
-			salaryTemp.setPk_corp(corpvo.getPk_corp());
-			SQLParameter param = new SQLParameter();
-			for (SalaryModelHVO salaryModelHVO : group_models) {
-				List<SalaryModelBVO> bvos = Arrays.asList(salaryModelHVO.getChildren());
-				for (SalaryModelBVO salaryModelBVO : bvos) {
-					param.clearParams();
-					param.addParam(corpvo.getPk_corp());
-					param.addParam(salaryModelBVO.getKmbm());
-					String corp_account = (String) singleObjectBO
-							.executeQuery("select pk_corp_account from ynt_cpaccount where pk_corp = ? and accountcode = ? and nvl(dr, 0) = 0 ",
-									param, new ColumnProcessor());
-					salaryModelBVO.setPk_accsubj(corp_account);
-				}
-				if (salaryModelHVO.getTemp_type() == 0) {
-					for (SalaryModelBVO salaryModelBVO : bvos) {
-						switch (salaryModelBVO.getZy()) {
-						case "工资费用科目":
-							salaryTemp.setJtgz_gzfykm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "应付工资科目":
-							salaryTemp.setJtgz_yfgzkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "应付社保科目":
-							salaryTemp.setJtgz_yfsbkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "社保费用科目":
-							salaryTemp.setJtgz_sbfykm(salaryModelBVO.getPk_accsubj());
-							break;
-						}
-					}
-				} else {
-					for (SalaryModelBVO salaryModelBVO : bvos) {
-						switch (salaryModelBVO.getZy()) {
-						case "应付工资科目":
-							salaryTemp.setFfgz_yfgzkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "公积金个人部分":
-							salaryTemp.setFfgz_gjjgrbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "应缴个税科目":
-							salaryTemp.setFfgz_grsds(salaryModelBVO.getPk_accsubj());
-							break;
-						case "工资发放科目":
-							salaryTemp.setFfgz_xjlkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "个人养老保险":
-							salaryTemp.setFfgz_sbgrbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "个人医疗保险":
-							salaryTemp.setFfgz_yilbxbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "个人失业保险":
-							salaryTemp.setFfgz_sybxbf(salaryModelBVO.getPk_accsubj());
-							break;
-						case "工伤保险科目":
-							salaryTemp.setFfgz_gsbxkm(salaryModelBVO.getPk_accsubj());
-							break;
-						case "生育保险科目":
-							salaryTemp.setFfgz_shybxkm(salaryModelBVO.getPk_accsubj());
-							break;
-						default:
-							break;
-						}
-					}
-				}
-			}
-			singleObjectBO.saveObject(corpvo.getPk_corp(), salaryTemp);
-		}
-	}
-	
 
 	@SuppressWarnings({ "unchecked", "serial" })
 	@Override
@@ -3482,7 +3270,7 @@ public class BDCorpServiceImpl implements IBDCorpService {
 		}
 		corpvo.setBbuildic(IcCostStyle.IC_OFF);
 		singleObjectBO.update(corpvo, new String[] { "bbuildic"});
-        gl_ic_invtorysetserv.deleteDefaultValue(corpvo.getPk_corp());
+        accSetService.deleteDefaultValue(corpvo.getPk_corp());
 	}
 
 }

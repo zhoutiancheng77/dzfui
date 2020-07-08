@@ -9,7 +9,6 @@ import com.dzf.zxkj.base.framework.processor.ColumnProcessor;
 import com.dzf.zxkj.base.utils.DZFStringUtil;
 import com.dzf.zxkj.base.utils.DZFValueCheck;
 import com.dzf.zxkj.base.utils.DZfcommonTools;
-import com.dzf.zxkj.base.utils.VOUtil;
 import com.dzf.zxkj.common.constant.AuxiliaryConstant;
 import com.dzf.zxkj.common.enums.SalaryReportEnum;
 import com.dzf.zxkj.common.enums.SalaryTypeEnum;
@@ -23,7 +22,6 @@ import com.dzf.zxkj.platform.model.bdset.AuxiliaryAccountBVO;
 import com.dzf.zxkj.platform.model.bdset.GxhszVO;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.gzgl.*;
-import com.dzf.zxkj.platform.model.icset.InventoryVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzHVO;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
@@ -1688,6 +1686,10 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		} else {// 工资发放
 			// list = saveToVoucherGzff(pk_corp, qj, setvo, bxtotal, gjjtotal,
 			// grsdstotal, yfgztotal);
+			// 是否下月发放
+            if(setvo.getIsnext() != null && setvo.getIsnext().booleanValue()){
+                qj  = DateUtils.getNextPeriod(qj);
+            }
 			list = saveToVoucherGzff1(pk_corp, qj, setvo);
 		}
 
@@ -1978,27 +1980,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 
 	private List<TzpzBVO> saveToVoucherGzff1(String pk_corp, String qj, SalaryAccSetVO setvo) {
 
-		if (StringUtil.isEmpty(setvo.getFfgz_yfgzkm())) {
-			throw new BusinessException("发放工资应付工资科目设置为空，请检查！");
-		}
-		if (StringUtil.isEmpty(setvo.getFfgz_sbgrbf())) {
-			throw new BusinessException("发放养老保险科目设置为空，请检查！");
-		}
-		if (StringUtil.isEmpty(setvo.getFfgz_yilbxbf())) {
-			throw new BusinessException("发放医疗保险科目设置为空，请检查！");
-		}
-		if (StringUtil.isEmpty(setvo.getFfgz_sybxbf())) {
-			throw new BusinessException("发放失业保险科目设置为空，请检查！");
-		}
-		if (StringUtil.isEmpty(setvo.getFfgz_gjjgrbf())) {
-			throw new BusinessException("发放公积金科目设置为空，请检查！");
-		}
-		if (StringUtil.isEmpty(setvo.getFfgz_grsds())) {
-			throw new BusinessException("发放应缴个税科目设置为空，请检查！");
-		}
-		if (StringUtil.isEmpty(setvo.getFfgz_xjlkm())) {
-			throw new BusinessException("发放工资发放科目设置为空，请检查！");
-		}
+
 
 		SalaryReportVO[] srvos = queryAllType(pk_corp, qj);
 		List<TzpzBVO> list = new ArrayList<TzpzBVO>();
@@ -2012,26 +1994,62 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		String zy = qj.substring(0, 4) + "年" + qj.substring(5, 7) + "月工资发放";
 		String ffgz_yfgzkm = setvo.getFfgz_yfgzkm();// 应付工资科目科目id
 		List<TzpzBVO> yflist = createCommonTzpzBVO(srvos, ffgz_yfgzkm, zy, "yfgz", 0, ccountMap, aumap, setvo);
-		list.addAll(yflist);//
+        if(yflist != null && yflist.size() >0){
+            if (StringUtil.isEmpty(setvo.getFfgz_yfgzkm())) {
+                throw new BusinessException("发放工资应付工资科目设置为空，请检查！");
+            }
+            list.addAll(yflist);//
+        }
 		String ffgz_sbgrbf = setvo.getFfgz_sbgrbf();// 养老保险
 		List<TzpzBVO> sblist = createCommonTzpzBVO(srvos, ffgz_sbgrbf, zy, "yanglaobx", 1, ccountMap, aumap, setvo);
-		list.addAll(sblist);//
+        if(sblist != null && sblist.size() >0){
+            if (StringUtil.isEmpty(setvo.getFfgz_sbgrbf())) {
+                throw new BusinessException("发放养老保险科目设置为空，请检查！");
+            }
+            list.addAll(sblist);//
+        }
 		String ffgz_yilbxbf = setvo.getFfgz_yilbxbf();// 医疗保险
 		List<TzpzBVO> yllist = createCommonTzpzBVO(srvos, ffgz_yilbxbf, zy, "yiliaobx", 1, ccountMap, aumap, setvo);
-		list.addAll(yllist);//
+        if(yllist != null && yllist.size() >0){
+            if (StringUtil.isEmpty(setvo.getFfgz_yilbxbf())) {
+                throw new BusinessException("发放医疗保险科目设置为空，请检查！");
+            }
+            list.addAll(yllist);//
+        }
 		String ffgz_sybxbf = setvo.getFfgz_sybxbf();//
 		List<TzpzBVO> sylist = createCommonTzpzBVO(srvos, ffgz_sybxbf, zy, "shiyebx", 1, ccountMap, aumap, setvo);
-		list.addAll(sylist);//
-
+        if(sylist != null && sylist.size() >0){
+            if (StringUtil.isEmpty(setvo.getFfgz_sybxbf())) {
+                throw new BusinessException("发放失业保险科目设置为空，请检查！");
+            }
+            list.addAll(sylist);//
+        }
 		String ffgz_gjjgrbf = setvo.getFfgz_gjjgrbf();// 公积金科目id
 		List<TzpzBVO> gjjlist = createCommonTzpzBVO(srvos, ffgz_gjjgrbf, zy, "zfgjj", 1, ccountMap, aumap, setvo);
-		list.addAll(gjjlist);//
+        if(gjjlist != null && gjjlist.size() >0){
+            if (StringUtil.isEmpty(setvo.getFfgz_gjjgrbf())) {
+                throw new BusinessException("发放公积金科目设置为空，请检查！");
+            }
+            list.addAll(gjjlist);//
+        }
+
 		String ffgz_grsds = setvo.getFfgz_grsds();// 个人所得税科目id
 		List<TzpzBVO> grsdslist = createCommonTzpzBVO(srvos, ffgz_grsds, zy, "grsds", 1, ccountMap, aumap, setvo);
-		list.addAll(grsdslist);//
+        if(grsdslist != null && grsdslist.size() >0){
+            if (StringUtil.isEmpty(setvo.getFfgz_grsds())) {
+                throw new BusinessException("发放应缴个税科目设置为空，请检查！");
+            }
+            list.addAll(grsdslist);//
+        }
+
 		String ffgz_xjlkm = setvo.getFfgz_xjlkm();// 现金类科目id
 		List<TzpzBVO> dsfgzlist = createCommonTzpzBVO(srvos, ffgz_xjlkm, zy, "sfgz", 1, ccountMap, aumap, setvo);
-		list.addAll(dsfgzlist);//
+		if(dsfgzlist != null && dsfgzlist.size() >0){
+            if (StringUtil.isEmpty(setvo.getFfgz_xjlkm())) {
+                throw new BusinessException("发放工资发放科目设置为空，请检查！");
+            }
+            list.addAll(dsfgzlist);//
+        }
 		Map<String, TzpzBVO> map1 = new LinkedHashMap<>();
 		List<TzpzBVO> finBodyList = new ArrayList<TzpzBVO>();
 		for (TzpzBVO vo : list) {
@@ -2111,7 +2129,18 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				// }
 				// 取入账设置中的费用科目
 				if (cvo == null) {
-					cvo = ccountMap.get(setvo.getJtgz_gzfykm());
+                    // 如果是劳务 走劳务费用科目
+                    if(ibody.getBilltype() != null || ibody.getBilltype().equals(SalaryTypeEnum.REMUNERATION.getValue())){
+                        if (StringUtil.isEmpty(setvo.getJtgz_gzfykm())) {
+                            throw new BusinessException("计提劳务费用科目设置为空，请检查！");
+                        }
+                        cvo = ccountMap.get(setvo.getJtgz_gzfykm());//劳务费用科目
+                    }else{
+                        if (StringUtil.isEmpty(setvo.getJtgz_gzfykm())) {
+                            throw new BusinessException("计提工资费用科目设置为空，请检查！");
+                        }
+                        cvo = ccountMap.get(setvo.getJtgz_gzfykm());//工资费用科目
+                    }
 				}
 
 				if (cvo == null) {
@@ -2234,7 +2263,7 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 		if (vo != null) {
 			salaryTemp = vo;
 		} else {
-			salaryTemp = gl_gzkmszserv.queryGroupVO(pk_corp);
+			salaryTemp = gl_gzkmszserv.queryGroupVO(pk_corp,false);
 		}
 		if (salaryTemp == null)
 			throw new BusinessException("工资科目设置为空！");

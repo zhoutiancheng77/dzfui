@@ -7365,7 +7365,7 @@ public class  BankStatement2ServiceImpl implements IBankStatement2Service {
 
 			il.setImgpath(imgPath+File.separator+imgFilePath);
 			il.setPdfpath(imgPath+File.separator+PdfFileName);
-			il.setImgname(imgFilePath);
+			il.setImgname(PdfFileName);
 			il.setPk_corp(SystemUtil.getLoginCorpId());
 			il.setPk_uploadcorp(SystemUtil.getLoginCorpId());
 			il.setCoperatorid(SystemUtil.getLoginUserId());

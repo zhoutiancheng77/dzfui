@@ -49,7 +49,6 @@ import com.dzf.zxkj.platform.service.sys.IAccountService;
 import com.dzf.zxkj.platform.service.sys.ICorpService;
 import com.dzf.zxkj.platform.service.sys.IParameterSetService;
 import com.dzf.zxkj.platform.service.zncs.IVATSaleInvoice2Service;
-import com.dzf.zxkj.platform.util.LetterNumberSortUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -441,6 +440,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 		// headvo.getPk_corp(), null, true);// 根据单据日期查询
 
 		// Map<String, DZFDouble> numMap = new HashMap<String, DZFDouble>();
+		int rowno = 0;
 		for (SuperVO child : headvo.getChildren()) {
 			IntradeoutVO invo = (IntradeoutVO) child;
 			String pk_inventory = (String) child.getAttributeValue("pk_inventory");
@@ -455,7 +455,14 @@ public class SaleoutServiceImpl implements ISaleoutService {
 			child.setAttributeValue("dr", 0);
 			child.setAttributeValue("pk_billmaker", headvo.getCreator());
 			child.setAttributeValue("pk_currency", headvo.getPk_currency());
-
+			if(!StringUtil.isEmpty(headvo.getPk_ictrade_h())){
+				invo.setRowno(rowno + 1);
+			}else{
+				if (invo.getRowno() == null) {
+					invo.setRowno(rowno + 1);
+				}
+			}
+            rowno++;
 			invo.setPk_voucher(null);
 			invo.setPk_voucher_b(null);
 			invo.setZy(null);
@@ -803,7 +810,7 @@ public class SaleoutServiceImpl implements ISaleoutService {
 					outvo.setVdef1(SafeCompute.div(outvo.getNcost(), outvo.getNnum()).setScale(2, 0).toString());
 				}
 			}
-			list.sort(Comparator.comparing(IntradeoutVO::getInvcode,Comparator.nullsFirst(LetterNumberSortUtil.letterNumberOrder())));
+			list.sort(Comparator.comparing(IntradeoutVO::getRowno,Comparator.nullsFirst(Comparator.naturalOrder())));
 		}
 		return list;
 	}

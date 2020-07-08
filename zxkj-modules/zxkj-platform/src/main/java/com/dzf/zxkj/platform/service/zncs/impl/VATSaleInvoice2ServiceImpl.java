@@ -189,11 +189,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	private static final Integer BAIWANG_another_EXCEL = 11;// 百旺其他的excel
 	private static final Integer BAIWANG_NEW_EXCEL = 13;// 百旺新版销项导入excel				20191204
 	private static final Integer BAIWANG_NEW_another_EXCEL = 14;// 百旺新版其他的excel		20191204
-
 	private static final Integer XINLONG_EXCEL = 15;// 新龙excel		20191211
-
 	private static final Integer HANG_TIAN_EXCEL = 2;// 航信
 	private static final Integer HANG_JDC_EXCEL = 22;// 航信机动车
+    private static final Integer FAPIAOXIAZAI1_EXCEL = 3;// 认证平台【发票下载】第一页签
+    private static final Integer FAPIAOXIAZAI2_EXCEL = 31;// 认证平台【发票下载】第二页签
+
 	// private static int[][] fp_dm_arr = {//匹配发票代码 前两个格子是坐标，后一个格子是文件来源
 	// {5, 7, BAIWANG_EXCEL},//百旺excel导入
 	// {5, 8, HANG_TIAN_EXCEL}//航信excel导入
@@ -2361,8 +2362,34 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				throw new Exception("需要导入的数据为空。");
 			}
 			Sheet sheet1 = impBook.getSheetAt(0);
-			;
+
 			List<VATSaleInvoiceVO2> list = getDataByExcel(sheet1, pk_corp, userid, fileType, sourceType, msg);
+			//处理第二页签数据  202007
+			if(FAPIAOXIAZAI1_EXCEL==sourceType){
+				Sheet sheet2 = impBook.getSheetAt(1);
+				Map<String,List<VATSaleInvoiceBVO2>> map =getDataBySheet2(sheet2, pk_corp,FAPIAOXIAZAI2_EXCEL);
+				if(list.size() > 0 && map.size() > 0){
+					for (VATSaleInvoiceVO2 vo2:list) {
+						if(map.containsKey(vo2.getFp_hm()+vo2.getFp_dm())){
+							List<VATSaleInvoiceBVO2> bvoList = map.get(vo2.getFp_hm()+vo2.getFp_dm());
+							Integer rowno = 1 ;
+							for (VATSaleInvoiceBVO2 bvo2:bvoList) {
+								bvo2.setRowno(rowno);
+								bvo2.setBspsl(bvo2.getBspsl().multiply(100));//
+
+								rowno++;
+							}
+							vo2.setSpsl(bvoList.get(0).getBspsl());//税率
+							vo2.setSpmc(bvoList.get(0).getBspmc());//商品名称
+							vo2.setSourcetype(IBillManageConstants.ZENGZHIAHUI_AUTO); //来源
+							vo2.setChildren(bvoList.toArray(new VATSaleInvoiceBVO2[0]));
+						}
+
+					}
+				}
+			}
+
+
 			return list;
 		} catch (FileNotFoundException e) {
 			log.error(e.getMessage(), e);
@@ -2384,6 +2411,8 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			}
 		}
 	}
+
+
 
 	private int getExcelSourceType(Workbook book) {
 		Sheet sheet = book.getSheetAt(0);
@@ -2444,17 +2473,11 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 	private List<VATSaleInvoiceVO2> getDataByExcel(Sheet sheet, String pk_corp, String userid, String fileType,
 												   int sourceType, StringBuffer msg) throws DZFWarpException {
 		List<VATSaleInvoiceVO2> blist = new ArrayList<VATSaleInvoiceVO2>();
-		CorpVO corpvo = corpService.queryByPk(pk_corp);
 		DZFBoolean ISZHUAN = null;
-		//DZFBoolean ISZHUAN = isZhuan(corpvo);
-		// YntCpaccountVO[] cpavos = AccountCache.getInstance().get(null,
-		// pk_corp);
 		int iBegin = 0;
 		Cell aCell = null;
 		String sTmp = "";
 		VATSaleInvoiceVO2 excelvo = null;
-		// StringBuffer sf = new StringBuffer();
-
 		String corpnameStr = null;// 导入文件中第一个是公司名称
 		Object[][] STYLE_1 = getStyleByExcel().get(sourceType);
 		Set<String> matchSet = null;
@@ -2483,7 +2506,12 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 					} else if (sourceType != XINLONG_EXCEL && sTmp.startsWith("发票类别")) {
 						ISZHUAN = transPjlb(sTmp, ISZHUAN);
 						break;
-					}
+					}else if(sourceType == FAPIAOXIAZAI1_EXCEL )
+					    if(sTmp.contains("专用发票")){
+                            ISZHUAN = DZFBoolean.TRUE;
+                        }else if(sTmp.contains("普通发票")){
+                            ISZHUAN = DZFBoolean.FALSE;
+                        }
 
 				}
 
@@ -2601,6 +2629,16 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 						excelvo.setBspsl(excelvo.getSpsl().multiply(new DZFDouble(100)));
 					}
 				}
+				//处理认证平台 下载发票的发票状态
+				if(FAPIAOXIAZAI1_EXCEL==sourceType && !StringUtils.isEmpty(excelvo.getKplx())){
+					if(excelvo.getKplx().equals("作废")){
+						excelvo.setKplx("4");
+					}else if(excelvo.getKplx().equals("负数")){
+						excelvo.setKplx("2");
+					}else{
+                        excelvo.setKplx("1");
+                    }
+				}
 
 				innermsg.setLength(0);
 				checkDataValid(excelvo, innermsg, iBegin, pk_corp, fileType,sourceType);
@@ -2626,6 +2664,82 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		// specialBusiNameValue(blist, pk_corp, dcMap1);
 
 		return blist;
+	}
+
+	private Map<String,List<VATSaleInvoiceBVO2>> getDataBySheet2(Sheet sheet, String pk_corp, int sourceType) throws DZFWarpException {
+
+		Map<String,List<VATSaleInvoiceBVO2>> bvoMap = new HashMap<String,List<VATSaleInvoiceBVO2>>();
+		int iBegin = 0;
+		Cell aCell = null;
+		String sTmp = "";
+		VATSaleInvoiceBVO2 excelvo = null;
+		Object[][] STYLE_1 = getStyleByExcel().get(sourceType);
+		Set<String> matchSet = null;
+		Map<String, Integer> cursorMap = buildImpStypeMap(STYLE_1);
+		Integer maxCCount = getStyleCellCount().get(sourceType);// 遍历的最大列数
+
+		for (; iBegin < (sheet.getLastRowNum() + 1); iBegin++) {
+			if (sheet.getRow(iBegin) == null && iBegin != sheet.getLastRowNum())
+				continue;
+			if (iBegin == sheet.getLastRowNum()) {
+				throw new BusinessException("导入失败,导入文件抬头格式不正确 !");
+			}
+			matchSet = new HashSet<String>();
+			for (int k = 0; k < maxCCount; k++) {
+
+				aCell = sheet.getRow(iBegin).getCell(k);
+				sTmp = getExcelCellValue(aCell);
+				if (sTmp != null && cursorMap.containsKey(sTmp)) {
+					matchSet.add(sTmp);
+					cursorMap.put(sTmp, k);// 重新设置列行号
+				}
+			}
+			if (cursorMap.size() == matchSet.size()) {
+				iBegin++;
+				resetStyleCursor(STYLE_1, cursorMap);
+				break;
+			}
+			if (iBegin == sheet.getLastRowNum()) {
+				throw new BusinessException("文件格式不正确，请检查");
+			}
+		}
+		int count;// 计数器的作用判断该行是不是空行，如count == STYLE_1.length 则为空行
+		boolean isNullFlag;
+		VATSaleInvoiceBVO2 firstvo = null;
+		for (; iBegin < (sheet.getLastRowNum() + 1); iBegin++) {
+			excelvo = new VATSaleInvoiceBVO2();
+			count = 0;
+			isNullFlag = false;
+			for (int j = 0; j < STYLE_1.length; j++) {
+				if (sheet.getRow(iBegin) == null) {
+					isNullFlag = true;
+					break;
+				}
+				aCell = sheet.getRow(iBegin).getCell((new Integer(STYLE_1[j][0].toString())).intValue());
+				sTmp = getExcelCellValue(aCell);
+
+				if (sTmp != null && !StringUtil.isEmpty(sTmp.trim())) {
+					excelvo.setAttributeValue(STYLE_1[j][2].toString(), sTmp.trim());
+				} else {
+					count++;
+				}
+			}
+
+			if (excelvo != null && count != STYLE_1.length && !isNullFlag) {
+				excelvo.setPk_corp(pk_corp);
+				if(bvoMap.containsKey(excelvo.getFphm()+excelvo.getTempvalue())){
+					List<VATSaleInvoiceBVO2> excelvoList = bvoMap.get(excelvo.getFphm()+excelvo.getTempvalue());
+					excelvoList.add(excelvo);
+				}else{
+					List<VATSaleInvoiceBVO2> excelvoList = new ArrayList<VATSaleInvoiceBVO2>();
+					excelvoList.add(excelvo);
+					bvoMap.put(excelvo.getFphm()+excelvo.getTempvalue(),excelvoList);
+				}
+			}
+
+		}
+
+		return bvoMap;
 	}
 	private String specialTreatCellValue(int sourceType, int j, String sTmp,Cell cell) {
 		//暂时处理导入模板金额保留两位
@@ -2793,17 +2907,16 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		countMap.put(BAIWANG_EXCEL, 25);
 		//新百旺
 		countMap.put(BAIWANG_NEW_EXCEL, 25);
-
 		countMap.put(BAIWANG_another_EXCEL, 25);
-
 		countMap.put(BAIWANG_NEW_another_EXCEL, 25);
-
 		//新龙
 		countMap.put(XINLONG_EXCEL, 30);
-
 		countMap.put(HANG_TIAN_EXCEL, 25);
 		countMap.put(HANG_JDC_EXCEL, 26);//航信机动车  
-		countMap.put(BAIWANG_JDC_EXCEL, 18);//百旺机动车  
+		countMap.put(BAIWANG_JDC_EXCEL, 18);//百旺机动车
+
+		countMap.put(FAPIAOXIAZAI1_EXCEL, 20);
+		countMap.put(FAPIAOXIAZAI2_EXCEL, 13);
 
 		return countMap;
 	}
@@ -2977,7 +3090,7 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 			log.error("错误",ex);
 			ret = null;
 		}
-		return OcrUtil.filterCorpName(ret);
+		return OcrUtil.filterString(ret);
 	}
 
 	private String[][] getBStyleMap() {
@@ -3079,6 +3192,15 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				{6,"规格型号","invspec"},{7,"计量单位","measurename"},
 				{ 8, "数量", "bnum" }, {9, "金额", "hjje" }, { 10, "税额", "spse" }, {11, "业务类型", "busitypetempname" },
 				{ 12, "客户名称", "khmc" } };
+		//勾选认证平台【发票下载】 第一页签 202007
+        Object[][] obj3 = new Object[][] { { 1, "发票代码", "fp_dm" }, { 2, "发票号码", "fp_hm" }, { 3, "开票日期", "kprj" },
+                { 4, "发票状态", "kplx" }, { 5, "销售方税号", "xhfsbh" }, { 6, "销售方名称", "xhfmc" }, { 7, "购买方税号", "custidentno" }, { 8, "购买方名称", "khmc" },
+                { 9, "金额", "hjje" }, { 10, "税额", "spse" }, { 11, "价税合计", "jshj" }, { 13, "销售方地址、电话", "xhfdzdh" }, { 14, "销售方开户行及账号", "xhfyhzh" },
+                { 15, "购买方地址、电话", "ghfdzdh" },{ 16, "购买方开户行及账号", "ghfyhzh" },{ 18, "备注", "demo" } };
+        //第二页签  导入时发票代码号码临时存放在这两个字段，匹配第一页签是使用，不存库
+        Object[][] obj31 = new Object[][] { { 1, "发票代码", "tempvalue" }, { 2, "发票号码", "fphm" }, { 4, "货物或应税劳务名称", "bspmc" },
+                { 5, "规格型号", "invspec" }, { 6, "单位", "measurename" }, { 7, "数量", "bnum" }, { 8, "单价", "bprice" }, { 9, "金额", "bhjje" },
+                { 10, "税率", "bspsl" }, { 11, "税额", "bspse" } };
 
 		STYLE.put(BAIWANG_EXCEL, obj1);
 		STYLE.put(BAIWANG_another_EXCEL, obj11);
@@ -3086,13 +3208,13 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 		//新增新百旺导入 20191204
 		STYLE.put(BAIWANG_NEW_EXCEL, obj13);
 		STYLE.put(BAIWANG_NEW_another_EXCEL, obj14);
-
 		//新龙导入 20191211
 		STYLE.put(XINLONG_EXCEL, obj15);
-
 		STYLE.put(HANG_TIAN_EXCEL, obj2);
 		STYLE.put(HANG_JDC_EXCEL, obj22);
 		STYLE.put(TONGYONG_EXCEL, obj0);
+        STYLE.put(FAPIAOXIAZAI1_EXCEL, obj3);
+        STYLE.put(FAPIAOXIAZAI2_EXCEL, obj31);
 		return STYLE;
 	}
 
@@ -3512,7 +3634,9 @@ public class VATSaleInvoice2ServiceImpl implements IVATSaleInvoice2Service {
 				}
 			}else if(sourceType==HANG_JDC_EXCEL||sourceType==BAIWANG_JDC_EXCEL){
 				vo.setIszhuan(DZFBoolean.TRUE);
-			}else{
+			}else if(sourceType==FAPIAOXIAZAI1_EXCEL){
+                vo.setIszhuan(iszhuan);
+            }else{
 				iszhuan = isZhuan(corpService.queryByPk(pk_corp));
 				vo.setIszhuan(iszhuan);
 			}

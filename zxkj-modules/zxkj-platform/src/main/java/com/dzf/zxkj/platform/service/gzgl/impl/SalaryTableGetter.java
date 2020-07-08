@@ -76,6 +76,7 @@ public class SalaryTableGetter {
 	private static Map<String, String> getGzJt() {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("jtgz_gzfykm", "工资费用科目-借");
+		map.put("jtgz_lwfykm", "劳务费用科目-借");
 		map.put("jtgz_yfgzkm", "应付工资科目-贷");
 		return map;
 	}
