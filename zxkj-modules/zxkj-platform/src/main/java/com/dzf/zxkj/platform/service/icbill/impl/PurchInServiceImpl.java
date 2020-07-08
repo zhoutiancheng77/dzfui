@@ -462,9 +462,14 @@ public class PurchInServiceImpl implements IPurchInService {
 			invo.setDr(0);
 			invo.setPk_billmaker(vo.getCreator());
 			invo.setPk_currency(vo.getPk_currency());
-			if (invo.getRowno() == null) {
-				invo.setRowno(rowno + 1);
-			}
+
+			if(!StringUtil.isEmpty(vo.getPk_ictrade_h())){
+                invo.setRowno(rowno + 1);
+			}else{
+                if (invo.getRowno() == null) {
+                    invo.setRowno(rowno + 1);
+                }
+            }
             rowno++;
 			if (vo.getCbusitype() == null || !IcConst.WGTYPE.equals(vo.getCbusitype())) {
 				invo.setPk_voucher(null);

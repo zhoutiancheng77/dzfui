@@ -455,8 +455,12 @@ public class SaleoutServiceImpl implements ISaleoutService {
 			child.setAttributeValue("dr", 0);
 			child.setAttributeValue("pk_billmaker", headvo.getCreator());
 			child.setAttributeValue("pk_currency", headvo.getPk_currency());
-			if (invo.getRowno() == null) {
-				invo.setRowno(rowno+ 1);
+			if(!StringUtil.isEmpty(headvo.getPk_ictrade_h())){
+				invo.setRowno(rowno + 1);
+			}else{
+				if (invo.getRowno() == null) {
+					invo.setRowno(rowno + 1);
+				}
 			}
             rowno++;
 			invo.setPk_voucher(null);
