@@ -139,7 +139,7 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 		StringBuffer msg = new StringBuffer();
 		if (StringUtil.isEmpty(error)) {
 		} else {
-			msg.append("<font color = 'red'>" + error + "</font>");
+			msg.append(error );
 		}
 		if (!StringUtil.isEmpty(msg.toString()))
 			throw new BusinessException(msg.toString());
@@ -149,9 +149,9 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 	}
 
 	private String checkBeforeSave(InventoryAliasVO[] vos, String pk_corp) {
+
 		if (vos == null || vos.length == 0)
 			return null;
-
 
 		HashSet<String> nameZjbmSet = new HashSet<String>();
 		InventoryAliasVO[] qbvos = query(pk_corp);
@@ -174,15 +174,7 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 				}
 			}
 		}
-		AuxiliaryAccountBVO[] invenvos = gl_fzhsserv.queryB(AuxiliaryConstant.ITEM_INVENTORY, pk_corp, null);
-		if (invenvos != null && invenvos.length > 0) {
-			for (AuxiliaryAccountBVO bvo : invenvos) {
-				String namezjbm = getNameInfoKey(bvo);
-				if (!StringUtil.isEmpty(namezjbm)) {
-					nameZjbmSet.add(namezjbm);
-				}
-			}
-		}
+
 		for (InventoryAliasVO nbvo : vos) {
 			check(message, nbvo, nameZjbmSet);
 		}
@@ -194,8 +186,11 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 		String nameInfoKey = getNameInfoKey(bvo);
 		if (!StringUtil.isEmpty(nameInfoKey)) {
 			if (nameSet.contains(nameInfoKey)) {
-				dealMessage(message, "别名[" + bvo.getAliasname() + "]、规格(型号)[" + bvo.getSpec() + "]、计量单位["
-						+ bvo.getUnit() + "]至少有一项不同！");
+				String aliasname = StringUtil.isEmpty(bvo.getAliasname())?"":bvo.getAliasname();
+				String spec = StringUtil.isEmpty(bvo.getSpec())?"":bvo.getSpec();
+				String unit = StringUtil.isEmpty(bvo.getUnit())?"":bvo.getUnit();
+				dealMessage(message, "别名[" + aliasname + "]、规格(型号)[" + spec + "]、计量单位["
+						+ unit + "]至少有一项不同！");
 			} else {
 				nameSet.add(nameInfoKey);
 			}
@@ -205,7 +200,7 @@ public class InventoryAccAliasServiceImpl implements IInventoryAccAliasService {
 	}
 
 	private void dealMessage(StringBuffer message, String errinfo) {
-		message.append(errinfo + "<br>");
+		message.append(errinfo );//+ "<br>"
 	}
 
 	private String getNameInfoKey(InventoryAliasVO invo) {

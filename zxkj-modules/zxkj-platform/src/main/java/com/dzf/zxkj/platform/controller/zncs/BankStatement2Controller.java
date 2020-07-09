@@ -135,7 +135,7 @@ public class BankStatement2Controller extends BaseController {
             log.error("银行对账单查询失败");
         }
 
-       return ReturnData.ok().data(json);
+        return ReturnData.ok().data(json);
     }
 
     private BankStatementVO2[] filterByBillStatus(BankStatementVO2[] vos,String flag){
@@ -1286,7 +1286,7 @@ public class BankStatement2Controller extends BaseController {
             String zy = param.get("zy");
             String setId = param.get("setid");
             String bk = param.get("bk");
-        if(StringUtil.isEmpty(pzrule)
+            if(StringUtil.isEmpty(pzrule)
                     || StringUtil.isEmpty(flrule)|| StringUtil.isEmpty(pzrq)){
                 throw new BusinessException("合并规则设置失败，请重试");
             }
@@ -1457,54 +1457,58 @@ public class BankStatement2Controller extends BaseController {
 
         return ReturnData.ok().data(grid);
     }
-//下载银行回单
-@RequestMapping("/exportBill")
-public ReturnData<Json>  exportBill(HttpServletResponse response,String urls){
-    Json json = new Json();
-    try{
-        String[] urlsArray = urls.split(",");
-        List<File> list =new ArrayList<File>();
-        if(urlsArray !=null && urlsArray.length>0){
-            for (String url:urlsArray) {
-               String pk_library = url.trim().substring(27,51);
-                ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(SystemUtil.getLoginCorpId(),pk_library);
-                String imgPathName = null;
-                String type = null;
-                if(imglibvo != null && imglibvo.getImgpath()!=null){
+    //下载银行回单
+    @RequestMapping("/exportBill")
+    public ReturnData<Json>  exportBill(HttpServletResponse response,String urls){
+        Json json = new Json();
+        try{
+            String[] urlsArray = urls.split(",");
+            List<File> list =new ArrayList<File>();
+            if(urlsArray !=null && urlsArray.length>0){
+                for (String url:urlsArray) {
+                    String pk_library = url.trim().substring(27,51);
+                    ImageLibraryVO imglibvo = gl_pzimageserv.queryLibByID(SystemUtil.getLoginCorpId(),pk_library);
+                    String nameSuffix = imglibvo.getImgname().substring(imglibvo.getImgname().lastIndexOf("."));
+                    String imgPathName = null;
+                    String type = null;
+                    if(imglibvo != null && imglibvo.getImgpath()!=null){
                         imgPathName = imglibvo.getImgpath();
                     }
-                if(imgPathName.startsWith("ImageOcr")){
+                    if(imgPathName.startsWith("ImageOcr")){
                         type="ImageOcr";
                     }else{
                         type="vchImg";
                     }
-                File dir =  getImageFolder(type, SystemUtil.getLoginCorpVo(), imgPathName, imgPathName);
-                String lujing = dir.getAbsolutePath();
-                File file  = new File(lujing);
-                list.add(file);
+                    if (".pdf".equalsIgnoreCase(nameSuffix)) {
+                        imgPathName = imglibvo.getPdfpath();
+                    }
+                    File dir =  getImageFolder(type, SystemUtil.getLoginCorpVo(), imgPathName, imgPathName);
+                    String lujing = dir.getAbsolutePath();
+                    File file  = new File(lujing);
+                    list.add(file);
                 }
 
-        }
+            }
 
-        if(list.size()>00){
-            exportFileToZip(response, list.toArray(new File[0]), new DZFDate().toString()+"-"+new Random().nextInt(9999));
-            json.setSuccess(true);
-            json.setMsg("下载成功");
-        }else{
-            json.setSuccess(false);
-            json.setMsg("暂无可下载的票据!");
+            if(list.size()>00){
+                exportFileToZip(response, list.toArray(new File[0]), new DZFDate().toString()+"-"+new Random().nextInt(9999));
+                json.setSuccess(true);
+                json.setMsg("下载成功");
+            }else{
+                json.setSuccess(false);
+                json.setMsg("暂无可下载的票据!");
+                json.setStatus(-100);
+            }
+
+        } catch(Exception e) {
             json.setStatus(-100);
+            printErrorLog(json, e, "下载失败");
         }
+        writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "下载回单", ISysConstants.SYS_2);
 
-    } catch(Exception e) {
-        json.setStatus(-100);
-        printErrorLog(json, e, "下载失败");
+        return ReturnData.ok().data(json);
+
     }
-    writeLogRecord(LogRecordEnum.OPE_KJ_PJGL, "下载回单", ISysConstants.SYS_2);
-
-    return ReturnData.ok().data(json);
-
-}
     public static File getImageFolder(String type,CorpVO corpvo,String imgPathName, String imgName) throws FileNotFoundException {
         File dir = null;
         String dateFolder = imgName.substring(0, 8);

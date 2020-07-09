@@ -134,9 +134,9 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			throw new BusinessException("所选票据已生成资产卡片，请检查！");
 		}
 		return vos;
-		
+
 	}
-	
+
 	private void invadateAndRetrans(String billid[], BillcategoryQueryVO paramVO, int billstate,String pk_corp) {
 		if (billid != null && billid.length > 0) {
 			checkZckpAndKc(billid,null);
@@ -150,7 +150,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			invalidOtherBill(pk_corp, new VATSaleInvoiceVO2().getTableName(), conditon, param);
 			invalidOtherBill(pk_corp, new BankStatementVO2().getTableName(), conditon, param);
 			singleObjectBO.executeUpdate(sql, param);
-			
+
 
 		} else if (paramVO != null) {
 			StringBuffer buff = new StringBuffer();
@@ -208,7 +208,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			invalidOtherBill(pk_corp, new VATSaleInvoiceVO2().getTableName(), buffm.toString(), param);
 			invalidOtherBill(pk_corp, new BankStatementVO2().getTableName(), buffm.toString(), param);
 			singleObjectBO.executeUpdate(buff.toString(), param);
-			
+
 
 		}
 
@@ -341,7 +341,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			buff.append(")");
 			singleObjectBO.executeUpdate(buff.toString(), param);
 		}
-		
+
 		buff = new StringBuffer();
 		buff.append(" update ").append(table).append(" set pk_image_group=null , imgpath=null,vdef13=null  ");
 		if (table.equals("ynt_bankstatement")) {
@@ -359,7 +359,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 		singleObjectBO.executeUpdate(buff.toString(), param);
 
-	
+
 		// 如果来源是ocr的直接删掉
 		buff = new StringBuffer();
 		buff.append(" update ").append(table).append(" set dr=1  ");
@@ -416,16 +416,16 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		//String innerinvoicesql = " pk_invoice " + new SqlInUtil(billid).getInSql("invoice", "", "");
 		String innerinvoicesql = SqlUtil.buildSqlForIn("pk_invoice", billid) + "";
 		String invoicesql = "nvl(dr,0)=0 and "+innerinvoicesql;
-		
+
 		OcrInvoiceVO vos[] = (OcrInvoiceVO[]) singleObjectBO.queryByCondition(OcrInvoiceVO.class, invoicesql,
 				new SQLParameter());
 		if (vos == null || vos.length == 0)
 			throw new BusinessException("没有查到对应的票据信息!");
 		List<OcrInvoiceVO> list = Arrays.asList(vos);
 		List<OcrInvoiceDetailVO> listdetail = iprebillservice.queryDetailByCondition(invoicesql);
-		
+
 		Map<String, List<OcrInvoiceDetailVO>> detailMap = DZfcommonTools.hashlizeObject(listdetail,new String[] { "pk_invoice" });
-		
+
 		for (OcrInvoiceVO invoicevo : list) {
 			invoicevo.setPeriod(period);
 			invoicevo.setUpdateflag(DZFBoolean.TRUE);
@@ -473,28 +473,28 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		StringBuffer buff = new StringBuffer();
 		if(tablename.equals("ynt_image_group")||tablename.equals("ynt_image_library")){
 			buff.append(" update ").append(tablename)
-				.append(" set cvoucherdate= '")
+					.append(" set cvoucherdate= '")
 					.append(DateUtils.getPeriodEndDate(peroid))
 					.append("' where nvl(dr,0)=0 ")
 					.append("and pk_corp='")
 					.append(pk_corp)
 					.append("' and pk_image_group in ( ");
 			buff.append(condition);// select pk_image_group from
-									// ynt_interface_invoice
+			// ynt_interface_invoice
 			buff.append(" )   ");
 			singleObjectBO.executeUpdate(buff.toString(), param);
-			
+
 			return ;
 		}
-		
-		
+
+
 		buff.append(" update ").append(tablename)
 				.append(" set inperiod ='"+peroid+"' ,period = '"+peroid+"' where nvl(dr,0)=0 ")
 				.append("and pk_corp='")
 				.append(pk_corp)
 				.append("' and pk_image_group in ( ");
 		buff.append(condition);// select pk_image_group from
-								// ynt_interface_invoice
+		// ynt_interface_invoice
 		buff.append(" )   ");
 		// param.addParam(period);
 		singleObjectBO.executeUpdate(buff.toString(), param);
@@ -520,8 +520,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 	@Override
 	public BillInfoVO queryBillInfo(String billid) throws DZFWarpException {
-		
-		
+
+
 		BillInfoVO billinfovo = new BillInfoVO();
 		if (billid != null && billid.contains(","))
 		{
@@ -548,7 +548,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		// CorpSecretUtil.deCode(hvo.getCn_user()
 		vo.setCorpName(CorpSecretUtil.deCode(corpService.queryByPk(librayrvo[0].getPk_custcorp()).getUnitname()));
 		vo.setCorpCode(corpService.queryByPk(librayrvo[0].getPk_custcorp()).getUnitcode());
-		
+
 		if (ibillcategory.checkHaveIctrade(new OcrInvoiceVO[]{vo}).equals(DZFBoolean.TRUE)) {
 			billinfovo.setMessage("已生成出入库单，请删除单据后再修改！");
 			return billinfovo;
@@ -557,30 +557,30 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			billinfovo.setMessage("已生成资产卡片，请删除卡片后再修改！");
 			return billinfovo;
 		}
-		
-		
+
+
 		return billinfovo;
 	}
 	//应前端要求把string类型的为空的处理成""类型
 	private SuperVO proBillInfo(SuperVO vo){
 		if(vo == null) return vo;
-			String []names = vo.getAttributeNames();
-			for (String name : names) {
-				Object obj = vo.getAttributeValue(name);
-				//if(obj instanceof String){
-					if(obj == null){
-						try {
-							vo.setAttributeValue(name, "");//如果不是string类型会报错就不设值跳过
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							//e.printStackTrace();
-						}
-					}
-				//}
+		String []names = vo.getAttributeNames();
+		for (String name : names) {
+			Object obj = vo.getAttributeValue(name);
+			//if(obj instanceof String){
+			if(obj == null){
+				try {
+					vo.setAttributeValue(name, "");//如果不是string类型会报错就不设值跳过
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					//e.printStackTrace();
+				}
 			}
+			//}
+		}
 		return vo;
 	}
-	
+
 	@Override
 	public List<BillInfoVO> queryBillInfos(String billids, String period, String pk_corp) throws DZFWarpException {
 		List<BillInfoVO> returnList = new ArrayList<BillInfoVO>();
@@ -700,7 +700,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				bodyvos[i].setPk_corp(headvo.getPk_corp());
 				bodyvos[i].setOcr_id(headvo.getOcr_id());
 				updatelist.add(bodyvos[i]);
-				
+
 				k++;
 			} else {
 				deletelist.add(bodyvos[i]);
@@ -729,7 +729,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			singleObjectBO.insertVO(headvo.getPk_corp(), tailvo);
 		}
 		headvo.setRowcount(updatelist.size());
-		
+
 
 		String error2  = headvo.getErrordesc2();
 		if(!StringUtil.isEmpty(error2)){//清空ocr部分异常处理
@@ -737,7 +737,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				String msg = error2.replaceAll(",开票日期为空","").replaceAll("开票日期为空", "");
 				headvo.setErrordesc2(msg);
 			}
-			
+
 			if( error2.contains("金额为空")&&!StringUtil.isEmpty(headvo.getNtotaltax())){
 				String msg = error2.replaceAll(",金额为空","").replaceAll("金额为空", "");
 				headvo.setErrordesc2(msg);
@@ -756,15 +756,15 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				headvo.setErrordesc2(conErrerInfo(headvo,"金额为空"));
 			}
 		}
-		
+
 		singleObjectBO.update(headvo);
 		//删掉相关银行对账单,进销项数据重新生成
 		String conditon = " vdef13=? and nvl(dr,0)=0 and pk_corp=?";
 		SQLParameter param = new SQLParameter();// PhotoState.state205
 		param.addParam(headvo.getPk_invoice());
 		param.addParam(headvo.getPk_corp());
-		
-		//VATInComInvoiceVO2 incomvos []= (VATInComInvoiceVO2[])singleObjectBO.queryByCondition(VATInComInvoiceVO2.class, conditon, param); 
+
+		//VATInComInvoiceVO2 incomvos []= (VATInComInvoiceVO2[])singleObjectBO.queryByCondition(VATInComInvoiceVO2.class, conditon, param);
 		// param.addParam(PhotoState.state205);
 		invalidOtherBill(headvoold.getPk_corp(), new VATInComInvoiceVO2().getTableName(), conditon, param);
 		invalidOtherBill(headvoold.getPk_corp(), new VATSaleInvoiceVO2().getTableName(), conditon, param);
@@ -779,18 +779,18 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		ImageGroupVO grpvo =(ImageGroupVO)singleObjectBO.queryByPrimaryKey(ImageGroupVO.class, hvo.getPk_image_group());
 		conditon = " pk_image_library = ( select crelationid From ynt_image_ocrlibrary where pk_image_ocrlibrary = (select ss.ocr_id from ynt_interface_invoice ss where pk_invoice=?))";
 		ImageLibraryVO imglibs[]=(ImageLibraryVO[])singleObjectBO.queryByCondition(ImageLibraryVO.class, conditon, param);
-		
+
 		hvo.setPk_billcategory(null);
 		billcreate.createBill(hvo, grpvo, imglibs[0],null);
 	}
 
-	
+
 	public  String conErrerInfo(OcrInvoiceVO invvo ,String msg) {
-    	if(invvo == null) return msg;
-    	
-        return StringUtil.isEmpty(invvo.getErrordesc2())?msg:(invvo.getErrordesc2()+","+msg);
-    }
-	
+		if(invvo == null) return msg;
+
+		return StringUtil.isEmpty(invvo.getErrordesc2())?msg:(invvo.getErrordesc2()+","+msg);
+	}
+
 	@Override
 	public void updateChangeBatchPeorid(BillcategoryQueryVO paramVO) throws DZFWarpException {
 		if (StringUtil.isEmpty(paramVO.getPeriod()) || StringUtil.isEmpty(paramVO.getOldperiod())) {
@@ -818,7 +818,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		buff = new StringBuffer();
 		param = new SQLParameter();
 
-		
+
 		buff = new StringBuffer();
 		param = new SQLParameter();
 
@@ -844,11 +844,11 @@ public class InterfaceBillImpl implements IInterfaceBill {
 //		List<OcrInvoiceVO> list = (List<OcrInvoiceVO>) singleObjectBO.executeQuery(buff.toString(), param,
 //				new BeanListProcessor(OcrInvoiceVO.class));
 //		singleObjectBO.exe
-	//singleObjectBO.executeQuery(buff.toString(), param, new BeanListProcessor(String.class));
-	  	//List <String> list = new ArrayList<>();
+		//singleObjectBO.executeQuery(buff.toString(), param, new BeanListProcessor(String.class));
+		//List <String> list = new ArrayList<>();
 //		Object[] billid = (Object[]) singleObjectBO.executeQuery(buff.toString(), param,
 //                new ArrayProcessor(list));
-	  	List<String> list = (List<String>)singleObjectBO.executeQuery(buff.toString(), param, new ResultSetProcessor(){
+		List<String> list = (List<String>)singleObjectBO.executeQuery(buff.toString(), param, new ResultSetProcessor(){
 			@Override
 			public Object handleResultSet(ResultSet rs) throws SQLException {
 				List<String> list = new ArrayList<String>();
@@ -861,16 +861,16 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		if (list == null || list.size()== 0) {
 			throw new BusinessException("未找到票据");
 		}
-		
+
 		updateChangeBillPeroid(list.toArray(new String[0]), paramVO.getPeriod());
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
 		/*
-		
+
 		param.addParam(paramVO.getPk_corp());
 		param.addParam(paramVO.getOldperiod());
 		buff.append(
@@ -1036,7 +1036,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 	@Override
 	public List<OcrInvoiceVO> queryMatchInvoice(String corpid, String period, String[] billid, String category,
-			int type) {// 1进项，2销项类，3全部
+												int type) {// 1进项，2销项类，3全部
 		Map<String, String> billmap = null;
 		if (billid != null && billid.length > 0) {// billid过滤用
 			billmap = new HashMap<String, String>();
@@ -1164,7 +1164,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 							relvo.setKmmc_invcl(accvo.getAccountname());
 							relvo.setKmclasscode(accvo.getAccountcode());
 						}
-						
+
 						if(StringUtil.isEmpty(relvo.getChukukmid())){
 							accvo = accountmap.get(bvo.getPk_billcategory()+"_1");
 							if(accvo==null){
@@ -1193,16 +1193,16 @@ public class InterfaceBillImpl implements IInterfaceBill {
 							if(accvo==null){
 								accvo = getFisrtNextLeafAccount("1405",accmap);
 							}
-						
+
 							if (accvo != null) {
 								relvo.setKmmc_invcl(accvo.getAccountname());
 								relvo.setKmclasscode(accvo.getAccountcode());
 								relvo.setKmclassify(accvo.getPk_corp_account());
 								accountmap.put(bvo.getPk_billcategory()+"_2", accvo);
 							}
-							
+
 						}
-						
+
 						String name = invenvo.getName();
 
 						if (!StringUtil.isEmpty(invenvo.getSpec())) {
@@ -1232,7 +1232,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("500101",accmap);
 						}
-					
+
 						if (accvo != null) {
 							relvo.setKmmc_sale(accvo.getAccountname());
 							relvo.setChukukmcode(accvo.getAccountcode());
@@ -1246,7 +1246,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 						if(accvo==null){
 							accvo = getFisrtNextLeafAccount("1405",accmap);
 						}
-					
+
 						if (accvo != null) {
 							relvo.setKmmc_invcl(accvo.getAccountname());
 							relvo.setKmclasscode(accvo.getAccountcode());
@@ -1262,7 +1262,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				list.add(relvo);
 			}
 		}
-		
+
 		if(list!=null && list.size()>0){
 			List<String> slist = new ArrayList<>();
 			Map<String,String>  map = new HashMap();
@@ -1272,12 +1272,12 @@ public class InterfaceBillImpl implements IInterfaceBill {
 					map.put(svo.getPeriod(), svo.getPeriod());
 					slist.add(svo.getPeriod());
 				}
-				
+
 			}
 			Map<String,List<VATSaleInvoiceBVO2>> salemap = querySaleInvoiceInfo(pk_corp, slist, pprule);
 			int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
 			int pricePrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf010"));
-			
+
 			for (InventoryAliasVO rvo : list) {
 				InventorySaleInfoVO saleinfo = new InventorySaleInfoVO();
 				saleinfo.setName(rvo.getAliasname());
@@ -1289,7 +1289,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 					rvo.setSaleNumber(infovo.getSaleNumber());
 					rvo.setSalePrice(infovo.getSalePrice());
 				}
-				
+
 			}
 		}
 		return list;
@@ -1321,7 +1321,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	}
 
 	private Map<String, InventoryAliasVO> buildInvenMapModel7(Map<String, AuxiliaryAccountBVO> tempinMap,
-			Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp,int pprule) {
+															  Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp,int pprule) {
 
 		Map<String, InventoryAliasVO> invenMap1 = new LinkedHashMap<String, InventoryAliasVO>();
 
@@ -1377,7 +1377,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	}
 
 	private Map<String, OcrInvoiceTailInfoVO> buildGoodsInvenRelaMapModel7(List<OcrInvoiceVO> list,
-			InventorySetVO invsetvo) {
+																		   InventorySetVO invsetvo) {
 
 		int pprule = invsetvo.getChppjscgz();// 匹配规则
 		Map<String, OcrInvoiceTailInfoVO> map = new LinkedHashMap<>();
@@ -1465,7 +1465,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				if(invenMap.containsKey(key)){
 					relvo.setPk_inventory_old(invenMap.get(key).getPrimaryKey());
 				}
-				
+
 				if (invenvo != null) {
 					relvo.setPk_inventory(invenvo.getPrimaryKey());
 //					relvo.setPk_inventory_old(invenvo.getPrimaryKey());
@@ -1481,15 +1481,15 @@ public class InterfaceBillImpl implements IInterfaceBill {
 					if(accountvo==null){
 						queryCategorSubj(accmap2,bvo.getPk_billcategory(), new String[] { "11" }, 2, pk_corp,
 								accmap, newrule,corp);
-						}
+					}
 					if (accountvo == null) {
 						for (YntCpaccountVO acc : accounts) {
 							if ("1405".equalsIgnoreCase(acc.getAccountcode())){
 								//invvo.setPk_subject(acc.getPk_corp_account());
-							relvo.setPk_subj(acc.getPk_corp_account());
-							relvo.setSubjname(acc.getAccountname());
-							//relvo.setSubjname(acc.get);
-							accountmap.put(bvo.getPk_billcategory(), acc);
+								relvo.setPk_subj(acc.getPk_corp_account());
+								relvo.setSubjname(acc.getAccountname());
+								//relvo.setSubjname(acc.get);
+								accountmap.put(bvo.getPk_billcategory(), acc);
 							}
 						}
 					} else {
@@ -1499,7 +1499,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 						accountmap.put(bvo.getPk_billcategory(), accountvo);
 					}
 				}
-				
+
 				if(relvo.getHsl()==null){
 					relvo.setHsl(DZFDouble.ONE_DBL);
 					relvo.setCalcmode(0);
@@ -1513,7 +1513,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			}
 		}
 
-		
+
 		if(list!=null && list.size()>0){
 			List<String> slist = new ArrayList<>();
 			for (OcrInvoiceVO svo : saleList) {
@@ -1522,7 +1522,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			Map<String,List<VATSaleInvoiceBVO2>> salemap = querySaleInvoiceInfo(pk_corp, slist, InventoryConstant.IC_RULE_0);
 			int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf009"));
 			int pricePrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(pk_corp, "dzf010"));
-			
+
 			for (VatGoosInventoryRelationVO rvo : list) {
 				InventorySaleInfoVO saleinfo = new InventorySaleInfoVO();
 				saleinfo.setName(rvo.getSpmc());
@@ -1535,14 +1535,14 @@ public class InterfaceBillImpl implements IInterfaceBill {
 					rvo.setSaleNumber(infovo.getSaleNumber());
 					rvo.setSalePrice(infovo.getSalePrice());
 				}
-				
+
 			}
 		}
 		return list;
 	}
 
 	private Map<String, AuxiliaryAccountBVO> buildInvenMap(Map<String, AuxiliaryAccountBVO> tempinMap,
-			Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp) {
+														   Map<String, AuxiliaryAccountBVO> invenMap, String pk_corp) {
 
 		Map<String, AuxiliaryAccountBVO> invenMap1 = new HashMap<String, AuxiliaryAccountBVO>();
 
@@ -1554,7 +1554,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			for (InventoryAliasVO vo : list) {
 				//key = vo.getSpmc() + "," + vo.getInvspec();
 				key = vo.getAliasname() + "," + vo.getSpec()+ ","+vo.getUnit();//名称规格计量单位
-				
+
 				if (invenMap1.containsKey(key)) {
 					continue;
 				}
@@ -1656,8 +1656,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				alvo.setHsl(gvo.getHsl());
 
 				if (!map.containsKey(key)) {
-					singleObjectBO.insertVO(pk_corp, alvo);
-					//aliaslist.add(alvo);
+					//singleObjectBO.insertVO(pk_corp, alvo);
+					aliaslist.add(alvo);
 				} else {
 					InventoryAliasVO ivo = map.get(key);
 					ivo.setPk_inventory(gvo.getPk_inventory());
@@ -1668,15 +1668,15 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			}
 
 		}
-//			checkBeforesave(pk_corp,aliaslist);
-//			singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
+		checkBeforesave(pk_corp,aliaslist);
+		singleObjectBO.insertVOArr(pk_corp,aliaslist.toArray(new InventoryAliasVO[0]));
 //		}
 	}
 
 	private MeasureVO getMeasureVO(String measurename, String pk_corp, String cuserid) {// VATSaleInvoiceVO
-																						// salevo,
-																						// VATSaleInvoiceBVO
-																						// salechild,
+		// salevo,
+		// VATSaleInvoiceBVO
+		// salechild,
 		// 查找计量单位
 
 		if (StringUtil.isEmpty(measurename)) {
@@ -1713,7 +1713,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		//Map<String, YntCpaccountVO> accmap = AccountCache.getInstance().getMap(null, pk_corp);
 		if (StringUtil.isEmpty(pk_corp) || gvo == null)
 			return null;
-		 newrule = StringUtil.isEmpty(newrule)?gl_cpacckmserv.queryAccountRule(pk_corp):newrule;
+		newrule = StringUtil.isEmpty(newrule)?gl_cpacckmserv.queryAccountRule(pk_corp):newrule;
 		//YntCpaccountVO[] accounts = AccountCache.getInstance().get(null, pk_corp);
 
 		MeasureVO meavo = null;
@@ -1764,13 +1764,13 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	}
 
 	public YntCpaccountVO queryCategorSubj(Map<String, YntCpaccountVO> catchmap,String pk_billcagegory, String catecode[], int jici, String pk_corp,
-			Map<String, YntCpaccountVO> accmap, String newrule,CorpVO corp) throws DZFWarpException {
+										   Map<String, YntCpaccountVO> accmap, String newrule,CorpVO corp) throws DZFWarpException {
 		if (StringUtil.isEmpty(pk_billcagegory)) {
 			return null;
 		}
 		if(catchmap ==null) catchmap = new LinkedHashMap<>();
 		if(catchmap.containsKey(pk_billcagegory)) return catchmap.get(pk_billcagegory);
- 		YntCpaccountVO cavo = new YntCpaccountVO();
+		YntCpaccountVO cavo = new YntCpaccountVO();
 		//CorpVO corp = corpService.queryByPk(pk_corp);
 		String corptype = corp.getCorptype();
 
@@ -1792,7 +1792,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		sqlbuff.append(" connect by prior   pk_parentcategory = pk_category ");
 		sqlbuff.append(" order by categorycode  ");
 		param.addParam(pk_billcagegory);
-		
+
 		List<BillCategoryVO> list = (List<BillCategoryVO>) singleObjectBO.executeQuery(sqlbuff.toString(), param,
 				new BeanListProcessor(BillCategoryVO.class));
 		if (list == null || list.size() == 0 || list.size() < jici){
@@ -1807,7 +1807,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 					new SQLParameter());
 			return processAccount(catevo[0].getPk_basecategory(), corptype, accmap, newrule);
 		}
-			//return null;
+		//return null;
 
 		sqlbuff = new StringBuffer();
 		param = new SQLParameter();
@@ -1832,7 +1832,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 		if (categorycode.startsWith("1110") || categorycode.startsWith("1111")// 库存商品和原材料
 				|| categorycode.startsWith("101015") || categorycode.startsWith("101110")) {
-			 processAccount(category.getPk_basecategory(), corptype, accmap, newrule);
+			processAccount(category.getPk_basecategory(), corptype, accmap, newrule);
 			return catchmap.get(pk_billcagegory);
 		} else {
 			String defaultcode = "1110";
@@ -1853,7 +1853,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 	// 通过分类去找后台对应的末级科目
 	private YntCpaccountVO processAccount(String Pk_basecategory, String corptype, Map<String, YntCpaccountVO> accmap,
-			String newrule) {
+										  String newrule) {
 		String condition = " nvl(dr,0)=0 and pk_basecategory =? and pk_accountschema = ?";
 		SQLParameter param = new SQLParameter();
 		param.addParam(Pk_basecategory);
@@ -1892,10 +1892,10 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		buff.append("  left join ynt_interface_invoice yi on yi.ocr_id = yc.pk_image_ocrlibrary and nvl(yi.dr,0)=0  ");
 		buff.append("    where nvl(yc.dr,0)=0 and nvl(yg.dr,0)=0 and yc.pk_custcorp = ?   ");
 		param.addParam(corp);
-	//	if (state == null || state == 206 || state == 100) {
-			buff.append(" and (yi.period = ? or (yi.period is null and  yg.cvoucherdate like ?) ) ");
-			param.addParam(period);
-			param.addParam(period + "%");
+		//	if (state == null || state == 206 || state == 100) {
+		buff.append(" and (yi.period = ? or (yi.period is null and  yg.cvoucherdate like ?) ) ");
+		param.addParam(period);
+		param.addParam(period + "%");
 //		} else {
 //			buff.append("   	 and yi.period = ? ");
 //			param.addParam(period);
@@ -1922,7 +1922,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	// 0;//银行对账单导入、录入 未绑定1;//回单回传， 未绑定
 	@Override
 	public List<BankStatementVO2> queryBankInfo(String pk_corp, String bperiod, String eperiod, String account,
-			String type, String accountcode, String izmr) throws DZFWarpException {
+												String type, String accountcode, String izmr) throws DZFWarpException {
 		if (StringUtil.isEmpty(bperiod) || StringUtil.isEmpty(eperiod)) {
 			throw new BusinessException("期间不能为空!");
 		}
@@ -2176,7 +2176,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		//YntCpaccountVO[]
 		accountvos = accountvos != null ? accountvos : accountService.queryByPk(cpvo.getPk_corp());
 		Map<String, YntCpaccountVO> map = DZfcommonTools.hashlizeObjectByPk(Arrays.asList(accountvos), new String[]{"accountcode"});
-		
+
 		Map<String,YntCpaccountVO> subjmap = new HashMap<String,YntCpaccountVO>();
 		List<String> rukuList = new ArrayList<String>();
 		List<String> cukuList = new ArrayList<String>();
@@ -2184,7 +2184,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			if(!StringUtil.isEmpty(invectory[i].getKmclasscode())&&!subjmap.containsKey(invectory[i].getKmclasscode())){
 				rukuList.add(invectory[i].getKmclasscode());
 				subjmap.put(invectory[i].getKmclasscode(), map.get(invectory[i].getKmclasscode()));
-				
+
 				String code = invectory[i].getKmclasscode().substring(0, 4);
 				List<YntCpaccountVO> listcp =getNextAccount(accountvos, code);
 				for (YntCpaccountVO yntCpaccountVO : listcp) {
@@ -2199,8 +2199,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				subjmap.put(invectory[i].getChukukmcode(), map.get(invectory[i].getChukukmcode()));
 			}
 		}
-		
-		
+
+
 		StringBuffer sf = new StringBuffer();
 		Map<String,List<String>> msgmap = new HashMap<String,List<String>>();
 		if(chcbjzfs == InventoryConstant.IC_CHDLHS){//大类 1405,1403科目必须为二级科目
@@ -2226,14 +2226,14 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			sf.append(key+"。");
 		}
 
-		
+
 		sbf.append(str);
 		sbf.append(sf);
 
 		return sbf.toString();
-	
+
 	}
-	
+
 	private String checkInventoryDoc_DL(String pk_corp,int hsstyle,StringBuffer sf) throws BusinessException{
 		if(InventoryConstant.IC_CHDLHS != hsstyle)//存货大类
 			return null;
@@ -2241,7 +2241,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		sp.addParam(pk_corp);
 		sp.addParam("000001000000000000000006");
 		String condition = " pk_corp = ? and nvl(dr,0) = 0 and pk_auacount_h = ? ";
-		AuxiliaryAccountBVO[] bodyvos = (AuxiliaryAccountBVO[])singleObjectBO.queryByCondition(AuxiliaryAccountBVO.class, 
+		AuxiliaryAccountBVO[] bodyvos = (AuxiliaryAccountBVO[])singleObjectBO.queryByCondition(AuxiliaryAccountBVO.class,
 				condition, sp);
 		if(bodyvos == null || bodyvos.length == 0)
 			return null;
@@ -2254,39 +2254,39 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		}
 		return null;
 	}
-	
-	
+
+
 	private String checkKmDoc(YntCpaccountVO kmvo,int chcbjzfs,YntCpaccountVO[] vos,Map<String,List<String>> msgmap,int type) throws BusinessException{
 		//取库存商品、原材料。
 		////大类 1405,1403科目必须为二级科目
 		//明细1405,1403科目必须为一级科目
-			StringBuffer sb = new StringBuffer();
-			String kmcode = kmvo.getAccountcode();
-			if(type==0){
-				if(chcbjzfs == InventoryConstant.IC_CHDLHS){//大类 1405,1403科目必须为二级科目
-					if(kmvo.getAccountlevel()!=null && kmvo.getAccountlevel() == 1){//1级
-						if(kmvo.getIsleaf()!=null && kmvo.getIsleaf().booleanValue()){
+		StringBuffer sb = new StringBuffer();
+		String kmcode = kmvo.getAccountcode();
+		if(type==0){
+			if(chcbjzfs == InventoryConstant.IC_CHDLHS){//大类 1405,1403科目必须为二级科目
+				if(kmvo.getAccountlevel()!=null && kmvo.getAccountlevel() == 1){//1级
+					if(kmvo.getIsleaf()!=null && kmvo.getIsleaf().booleanValue()){
 						sb.append("必须增加二级，二级作为大类启用数量、存货辅助");
-						}
-					}else if(kmvo.getAccountlevel()!=null && kmvo.getAccountlevel() == 2){//2级
-						if(kmvo.getIsleaf()!=null && !kmvo.getIsleaf().booleanValue()){
-							sb.append("必须为末级");
-						}
-						sb.append(getFzhsMsg(kmvo));
 					}
-				}else if(chcbjzfs == InventoryConstant.IC_FZMXHS){//明细1405,1403科目必须为一级科目
-					if(kmvo.getAccountlevel()!=null && kmvo.getAccountlevel() == 1){//1级
-						if(kmvo.getIsleaf()!=null && !kmvo.getIsleaf().booleanValue()){
-							sb.append("必须为末级");
-						}
-						sb.append(getFzhsMsg(kmvo));
+				}else if(kmvo.getAccountlevel()!=null && kmvo.getAccountlevel() == 2){//2级
+					if(kmvo.getIsleaf()!=null && !kmvo.getIsleaf().booleanValue()){
+						sb.append("必须为末级");
 					}
+					sb.append(getFzhsMsg(kmvo));
 				}
-				
-			}else{
-				
-				sb.append(getFzhsMsg(kmvo));
+			}else if(chcbjzfs == InventoryConstant.IC_FZMXHS){//明细1405,1403科目必须为一级科目
+				if(kmvo.getAccountlevel()!=null && kmvo.getAccountlevel() == 1){//1级
+					if(kmvo.getIsleaf()!=null && !kmvo.getIsleaf().booleanValue()){
+						sb.append("必须为末级");
+					}
+					sb.append(getFzhsMsg(kmvo));
+				}
 			}
+
+		}else{
+
+			sb.append(getFzhsMsg(kmvo));
+		}
 		if(StringUtil.isEmpty(sb.toString())){
 			return sb.toString();
 		}
@@ -2299,19 +2299,19 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		}
 		return sb.toString();
 	}
-	
+
 	private List<YntCpaccountVO> getNextAccount(YntCpaccountVO[] vos,String code) {
 		List<YntCpaccountVO> list = new ArrayList<YntCpaccountVO>();
 		for(YntCpaccountVO kmvo : vos){
 			if(!StringUtil.isEmpty(kmvo.getAccountcode())){
-					if(kmvo.getAccountcode().startsWith(code)){
-						list.add(kmvo);
-					}
+				if(kmvo.getAccountcode().startsWith(code)){
+					list.add(kmvo);
+				}
 			}
 		}
 		return list;
 	}
-	
+
 	private String getFzhsMsg(YntCpaccountVO kmvo){
 		StringBuffer sb= new StringBuffer();
 		if(kmvo.getIsfzhs() == null || (kmvo.getIsfzhs()!=null && !"1".equals(String.valueOf(kmvo.getIsfzhs().charAt(5))))){
@@ -2330,8 +2330,8 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		}
 		return sb.toString();
 	}
-	
-	
+
+
 	private String getPromptName(List<String> list){
 		if(list == null || list.size() ==0)
 			return "";
@@ -2376,7 +2376,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		//批量查出所有图片数据并存到map里面使用
 		//OcrImageLibraryVO  OcrImageGroupVO ImageGroupVO ImageLibraryVO
 
-		 Map<String,ImageInfoVO> infomap = processBillInfo(sql, pk_corp, ocrInfos);
+		Map<String,ImageInfoVO> infomap = processBillInfo(sql, pk_corp, ocrInfos);
 
 		for (OcrInvoiceVO invvo : ocrInfos) {
 			String pk_invoice = invvo.getPk_invoice();
@@ -2394,7 +2394,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			//其他单据（除机打发票）跨公司后，将付款方名称变为跨入公司名称（不用去特殊符号）
 			if(invvo.getIstate().equals("c其它票据") && !invvo.getInvoicetype().contains("机打发票")){
 				//if(StringUtil.isEmpty(invvo.getVpurchname()) && (StringUtil.isEmpty(invvo.getVsalename()) || !invvo.getVsalename().startsWith(unitName))  ){
-					invvo.setVpurchname(unitName);
+				invvo.setVpurchname(unitName);
 				//}
 			}
 			OcrInvoiceDetailVO []tailvos = (OcrInvoiceDetailVO[])invvo.getChildren();
@@ -2404,7 +2404,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			//处理ocr图片信息
 			OcrImageLibraryVO ocrLibraryvo =infovo.getOcrImageLbVO();//(OcrImageLibraryVO) singleObjectBO.queryByPrimaryKey(OcrImageLibraryVO.class,invvo.getOcr_id());
 			String keycode =!StringUtil.isEmpty(ocrLibraryvo.getKeycode())?ocrLibraryvo.getKeycode():
-				ocrLibraryvo.getBatchcode() + ocrLibraryvo.getPk_custcorp() + ocrLibraryvo.getVinvoicecode()+ ocrLibraryvo.getVinvoiceno();
+					ocrLibraryvo.getBatchcode() + ocrLibraryvo.getPk_custcorp() + ocrLibraryvo.getVinvoicecode()+ ocrLibraryvo.getVinvoiceno();
 
 			ocrLibraryvo.setKeycode(keycode);
 			ocrLibraryvo.setPk_custcorp(pk_corp);
@@ -2477,7 +2477,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 	}
 	//	String sql = " nvl(dr,0)=0 and pk_invoice " + new SqlInUtil(billid).getInSql("invoice", "000001", "000001");
 	private Map<String,ImageInfoVO> processBillInfo(String conditon, String pk_corp, OcrInvoiceVO invvos[]){
-		//ImageGroupVO ImageLibraryVO OcrImageGroupVO OcrImageLibraryVO 
+		//ImageGroupVO ImageLibraryVO OcrImageGroupVO OcrImageLibraryVO
 		//先查出所有数据,,然后删掉,在组装数据
 		//sqlbuff.toString(), param, new BeanListProcessor(VATSaleInvoiceBVO2.class)
 		StringBuffer buff1 = new StringBuffer();
@@ -2492,7 +2492,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		buff2.append("select ocr_id From ynt_interface_invoice  where ").append(conditon);
 		buff2.append(" ))");
 		List<ImageLibraryVO> ilbvos= (List<ImageLibraryVO>)singleObjectBO.executeQuery(buff2.toString(), params, new BeanListProcessor(ImageLibraryVO.class));
-		
+
 		StringBuffer buff3 = new StringBuffer();
 		buff3.append("select* From ynt_image_ocrlibrary where pk_image_ocrlibrary in(");
 		buff3.append("select ocr_id From ynt_interface_invoice  where ").append(conditon);
@@ -2504,7 +2504,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		buff4.append("select ocr_id From ynt_interface_invoice  where ").append(conditon);
 		buff4.append(" ))");
 		List<OcrImageGroupVO> ocrgvos= (List<OcrImageGroupVO>)singleObjectBO.executeQuery(buff4.toString(), params, new BeanListProcessor(OcrImageGroupVO.class));
-		
+
 		singleObjectBO.executeUpdate(buff1.toString().replaceFirst("select\\*", "delete "), params);
 		singleObjectBO.executeUpdate(buff2.toString().replaceFirst("select\\*", "delete "), params);
 		singleObjectBO.executeUpdate(buff3.toString().replaceFirst("select\\*", "delete "), params);
@@ -2515,7 +2515,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		StringBuffer buff6 = new StringBuffer();
 		buff6.append("delete from ynt_interface_invoice_detail where ").append(conditon);
 		singleObjectBO.executeUpdate(buff6.toString(), params);
-		
+
 		Map<String, ImageGroupVO> groupmap = DZfcommonTools.hashlizeObjectByPk(igvos,new String[] { "pk_image_group" });
 		Map<String, ImageLibraryVO> librirymap = DZfcommonTools.hashlizeObjectByPk(ilbvos,new String[] { "pk_image_group" });
 		Map<String, OcrImageLibraryVO>  ocrlibrirymap= DZfcommonTools.hashlizeObjectByPk(ocrilbvos,new String[] { "pk_image_ocrlibrary" });
@@ -2532,20 +2532,20 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			infovo.setOcrImageGVO(ocrgroupmap.get(lbvo.getPk_image_ocrgroup()));
 			imageInfoMap.put(invvo.getPk_invoice(), infovo);
 		}
-		
+
 		//作废其他相关票据
 		String updatesql = conditon.replace("pk_invoice", "vdef13");
 		invalidOtherBill(pk_corp, new VATInComInvoiceVO2().getTableName(), updatesql, params);
 		invalidOtherBill(pk_corp, new VATSaleInvoiceVO2().getTableName(), updatesql, params);
 		invalidOtherBill(pk_corp, new BankStatementVO2().getTableName(), updatesql, params);
-		
+
 		return imageInfoMap;
 	}
 	@Override
 	public Map<String,List<VATSaleInvoiceBVO2>> querySaleInvoiceInfo(String pk_corp,List<String> plist,int ic_rule)throws DZFWarpException{
 		if(plist==null || plist.size() ==0) return null;//期间不能为空
 		Map<String,String> map = new HashMap<>();
-		
+
 		List<String> plist2 = new ArrayList<>();
 		for (int i = 0; i < plist.size(); i++) {
 			String period = plist.get(i);
@@ -2562,7 +2562,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		sqlbuff.append(" and  ").append(SqlUtil.buildSqlForIn("s2.period", plist2.toArray(new String[0])));
 		param.addParam(pk_corp);
 		List<VATSaleInvoiceBVO2> sallist = (List<VATSaleInvoiceBVO2>) singleObjectBO.executeQuery(sqlbuff.toString(), param, new BeanListProcessor(VATSaleInvoiceBVO2.class));
-		
+
 		if(sallist==null||sallist.size()==0)return null;
 		Map<String,List<VATSaleInvoiceBVO2>> salemap = new HashMap<String,List<VATSaleInvoiceBVO2>>();
 		for (VATSaleInvoiceBVO2 bvo : sallist) {
@@ -2591,7 +2591,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		if(salemap ==null || salemap.isEmpty()) return null;
 		if(plist==null || plist.size() ==0) return null;//期间不能为空
 		Map<String,String> map = new HashMap<>();
-		
+
 		List<InventorySaleInfoVO> list = new ArrayList<>();
 		for (int i = 0; i < plist.size(); i++) {
 			String period = plist.get(i);
@@ -2603,7 +2603,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				map.put(period, period);
 			}
 		}
-		
+
 		Collections.sort(list, new Comparator<InventorySaleInfoVO>() {
 			@Override
 			public int compare(InventorySaleInfoVO o1, InventorySaleInfoVO o2) {
@@ -2613,7 +2613,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 				return i;
 			}
 		});
-		
+
 		for (int i = 0; i < list.size(); i++) {
 			InventorySaleInfoVO infovo= list.get(i);
 			String key ="";
@@ -2622,21 +2622,21 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			}else{//存货名称+规格（型号）+计量单位
 				key = saleinfo.getName()+saleinfo.getSpec()+saleinfo.getUnit()+infovo.getPeriod();
 			}
-			
+
 			InventorySaleInfoVO vo = querySaleInfo(salemap.get(key),saleinfo, ic_rule,numPrecision,pricePrecision );
 			if(vo!=null) return vo;
 		}
-//		
-		
+//
+
 		return null;
 	}
-	
+
 	private InventorySaleInfoVO querySaleInfo(List<VATSaleInvoiceBVO2> sallist,InventorySaleInfoVO saleinfo,int ic_rule,int numPrecision,int pricePrecision){//String peroid,int ic_rule, InventorySaleInfoVO saleinfo
-		
-		
-		
+
+
+
 		if(sallist==null ||sallist.size()==0) return null;
-		
+
 		List<VATSaleInvoiceBVO2> tlist = new ArrayList<>();
 		for (int i = 0; i < sallist.size(); i++) {
 			VATSaleInvoiceBVO2 bvo = sallist.get(i);
@@ -2646,21 +2646,21 @@ public class InterfaceBillImpl implements IInterfaceBill {
 		}
 		if(tlist.size()==0) return null;
 		DZFDouble total = new DZFDouble();//数量合计
-		DZFDouble totalPrice =  new DZFDouble(); 
-		DZFDouble price =  new DZFDouble(); 
-		
+		DZFDouble totalPrice =  new DZFDouble();
+		DZFDouble price =  new DZFDouble();
+
 		//设置数量 ,单价精度
 		//int numPrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(saleinfo.getPk_corp(), "dzf009"));
 		//int pricePrecision = Integer.valueOf(sys_parameteract.queryParamterValueByCode(saleinfo.getPk_corp(), "dzf010"));
-		
+
 		for (VATSaleInvoiceBVO2 bsalevo : tlist) {
 			total = bsalevo.getBnum()!=null?total.add(bsalevo.getBnum()):total;
 			totalPrice =bsalevo.getBhjje()!=null? totalPrice.add(bsalevo.getBhjje()):total;
 		}
-		
+
 		total.setScale(numPrecision, DZFDouble.ROUND_HALF_UP);
 		price = totalPrice.div(total).setScale(pricePrecision, DZFDouble.ROUND_HALF_UP);
-		
+
 		InventorySaleInfoVO infovo = new InventorySaleInfoVO();
 		infovo.setSaleNumber(total);
 		infovo.setSalePrice(price);
@@ -2674,10 +2674,10 @@ public class InterfaceBillImpl implements IInterfaceBill {
 
 		String sql = getDutyQuerySql(pkcorps,period,izdf);
 
-		 List<DutyPayVO> dutilist =  (List<DutyPayVO>)singleObjectBO.executeQuery(sql,new SQLParameter(),new BeanListProcessor(DutyPayVO.class));
-		 if(dutilist==null||dutilist.isEmpty()){
-		 	return null;
-		 }
+		List<DutyPayVO> dutilist =  (List<DutyPayVO>)singleObjectBO.executeQuery(sql,new SQLParameter(),new BeanListProcessor(DutyPayVO.class));
+		if(dutilist==null||dutilist.isEmpty()){
+			return null;
+		}
 
 
 		Map<String,List<DutyPayVO>> dutymap = new HashMap<String,List<DutyPayVO>>();
@@ -2711,7 +2711,7 @@ public class InterfaceBillImpl implements IInterfaceBill {
 			dpvo.setInvname(dvo.getInvname());
 			dpvo.setPeriod(dvo.getPeriod());
 			dpvo.setIzdf(dvo.getIzdf());
-            dpvo.setPk_corp(dvo.getPk_corp());
+			dpvo.setPk_corp(dvo.getPk_corp());
 			for (DutyPayVO dvo_2:dutilist) {
 				if(dvo.getPeriod().equals(dvo_2.getPeriod())  && dvo.getPk_corp().equals(dvo_2.getPk_corp())  && dvo.getInvname().equals(dvo_2.getInvname()) ){
 					dpvo.setItemmny(new DZFDouble(dpvo.getItemmny()).add(dvo_2.getItemmny()).doubleValue());
@@ -2890,5 +2890,5 @@ public class InterfaceBillImpl implements IInterfaceBill {
 //		}
 //		return null;
 //	}
-	
+
 }
