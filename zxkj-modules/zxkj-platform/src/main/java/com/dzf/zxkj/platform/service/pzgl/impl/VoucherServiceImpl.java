@@ -801,7 +801,10 @@ public class VoucherServiceImpl implements IVoucherService {
 		TzpzBVO[] bodyvos = (TzpzBVO[])hvo.getChildren();
 		if(bodyvos == null || bodyvos.length == 0)
 			return;
+
+		boolean isglicpz = false;
 		for(TzpzBVO v : bodyvos){
+            isglicpz = false;
 			YntCpaccountVO vo = map.get(v.getPk_accsubj());
 			if (vo == null)
 				continue;
@@ -815,6 +818,7 @@ public class VoucherServiceImpl implements IVoucherService {
 					v.setVicbillcodetype(InventoryConstant.IC_STYLE_IN);
 					v.setGlcgmny(v.getJfmny());
 					v.setGlchhsnum(v.getNnumber());
+					isglicpz = true;
 					//这里没有break,因为合并凭证后，一个凭证上面，可能有出库，可能也有入库。
 				}else if(v.getVdirect() ==1){//当前凭证除有成本类科目外，都认为是出库。该凭证有成本类科目，不认为是出库。
 					if(!Kmschema.ischengbenpz(corpvo,bodyvos)){//非成本类
@@ -828,12 +832,13 @@ public class VoucherServiceImpl implements IVoucherService {
 							v.setVicbillcodetype(InventoryConstant.IC_STYLE_OUT);
 							v.setXsjzcb(v.getDfmny());
 							v.setGlchhsnum(v.getNnumber());
+							isglicpz = true;
 						}else{//非损益类 的，认为是蓝冲。乘以-1改成红冲,,,比如说成是调账。
 //							icbillcode_create.setICbillcode(hvo.getPk_corp(), hvo.getPeriod(), InventoryConstant.IC_STYLE_IN, hvo);
 //							v.setVicbillcodetype(InventoryConstant.IC_STYLE_IN);
 //							v.setGlcgmny(SafeCompute.multiply(v.getDfmny(), new DZFDouble(-1)));
 //							v.setGlchhsnum(SafeCompute.multiply(v.getNnumber(), new DZFDouble(-1)));
-							
+							isglicpz = true;
 							icbillcode_create.setICbillcode(hvo.getPk_corp(), hvo.getPeriod(), InventoryConstant.IC_STYLE_OUT, hvo);
 							v.setVicbillcodetype(InventoryConstant.IC_STYLE_OUT);
 							v.setXsjzcb(v.getDfmny());
@@ -846,6 +851,7 @@ public class VoucherServiceImpl implements IVoucherService {
 						v.setVicbillcodetype(InventoryConstant.IC_STYLE_OUT);
 						v.setXsjzcb(v.getDfmny());
 						v.setGlchhsnum(null);
+						isglicpz = true;
 					}
 				}
 			}else if(Kmschema.isshouru(corpvo.getCorptype(), vo.getAccountcode())//收入类科目
@@ -857,12 +863,27 @@ public class VoucherServiceImpl implements IVoucherService {
 						icbillcode_create.setICbillcode(hvo.getPk_corp(), hvo.getPeriod(), InventoryConstant.IC_STYLE_OUT, hvo);
 						v.setVicbillcodetype(InventoryConstant.IC_STYLE_OUT);
 						v.setGlchhsnum(v.getNnumber());
+						isglicpz = true;
 					}else if(v.getVdirect() ==0){//借方//这个要当作负的出库
 						icbillcode_create.setICbillcode(hvo.getPk_corp(), hvo.getPeriod(), InventoryConstant.IC_STYLE_OUT, hvo);
 						v.setVicbillcodetype(InventoryConstant.IC_STYLE_OUT);
 						v.setGlchhsnum(SafeCompute.multiply(v.getNnumber(), new DZFDouble(-1)));
+						isglicpz = true;
 					}
 				}
+			}else {
+                v.setVicbillcodetype(InventoryConstant.IC_STYLE_IN);
+                v.setGlcgmny(v.getJfmny());
+                v.setGlchhsnum(v.getNnumber());
+				isglicpz = true;
+			}
+			//  非总账存货出入库的凭证 清下如下字段(1.有可能复制总账存货出入库凭证，然后修改成其他凭证。2,直接修改总账存货出入库凭证为其他凭证)
+			if(!isglicpz){
+				v.setVicbillcodetype(null);
+				v.setGlcgmny(DZFDouble.ZERO_DBL);
+				v.setGlchhsnum(DZFDouble.ZERO_DBL);
+				v.setGlcgmny(DZFDouble.ZERO_DBL);
+				v.setXsjzcb(DZFDouble.ZERO_DBL);
 			}
 		}
 	}
