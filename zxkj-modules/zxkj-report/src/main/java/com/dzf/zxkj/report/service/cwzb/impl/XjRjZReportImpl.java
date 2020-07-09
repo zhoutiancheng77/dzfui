@@ -9,6 +9,7 @@ import com.dzf.zxkj.common.lang.DZFBoolean;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.DateUtils;
+import com.dzf.zxkj.common.utils.SqlUtil;
 import com.dzf.zxkj.common.utils.StringUtil;
 import com.dzf.zxkj.platform.model.bdset.YntCpaccountVO;
 import com.dzf.zxkj.platform.model.pzgl.TzpzBVO;
@@ -20,10 +21,8 @@ import com.dzf.zxkj.report.utils.VoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 现金/银行日记账
@@ -239,6 +238,52 @@ public class XjRjZReportImpl implements IXjRjZReport {
                 vo1.setDay("-" + String.valueOf(datetemp.getDaysMonth()));
             }
             reslit.add(vo1);
+        }
+        // 赋值对方科目
+        //1:获取凭证id
+        Set<String> pzsets = new HashSet<>();
+        pzsets = reslit.stream().filter(i -> !StringUtil.isEmpty(i.getPk_tzpz_h())).map(e -> e.getPk_tzpz_h()).collect(Collectors.toSet());
+        if (pzsets.size() > 0) {
+            //2:根据凭证id查询所有的凭证子表
+            StringBuffer pzsql = new StringBuffer();
+            pzsql.append("select pk_tzpz_h,pk_tzpz_b,vcode,vname,jfmny,dfmny  ");
+            pzsql.append(" from ynt_tzpz_b");
+            pzsql.append(" where nvl(dr,0)=0 and pk_corp = ?");
+            pzsql.append(" and "+ SqlUtil.buildSqlForIn("pk_tzpz_h",pzsets.toArray(new String[0])));
+            pzsql.append(" order by rowno");
+            SQLParameter sp = new SQLParameter();
+            sp.addParam(pk_corp);
+            List<TzpzBVO> tzpzBVOList = (List<TzpzBVO>) singleObjectBO.executeQuery(pzsql.toString(),sp,new BeanListProcessor(TzpzBVO.class));
+
+            //3:list 转map
+            Map<String, List<TzpzBVO>> tzpzmap = new HashMap<>();
+            if (tzpzBVOList!= null && tzpzBVOList.size() >0) {
+                tzpzmap = tzpzBVOList.stream().collect(Collectors.groupingBy(TzpzBVO::getPk_tzpz_h));
+            }
+            //4: 赋值
+            StringBuffer namestr = null;
+            Integer mnydir = null;
+            List<TzpzBVO> tzpzBVOList1 = null;
+            for (KmMxZVO kmMxZVO: reslit) {
+                mnydir = kmMxZVO.getJf().doubleValue() != 0 ? 0: 1; // 金额方向
+                if (!StringUtil.isEmpty(kmMxZVO.getPk_tzpz_h())) {
+                    // 查询当前科目的
+                    tzpzBVOList1 = tzpzmap.get(kmMxZVO.getPk_tzpz_h());
+                    if (tzpzBVOList1!=null && tzpzBVOList1.size() >0) {
+                        namestr = new StringBuffer();
+                        for (TzpzBVO tzpzBVO: tzpzBVOList1) {
+                            if (mnydir.intValue() == 0 && tzpzBVO.getDfmny().doubleValue()!=0) {
+                                namestr.append(tzpzBVO.getVname() + ",");
+                            } else if (mnydir.intValue() == 1 && tzpzBVO.getJfmny().doubleValue()!=0) {
+                                namestr.append(tzpzBVO.getVname() + ",");
+                            }
+                        }
+                    }
+                    if (namestr.toString().length() >0) {
+                        kmMxZVO.setDfkmname(namestr.toString().substring(0, namestr.length() -1));
+                    }
+                }
+            }
         }
         return reslit.toArray(new KmMxZVO[0]);
     }

@@ -25,4 +25,5 @@ public class ReportExcelExportVO {
     private String qjlx;
     private String fields;
     private String qj;
+    private String bshowdfkmcolumn;//显示对方科目
 }

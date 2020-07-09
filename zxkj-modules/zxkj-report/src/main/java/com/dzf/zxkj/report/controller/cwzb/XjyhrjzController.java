@@ -132,7 +132,10 @@ public class XjyhrjzController extends ReportBaseController {
      * 导出Excel
      */
     @PostMapping("export/excel")
-    public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO, @MultiRequestBody KmReoprtQueryParamVO queryParamvo, @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO, HttpServletResponse response) {
+    public void excelReport(@MultiRequestBody ReportExcelExportVO excelExportVO,
+                            @MultiRequestBody KmReoprtQueryParamVO queryParamvo,
+                            @MultiRequestBody CorpVO corpVO, @MultiRequestBody UserVO userVO,
+                            HttpServletResponse response) {
 
         // 校验
         checkSecurityData(null, new String[]{queryParamvo.getPk_corp()},null);
@@ -154,6 +157,7 @@ public class XjyhrjzController extends ReportBaseController {
         Excelexport2003<KmMxZVO> lxs = new Excelexport2003<KmMxZVO>();
         XjyhrjzExcelField xsz = new XjyhrjzExcelField();
         xsz.setXjrjzvos(list.toArray(new KmMxZVO[0]));
+        xsz.setBshowdfkmcolumn(excelExportVO.getBshowdfkmcolumn());
         xsz.setQj(qj);
         xsz.setCreator(userVO.getUser_name());
         xsz.setCorpName(gs);
@@ -182,6 +186,7 @@ public class XjyhrjzController extends ReportBaseController {
             Map<String, String> pmap = printReporUtil.getPrintMap(printParamVO);
             String lineHeight = pmap.get("lineHeight");
             String font = pmap.get("font");
+            String bshowdfkmcolumn = pmap.get("bshowdfkmcolumn");
             printReporUtil.setIscross(new DZFBoolean(pmap.get("pageOrt")));
 
             /** 声明一个map用来存前台传来的设置参数 */
@@ -200,7 +205,7 @@ public class XjyhrjzController extends ReportBaseController {
             for (int i = 0; i < bodyvos.length; i++) {
                 bodyvos[i].km=bodyvos[i].km.trim();
             }
-            Object[] obj = getPrintXm(0);
+            Object[] obj = getPrintXm(0,bshowdfkmcolumn);
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(),bodyvos,"现金/银行日记账",(String[])obj[0],
                     (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
             writeLogRecord(LogRecordEnum.OPE_KJ_KMREPORT,
@@ -212,17 +217,18 @@ public class XjyhrjzController extends ReportBaseController {
         }
     }
 
-    public Object[] getPrintXm(int type){
+    public Object[] getPrintXm(int type, String bshowdfkmcolumn){
         Object[] obj = new Object[4];
-        switch (type) {
-            case 0:
-                obj[0] = new String[]{"rq","km","pzh","zy","jf","df","fx","ye"};
-                obj[1] = new String[]{"日期","科目","凭证号","摘要","借方","贷方","方向","余额"};
-                obj[2] = new int[]{2,3,1,4,2,2,1,2};
-                obj[3] = 20;
-                break;
-            default:
-                break;
+        if ("true".equals(bshowdfkmcolumn)) {
+            obj[0] = new String[]{"rq","km","pzh","zy","dfkmname","jf","df","fx","ye"};
+            obj[1] = new String[]{"日期","科目","凭证号","摘要","对方科目","借方","贷方","方向","余额"};
+            obj[2] = new int[]{2,3,1,4,4,2,2,1,2};
+            obj[3] = 20;
+        } else {
+            obj[0] = new String[]{"rq","km","pzh","zy","jf","df","fx","ye"};
+            obj[1] = new String[]{"日期","科目","凭证号","摘要","借方","贷方","方向","余额"};
+            obj[2] = new int[]{2,3,1,4,2,2,1,2};
+            obj[3] = 20;
         }
         return obj;
     }

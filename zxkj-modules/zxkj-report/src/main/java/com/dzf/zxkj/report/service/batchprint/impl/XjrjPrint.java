@@ -72,7 +72,7 @@ public class XjrjPrint extends  AbstractPrint {
             for (int i = 0; i < bodyvos.length; i++) {
                 bodyvos[i].km=bodyvos[i].km.trim();
             }
-            Object[] obj = xjyhrjzController.getPrintXm(0);
+            Object[] obj = xjyhrjzController.getPrintXm(0,"false");
             printReporUtil.printHz(new HashMap<String, List<SuperVO>>(),bodyvos,"现金/银行日记账",(String[])obj[0],
                     (String[])obj[1], (int[])obj[2],(int)obj[3],pmap,tmap);
             return printReporUtil.getContents();

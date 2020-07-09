@@ -23,18 +23,9 @@ public class XjyhrjzExcelField implements IExceport<KmMxZVO>, UnitExceport<KmMxZ
 	private String corpname = null;
 	
 	private String currencyname = null;
-	
-	private Fieldelement[] fields = new Fieldelement[]{
-		new Fieldelement("rq", "日期",false,0,false),
-		new Fieldelement("km", "科目",false,0,false),
-		new Fieldelement("pzh", "凭证号",false,0,false),
-		new Fieldelement("zy", "摘要",false,0,false),
-		new Fieldelement("jf","借方",true,2,true),
-		new Fieldelement("df", "贷方",true,2,true),
-		new Fieldelement("fx", "方向",false,0,false),
-		new Fieldelement("ye", "余额",true,2,true),
-	};
 
+	private String bshowdfkmcolumn = null; //显示对方科目
+	
 	@Override
 	public String getExcelport2007Name() {
 		return "现金、银行日记账-"+ ReportUtil.formatQj(qj)+".xlsx";
@@ -71,7 +62,31 @@ public class XjyhrjzExcelField implements IExceport<KmMxZVO>, UnitExceport<KmMxZ
 
 	@Override
 	public Fieldelement[] getFieldInfo() {
-		return fields;
+		if ("true".equals(bshowdfkmcolumn)) {
+			return new Fieldelement[]{
+					new Fieldelement("rq", "日期",false,0,false),
+					new Fieldelement("km", "科目",false,0,false),
+					new Fieldelement("pzh", "凭证号",false,0,false),
+					new Fieldelement("zy", "摘要",false,0,false),
+					new Fieldelement("dfkmname", "对方科目",false,0,false),
+					new Fieldelement("jf","借方",true,2,true),
+					new Fieldelement("df", "贷方",true,2,true),
+					new Fieldelement("fx", "方向",false,0,false),
+					new Fieldelement("ye", "余额",true,2,true),
+			};
+		} else {
+			return new Fieldelement[]{
+					new Fieldelement("rq", "日期",false,0,false),
+					new Fieldelement("km", "科目",false,0,false),
+					new Fieldelement("pzh", "凭证号",false,0,false),
+					new Fieldelement("zy", "摘要",false,0,false),
+					new Fieldelement("jf","借方",true,2,true),
+					new Fieldelement("df", "贷方",true,2,true),
+					new Fieldelement("fx", "方向",false,0,false),
+					new Fieldelement("ye", "余额",true,2,true),
+			};
+		}
+
 	}
 
 	@Override
@@ -110,8 +125,14 @@ public class XjyhrjzExcelField implements IExceport<KmMxZVO>, UnitExceport<KmMxZ
 	public boolean[] isShowTitDetail() {
 		return new boolean[]{true,true,true};
 	}
-	
-	
+
+	public String getBshowdfkmcolumn() {
+		return bshowdfkmcolumn;
+	}
+
+	public void setBshowdfkmcolumn(String bshowdfkmcolumn) {
+		this.bshowdfkmcolumn = bshowdfkmcolumn;
+	}
 
 	public String getCurrencyname() {
 		return currencyname;
