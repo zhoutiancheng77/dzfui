@@ -56,6 +56,9 @@ public class CostTransferTemplateController extends BaseController {
                 vos = JsonUtils.deserialize(kmdata, CpcosttransVO[].class);
             }
             String pk_corp = SystemUtil.getLoginCorpId();
+            for(CpcosttransVO vo : vos){
+                convertToFloat(vo);
+            }
             List<CpcosttransVO> list  = gl_cpcbmbserv.saveDatas(pk_corp, vos);
             json.setRows(list);
             json.setMsg("结转比例设置成功");

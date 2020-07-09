@@ -323,6 +323,7 @@ public class CBMBServiceImpl implements ICBMBService {
         if (listnew != null && listnew.size() > 0) {
             for (CpcosttransVO vo : listnew) {
                 vo.setPk_corp(pk_corp);
+                vo.setJztype(3);
                 save(vo);
             }
         }
@@ -330,7 +331,7 @@ public class CBMBServiceImpl implements ICBMBService {
             for (CpcosttransVO vo : listedit) {
                 vo.setPk_corp(pk_corp);
             }
-            singleObjectBO.updateAry(listedit.toArray(new CpcosttransVO[listedit.size()]),new String[]{"tratio"});
+            singleObjectBO.updateAry(listedit.toArray(new CpcosttransVO[listedit.size()]),new String[]{"transratio"});
         }
         return query(pk_corp);
     }
