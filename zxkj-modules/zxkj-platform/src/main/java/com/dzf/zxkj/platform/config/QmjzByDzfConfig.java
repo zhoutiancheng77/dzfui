@@ -19,7 +19,7 @@ public class QmjzByDzfConfig {
     //账簿导出预警
     @Value("${zxkj.dcyj.sql}")
     public String sql;
-    @Value("${zxkj.dcyj.whitelist}")
+    @Value("${zxkj.dcyj.whitelist:''}")
     public String whitelist;
     //is channel
     @Value("${zxkj.dcyj.chalnum}")
