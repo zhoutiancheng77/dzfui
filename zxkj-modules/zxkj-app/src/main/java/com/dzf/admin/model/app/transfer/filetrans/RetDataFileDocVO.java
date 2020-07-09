@@ -1,7 +1,6 @@
 package com.dzf.admin.model.app.transfer.filetrans;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
