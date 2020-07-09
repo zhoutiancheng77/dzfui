@@ -2017,14 +2017,15 @@ public class SpreadTool {
 
 	// 江苏印花税、地方各项基金费等，按税局核定税目动态增行
 	private void fillReportByQcData(Map mapJson,String sheetname, CorpVO corpvo, CorpTaxVo taxvo, TaxReportVO reportvo, HashMap<String, Object> hmQCData) {
+		String sbzlbh = reportvo.getSb_zlbh();
 		if (taxvo.getTax_area() == 11 ) {//江苏
-			if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())) { // 印花税纳税申报表
-				//Map<String, JSONObject> qcLines = (Map<String, JSONObject>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
-				Map<String, Object> qcLines = hmQCData;
-				if (qcLines != null) {
+			if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)) { // 印花税纳税申报表
+				//Map<String, JSONObject> qcLines = (Map<String, JSONObject>) hmQCData.get(sbzlbh + "qc");
+				Map<String, Object> qcData = hmQCData;
+				if (qcData != null) {
 					int row = 8;
 					Map<String, Object> qcLine;
-					for(Map.Entry<String, Object> entry : qcLines.entrySet()) {
+					for(Map.Entry<String, Object> entry : qcData.entrySet()) {
 						Object obj = entry.getValue();
 						if (!(obj instanceof Map))
 							continue;
@@ -2036,13 +2037,21 @@ public class SpreadTool {
 						//征收品目代码(zspmdm)、核定类型(hdlx)等隐藏字段在Excel中没有存，需在申报时从期初数据中现取
 						row++;
 					}
+
+					// 印花税，根据期初上的小规模纳税人标志(xgmnsrbz)，回写报表上的本期是否适用增值税小规模纳税人减征政策(bqsfsyxgmyhzc)
+					String sfxgmjz = (String)qcData.get("sfxgmjz");
+					setCellValue(mapJson, sheetname, 4, 1, sfxgmjz.equals("Y") ? "是" : "否");
+					if (sfxgmjz.equals("Y")) { // 小规模减征为是时，减征比例(%)设为50(phjzbl)
+						setCellValue(mapJson, sheetname, 4, 3, qcData.get("phjzbl")); //50
+					}
 				}
-			} else if (TaxRptConst.SB_ZLBH31399.equals(reportvo.getSb_zlbh()) || TaxRptConst.SB_ZLBH30299.equals(reportvo.getSb_zlbh())) { // 地方各项基金费（工会经费）、地方各项基金费（垃圾处理费）申报表
-				Map<String, Object> qcLines = hmQCData;
-				if (qcLines != null) {
+			} else if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh) || TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) { // 地方各项基金费（工会经费）、地方各项基金费（垃圾处理费）申报表
+				Map<String, Object> qcData = hmQCData;
+				if (qcData != null) {
+					String sfxgmjz = (String) qcData.get("sfxgmjz");
 					int row = 6;
 					Map<String, Object> qcLine;
-					for(Map.Entry<String, Object> entry : qcLines.entrySet()) {
+					for(Map.Entry<String, Object> entry : qcData.entrySet()) {
 						Object obj = entry.getValue();
 						if (!(obj instanceof Map))
 							continue;
@@ -2052,13 +2061,23 @@ public class SpreadTool {
 						setCellValue(mapJson, sheetname, row, 2, qcLine.get("skssqq")); // 所属期起
 						setCellValue(mapJson, sheetname, row, 3, qcLine.get("skssqz")); // 所属期止
 						setCellValue(mapJson, sheetname, row, 5, qcLine.get("jzl"));
+
+						// 工会经费，根据期初上的小规模纳税人标志(xgmnsrbz)，回写报表行上的减免依据_本期是否适用按规定免征增值税的小规模纳税人(jmyjbqisxgmnsrbz)
+						if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh)) {
+							setCellValue(mapJson, sheetname, row, 7, sfxgmjz.equals("Y") ? "是" : "否");
+							if (sfxgmjz.equals("Y")) { // 适用减免时，自动填上减免性质"0015129999|其他"；减免费额暂不自动计算，由用户手输（税局网站上也是手输的）
+								setCellValue(mapJson, sheetname, row, 8, "0015129999|其他");
+								if (getCellValue(mapJson, sheetname, row, 9).toString().equals(""))
+									setCellValue(mapJson, sheetname, row, 9, 0);
+							}
+						}
 						row++;
 					}
 				}
 			}
 		}else if (taxvo.getTax_area() == 16 ) {//山东
-			if (TaxRptConst.SB_ZLBHD1.equals(reportvo.getSb_zlbh())) { // 印花税纳税申报表
-				List<Map<String, Object>> qcMaps = (List<Map<String, Object>>) hmQCData.get(reportvo.getSb_zlbh() + "qc");
+			if (TaxRptConst.SB_ZLBHD1.equals(sbzlbh)) { // 印花税纳税申报表
+				List<Map<String, Object>> qcMaps = (List<Map<String, Object>>) hmQCData.get(sbzlbh + "qc");
 				if (qcMaps != null) {
 					int row = 9;
 					for (Map<String, Object> map : qcMaps) {
