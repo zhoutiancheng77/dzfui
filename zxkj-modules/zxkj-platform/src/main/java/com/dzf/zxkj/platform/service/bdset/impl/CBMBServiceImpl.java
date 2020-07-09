@@ -304,4 +304,35 @@ public class CBMBServiceImpl implements ICBMBService {
 //		CpcosttransVO[] vos = (CpcosttransVO[]) singleObjectBO.queryByCondition(CpcosttransVO.class, condition, params);
     }
 
+    @Override
+    public  List<CpcosttransVO> saveDatas(String pk_corp ,CpcosttransVO[] vos)
+            throws DZFWarpException {
+        if (vos == null || vos.length == 0) {
+            throw new BusinessException("数据为空！");
+        }
+        List<CpcosttransVO> listnew = new ArrayList<>();// 新增
+        List<CpcosttransVO> listedit = new ArrayList<>();// 修改
+        for (CpcosttransVO vo : vos) {
+            if (vo.getPk_corp_costtransfer()== null || StringUtil.isEmpty(vo.getPk_corp_costtransfer())) {
+                listnew.add(vo);
+            } else {
+                listedit.add(vo);
+            }
+        }
+
+        if (listnew != null && listnew.size() > 0) {
+            for (CpcosttransVO vo : listnew) {
+                vo.setPk_corp(pk_corp);
+                save(vo);
+            }
+        }
+        if (listedit != null && listedit.size() > 0) {
+            for (CpcosttransVO vo : listedit) {
+                vo.setPk_corp(pk_corp);
+            }
+            singleObjectBO.updateAry(listedit.toArray(new CpcosttransVO[listedit.size()]),new String[]{"tratio"});
+        }
+        return query(pk_corp);
+    }
+
 }

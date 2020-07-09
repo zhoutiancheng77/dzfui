@@ -10,6 +10,9 @@ public interface ICBMBService {
     //保存
     CpcosttransVO save(CpcosttransVO vo) throws DZFWarpException;
 
+    //保存
+    List<CpcosttransVO> saveDatas(String pk_corp,CpcosttransVO[] vos) throws DZFWarpException;
+
     //更新
     void update(CpcosttransVO vo) throws DZFWarpException;
 
