@@ -62,7 +62,7 @@ public class ImageViewController extends BaseController {
 
     //根据条件查询图片,以流的形式显示
     @RequestMapping("/search")
-    public ReturnData<Grid> search(@RequestParam("id") String Pk_image_library, @RequestParam("pk_corp")String pk_cprp_ser,
+    public void search(@RequestParam("id") String Pk_image_library, @RequestParam("pk_corp")String pk_cprp_ser,
                                    @RequestParam("name")String imgname, String isSmall, String isMiddle,
                                    HttpServletResponse response, HttpSession session){
         Grid grid = new Grid();
@@ -222,7 +222,7 @@ public class ImageViewController extends BaseController {
             }
 
         }
-        return ReturnData.ok().data(grid);
+
     }
 
     public static File getImageFolder(String type,CorpVO corpvo,String imgPathName, String imgName) throws FileNotFoundException {

@@ -1437,8 +1437,23 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 // initData.put(sbzlbh + "qc", qcLines);
 
                 // d.小规模纳税人标志
-                // 小规模纳税人标志(xgmnsrbz)=Y时，是否小规模减征(bqsfsyxgmyhzc)默认为“是”，且可改（因为一般人转成的小规模有可能暂不允许选小规模减征）； 小规模纳税人标志=N时，是否小规模减征固定为“否”；
-                initData.put("sfxgmjz", data.getString("xgmnsrbz")); //Y、N
+                // llh注：六税两费的本期是否适用增值税小规模纳税人减征政策（普惠减免）(bqsfsyxgmyhzc)的取值：
+                // xgmnsrbz=Y时，bqsfsyxgmyhzc默认为“是”，可改； xgmnsrbz=N（一般人）时，bqsfsyxgmyhzc固定为“否”，不可改；
+                String xgmnsrbz = data.getString("xgmnsrbz"); //Y、N
+                initData.put("sfxgmjz", xgmnsrbz);
+
+                // 小规模纳税人标志=Y的，取印花税的小规模减半征收（普惠减征）的phjmxzdm、phjmswsxdm、phjzbl
+                if (xgmnsrbz.equals("Y")) {
+                    for (Object object : (JSONArray) data.get("hpyhxxlist")) {
+                        JSONObject phxx = (JSONObject) object;
+                        if (phxx.getString("zsxm_dm").equals(getSjzsxmDm(sbzlbh))) { //10111-印花税
+                            initData.put("phjmxzdm", phxx.getString("ssjmxz_dm")); //0009049901
+                            initData.put("phjmswsxdm", phxx.getString("swsx_dm")); //SXA031900989
+                            initData.put("phjzbl", phxx.get("jmfd")); //50，是整型
+                            break;
+                        }
+                    }
+                }
             } else if (TaxRptConst.SB_ZLBH31399.equals(sbzlbh) || TaxRptConst.SB_ZLBH30299.equals(sbzlbh)) {
                 // a.征收子目的名称(如"工会经费2%")需从ghjfallzmlist或ghjfallzmglblist中取。sbxxlist中只有代码
                 Map<String, JSONObject> zszmMap = new HashMap<>();
@@ -1478,7 +1493,16 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     }
                 }
 
-                // d.地方各项基金费必须要填开户银行和银行账号
+                // d.小规模纳税人标志(xgmnsrbz)
+                // llh注：工会经费的减免依据（本期是否适用按规定免征增值税的小规模纳税人）(jmyjbqisxgmnsrbz)的取值：
+                // 苏工办[2019]73号文：对月销售额未超过10万元（按季纳税的，季度销售额未超过30万元）的按规定免征增值税的小规模纳税人，自2019年7月1日起至2021年12月31日止（指所属期），暂缓收缴工会经费
+                // xgmnsrbz=0，当前未免征增值税的小规模纳税人，需自己确定本期是否可适用减免；（程序中可默认jmyjbqisxgmnsrbz=N）
+                // xgmnsrbz=1，一般纳税人，确切"不适用"减免；（jmyjbqisxgmnsrbz=N）
+                // xgmnsrbz=2，免征增值税的小规模纳税人，确切"适用"减免。（jmyjbqisxgmnsrbz=Y）
+                String xgmnsrbz = data.getString("xgmnsrbz"); //0、1、2
+                initData.put("sfxgmjz", xgmnsrbz != null && xgmnsrbz.equals("2")? "Y" : "N");
+
+                // e.地方各项基金费必须要填开户银行和银行账号
                 //有些户的khyhList可能为空。银行账号为空的公司，申报时银行账号可不传
                 JSONArray khyhlist = (JSONArray) data.get("khyhList");
                 //把银行账号信息平铺后直接放到qcData中，方便使用
@@ -1493,11 +1517,6 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     initData.put("yhzh", khzhxx.getString("yhzh"));
                 }
                 //initData.put("khzhxx", khzhxx);
-
-                // d.小规模纳税人标志
-                // 小规模纳税人标志(xgmnsrbz)=Y时，是否小规模减征(bqsfsyxgmyhzc)默认为“是”，且可改（因为一般人转成的小规模有可能暂不允许选小规模减征）； 小规模纳税人标志=N时，是否小规模减征固定为“否”；
-                String xgmnsrbz = data.getString("xgmnsrbz"); //0、1
-                initData.put("sfxgmjz", xgmnsrbz != null && xgmnsrbz.equals("1")? "Y" : "N");
             } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) { //文化事业建设费
                 //广告业娱乐业标志或wh_zspmdm考虑保存到公司账套信息中
 
@@ -1780,12 +1799,21 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             throws DZFWarpException {
 
         if (!"true".equals(taxJstcConfig.service_switch)) {
-            return;
+            throw new BusinessException("接口未启用");
+        }
+        if (!hasDeclareInterface(reportvo.getSb_zlbh())) {
+            throw new BusinessException("暂不支持作废当前税种");
         }
         CorpTaxVo taxvo = sys_corp_tax_serv.queryCorpTaxVO(corpvo.getPk_corp());
-        if (StringUtil.isEmpty(corpvo.getVsoccrecode())
-                || StringUtil.isEmpty(taxvo.getVstatetaxpwd())) {
-            return;
+        String nsrsbh = corpvo.getVsoccrecode();
+        String vstatetaxpwd = taxvo.getVstatetaxpwd();
+
+        if (StringUtil.isEmpty(nsrsbh)) {
+            throw new BusinessException("纳税人识别号不能为空");
+        }
+
+        if (StringUtil.isEmpty(vstatetaxpwd)) {
+            throw new BusinessException("纳税密码不能为空");
         }
 
         if (Integer.valueOf(reportvo.getSbzt_dm()) != TaxRptConst.iSBZT_DM_ReportSuccess) {
@@ -1919,10 +1947,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
     public String checkReportData(Map mapJson, CorpVO corpvo, TaxReportVO reportvo,
                                   HashMap<String, TaxReportDetailVO> hmRptDetail, SingleObjectBO sbo) throws DZFWarpException {
         String errmsg = "";
+        String sbzlbh = reportvo.getSb_zlbh();
         SpreadTool spreadtool = new SpreadTool();
         List<String> listReportName = spreadtool.getReportNameList(mapJson);
-        if (TaxRptConst.SB_ZLBH10102.equals(reportvo.getSb_zlbh())
-                || TaxRptConst.SB_ZLBH1010201.equals(reportvo.getSb_zlbh())) {
+        if (TaxRptConst.SB_ZLBH10102.equals(sbzlbh)
+                || TaxRptConst.SB_ZLBH1010201.equals(sbzlbh)) {
             String rpt1 = "增值税纳税申报表（小规模纳税人适用）附列资料";
             String rpt2 = "增值税纳税申报表";
             String rpt3 = "增值税减免税申报明细表";
@@ -1973,7 +2002,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             }
 
 //			errmsg +=checkForSB_ZLBH10102_js(mapJson, corpvo, reportvo, hmRptDetail, sbo);
-        } else if (TaxRptConst.SB_ZLBH10101.equals(reportvo.getSb_zlbh())) {
+        } else if (TaxRptConst.SB_ZLBH10101.equals(sbzlbh)) {
             String rpt1 = "增值税纳税申报表附列资料（一）";
 			/*if (listReportName.contains(rpt1)) {
 				DZFDouble val1 = getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 7, 12));
@@ -2050,7 +2079,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
                 }
             }
-        } else if (TaxRptConst.SB_ZLBHC1.equals(reportvo.getSb_zlbh())) {
+        } else if (TaxRptConst.SB_ZLBHC1.equals(sbzlbh)) {
             String rpt1 = "资产负债表";
             if (listReportName.contains(rpt1)) {
                 if (!getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 35, 2))
@@ -2060,7 +2089,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     errmsg += "资产负债表-资产总计应等于负债和所有者权益（或股东权益）总计<br>";
                 }
             }
-        } else if (TaxRptConst.SB_ZLBHC2.equals(reportvo.getSb_zlbh())) {
+        } else if (TaxRptConst.SB_ZLBHC2.equals(sbzlbh)) {
             String rpt1 = "资产负债表";
             if (listReportName.contains(rpt1)) {
                 if (!getCellNumber(spreadtool.getCellValue(mapJson, rpt1, 44, 2))
@@ -2070,7 +2099,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                     errmsg += "资产负债表-资产总计应等于负债和所有者权益（或股东权益）总计<br>";
                 }
             }
-        } else if (TaxRptConst.SB_ZLBH10412.equals(reportvo.getSb_zlbh())) {
+        } else if (TaxRptConst.SB_ZLBH10412.equals(sbzlbh)) {
             String mainTable = "A200000所得税月(季)度预缴纳税申报表";
             if (listReportName.contains(mainTable)) {
                 DZFDouble r11 = getCellNumber(spreadtool.getCellValue(mapJson, mainTable, 18, 8));
@@ -2110,7 +2139,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
             }
 
             errmsg += checkForSB_ZLBH10412(mapJson, corpvo, reportvo, hmRptDetail, sbo);
-        } else if (TaxRptConst.SB_ZLBH10413.equals(reportvo.getSb_zlbh()) && reportvo.getPeriodtype() == 1) {
+        } else if (TaxRptConst.SB_ZLBH10413.equals(sbzlbh) && reportvo.getPeriodtype() == 1) {
             String rpt1 = "主表";
             if (listReportName.contains(rpt1)) {
                 if (StringUtil.isEmpty((String) spreadtool.getCellValue(mapJson, rpt1, 30, 8))) {//小型微利企业
@@ -2128,6 +2157,15 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
                 }
             }
 //			errmsg = checkForSB_ZLBH10413(mapJson, corpvo, reportvo, hmRptDetail, sbo);
+        } else if (TaxRptConst.SB_ZLBH10601.equals(sbzlbh)) {
+            String mainTable = "文化事业建设费申报表";
+            if (listReportName.contains(mainTable)) {
+                DZFDouble r11 = getCellNumber(spreadtool.getCellValue(mapJson, mainTable, 5, 5));
+                DZFDouble r12 = getCellNumber(spreadtool.getCellValue(mapJson, mainTable, 6, 5));
+                if (r11.compareTo(DZFDouble.ZERO_DBL) != 0 && r12.compareTo(DZFDouble.ZERO_DBL) != 0) {
+                    errmsg += "主表的第1栏“应征收入”和第2栏“免征收入”不能同时录有金额。<br>";
+                }
+            }
         }
         return errmsg;
     }
@@ -2499,6 +2537,7 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 30203: 增值税教育费附加
 30216: 增值税地方教育附加
 10111: 印花税
+30217: 文化事业建设费
 39900: 地方各项基金费-工会经费
 30299: 地方各项基金费-垃圾处理费
 30218: 地方各项基金费-残保金
@@ -2506,6 +2545,10 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 69806: 财报年报
         */
         switch (sbzl_bh) {
+            case TaxRptConst.SB_ZLBHD1: //印花税
+                return "10111";
+            case TaxRptConst.SB_ZLBH10601: //文化事业建设费
+                return "30217";
             case TaxRptConst.SB_ZLBH31399: //地方各项基金费（工会经费）
                 return "39900";
             case TaxRptConst.SB_ZLBH30299: //地方各项基金费（垃圾处理费）
@@ -2855,6 +2898,11 @@ public class JsTaxRptServiceImpl extends DefaultTaxRptServiceImpl {
 
     // 收费
     private void doCharge(CorpVO corpVO, TaxReportVO reportvo, String userId) {
+
+        if (corpVO.getIschannel() != null && corpVO.getIschannel().booleanValue()) {
+            return;
+        }
+
         IVersionMngService verionMng = (IVersionMngService) SpringUtils
                 .getBean("sys_funnodeversionserv");
         // 是否收费

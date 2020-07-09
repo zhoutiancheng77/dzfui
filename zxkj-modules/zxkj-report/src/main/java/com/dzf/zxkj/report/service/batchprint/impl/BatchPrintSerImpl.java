@@ -1,5 +1,6 @@
 package com.dzf.zxkj.report.service.batchprint.impl;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.dzf.file.fastdfs.FastDfsUtil;
 import com.dzf.zxkj.base.dao.SingleObjectBO;
 import com.dzf.zxkj.base.exception.BusinessException;
@@ -44,6 +45,7 @@ import java.util.zip.ZipOutputStream;
 
 @Service("gl_rep_batchprinterv")
 @Slf4j
+@DS("slave_1")
 public class BatchPrintSerImpl implements IBatchPrintSer {
 
     @Autowired
