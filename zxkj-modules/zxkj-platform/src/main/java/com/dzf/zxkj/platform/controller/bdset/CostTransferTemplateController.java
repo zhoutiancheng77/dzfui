@@ -2,6 +2,8 @@ package com.dzf.zxkj.platform.controller.bdset;
 
 import com.dzf.zxkj.base.controller.BaseController;
 import com.dzf.zxkj.base.exception.BusinessException;
+import com.dzf.zxkj.base.utils.DZFValueCheck;
+import com.dzf.zxkj.common.constant.ISysConstants;
 import com.dzf.zxkj.common.entity.Grid;
 import com.dzf.zxkj.common.entity.Json;
 import com.dzf.zxkj.common.entity.ReturnData;
@@ -9,6 +11,7 @@ import com.dzf.zxkj.common.enums.LogRecordEnum;
 import com.dzf.zxkj.common.lang.DZFDate;
 import com.dzf.zxkj.common.lang.DZFDouble;
 import com.dzf.zxkj.common.utils.SafeCompute;
+import com.dzf.zxkj.jackson.utils.JsonUtils;
 import com.dzf.zxkj.platform.model.bdset.CpcosttransVO;
 import com.dzf.zxkj.platform.service.bdset.ICBMBService;
 import com.dzf.zxkj.platform.util.SystemUtil;
@@ -16,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 成本结转模板
@@ -39,6 +43,29 @@ public class CostTransferTemplateController extends BaseController {
         json.setSuccess(true);
         json.setRows(data);
         json.setMsg("保存成功");
+        return ReturnData.ok().data(json);
+    }
+
+    @PostMapping("/saveDatas")
+    public ReturnData saveDatas(@RequestBody Map<String, String> map) {
+        Json json = new Json();
+        try{
+            String kmdata = map.get("bldata");
+            CpcosttransVO[] vos = null;
+            if (!DZFValueCheck.isEmpty(kmdata)) {
+                vos = JsonUtils.deserialize(kmdata, CpcosttransVO[].class);
+            }
+            String pk_corp = SystemUtil.getLoginCorpId();
+            List<CpcosttransVO> list  = gl_cpcbmbserv.saveDatas(pk_corp, vos);
+            json.setRows(list);
+            json.setMsg("结转比例设置成功");
+            json.setSuccess(true);
+            writeLogRecord(LogRecordEnum.OPE_KJ_SALARY, "结转比例设置", ISysConstants.SYS_2);
+        } catch (Exception e) {
+           printErrorLog(json,e,"结转比例设置失败");
+        }finally {
+
+        }
         return ReturnData.ok().data(json);
     }
 

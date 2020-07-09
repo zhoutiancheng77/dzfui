@@ -2130,11 +2130,11 @@ public class SalaryReportServiceImpl implements ISalaryReportService {
 				// 取入账设置中的费用科目
 				if (cvo == null) {
                     // 如果是劳务 走劳务费用科目
-                    if(ibody.getBilltype() != null || ibody.getBilltype().equals(SalaryTypeEnum.REMUNERATION.getValue())){
-                        if (StringUtil.isEmpty(setvo.getJtgz_gzfykm())) {
+                    if(ibody.getBilltype() != null && ibody.getBilltype().equals(SalaryTypeEnum.REMUNERATION.getValue())){
+                        if (StringUtil.isEmpty(setvo.getJtgz_lwfykm())) {
                             throw new BusinessException("计提劳务费用科目设置为空，请检查！");
                         }
-                        cvo = ccountMap.get(setvo.getJtgz_gzfykm());//劳务费用科目
+                        cvo = ccountMap.get(setvo.getJtgz_lwfykm());//劳务费用科目
                     }else{
                         if (StringUtil.isEmpty(setvo.getJtgz_gzfykm())) {
                             throw new BusinessException("计提工资费用科目设置为空，请检查！");

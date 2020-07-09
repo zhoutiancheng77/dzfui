@@ -267,8 +267,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 
 		if (!StringUtil.isEmpty(paramvo.getFpdm())) {
-			//sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
-			sb.append(" and y.xhfmc like ").append("'%").append(paramvo.getFpdm()).append("%'");//改成销项方名称
+			sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
 		}
 
 		if (!StringUtil.isEmpty(sort)) {// sort != null && !"".equals(sort)
@@ -438,7 +437,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 						}
 					}
 				}
-				if(StringUtils.isEmpty(vatInComInvoiceVO2.getPk_model_h())){//导入的时候为空
+				if(StringUtils.isEmpty(vatInComInvoiceVO2.getPk_model_h())){//导入的时候为空				
 					ll.add(vatInComInvoiceVO2);
 				}else{
 					list.add(vatInComInvoiceVO2);
@@ -535,7 +534,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 //			throws DZFWarpException {
 //
 //
-//
+//		
 //		VATInComInvoiceVO2[] rtvos = null;
 //		List<VATInComInvoiceVO2> nolist = new ArrayList<VATInComInvoiceVO2>();
 //		List<VATInComInvoiceVO2> yeslist = new ArrayList<VATInComInvoiceVO2>();
@@ -545,7 +544,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 //			// 如是新增， 需返回新增vos
 //			String[] addpks = null;
 //			SuperVO[] bvos = null;
-//
+//			
 //			resetSpsl(addvos);
 //			List<SuperVO> bvoList = new ArrayList<SuperVO>();
 //			for (int i = 0; i < addvos.length; i++) {
@@ -580,16 +579,16 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 //		VATInComInvoiceVO2[] updvos = sendData.get("upddocvos");
 //
 //		if (updvos != null && updvos.length > 0) {
-//
+//			
 //			resetSpsl(updvos);
-//
+//			
 //			String pk = null;
 //			VATInComInvoiceVO2 oldvo = null;
 //			SuperVO[] oldbvos = null;
 //			SuperVO[] newbvos = null;
 //			for (VATInComInvoiceVO2 vo : updvos) {
 //				pk = vo.getPrimaryKey();
-//
+//				
 //				newbvos = vo.getChildren();
 //				for (SuperVO bvo : newbvos) {
 //					bvo.setAttributeValue(bvo.getParentPKFieldName(), pk);
@@ -616,7 +615,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 //					iBillcategory.saveNewCategroy(OcrInvoiceVOList.toArray(new OcrInvoiceVO[0]),vo.getPk_model_h(), pk_corp, OcrInvoiceVOList.get(0).getPeriod());
 //					}
 //				}
-//
+//				
 //				if (vo.getSourcetype() == IBillManageConstants.OCR) {
 //					singleObjectBO.update(newList.get(0),
 //							new String[] { "iszhuan", "fp_hm", "fp_dm", "xhfmc", "spmc", "spsl", "spse", "hjje", "jshj",
@@ -774,9 +773,9 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		//生成入库单
 		IntradeHVO ichvo = createIH(vo, accounts, corpvo, userid);
 
-		zncsParamVO.setCorpvo(corpvo);
-		zncsParamVO.setAccVOs(accounts);
-		zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
+//		zncsParamVO.setCorpvo(corpvo);
+//		zncsParamVO.setAccVOs(accounts);
+//		zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
 
 		zncsParamVO = initZncsParamVO(zncsParamVO,pk_corp,vo);
 
@@ -1933,7 +1932,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				map.put("flag", DZFBoolean.TRUE);
 			}
 
-			list = doImport(sourceType, paramvo, sheet1, pk_corp, fileType, userid, msg);
+			list = doImport(impBook,sourceType, paramvo, sheet1, pk_corp, fileType, userid, msg);
 
 		} catch (FileNotFoundException e) {
 			log.error(e.getMessage(), e);
@@ -2198,11 +2197,73 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		return count;
 	}
 
-	private List<VATInComInvoiceVO2> doImport(int sourceType, VATInComInvoiceVO2 paramvo, Sheet sheet, String pk_corp, String fileType,
+	private List<VATInComInvoiceVO2> doImport(Workbook impBook,int sourceType, VATInComInvoiceVO2 paramvo, Sheet sheet, String pk_corp, String fileType,
 											  String userid, StringBuffer msg) {
 		List<VATInComInvoiceVO2> list = getDataByExcel(sourceType, sheet, pk_corp, userid, msg,paramvo);
+		//海关缴款书第二页签
+		if (IBillManageConstants.HAIGUANJIAOKUANSHU1 == sourceType) {
+			Sheet sheet1 = impBook.getSheetAt(1);
+			Map<String,List<VATInComInvoiceBVO2>> map = getDataByHaiGuan2(IBillManageConstants.HAIGUANJIAOKUANSHU2, sheet1, pk_corp);
+			if(list.size() > 0 && map.size() > 0){
+				for (VATInComInvoiceVO2 vo2:list) {
+					vo2.setFp_dm(StringNumberFilter(vo2.getFp_dm()));
+					vo2.setFp_hm(StringNumberFilter(vo2.getFp_hm()));
+					vo2.setHjje(new DZFDouble(0));
+					vo2.setSpse(new DZFDouble(0));
+					if(map.containsKey(vo2.getFp_hm())){
+						List<VATInComInvoiceBVO2> bvoList = map.get(vo2.getFp_hm());
+						Integer rowno = 1 ;
+						for (VATInComInvoiceBVO2 bvo2:bvoList) {
+							bvo2.setRowno(rowno);
+							bvo2.setBspsl(bvo2.getBspsl().multiply(100));//
+							vo2.setHjje(vo2.getHjje().add(bvo2.getBhjje()));//金额
+							vo2.setSpse(vo2.getSpse().add(bvo2.getBspse()));//税额
 
+							rowno++;
+						}
+						vo2.setSpsl(bvoList.get(0).getBspsl());//税率
+						vo2.setSpmc(bvoList.get(0).getBspmc());//商品名称
+						vo2.setJshj(vo2.getHjje().add(vo2.getSpse()));//价税合计
+						vo2.setKplx(ICaiFangTongConstant.FPLX_1);//发票状态
+
+						vo2.setSourcetype(IBillManageConstants.ZENGZHIAHUI_AUTO); //来源
+						vo2.setChildren(bvoList.toArray(new VATInComInvoiceBVO2[0]));
+
+					}
+
+				}
+			}
+
+		}else if(IBillManageConstants.FAPIAOXIAZAI1 == sourceType){ //下载发票第二页签
+			Sheet sheet1 = impBook.getSheetAt(1);
+			Map<String,List<VATInComInvoiceBVO2>> map = getDataByHaiGuan2(IBillManageConstants.FAPIAOXIAZAI2, sheet1, pk_corp);
+			if(list.size() > 0 && map.size() > 0){
+				for (VATInComInvoiceVO2 vo2:list) {
+					if(map.containsKey(vo2.getFp_hm()+vo2.getFp_dm())){
+						List<VATInComInvoiceBVO2> bvoList = map.get(vo2.getFp_hm()+vo2.getFp_dm());
+						Integer rowno = 1 ;
+						for (VATInComInvoiceBVO2 bvo2:bvoList) {
+							bvo2.setRowno(rowno);
+							bvo2.setBspsl(bvo2.getBspsl().multiply(100));//
+
+							rowno++;
+						}
+						vo2.setSpsl(bvoList.get(0).getBspsl());//税率
+						vo2.setSpmc(bvoList.get(0).getBspmc());//商品名称
+
+						vo2.setSourcetype(IBillManageConstants.ZENGZHIAHUI_AUTO); //来源
+						vo2.setChildren(bvoList.toArray(new VATInComInvoiceBVO2[0]));
+
+					}
+
+				}
+			}
+		}
 		return list;
+	}
+	//去除字符创中的非数字 字符
+	private String StringNumberFilter(String oldString){
+		return oldString.replaceAll("[^\\d]", "");
 	}
 
 	private List<VATInComInvoiceVO2> buildInComVO(List<VATInComInvoiceVO2> list){
@@ -2211,7 +2272,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			CaiFangTongHVO hvo;
 			List<CaiFangTongHVO> hList = new ArrayList<CaiFangTongHVO>();
 			for(VATInComInvoiceVO2 vo : list){
-				if(!vo.getFplx().contains("通行费")){
+				if(StringUtil.isEmpty(vo.getFplx()) || !vo.getFplx().contains("通行费")){
 					try {
 						hvo = new CaiFangTongHVO();
 						hvo.setKprq(vo.getKprj().toString());
@@ -2556,7 +2617,13 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 					aCell = sheet.getRow(iBegin).getCell(k);
 					sTmp = getExcelCellValue(aCell);
-
+					if(IBillManageConstants.FAPIAOXIAZAI1==sourceType && sTmp!=null){
+						if(sTmp.contains("专用发票")){
+							paramvo.setIszhuan(DZFBoolean.TRUE);
+						}else if(sTmp.contains("普通发票")){
+							paramvo.setIszhuan(DZFBoolean.FALSE);
+						}
+					}
 					if (sTmp != null && cursorMap.containsKey(sTmp)) {
 						matchSet.add(sTmp);
 						cursorMap.put(sTmp, k);// 重新设置列行号
@@ -2622,11 +2689,124 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			}
 
 		}
-
-		blist = specialVatBVO(blist, sourceType, pk_corp);
-
+		//这里不处理海关缴款书 下载发票
+		if (!(IBillManageConstants.HAIGUANJIAOKUANSHU1 == sourceType || IBillManageConstants.FAPIAOXIAZAI1 == sourceType)) {
+			blist = specialVatBVO(blist, sourceType, pk_corp);
+		}
 		return blist;
 	}
+
+	//解析海关缴款书第二页签
+	public Map<String,List<VATInComInvoiceBVO2>> getDataByHaiGuan2(int sourceType, Sheet sheet, String pk_corp) throws BusinessException {
+
+		int iBegin = 0;
+		Map<String,List<VATInComInvoiceBVO2>> bvoMap = new HashMap<String,List<VATInComInvoiceBVO2>>();
+		Cell aCell = null;
+		String sTmp = "";
+		String str;
+		VATInComInvoiceBVO2 excelvo = null;
+
+		Object[][] STYLE_1 = getStyleMap().get(sourceType);
+		Set<String> matchSet = null;
+		Map<String, Integer> cursorMap = buildImpStypeMap(STYLE_1);
+		Map<String, Integer> cursor2Map = new HashMap<String, Integer>();
+		Integer maxCCount = getStyleCellCount().get(sourceType);// 遍历的最大列数
+
+		// int loopCount = 0;
+		for (; iBegin < (sheet.getLastRowNum() + 1); iBegin++) {
+			if (sheet.getRow(iBegin) == null && iBegin != sheet.getLastRowNum())
+				continue;
+			if (iBegin == sheet.getLastRowNum())
+				throw new BusinessException("导入失败,导入文件抬头格式不正确 !");
+			// loopCount = 0;
+			matchSet = new HashSet<String>();
+
+			for (int k = 0; k < maxCCount; k++) {
+
+				aCell = sheet.getRow(iBegin).getCell(k);
+				sTmp = getExcelCellValue(aCell);
+
+				if (sTmp != null && cursorMap.containsKey(sTmp)) {
+					matchSet.add(sTmp);
+					cursorMap.put(sTmp, k);// 重新设置列行号
+					// loopCount++;
+				}
+			}
+			if (cursorMap.size() == matchSet.size()) {
+				iBegin++;
+
+				resetStyleCursor(STYLE_1, cursorMap);
+				break;
+			}
+
+			if (iBegin == sheet.getLastRowNum())
+				throw new BusinessException("文件格式不正确，请检查");
+
+		}
+		boolean flag;
+		int count;// 计数器的作用判断该行是不是空行，如count == STYLE_1.length 则为空行
+		boolean isNullFlag;
+		for (; iBegin < (sheet.getLastRowNum() + 1); iBegin++) {
+			excelvo = new VATInComInvoiceBVO2();
+			flag = false;
+			count = 0;
+			isNullFlag = false;
+			for (int j = 0; j < STYLE_1.length; j++) {
+				if (sheet.getRow(iBegin) == null) {
+					isNullFlag = true;
+					break;
+				}
+
+				aCell = sheet.getRow(iBegin).getCell((new Integer(STYLE_1[j][0].toString())).intValue());
+				sTmp = getExcelCellValue(aCell);
+
+				if (FILTER_PLACE_HOLDER.equals(sTmp)) {
+					flag = true;
+					break;
+				}
+				if (sTmp != null && !StringUtil.isEmpty(sTmp.trim())) {
+					excelvo.setAttributeValue(STYLE_1[j][2].toString(), sTmp.replace(" ", ""));
+				} else {
+					count++;
+				}
+			}
+
+			if (excelvo != null && !flag && count != STYLE_1.length && !isNullFlag) {
+				if(IBillManageConstants.HAIGUANJIAOKUANSHU2 == sourceType){
+					excelvo.setPk_corp(pk_corp);
+					excelvo.setTempvalue(StringNumberFilter(excelvo.getTempvalue()));
+					//金额除以数量   计算单价
+					if(excelvo.getBhjje()!=null && excelvo.getBnum()!=null){
+						excelvo.setBprice(excelvo.getBhjje().div(excelvo.getBnum()));
+					}
+
+					if(bvoMap.containsKey(excelvo.getTempvalue())){
+						List<VATInComInvoiceBVO2> excelvoList = bvoMap.get(excelvo.getTempvalue());
+						excelvoList.add(excelvo);
+					}else{
+						List<VATInComInvoiceBVO2> excelvoList = new ArrayList<VATInComInvoiceBVO2>();
+						excelvoList.add(excelvo);
+						bvoMap.put(excelvo.getTempvalue(),excelvoList);
+					}
+				}else if(IBillManageConstants.FAPIAOXIAZAI2 == sourceType){
+					excelvo.setPk_corp(pk_corp);
+					if(bvoMap.containsKey(excelvo.getCategorycode()+excelvo.getTempvalue())){
+						List<VATInComInvoiceBVO2> excelvoList = bvoMap.get(excelvo.getCategorycode()+excelvo.getTempvalue());
+						excelvoList.add(excelvo);
+					}else{
+						List<VATInComInvoiceBVO2> excelvoList = new ArrayList<VATInComInvoiceBVO2>();
+						excelvoList.add(excelvo);
+						bvoMap.put(excelvo.getCategorycode()+excelvo.getTempvalue(),excelvoList);
+					}
+				}
+
+			}
+
+		}
+
+		return bvoMap;
+	}
+
 
 	private void resetStyleCursor(Object[][] style, Map<String, Integer> cursorMap) {
 		if (style != null && style.length > 0) {
@@ -2730,7 +2910,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 		if(IBillManageConstants.ZENGZHIAHUI_AUTO == sourceType){
 			for (VATInComInvoiceVO2 vo : blist) {
-				if(vo.getFplx().contains("通行费")){
+				if(!StringUtil.isEmpty(vo.getFplx()) && vo.getFplx().contains("通行费")){
 					List<VATInComInvoiceBVO2> bvolist = new ArrayList<VATInComInvoiceBVO2>();
 					VATInComInvoiceBVO2 bvo = new VATInComInvoiceBVO2();
 					bvo.setBspmc(vo.getSpmc());
@@ -2991,13 +3171,13 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");// 格式化日期字符串
 		java.text.DecimalFormat formatter = new java.text.DecimalFormat("#########.##");
 		if (sourceType == IBillManageConstants.AUTO ) {// 8
-			if(j == 12){
+			if(j == 13){
 				if (PASSRULT_DEFAULT.equals(sTmp.trim())) {
 					sTmp = String.valueOf(IBillManageConstants.RSPASS);
 				} else {
 					sTmp = String.valueOf(IBillManageConstants.RSNOPASS);
 				}
-			}else if(j == 3){// 入账期间
+			}else if(j == 4){// 入账期间
 				sTmp = sTmp.replace("-", "");
 				if (sTmp.length() >= 6) {
 					String year = sTmp.substring(0, 4);
@@ -3006,12 +3186,12 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 				} else {
 					sTmp = "";
 				}
-			}else if(j==8||j==9){//金额  税额
+			}else if(j==9||j==10){//金额  税额
 				if(isNumber(sTmp)){
 					sTmp = formatter.format(new DZFDouble(sTmp));
 				}
 
-			}else if((j==2||j==13)&&cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC){//开票日期   认证日期
+			}else if((j==3||j==14)&&cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC){//开票日期   认证日期
 				sTmp = sdf.format(HSSFDateUtil.getJavaDate(Double.parseDouble(sTmp)));
 			}
 
@@ -3099,53 +3279,58 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 	 * @param index
 	 */
 	private void checkDataValid(VATInComInvoiceVO2 vo, StringBuffer sf, int index, String pk_corp, int sourceType) {
-		CorpVO corpVO = corpService.queryByPk(pk_corp);
 
-		StringBuffer msg = new StringBuffer();
-		if (StringUtil.isEmpty(vo.getFp_hm())) {
-			msg.append(" 发票号码不允许为空,请检查！ ");
-		}
-		if (StringUtil.isEmpty(vo.getFp_dm())) {
-			msg.append(" 发票代码不允许为空,请检查！ ");
-		}
-		if (vo.getKprj() == null) {
-			msg.append(" 开票日期不允许为空,请检查！ ");
-		}
-		if(!StringUtil.isEmpty(vo.getInperiod())){
-			String jzperiod = DateUtils.getPeriod(corpVO.getBegindate());
-			if(vo.getInperiod().compareTo(jzperiod) < 0){
-				msg.append("入账期间不允许在建账期间前,请检查");
+		//海关缴款书第一页签信息不足，不校验
+		if (sourceType != IBillManageConstants.HAIGUANJIAOKUANSHU1) {
+
+			CorpVO corpVO = corpService.queryByPk(pk_corp);
+
+			StringBuffer msg = new StringBuffer();
+			if (StringUtil.isEmpty(vo.getFp_hm())) {
+				msg.append(" 发票号码不允许为空,请检查！ ");
 			}
-		}
-		if(sourceType==IBillManageConstants.AUTO&&StringUtils.isEmpty(vo.getSpmc())){
-			msg.append(" 开票项目不允许为空,请检查！ ");
-		}
+			if (StringUtil.isEmpty(vo.getFp_dm())) {
+				msg.append(" 发票代码不允许为空,请检查！ ");
+			}
+			if (vo.getKprj() == null) {
+				msg.append(" 开票日期不允许为空,请检查！ ");
+			}
+			if (!StringUtil.isEmpty(vo.getInperiod())) {
+				String jzperiod = DateUtils.getPeriod(corpVO.getBegindate());
+				if (vo.getInperiod().compareTo(jzperiod) < 0) {
+					msg.append("入账期间不允许在建账期间前,请检查");
+				}
+			}
+			if (sourceType == IBillManageConstants.AUTO && StringUtils.isEmpty(vo.getSpmc())) {
+				msg.append(" 开票项目不允许为空,请检查！ ");
+			}
 		/*} else if (vo.getKprj().before(corpVO.getBegindate())) {
 			msg.append(" 开票日期不允许在建账日期前,请检查！ ");
 		}*/
-		if (StringUtil.isEmpty(vo.getXhfmc()) && sourceType == IBillManageConstants.AUTO) {
-			msg.append(" 销货方不允许为空,请检查！ ");
-		}
-		if (vo.getSpse() == null) {
-			msg.append(" 税额不允许为空,请检查！ ");
-		}
-		if (vo.getHjje() == null) {
-			msg.append(" 金额不允许为空,请检查！ ");
-		}
-
-		if (vo.getRzjg() != null && vo.getRzjg() == 1) {
-
-			if (vo.getRzrj() == null) {
-				msg.append(" 勾选已认证，认证日期不允许为空,请检查！ ");
-			} else if (vo.getRzrj() != null && vo.getRzrj().before(corpVO.getBegindate())) {
-				msg.append(" 认证日期不允许在建账日期前,请检查！ ");
-			} else if (vo.getKprj() != null && vo.getRzrj().before(vo.getKprj())) {
-				msg.append(" 认证日期不允许在开票日期前,请检查！ ");
+			if (StringUtil.isEmpty(vo.getXhfmc()) && sourceType == IBillManageConstants.AUTO) {
+				msg.append(" 销货方不允许为空,请检查！ ");
 			}
-		}
+			if (vo.getSpse() == null) {
+				msg.append(" 税额不允许为空,请检查！ ");
+			}
+			if (vo.getHjje() == null) {
+				msg.append(" 金额不允许为空,请检查！ ");
+			}
 
-		if (!StringUtil.isEmpty(msg.toString())) {
-			sf.append("第").append(index + 1).append("行  ").append(msg.toString()).append(" <br>");
+			if (vo.getRzjg() != null && vo.getRzjg() == 1) {
+
+				if (vo.getRzrj() == null) {
+					msg.append(" 勾选已认证，认证日期不允许为空,请检查！ ");
+				} else if (vo.getRzrj() != null && vo.getRzrj().before(corpVO.getBegindate())) {
+					msg.append(" 认证日期不允许在建账日期前,请检查！ ");
+				} else if (vo.getKprj() != null && vo.getRzrj().before(vo.getKprj())) {
+					msg.append(" 认证日期不允许在开票日期前,请检查！ ");
+				}
+			}
+
+			if (!StringUtil.isEmpty(msg.toString())) {
+				sf.append("<font color='red'>第").append(index + 1).append("行  ").append(msg.toString()).append("</font> <br>");
+			}
 		}
 	}
 
@@ -3162,43 +3347,63 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		vo.setCoperatorid(userid);
 		vo.setDoperatedate(new DZFDate());
 
-		if(sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO){
-			if(vo.getRzrj()==null&&paramvo.getRzssq()!=null){
+		if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO) {
+			if (vo.getRzrj() == null && paramvo.getRzssq() != null) {
 				String year = paramvo.getRzssq().substring(0, 4);
 				String month = paramvo.getRzssq().substring(4, 6);
-				DZFDate endDate = DateUtils.getPeriodEndDate(year+"-"+month);
+				DZFDate endDate = DateUtils.getPeriodEndDate(year + "-" + month);
 				vo.setRzrj(endDate);
 			}
-			if(vo.getRzrj() != null){
+			if (vo.getRzrj() != null) {
 				vo.setRzjg(1);
 			}
 		}
 
 		// 设置期间
 		String period = null;
-		if(sourceType == IBillManageConstants.AUTO){
-			period=StringUtils.isEmpty(vo.getInperiod())?paramvo.getInperiod():vo.getInperiod();
-		}else if(sourceType == IBillManageConstants.CAISHUI_AUTO||sourceType == IBillManageConstants.ZHONGXING_AUTO){
+		if (sourceType == IBillManageConstants.AUTO) {
+			period = StringUtils.isEmpty(vo.getInperiod()) ? paramvo.getInperiod() : vo.getInperiod();
+		} else if (sourceType == IBillManageConstants.CAISHUI_AUTO || sourceType == IBillManageConstants.ZHONGXING_AUTO) {
 			if (vo.getRzjg() != null && vo.getRzjg() == 1 && vo.getRzrj() != null) {
 				period = DateUtils.getPeriod(vo.getRzrj());
-			}else{
-				period=paramvo.getInperiod();
+			} else {
+				period = paramvo.getInperiod();
 			}
-		}else if(sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO){
-			period=StringUtils.isEmpty(paramvo.getRzssq())?paramvo.getInperiod():paramvo.getRzssq();
-			if(period.length()==6&&period.indexOf("-")==-1){
-				period=period.substring(0,4)+"-"+period.substring(4,6);
+		} else if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO) {
+			period = StringUtils.isEmpty(paramvo.getRzssq()) ? paramvo.getInperiod() : paramvo.getRzssq();
+			if (period.length() == 6 && period.indexOf("-") == -1) {
+				period = period.substring(0, 4) + "-" + period.substring(4, 6);
 			}
-		}else{
-			if (vo.getRzjg() != null && vo.getRzjg() == 1 && vo.getRzrj() != null) {
-				period = DateUtils.getPeriod(vo.getRzrj());
-			}else if(!StringUtils.isEmpty(paramvo.getInperiod())){
-				period=paramvo.getInperiod();
-			} else{
-				CorpVO corpvo = corpService.queryByPk(pk_corp);
-				if(vo.getKprj().before(corpvo.getBegindate())){
-					period = DateUtils.getPeriod(corpvo.getBegindate());
+		} else if (sourceType == IBillManageConstants.HAIGUANJIAOKUANSHU1) { //海关缴款书
+			if (vo.getKprj() != null) {
+				period = DateUtils.getPeriod(vo.getKprj());
+			}
+			vo.setRzrj(DateUtils.getPeriodEndDate(period));
+			vo.setRzjg(1);
+		} else if(sourceType == IBillManageConstants.FAPIAOXIAZAI1){//发票下载
+			if (vo.getKprj() != null) {
+				period = DateUtils.getPeriod(vo.getKprj());
+			}
+			//发票状态
+			if(!StringUtils.isEmpty(vo.getKplx())){
+				if(vo.getKplx().contains("作废")){
+					vo.setKplx(ICaiFangTongConstant.FPLX_4);
+				}else if(vo.getKplx().contains("负数")){
+					vo.setKplx(ICaiFangTongConstant.FPLX_2);
 				}else{
+					vo.setKplx(ICaiFangTongConstant.FPLX_1);
+				}
+			}
+		}else {
+			if (vo.getRzjg() != null && vo.getRzjg() == 1 && vo.getRzrj() != null) {
+				period = DateUtils.getPeriod(vo.getRzrj());
+			} else if (!StringUtils.isEmpty(paramvo.getInperiod())) {
+				period = paramvo.getInperiod();
+			} else {
+				CorpVO corpvo = corpService.queryByPk(pk_corp);
+				if (vo.getKprj().before(corpvo.getBegindate())) {
+					period = DateUtils.getPeriod(corpvo.getBegindate());
+				} else {
 					period = DateUtils.getPeriod(vo.getKprj());
 				}
 			}
@@ -3216,40 +3421,45 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 			if (!StringUtil.isEmpty(vo.getInperiod())) {
 				period = vo.getInperiod();
-			}else{
+			} else {
 				period = paramvo.getInperiod();
 			}
 		}
-		if (sourceType == IBillManageConstants.AUTO || sourceType == IBillManageConstants.ZHONGXING_AUTO) {
+		if (sourceType == IBillManageConstants.AUTO) {
+			if (!StringUtils.isEmpty(vo.getFplx()) && vo.getFplx().equals("增值税专用发票")) {
+				iszhuan = DZFBoolean.TRUE;
+			} else {
+				iszhuan = DZFBoolean.FALSE;
+			}
+		} else if (sourceType == IBillManageConstants.ZHONGXING_AUTO) {
 			iszhuan = DZFBoolean.TRUE;
-		}else if (sourceType == IBillManageConstants.CAISHUI_AUTO && !StringUtil.isEmpty(vo.getFpzl())) {
+		} else if (sourceType == IBillManageConstants.CAISHUI_AUTO && !StringUtil.isEmpty(vo.getFpzl())) {
 			if (vo.getFpzl().endsWith(VAT_SPECIAL_ZHUAN)) {
 				iszhuan = DZFBoolean.TRUE;
 			} else if (vo.getFpzl().endsWith(VAT_SPECIAL_PU)) {
 				iszhuan = DZFBoolean.FALSE;
 			}
-		}else if(sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO){
-			if(!StringUtils.isEmpty(vo.getFplx()))
-			{
-				if (vo.getFplx().contains("专票")|| vo.getFplx().contains("专用发票") || vo.getFplx().contains("机动车")||vo.getFplx().contains("通行费")){
+		} else if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO) {
+			if (!StringUtils.isEmpty(vo.getFplx())) {
+				if (vo.getFplx().contains("专票") || vo.getFplx().contains("专用发票") || vo.getFplx().contains("机动车") || vo.getFplx().contains("通行费")) {
 					iszhuan = DZFBoolean.TRUE;
-				}
-				else
-				{
+				} else {
 					iszhuan = DZFBoolean.FALSE;
 				}
-			}else{
-				iszhuan = DZFBoolean.TRUE;			//增值税认证平台导入的，没有发票类型列，默认专票 20191212
+			} else {
+				iszhuan = DZFBoolean.TRUE;            //增值税认证平台导入的，没有发票类型列，默认专票 20191212
 			}
-		}else{
+		} else if(sourceType == IBillManageConstants.FAPIAOXIAZAI1){
+			iszhuan = paramvo.getIszhuan();
+		}else {
 			iszhuan = DZFBoolean.TRUE;
 		}
 		// 通行费发票 设置税率  默认商品货物名称   发票状态
 		DZFDouble sl = vo.getSpsl();
-		if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO && vo.getFplx().contains("通行费")) {
+		if (sourceType == IBillManageConstants.ZENGZHIAHUI_AUTO && !StringUtil.isEmpty(vo.getFplx()) && vo.getFplx().contains("通行费")) {
 			vo.setSpsl(new DZFDouble(3));
 			vo.setSpmc("通行费");
-			if(vo.getKplx()!=null&&vo.getKplx().contains("正常")){
+			if (vo.getKplx() != null && vo.getKplx().contains("正常")) {
 				vo.setKplx("1");
 			}
 		}
@@ -3315,11 +3525,11 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	public Map<Integer, Object[][]> getStyleMap() {
 		Map<Integer, Object[][]> STYLE = new LinkedHashMap<Integer, Object[][]>();
-		Object[][] obj0 = new Object[][] { { 1, "发票代码", "fp_dm" }, { 2, "发票号码", "fp_hm" }, { 3, "开票日期", "kprj" },
-				{ 4, "入账期间", "inperiod" }, // 入账期间
-				{ 5, "开票项目", "spmc" }, { 6, "规格型号", "invspec" }, { 7, "计量单位", "measurename" }, { 8, "数量", "bnum" },
-				{ 9, "金额", "hjje" }, { 10, "税额", "spse" }, { 11, "业务类型", "busitypetempname" }, { 12, "销货方名称", "xhfmc" },
-				{ 13, "认证结果", "rzjg" }, { 14, "认证日期", "rzrj" } };
+		Object[][] obj0 = new Object[][] { {1,"发票类型","fplx"},{ 2, "发票代码", "fp_dm" }, {3, "发票号码", "fp_hm" }, { 4, "开票日期", "kprj" },
+				{ 5, "入账期间", "inperiod" }, // 入账期间
+				{ 6, "开票项目", "spmc" }, { 7, "规格型号", "invspec" }, { 8, "计量单位", "measurename" }, {9, "数量", "bnum" },
+				{ 10, "金额", "hjje" }, { 11, "税额", "spse" }, { 12, "业务类型", "busitypetempname" }, { 13, "销货方名称", "xhfmc" },
+				{ 14, "认证结果", "rzjg" }, { 15, "认证日期", "rzrj" } };
 		//老版本通用模板
 		Object[][] obj11 = new Object[][] { { 1, "发票代码", "fp_dm" }, { 2, "发票号码", "fp_hm" }, { 3, "开票日期", "kprj" },
 				{ 4, "入账期间", "inperiod" }, // 入账期间
@@ -3367,15 +3577,38 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		//来源增值税平台
 		Object[][] obj5 = getImpConfigObj();
 
+		Object[][] obj12 = new Object[][] { // 海关缴款书第一页签
+				{ 1, "缴款书号码", "fp_dm" }, { 1, "缴款书号码", "fp_hm" }, { 2, "填发日期", "kprj" }, { 3, "缴款单位一名称", "ghfmc" },
+				{ 4, "缴款单位一税号", "ghfsbh" },{9,"收入机关","xhfmc"}};
+		Object[][] obj122 = new Object[][] { // 海关缴款书第二页签
+				{ 1, "缴款书号码", "tempvalue" }, { 3, "货物名称", "bspmc" }, { 4, "完税价格", "bhjje" }, { 5, "数量", "bnum" },
+				{ 6, "单位", "measurename" },{7,"税率","bspsl"},{8,"税款金额","bspse"}};
+		//勾选认证平台【发票下载】 第一页签 202007
+		Object[][] obj13 = new Object[][] { { 1, "发票代码", "fp_dm" }, { 2, "发票号码", "fp_hm" }, { 3, "开票日期", "kprj" },
+				{ 4, "发票状态", "kplx" }, { 5, "销售方税号", "xhfsbh" }, { 6, "销售方名称", "xhfmc" }, { 7, "购买方税号", "ghfsbh" }, { 8, "购买方名称", "ghfmc" },
+				{ 9, "金额", "hjje" }, { 10, "税额", "spse" }, { 11, "价税合计", "jshj" }, { 13, "销售方地址、电话", "xhfdzdh" }, { 14, "销售方开户行及账号", "xhfyhzh" },
+				{ 15, "购买方地址、电话", "ghfdzdh" },{ 16, "购买方开户行及账号", "ghfyhzh" },{ 18, "备注", "demo" } };
+		//第二页签  导入时发票代码号码临时存放在这两个字段，匹配第一页签是使用，不存库
+		Object[][] obj132 = new Object[][] { { 1, "发票代码", "tempvalue" }, { 2, "发票号码", "categorycode" }, { 4, "货物或应税劳务名称", "bspmc" },
+				{ 5, "规格型号", "invspec" }, { 6, "单位", "measurename" }, { 7, "数量", "bnum" }, { 8, "单价", "bprice" }, { 9, "金额", "bhjje" },
+				{ 10, "税率", "bspsl" }, { 11, "税额", "bspse" } };
+
+
 		STYLE.put(IBillManageConstants.AUTO, obj0);
 		STYLE.put(IBillManageConstants.CAISHUI_AUTO, obj2);
 		STYLE.put(IBillManageConstants.ZHONGXING_AUTO, obj3);
 		STYLE.put(IBillManageConstants.OLDEDITION, obj11);
+		STYLE.put(IBillManageConstants.HAIGUANJIAOKUANSHU1, obj12);
+		STYLE.put(IBillManageConstants.HAIGUANJIAOKUANSHU2, obj122);
+		STYLE.put(IBillManageConstants.FAPIAOXIAZAI1, obj13);
+		STYLE.put(IBillManageConstants.FAPIAOXIAZAI2, obj132);
 //		STYLE.put(IBillManageConstants.PIAOTONGSM_AUTO, obj4);
 
 		if(obj5 != null){
 			STYLE.put(IBillManageConstants.ZENGZHIAHUI_AUTO, obj5);
 		}
+
+
 
 		return STYLE;
 	}
@@ -3404,11 +3637,15 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 
 	public Map<Integer, Integer> getStyleCellCount() {
 		Map<Integer, Integer> countMap = new HashMap<Integer, Integer>();
-		countMap.put(IBillManageConstants.AUTO, 15);
+		countMap.put(IBillManageConstants.AUTO, 16);
 		countMap.put(IBillManageConstants.CAISHUI_AUTO, 60);
 		countMap.put(IBillManageConstants.ZHONGXING_AUTO, 20);
 //		countMap.put(IBillManageConstants.PIAOTONGSM_AUTO, 50);
 		countMap.put(IBillManageConstants.ZENGZHIAHUI_AUTO, 50);
+		countMap.put(IBillManageConstants.HAIGUANJIAOKUANSHU1, 20);
+		countMap.put(IBillManageConstants.HAIGUANJIAOKUANSHU2, 10);
+		countMap.put(IBillManageConstants.FAPIAOXIAZAI1, 20);
+		countMap.put(IBillManageConstants.FAPIAOXIAZAI2, 13);
 
 		return countMap;
 	}
@@ -7690,14 +7927,15 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		//CorpVO corpvo =  corpService.queryByPk(pk_corp);
 		if(zncsParamVO.getCorpvo() == null){
 			zncsParamVO.setCorpvo(corpService.queryByPk(pk_corp));
+		}
 			zncsParamVO.setAccountMap(accountService.queryMapByPk(pk_corp));
 			zncsParamVO.setAccVOs(accountService.queryByPk(pk_corp));
-		}
+
 		String key = pk_corp +vatvo.getPeriod();
-		if(zncsParamVO.getParamMap().get(key) == null){
+		//if(zncsParamVO.getParamMap().get(key) == null){
 			Map<String, Object> paramMap=zncsVoucher.initVoucherParam(zncsParamVO.getCorpvo(), vatvo.getInperiod(),false);
 			zncsParamVO.getParamMap().put(key,paramMap);
-		}
+		//}
 		return zncsParamVO;
 	}
 }
