@@ -1615,11 +1615,11 @@ public class KpglServiceImpl implements IKpglService {
         String zy = "";
         zcsx = zcsx.split("&")[0];
         if ("0".equals(zcsx) || "2".equals(zcsx)) {
-            zy = "购买固定资产";
+            zy = "购买固定资产"+Arrays.stream(cardvos).map(v -> v.getAssetname()).collect(Collectors.joining(""));
         } else if ("3".equals(zcsx)) {
             zy = "长期摊销";
         } else {
-            zy = "购买无形资产";
+            zy = "购买无形资产"+Arrays.stream(cardvos).map(v -> v.getAssetname()).collect(Collectors.joining(""));
         }
 
         Map<String, YntCpaccountVO> cpamap = accountService.queryMapByPk(pk_corp);
