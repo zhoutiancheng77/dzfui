@@ -267,7 +267,8 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 		}
 
 		if (!StringUtil.isEmpty(paramvo.getFpdm())) {
-			sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
+			//sb.append(" and fp_dm like ").append("'%").append(paramvo.getFpdm()).append("%'");
+			sb.append(" and y.xhfmc like ").append("'%").append(paramvo.getFpdm()).append("%'");//改成销项方名称
 		}
 
 		if (!StringUtil.isEmpty(sort)) {// sort != null && !"".equals(sort)
