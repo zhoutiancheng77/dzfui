@@ -3329,7 +3329,7 @@ public class VATInComInvoice2ServiceImpl implements IVATInComInvoice2Service {
 			}
 
 			if (!StringUtil.isEmpty(msg.toString())) {
-				sf.append("第").append(index + 1).append("行  ").append(msg.toString()).append(" <br>");
+				sf.append("<font color='red'>第").append(index + 1).append("行  ").append(msg.toString()).append("</font> <br>");
 			}
 		}
 	}
