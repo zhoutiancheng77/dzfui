@@ -203,7 +203,7 @@ public class WorkbenchController extends BaseController {
         } catch (Exception e) {
             printErrorLog(grid, e, "查询失败!");
         }
-       return ReturnData.ok().data(grid);
+        return ReturnData.ok().data(grid);
     }
     /**
      * 参数保存
@@ -291,10 +291,10 @@ public class WorkbenchController extends BaseController {
         try {
             String newperiod = period + "-01";
             DZFDate testdate = new DZFDate(newperiod);
-//            if (testdate.compareTo(begindate) < 0)
-//            {
-//                throw new BusinessException("期间 '" + period + "' 在建账日期 '" + begindate.toString() + "' 之前！");
-//            }
+            if (testdate.compareTo(begindate) < 0)
+            {
+                throw new BusinessException("期间 '" + period + "' 在建账日期 '" + begindate.toString() + "' 之前！");
+            }
         }
         catch (Exception ex)
         {
@@ -601,6 +601,7 @@ public class WorkbenchController extends BaseController {
             for (int i = 0;imageVos!=null&& i < imageVos.length; i++) {
                 String type = null;
                 String imgPathName = imageVos[i].getImgpath();
+                String nameSuffix = imageVos[i].getImgname().substring(imageVos[i].getImgname().lastIndexOf("."));
                 if(imgPathName.startsWith("ImageOcr")){
                     type="ImageOcr";
                 }else{
@@ -609,7 +610,9 @@ public class WorkbenchController extends BaseController {
                     type="vchImg";
                 }
                 File file =  ImageViewController.getImageFolder(type, corpVO2, imgPathName, imageVos[i].getImgname());
-
+                if (".pdf".equalsIgnoreCase(nameSuffix)) {
+                    imgPathName = imageVos[i].getPdfpath();
+                }
                 if(file.exists()) list.add(file);
             }
             if(list.size()>00){
@@ -2333,9 +2336,9 @@ public class WorkbenchController extends BaseController {
                 throw new BusinessException("期间不能为空!");
             }
             if(pkcorps==null || pkcorps.length==0){
-                 if(corpNames==null || corpNames.length==0 ){
+                if(corpNames==null || corpNames.length==0 ){
                     throw new BusinessException("查寻公司不能为空!");
-                 }
+                }
                 pkcorps = iInterfaceBill.queryCorpByName(corpNames);
             }
 
