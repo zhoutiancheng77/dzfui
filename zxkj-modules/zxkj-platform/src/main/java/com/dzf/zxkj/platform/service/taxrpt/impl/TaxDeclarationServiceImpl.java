@@ -23,6 +23,7 @@ import com.dzf.zxkj.platform.model.sys.CorpTaxVo;
 import com.dzf.zxkj.platform.model.sys.CorpVO;
 import com.dzf.zxkj.platform.model.sys.UserVO;
 import com.dzf.zxkj.platform.model.tax.*;
+import com.dzf.zxkj.platform.service.IZxkjPlatformService;
 import com.dzf.zxkj.platform.service.sys.*;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxBalaceCcrService;
 import com.dzf.zxkj.platform.service.taxrpt.ITaxDeclarationService;
@@ -79,6 +80,8 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 	private IAccountService accountService;
 	@Autowired
 	private ICorpService corpService;
+	@Autowired
+	private IZxkjPlatformService zxkjPlatformService;
 
 	public ISysMessageJPush getSysmsgsrv() {
 		return sysmsgsrv;
@@ -401,6 +404,19 @@ public class TaxDeclarationServiceImpl implements ITaxDeclarationService {
 			throw new BusinessException("对不起，您无操作权限！");
 		}
 		CorpVO corpvo = getCorpVO(userVO.getPrimaryKey(), reportvo.getPk_corp());
+
+		//校验 财报 月 季 && 企业会计准则 财会【2019】6号
+		if("00000100AA10000000000BMF".equals(corpvo.getCorptype())){
+			String sbzlbh = reportvo.getSb_zlbh();
+			if(TaxRptConst.SB_ZLBHC1.equals(sbzlbh) || TaxRptConst.SB_ZLBHC2.equals(sbzlbh)){
+				//查参数 dzf025
+				String zxzc = zxkjPlatformService.queryParamterValueByCode(reportvo.getPk_corp(), "dzf025");
+				if("财会【2019】6号".equals(zxzc)){
+					throw new BusinessException("执行财会[2019]6号企业会计准则财务报表请参考【账薄报表】-【财务报表】");
+				}
+			}
+		}
+
 		CorpTaxVo corptaxvo = sys_corp_tax_serv.queryCorpTaxVO(reportvo.getPk_corp());
 		//查询子表数据
 		SQLParameter params = new SQLParameter();
